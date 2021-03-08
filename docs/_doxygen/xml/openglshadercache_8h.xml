@@ -1,0 +1,198 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="openglshadercache_8h" kind="file" language="C++">
+    <compoundname>openglshadercache.h</compoundname>
+    <includes local="no">QString</includes>
+    <includes refid="openglshader_8h" local="yes">openglshader.h</includes>
+    <includes refid="rendercache_8h" local="yes">render/backend/rendercache.h</includes>
+    <includedby refid="openglproxy_8h" local="yes">openglproxy.h</includedby>
+    <includedby refid="openglworker_8h" local="yes">openglworker.h</includedby>
+    <incdepgraph>
+      <node id="9">
+        <label>QMap</label>
+      </node>
+      <node id="1">
+        <label>openglshadercache.h</label>
+        <link refid="openglshadercache_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>openglshader.h</label>
+        <link refid="openglshader_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>QOpenGLShaderProgram</label>
+      </node>
+      <node id="10">
+        <label>QMutex</label>
+      </node>
+      <node id="7">
+        <label>common/define.h</label>
+        <link refid="define_8h"/>
+      </node>
+      <node id="2">
+        <label>QString</label>
+      </node>
+      <node id="8">
+        <label>render/backend/rendercache.h</label>
+        <link refid="rendercache_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>OpenColorIO/OpenColorIO.h</label>
+      </node>
+      <node id="4">
+        <label>memory</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="8">
+        <label>mainwindow.h</label>
+        <link refid="mainwindow_8h"/>
+      </node>
+      <node id="1">
+        <label>openglshadercache.h</label>
+        <link refid="openglshadercache_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>viewer.h</label>
+        <link refid="widget_2viewer_2viewer_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>viewerbase.h</label>
+        <link refid="viewerbase_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>openglworker.h</label>
+        <link refid="openglworker_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>footageviewer.h</label>
+        <link refid="widget_2viewer_2footageviewer_8h"/>
+      </node>
+      <node id="2">
+        <label>openglproxy.h</label>
+        <link refid="openglproxy_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>sequenceviewer.h</label>
+        <link refid="sequenceviewer_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>export.h</label>
+        <link refid="export_8h"/>
+      </node>
+      <node id="9">
+        <label>viewer.h</label>
+        <link refid="panel_2viewer_2viewer_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>footageviewer.h</label>
+        <link refid="panel_2footageviewer_2footageviewer_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>openglbackend.h</label>
+        <link refid="openglbackend_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="openglshadercache_8h_1acddf720cf2be96ddfc5cf9de472bc722" prot="public" static="no">
+        <type><ref refid="class_render_cache" kindref="compound">RenderCache</ref>&lt; QString, <ref refid="openglshader_8h_1a99853974927ec0ae59c90cd3f1f618fe" kindref="member">OpenGLShaderPtr</ref> &gt;</type>
+        <definition>using OpenGLShaderCache =  RenderCache&lt;QString, OpenGLShaderPtr&gt;</definition>
+        <argsstring></argsstring>
+        <name>OpenGLShaderCache</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglshadercache.h" line="31" column="1" bodyfile="C:/Daten/Olive/olive/app/render/backend/opengl/openglshadercache.h" bodystart="31" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/***</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"></highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/><sp/>Olive<sp/>-<sp/>Non-Linear<sp/>Video<sp/>Editor</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/><sp/>Copyright<sp/>(C)<sp/>2019<sp/>Olive<sp/>Team</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"></highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/><sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/><sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/><sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"></highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/><sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/><sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/><sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"></highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/><sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/><sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"></highlight></codeline>
+<codeline lineno="19"><highlight class="comment">***/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>OPENGLSHADERCACHE_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>OPENGLSHADERCACHE_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QString&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="openglshader_8h" kindref="compound">openglshader.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="rendercache_8h" kindref="compound">render/backend/rendercache.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><ref refid="define_8h_1a0472692dd1f22472ad63da20da919e8c" kindref="member">OLIVE_NAMESPACE_ENTER</ref></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31" refid="openglshadercache_8h_1acddf720cf2be96ddfc5cf9de472bc722" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">using</highlight><highlight class="normal"><sp/><ref refid="class_render_cache" kindref="compound">OpenGLShaderCache</ref><sp/>=<sp/><ref refid="class_render_cache" kindref="compound">RenderCache&lt;QString, OpenGLShaderPtr&gt;</ref>;</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><ref refid="define_8h_1abe3de0634d907ca0f5d1acf732c49dac" kindref="member">OLIVE_NAMESPACE_EXIT</ref></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//<sp/>OPENGLSHADERCACHE_H</highlight></codeline>
+    </programlisting>
+    <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglshadercache.h"/>
+  </compounddef>
+</doxygen>

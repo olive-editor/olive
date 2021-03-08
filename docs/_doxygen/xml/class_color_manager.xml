@@ -1,0 +1,735 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_color_manager" kind="class" language="C++" prot="public">
+    <compoundname>ColorManager</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QObject</basecompoundref>
+    <includes refid="colormanager_8h" local="no">colormanager.h</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="enum" id="class_color_manager_1aa214f59504d0e0b72f19fda5f6eec648" prot="public" static="no" strong="no">
+        <type></type>
+        <name>OCIOMethod</name>
+        <enumvalue id="class_color_manager_1aa214f59504d0e0b72f19fda5f6eec648ac107e8997361ecd6170a41ffe48e752e" prot="public">
+          <name>kOCIOFast</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_color_manager_1aa214f59504d0e0b72f19fda5f6eec648acba12d65f78db8541f09254e55a50ff0" prot="public">
+          <name>kOCIOAccurate</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colormanager.h" line="102" column="3" bodyfile="C:/Daten/Olive/olive/app/render/colormanager.h" bodystart="102" bodyend="105"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-type">
+      <memberdef kind="enum" id="class_color_manager_1afe3621a349ff5762a84ef750bc7d5792" prot="private" static="no" strong="no">
+        <type></type>
+        <name>AlphaAction</name>
+        <enumvalue id="class_color_manager_1afe3621a349ff5762a84ef750bc7d5792a536c08e567804e8e068994ae61924250" prot="private">
+          <name>kAssociate</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_color_manager_1afe3621a349ff5762a84ef750bc7d5792a6547e7b79ed278c0fd87acbb32cda5ae" prot="private">
+          <name>kDisassociate</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_color_manager_1afe3621a349ff5762a84ef750bc7d5792a400225351977ac0de43822c3baf9d0c7" prot="private">
+          <name>kReassociate</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colormanager.h" line="123" column="3" bodyfile="C:/Daten/Olive/olive/app/render/colormanager.h" bodystart="123" bodyend="127"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_color_manager_1a3a0b4955c67a33b4ccfaef2feeca2658" prot="private" static="no" mutable="no">
+        <type>OCIO::ConstConfigRcPtr</type>
+        <definition>OCIO::ConstConfigRcPtr ColorManager::config_</definition>
+        <argsstring></argsstring>
+        <name>config_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colormanager.h" line="121" column="26" bodyfile="C:/Daten/Olive/olive/app/render/colormanager.h" bodystart="121" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_color_manager_1aa2e22df6ab7ca90799b42f31b0073215" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString ColorManager::config_filename_</definition>
+        <argsstring></argsstring>
+        <name>config_filename_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colormanager.h" line="134" column="11" bodyfile="C:/Daten/Olive/olive/app/render/colormanager.h" bodystart="134" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_color_manager_1a89ec35660f48fea8a626338edf926ec2" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString ColorManager::default_input_color_space_</definition>
+        <argsstring></argsstring>
+        <name>default_input_color_space_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colormanager.h" line="136" column="11" bodyfile="C:/Daten/Olive/olive/app/render/colormanager.h" bodystart="136" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_color_manager_1a81d1f73e81c305fc34b46e25ec2e0af9" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString ColorManager::reference_space_</definition>
+        <argsstring></argsstring>
+        <name>reference_space_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colormanager.h" line="138" column="11" bodyfile="C:/Daten/Olive/olive/app/render/colormanager.h" bodystart="138" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-attrib">
+      <memberdef kind="variable" id="class_color_manager_1a8ab09411287cff21375354be6f9f57a1" prot="private" static="yes" mutable="no">
+        <type>OCIO::ConstConfigRcPtr</type>
+        <definition>OCIO::ConstConfigRcPtr ColorManager::default_config_</definition>
+        <argsstring></argsstring>
+        <name>default_config_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colormanager.h" line="140" column="33" bodyfile="C:/Daten/Olive/olive/app/render/colormanager.h" bodystart="140" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_color_manager_1a430efaaefd3650e29bcf4802394c29e9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>ColorManager::ColorManager</definition>
+        <argsstring>()</argsstring>
+        <name>ColorManager</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colormanager.h" line="53" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_manager_1a1c48e4d487f1ea4e6e855aa3eefd83d5" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>OCIO::ConstConfigRcPtr</type>
+        <definition>OCIO::ConstConfigRcPtr ColorManager::GetConfig</definition>
+        <argsstring>() const</argsstring>
+        <name>GetConfig</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colormanager.h" line="55" column="26"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_manager_1af99b94fd85d24d61abf183a2cfaf07ca" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const QString &amp;</type>
+        <definition>const QString&amp; ColorManager::GetConfigFilename</definition>
+        <argsstring>() const</argsstring>
+        <name>GetConfigFilename</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colormanager.h" line="57" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_manager_1a351d9cd49880e5c36f45664386492c64" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ColorManager::SetConfig</definition>
+        <argsstring>(const QString &amp;filename)</argsstring>
+        <name>SetConfig</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>filename</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colormanager.h" line="63" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_manager_1aa28b7b50b83c99370d3c86e1ee51c29d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ColorManager::SetConfigAndDefaultInput</definition>
+        <argsstring>(const QString &amp;filename, const QString &amp;s)</argsstring>
+        <name>SetConfigAndDefaultInput</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>filename</declname>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colormanager.h" line="65" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_manager_1a05ce34b371e4bf41ce21aecaa221f3d4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QStringList</type>
+        <definition>QStringList ColorManager::ListAvailableDisplays</definition>
+        <argsstring>()</argsstring>
+        <name>ListAvailableDisplays</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colormanager.h" line="73" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_manager_1a9b17b025daeb9d0c5d4b3c0d068356d4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>QString ColorManager::GetDefaultDisplay</definition>
+        <argsstring>()</argsstring>
+        <name>GetDefaultDisplay</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colormanager.h" line="75" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_manager_1adda97a5ab0414534fcd195305a20c337" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QStringList</type>
+        <definition>QStringList ColorManager::ListAvailableViews</definition>
+        <argsstring>(QString display)</argsstring>
+        <name>ListAvailableViews</name>
+        <param>
+          <type>QString</type>
+          <declname>display</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colormanager.h" line="77" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_manager_1ad8ddfdb3095a4cc414fd1894ea1855a2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>QString ColorManager::GetDefaultView</definition>
+        <argsstring>(const QString &amp;display)</argsstring>
+        <name>GetDefaultView</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>display</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colormanager.h" line="79" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_manager_1a16b51ba959d52a6211d266a513d1ed01" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QStringList</type>
+        <definition>QStringList ColorManager::ListAvailableLooks</definition>
+        <argsstring>()</argsstring>
+        <name>ListAvailableLooks</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colormanager.h" line="81" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_manager_1a4197900a2431ed496baea2b49a4f5546" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QStringList</type>
+        <definition>QStringList ColorManager::ListAvailableInputColorspaces</definition>
+        <argsstring>()</argsstring>
+        <name>ListAvailableInputColorspaces</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colormanager.h" line="83" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_manager_1a7edf475819ed9bdbb2a91982962a46d7" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const QString &amp;</type>
+        <definition>const QString&amp; ColorManager::GetDefaultInputColorSpace</definition>
+        <argsstring>() const</argsstring>
+        <name>GetDefaultInputColorSpace</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colormanager.h" line="85" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_manager_1afa1d0abd600579fc2fb610cc0cbc8c91" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ColorManager::SetDefaultInputColorSpace</definition>
+        <argsstring>(const QString &amp;s)</argsstring>
+        <name>SetDefaultInputColorSpace</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colormanager.h" line="87" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_manager_1a978728eb502cdb5fde27c24f61ae658d" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const QString &amp;</type>
+        <definition>const QString&amp; ColorManager::GetReferenceColorSpace</definition>
+        <argsstring>() const</argsstring>
+        <name>GetReferenceColorSpace</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colormanager.h" line="89" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_manager_1a56585f12cb62124ee5dc04609ae9150b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ColorManager::SetReferenceColorSpace</definition>
+        <argsstring>(const QString &amp;s)</argsstring>
+        <name>SetReferenceColorSpace</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colormanager.h" line="91" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_manager_1afe3ec56e08ad4635c60241cfd42b66f0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>QString ColorManager::GetCompliantColorSpace</definition>
+        <argsstring>(const QString &amp;s)</argsstring>
+        <name>GetCompliantColorSpace</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colormanager.h" line="93" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_manager_1a3f4bfb1f5dfc5fd09c7384269543fb31" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_color_transform" kindref="compound">ColorTransform</ref></type>
+        <definition>ColorTransform ColorManager::GetCompliantColorSpace</definition>
+        <argsstring>(const ColorTransform &amp;transform, bool force_display=false)</argsstring>
+        <name>GetCompliantColorSpace</name>
+        <param>
+          <type>const <ref refid="class_color_transform" kindref="compound">ColorTransform</ref> &amp;</type>
+          <declname>transform</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>force_display</declname>
+          <defval>false</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colormanager.h" line="95" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_manager_1a416275f0ec7b2f6be39145e953f5c990" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ColorManager::GetDefaultLumaCoefs</definition>
+        <argsstring>(float *rgb) const</argsstring>
+        <name>GetDefaultLumaCoefs</name>
+        <param>
+          <type>float *</type>
+          <declname>rgb</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colormanager.h" line="99" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_manager_1a5afc02da74b41f4e822e9064cab5b002" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_color" kindref="compound">Color</ref></type>
+        <definition>Color ColorManager::GetDefaultLumaCoefs</definition>
+        <argsstring>() const</argsstring>
+        <name>GetDefaultLumaCoefs</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colormanager.h" line="100" column="9"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="class_color_manager_1ae8afb5f60c4c0a73f220eadb81286391" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>OCIO::ConstConfigRcPtr</type>
+        <definition>static OCIO::ConstConfigRcPtr ColorManager::GetDefaultConfig</definition>
+        <argsstring>()</argsstring>
+        <name>GetDefaultConfig</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colormanager.h" line="59" column="33"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_manager_1a1823cd1303d5078a21f3769bd7464269" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void ColorManager::SetUpDefaultConfig</definition>
+        <argsstring>()</argsstring>
+        <name>SetUpDefaultConfig</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colormanager.h" line="61" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_manager_1a98b0f2baeb530c163f65276e7f978d26" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void ColorManager::DisassociateAlpha</definition>
+        <argsstring>(FramePtr f)</argsstring>
+        <name>DisassociateAlpha</name>
+        <param>
+          <type><ref refid="frame_8h_1a2ae9a822fc1e331fa3b449797f717db6" kindref="member">FramePtr</ref></type>
+          <declname>f</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colormanager.h" line="67" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_manager_1abdd73eb53e16cb8cd336134593e3a1e4" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void ColorManager::AssociateAlpha</definition>
+        <argsstring>(FramePtr f)</argsstring>
+        <name>AssociateAlpha</name>
+        <param>
+          <type><ref refid="frame_8h_1a2ae9a822fc1e331fa3b449797f717db6" kindref="member">FramePtr</ref></type>
+          <declname>f</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colormanager.h" line="69" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_manager_1a952555282bd1497346a4e890d1ab5cc3" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void ColorManager::ReassociateAlpha</definition>
+        <argsstring>(FramePtr f)</argsstring>
+        <name>ReassociateAlpha</name>
+        <param>
+          <type><ref refid="frame_8h_1a2ae9a822fc1e331fa3b449797f717db6" kindref="member">FramePtr</ref></type>
+          <declname>f</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colormanager.h" line="71" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_manager_1aca270346ce1cd90d7b5f233dcd1ba053" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QStringList</type>
+        <definition>static QStringList ColorManager::ListAvailableInputColorspaces</definition>
+        <argsstring>(OCIO::ConstConfigRcPtr config)</argsstring>
+        <name>ListAvailableInputColorspaces</name>
+        <param>
+          <type>OCIO::ConstConfigRcPtr</type>
+          <declname>config</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colormanager.h" line="97" column="22"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_manager_1af20e5b289b6ecbed7c6086ac7ee0ee06" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_color_manager_1aa214f59504d0e0b72f19fda5f6eec648" kindref="member">OCIOMethod</ref></type>
+        <definition>static OCIOMethod ColorManager::GetOCIOMethodForMode</definition>
+        <argsstring>(RenderMode::Mode mode)</argsstring>
+        <name>GetOCIOMethodForMode</name>
+        <param>
+          <type><ref refid="class_render_mode_1aa8f6df8efdb14e18f324bf20a40e6a2b" kindref="member">RenderMode::Mode</ref></type>
+          <declname>mode</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colormanager.h" line="107" column="21"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_manager_1aa3c17b33cdae6d4026ec1d4489c502aa" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void ColorManager::SetOCIOMethodForMode</definition>
+        <argsstring>(RenderMode::Mode mode, OCIOMethod method)</argsstring>
+        <name>SetOCIOMethodForMode</name>
+        <param>
+          <type><ref refid="class_render_mode_1aa8f6df8efdb14e18f324bf20a40e6a2b" kindref="member">RenderMode::Mode</ref></type>
+          <declname>mode</declname>
+        </param>
+        <param>
+          <type><ref refid="class_color_manager_1aa214f59504d0e0b72f19fda5f6eec648" kindref="member">OCIOMethod</ref></type>
+          <declname>method</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colormanager.h" line="109" column="15"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_color_manager_1af07e53ed3da3afb3219f32ef200534b4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ColorManager::ConfigChanged</definition>
+        <argsstring>()</argsstring>
+        <name>ConfigChanged</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colormanager.h" line="112" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_color_manager_1a229bfd90488ce9d0ba648ee7b2b6fbc2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ColorManager::DefaultInputColorSpaceChanged</definition>
+        <argsstring>()</argsstring>
+        <name>DefaultInputColorSpaceChanged</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colormanager.h" line="114" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_color_manager_1a0aa8f3da005c0a9f671431189faf1b8e" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ColorManager::SetConfigInternal</definition>
+        <argsstring>(const QString &amp;filename)</argsstring>
+        <name>SetConfigInternal</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>filename</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colormanager.h" line="117" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_manager_1a9c770a6548aa4683f829eecb5995dbc9" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ColorManager::SetDefaultInputColorSpaceInternal</definition>
+        <argsstring>(const QString &amp;s)</argsstring>
+        <name>SetDefaultInputColorSpaceInternal</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colormanager.h" line="119" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-func">
+      <memberdef kind="function" id="class_color_manager_1a2719761430bce25e248026aafb4c8342" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void ColorManager::AssociateAlphaPixFmtFilter</definition>
+        <argsstring>(AlphaAction action, FramePtr f)</argsstring>
+        <name>AssociateAlphaPixFmtFilter</name>
+        <param>
+          <type><ref refid="class_color_manager_1afe3621a349ff5762a84ef750bc7d5792" kindref="member">AlphaAction</ref></type>
+          <declname>action</declname>
+        </param>
+        <param>
+          <type><ref refid="frame_8h_1a2ae9a822fc1e331fa3b449797f717db6" kindref="member">FramePtr</ref></type>
+          <declname>f</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colormanager.h" line="129" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_manager_1a14fd2e3be58b4cd27e7ececefb40c483" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>static void ColorManager::AssociateAlphaInternal</definition>
+        <argsstring>(AlphaAction action, T *data, int pix_count)</argsstring>
+        <name>AssociateAlphaInternal</name>
+        <param>
+          <type><ref refid="class_color_manager_1afe3621a349ff5762a84ef750bc7d5792" kindref="member">AlphaAction</ref></type>
+          <declname>action</declname>
+        </param>
+        <param>
+          <type>T *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>pix_count</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colormanager.h" line="132" column="15"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/render/colormanager.h" line="31" column="1" bodyfile="C:/Daten/Olive/olive/app/render/colormanager.h" bodystart="32" bodyend="124"/>
+    <listofallmembers>
+      <member refid="class_color_manager_1afe3621a349ff5762a84ef750bc7d5792" prot="private" virt="non-virtual"><scope>ColorManager</scope><name>AlphaAction</name></member>
+      <member refid="class_color_manager_1abdd73eb53e16cb8cd336134593e3a1e4" prot="public" virt="non-virtual"><scope>ColorManager</scope><name>AssociateAlpha</name></member>
+      <member refid="class_color_manager_1a14fd2e3be58b4cd27e7ececefb40c483" prot="private" virt="non-virtual"><scope>ColorManager</scope><name>AssociateAlphaInternal</name></member>
+      <member refid="class_color_manager_1a2719761430bce25e248026aafb4c8342" prot="private" virt="non-virtual"><scope>ColorManager</scope><name>AssociateAlphaPixFmtFilter</name></member>
+      <member refid="class_color_manager_1a430efaaefd3650e29bcf4802394c29e9" prot="public" virt="non-virtual"><scope>ColorManager</scope><name>ColorManager</name></member>
+      <member refid="class_color_manager_1a3a0b4955c67a33b4ccfaef2feeca2658" prot="private" virt="non-virtual"><scope>ColorManager</scope><name>config_</name></member>
+      <member refid="class_color_manager_1aa2e22df6ab7ca90799b42f31b0073215" prot="private" virt="non-virtual"><scope>ColorManager</scope><name>config_filename_</name></member>
+      <member refid="class_color_manager_1af07e53ed3da3afb3219f32ef200534b4" prot="public" virt="non-virtual"><scope>ColorManager</scope><name>ConfigChanged</name></member>
+      <member refid="class_color_manager_1a8ab09411287cff21375354be6f9f57a1" prot="private" virt="non-virtual"><scope>ColorManager</scope><name>default_config_</name></member>
+      <member refid="class_color_manager_1a89ec35660f48fea8a626338edf926ec2" prot="private" virt="non-virtual"><scope>ColorManager</scope><name>default_input_color_space_</name></member>
+      <member refid="class_color_manager_1a229bfd90488ce9d0ba648ee7b2b6fbc2" prot="public" virt="non-virtual"><scope>ColorManager</scope><name>DefaultInputColorSpaceChanged</name></member>
+      <member refid="class_color_manager_1a98b0f2baeb530c163f65276e7f978d26" prot="public" virt="non-virtual"><scope>ColorManager</scope><name>DisassociateAlpha</name></member>
+      <member refid="class_color_manager_1afe3ec56e08ad4635c60241cfd42b66f0" prot="public" virt="non-virtual"><scope>ColorManager</scope><name>GetCompliantColorSpace</name></member>
+      <member refid="class_color_manager_1a3f4bfb1f5dfc5fd09c7384269543fb31" prot="public" virt="non-virtual"><scope>ColorManager</scope><name>GetCompliantColorSpace</name></member>
+      <member refid="class_color_manager_1a1c48e4d487f1ea4e6e855aa3eefd83d5" prot="public" virt="non-virtual"><scope>ColorManager</scope><name>GetConfig</name></member>
+      <member refid="class_color_manager_1af99b94fd85d24d61abf183a2cfaf07ca" prot="public" virt="non-virtual"><scope>ColorManager</scope><name>GetConfigFilename</name></member>
+      <member refid="class_color_manager_1ae8afb5f60c4c0a73f220eadb81286391" prot="public" virt="non-virtual"><scope>ColorManager</scope><name>GetDefaultConfig</name></member>
+      <member refid="class_color_manager_1a9b17b025daeb9d0c5d4b3c0d068356d4" prot="public" virt="non-virtual"><scope>ColorManager</scope><name>GetDefaultDisplay</name></member>
+      <member refid="class_color_manager_1a7edf475819ed9bdbb2a91982962a46d7" prot="public" virt="non-virtual"><scope>ColorManager</scope><name>GetDefaultInputColorSpace</name></member>
+      <member refid="class_color_manager_1a416275f0ec7b2f6be39145e953f5c990" prot="public" virt="non-virtual"><scope>ColorManager</scope><name>GetDefaultLumaCoefs</name></member>
+      <member refid="class_color_manager_1a5afc02da74b41f4e822e9064cab5b002" prot="public" virt="non-virtual"><scope>ColorManager</scope><name>GetDefaultLumaCoefs</name></member>
+      <member refid="class_color_manager_1ad8ddfdb3095a4cc414fd1894ea1855a2" prot="public" virt="non-virtual"><scope>ColorManager</scope><name>GetDefaultView</name></member>
+      <member refid="class_color_manager_1af20e5b289b6ecbed7c6086ac7ee0ee06" prot="public" virt="non-virtual"><scope>ColorManager</scope><name>GetOCIOMethodForMode</name></member>
+      <member refid="class_color_manager_1a978728eb502cdb5fde27c24f61ae658d" prot="public" virt="non-virtual"><scope>ColorManager</scope><name>GetReferenceColorSpace</name></member>
+      <member refid="class_color_manager_1afe3621a349ff5762a84ef750bc7d5792a536c08e567804e8e068994ae61924250" prot="private" virt="non-virtual"><scope>ColorManager</scope><name>kAssociate</name></member>
+      <member refid="class_color_manager_1afe3621a349ff5762a84ef750bc7d5792a6547e7b79ed278c0fd87acbb32cda5ae" prot="private" virt="non-virtual"><scope>ColorManager</scope><name>kDisassociate</name></member>
+      <member refid="class_color_manager_1aa214f59504d0e0b72f19fda5f6eec648acba12d65f78db8541f09254e55a50ff0" prot="public" virt="non-virtual"><scope>ColorManager</scope><name>kOCIOAccurate</name></member>
+      <member refid="class_color_manager_1aa214f59504d0e0b72f19fda5f6eec648ac107e8997361ecd6170a41ffe48e752e" prot="public" virt="non-virtual"><scope>ColorManager</scope><name>kOCIOFast</name></member>
+      <member refid="class_color_manager_1afe3621a349ff5762a84ef750bc7d5792a400225351977ac0de43822c3baf9d0c7" prot="private" virt="non-virtual"><scope>ColorManager</scope><name>kReassociate</name></member>
+      <member refid="class_color_manager_1a05ce34b371e4bf41ce21aecaa221f3d4" prot="public" virt="non-virtual"><scope>ColorManager</scope><name>ListAvailableDisplays</name></member>
+      <member refid="class_color_manager_1a4197900a2431ed496baea2b49a4f5546" prot="public" virt="non-virtual"><scope>ColorManager</scope><name>ListAvailableInputColorspaces</name></member>
+      <member refid="class_color_manager_1aca270346ce1cd90d7b5f233dcd1ba053" prot="public" virt="non-virtual"><scope>ColorManager</scope><name>ListAvailableInputColorspaces</name></member>
+      <member refid="class_color_manager_1a16b51ba959d52a6211d266a513d1ed01" prot="public" virt="non-virtual"><scope>ColorManager</scope><name>ListAvailableLooks</name></member>
+      <member refid="class_color_manager_1adda97a5ab0414534fcd195305a20c337" prot="public" virt="non-virtual"><scope>ColorManager</scope><name>ListAvailableViews</name></member>
+      <member refid="class_color_manager_1aa214f59504d0e0b72f19fda5f6eec648" prot="public" virt="non-virtual"><scope>ColorManager</scope><name>OCIOMethod</name></member>
+      <member refid="class_color_manager_1a952555282bd1497346a4e890d1ab5cc3" prot="public" virt="non-virtual"><scope>ColorManager</scope><name>ReassociateAlpha</name></member>
+      <member refid="class_color_manager_1a81d1f73e81c305fc34b46e25ec2e0af9" prot="private" virt="non-virtual"><scope>ColorManager</scope><name>reference_space_</name></member>
+      <member refid="class_color_manager_1a351d9cd49880e5c36f45664386492c64" prot="public" virt="non-virtual"><scope>ColorManager</scope><name>SetConfig</name></member>
+      <member refid="class_color_manager_1aa28b7b50b83c99370d3c86e1ee51c29d" prot="public" virt="non-virtual"><scope>ColorManager</scope><name>SetConfigAndDefaultInput</name></member>
+      <member refid="class_color_manager_1a0aa8f3da005c0a9f671431189faf1b8e" prot="private" virt="non-virtual"><scope>ColorManager</scope><name>SetConfigInternal</name></member>
+      <member refid="class_color_manager_1afa1d0abd600579fc2fb610cc0cbc8c91" prot="public" virt="non-virtual"><scope>ColorManager</scope><name>SetDefaultInputColorSpace</name></member>
+      <member refid="class_color_manager_1a9c770a6548aa4683f829eecb5995dbc9" prot="private" virt="non-virtual"><scope>ColorManager</scope><name>SetDefaultInputColorSpaceInternal</name></member>
+      <member refid="class_color_manager_1aa3c17b33cdae6d4026ec1d4489c502aa" prot="public" virt="non-virtual"><scope>ColorManager</scope><name>SetOCIOMethodForMode</name></member>
+      <member refid="class_color_manager_1a56585f12cb62124ee5dc04609ae9150b" prot="public" virt="non-virtual"><scope>ColorManager</scope><name>SetReferenceColorSpace</name></member>
+      <member refid="class_color_manager_1a1823cd1303d5078a21f3769bd7464269" prot="public" virt="non-virtual"><scope>ColorManager</scope><name>SetUpDefaultConfig</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

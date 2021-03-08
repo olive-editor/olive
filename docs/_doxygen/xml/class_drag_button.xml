@@ -1,0 +1,72 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_drag_button" kind="class" language="C++" prot="public">
+    <compoundname>DragButton</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QPushButton</basecompoundref>
+    <includes refid="dragbutton_8h" local="no">dragbutton.h</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_drag_button_1a79ba6f4b4a2a0f2121c86fb5685edeaa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>DragButton::DragButton</definition>
+        <argsstring>(QWidget *parent=nullptr)</argsstring>
+        <name>DragButton</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/playbackcontrols/dragbutton.h" line="52" column="3"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_drag_button_1aacbb8e58fd9bdebc85034f35b8c2773e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void DragButton::MousePressed</definition>
+        <argsstring>()</argsstring>
+        <name>MousePressed</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/playbackcontrols/dragbutton.h" line="55" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_drag_button_1a1c03821c4a92eeb8481a61c02a690a85" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void DragButton::mousePressEvent</definition>
+        <argsstring>(QMouseEvent *event) override</argsstring>
+        <name>mousePressEvent</name>
+        <param>
+          <type>QMouseEvent *</type>
+          <declname>event</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/playbackcontrols/dragbutton.h" line="58" column="16"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/widget/playbackcontrols/dragbutton.h" line="30" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/playbackcontrols/dragbutton.h" bodystart="31" bodyend="42"/>
+    <listofallmembers>
+      <member refid="class_drag_button_1a79ba6f4b4a2a0f2121c86fb5685edeaa" prot="public" virt="non-virtual"><scope>DragButton</scope><name>DragButton</name></member>
+      <member refid="class_drag_button_1aacbb8e58fd9bdebc85034f35b8c2773e" prot="public" virt="non-virtual"><scope>DragButton</scope><name>MousePressed</name></member>
+      <member refid="class_drag_button_1a1c03821c4a92eeb8481a61c02a690a85" prot="protected" virt="virtual"><scope>DragButton</scope><name>mousePressEvent</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,199 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_color_values_tab" kind="class" language="C++" prot="public">
+    <compoundname>ColorValuesTab</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QWidget</basecompoundref>
+    <includes refid="colorvalueswidget_8h" local="no">colorvalueswidget.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_color_values_tab_1aaf92f4b6d44b11ae7e93a19b268243d9" prot="private" static="no" mutable="no">
+        <type><ref refid="class_float_slider" kindref="compound">FloatSlider</ref> *</type>
+        <definition>FloatSlider* ColorValuesTab::red_slider_</definition>
+        <argsstring></argsstring>
+        <name>red_slider_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorvalueswidget.h" line="67" column="15" bodyfile="C:/Daten/Olive/olive/app/widget/colorwheel/colorvalueswidget.h" bodystart="67" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_color_values_tab_1ad0d79cb9ba6a24013eba8a0ede8e8507" prot="private" static="no" mutable="no">
+        <type><ref refid="class_float_slider" kindref="compound">FloatSlider</ref> *</type>
+        <definition>FloatSlider* ColorValuesTab::green_slider_</definition>
+        <argsstring></argsstring>
+        <name>green_slider_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorvalueswidget.h" line="68" column="15" bodyfile="C:/Daten/Olive/olive/app/widget/colorwheel/colorvalueswidget.h" bodystart="68" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_color_values_tab_1a29895673c4cdac674dd5d287c5ba31c1" prot="private" static="no" mutable="no">
+        <type><ref refid="class_float_slider" kindref="compound">FloatSlider</ref> *</type>
+        <definition>FloatSlider* ColorValuesTab::blue_slider_</definition>
+        <argsstring></argsstring>
+        <name>blue_slider_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorvalueswidget.h" line="69" column="15" bodyfile="C:/Daten/Olive/olive/app/widget/colorwheel/colorvalueswidget.h" bodystart="69" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_color_values_tab_1a487b32e926228b1e13fdf70bf93dbad6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>ColorValuesTab::ColorValuesTab</definition>
+        <argsstring>(QWidget *parent=nullptr)</argsstring>
+        <name>ColorValuesTab</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorvalueswidget.h" line="55" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_values_tab_1ab36f8cec085cde943b448f1186690e18" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_color" kindref="compound">Color</ref></type>
+        <definition>Color ColorValuesTab::GetColor</definition>
+        <argsstring>() const</argsstring>
+        <name>GetColor</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorvalueswidget.h" line="57" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_values_tab_1aeeba53d6aa0e85ffa3daca12ebd3a7b9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ColorValuesTab::SetColor</definition>
+        <argsstring>(const Color &amp;c)</argsstring>
+        <name>SetColor</name>
+        <param>
+          <type>const <ref refid="class_color" kindref="compound">Color</ref> &amp;</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorvalueswidget.h" line="59" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_color_values_tab_1a354c9b7026fc517485c33f7d2d6d2871" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ColorValuesTab::ColorChanged</definition>
+        <argsstring>(const Color &amp;c)</argsstring>
+        <name>ColorChanged</name>
+        <param>
+          <type>const <ref refid="class_color" kindref="compound">Color</ref> &amp;</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorvalueswidget.h" line="62" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_color_values_tab_1a2c7d1dee4d70b0bb3917a07a6761b694" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_float_slider" kindref="compound">FloatSlider</ref> *</type>
+        <definition>FloatSlider* ColorValuesTab::CreateColorSlider</definition>
+        <argsstring>()</argsstring>
+        <name>CreateColorSlider</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorvalueswidget.h" line="65" column="15"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_color_values_tab_1a8de47c096520d1c5fbc5c52bc53296e4" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ColorValuesTab::SliderChanged</definition>
+        <argsstring>()</argsstring>
+        <name>SliderChanged</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorvalueswidget.h" line="72" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="2">
+        <label>FloatSlider</label>
+        <link refid="class_float_slider"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>SliderLabel</label>
+        <link refid="class_slider_label"/>
+      </node>
+      <node id="4">
+        <label>FocusableLineEdit</label>
+        <link refid="class_focusable_line_edit"/>
+      </node>
+      <node id="1">
+        <label>ColorValuesTab</label>
+        <link refid="class_color_values_tab"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>blue_slider_</edgelabel>
+          <edgelabel>green_slider_</edgelabel>
+          <edgelabel>red_slider_</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>SliderBase</label>
+        <link refid="class_slider_base"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>editor_</edgelabel>
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>label_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorvalueswidget.h" line="33" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/colorwheel/colorvalueswidget.h" bodystart="34" bodyend="56"/>
+    <listofallmembers>
+      <member refid="class_color_values_tab_1a29895673c4cdac674dd5d287c5ba31c1" prot="private" virt="non-virtual"><scope>ColorValuesTab</scope><name>blue_slider_</name></member>
+      <member refid="class_color_values_tab_1a354c9b7026fc517485c33f7d2d6d2871" prot="public" virt="non-virtual"><scope>ColorValuesTab</scope><name>ColorChanged</name></member>
+      <member refid="class_color_values_tab_1a487b32e926228b1e13fdf70bf93dbad6" prot="public" virt="non-virtual"><scope>ColorValuesTab</scope><name>ColorValuesTab</name></member>
+      <member refid="class_color_values_tab_1a2c7d1dee4d70b0bb3917a07a6761b694" prot="private" virt="non-virtual"><scope>ColorValuesTab</scope><name>CreateColorSlider</name></member>
+      <member refid="class_color_values_tab_1ab36f8cec085cde943b448f1186690e18" prot="public" virt="non-virtual"><scope>ColorValuesTab</scope><name>GetColor</name></member>
+      <member refid="class_color_values_tab_1ad0d79cb9ba6a24013eba8a0ede8e8507" prot="private" virt="non-virtual"><scope>ColorValuesTab</scope><name>green_slider_</name></member>
+      <member refid="class_color_values_tab_1aaf92f4b6d44b11ae7e93a19b268243d9" prot="private" virt="non-virtual"><scope>ColorValuesTab</scope><name>red_slider_</name></member>
+      <member refid="class_color_values_tab_1aeeba53d6aa0e85ffa3daca12ebd3a7b9" prot="public" virt="non-virtual"><scope>ColorValuesTab</scope><name>SetColor</name></member>
+      <member refid="class_color_values_tab_1a8de47c096520d1c5fbc5c52bc53296e4" prot="private" virt="non-virtual"><scope>ColorValuesTab</scope><name>SliderChanged</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

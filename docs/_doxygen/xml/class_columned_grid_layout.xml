@@ -1,0 +1,109 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_columned_grid_layout" kind="class" language="C++" prot="public">
+    <compoundname>ColumnedGridLayout</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QGridLayout</basecompoundref>
+    <includes refid="columnedgridlayout_8h" local="no">columnedgridlayout.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_columned_grid_layout_1a6f630c9bee3fc6071fc1bfaf1abdb496" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int ColumnedGridLayout::maximum_columns_</definition>
+        <argsstring></argsstring>
+        <name>maximum_columns_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/columnedgridlayout/columnedgridlayout.h" line="66" column="7" bodyfile="C:/Daten/Olive/olive/app/widget/columnedgridlayout/columnedgridlayout.h" bodystart="66" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_columned_grid_layout_1acdab28d7cbd91eda01c47bc3f3cad68b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>ColumnedGridLayout::ColumnedGridLayout</definition>
+        <argsstring>(QWidget *parent=nullptr, int maximum_columns=0)</argsstring>
+        <name>ColumnedGridLayout</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>maximum_columns</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/columnedgridlayout/columnedgridlayout.h" line="58" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_columned_grid_layout_1aa4d3de91f5ec5fc0cc4a3fea5d3a33b7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ColumnedGridLayout::Add</definition>
+        <argsstring>(QWidget *widget)</argsstring>
+        <name>Add</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>widget</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/columnedgridlayout/columnedgridlayout.h" line="61" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_columned_grid_layout_1a762911378640e8faaa6872c7efc11b26" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int ColumnedGridLayout::MaximumColumns</definition>
+        <argsstring>() const</argsstring>
+        <name>MaximumColumns</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/columnedgridlayout/columnedgridlayout.h" line="62" column="7"/>
+      </memberdef>
+      <memberdef kind="function" id="class_columned_grid_layout_1adb2dcc0452596a172bf64c1708bea199" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ColumnedGridLayout::SetMaximumColumns</definition>
+        <argsstring>(int maximum_columns)</argsstring>
+        <name>SetMaximumColumns</name>
+        <param>
+          <type>int</type>
+          <declname>maximum_columns</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/columnedgridlayout/columnedgridlayout.h" line="63" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>The <ref refid="class_columned_grid_layout" kindref="compound">ColumnedGridLayout</ref> class. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>A simple derivative of QGridLayout that provides a automatic row/column layout based on a specified maximum column count. </para>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/widget/columnedgridlayout/columnedgridlayout.h" line="36" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/columnedgridlayout/columnedgridlayout.h" bodystart="37" bodyend="49"/>
+    <listofallmembers>
+      <member refid="class_columned_grid_layout_1aa4d3de91f5ec5fc0cc4a3fea5d3a33b7" prot="public" virt="non-virtual"><scope>ColumnedGridLayout</scope><name>Add</name></member>
+      <member refid="class_columned_grid_layout_1acdab28d7cbd91eda01c47bc3f3cad68b" prot="public" virt="non-virtual"><scope>ColumnedGridLayout</scope><name>ColumnedGridLayout</name></member>
+      <member refid="class_columned_grid_layout_1a6f630c9bee3fc6071fc1bfaf1abdb496" prot="private" virt="non-virtual"><scope>ColumnedGridLayout</scope><name>maximum_columns_</name></member>
+      <member refid="class_columned_grid_layout_1a762911378640e8faaa6872c7efc11b26" prot="public" virt="non-virtual"><scope>ColumnedGridLayout</scope><name>MaximumColumns</name></member>
+      <member refid="class_columned_grid_layout_1adb2dcc0452596a172bf64c1708bea199" prot="public" virt="non-virtual"><scope>ColumnedGridLayout</scope><name>SetMaximumColumns</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

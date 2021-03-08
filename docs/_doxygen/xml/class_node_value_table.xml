@@ -1,0 +1,372 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_node_value_table" kind="class" language="C++" prot="public">
+    <compoundname>NodeValueTable</compoundname>
+    <includes refid="value_8h" local="no">value.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_node_value_table_1a14a69a7cf3450f3dc8f8fc1b99b2ba1e" prot="private" static="no" mutable="no">
+        <type>QList&lt; <ref refid="class_node_value" kindref="compound">NodeValue</ref> &gt;</type>
+        <definition>QList&lt;NodeValue&gt; NodeValueTable::values_</definition>
+        <argsstring></argsstring>
+        <name>values_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/value.h" line="75" column="9" bodyfile="C:/Daten/Olive/olive/app/node/value.h" bodystart="75" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_node_value_table_1ae13fcfabf0b5ab21c44fac6acff3144a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>NodeValueTable::NodeValueTable</definition>
+        <argsstring>()=default</argsstring>
+        <name>NodeValueTable</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/value.h" line="52" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_value_table_1a2578fceafc4efa919a4540fb597854ce" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QVariant</type>
+        <definition>QVariant NodeValueTable::Get</definition>
+        <argsstring>(const NodeParam::DataType &amp;type, const QString &amp;tag=QString()) const</argsstring>
+        <name>Get</name>
+        <param>
+          <type>const <ref refid="class_node_param_1afcf9957577948de11f721af9ea6f3685" kindref="member">NodeParam::DataType</ref> &amp;</type>
+          <declname>type</declname>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>tag</declname>
+          <defval>QString()</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/value.h" line="54" column="12"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_value_table_1add14b5a286848e55b8a6dc620c754945" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_node_value" kindref="compound">NodeValue</ref></type>
+        <definition>NodeValue NodeValueTable::GetWithMeta</definition>
+        <argsstring>(const NodeParam::DataType &amp;type, const QString &amp;tag=QString()) const</argsstring>
+        <name>GetWithMeta</name>
+        <param>
+          <type>const <ref refid="class_node_param_1afcf9957577948de11f721af9ea6f3685" kindref="member">NodeParam::DataType</ref> &amp;</type>
+          <declname>type</declname>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>tag</declname>
+          <defval>QString()</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/value.h" line="55" column="13"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_value_table_1a5a990dbfed967a147d243f0ba952784d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QVariant</type>
+        <definition>QVariant NodeValueTable::Take</definition>
+        <argsstring>(const NodeParam::DataType &amp;type, const QString &amp;tag=QString())</argsstring>
+        <name>Take</name>
+        <param>
+          <type>const <ref refid="class_node_param_1afcf9957577948de11f721af9ea6f3685" kindref="member">NodeParam::DataType</ref> &amp;</type>
+          <declname>type</declname>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>tag</declname>
+          <defval>QString()</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/value.h" line="56" column="12"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_value_table_1a9e7e3af3ef142b848e60ae59c0b54ddb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_node_value" kindref="compound">NodeValue</ref></type>
+        <definition>NodeValue NodeValueTable::TakeWithMeta</definition>
+        <argsstring>(const NodeParam::DataType &amp;type, const QString &amp;tag=QString())</argsstring>
+        <name>TakeWithMeta</name>
+        <param>
+          <type>const <ref refid="class_node_param_1afcf9957577948de11f721af9ea6f3685" kindref="member">NodeParam::DataType</ref> &amp;</type>
+          <declname>type</declname>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>tag</declname>
+          <defval>QString()</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/value.h" line="57" column="13"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_value_table_1a2245eebe8f0000bc1caa9b22680ab8e7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeValueTable::Push</definition>
+        <argsstring>(const NodeValue &amp;value)</argsstring>
+        <name>Push</name>
+        <param>
+          <type>const <ref refid="class_node_value" kindref="compound">NodeValue</ref> &amp;</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/value.h" line="58" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_value_table_1adf38c96310e9c0464ffa3706ed94a9e2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeValueTable::Push</definition>
+        <argsstring>(const NodeParam::DataType &amp;type, const QVariant &amp;data, const QString &amp;tag=QString())</argsstring>
+        <name>Push</name>
+        <param>
+          <type>const <ref refid="class_node_param_1afcf9957577948de11f721af9ea6f3685" kindref="member">NodeParam::DataType</ref> &amp;</type>
+          <declname>type</declname>
+        </param>
+        <param>
+          <type>const QVariant &amp;</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>tag</declname>
+          <defval>QString()</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/value.h" line="59" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_value_table_1a1c486f2c14a43e55b3c9c2a42a6e1e8b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeValueTable::Prepend</definition>
+        <argsstring>(const NodeValue &amp;value)</argsstring>
+        <name>Prepend</name>
+        <param>
+          <type>const <ref refid="class_node_value" kindref="compound">NodeValue</ref> &amp;</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/value.h" line="60" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_value_table_1a9548df3ef817da56c4e672c03ca79ace" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeValueTable::Prepend</definition>
+        <argsstring>(const NodeParam::DataType &amp;type, const QVariant &amp;data, const QString &amp;tag=QString())</argsstring>
+        <name>Prepend</name>
+        <param>
+          <type>const <ref refid="class_node_param_1afcf9957577948de11f721af9ea6f3685" kindref="member">NodeParam::DataType</ref> &amp;</type>
+          <declname>type</declname>
+        </param>
+        <param>
+          <type>const QVariant &amp;</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>tag</declname>
+          <defval>QString()</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/value.h" line="61" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_value_table_1a94d23b8456738eb39e30d38a817a7e72" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="class_node_value" kindref="compound">NodeValue</ref> &amp;</type>
+        <definition>const NodeValue&amp; NodeValueTable::At</definition>
+        <argsstring>(int index) const</argsstring>
+        <name>At</name>
+        <param>
+          <type>int</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/value.h" line="62" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_value_table_1aef171332ba3d82a8568d610c2f1544b2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_node_value" kindref="compound">NodeValue</ref></type>
+        <definition>NodeValue NodeValueTable::TakeAt</definition>
+        <argsstring>(int index)</argsstring>
+        <name>TakeAt</name>
+        <param>
+          <type>int</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/value.h" line="63" column="13"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_value_table_1ad384cce02555e16dd61c9e4eff18923f" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int NodeValueTable::Count</definition>
+        <argsstring>() const</argsstring>
+        <name>Count</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/value.h" line="64" column="7"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_value_table_1a2e2a9a210fd1a19841ad1219e063527f" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool NodeValueTable::Has</definition>
+        <argsstring>(const NodeParam::DataType &amp;type) const</argsstring>
+        <name>Has</name>
+        <param>
+          <type>const <ref refid="class_node_param_1afcf9957577948de11f721af9ea6f3685" kindref="member">NodeParam::DataType</ref> &amp;</type>
+          <declname>type</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/value.h" line="65" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_value_table_1ad5d07d4455bbac7970e86f85bcb8714d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeValueTable::Remove</definition>
+        <argsstring>(const NodeValue &amp;v)</argsstring>
+        <name>Remove</name>
+        <param>
+          <type>const <ref refid="class_node_value" kindref="compound">NodeValue</ref> &amp;</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/value.h" line="66" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_value_table_1a9d84d76e6408ac04b833e3ae7842c680" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool NodeValueTable::isEmpty</definition>
+        <argsstring>() const</argsstring>
+        <name>isEmpty</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/value.h" line="68" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="class_node_value_table_1a00088f91f09ee0929a55fea43db8cc7c" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_node_value_table" kindref="compound">NodeValueTable</ref></type>
+        <definition>static NodeValueTable NodeValueTable::Merge</definition>
+        <argsstring>(QList&lt; NodeValueTable &gt; tables)</argsstring>
+        <name>Merge</name>
+        <param>
+          <type>QList&lt; <ref refid="class_node_value_table" kindref="compound">NodeValueTable</ref> &gt;</type>
+          <declname>tables</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/value.h" line="70" column="25"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_node_value_table_1a2c3b7d5913ae28e3e9e394bb5edf5761" prot="private" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int NodeValueTable::GetInternal</definition>
+        <argsstring>(const NodeParam::DataType &amp;type, const QString &amp;tag) const</argsstring>
+        <name>GetInternal</name>
+        <param>
+          <type>const <ref refid="class_node_param_1afcf9957577948de11f721af9ea6f3685" kindref="member">NodeParam::DataType</ref> &amp;</type>
+          <declname>type</declname>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>tag</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/value.h" line="73" column="7"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/node/value.h" line="49" column="1" bodyfile="C:/Daten/Olive/olive/app/node/value.h" bodystart="50" bodyend="77"/>
+    <listofallmembers>
+      <member refid="class_node_value_table_1a94d23b8456738eb39e30d38a817a7e72" prot="public" virt="non-virtual"><scope>NodeValueTable</scope><name>At</name></member>
+      <member refid="class_node_value_table_1ad384cce02555e16dd61c9e4eff18923f" prot="public" virt="non-virtual"><scope>NodeValueTable</scope><name>Count</name></member>
+      <member refid="class_node_value_table_1a2578fceafc4efa919a4540fb597854ce" prot="public" virt="non-virtual"><scope>NodeValueTable</scope><name>Get</name></member>
+      <member refid="class_node_value_table_1a2c3b7d5913ae28e3e9e394bb5edf5761" prot="private" virt="non-virtual"><scope>NodeValueTable</scope><name>GetInternal</name></member>
+      <member refid="class_node_value_table_1add14b5a286848e55b8a6dc620c754945" prot="public" virt="non-virtual"><scope>NodeValueTable</scope><name>GetWithMeta</name></member>
+      <member refid="class_node_value_table_1a2e2a9a210fd1a19841ad1219e063527f" prot="public" virt="non-virtual"><scope>NodeValueTable</scope><name>Has</name></member>
+      <member refid="class_node_value_table_1a9d84d76e6408ac04b833e3ae7842c680" prot="public" virt="non-virtual"><scope>NodeValueTable</scope><name>isEmpty</name></member>
+      <member refid="class_node_value_table_1a00088f91f09ee0929a55fea43db8cc7c" prot="public" virt="non-virtual"><scope>NodeValueTable</scope><name>Merge</name></member>
+      <member refid="class_node_value_table_1ae13fcfabf0b5ab21c44fac6acff3144a" prot="public" virt="non-virtual"><scope>NodeValueTable</scope><name>NodeValueTable</name></member>
+      <member refid="class_node_value_table_1a1c486f2c14a43e55b3c9c2a42a6e1e8b" prot="public" virt="non-virtual"><scope>NodeValueTable</scope><name>Prepend</name></member>
+      <member refid="class_node_value_table_1a9548df3ef817da56c4e672c03ca79ace" prot="public" virt="non-virtual"><scope>NodeValueTable</scope><name>Prepend</name></member>
+      <member refid="class_node_value_table_1a2245eebe8f0000bc1caa9b22680ab8e7" prot="public" virt="non-virtual"><scope>NodeValueTable</scope><name>Push</name></member>
+      <member refid="class_node_value_table_1adf38c96310e9c0464ffa3706ed94a9e2" prot="public" virt="non-virtual"><scope>NodeValueTable</scope><name>Push</name></member>
+      <member refid="class_node_value_table_1ad5d07d4455bbac7970e86f85bcb8714d" prot="public" virt="non-virtual"><scope>NodeValueTable</scope><name>Remove</name></member>
+      <member refid="class_node_value_table_1a5a990dbfed967a147d243f0ba952784d" prot="public" virt="non-virtual"><scope>NodeValueTable</scope><name>Take</name></member>
+      <member refid="class_node_value_table_1aef171332ba3d82a8568d610c2f1544b2" prot="public" virt="non-virtual"><scope>NodeValueTable</scope><name>TakeAt</name></member>
+      <member refid="class_node_value_table_1a9e7e3af3ef142b848e60ae59c0b54ddb" prot="public" virt="non-virtual"><scope>NodeValueTable</scope><name>TakeWithMeta</name></member>
+      <member refid="class_node_value_table_1a14a69a7cf3450f3dc8f8fc1b99b2ba1e" prot="private" virt="non-virtual"><scope>NodeValueTable</scope><name>values_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

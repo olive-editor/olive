@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_2c13355c680e2c6baf92feb590ee74fd" kind="dir">
+    <compoundname>opengl</compoundname>
+    <innerfile refid="openglbackend_8h">openglbackend.h</innerfile>
+    <innerfile refid="openglcolorprocessor_8h">openglcolorprocessor.h</innerfile>
+    <innerfile refid="openglframebuffer_8h">openglframebuffer.h</innerfile>
+    <innerfile refid="openglproxy_8h">openglproxy.h</innerfile>
+    <innerfile refid="openglrenderfunctions_8h">openglrenderfunctions.h</innerfile>
+    <innerfile refid="openglshader_8h">openglshader.h</innerfile>
+    <innerfile refid="openglshadercache_8h">openglshadercache.h</innerfile>
+    <innerfile refid="opengltexture_8h">opengltexture.h</innerfile>
+    <innerfile refid="opengltexturecache_8h">opengltexturecache.h</innerfile>
+    <innerfile refid="openglworker_8h">openglworker.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/render/backend/opengl/"/>
+  </compounddef>
+</doxygen>

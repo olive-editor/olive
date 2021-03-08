@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_4ac8ba3326714af1a7e7be3371c2fcdc" kind="dir">
+    <compoundname>clickablelabel</compoundname>
+    <innerfile refid="clickablelabel_8h">clickablelabel.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/widget/clickablelabel/"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,129 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="struct_audio_render_backend_1_1_conform_wait_info" kind="struct" language="C++" prot="private">
+    <compoundname>AudioRenderBackend::ConformWaitInfo</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="struct_audio_render_backend_1_1_conform_wait_info_1a7d8da6f26867f0c5179556ba9342d147" prot="public" static="no" mutable="no">
+        <type><ref refid="stream_8h_1a3ca5b414655d064180098adf46c1a2f1" kindref="member">StreamPtr</ref></type>
+        <definition>StreamPtr AudioRenderBackend::ConformWaitInfo::stream</definition>
+        <argsstring></argsstring>
+        <name>stream</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/audiorenderbackend.h" line="92" column="15" bodyfile="C:/Daten/Olive/olive/app/render/backend/audiorenderbackend.h" bodystart="92" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_audio_render_backend_1_1_conform_wait_info_1af207ceb35224f02b418f528cff7099d2" prot="public" static="no" mutable="no">
+        <type><ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref></type>
+        <definition>AudioRenderingParams AudioRenderBackend::ConformWaitInfo::params</definition>
+        <argsstring></argsstring>
+        <name>params</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/audiorenderbackend.h" line="93" column="26" bodyfile="C:/Daten/Olive/olive/app/render/backend/audiorenderbackend.h" bodystart="93" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_audio_render_backend_1_1_conform_wait_info_1af16000d9f30ae1a2083dc011dea585c9" prot="public" static="no" mutable="no">
+        <type><ref refid="class_time_range" kindref="compound">TimeRange</ref></type>
+        <definition>TimeRange AudioRenderBackend::ConformWaitInfo::affected_range</definition>
+        <argsstring></argsstring>
+        <name>affected_range</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/audiorenderbackend.h" line="94" column="15" bodyfile="C:/Daten/Olive/olive/app/render/backend/audiorenderbackend.h" bodystart="94" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_audio_render_backend_1_1_conform_wait_info_1a2ed6d4b233975779490e57982534bbc0" prot="public" static="no" mutable="no">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational AudioRenderBackend::ConformWaitInfo::stream_time</definition>
+        <argsstring></argsstring>
+        <name>stream_time</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/audiorenderbackend.h" line="95" column="14" bodyfile="C:/Daten/Olive/olive/app/render/backend/audiorenderbackend.h" bodystart="95" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="struct_audio_render_backend_1_1_conform_wait_info_1a516a465db14f77fedac0cea31fda8504" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool AudioRenderBackend::ConformWaitInfo::operator==</definition>
+        <argsstring>(const ConformWaitInfo &amp;rhs) const</argsstring>
+        <name>operator==</name>
+        <param>
+          <type>const <ref refid="struct_audio_render_backend_1_1_conform_wait_info" kindref="compound">ConformWaitInfo</ref> &amp;</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/audiorenderbackend.h" line="97" column="10"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="5">
+        <label>AudioParams</label>
+        <link refid="class_audio_params"/>
+      </node>
+      <node id="3">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="4">
+        <label>AudioRenderingParams</label>
+        <link refid="class_audio_rendering_params"/>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>TimeRange</label>
+        <link refid="class_time_range"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>out_</edgelabel>
+          <edgelabel>in_</edgelabel>
+          <edgelabel>length_</edgelabel>
+        </childnode>
+      </node>
+      <node id="1">
+        <label>AudioRenderBackend::ConformWaitInfo</label>
+        <link refid="struct_audio_render_backend_1_1_conform_wait_info"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>affected_range</edgelabel>
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>stream_time</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>params</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/render/backend/audiorenderbackend.h" line="91" column="3" bodyfile="C:/Daten/Olive/olive/app/render/backend/audiorenderbackend.h" bodystart="91" bodyend="98"/>
+    <listofallmembers>
+      <member refid="struct_audio_render_backend_1_1_conform_wait_info_1af16000d9f30ae1a2083dc011dea585c9" prot="public" virt="non-virtual"><scope>AudioRenderBackend::ConformWaitInfo</scope><name>affected_range</name></member>
+      <member refid="struct_audio_render_backend_1_1_conform_wait_info_1a516a465db14f77fedac0cea31fda8504" prot="public" virt="non-virtual"><scope>AudioRenderBackend::ConformWaitInfo</scope><name>operator==</name></member>
+      <member refid="struct_audio_render_backend_1_1_conform_wait_info_1af207ceb35224f02b418f528cff7099d2" prot="public" virt="non-virtual"><scope>AudioRenderBackend::ConformWaitInfo</scope><name>params</name></member>
+      <member refid="struct_audio_render_backend_1_1_conform_wait_info_1a7d8da6f26867f0c5179556ba9342d147" prot="public" virt="non-virtual"><scope>AudioRenderBackend::ConformWaitInfo</scope><name>stream</name></member>
+      <member refid="struct_audio_render_backend_1_1_conform_wait_info_1a2ed6d4b233975779490e57982534bbc0" prot="public" virt="non-virtual"><scope>AudioRenderBackend::ConformWaitInfo</scope><name>stream_time</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

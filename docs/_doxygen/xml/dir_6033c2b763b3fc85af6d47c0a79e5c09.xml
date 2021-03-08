@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_6033c2b763b3fc85af6d47c0a79e5c09" kind="dir">
+    <compoundname>codec</compoundname>
+    <innerfile refid="codecsection_8h">codecsection.h</innerfile>
+    <innerfile refid="h264section_8h">h264section.h</innerfile>
+    <innerfile refid="imagesection_8h">imagesection.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/dialog/export/codec/"/>
+  </compounddef>
+</doxygen>

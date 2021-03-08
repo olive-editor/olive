@@ -1,0 +1,929 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="videorenderbackend_8h" kind="file" language="C++">
+    <compoundname>videorenderbackend.h</compoundname>
+    <includes local="no">QLinkedList</includes>
+    <includes refid="colorprocessorcache_8h" local="yes">colorprocessorcache.h</includes>
+    <includes refid="node_2output_2viewer_2viewer_8h" local="yes">node/output/viewer/viewer.h</includes>
+    <includes refid="renderbackend_8h" local="yes">renderbackend.h</includes>
+    <includes refid="pixelformat_8h" local="yes">render/pixelformat.h</includes>
+    <includes refid="rendermodes_8h" local="yes">render/rendermodes.h</includes>
+    <includes refid="videorenderframecache_8h" local="yes">videorenderframecache.h</includes>
+    <includes refid="videorenderworker_8h" local="yes">videorenderworker.h</includes>
+    <includedby refid="exporter_8h" local="yes">exporter.h</includedby>
+    <includedby refid="openglbackend_8h" local="yes">openglbackend.h</includedby>
+    <incdepgraph>
+      <node id="29">
+        <label>QMap</label>
+      </node>
+      <node id="14">
+        <label>libavformat/avformat.h</label>
+      </node>
+      <node id="66">
+        <label>node/param.h</label>
+        <link refid="node_2param_8h"/>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="67" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="63" relation="include">
+        </childnode>
+        <childnode refid="68" relation="include">
+        </childnode>
+      </node>
+      <node id="54">
+        <label>codec/waveoutput.h</label>
+        <link refid="waveoutput_8h"/>
+        <childnode refid="55" relation="include">
+        </childnode>
+        <childnode refid="56" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+      </node>
+      <node id="70">
+        <label>project/item/footage/imagestream.h</label>
+        <link refid="imagestream_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="77">
+        <label>node/traverser.h</label>
+        <link refid="traverser_8h"/>
+        <childnode refid="50" relation="include">
+        </childnode>
+        <childnode refid="78" relation="include">
+        </childnode>
+        <childnode refid="80" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="81" relation="include">
+        </childnode>
+      </node>
+      <node id="44">
+        <label>dialog/rendercancel/rendercancel.h</label>
+        <link refid="rendercancel_8h"/>
+        <childnode refid="45" relation="include">
+        </childnode>
+      </node>
+      <node id="59">
+        <label>QDateTime</label>
+      </node>
+      <node id="37">
+        <label>QObject</label>
+      </node>
+      <node id="74">
+        <label>common/timerange.h</label>
+        <link refid="timerange_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="65">
+        <label>QXmlStreamReader</label>
+      </node>
+      <node id="84">
+        <label>QPointF</label>
+      </node>
+      <node id="58">
+        <label>QList</label>
+      </node>
+      <node id="52">
+        <label>stdint.h</label>
+      </node>
+      <node id="69">
+        <label>project/item/footage/audiostream.h</label>
+        <link refid="audiostream_8h"/>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="83">
+        <label>keyframe.h</label>
+        <link refid="keyframe_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="84" relation="include">
+        </childnode>
+        <childnode refid="67" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="73">
+        <label>timelinemarker.h</label>
+        <link refid="timelinemarker_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="65" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="74" relation="include">
+        </childnode>
+      </node>
+      <node id="47">
+        <label>QProgressBar</label>
+      </node>
+      <node id="35">
+        <label>node/output/track/track.h</label>
+        <link refid="track_8h"/>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>videorenderbackend.h</label>
+        <link refid="videorenderbackend_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="85" relation="include">
+        </childnode>
+        <childnode refid="86" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>QMetaType</label>
+      </node>
+      <node id="3">
+        <label>colorprocessorcache.h</label>
+        <link refid="colorprocessorcache_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+      </node>
+      <node id="48">
+        <label>common/debug.h</label>
+        <link refid="debug_8h"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="75">
+        <label>timelineworkarea.h</label>
+        <link refid="timelineworkarea_8h"/>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="65" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="74" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>render/pixelformat.h</label>
+        <link refid="pixelformat_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>QLinkedList</label>
+      </node>
+      <node id="64">
+        <label>QUndoCommand</label>
+      </node>
+      <node id="49">
+        <label>decodercache.h</label>
+        <link refid="decodercache_8h"/>
+        <childnode refid="50" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>common/rational.h</label>
+        <link refid="rational_8h"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="76">
+        <label>renderworker.h</label>
+        <link refid="renderworker_8h"/>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="77" relation="include">
+        </childnode>
+      </node>
+      <node id="61">
+        <label>QIcon</label>
+      </node>
+      <node id="24">
+        <label>render/rendermodes.h</label>
+        <link refid="rendermodes_8h"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="55">
+        <label>QByteArray</label>
+      </node>
+      <node id="16">
+        <label>render/colorprocessor.h</label>
+        <link refid="colorprocessor_8h"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+      </node>
+      <node id="85">
+        <label>videorenderframecache.h</label>
+        <link refid="videorenderframecache_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>QMutex</label>
+      </node>
+      <node id="43">
+        <label>renderbackend.h</label>
+        <link refid="renderbackend_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="44" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="76" relation="include">
+        </childnode>
+      </node>
+      <node id="45">
+        <label>dialog/progress/progress.h</label>
+        <link refid="progress_8h"/>
+        <childnode refid="46" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+        <childnode refid="48" relation="include">
+        </childnode>
+      </node>
+      <node id="50">
+        <label>codec/decoder.h</label>
+        <link refid="decoder_8h"/>
+        <childnode refid="51" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="52" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="53" relation="include">
+        </childnode>
+        <childnode refid="54" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="57" relation="include">
+        </childnode>
+      </node>
+      <node id="51">
+        <label>libswresample/swresample.h</label>
+      </node>
+      <node id="15">
+        <label>common/define.h</label>
+        <link refid="define_8h"/>
+      </node>
+      <node id="23">
+        <label>QOpenGLExtraFunctions</label>
+      </node>
+      <node id="40">
+        <label>QtMath</label>
+      </node>
+      <node id="31">
+        <label>QUuid</label>
+      </node>
+      <node id="86">
+        <label>videorenderworker.h</label>
+        <link refid="videorenderworker_8h"/>
+        <childnode refid="87" relation="include">
+        </childnode>
+        <childnode refid="88" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="80" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="76" relation="include">
+        </childnode>
+        <childnode refid="85" relation="include">
+        </childnode>
+      </node>
+      <node id="46">
+        <label>QDialog</label>
+      </node>
+      <node id="12">
+        <label>QDebug</label>
+      </node>
+      <node id="68">
+        <label>node/edge.h</label>
+        <link refid="edge_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="38">
+        <label>node/graph.h</label>
+        <link refid="graph_8h"/>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+      </node>
+      <node id="60">
+        <label>project/item/item.h</label>
+        <link refid="item_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="61" relation="include">
+        </childnode>
+        <childnode refid="58" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="62" relation="include">
+        </childnode>
+        <childnode refid="63" relation="include">
+        </childnode>
+        <childnode refid="66" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="80">
+        <label>dependency.h</label>
+        <link refid="dependency_8h"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="74" relation="include">
+        </childnode>
+      </node>
+      <node id="57">
+        <label>project/item/footage/footage.h</label>
+        <link refid="footage_8h"/>
+        <childnode refid="58" relation="include">
+        </childnode>
+        <childnode refid="59" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="60" relation="include">
+        </childnode>
+        <childnode refid="69" relation="include">
+        </childnode>
+        <childnode refid="70" relation="include">
+        </childnode>
+        <childnode refid="71" relation="include">
+        </childnode>
+        <childnode refid="72" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>QString</label>
+      </node>
+      <node id="26">
+        <label>render/colortransform.h</label>
+        <link refid="colortransform_8h"/>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="19">
+        <label>render/color.h</label>
+        <link refid="color_8h"/>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="56">
+        <label>QFile</label>
+      </node>
+      <node id="20">
+        <label>QColor</label>
+      </node>
+      <node id="72">
+        <label>timeline/timelinepoints.h</label>
+        <link refid="timelinepoints_8h"/>
+        <childnode refid="65" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="73" relation="include">
+        </childnode>
+        <childnode refid="75" relation="include">
+        </childnode>
+      </node>
+      <node id="41">
+        <label>audio/sampleformat.h</label>
+        <link refid="sampleformat_8h"/>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+      </node>
+      <node id="53">
+        <label>codec/samplebuffer.h</label>
+        <link refid="samplebuffer_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+      </node>
+      <node id="28">
+        <label>rendercache.h</label>
+        <link refid="rendercache_8h"/>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>iostream</label>
+      </node>
+      <node id="33">
+        <label>node/block/block.h</label>
+        <link refid="block_8h"/>
+        <childnode refid="34" relation="include">
+        </childnode>
+      </node>
+      <node id="32">
+        <label>common/timelinecommon.h</label>
+        <link refid="timelinecommon_8h"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>QXmlStreamWriter</label>
+      </node>
+      <node id="81">
+        <label>value.h</label>
+        <link refid="value_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="82" relation="include">
+        </childnode>
+      </node>
+      <node id="25">
+        <label>render/videoparams.h</label>
+        <link refid="videoparams_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+      </node>
+      <node id="27">
+        <label>OpenColorIO/OpenColorIO.h</label>
+      </node>
+      <node id="78">
+        <label>common/cancelableobject.h</label>
+        <link refid="cancelableobject_8h"/>
+        <childnode refid="79" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>project/item/footage/stream.h</label>
+        <link refid="stream_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="30">
+        <label>node/output/viewer/viewer.h</label>
+        <link refid="node_2output_2viewer_2viewer_8h"/>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+      </node>
+      <node id="88">
+        <label>QMatrix4x4</label>
+      </node>
+      <node id="71">
+        <label>project/item/footage/videostream.h</label>
+        <link refid="videostream_8h"/>
+        <childnode refid="70" relation="include">
+        </childnode>
+      </node>
+      <node id="82">
+        <label>input.h</label>
+        <link refid="input_8h"/>
+        <childnode refid="74" relation="include">
+        </childnode>
+        <childnode refid="83" relation="include">
+        </childnode>
+        <childnode refid="66" relation="include">
+        </childnode>
+      </node>
+      <node id="63">
+        <label>common/xmlutils.h</label>
+        <link refid="xmlutils_8h"/>
+        <childnode refid="64" relation="include">
+        </childnode>
+        <childnode refid="65" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="67">
+        <label>QVariant</label>
+      </node>
+      <node id="17">
+        <label>codec/frame.h</label>
+        <link refid="frame_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>OpenImageIO/imageio.h</label>
+      </node>
+      <node id="39">
+        <label>render/audioparams.h</label>
+        <link refid="audioparams_8h"/>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="34">
+        <label>node/node.h</label>
+      </node>
+      <node id="42">
+        <label>timeline/trackreference.h</label>
+        <link refid="trackreference_8h"/>
+        <childnode refid="32" relation="include">
+        </childnode>
+      </node>
+      <node id="36">
+        <label>node/output/track/tracklist.h</label>
+        <link refid="tracklist_8h"/>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+      </node>
+      <node id="79">
+        <label>QAtomicInt</label>
+      </node>
+      <node id="5">
+        <label>memory</label>
+      </node>
+      <node id="87">
+        <label>QCryptographicHash</label>
+      </node>
+      <node id="62">
+        <label>common/threadedobject.h</label>
+        <link refid="threadedobject_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="18">
+        <label>QVector</label>
+      </node>
+      <node id="6">
+        <label>QCoreApplication</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="8">
+        <label>mainwindow.h</label>
+        <link refid="mainwindow_8h"/>
+      </node>
+      <node id="2">
+        <label>exporter.h</label>
+        <link refid="exporter_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>viewer.h</label>
+        <link refid="widget_2viewer_2viewer_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>videorenderbackend.h</label>
+        <link refid="videorenderbackend_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>viewerbase.h</label>
+        <link refid="viewerbase_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>footageviewer.h</label>
+        <link refid="widget_2viewer_2footageviewer_8h"/>
+      </node>
+      <node id="10">
+        <label>sequenceviewer.h</label>
+        <link refid="sequenceviewer_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>export.h</label>
+        <link refid="export_8h"/>
+      </node>
+      <node id="9">
+        <label>viewer.h</label>
+        <link refid="panel_2viewer_2viewer_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>footageviewer.h</label>
+        <link refid="panel_2footageviewer_2footageviewer_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>openglbackend.h</label>
+        <link refid="openglbackend_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="class_video_render_backend" prot="public">VideoRenderBackend</innerclass>
+    <innerclass refid="struct_video_render_backend_1_1_hash_time_mapping" prot="protected">VideoRenderBackend::HashTimeMapping</innerclass>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/***</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"></highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/><sp/>Olive<sp/>-<sp/>Non-Linear<sp/>Video<sp/>Editor</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/><sp/>Copyright<sp/>(C)<sp/>2019<sp/>Olive<sp/>Team</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"></highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/><sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/><sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/><sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"></highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/><sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/><sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/><sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"></highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/><sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/><sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"></highlight></codeline>
+<codeline lineno="19"><highlight class="comment">***/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>VIDEORENDERERBACKEND_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VIDEORENDERERBACKEND_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QLinkedList&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="colorprocessorcache_8h" kindref="compound">colorprocessorcache.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="node_2output_2viewer_2viewer_8h" kindref="compound">node/output/viewer/viewer.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="renderbackend_8h" kindref="compound">renderbackend.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="pixelformat_8h" kindref="compound">render/pixelformat.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="rendermodes_8h" kindref="compound">render/rendermodes.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="videorenderframecache_8h" kindref="compound">videorenderframecache.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="videorenderworker_8h" kindref="compound">videorenderworker.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><ref refid="define_8h_1a0472692dd1f22472ad63da20da919e8c" kindref="member">OLIVE_NAMESPACE_ENTER</ref></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39" refid="class_video_render_backend" refkind="compound"><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_video_render_backend" kindref="compound">VideoRenderBackend</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="class_render_backend" kindref="compound">RenderBackend</ref></highlight></codeline>
+<codeline lineno="40"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/>Q_OBJECT</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><ref refid="class_video_render_backend_1ae112221233f7d81c83e5fee869cc1193" kindref="member">VideoRenderBackend</ref>(QObject*<sp/>parent<sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_video_render_backend_1ab67f086f19e2b8494a079677d9cd6633" kindref="member">SetParameters</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_video_rendering_params" kindref="compound">VideoRenderingParams</ref><sp/>&amp;<ref refid="class_video_render_backend_1a2d3de43cd2bb49c5c4869dc4b0cdf875" kindref="member">params</ref>);</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_video_render_backend_1afa7affb64dac0b52359d39ee4c59c5dc" kindref="member">SetOperatingMode</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_video_render_worker_1a50e833518e764516422da45430b3faeb" kindref="member">VideoRenderWorker::OperatingMode</ref>&amp;<sp/>mode);</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_video_render_backend_1a479c29e73679e5c0b458c6789476d1c0" kindref="member">SetFrameGenerationParams</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>width,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>height,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QMatrix4x4&amp;<sp/>matrix);</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_video_render_backend_1a9af743ea4ec0100a6febe08408e90ada" kindref="member">SetOnlySignalLastFrameRequested</ref>(</highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>enabled);</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_video_render_backend_1a5b8c4cddb65f4cef31b02aa8dc625093" kindref="member">IsRendered</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classrational" kindref="compound">rational</ref>&amp;<sp/>time)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67" refid="class_video_render_backend_1ae112221233f7d81c83e5fee869cc1193" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_video_render_backend_1acd3ed7e12ae638db643c8d0e7a58e867" kindref="member">SetLimitCaching</ref>(</highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>limit);</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/>QString<sp/><ref refid="class_video_render_backend_1a6875d8550355462182783ab63339a85e" kindref="member">GetCachedFrame</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classrational" kindref="compound">rational</ref>&amp;<sp/>time);</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_video_render_backend_1a7fe53ff5be67c9cc55514eead41a97d1" kindref="member">UpdateLastRequestedTime</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classrational" kindref="compound">rational</ref>&amp;<sp/>time);</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><ref refid="class_video_render_frame_cache" kindref="compound">VideoRenderFrameCache</ref>*<sp/><ref refid="class_video_render_backend_1ae966d965dace16b3f181ada83613bd50" kindref="member">frame_cache</ref>();</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75" refid="class_video_render_backend_1ab67f086f19e2b8494a079677d9cd6633" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_video_rendering_params" kindref="compound">VideoRenderingParams</ref>&amp;<sp/><ref refid="class_video_render_backend_1a2d3de43cd2bb49c5c4869dc4b0cdf875" kindref="member">params</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77" refid="class_video_render_backend_1afa7affb64dac0b52359d39ee4c59c5dc" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="struct_video_render_backend_1_1_hash_time_mapping" kindref="compound">HashTimeMapping</ref><sp/>{</highlight></codeline>
+<codeline lineno="79" refid="class_video_render_backend_1a479c29e73679e5c0b458c6789476d1c0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classrational" kindref="compound">rational</ref><sp/><ref refid="struct_video_render_backend_1_1_hash_time_mapping_1a1f3aa187dd3ea460e8247c61f99d39cb" kindref="member">time</ref>;</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/>QByteArray<sp/><ref refid="struct_video_render_backend_1_1_hash_time_mapping_1af4e1f00dc827b9a67eba778312b62f67" kindref="member">hash</ref>;</highlight></codeline>
+<codeline lineno="81" refid="class_video_render_backend_1a9af743ea4ec0100a6febe08408e90ada" refkind="member"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83" refid="class_video_render_backend_1a5b8c4cddb65f4cef31b02aa8dc625093" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_video_render_backend_1a27df3647d1f7c06c8b6b921b88d8ab54" kindref="member">ConnectViewer</ref>(<ref refid="class_viewer_output" kindref="compound">ViewerOutput</ref>*<sp/>node)<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85" refid="class_video_render_backend_1acd3ed7e12ae638db643c8d0e7a58e867" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_video_render_backend_1a000bb75de16c498a3eaafa6cd76ae594" kindref="member">DisconnectViewer</ref>(<ref refid="class_viewer_output" kindref="compound">ViewerOutput</ref>*<sp/>node)<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87" refid="class_video_render_backend_1a6875d8550355462182783ab63339a85e" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="class_node_input" kindref="compound">NodeInput</ref>*<sp/><ref refid="class_video_render_backend_1a012ba862387ae234b70ecd5928337392" kindref="member">GetDependentInput</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="89" refid="class_video_render_backend_1a7fe53ff5be67c9cc55514eead41a97d1" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_video_render_backend_1adbfffbda73790e8542ee49654b2232e2" kindref="member">CanRender</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91" refid="class_video_render_backend_1ae966d965dace16b3f181ada83613bd50" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="class_time_range" kindref="compound">TimeRange</ref><sp/><ref refid="class_video_render_backend_1a2f66435c82bd26e84c03497b9fd8bf41" kindref="member">PopNextFrameFromQueue</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="96" refid="struct_video_render_backend_1_1_hash_time_mapping" refkind="compound"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_video_render_backend_1a51d6e5f5aedad9484452f86b196ac62d" kindref="member">GenerateCacheIDInternal</ref>(QCryptographicHash&amp;<sp/>hash)<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="97" refid="struct_video_render_backend_1_1_hash_time_mapping_1a1f3aa187dd3ea460e8247c61f99d39cb" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="98" refid="struct_video_render_backend_1_1_hash_time_mapping_1af4e1f00dc827b9a67eba778312b62f67" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_video_render_backend_1aa0ce17f3f964a36c07024258faa94a61" kindref="member">CacheIDChangedEvent</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">)<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_video_render_backend_1a8682518d945dbf7b4d81bea9a11c508f" kindref="member">ConnectWorkerToThis</ref>(<ref refid="class_render_worker" kindref="compound">RenderWorker</ref>*<sp/>processor)<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="101" refid="class_video_render_backend_1a27df3647d1f7c06c8b6b921b88d8ab54" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_video_render_backend_1a7c297c5c4941169ac87a9acc2418520b" kindref="member">InvalidateCacheInternal</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classrational" kindref="compound">rational</ref><sp/>&amp;start_range,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classrational" kindref="compound">rational</ref><sp/>&amp;end_range)<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="103" refid="class_video_render_backend_1a000bb75de16c498a3eaafa6cd76ae594" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_video_render_backend_1a08ff4476a488d085dc76efacfdb6a682" kindref="member">ParamsChangedEvent</ref>(){}</highlight></codeline>
+<codeline lineno="105" refid="class_video_render_backend_1a012ba862387ae234b70ecd5928337392" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><ref refid="class_video_render_worker_1a50e833518e764516422da45430b3faeb" kindref="member">VideoRenderWorker::OperatingMode</ref><sp/><ref refid="class_video_render_backend_1a186603a7acb73d6fa7964d7152ae4807" kindref="member">operating_mode_</ref>;</highlight></codeline>
+<codeline lineno="107" refid="class_video_render_backend_1adbfffbda73790e8542ee49654b2232e2" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal">signals:</highlight></codeline>
+<codeline lineno="109" refid="class_video_render_backend_1a2f66435c82bd26e84c03497b9fd8bf41" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_video_render_backend_1a80461e10a65b238f8c064e2cc05d898e" kindref="member">CachedTimeReady</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classrational" kindref="compound">rational</ref>&amp;<sp/>time,<sp/>qint64<sp/>job_time);</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_video_render_backend_1a7be04fb7b41e5c972918446568380829" kindref="member">RangeInvalidated</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_time_range" kindref="compound">TimeRange</ref>&amp;<sp/>range);</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_video_render_backend_1ade88ff3b53f9dedc444167ac0be6d37a" kindref="member">GeneratedFrame</ref>(<ref refid="frame_8h_1a2ae9a822fc1e331fa3b449797f717db6" kindref="member">FramePtr</ref><sp/>frame);</highlight></codeline>
+<codeline lineno="114" refid="class_video_render_backend_1a51d6e5f5aedad9484452f86b196ac62d" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="116" refid="class_video_render_backend_1aa0ce17f3f964a36c07024258faa94a61" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_video_render_backend_1adb83d3710ceed0bb3d14d752349bd12e" kindref="member">TimeIsQueued</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_time_range" kindref="compound">TimeRange</ref><sp/>&amp;time)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight></codeline>
+<codeline lineno="118" refid="class_video_render_backend_1a8682518d945dbf7b4d81bea9a11c508f" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_video_render_backend_1aea88e25a9e8ef6f796502c22bb435254" kindref="member">JobIsCurrent</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_node_dependency" kindref="compound">NodeDependency</ref><sp/>&amp;dep,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>qint64&amp;<sp/>job_time)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight></codeline>
+<codeline lineno="120" refid="class_video_render_backend_1a7c297c5c4941169ac87a9acc2418520b" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_video_render_backend_1a5ff6f9a53d0ace2f7865a88d5733244a" kindref="member">SetFrameHash</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_node_dependency" kindref="compound">NodeDependency</ref>&amp;<sp/>dep,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QByteArray&amp;<sp/>hash,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>qint64&amp;<sp/>job_time);</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight></codeline>
+<codeline lineno="122" refid="class_video_render_backend_1a08ff4476a488d085dc76efacfdb6a682" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_video_render_backend_1a1861430d560ae548f8636ca67d3b7a57" kindref="member">Requeue</ref>();</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight></codeline>
+<codeline lineno="124" refid="class_video_render_backend_1a186603a7acb73d6fa7964d7152ae4807" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_video_rendering_params" kindref="compound">VideoRenderingParams</ref><sp/><ref refid="class_video_render_backend_1a88ca8e5c2d57362a6c02452c530b9c8d" kindref="member">params_</ref>;</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><ref refid="class_video_render_frame_cache" kindref="compound">VideoRenderFrameCache</ref><sp/><ref refid="class_video_render_backend_1aece856d61f80d8457a425f479bf4a4a8" kindref="member">frame_cache_</ref>;</highlight></codeline>
+<codeline lineno="127" refid="class_video_render_backend_1a80461e10a65b238f8c064e2cc05d898e" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><ref refid="class_time_range_list" kindref="compound">TimeRangeList</ref><sp/><ref refid="class_video_render_backend_1a512bd3c74cf6c1c773226c788fa5a52c" kindref="member">invalidated_</ref>;</highlight></codeline>
+<codeline lineno="129" refid="class_video_render_backend_1a7be04fb7b41e5c972918446568380829" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><ref refid="classrational" kindref="compound">rational</ref><sp/><ref refid="class_video_render_backend_1a38e6a156440d270a386bf353aa56264a" kindref="member">last_time_requested_</ref>;</highlight></codeline>
+<codeline lineno="131" refid="class_video_render_backend_1ade88ff3b53f9dedc444167ac0be6d37a" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_video_render_backend_1a6a5242b5a51829f4e967a030430b154c" kindref="member">only_signal_last_frame_requested_</ref>;</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight></codeline>
+<codeline lineno="134" refid="class_video_render_backend_1adb83d3710ceed0bb3d14d752349bd12e" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_video_render_backend_1a266f598290a10a1b514c10730f899868" kindref="member">limit_caching_</ref>;</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight></codeline>
+<codeline lineno="136" refid="class_video_render_backend_1aea88e25a9e8ef6f796502c22bb435254" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_video_render_backend_1a178e061ffc4c90ea1c1d13d6f5a5a237" kindref="member">pop_toggle_</ref>;</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight></codeline>
+<codeline lineno="138" refid="class_video_render_backend_1a5ff6f9a53d0ace2f7865a88d5733244a" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal"><sp/>slots:</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_video_render_backend_1a8bcf66ab120e88e9c16f889c56058c9a" kindref="member">ThreadCompletedDownload</ref>(<ref refid="class_node_dependency" kindref="compound">NodeDependency</ref><sp/>dep,<sp/>qint64<sp/>job_time,<sp/>QByteArray<sp/>hash,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>texture_existed);</highlight></codeline>
+<codeline lineno="140" refid="class_video_render_backend_1a1861430d560ae548f8636ca67d3b7a57" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_video_render_backend_1aa4a96314bc1332494911886476043e24" kindref="member">ThreadSkippedFrame</ref>(<ref refid="class_node_dependency" kindref="compound">NodeDependency</ref><sp/>dep,<sp/>qint64<sp/>job_time,<sp/>QByteArray<sp/>hash);</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_video_render_backend_1aa0ddafdd39a31796dc1b39645ee00bd4" kindref="member">ThreadHashAlreadyExists</ref>(<ref refid="class_node_dependency" kindref="compound">NodeDependency</ref><sp/>dep,<sp/>qint64<sp/>job_time,<sp/>QByteArray<sp/>hash);</highlight></codeline>
+<codeline lineno="142" refid="class_video_render_backend_1a88ca8e5c2d57362a6c02452c530b9c8d" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_video_render_backend_1ac6db3f3dd05dc51ce397e95be82d2f0b" kindref="member">ThreadGeneratedFrame</ref>();</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight></codeline>
+<codeline lineno="144" refid="class_video_render_backend_1aece856d61f80d8457a425f479bf4a4a8" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_video_render_backend_1a8c0bfea4cde562f95bc0824e54082e5d" kindref="member">TruncateFrameCacheLength</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classrational" kindref="compound">rational</ref>&amp;<sp/>length);</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"></highlight></codeline>
+<codeline lineno="146" refid="class_video_render_backend_1a512bd3c74cf6c1c773226c788fa5a52c" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_video_render_backend_1a298db89c2eac30325167f2fdb0b14590" kindref="member">FrameRemovedFromDiskCache</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QByteArray&amp;<sp/>hash);</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"></highlight></codeline>
+<codeline lineno="148" refid="class_video_render_backend_1a38e6a156440d270a386bf353aa56264a" refkind="member"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"></highlight></codeline>
+<codeline lineno="150" refid="class_video_render_backend_1a6a5242b5a51829f4e967a030430b154c" refkind="member"><highlight class="normal"><ref refid="define_8h_1abe3de0634d907ca0f5d1acf732c49dac" kindref="member">OLIVE_NAMESPACE_EXIT</ref></highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight></codeline>
+<codeline lineno="152" refid="class_video_render_backend_1a266f598290a10a1b514c10730f899868" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//<sp/>VIDEORENDERERBACKEND_H</highlight></codeline>
+    </programlisting>
+    <location file="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h"/>
+  </compounddef>
+</doxygen>

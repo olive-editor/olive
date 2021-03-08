@@ -1,0 +1,200 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_timeline_marker" kind="class" language="C++" prot="public">
+    <compoundname>TimelineMarker</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QObject</basecompoundref>
+    <includes refid="timelinemarker_8h" local="no">timelinemarker.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_timeline_marker_1a51638380daf62940cfb7f151faa8b8aa" prot="private" static="no" mutable="no">
+        <type><ref refid="class_time_range" kindref="compound">TimeRange</ref></type>
+        <definition>TimeRange TimelineMarker::time_</definition>
+        <argsstring></argsstring>
+        <name>time_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelinemarker.h" line="68" column="13" bodyfile="C:/Daten/Olive/olive/app/timeline/timelinemarker.h" bodystart="68" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_timeline_marker_1a400fa46a26f79dacf86c20536309f6a5" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString TimelineMarker::name_</definition>
+        <argsstring></argsstring>
+        <name>name_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelinemarker.h" line="70" column="11" bodyfile="C:/Daten/Olive/olive/app/timeline/timelinemarker.h" bodystart="70" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_timeline_marker_1a17d75ca5722931a57047897d26f2097d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>TimelineMarker::TimelineMarker</definition>
+        <argsstring>(const TimeRange &amp;time=TimeRange(), const QString &amp;name=QString(), QObject *parent=nullptr)</argsstring>
+        <name>TimelineMarker</name>
+        <param>
+          <type>const <ref refid="class_time_range" kindref="compound">TimeRange</ref> &amp;</type>
+          <declname>time</declname>
+          <defval><ref refid="class_time_range" kindref="compound">TimeRange</ref>()</defval>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>name</declname>
+          <defval>QString()</defval>
+        </param>
+        <param>
+          <type>QObject *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelinemarker.h" line="54" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_marker_1af68fb0b18fb3e0e03d2ee58d3e9fb050" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="class_time_range" kindref="compound">TimeRange</ref> &amp;</type>
+        <definition>const TimeRange&amp; TimelineMarker::time</definition>
+        <argsstring>() const</argsstring>
+        <name>time</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelinemarker.h" line="56" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_marker_1a997439cd2aa5c4d651529eee725c6865" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimelineMarker::set_time</definition>
+        <argsstring>(const TimeRange &amp;time)</argsstring>
+        <name>set_time</name>
+        <param>
+          <type>const <ref refid="class_time_range" kindref="compound">TimeRange</ref> &amp;</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelinemarker.h" line="57" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_marker_1a10d34fabab2262cca9923164fb99ae54" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const QString &amp;</type>
+        <definition>const QString&amp; TimelineMarker::name</definition>
+        <argsstring>() const</argsstring>
+        <name>name</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelinemarker.h" line="59" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_marker_1a77fab30d0b5e10ff66a3bf23153a098d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimelineMarker::set_name</definition>
+        <argsstring>(const QString &amp;name)</argsstring>
+        <name>set_name</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>name</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelinemarker.h" line="60" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_timeline_marker_1a91b173f7dec0d52535e650e332daf4d7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimelineMarker::TimeChanged</definition>
+        <argsstring>(const TimeRange &amp;time)</argsstring>
+        <name>TimeChanged</name>
+        <param>
+          <type>const <ref refid="class_time_range" kindref="compound">TimeRange</ref> &amp;</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelinemarker.h" line="63" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_timeline_marker_1a02df0bb27392e0ce1d713e49c6f3ff06" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimelineMarker::NameChanged</definition>
+        <argsstring>(const QString &amp;name)</argsstring>
+        <name>NameChanged</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>name</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelinemarker.h" line="65" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="3">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="1">
+        <label>TimelineMarker</label>
+        <link refid="class_timeline_marker"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>time_</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>TimeRange</label>
+        <link refid="class_time_range"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>out_</edgelabel>
+          <edgelabel>in_</edgelabel>
+          <edgelabel>length_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/timeline/timelinemarker.h" line="32" column="1" bodyfile="C:/Daten/Olive/olive/app/timeline/timelinemarker.h" bodystart="33" bodyend="54"/>
+    <listofallmembers>
+      <member refid="class_timeline_marker_1a10d34fabab2262cca9923164fb99ae54" prot="public" virt="non-virtual"><scope>TimelineMarker</scope><name>name</name></member>
+      <member refid="class_timeline_marker_1a400fa46a26f79dacf86c20536309f6a5" prot="private" virt="non-virtual"><scope>TimelineMarker</scope><name>name_</name></member>
+      <member refid="class_timeline_marker_1a02df0bb27392e0ce1d713e49c6f3ff06" prot="public" virt="non-virtual"><scope>TimelineMarker</scope><name>NameChanged</name></member>
+      <member refid="class_timeline_marker_1a77fab30d0b5e10ff66a3bf23153a098d" prot="public" virt="non-virtual"><scope>TimelineMarker</scope><name>set_name</name></member>
+      <member refid="class_timeline_marker_1a997439cd2aa5c4d651529eee725c6865" prot="public" virt="non-virtual"><scope>TimelineMarker</scope><name>set_time</name></member>
+      <member refid="class_timeline_marker_1af68fb0b18fb3e0e03d2ee58d3e9fb050" prot="public" virt="non-virtual"><scope>TimelineMarker</scope><name>time</name></member>
+      <member refid="class_timeline_marker_1a51638380daf62940cfb7f151faa8b8aa" prot="private" virt="non-virtual"><scope>TimelineMarker</scope><name>time_</name></member>
+      <member refid="class_timeline_marker_1a91b173f7dec0d52535e650e332daf4d7" prot="public" virt="non-virtual"><scope>TimelineMarker</scope><name>TimeChanged</name></member>
+      <member refid="class_timeline_marker_1a17d75ca5722931a57047897d26f2097d" prot="public" virt="non-virtual"><scope>TimelineMarker</scope><name>TimelineMarker</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

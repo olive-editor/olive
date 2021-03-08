@@ -1,0 +1,60 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="struct_sample_summer_1_1_sum" kind="struct" language="C++" prot="public">
+    <compoundname>SampleSummer::Sum</compoundname>
+    <includes refid="sumsamples_8h" local="no">sumsamples.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="struct_sample_summer_1_1_sum_1ad101a35bc4b8b0fb6d831c4dde37ef19" prot="public" static="no" mutable="no">
+        <type>qfloat16</type>
+        <definition>qfloat16 SampleSummer::Sum::min</definition>
+        <argsstring></argsstring>
+        <name>min</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/sumsamples.h" line="72" column="14" bodyfile="C:/Daten/Olive/olive/app/audio/sumsamples.h" bodystart="72" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_sample_summer_1_1_sum_1addb25a120b27b782cd85c4e876ef22ce" prot="public" static="no" mutable="no">
+        <type>qfloat16</type>
+        <definition>qfloat16 SampleSummer::Sum::max</definition>
+        <argsstring></argsstring>
+        <name>max</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/sumsamples.h" line="73" column="14" bodyfile="C:/Daten/Olive/olive/app/audio/sumsamples.h" bodystart="73" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="struct_sample_summer_1_1_sum_1ac24aea13a96669e29057ff02ea9f2d1b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>SampleSummer::Sum::Sum</definition>
+        <argsstring>()</argsstring>
+        <name>Sum</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/sumsamples.h" line="70" column="5"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/audio/sumsamples.h" line="51" column="3" bodyfile="C:/Daten/Olive/olive/app/audio/sumsamples.h" bodystart="51" bodyend="56"/>
+    <listofallmembers>
+      <member refid="struct_sample_summer_1_1_sum_1addb25a120b27b782cd85c4e876ef22ce" prot="public" virt="non-virtual"><scope>SampleSummer::Sum</scope><name>max</name></member>
+      <member refid="struct_sample_summer_1_1_sum_1ad101a35bc4b8b0fb6d831c4dde37ef19" prot="public" virt="non-virtual"><scope>SampleSummer::Sum</scope><name>min</name></member>
+      <member refid="struct_sample_summer_1_1_sum_1ac24aea13a96669e29057ff02ea9f2d1b" prot="public" virt="non-virtual"><scope>SampleSummer::Sum</scope><name>Sum</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

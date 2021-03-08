@@ -1,0 +1,201 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_footage_properties_dialog_1_1_stream_enable_change_command" kind="class" language="C++" prot="private">
+    <compoundname>FootagePropertiesDialog::StreamEnableChangeCommand</compoundname>
+    <basecompoundref refid="class_undo_command" prot="public" virt="non-virtual">UndoCommand</basecompoundref>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_footage_properties_dialog_1_1_stream_enable_change_command_1a0d8068aff4f0d916d826f5c394511cb6" prot="private" static="no" mutable="no">
+        <type><ref refid="stream_8h_1a3ca5b414655d064180098adf46c1a2f1" kindref="member">StreamPtr</ref></type>
+        <definition>StreamPtr FootagePropertiesDialog::StreamEnableChangeCommand::stream_</definition>
+        <argsstring></argsstring>
+        <name>stream_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/footageproperties.h" line="109" column="15" bodyfile="C:/Daten/Olive/olive/app/dialog/footageproperties/footageproperties.h" bodystart="109" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_footage_properties_dialog_1_1_stream_enable_change_command_1a490f9ad6245344e2b34d0bda531f6a20" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool FootagePropertiesDialog::StreamEnableChangeCommand::old_enabled_</definition>
+        <argsstring></argsstring>
+        <name>old_enabled_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/footageproperties.h" line="111" column="10" bodyfile="C:/Daten/Olive/olive/app/dialog/footageproperties/footageproperties.h" bodystart="111" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_footage_properties_dialog_1_1_stream_enable_change_command_1ad5d2286f141b9fbce3019b8a40eb1bc2" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool FootagePropertiesDialog::StreamEnableChangeCommand::new_enabled_</definition>
+        <argsstring></argsstring>
+        <name>new_enabled_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/footageproperties.h" line="112" column="10" bodyfile="C:/Daten/Olive/olive/app/dialog/footageproperties/footageproperties.h" bodystart="112" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_undo_command_1a6c06f9c1b7bfeeff3c4724491945992b" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool UndoCommand::modified_</definition>
+        <argsstring></argsstring>
+        <name>modified_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="64" column="8" bodyfile="C:/Daten/Olive/olive/app/undo/undocommand.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_footage_properties_dialog_1_1_stream_enable_change_command_1ae4743d086a6a6060761b434551c23864" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>FootagePropertiesDialog::StreamEnableChangeCommand::StreamEnableChangeCommand</definition>
+        <argsstring>(StreamPtr stream, bool enabled, QUndoCommand *command=nullptr)</argsstring>
+        <name>StreamEnableChangeCommand</name>
+        <param>
+          <type><ref refid="stream_8h_1a3ca5b414655d064180098adf46c1a2f1" kindref="member">StreamPtr</ref></type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>enabled</declname>
+        </param>
+        <param>
+          <type>QUndoCommand *</type>
+          <declname>command</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/footageproperties.h" line="98" column="5"/>
+      </memberdef>
+      <memberdef kind="function" id="class_footage_properties_dialog_1_1_stream_enable_change_command_1a6dcb640210d540671fdd33dbfbb3b78e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="class_project" kindref="compound">Project</ref> *</type>
+        <definition>virtual Project* FootagePropertiesDialog::StreamEnableChangeCommand::GetRelevantProject</definition>
+        <argsstring>() const override</argsstring>
+        <name>GetRelevantProject</name>
+        <reimplements refid="class_undo_command_1ab5c8967132833ea6be76a63dc5472f4f">GetRelevantProject</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/footageproperties.h" line="102" column="21"/>
+      </memberdef>
+      <memberdef kind="function" id="class_undo_command_1a9907db368d01fb26f5082a36c6d90bd4" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void UndoCommand::redo</definition>
+        <argsstring>() override</argsstring>
+        <name>redo</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="54" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_undo_command_1a09d00f8a2e1c8b3c97d72d9585503030" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void UndoCommand::undo</definition>
+        <argsstring>() override</argsstring>
+        <name>undo</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="55" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_footage_properties_dialog_1_1_stream_enable_change_command_1a0ec48906555244cd99418a9964004f5c" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void FootagePropertiesDialog::StreamEnableChangeCommand::redo_internal</definition>
+        <argsstring>() override</argsstring>
+        <name>redo_internal</name>
+        <reimplements refid="class_undo_command_1ac8aa20d444a655cd36fa3c7dc01928b4">redo_internal</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/footageproperties.h" line="105" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_footage_properties_dialog_1_1_stream_enable_change_command_1a0bbd5af15e458fbdc26066960f0c99ca" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void FootagePropertiesDialog::StreamEnableChangeCommand::undo_internal</definition>
+        <argsstring>() override</argsstring>
+        <name>undo_internal</name>
+        <reimplements refid="class_undo_command_1a871dbc8a1f95b58e641be13703563faa">undo_internal</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/footageproperties.h" line="106" column="18"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>FootagePropertiesDialog::StreamEnableChangeCommand</label>
+        <link refid="class_footage_properties_dialog_1_1_stream_enable_change_command"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>UndoCommand</label>
+        <link refid="class_undo_command"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>FootagePropertiesDialog::StreamEnableChangeCommand</label>
+        <link refid="class_footage_properties_dialog_1_1_stream_enable_change_command"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>UndoCommand</label>
+        <link refid="class_undo_command"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/footageproperties.h" line="96" column="3" bodyfile="C:/Daten/Olive/olive/app/dialog/footageproperties/footageproperties.h" bodystart="96" bodyend="113"/>
+    <listofallmembers>
+      <member refid="class_footage_properties_dialog_1_1_stream_enable_change_command_1a6dcb640210d540671fdd33dbfbb3b78e" prot="public" virt="virtual"><scope>FootagePropertiesDialog::StreamEnableChangeCommand</scope><name>GetRelevantProject</name></member>
+      <member refid="class_undo_command_1a6c06f9c1b7bfeeff3c4724491945992b" prot="private" virt="non-virtual"><scope>FootagePropertiesDialog::StreamEnableChangeCommand</scope><name>modified_</name></member>
+      <member refid="class_footage_properties_dialog_1_1_stream_enable_change_command_1ad5d2286f141b9fbce3019b8a40eb1bc2" prot="private" virt="non-virtual"><scope>FootagePropertiesDialog::StreamEnableChangeCommand</scope><name>new_enabled_</name></member>
+      <member refid="class_footage_properties_dialog_1_1_stream_enable_change_command_1a490f9ad6245344e2b34d0bda531f6a20" prot="private" virt="non-virtual"><scope>FootagePropertiesDialog::StreamEnableChangeCommand</scope><name>old_enabled_</name></member>
+      <member refid="class_undo_command_1a9907db368d01fb26f5082a36c6d90bd4" prot="public" virt="virtual"><scope>FootagePropertiesDialog::StreamEnableChangeCommand</scope><name>redo</name></member>
+      <member refid="class_footage_properties_dialog_1_1_stream_enable_change_command_1a0ec48906555244cd99418a9964004f5c" prot="protected" virt="virtual"><scope>FootagePropertiesDialog::StreamEnableChangeCommand</scope><name>redo_internal</name></member>
+      <member refid="class_footage_properties_dialog_1_1_stream_enable_change_command_1a0d8068aff4f0d916d826f5c394511cb6" prot="private" virt="non-virtual"><scope>FootagePropertiesDialog::StreamEnableChangeCommand</scope><name>stream_</name></member>
+      <member refid="class_footage_properties_dialog_1_1_stream_enable_change_command_1ae4743d086a6a6060761b434551c23864" prot="public" virt="non-virtual"><scope>FootagePropertiesDialog::StreamEnableChangeCommand</scope><name>StreamEnableChangeCommand</name></member>
+      <member refid="class_undo_command_1a09d00f8a2e1c8b3c97d72d9585503030" prot="public" virt="virtual"><scope>FootagePropertiesDialog::StreamEnableChangeCommand</scope><name>undo</name></member>
+      <member refid="class_footage_properties_dialog_1_1_stream_enable_change_command_1a0bbd5af15e458fbdc26066960f0c99ca" prot="protected" virt="virtual"><scope>FootagePropertiesDialog::StreamEnableChangeCommand</scope><name>undo_internal</name></member>
+      <member refid="class_undo_command_1a5a07a6505a207cf7186c7c726ff9c5fa" prot="public" virt="non-virtual"><scope>FootagePropertiesDialog::StreamEnableChangeCommand</scope><name>UndoCommand</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

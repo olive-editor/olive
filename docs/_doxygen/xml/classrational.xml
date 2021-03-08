@@ -1,0 +1,764 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="classrational" kind="class" language="C++" prot="public">
+    <compoundname>rational</compoundname>
+    <includes refid="rational_8h" local="no">rational.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classrational_1a690d55d94c362a70452983e4da3d1c0c" prot="private" static="no" mutable="no">
+        <type><ref refid="rational_8h_1a4dbd81ca4335a6618d359f43cae6faf4" kindref="member">intType</ref></type>
+        <definition>intType rational::numer</definition>
+        <argsstring></argsstring>
+        <name>numer</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/rational.h" line="108" column="11" bodyfile="C:/Daten/Olive/olive/app/common/rational.h" bodystart="108" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classrational_1af1e138cef3280ff391ba2f6ed14fff97" prot="private" static="no" mutable="no">
+        <type><ref refid="rational_8h_1a4dbd81ca4335a6618d359f43cae6faf4" kindref="member">intType</ref></type>
+        <definition>intType rational::denom</definition>
+        <argsstring></argsstring>
+        <name>denom</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/rational.h" line="109" column="11" bodyfile="C:/Daten/Olive/olive/app/common/rational.h" bodystart="109" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classrational_1a6a69a9f526c4869f67fee80a7396dde6" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>rational::rational</definition>
+        <argsstring>(const intType &amp;numerator=0)</argsstring>
+        <name>rational</name>
+        <param>
+          <type>const <ref refid="rational_8h_1a4dbd81ca4335a6618d359f43cae6faf4" kindref="member">intType</ref> &amp;</type>
+          <declname>numerator</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/rational.h" line="32" column="3" bodyfile="C:/Daten/Olive/olive/app/common/rational.h" bodystart="32" bodyend="37"/>
+      </memberdef>
+      <memberdef kind="function" id="classrational_1abac551a6ed7741e7c9c7bb117f58803f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>rational::rational</definition>
+        <argsstring>(const intType &amp;numerator, const intType &amp;denominator)</argsstring>
+        <name>rational</name>
+        <param>
+          <type>const <ref refid="rational_8h_1a4dbd81ca4335a6618d359f43cae6faf4" kindref="member">intType</ref> &amp;</type>
+          <declname>numerator</declname>
+        </param>
+        <param>
+          <type>const <ref refid="rational_8h_1a4dbd81ca4335a6618d359f43cae6faf4" kindref="member">intType</ref> &amp;</type>
+          <declname>denominator</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/rational.h" line="39" column="3" bodyfile="C:/Daten/Olive/olive/app/common/rational.h" bodystart="39" bodyend="43"/>
+      </memberdef>
+      <memberdef kind="function" id="classrational_1afe7eb7c9695645376f1240c53203d13f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>rational::rational</definition>
+        <argsstring>(const rational &amp;rhs)=default</argsstring>
+        <name>rational</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/rational.h" line="45" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="classrational_1a333489e62059848f7900310efe92ef8e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>rational::rational</definition>
+        <argsstring>(const AVRational &amp;r)</argsstring>
+        <name>rational</name>
+        <param>
+          <type>const AVRational &amp;</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/rational.h" line="47" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="classrational_1ab10538fa4d93ae65ad602c3c7b37a96c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+        <definition>const rational&amp; rational::operator=</definition>
+        <argsstring>(const rational &amp;rhs)</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/rational.h" line="54" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="classrational_1a070d275ac20fab19b192e02154ae38bd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+        <definition>const rational&amp; rational::operator+=</definition>
+        <argsstring>(const rational &amp;rhs)</argsstring>
+        <name>operator+=</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/rational.h" line="55" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="classrational_1acdd3d135d44c61d8960e0c8684d68276" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+        <definition>const rational&amp; rational::operator-=</definition>
+        <argsstring>(const rational &amp;rhs)</argsstring>
+        <name>operator-=</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/rational.h" line="56" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="classrational_1a794a61d98d4225871d740c34a4248616" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+        <definition>const rational&amp; rational::operator/=</definition>
+        <argsstring>(const rational &amp;rhs)</argsstring>
+        <name>operator/=</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/rational.h" line="57" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="classrational_1afa6765c167b2bed2dd7a1632bdb980aa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+        <definition>const rational&amp; rational::operator*=</definition>
+        <argsstring>(const rational &amp;rhs)</argsstring>
+        <name>operator*=</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/rational.h" line="58" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="classrational_1ae3b81e9c44c4e48c332cae277568f8ac" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational rational::operator+</definition>
+        <argsstring>(const rational &amp;rhs) const</argsstring>
+        <name>operator+</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/rational.h" line="61" column="12"/>
+      </memberdef>
+      <memberdef kind="function" id="classrational_1a80bba7ad7c4f06686aec226181961e4f" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational rational::operator-</definition>
+        <argsstring>(const rational &amp;rhs) const</argsstring>
+        <name>operator-</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/rational.h" line="62" column="12"/>
+      </memberdef>
+      <memberdef kind="function" id="classrational_1ab26e6cd7aea241e0035534da3d4b6490" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational rational::operator/</definition>
+        <argsstring>(const rational &amp;rhs) const</argsstring>
+        <name>operator/</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/rational.h" line="63" column="12"/>
+      </memberdef>
+      <memberdef kind="function" id="classrational_1a1dd39ab2daf08ee68087fdbb37be258e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational rational::operator*</definition>
+        <argsstring>(const rational &amp;rhs) const</argsstring>
+        <name>operator*</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/rational.h" line="64" column="12"/>
+      </memberdef>
+      <memberdef kind="function" id="classrational_1aa2e8e08c6f8422fb2d7876e89605be31" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool rational::operator&lt;</definition>
+        <argsstring>(const rational &amp;rhs) const</argsstring>
+        <name>operator&lt;</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/rational.h" line="67" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="classrational_1ab77b082bd9e2f549ebcca97a163cd711" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool rational::operator&lt;=</definition>
+        <argsstring>(const rational &amp;rhs) const</argsstring>
+        <name>operator&lt;=</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/rational.h" line="68" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="classrational_1a0cbf4053fe34876f5f6ae74b4f5fca3e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool rational::operator&gt;</definition>
+        <argsstring>(const rational &amp;rhs) const</argsstring>
+        <name>operator&gt;</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/rational.h" line="69" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="classrational_1a6ef38ddc8bc7472e975fba2889c8df23" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool rational::operator&gt;=</definition>
+        <argsstring>(const rational &amp;rhs) const</argsstring>
+        <name>operator&gt;=</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/rational.h" line="70" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="classrational_1a8b565720ea15ddfb17ea202e27698478" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool rational::operator==</definition>
+        <argsstring>(const rational &amp;rhs) const</argsstring>
+        <name>operator==</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/rational.h" line="71" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="classrational_1a74a462830481aa33291ac78ff8617b2d" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool rational::operator!=</definition>
+        <argsstring>(const rational &amp;rhs) const</argsstring>
+        <name>operator!=</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/rational.h" line="72" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="classrational_1a5a9b8187976031310c793cc3b3be8e28" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+        <definition>const rational&amp; rational::operator++</definition>
+        <argsstring>()</argsstring>
+        <name>operator++</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/rational.h" line="75" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="classrational_1a86ff75892d6a55deefb8d6d855f3541a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational rational::operator++</definition>
+        <argsstring>(int)</argsstring>
+        <name>operator++</name>
+        <param>
+          <type>int</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/rational.h" line="76" column="12"/>
+      </memberdef>
+      <memberdef kind="function" id="classrational_1aa39d02ddfe078ccb3b7395cdb4102d31" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+        <definition>const rational&amp; rational::operator--</definition>
+        <argsstring>()</argsstring>
+        <name>operator--</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/rational.h" line="77" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="classrational_1aaa583d917822e6f1ccca17ebe2e2fdd5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational rational::operator--</definition>
+        <argsstring>(int)</argsstring>
+        <name>operator--</name>
+        <param>
+          <type>int</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/rational.h" line="78" column="12"/>
+      </memberdef>
+      <memberdef kind="function" id="classrational_1a6f3e44b8ebdce594631cd2ef2ccdda64" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+        <definition>const rational&amp; rational::operator+</definition>
+        <argsstring>() const</argsstring>
+        <name>operator+</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/rational.h" line="79" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="classrational_1a081e55ef6086ce3e434849d20f0f88a9" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational rational::operator-</definition>
+        <argsstring>() const</argsstring>
+        <name>operator-</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/rational.h" line="80" column="12"/>
+      </memberdef>
+      <memberdef kind="function" id="classrational_1afa603cec77be9c7a3e4a9d30551824f1" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool rational::operator!</definition>
+        <argsstring>() const</argsstring>
+        <name>operator!</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/rational.h" line="81" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="classrational_1a29b9c273605c4bb7811ca1c538e21af8" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double rational::toDouble</definition>
+        <argsstring>() const</argsstring>
+        <name>toDouble</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/rational.h" line="84" column="10"/>
+      </memberdef>
+      <memberdef kind="function" id="classrational_1aa602a6e9d7e351e555fbdafd7d5166f3" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>AVRational</type>
+        <definition>AVRational rational::toAVRational</definition>
+        <argsstring>() const</argsstring>
+        <name>toAVRational</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/rational.h" line="86" column="14"/>
+      </memberdef>
+      <memberdef kind="function" id="classrational_1a1112063f996708af898ae6c7bc6a51c6" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational rational::flipped</definition>
+        <argsstring>() const</argsstring>
+        <name>flipped</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/rational.h" line="89" column="12"/>
+      </memberdef>
+      <memberdef kind="function" id="classrational_1a727f545602195310c6e4e022f4d64852" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool rational::isNull</definition>
+        <argsstring>() const</argsstring>
+        <name>isNull</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/rational.h" line="92" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="classrational_1af9ddad794b0972779c3f52d9413a7ab8" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void rational::print</definition>
+        <argsstring>(std::ostream &amp;out=std::cout) const</argsstring>
+        <name>print</name>
+        <param>
+          <type>std::ostream &amp;</type>
+          <declname>out</declname>
+          <defval>std::cout</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/rational.h" line="95" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="classrational_1a2a33e4bcb86726c2104b5744c0c8635e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="rational_8h_1a4dbd81ca4335a6618d359f43cae6faf4" kindref="member">intType</ref> &amp;</type>
+        <definition>const intType&amp; rational::numerator</definition>
+        <argsstring>() const</argsstring>
+        <name>numerator</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/rational.h" line="101" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="classrational_1a67407f81b893e3b7fd55016e5333c3bb" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="rational_8h_1a4dbd81ca4335a6618d359f43cae6faf4" kindref="member">intType</ref> &amp;</type>
+        <definition>const intType&amp; rational::denominator</definition>
+        <argsstring>() const</argsstring>
+        <name>denominator</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/rational.h" line="102" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="classrational_1a62a8c927fcc5a937d8973ba5b9fff0fe" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>QString rational::toString</definition>
+        <argsstring>() const</argsstring>
+        <name>toString</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/rational.h" line="104" column="11"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classrational_1a47e309037a793f0bc6d7fbff2177caaf" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>static rational rational::fromDouble</definition>
+        <argsstring>(const double &amp;flt)</argsstring>
+        <name>fromDouble</name>
+        <param>
+          <type>const double &amp;</type>
+          <declname>flt</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/rational.h" line="49" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="classrational_1aa6b48ee4d470aefe330780624e4c1a56" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>static rational rational::fromString</definition>
+        <argsstring>(const QString &amp;str)</argsstring>
+        <name>fromString</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>str</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/rational.h" line="51" column="19"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="friend">
+      <memberdef kind="friend" id="classrational_1a201db3c7248e74f2ca256b45b2f7a9cd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend std::ostream &amp;</type>
+        <definition>std::ostream&amp; operator&lt;&lt;</definition>
+        <argsstring>(std::ostream &amp;out, const rational &amp;value)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::ostream &amp;</type>
+          <declname>out</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/rational.h" line="98" column="10"/>
+      </memberdef>
+      <memberdef kind="friend" id="classrational_1a364bd830c8bb7861407dddfb4968d13a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend std::istream &amp;</type>
+        <definition>std::istream&amp; operator&gt;&gt;</definition>
+        <argsstring>(std::istream &amp;in, rational &amp;value)</argsstring>
+        <name>operator&gt;&gt;</name>
+        <param>
+          <type>std::istream &amp;</type>
+          <declname>in</declname>
+        </param>
+        <param>
+          <type><ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/rational.h" line="99" column="23"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classrational_1ac7e59808a74689953d8b1a44039784da" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void rational::validateConstructor</definition>
+        <argsstring>()</argsstring>
+        <name>validateConstructor</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/rational.h" line="111" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="classrational_1ab89e4d8bc8ab39e160b4f0dc780ee7df" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void rational::fixSigns</definition>
+        <argsstring>()</argsstring>
+        <name>fixSigns</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/rational.h" line="114" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="classrational_1a81713380a44bd53aa0f86183e512d2b1" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void rational::reduce</definition>
+        <argsstring>()</argsstring>
+        <name>reduce</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/rational.h" line="116" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="classrational_1aa1b459e9eabf9469a6828698943c4e38" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="rational_8h_1a4dbd81ca4335a6618d359f43cae6faf4" kindref="member">intType</ref></type>
+        <definition>intType rational::gcd</definition>
+        <argsstring>(intType &amp;x, intType &amp;y)</argsstring>
+        <name>gcd</name>
+        <param>
+          <type><ref refid="rational_8h_1a4dbd81ca4335a6618d359f43cae6faf4" kindref="member">intType</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="rational_8h_1a4dbd81ca4335a6618d359f43cae6faf4" kindref="member">intType</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/rational.h" line="118" column="11"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/common/rational.h" line="28" column="1" bodyfile="C:/Daten/Olive/olive/app/common/rational.h" bodystart="29" bodyend="119"/>
+    <listofallmembers>
+      <member refid="classrational_1af1e138cef3280ff391ba2f6ed14fff97" prot="private" virt="non-virtual"><scope>rational</scope><name>denom</name></member>
+      <member refid="classrational_1a67407f81b893e3b7fd55016e5333c3bb" prot="public" virt="non-virtual"><scope>rational</scope><name>denominator</name></member>
+      <member refid="classrational_1ab89e4d8bc8ab39e160b4f0dc780ee7df" prot="private" virt="non-virtual"><scope>rational</scope><name>fixSigns</name></member>
+      <member refid="classrational_1a1112063f996708af898ae6c7bc6a51c6" prot="public" virt="non-virtual"><scope>rational</scope><name>flipped</name></member>
+      <member refid="classrational_1a47e309037a793f0bc6d7fbff2177caaf" prot="public" virt="non-virtual"><scope>rational</scope><name>fromDouble</name></member>
+      <member refid="classrational_1aa6b48ee4d470aefe330780624e4c1a56" prot="public" virt="non-virtual"><scope>rational</scope><name>fromString</name></member>
+      <member refid="classrational_1aa1b459e9eabf9469a6828698943c4e38" prot="private" virt="non-virtual"><scope>rational</scope><name>gcd</name></member>
+      <member refid="classrational_1a727f545602195310c6e4e022f4d64852" prot="public" virt="non-virtual"><scope>rational</scope><name>isNull</name></member>
+      <member refid="classrational_1a690d55d94c362a70452983e4da3d1c0c" prot="private" virt="non-virtual"><scope>rational</scope><name>numer</name></member>
+      <member refid="classrational_1a2a33e4bcb86726c2104b5744c0c8635e" prot="public" virt="non-virtual"><scope>rational</scope><name>numerator</name></member>
+      <member refid="classrational_1afa603cec77be9c7a3e4a9d30551824f1" prot="public" virt="non-virtual"><scope>rational</scope><name>operator!</name></member>
+      <member refid="classrational_1a74a462830481aa33291ac78ff8617b2d" prot="public" virt="non-virtual"><scope>rational</scope><name>operator!=</name></member>
+      <member refid="classrational_1a1dd39ab2daf08ee68087fdbb37be258e" prot="public" virt="non-virtual"><scope>rational</scope><name>operator*</name></member>
+      <member refid="classrational_1afa6765c167b2bed2dd7a1632bdb980aa" prot="public" virt="non-virtual"><scope>rational</scope><name>operator*=</name></member>
+      <member refid="classrational_1ae3b81e9c44c4e48c332cae277568f8ac" prot="public" virt="non-virtual"><scope>rational</scope><name>operator+</name></member>
+      <member refid="classrational_1a6f3e44b8ebdce594631cd2ef2ccdda64" prot="public" virt="non-virtual"><scope>rational</scope><name>operator+</name></member>
+      <member refid="classrational_1a5a9b8187976031310c793cc3b3be8e28" prot="public" virt="non-virtual"><scope>rational</scope><name>operator++</name></member>
+      <member refid="classrational_1a86ff75892d6a55deefb8d6d855f3541a" prot="public" virt="non-virtual"><scope>rational</scope><name>operator++</name></member>
+      <member refid="classrational_1a070d275ac20fab19b192e02154ae38bd" prot="public" virt="non-virtual"><scope>rational</scope><name>operator+=</name></member>
+      <member refid="classrational_1a80bba7ad7c4f06686aec226181961e4f" prot="public" virt="non-virtual"><scope>rational</scope><name>operator-</name></member>
+      <member refid="classrational_1a081e55ef6086ce3e434849d20f0f88a9" prot="public" virt="non-virtual"><scope>rational</scope><name>operator-</name></member>
+      <member refid="classrational_1aa39d02ddfe078ccb3b7395cdb4102d31" prot="public" virt="non-virtual"><scope>rational</scope><name>operator--</name></member>
+      <member refid="classrational_1aaa583d917822e6f1ccca17ebe2e2fdd5" prot="public" virt="non-virtual"><scope>rational</scope><name>operator--</name></member>
+      <member refid="classrational_1acdd3d135d44c61d8960e0c8684d68276" prot="public" virt="non-virtual"><scope>rational</scope><name>operator-=</name></member>
+      <member refid="classrational_1ab26e6cd7aea241e0035534da3d4b6490" prot="public" virt="non-virtual"><scope>rational</scope><name>operator/</name></member>
+      <member refid="classrational_1a794a61d98d4225871d740c34a4248616" prot="public" virt="non-virtual"><scope>rational</scope><name>operator/=</name></member>
+      <member refid="classrational_1aa2e8e08c6f8422fb2d7876e89605be31" prot="public" virt="non-virtual"><scope>rational</scope><name>operator&lt;</name></member>
+      <member refid="classrational_1a201db3c7248e74f2ca256b45b2f7a9cd" prot="public" virt="non-virtual"><scope>rational</scope><name>operator&lt;&lt;</name></member>
+      <member refid="classrational_1ab77b082bd9e2f549ebcca97a163cd711" prot="public" virt="non-virtual"><scope>rational</scope><name>operator&lt;=</name></member>
+      <member refid="classrational_1ab10538fa4d93ae65ad602c3c7b37a96c" prot="public" virt="non-virtual"><scope>rational</scope><name>operator=</name></member>
+      <member refid="classrational_1a8b565720ea15ddfb17ea202e27698478" prot="public" virt="non-virtual"><scope>rational</scope><name>operator==</name></member>
+      <member refid="classrational_1a0cbf4053fe34876f5f6ae74b4f5fca3e" prot="public" virt="non-virtual"><scope>rational</scope><name>operator&gt;</name></member>
+      <member refid="classrational_1a6ef38ddc8bc7472e975fba2889c8df23" prot="public" virt="non-virtual"><scope>rational</scope><name>operator&gt;=</name></member>
+      <member refid="classrational_1a364bd830c8bb7861407dddfb4968d13a" prot="public" virt="non-virtual"><scope>rational</scope><name>operator&gt;&gt;</name></member>
+      <member refid="classrational_1af9ddad794b0972779c3f52d9413a7ab8" prot="public" virt="non-virtual"><scope>rational</scope><name>print</name></member>
+      <member refid="classrational_1a6a69a9f526c4869f67fee80a7396dde6" prot="public" virt="non-virtual"><scope>rational</scope><name>rational</name></member>
+      <member refid="classrational_1abac551a6ed7741e7c9c7bb117f58803f" prot="public" virt="non-virtual"><scope>rational</scope><name>rational</name></member>
+      <member refid="classrational_1afe7eb7c9695645376f1240c53203d13f" prot="public" virt="non-virtual"><scope>rational</scope><name>rational</name></member>
+      <member refid="classrational_1a333489e62059848f7900310efe92ef8e" prot="public" virt="non-virtual"><scope>rational</scope><name>rational</name></member>
+      <member refid="classrational_1a81713380a44bd53aa0f86183e512d2b1" prot="private" virt="non-virtual"><scope>rational</scope><name>reduce</name></member>
+      <member refid="classrational_1aa602a6e9d7e351e555fbdafd7d5166f3" prot="public" virt="non-virtual"><scope>rational</scope><name>toAVRational</name></member>
+      <member refid="classrational_1a29b9c273605c4bb7811ca1c538e21af8" prot="public" virt="non-virtual"><scope>rational</scope><name>toDouble</name></member>
+      <member refid="classrational_1a62a8c927fcc5a937d8973ba5b9fff0fe" prot="public" virt="non-virtual"><scope>rational</scope><name>toString</name></member>
+      <member refid="classrational_1ac7e59808a74689953d8b1a44039784da" prot="private" virt="non-virtual"><scope>rational</scope><name>validateConstructor</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

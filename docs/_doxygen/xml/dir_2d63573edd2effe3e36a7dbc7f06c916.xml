@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_2d63573edd2effe3e36a7dbc7f06c916" kind="dir">
+    <compoundname>audio</compoundname>
+    <innerfile refid="audiomanager_8h">audiomanager.h</innerfile>
+    <innerfile refid="outputdeviceproxy_8h">outputdeviceproxy.h</innerfile>
+    <innerfile refid="outputmanager_8h">outputmanager.h</innerfile>
+    <innerfile refid="sampleformat_8h">sampleformat.h</innerfile>
+    <innerfile refid="sumsamples_8h">sumsamples.h</innerfile>
+    <innerfile refid="tempoprocessor_8h">tempoprocessor.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/audio/"/>
+  </compounddef>
+</doxygen>

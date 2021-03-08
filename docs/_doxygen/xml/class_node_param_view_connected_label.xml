@@ -1,0 +1,128 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_node_param_view_connected_label" kind="class" language="C++" prot="public">
+    <compoundname>NodeParamViewConnectedLabel</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QWidget</basecompoundref>
+    <includes refid="nodeparamviewconnectedlabel_8h" local="no">nodeparamviewconnectedlabel.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_node_param_view_connected_label_1a1ecefb1b4ae1586f996382223a2b490d" prot="private" static="no" mutable="no">
+        <type><ref refid="class_clickable_label" kindref="compound">ClickableLabel</ref> *</type>
+        <definition>ClickableLabel* NodeParamViewConnectedLabel::connected_to_lbl_</definition>
+        <argsstring></argsstring>
+        <name>connected_to_lbl_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewconnectedlabel.h" line="59" column="18" bodyfile="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewconnectedlabel.h" bodystart="59" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_param_view_connected_label_1a02ad0e0c065ba301d70b752474e284bc" prot="private" static="no" mutable="no">
+        <type><ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+        <definition>NodeInput* NodeParamViewConnectedLabel::input_</definition>
+        <argsstring></argsstring>
+        <name>input_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewconnectedlabel.h" line="61" column="13" bodyfile="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewconnectedlabel.h" bodystart="61" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_node_param_view_connected_label_1a04364b04dce9227c53f0b10cd4106b62" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>NodeParamViewConnectedLabel::NodeParamViewConnectedLabel</definition>
+        <argsstring>(NodeInput *input, QWidget *parent=nullptr)</argsstring>
+        <name>NodeParamViewConnectedLabel</name>
+        <param>
+          <type><ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewconnectedlabel.h" line="50" column="3"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_node_param_view_connected_label_1a7a9082f9270ae64b7fae1e1bbc24d637" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeParamViewConnectedLabel::ConnectionClicked</definition>
+        <argsstring>()</argsstring>
+        <name>ConnectionClicked</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewconnectedlabel.h" line="53" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_node_param_view_connected_label_1a07cc1958d5167774aa0d47cb78357780" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeParamViewConnectedLabel::UpdateConnected</definition>
+        <argsstring>()</argsstring>
+        <name>UpdateConnected</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewconnectedlabel.h" line="56" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="2">
+        <label>ClickableLabel</label>
+        <link refid="class_clickable_label"/>
+      </node>
+      <node id="3">
+        <label>NodeInput</label>
+        <link refid="class_node_input"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>NodeParam</label>
+        <link refid="class_node_param"/>
+      </node>
+      <node id="1">
+        <label>NodeParamViewConnectedLabel</label>
+        <link refid="class_node_param_view_connected_label"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>connected_to_lbl_</edgelabel>
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>input_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewconnectedlabel.h" line="29" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewconnectedlabel.h" bodystart="29" bodyend="45"/>
+    <listofallmembers>
+      <member refid="class_node_param_view_connected_label_1a1ecefb1b4ae1586f996382223a2b490d" prot="private" virt="non-virtual"><scope>NodeParamViewConnectedLabel</scope><name>connected_to_lbl_</name></member>
+      <member refid="class_node_param_view_connected_label_1a7a9082f9270ae64b7fae1e1bbc24d637" prot="public" virt="non-virtual"><scope>NodeParamViewConnectedLabel</scope><name>ConnectionClicked</name></member>
+      <member refid="class_node_param_view_connected_label_1a02ad0e0c065ba301d70b752474e284bc" prot="private" virt="non-virtual"><scope>NodeParamViewConnectedLabel</scope><name>input_</name></member>
+      <member refid="class_node_param_view_connected_label_1a04364b04dce9227c53f0b10cd4106b62" prot="public" virt="non-virtual"><scope>NodeParamViewConnectedLabel</scope><name>NodeParamViewConnectedLabel</name></member>
+      <member refid="class_node_param_view_connected_label_1a07cc1958d5167774aa0d47cb78357780" prot="private" virt="non-virtual"><scope>NodeParamViewConnectedLabel</scope><name>UpdateConnected</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

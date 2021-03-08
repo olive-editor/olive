@@ -1,0 +1,57 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="struct_video_render_backend_1_1_hash_time_mapping" kind="struct" language="C++" prot="protected">
+    <compoundname>VideoRenderBackend::HashTimeMapping</compoundname>
+    <includes refid="videorenderbackend_8h" local="no">videorenderbackend.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="struct_video_render_backend_1_1_hash_time_mapping_1a1f3aa187dd3ea460e8247c61f99d39cb" prot="public" static="no" mutable="no">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational VideoRenderBackend::HashTimeMapping::time</definition>
+        <argsstring></argsstring>
+        <name>time</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" line="97" column="14" bodyfile="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" bodystart="97" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_video_render_backend_1_1_hash_time_mapping_1af4e1f00dc827b9a67eba778312b62f67" prot="public" static="no" mutable="no">
+        <type>QByteArray</type>
+        <definition>QByteArray VideoRenderBackend::HashTimeMapping::hash</definition>
+        <argsstring></argsstring>
+        <name>hash</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" line="98" column="16" bodyfile="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" bodystart="98" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>VideoRenderBackend::HashTimeMapping</label>
+        <link refid="struct_video_render_backend_1_1_hash_time_mapping"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>time</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" line="96" column="3" bodyfile="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" bodystart="96" bodyend="99"/>
+    <listofallmembers>
+      <member refid="struct_video_render_backend_1_1_hash_time_mapping_1af4e1f00dc827b9a67eba778312b62f67" prot="public" virt="non-virtual"><scope>VideoRenderBackend::HashTimeMapping</scope><name>hash</name></member>
+      <member refid="struct_video_render_backend_1_1_hash_time_mapping_1a1f3aa187dd3ea460e8247c61f99d39cb" prot="public" virt="non-virtual"><scope>VideoRenderBackend::HashTimeMapping</scope><name>time</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

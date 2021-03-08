@@ -1,0 +1,235 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_block_unlink_all_command" kind="class" language="C++" prot="public">
+    <compoundname>BlockUnlinkAllCommand</compoundname>
+    <basecompoundref refid="class_undo_command" prot="public" virt="non-virtual">UndoCommand</basecompoundref>
+    <includes refid="undo_8h" local="no">undo.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_block_unlink_all_command_1ac5d6d5a7747a123ba1e2f000db6b3ec2" prot="private" static="no" mutable="no">
+        <type><ref refid="class_block" kindref="compound">Block</ref> *</type>
+        <definition>Block* BlockUnlinkAllCommand::block_</definition>
+        <argsstring></argsstring>
+        <name>block_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="422" column="9" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="422" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_block_unlink_all_command_1a3692c218c8dbbd0b24b895e8118507a6" prot="private" static="no" mutable="no">
+        <type>QVector&lt; <ref refid="class_block" kindref="compound">Block</ref> * &gt;</type>
+        <definition>QVector&lt;Block*&gt; BlockUnlinkAllCommand::unlinked_</definition>
+        <argsstring></argsstring>
+        <name>unlinked_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="424" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="424" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_undo_command_1a6c06f9c1b7bfeeff3c4724491945992b" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool UndoCommand::modified_</definition>
+        <argsstring></argsstring>
+        <name>modified_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="64" column="8" bodyfile="C:/Daten/Olive/olive/app/undo/undocommand.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_block_unlink_all_command_1a75ed7929e58b7b01ee2ddf5ab79661be" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>BlockUnlinkAllCommand::BlockUnlinkAllCommand</definition>
+        <argsstring>(Block *block, QUndoCommand *parent=nullptr)</argsstring>
+        <name>BlockUnlinkAllCommand</name>
+        <param>
+          <type><ref refid="class_block" kindref="compound">Block</ref> *</type>
+          <declname>block</declname>
+        </param>
+        <param>
+          <type>QUndoCommand *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="413" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_block_unlink_all_command_1a25e29d5188d66e63d364cbd0c0340dd7" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="class_project" kindref="compound">Project</ref> *</type>
+        <definition>virtual Project* BlockUnlinkAllCommand::GetRelevantProject</definition>
+        <argsstring>() const override</argsstring>
+        <name>GetRelevantProject</name>
+        <reimplements refid="class_undo_command_1ab5c8967132833ea6be76a63dc5472f4f">GetRelevantProject</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="415" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_undo_command_1a9907db368d01fb26f5082a36c6d90bd4" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void UndoCommand::redo</definition>
+        <argsstring>() override</argsstring>
+        <name>redo</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="54" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_undo_command_1a09d00f8a2e1c8b3c97d72d9585503030" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void UndoCommand::undo</definition>
+        <argsstring>() override</argsstring>
+        <name>undo</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="55" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_block_unlink_all_command_1a9713636d7b4568f077a7539346231fb7" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void BlockUnlinkAllCommand::redo_internal</definition>
+        <argsstring>() override</argsstring>
+        <name>redo_internal</name>
+        <reimplements refid="class_undo_command_1ac8aa20d444a655cd36fa3c7dc01928b4">redo_internal</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="418" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_block_unlink_all_command_1a686acc51970c74c8ed16adbf97245fb8" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void BlockUnlinkAllCommand::undo_internal</definition>
+        <argsstring>() override</argsstring>
+        <name>undo_internal</name>
+        <reimplements refid="class_undo_command_1a871dbc8a1f95b58e641be13703563faa">undo_internal</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="419" column="16"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>BlockUnlinkAllCommand</label>
+        <link refid="class_block_unlink_all_command"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>UndoCommand</label>
+        <link refid="class_undo_command"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="5">
+        <label>NodeOutput</label>
+        <link refid="class_node_output"/>
+        <childnode refid="6" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>Block</label>
+        <link refid="class_block"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>in_point_</edgelabel>
+          <edgelabel>out_point_</edgelabel>
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>next_</edgelabel>
+          <edgelabel>previous_</edgelabel>
+        </childnode>
+        <childnode refid="8" relation="usage">
+          <edgelabel>enabled_input_</edgelabel>
+          <edgelabel>speed_input_</edgelabel>
+          <edgelabel>media_in_input_</edgelabel>
+          <edgelabel>name_input_</edgelabel>
+          <edgelabel>length_input_</edgelabel>
+        </childnode>
+      </node>
+      <node id="1">
+        <label>BlockUnlinkAllCommand</label>
+        <link refid="class_block_unlink_all_command"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>block_</edgelabel>
+        </childnode>
+      </node>
+      <node id="7">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="4">
+        <label>Node</label>
+        <link refid="class_node"/>
+        <childnode refid="5" relation="usage">
+          <edgelabel>output_</edgelabel>
+        </childnode>
+      </node>
+      <node id="8">
+        <label>NodeInput</label>
+        <link refid="class_node_input"/>
+        <childnode refid="6" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>NodeParam</label>
+        <link refid="class_node_param"/>
+      </node>
+      <node id="2">
+        <label>UndoCommand</label>
+        <link refid="class_undo_command"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="411" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="411" bodyend="426"/>
+    <listofallmembers>
+      <member refid="class_block_unlink_all_command_1ac5d6d5a7747a123ba1e2f000db6b3ec2" prot="private" virt="non-virtual"><scope>BlockUnlinkAllCommand</scope><name>block_</name></member>
+      <member refid="class_block_unlink_all_command_1a75ed7929e58b7b01ee2ddf5ab79661be" prot="public" virt="non-virtual"><scope>BlockUnlinkAllCommand</scope><name>BlockUnlinkAllCommand</name></member>
+      <member refid="class_block_unlink_all_command_1a25e29d5188d66e63d364cbd0c0340dd7" prot="public" virt="virtual"><scope>BlockUnlinkAllCommand</scope><name>GetRelevantProject</name></member>
+      <member refid="class_undo_command_1a6c06f9c1b7bfeeff3c4724491945992b" prot="private" virt="non-virtual"><scope>BlockUnlinkAllCommand</scope><name>modified_</name></member>
+      <member refid="class_undo_command_1a9907db368d01fb26f5082a36c6d90bd4" prot="public" virt="virtual"><scope>BlockUnlinkAllCommand</scope><name>redo</name></member>
+      <member refid="class_block_unlink_all_command_1a9713636d7b4568f077a7539346231fb7" prot="protected" virt="virtual"><scope>BlockUnlinkAllCommand</scope><name>redo_internal</name></member>
+      <member refid="class_undo_command_1a09d00f8a2e1c8b3c97d72d9585503030" prot="public" virt="virtual"><scope>BlockUnlinkAllCommand</scope><name>undo</name></member>
+      <member refid="class_block_unlink_all_command_1a686acc51970c74c8ed16adbf97245fb8" prot="protected" virt="virtual"><scope>BlockUnlinkAllCommand</scope><name>undo_internal</name></member>
+      <member refid="class_undo_command_1a5a07a6505a207cf7186c7c726ff9c5fa" prot="public" virt="non-virtual"><scope>BlockUnlinkAllCommand</scope><name>UndoCommand</name></member>
+      <member refid="class_block_unlink_all_command_1a3692c218c8dbbd0b24b895e8118507a6" prot="private" virt="non-virtual"><scope>BlockUnlinkAllCommand</scope><name>unlinked_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

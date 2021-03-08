@@ -1,0 +1,256 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_footage_properties_dialog" kind="class" language="C++" prot="public">
+    <compoundname>FootagePropertiesDialog</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QDialog</basecompoundref>
+    <includes refid="footageproperties_8h" local="no">footageproperties.h</includes>
+    <innerclass refid="class_footage_properties_dialog_1_1_footage_change_command" prot="private">FootagePropertiesDialog::FootageChangeCommand</innerclass>
+    <innerclass refid="class_footage_properties_dialog_1_1_stream_enable_change_command" prot="private">FootagePropertiesDialog::StreamEnableChangeCommand</innerclass>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_footage_properties_dialog_1a34e72dcd4ee7063fc743f28c97e2dc4f" prot="private" static="no" mutable="no">
+        <type>QStackedWidget *</type>
+        <definition>QStackedWidget* FootagePropertiesDialog::stacked_widget_</definition>
+        <argsstring></argsstring>
+        <name>stacked_widget_</name>
+        <briefdescription>
+<para>Stack of widgets that changes based on whether the stream is a video or audio stream. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/footageproperties.h" line="118" column="18" bodyfile="C:/Daten/Olive/olive/app/dialog/footageproperties/footageproperties.h" bodystart="118" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_footage_properties_dialog_1a1bb7d46f9fc290291bb6b709ad024eae" prot="private" static="no" mutable="no">
+        <type>QComboBox *</type>
+        <definition>QComboBox* FootagePropertiesDialog::interlacing_box</definition>
+        <argsstring></argsstring>
+        <name>interlacing_box</name>
+        <briefdescription>
+<para>ComboBox for interlacing setting. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/footageproperties.h" line="123" column="13" bodyfile="C:/Daten/Olive/olive/app/dialog/footageproperties/footageproperties.h" bodystart="123" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_footage_properties_dialog_1ab09b021af3296bf1c3686464cc49f8e8" prot="private" static="no" mutable="no">
+        <type>QLineEdit *</type>
+        <definition>QLineEdit* FootagePropertiesDialog::footage_name_field_</definition>
+        <argsstring></argsstring>
+        <name>footage_name_field_</name>
+        <briefdescription>
+<para>Media name text field. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/footageproperties.h" line="128" column="13" bodyfile="C:/Daten/Olive/olive/app/dialog/footageproperties/footageproperties.h" bodystart="128" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_footage_properties_dialog_1abe6e0ed0820829ca35eae89bb31a1e04" prot="private" static="no" mutable="no">
+        <type><ref refid="class_footage" kindref="compound">Footage</ref> *</type>
+        <definition>Footage* FootagePropertiesDialog::footage_</definition>
+        <argsstring></argsstring>
+        <name>footage_</name>
+        <briefdescription>
+<para>Internal pointer to Media object (set in constructor) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/footageproperties.h" line="133" column="11" bodyfile="C:/Daten/Olive/olive/app/dialog/footageproperties/footageproperties.h" bodystart="133" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_footage_properties_dialog_1ac3ca07c1512e330d10ba2818fa36cd02" prot="private" static="no" mutable="no">
+        <type>QListWidget *</type>
+        <definition>QListWidget* FootagePropertiesDialog::track_list</definition>
+        <argsstring></argsstring>
+        <name>track_list</name>
+        <briefdescription>
+<para>A list widget for listing the tracks in Media. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/footageproperties.h" line="138" column="15" bodyfile="C:/Daten/Olive/olive/app/dialog/footageproperties/footageproperties.h" bodystart="138" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_footage_properties_dialog_1aedc2053a559724e665b57d5015d2445e" prot="private" static="no" mutable="no">
+        <type>QDoubleSpinBox *</type>
+        <definition>QDoubleSpinBox* FootagePropertiesDialog::conform_fr</definition>
+        <argsstring></argsstring>
+        <name>conform_fr</name>
+        <briefdescription>
+<para><ref refid="class_frame" kindref="compound">Frame</ref> rate to conform to. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/footageproperties.h" line="143" column="18" bodyfile="C:/Daten/Olive/olive/app/dialog/footageproperties/footageproperties.h" bodystart="143" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_footage_properties_dialog_1a9106bb67a21f6c22db406274941acdfc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>FootagePropertiesDialog::FootagePropertiesDialog</definition>
+        <argsstring>(QWidget *parent, Footage *footage)</argsstring>
+        <name>FootagePropertiesDialog</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+        </param>
+        <param>
+          <type><ref refid="class_footage" kindref="compound">Footage</ref> *</type>
+          <declname>footage</declname>
+        </param>
+        <briefdescription>
+<para>MediaPropertiesDialog Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parent</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>QWidget parent. Usually <ref refid="class_main_window" kindref="compound">MainWindow</ref> or <ref refid="class_project" kindref="compound">Project</ref> panel.</para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>i</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Media object to set properties for. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/footageproperties.h" line="75" column="3"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_footage_properties_dialog_1a17afab2a2149c03dfc5df3fda79c06b0" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void FootagePropertiesDialog::accept</definition>
+        <argsstring>()</argsstring>
+        <name>accept</name>
+        <briefdescription>
+<para>Overridden accept function for saving the properties back to the Media class. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/footageproperties.h" line="149" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>The MediaPropertiesDialog class. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>A dialog for setting properties on Media. This can be loaded from any part of the application provided it&apos;s given a valid Media object. </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="7">
+        <label>TimelinePoints</label>
+        <link refid="class_timeline_points"/>
+        <childnode refid="8" relation="usage">
+          <edgelabel>markers_</edgelabel>
+        </childnode>
+        <childnode refid="9" relation="usage">
+          <edgelabel>workarea_</edgelabel>
+        </childnode>
+      </node>
+      <node id="5">
+        <label>ColorManager</label>
+        <link refid="class_color_manager"/>
+      </node>
+      <node id="1">
+        <label>FootagePropertiesDialog</label>
+        <link refid="class_footage_properties_dialog"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>footage_</edgelabel>
+        </childnode>
+      </node>
+      <node id="11">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="3">
+        <label>Item</label>
+        <link refid="class_item"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>parent_</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>project_</edgelabel>
+        </childnode>
+      </node>
+      <node id="9">
+        <label>TimelineWorkArea</label>
+        <link refid="class_timeline_work_area"/>
+        <childnode refid="10" relation="usage">
+          <edgelabel>workarea_range_</edgelabel>
+        </childnode>
+        <childnode refid="11" relation="usage">
+          <edgelabel>kResetOut</edgelabel>
+          <edgelabel>kResetIn</edgelabel>
+        </childnode>
+      </node>
+      <node id="4">
+        <label>Project</label>
+        <link refid="class_project"/>
+        <childnode refid="5" relation="usage">
+          <edgelabel>color_manager_</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>root_</edgelabel>
+        </childnode>
+      </node>
+      <node id="6">
+        <label>Folder</label>
+        <link refid="class_folder"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>TimeRange</label>
+        <link refid="class_time_range"/>
+        <childnode refid="11" relation="usage">
+          <edgelabel>out_</edgelabel>
+          <edgelabel>in_</edgelabel>
+          <edgelabel>length_</edgelabel>
+        </childnode>
+      </node>
+      <node id="8">
+        <label>TimelineMarkerList</label>
+        <link refid="class_timeline_marker_list"/>
+      </node>
+      <node id="2">
+        <label>Footage</label>
+        <link refid="class_footage"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+        <childnode refid="7" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/footageproperties.h" line="43" column="1" bodyfile="C:/Daten/Olive/olive/app/dialog/footageproperties/footageproperties.h" bodystart="43" bodyend="133"/>
+    <listofallmembers>
+      <member refid="class_footage_properties_dialog_1a17afab2a2149c03dfc5df3fda79c06b0" prot="private" virt="non-virtual"><scope>FootagePropertiesDialog</scope><name>accept</name></member>
+      <member refid="class_footage_properties_dialog_1aedc2053a559724e665b57d5015d2445e" prot="private" virt="non-virtual"><scope>FootagePropertiesDialog</scope><name>conform_fr</name></member>
+      <member refid="class_footage_properties_dialog_1abe6e0ed0820829ca35eae89bb31a1e04" prot="private" virt="non-virtual"><scope>FootagePropertiesDialog</scope><name>footage_</name></member>
+      <member refid="class_footage_properties_dialog_1ab09b021af3296bf1c3686464cc49f8e8" prot="private" virt="non-virtual"><scope>FootagePropertiesDialog</scope><name>footage_name_field_</name></member>
+      <member refid="class_footage_properties_dialog_1a9106bb67a21f6c22db406274941acdfc" prot="public" virt="non-virtual"><scope>FootagePropertiesDialog</scope><name>FootagePropertiesDialog</name></member>
+      <member refid="class_footage_properties_dialog_1a1bb7d46f9fc290291bb6b709ad024eae" prot="private" virt="non-virtual"><scope>FootagePropertiesDialog</scope><name>interlacing_box</name></member>
+      <member refid="class_footage_properties_dialog_1a34e72dcd4ee7063fc743f28c97e2dc4f" prot="private" virt="non-virtual"><scope>FootagePropertiesDialog</scope><name>stacked_widget_</name></member>
+      <member refid="class_footage_properties_dialog_1ac3ca07c1512e330d10ba2818fa36cd02" prot="private" virt="non-virtual"><scope>FootagePropertiesDialog</scope><name>track_list</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

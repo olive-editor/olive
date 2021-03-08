@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_84dae9c3ce0b10c286818ad9b60bcc6e" kind="dir">
+    <compoundname>taskmanager</compoundname>
+    <innerfile refid="panel_2taskmanager_2taskmanager_8h">panel/taskmanager/taskmanager.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/panel/taskmanager/"/>
+  </compounddef>
+</doxygen>

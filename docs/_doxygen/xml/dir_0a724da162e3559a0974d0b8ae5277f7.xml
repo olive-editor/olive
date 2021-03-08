@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_0a724da162e3559a0974d0b8ae5277f7" kind="dir">
+    <compoundname>media</compoundname>
+    <innerdir refid="dir_be83d09ee6f35a6b7ca2df40e6fc81e4">audio</innerdir>
+    <innerdir refid="dir_e9f965c17e495b839a193fb73ca824f9">video</innerdir>
+    <innerfile refid="media_8h">media.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/node/input/media/"/>
+  </compounddef>
+</doxygen>

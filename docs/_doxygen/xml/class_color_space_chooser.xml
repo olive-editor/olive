@@ -1,0 +1,293 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_color_space_chooser" kind="class" language="C++" prot="public">
+    <compoundname>ColorSpaceChooser</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QGroupBox</basecompoundref>
+    <includes refid="colorspacechooser_8h" local="no">colorspacechooser.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_color_space_chooser_1aec515f30c4346cca682d1daf1d9a6f01" prot="private" static="no" mutable="no">
+        <type><ref refid="class_color_manager" kindref="compound">ColorManager</ref> *</type>
+        <definition>ColorManager* ColorSpaceChooser::color_manager_</definition>
+        <argsstring></argsstring>
+        <name>color_manager_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorspacechooser.h" line="72" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/colorwheel/colorspacechooser.h" bodystart="72" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_color_space_chooser_1a0c0ed57568f5fc1a40eeadd79e41ac79" prot="private" static="no" mutable="no">
+        <type>QComboBox *</type>
+        <definition>QComboBox* ColorSpaceChooser::input_combobox_</definition>
+        <argsstring></argsstring>
+        <name>input_combobox_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorspacechooser.h" line="74" column="13" bodyfile="C:/Daten/Olive/olive/app/widget/colorwheel/colorspacechooser.h" bodystart="74" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_color_space_chooser_1ad0609ff862e72247baa2acf9e4df9e43" prot="private" static="no" mutable="no">
+        <type>QComboBox *</type>
+        <definition>QComboBox* ColorSpaceChooser::display_combobox_</definition>
+        <argsstring></argsstring>
+        <name>display_combobox_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorspacechooser.h" line="76" column="13" bodyfile="C:/Daten/Olive/olive/app/widget/colorwheel/colorspacechooser.h" bodystart="76" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_color_space_chooser_1a55c9c0da047a60a1cd35e0b53e41214f" prot="private" static="no" mutable="no">
+        <type>QComboBox *</type>
+        <definition>QComboBox* ColorSpaceChooser::view_combobox_</definition>
+        <argsstring></argsstring>
+        <name>view_combobox_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorspacechooser.h" line="78" column="13" bodyfile="C:/Daten/Olive/olive/app/widget/colorwheel/colorspacechooser.h" bodystart="78" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_color_space_chooser_1a3c6ba670df534c6dd558f7f1943fda1c" prot="private" static="no" mutable="no">
+        <type>QComboBox *</type>
+        <definition>QComboBox* ColorSpaceChooser::look_combobox_</definition>
+        <argsstring></argsstring>
+        <name>look_combobox_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorspacechooser.h" line="80" column="13" bodyfile="C:/Daten/Olive/olive/app/widget/colorwheel/colorspacechooser.h" bodystart="80" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_color_space_chooser_1a5d8968d7fea9106a13a36fb6174e44b7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>ColorSpaceChooser::ColorSpaceChooser</definition>
+        <argsstring>(ColorManager *color_manager, bool enable_input_field=true, bool enable_display_fields=true, QWidget *parent=nullptr)</argsstring>
+        <name>ColorSpaceChooser</name>
+        <param>
+          <type><ref refid="class_color_manager" kindref="compound">ColorManager</ref> *</type>
+          <declname>color_manager</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>enable_input_field</declname>
+          <defval>true</defval>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>enable_display_fields</declname>
+          <defval>true</defval>
+        </param>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorspacechooser.h" line="53" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_space_chooser_1a17027a81c4e0630cea65a59987da989d" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>QString ColorSpaceChooser::input</definition>
+        <argsstring>() const</argsstring>
+        <name>input</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorspacechooser.h" line="55" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_space_chooser_1a3ec07f3c195ebd839ba812e269824629" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_color_transform" kindref="compound">ColorTransform</ref></type>
+        <definition>ColorTransform ColorSpaceChooser::output</definition>
+        <argsstring>() const</argsstring>
+        <name>output</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorspacechooser.h" line="56" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_space_chooser_1a2e7d8c78831c433855f380cae2212190" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ColorSpaceChooser::set_input</definition>
+        <argsstring>(const QString &amp;s)</argsstring>
+        <name>set_input</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorspacechooser.h" line="58" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_space_chooser_1a9bd9ed7a5c4ecef6cf81d82872d6bbc8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ColorSpaceChooser::set_output</definition>
+        <argsstring>(const ColorTransform &amp;out)</argsstring>
+        <name>set_output</name>
+        <param>
+          <type>const <ref refid="class_color_transform" kindref="compound">ColorTransform</ref> &amp;</type>
+          <declname>out</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorspacechooser.h" line="59" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_color_space_chooser_1ac7ca5148ad04fc65cf59ed964772f34c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ColorSpaceChooser::InputColorSpaceChanged</definition>
+        <argsstring>(const QString &amp;input)</argsstring>
+        <name>InputColorSpaceChanged</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>input</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorspacechooser.h" line="62" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_color_space_chooser_1ae2dacf5798e19985924d305ad770f141" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ColorSpaceChooser::OutputColorSpaceChanged</definition>
+        <argsstring>(const ColorTransform &amp;out)</argsstring>
+        <name>OutputColorSpaceChanged</name>
+        <param>
+          <type>const <ref refid="class_color_transform" kindref="compound">ColorTransform</ref> &amp;</type>
+          <declname>out</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorspacechooser.h" line="64" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_color_space_chooser_1a991adf51f775e6364c16a6fc1c4497bc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ColorSpaceChooser::ColorSpaceChanged</definition>
+        <argsstring>(const QString &amp;input, const ColorTransform &amp;out)</argsstring>
+        <name>ColorSpaceChanged</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_color_transform" kindref="compound">ColorTransform</ref> &amp;</type>
+          <declname>out</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorspacechooser.h" line="66" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_color_space_chooser_1a74cc65534c7ee61794617acfae426e2e" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ColorSpaceChooser::UpdateViews</definition>
+        <argsstring>(const QString &amp;display)</argsstring>
+        <name>UpdateViews</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>display</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorspacechooser.h" line="69" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_color_space_chooser_1ad432e00c25c090a12f31dda788fb8718" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ColorSpaceChooser::ComboBoxChanged</definition>
+        <argsstring>()</argsstring>
+        <name>ComboBoxChanged</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorspacechooser.h" line="83" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="2">
+        <label>ColorManager</label>
+        <link refid="class_color_manager"/>
+      </node>
+      <node id="1">
+        <label>ColorSpaceChooser</label>
+        <link refid="class_color_space_chooser"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>color_manager_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorspacechooser.h" line="31" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/colorwheel/colorspacechooser.h" bodystart="32" bodyend="67"/>
+    <listofallmembers>
+      <member refid="class_color_space_chooser_1aec515f30c4346cca682d1daf1d9a6f01" prot="private" virt="non-virtual"><scope>ColorSpaceChooser</scope><name>color_manager_</name></member>
+      <member refid="class_color_space_chooser_1a991adf51f775e6364c16a6fc1c4497bc" prot="public" virt="non-virtual"><scope>ColorSpaceChooser</scope><name>ColorSpaceChanged</name></member>
+      <member refid="class_color_space_chooser_1a5d8968d7fea9106a13a36fb6174e44b7" prot="public" virt="non-virtual"><scope>ColorSpaceChooser</scope><name>ColorSpaceChooser</name></member>
+      <member refid="class_color_space_chooser_1ad432e00c25c090a12f31dda788fb8718" prot="private" virt="non-virtual"><scope>ColorSpaceChooser</scope><name>ComboBoxChanged</name></member>
+      <member refid="class_color_space_chooser_1ad0609ff862e72247baa2acf9e4df9e43" prot="private" virt="non-virtual"><scope>ColorSpaceChooser</scope><name>display_combobox_</name></member>
+      <member refid="class_color_space_chooser_1a17027a81c4e0630cea65a59987da989d" prot="public" virt="non-virtual"><scope>ColorSpaceChooser</scope><name>input</name></member>
+      <member refid="class_color_space_chooser_1a0c0ed57568f5fc1a40eeadd79e41ac79" prot="private" virt="non-virtual"><scope>ColorSpaceChooser</scope><name>input_combobox_</name></member>
+      <member refid="class_color_space_chooser_1ac7ca5148ad04fc65cf59ed964772f34c" prot="public" virt="non-virtual"><scope>ColorSpaceChooser</scope><name>InputColorSpaceChanged</name></member>
+      <member refid="class_color_space_chooser_1a3c6ba670df534c6dd558f7f1943fda1c" prot="private" virt="non-virtual"><scope>ColorSpaceChooser</scope><name>look_combobox_</name></member>
+      <member refid="class_color_space_chooser_1a3ec07f3c195ebd839ba812e269824629" prot="public" virt="non-virtual"><scope>ColorSpaceChooser</scope><name>output</name></member>
+      <member refid="class_color_space_chooser_1ae2dacf5798e19985924d305ad770f141" prot="public" virt="non-virtual"><scope>ColorSpaceChooser</scope><name>OutputColorSpaceChanged</name></member>
+      <member refid="class_color_space_chooser_1a2e7d8c78831c433855f380cae2212190" prot="public" virt="non-virtual"><scope>ColorSpaceChooser</scope><name>set_input</name></member>
+      <member refid="class_color_space_chooser_1a9bd9ed7a5c4ecef6cf81d82872d6bbc8" prot="public" virt="non-virtual"><scope>ColorSpaceChooser</scope><name>set_output</name></member>
+      <member refid="class_color_space_chooser_1a74cc65534c7ee61794617acfae426e2e" prot="private" virt="non-virtual"><scope>ColorSpaceChooser</scope><name>UpdateViews</name></member>
+      <member refid="class_color_space_chooser_1a55c9c0da047a60a1cd35e0b53e41214f" prot="private" virt="non-virtual"><scope>ColorSpaceChooser</scope><name>view_combobox_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

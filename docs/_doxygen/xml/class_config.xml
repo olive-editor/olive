@@ -1,0 +1,181 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_config" kind="class" language="C++" prot="public">
+    <compoundname>Config</compoundname>
+    <includes refid="config_8h" local="no">config.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_config_1a1371b9c2a1b32903236713fe396f54a0" prot="private" static="no" mutable="no">
+        <type>QMap&lt; QString, QVariant &gt;</type>
+        <definition>QMap&lt;QString, QVariant&gt; Config::config_map_</definition>
+        <argsstring></argsstring>
+        <name>config_map_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/config/config.h" line="67" column="8" bodyfile="C:/Daten/Olive/olive/app/config/config.h" bodystart="67" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-attrib">
+      <memberdef kind="variable" id="class_config_1ab9927a4e0d7aadd6a9097a8cb2b110f2" prot="private" static="yes" mutable="no">
+        <type><ref refid="class_config" kindref="compound">Config</ref></type>
+        <definition>Config Config::current_config_</definition>
+        <argsstring></argsstring>
+        <name>current_config_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/config/config.h" line="69" column="17" bodyfile="C:/Daten/Olive/olive/app/config/config.h" bodystart="69" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="class_config_1a3d91944da8675741502254a26ab2d234" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_config" kindref="compound">Config</ref> &amp;</type>
+        <definition>static Config&amp; Config::Current</definition>
+        <argsstring>()</argsstring>
+        <name>Current</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/config/config.h" line="52" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_config_1a2e9d0cdc23f357ea2ac9a2681ded4450" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void Config::Load</definition>
+        <argsstring>()</argsstring>
+        <name>Load</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/config/config.h" line="56" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_config_1a47cb379b671e1cd6088c41f18509656c" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void Config::Save</definition>
+        <argsstring>()</argsstring>
+        <name>Save</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/config/config.h" line="58" column="15"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_config_1a33d526336a2915137e7bda176b59abba" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Config::SetDefaults</definition>
+        <argsstring>()</argsstring>
+        <name>SetDefaults</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/config/config.h" line="54" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_config_1ac7958840cd3f92b0831d0ce6df3118f2" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QVariant</type>
+        <definition>QVariant Config::operator[]</definition>
+        <argsstring>(const QString &amp;) const</argsstring>
+        <name>operator[]</name>
+        <param>
+          <type>const QString &amp;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/config/config.h" line="60" column="12"/>
+      </memberdef>
+      <memberdef kind="function" id="class_config_1a91f0062d3a1cd9a9882e91f3190c7861" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QVariant &amp;</type>
+        <definition>QVariant&amp; Config::operator[]</definition>
+        <argsstring>(const QString &amp;)</argsstring>
+        <name>operator[]</name>
+        <param>
+          <type>const QString &amp;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/config/config.h" line="62" column="12"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_config_1abd0c571c116924871e30444b192b792a" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Config::Config</definition>
+        <argsstring>()</argsstring>
+        <name>Config</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/config/config.h" line="65" column="3"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-func">
+      <memberdef kind="function" id="class_config_1a2566b6ddf78c8a73418e83a8386765fe" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>static QString Config::GetConfigFilePath</definition>
+        <argsstring>()</argsstring>
+        <name>GetConfigFilePath</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/config/config.h" line="71" column="18"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>Config</label>
+        <link refid="class_config"/>
+        <childnode refid="1" relation="usage">
+          <edgelabel>current_config_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/config/config.h" line="32" column="1" bodyfile="C:/Daten/Olive/olive/app/config/config.h" bodystart="32" bodyend="54"/>
+    <listofallmembers>
+      <member refid="class_config_1abd0c571c116924871e30444b192b792a" prot="private" virt="non-virtual"><scope>Config</scope><name>Config</name></member>
+      <member refid="class_config_1a1371b9c2a1b32903236713fe396f54a0" prot="private" virt="non-virtual"><scope>Config</scope><name>config_map_</name></member>
+      <member refid="class_config_1a3d91944da8675741502254a26ab2d234" prot="public" virt="non-virtual"><scope>Config</scope><name>Current</name></member>
+      <member refid="class_config_1ab9927a4e0d7aadd6a9097a8cb2b110f2" prot="private" virt="non-virtual"><scope>Config</scope><name>current_config_</name></member>
+      <member refid="class_config_1a2566b6ddf78c8a73418e83a8386765fe" prot="private" virt="non-virtual"><scope>Config</scope><name>GetConfigFilePath</name></member>
+      <member refid="class_config_1a2e9d0cdc23f357ea2ac9a2681ded4450" prot="public" virt="non-virtual"><scope>Config</scope><name>Load</name></member>
+      <member refid="class_config_1ac7958840cd3f92b0831d0ce6df3118f2" prot="public" virt="non-virtual"><scope>Config</scope><name>operator[]</name></member>
+      <member refid="class_config_1a91f0062d3a1cd9a9882e91f3190c7861" prot="public" virt="non-virtual"><scope>Config</scope><name>operator[]</name></member>
+      <member refid="class_config_1a47cb379b671e1cd6088c41f18509656c" prot="public" virt="non-virtual"><scope>Config</scope><name>Save</name></member>
+      <member refid="class_config_1a33d526336a2915137e7bda176b59abba" prot="public" virt="non-virtual"><scope>Config</scope><name>SetDefaults</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

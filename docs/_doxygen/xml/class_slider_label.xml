@@ -1,0 +1,187 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_slider_label" kind="class" language="C++" prot="public">
+    <compoundname>SliderLabel</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QLabel</basecompoundref>
+    <includes refid="sliderlabel_8h" local="no">sliderlabel.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_slider_label_1a28112540e8cb6c9cc72e550c96104490" prot="private" static="no" mutable="no">
+        <type>QPoint</type>
+        <definition>QPoint SliderLabel::drag_start_</definition>
+        <argsstring></argsstring>
+        <name>drag_start_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderlabel.h" line="73" column="10" bodyfile="C:/Daten/Olive/olive/app/widget/slider/sliderlabel.h" bodystart="73" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_slider_label_1af91f0f08061e6055783d8066f90981c5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>SliderLabel::SliderLabel</definition>
+        <argsstring>(QWidget *parent)</argsstring>
+        <name>SliderLabel</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderlabel.h" line="52" column="3"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_slider_label_1af818062e9ef561f55bf416fde7ed4d89" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void SliderLabel::mousePressEvent</definition>
+        <argsstring>(QMouseEvent *ev) override</argsstring>
+        <name>mousePressEvent</name>
+        <param>
+          <type>QMouseEvent *</type>
+          <declname>ev</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderlabel.h" line="55" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_slider_label_1a133f5d24371f7fcffa45587b3551f019" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void SliderLabel::mouseMoveEvent</definition>
+        <argsstring>(QMouseEvent *ev) override</argsstring>
+        <name>mouseMoveEvent</name>
+        <param>
+          <type>QMouseEvent *</type>
+          <declname>ev</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderlabel.h" line="57" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_slider_label_1a2c3fc54f13bc0bfb84d38495d7b96ea4" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void SliderLabel::mouseReleaseEvent</definition>
+        <argsstring>(QMouseEvent *ev) override</argsstring>
+        <name>mouseReleaseEvent</name>
+        <param>
+          <type>QMouseEvent *</type>
+          <declname>ev</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderlabel.h" line="59" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_slider_label_1af89ede73f5bb8f4f3ccd706a2b96c62a" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void SliderLabel::focusInEvent</definition>
+        <argsstring>(QFocusEvent *event) override</argsstring>
+        <name>focusInEvent</name>
+        <param>
+          <type>QFocusEvent *</type>
+          <declname>event</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderlabel.h" line="61" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_slider_label_1a36bd6f9b4414aadce52abcb434f5ab9a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void SliderLabel::dragged</definition>
+        <argsstring>(int x)</argsstring>
+        <name>dragged</name>
+        <param>
+          <type>int</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderlabel.h" line="64" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_slider_label_1a6ce9a54c6b8ff03a670d39efc543ecd1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void SliderLabel::drag_start</definition>
+        <argsstring>()</argsstring>
+        <name>drag_start</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderlabel.h" line="66" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_slider_label_1a891ab0ff00b4dad329cd4ec11057df88" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void SliderLabel::drag_stop</definition>
+        <argsstring>()</argsstring>
+        <name>drag_stop</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderlabel.h" line="68" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_slider_label_1a1b7c995ce019260e4e6d706853150db1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void SliderLabel::focused</definition>
+        <argsstring>()</argsstring>
+        <name>focused</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderlabel.h" line="70" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/widget/slider/sliderlabel.h" line="30" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/slider/sliderlabel.h" bodystart="31" bodyend="57"/>
+    <listofallmembers>
+      <member refid="class_slider_label_1a6ce9a54c6b8ff03a670d39efc543ecd1" prot="public" virt="non-virtual"><scope>SliderLabel</scope><name>drag_start</name></member>
+      <member refid="class_slider_label_1a28112540e8cb6c9cc72e550c96104490" prot="private" virt="non-virtual"><scope>SliderLabel</scope><name>drag_start_</name></member>
+      <member refid="class_slider_label_1a891ab0ff00b4dad329cd4ec11057df88" prot="public" virt="non-virtual"><scope>SliderLabel</scope><name>drag_stop</name></member>
+      <member refid="class_slider_label_1a36bd6f9b4414aadce52abcb434f5ab9a" prot="public" virt="non-virtual"><scope>SliderLabel</scope><name>dragged</name></member>
+      <member refid="class_slider_label_1a1b7c995ce019260e4e6d706853150db1" prot="public" virt="non-virtual"><scope>SliderLabel</scope><name>focused</name></member>
+      <member refid="class_slider_label_1af89ede73f5bb8f4f3ccd706a2b96c62a" prot="protected" virt="virtual"><scope>SliderLabel</scope><name>focusInEvent</name></member>
+      <member refid="class_slider_label_1a133f5d24371f7fcffa45587b3551f019" prot="protected" virt="virtual"><scope>SliderLabel</scope><name>mouseMoveEvent</name></member>
+      <member refid="class_slider_label_1af818062e9ef561f55bf416fde7ed4d89" prot="protected" virt="virtual"><scope>SliderLabel</scope><name>mousePressEvent</name></member>
+      <member refid="class_slider_label_1a2c3fc54f13bc0bfb84d38495d7b96ea4" prot="protected" virt="virtual"><scope>SliderLabel</scope><name>mouseReleaseEvent</name></member>
+      <member refid="class_slider_label_1af91f0f08061e6055783d8066f90981c5" prot="public" virt="non-virtual"><scope>SliderLabel</scope><name>SliderLabel</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

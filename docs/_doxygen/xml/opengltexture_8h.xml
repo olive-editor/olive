@@ -1,0 +1,386 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="opengltexture_8h" kind="file" language="C++">
+    <compoundname>opengltexture.h</compoundname>
+    <includes local="no">memory</includes>
+    <includes local="no">QOpenGLFunctions</includes>
+    <includes refid="frame_8h" local="yes">codec/frame.h</includes>
+    <includes refid="pixelformat_8h" local="yes">render/pixelformat.h</includes>
+    <includedby refid="openglframebuffer_8h" local="yes">openglframebuffer.h</includedby>
+    <includedby refid="opengltexturecache_8h" local="yes">opengltexturecache.h</includedby>
+    <includedby refid="openglbackend_8h" local="yes">openglbackend.h</includedby>
+    <includedby refid="waveform_8h" local="yes">waveform.h</includedby>
+    <includedby refid="widget_2viewer_2viewer_8h" local="yes">viewer.h</includedby>
+    <includedby refid="viewerdisplay_8h" local="yes">viewerdisplay.h</includedby>
+    <incdepgraph>
+      <node id="10">
+        <label>libavformat/avformat.h</label>
+      </node>
+      <node id="9">
+        <label>QMetaType</label>
+      </node>
+      <node id="14">
+        <label>render/pixelformat.h</label>
+        <link refid="pixelformat_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>common/rational.h</label>
+        <link refid="rational_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="18">
+        <label>render/rendermodes.h</label>
+        <link refid="rendermodes_8h"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>common/define.h</label>
+        <link refid="define_8h"/>
+      </node>
+      <node id="16">
+        <label>QOpenGLExtraFunctions</label>
+      </node>
+      <node id="8">
+        <label>QDebug</label>
+      </node>
+      <node id="17">
+        <label>QString</label>
+      </node>
+      <node id="3">
+        <label>QOpenGLFunctions</label>
+      </node>
+      <node id="12">
+        <label>render/color.h</label>
+        <link refid="color_8h"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>opengltexture.h</label>
+        <link refid="opengltexture_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>QColor</label>
+      </node>
+      <node id="7">
+        <label>iostream</label>
+      </node>
+      <node id="19">
+        <label>render/videoparams.h</label>
+        <link refid="videoparams_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>codec/frame.h</label>
+        <link refid="frame_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>OpenImageIO/imageio.h</label>
+      </node>
+      <node id="2">
+        <label>memory</label>
+      </node>
+      <node id="5">
+        <label>QVector</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="18">
+        <label>viewerwindow.h</label>
+        <link refid="viewerwindow_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>scope.h</label>
+        <link refid="scope_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>mainwindow.h</label>
+        <link refid="mainwindow_8h"/>
+      </node>
+      <node id="15">
+        <label>waveform.h</label>
+        <link refid="waveform_8h"/>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>viewer.h</label>
+        <link refid="widget_2viewer_2viewer_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>viewerdisplay.h</label>
+        <link refid="viewerdisplay_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>viewerbase.h</label>
+        <link refid="viewerbase_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>openglworker.h</label>
+        <link refid="openglworker_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>footageviewer.h</label>
+        <link refid="widget_2viewer_2footageviewer_8h"/>
+      </node>
+      <node id="12">
+        <label>openglproxy.h</label>
+        <link refid="openglproxy_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>opengltexture.h</label>
+        <link refid="opengltexture_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>sequenceviewer.h</label>
+        <link refid="sequenceviewer_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>export.h</label>
+        <link refid="export_8h"/>
+      </node>
+      <node id="9">
+        <label>viewer.h</label>
+        <link refid="panel_2viewer_2viewer_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>footageviewer.h</label>
+        <link refid="panel_2footageviewer_2footageviewer_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>openglframebuffer.h</label>
+        <link refid="openglframebuffer_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>openglbackend.h</label>
+        <link refid="openglbackend_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>opengltexturecache.h</label>
+        <link refid="opengltexturecache_8h"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="class_open_g_l_texture" prot="public">OpenGLTexture</innerclass>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="opengltexture_8h_1a2e544646387943a957198ca8682814f7" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="class_open_g_l_texture" kindref="compound">OpenGLTexture</ref> &gt;</type>
+        <definition>using OpenGLTexturePtr =  std::shared_ptr&lt;OpenGLTexture&gt;</definition>
+        <argsstring></argsstring>
+        <name>OpenGLTexturePtr</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexture.h" line="85" column="1" bodyfile="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexture.h" bodystart="85" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/***</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"></highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/><sp/>Olive<sp/>-<sp/>Non-Linear<sp/>Video<sp/>Editor</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/><sp/>Copyright<sp/>(C)<sp/>2019<sp/>Olive<sp/>Team</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"></highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/><sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/><sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/><sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"></highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/><sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/><sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/><sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"></highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/><sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/><sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"></highlight></codeline>
+<codeline lineno="19"><highlight class="comment">***/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>OPENGLTEXTURE_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>OPENGLTEXTURE_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;memory&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QOpenGLFunctions&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="frame_8h" kindref="compound">codec/frame.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="pixelformat_8h" kindref="compound">render/pixelformat.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><ref refid="define_8h_1a0472692dd1f22472ad63da20da919e8c" kindref="member">OLIVE_NAMESPACE_ENTER</ref></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35" refid="class_open_g_l_texture" refkind="compound"><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_open_g_l_texture" kindref="compound">OpenGLTexture</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>QObject</highlight></codeline>
+<codeline lineno="36"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/>Q_OBJECT</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><ref refid="class_open_g_l_texture_1ab3e52d6d7280b58ea59b44d0f25276ba" kindref="member">OpenGLTexture</ref>();</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="class_open_g_l_texture_1ad76f465ce261d78d660b8f406c587c59" kindref="member">~OpenGLTexture</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><ref refid="define_8h_1a49ad49a490f2b30e39821d11a9cc9769" kindref="member">DISABLE_COPY_MOVE</ref>(<ref refid="class_open_g_l_texture" kindref="compound">OpenGLTexture</ref>)</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_open_g_l_texture_1a9e76edf620954349344ac2c370806de8" kindref="member">Create</ref>(QOpenGLContext*<sp/>ctx,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="class_open_g_l_texture_1ae90dca8c8c275bd76514cef8c0a9e933" kindref="member">width</ref>,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="class_open_g_l_texture_1a4053b5592c91605ca81e88f3498bbb6c" kindref="member">height</ref>,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021" kindref="member">PixelFormat::Format</ref><sp/>&amp;<ref refid="class_open_g_l_texture_1add18e4e2c7554037f8c54eace736a77a" kindref="member">format</ref>,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*data,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>linesize);</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_open_g_l_texture_1a9e76edf620954349344ac2c370806de8" kindref="member">Create</ref>(QOpenGLContext*<sp/>ctx,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="class_open_g_l_texture_1ae90dca8c8c275bd76514cef8c0a9e933" kindref="member">width</ref>,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="class_open_g_l_texture_1a4053b5592c91605ca81e88f3498bbb6c" kindref="member">height</ref>,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021" kindref="member">PixelFormat::Format</ref><sp/>&amp;<ref refid="class_open_g_l_texture_1add18e4e2c7554037f8c54eace736a77a" kindref="member">format</ref>);</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_open_g_l_texture_1a9e76edf620954349344ac2c370806de8" kindref="member">Create</ref>(QOpenGLContext*<sp/>ctx,<sp/><ref refid="frame_8h_1a2ae9a822fc1e331fa3b449797f717db6" kindref="member">FramePtr</ref><sp/>frame);</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_open_g_l_texture_1a9e76edf620954349344ac2c370806de8" kindref="member">Create</ref>(QOpenGLContext*<sp/>ctx,<sp/><ref refid="class_frame" kindref="compound">Frame</ref>*<sp/>frame);</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_open_g_l_texture_1aa298f872152c0b75786ebd5314d806c1" kindref="member">IsCreated</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_open_g_l_texture_1a83e42404b1a78266092077d2b86ce550" kindref="member">Bind</ref>();</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_open_g_l_texture_1a59fda6d942bb046f5a7a0e21bb2378cd" kindref="member">Release</ref>();</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">&amp;<sp/><ref refid="class_open_g_l_texture_1ae90dca8c8c275bd76514cef8c0a9e933" kindref="member">width</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57" refid="class_open_g_l_texture_1ab3e52d6d7280b58ea59b44d0f25276ba" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">&amp;<sp/><ref refid="class_open_g_l_texture_1a4053b5592c91605ca81e88f3498bbb6c" kindref="member">height</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="58" refid="class_open_g_l_texture_1ad76f465ce261d78d660b8f406c587c59" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021" kindref="member">PixelFormat::Format</ref><sp/>&amp;<ref refid="class_open_g_l_texture_1add18e4e2c7554037f8c54eace736a77a" kindref="member">format</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>GLuint&amp;<sp/><ref refid="class_open_g_l_texture_1a95ea668c2900a7e58a7dc0c3b60e710c" kindref="member">texture</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="62" refid="class_open_g_l_texture_1a9e76edf620954349344ac2c370806de8" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63" refid="class_open_g_l_texture_1a593d632a0979f58c457cb0dd3774aa75" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_open_g_l_texture_1a40346ba6ced9f391ed6786d53c1932a8" kindref="member">Upload</ref>(<ref refid="frame_8h_1a2ae9a822fc1e331fa3b449797f717db6" kindref="member">FramePtr</ref><sp/>frame);</highlight></codeline>
+<codeline lineno="64" refid="class_open_g_l_texture_1af54e8853abe899fe9c08dd2bd030769e" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_open_g_l_texture_1a40346ba6ced9f391ed6786d53c1932a8" kindref="member">Upload</ref>(<ref refid="class_frame" kindref="compound">Frame</ref>*<sp/>frame);</highlight></codeline>
+<codeline lineno="65" refid="class_open_g_l_texture_1a641283523b72c997def66c65ce03c83d" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_open_g_l_texture_1a40346ba6ced9f391ed6786d53c1932a8" kindref="member">Upload</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*data,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>linesize);</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67" refid="class_open_g_l_texture_1aa298f872152c0b75786ebd5314d806c1" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>slots:</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_open_g_l_texture_1a3b19abaf278659a7855e10aae27f3f9d" kindref="member">Destroy</ref>();</highlight></codeline>
+<codeline lineno="69" refid="class_open_g_l_texture_1a83e42404b1a78266092077d2b86ce550" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="71" refid="class_open_g_l_texture_1a59fda6d942bb046f5a7a0e21bb2378cd" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_open_g_l_texture_1a834ea54bf21fd7cecdb2c8c1eb62a014" kindref="member">CreateInternal</ref>(QOpenGLContext<sp/>*create_ctx,<sp/>GLuint<sp/>*tex,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*data,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>linesize);</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73" refid="class_open_g_l_texture_1ae90dca8c8c275bd76514cef8c0a9e933" refkind="member"><highlight class="normal"><sp/><sp/>QOpenGLContext*<sp/><ref refid="class_open_g_l_texture_1a0db203615dd4d29d9e60516059bf81fb" kindref="member">created_ctx_</ref>;</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75" refid="class_open_g_l_texture_1a4053b5592c91605ca81e88f3498bbb6c" refkind="member"><highlight class="normal"><sp/><sp/>GLuint<sp/><ref refid="class_open_g_l_texture_1a4d5af6a1c4b60fd1993688bdbacfb4a3" kindref="member">texture_</ref>;</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77" refid="class_open_g_l_texture_1add18e4e2c7554037f8c54eace736a77a" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="class_open_g_l_texture_1a6ebc3f0262e2efe3807f825e51c64e5b" kindref="member">width_</ref>;</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight></codeline>
+<codeline lineno="79" refid="class_open_g_l_texture_1a95ea668c2900a7e58a7dc0c3b60e710c" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="class_open_g_l_texture_1abbed91bd65dfe540b78a3f5efeea3980" kindref="member">height_</ref>;</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight></codeline>
+<codeline lineno="81" refid="class_open_g_l_texture_1a40346ba6ced9f391ed6786d53c1932a8" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021" kindref="member">PixelFormat::Format</ref><sp/><ref refid="class_open_g_l_texture_1ab6d22239863b2dbb8e2651eadab2f458" kindref="member">format_</ref>;</highlight></codeline>
+<codeline lineno="82" refid="class_open_g_l_texture_1a7009f89b68e31fe73d491f9b614366a0" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83" refid="class_open_g_l_texture_1a82cb5c7f01abfebd6851b97bf13f43dc" refkind="member"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85" refid="opengltexture_8h_1a2e544646387943a957198ca8682814f7" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">using</highlight><highlight class="normal"><sp/><ref refid="opengltexture_8h_1a2e544646387943a957198ca8682814f7" kindref="member">OpenGLTexturePtr</ref><sp/>=<sp/>std::shared_ptr&lt;OpenGLTexture&gt;;</highlight></codeline>
+<codeline lineno="86" refid="class_open_g_l_texture_1a3b19abaf278659a7855e10aae27f3f9d" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><ref refid="define_8h_1abe3de0634d907ca0f5d1acf732c49dac" kindref="member">OLIVE_NAMESPACE_EXIT</ref></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="89" refid="class_open_g_l_texture_1a834ea54bf21fd7cecdb2c8c1eb62a014" refkind="member"><highlight class="normal">Q_DECLARE_METATYPE(<ref refid="opengltexture_8h_1a2e544646387943a957198ca8682814f7" kindref="member">OLIVE_NAMESPACE::OpenGLTexturePtr</ref>)</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91" refid="class_open_g_l_texture_1a0db203615dd4d29d9e60516059bf81fb" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//<sp/>OPENGLTEXTURE_H</highlight></codeline>
+    </programlisting>
+    <location file="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexture.h"/>
+  </compounddef>
+</doxygen>

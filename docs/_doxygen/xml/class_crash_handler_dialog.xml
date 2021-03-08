@@ -1,0 +1,65 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_crash_handler_dialog" kind="class" language="C++" prot="public">
+    <compoundname>CrashHandlerDialog</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QDialog</basecompoundref>
+    <includes refid="dialog_2crashhandler_2crashhandler_8h" local="no">crashhandler.h</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_crash_handler_dialog_1a84d326838ba336fce37b7b5701e8ce79" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>CrashHandlerDialog::CrashHandlerDialog</definition>
+        <argsstring>(const char *log_file)</argsstring>
+        <name>CrashHandlerDialog</name>
+        <param>
+          <type>const char *</type>
+          <declname>log_file</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/crashhandler/crashhandler.h" line="52" column="3"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-slot">
+      <memberdef kind="slot" id="class_crash_handler_dialog_1adc2aaf0fb40ebb1d33b104d277e65735" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void CrashHandlerDialog::accept</definition>
+        <argsstring>() override</argsstring>
+        <name>accept</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/crashhandler/crashhandler.h" line="55" column="16"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_crash_handler_dialog_1a9e08eb09501ab9a709daa5f206fec8fb" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void CrashHandlerDialog::reject</definition>
+        <argsstring>() override</argsstring>
+        <name>reject</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/crashhandler/crashhandler.h" line="57" column="16"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/dialog/crashhandler/crashhandler.h" line="30" column="1" bodyfile="C:/Daten/Olive/olive/app/dialog/crashhandler/crashhandler.h" bodystart="31" bodyend="41"/>
+    <listofallmembers>
+      <member refid="class_crash_handler_dialog_1adc2aaf0fb40ebb1d33b104d277e65735" prot="public" virt="virtual"><scope>CrashHandlerDialog</scope><name>accept</name></member>
+      <member refid="class_crash_handler_dialog_1a84d326838ba336fce37b7b5701e8ce79" prot="public" virt="non-virtual"><scope>CrashHandlerDialog</scope><name>CrashHandlerDialog</name></member>
+      <member refid="class_crash_handler_dialog_1a9e08eb09501ab9a709daa5f206fec8fb" prot="public" virt="virtual"><scope>CrashHandlerDialog</scope><name>reject</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

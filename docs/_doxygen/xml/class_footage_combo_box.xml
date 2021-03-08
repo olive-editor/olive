@@ -1,0 +1,281 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_footage_combo_box" kind="class" language="C++" prot="public">
+    <compoundname>FootageComboBox</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QComboBox</basecompoundref>
+    <includes refid="footagecombobox_8h" local="no">footagecombobox.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_footage_combo_box_1a898d907b600d8504d039aad758e43693" prot="private" static="no" mutable="no">
+        <type>const <ref refid="class_folder" kindref="compound">Folder</ref> *</type>
+        <definition>const Folder* FootageComboBox::root_</definition>
+        <argsstring></argsstring>
+        <name>root_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/footagecombobox/footagecombobox.h" line="77" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/footagecombobox/footagecombobox.h" bodystart="77" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_footage_combo_box_1ab1008cae52b38a06d07447872439eba1" prot="private" static="no" mutable="no">
+        <type><ref refid="stream_8h_1a3ca5b414655d064180098adf46c1a2f1" kindref="member">StreamPtr</ref></type>
+        <definition>StreamPtr FootageComboBox::footage_</definition>
+        <argsstring></argsstring>
+        <name>footage_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/footagecombobox/footagecombobox.h" line="79" column="13" bodyfile="C:/Daten/Olive/olive/app/widget/footagecombobox/footagecombobox.h" bodystart="79" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_footage_combo_box_1ac49c704dc2417fe2f1ad4bf3ba17e79b" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool FootageComboBox::only_show_ready_footage_</definition>
+        <argsstring></argsstring>
+        <name>only_show_ready_footage_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/footagecombobox/footagecombobox.h" line="81" column="8" bodyfile="C:/Daten/Olive/olive/app/widget/footagecombobox/footagecombobox.h" bodystart="81" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_footage_combo_box_1ab3d2c45ee94aececefc74180daad6100" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>FootageComboBox::FootageComboBox</definition>
+        <argsstring>(QWidget *parent=nullptr)</argsstring>
+        <name>FootageComboBox</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/footagecombobox/footagecombobox.h" line="54" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_footage_combo_box_1a16b9dd723c0ffd8f3d0ae7ce387d92d3" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void FootageComboBox::showPopup</definition>
+        <argsstring>() override</argsstring>
+        <name>showPopup</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/footagecombobox/footagecombobox.h" line="56" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_footage_combo_box_1acdb6974221ca812af18dece5cf6a8cab" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void FootageComboBox::SetRoot</definition>
+        <argsstring>(const Folder *p)</argsstring>
+        <name>SetRoot</name>
+        <param>
+          <type>const <ref refid="class_folder" kindref="compound">Folder</ref> *</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/footagecombobox/footagecombobox.h" line="58" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_footage_combo_box_1a6a04dd81a77d98941155cc021e2bd336" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void FootageComboBox::SetOnlyShowReadyFootage</definition>
+        <argsstring>(bool e)</argsstring>
+        <name>SetOnlyShowReadyFootage</name>
+        <param>
+          <type>bool</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/footagecombobox/footagecombobox.h" line="60" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_footage_combo_box_1aef4ed7e39c307aa6a29da58feaf28d96" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="stream_8h_1a3ca5b414655d064180098adf46c1a2f1" kindref="member">StreamPtr</ref></type>
+        <definition>StreamPtr FootageComboBox::SelectedFootage</definition>
+        <argsstring>()</argsstring>
+        <name>SelectedFootage</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/footagecombobox/footagecombobox.h" line="62" column="13"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-slot">
+      <memberdef kind="slot" id="class_footage_combo_box_1abe2adad90f1f46fc724b4829090bb800" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void FootageComboBox::SetFootage</definition>
+        <argsstring>(StreamPtr f)</argsstring>
+        <name>SetFootage</name>
+        <param>
+          <type><ref refid="stream_8h_1a3ca5b414655d064180098adf46c1a2f1" kindref="member">StreamPtr</ref></type>
+          <declname>f</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/footagecombobox/footagecombobox.h" line="65" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_footage_combo_box_1af55b5ec712dd5e1eaa8825387286742d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void FootageComboBox::FootageChanged</definition>
+        <argsstring>(StreamPtr f)</argsstring>
+        <name>FootageChanged</name>
+        <param>
+          <type><ref refid="stream_8h_1a3ca5b414655d064180098adf46c1a2f1" kindref="member">StreamPtr</ref></type>
+          <declname>f</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/footagecombobox/footagecombobox.h" line="68" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_footage_combo_box_1a423a07b194df01d901c0c0b1a976dd63" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void FootageComboBox::TraverseFolder</definition>
+        <argsstring>(const Folder *f, QMenu *m)</argsstring>
+        <name>TraverseFolder</name>
+        <param>
+          <type>const <ref refid="class_folder" kindref="compound">Folder</ref> *</type>
+          <declname>f</declname>
+        </param>
+        <param>
+          <type>QMenu *</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/footagecombobox/footagecombobox.h" line="71" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_footage_combo_box_1adc93e40214c8d67151e67496a70264f4" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void FootageComboBox::UpdateText</definition>
+        <argsstring>()</argsstring>
+        <name>UpdateText</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/footagecombobox/footagecombobox.h" line="73" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-func">
+      <memberdef kind="function" id="class_footage_combo_box_1a2c01ee4398f93865a04c70f657371545" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>static QString FootageComboBox::FootageToString</definition>
+        <argsstring>(Stream *f)</argsstring>
+        <name>FootageToString</name>
+        <param>
+          <type><ref refid="class_stream" kindref="compound">Stream</ref> *</type>
+          <declname>f</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/footagecombobox/footagecombobox.h" line="75" column="18"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="5">
+        <label>ColorManager</label>
+        <link refid="class_color_manager"/>
+      </node>
+      <node id="3">
+        <label>Item</label>
+        <link refid="class_item"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>parent_</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>project_</edgelabel>
+        </childnode>
+      </node>
+      <node id="4">
+        <label>Project</label>
+        <link refid="class_project"/>
+        <childnode refid="5" relation="usage">
+          <edgelabel>color_manager_</edgelabel>
+        </childnode>
+        <childnode refid="2" relation="usage">
+          <edgelabel>root_</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>Folder</label>
+        <link refid="class_folder"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>FootageComboBox</label>
+        <link refid="class_footage_combo_box"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>root_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/footagecombobox/footagecombobox.h" line="32" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/footagecombobox/footagecombobox.h" bodystart="33" bodyend="64"/>
+    <listofallmembers>
+      <member refid="class_footage_combo_box_1ab1008cae52b38a06d07447872439eba1" prot="private" virt="non-virtual"><scope>FootageComboBox</scope><name>footage_</name></member>
+      <member refid="class_footage_combo_box_1af55b5ec712dd5e1eaa8825387286742d" prot="public" virt="non-virtual"><scope>FootageComboBox</scope><name>FootageChanged</name></member>
+      <member refid="class_footage_combo_box_1ab3d2c45ee94aececefc74180daad6100" prot="public" virt="non-virtual"><scope>FootageComboBox</scope><name>FootageComboBox</name></member>
+      <member refid="class_footage_combo_box_1a2c01ee4398f93865a04c70f657371545" prot="private" virt="non-virtual"><scope>FootageComboBox</scope><name>FootageToString</name></member>
+      <member refid="class_footage_combo_box_1ac49c704dc2417fe2f1ad4bf3ba17e79b" prot="private" virt="non-virtual"><scope>FootageComboBox</scope><name>only_show_ready_footage_</name></member>
+      <member refid="class_footage_combo_box_1a898d907b600d8504d039aad758e43693" prot="private" virt="non-virtual"><scope>FootageComboBox</scope><name>root_</name></member>
+      <member refid="class_footage_combo_box_1aef4ed7e39c307aa6a29da58feaf28d96" prot="public" virt="non-virtual"><scope>FootageComboBox</scope><name>SelectedFootage</name></member>
+      <member refid="class_footage_combo_box_1abe2adad90f1f46fc724b4829090bb800" prot="public" virt="non-virtual"><scope>FootageComboBox</scope><name>SetFootage</name></member>
+      <member refid="class_footage_combo_box_1a6a04dd81a77d98941155cc021e2bd336" prot="public" virt="non-virtual"><scope>FootageComboBox</scope><name>SetOnlyShowReadyFootage</name></member>
+      <member refid="class_footage_combo_box_1acdb6974221ca812af18dece5cf6a8cab" prot="public" virt="non-virtual"><scope>FootageComboBox</scope><name>SetRoot</name></member>
+      <member refid="class_footage_combo_box_1a16b9dd723c0ffd8f3d0ae7ce387d92d3" prot="public" virt="virtual"><scope>FootageComboBox</scope><name>showPopup</name></member>
+      <member refid="class_footage_combo_box_1a423a07b194df01d901c0c0b1a976dd63" prot="private" virt="non-virtual"><scope>FootageComboBox</scope><name>TraverseFolder</name></member>
+      <member refid="class_footage_combo_box_1adc93e40214c8d67151e67496a70264f4" prot="private" virt="non-virtual"><scope>FootageComboBox</scope><name>UpdateText</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

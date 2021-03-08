@@ -1,0 +1,270 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_node_traverser" kind="class" language="C++" prot="public">
+    <compoundname>NodeTraverser</compoundname>
+    <basecompoundref refid="class_cancelable_object" prot="public" virt="non-virtual">CancelableObject</basecompoundref>
+    <derivedcompoundref refid="class_render_worker" prot="public" virt="non-virtual">RenderWorker</derivedcompoundref>
+    <includes refid="traverser_8h" local="no">traverser.h</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_node_traverser_1a602ea9655e868ec8964591abbe5ebc39" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>NodeTraverser::NodeTraverser</definition>
+        <argsstring>()=default</argsstring>
+        <name>NodeTraverser</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/traverser.h" line="54" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_traverser_1aacfbee5b8f19495119cb453b6bb2ac18" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_node_value_table" kindref="compound">NodeValueTable</ref></type>
+        <definition>NodeValueTable NodeTraverser::ProcessNode</definition>
+        <argsstring>(const NodeDependency &amp;dep)</argsstring>
+        <name>ProcessNode</name>
+        <param>
+          <type>const <ref refid="class_node_dependency" kindref="compound">NodeDependency</ref> &amp;</type>
+          <declname>dep</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/traverser.h" line="56" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_cancelable_object_1a70568a2278397439553639b4fffeab9f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void CancelableObject::Cancel</definition>
+        <argsstring>()</argsstring>
+        <name>Cancel</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/cancelableobject.h" line="55" column="8" bodyfile="C:/Daten/Olive/olive/app/common/cancelableobject.h" bodystart="55" bodyend="57"/>
+      </memberdef>
+      <memberdef kind="function" id="class_cancelable_object_1a3a776cf79c9a231efe9a6e81466c2124" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>const QAtomicInt &amp;</type>
+        <definition>const QAtomicInt&amp; CancelableObject::IsCancelled</definition>
+        <argsstring>() const</argsstring>
+        <name>IsCancelled</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/cancelableobject.h" line="59" column="20" bodyfile="C:/Daten/Olive/olive/app/common/cancelableobject.h" bodystart="59" bodyend="61"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_node_traverser_1a09179339541b4fc7d62b6b5200b950e7" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_node_value_database" kindref="compound">NodeValueDatabase</ref></type>
+        <definition>NodeValueDatabase NodeTraverser::GenerateDatabase</definition>
+        <argsstring>(const Node *node, const TimeRange &amp;range)</argsstring>
+        <name>GenerateDatabase</name>
+        <param>
+          <type>const <ref refid="class_node" kindref="compound">Node</ref> *</type>
+          <declname>node</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_time_range" kindref="compound">TimeRange</ref> &amp;</type>
+          <declname>range</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/traverser.h" line="59" column="21"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_traverser_1addaf2e11dcd16ee873dda63b87c32d0f" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="class_node_value_table" kindref="compound">NodeValueTable</ref></type>
+        <definition>virtual NodeValueTable NodeTraverser::RenderBlock</definition>
+        <argsstring>(const TrackOutput *track, const TimeRange &amp;range)</argsstring>
+        <name>RenderBlock</name>
+        <reimplementedby refid="class_audio_render_worker_1afbd6829d17dbac33a37a75627e9da76e">RenderBlock</reimplementedby>
+        <reimplementedby refid="class_video_render_worker_1aee06ea6ad45ed03a54882e2a242e414f">RenderBlock</reimplementedby>
+        <param>
+          <type>const <ref refid="class_track_output" kindref="compound">TrackOutput</ref> *</type>
+          <declname>track</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_time_range" kindref="compound">TimeRange</ref> &amp;</type>
+          <declname>range</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/traverser.h" line="61" column="26"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_traverser_1a99c8d7465712a88329ff5046a43473db" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_node_value_table" kindref="compound">NodeValueTable</ref></type>
+        <definition>NodeValueTable NodeTraverser::ProcessInput</definition>
+        <argsstring>(const NodeInput *input, const TimeRange &amp;range)</argsstring>
+        <name>ProcessInput</name>
+        <param>
+          <type>const <ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_time_range" kindref="compound">TimeRange</ref> &amp;</type>
+          <declname>range</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/traverser.h" line="63" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_traverser_1af78b8920bc256e222b8828a704efb983" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void NodeTraverser::InputProcessingEvent</definition>
+        <argsstring>(NodeInput *, const TimeRange &amp;, NodeValueTable *)</argsstring>
+        <name>InputProcessingEvent</name>
+        <reimplementedby refid="class_render_worker_1ad2203812bd5eee845e44675fee974bd6">InputProcessingEvent</reimplementedby>
+        <param>
+          <type><ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+        </param>
+        <param>
+          <type>const <ref refid="class_time_range" kindref="compound">TimeRange</ref> &amp;</type>
+        </param>
+        <param>
+          <type><ref refid="class_node_value_table" kindref="compound">NodeValueTable</ref> *</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/traverser.h" line="65" column="16" bodyfile="C:/Daten/Olive/olive/app/node/traverser.h" bodystart="65" bodyend="65"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_traverser_1a23e4931e2ffa7302421d1a3852d73c8d" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void NodeTraverser::ProcessNodeEvent</definition>
+        <argsstring>(const Node *, const TimeRange &amp;, NodeValueDatabase &amp;, NodeValueTable &amp;)</argsstring>
+        <name>ProcessNodeEvent</name>
+        <reimplementedby refid="class_render_worker_1a39f2e493ceaa6e966780452df816382d">ProcessNodeEvent</reimplementedby>
+        <param>
+          <type>const <ref refid="class_node" kindref="compound">Node</ref> *</type>
+        </param>
+        <param>
+          <type>const <ref refid="class_time_range" kindref="compound">TimeRange</ref> &amp;</type>
+        </param>
+        <param>
+          <type><ref refid="class_node_value_database" kindref="compound">NodeValueDatabase</ref> &amp;</type>
+        </param>
+        <param>
+          <type><ref refid="class_node_value_table" kindref="compound">NodeValueTable</ref> &amp;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/traverser.h" line="67" column="16" bodyfile="C:/Daten/Olive/olive/app/node/traverser.h" bodystart="67" bodyend="67"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_cancelable_object_1a8b2a76dac816afd7527d077ce100993f" prot="private" static="no" mutable="no">
+        <type>QAtomicInt</type>
+        <definition>QAtomicInt CancelableObject::cancelled_</definition>
+        <argsstring></argsstring>
+        <name>cancelled_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/cancelableobject.h" line="64" column="14" bodyfile="C:/Daten/Olive/olive/app/common/cancelableobject.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="7">
+        <label>OpenGLWorker</label>
+        <link refid="class_open_g_l_worker"/>
+        <childnode refid="6" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>CancelableObject</label>
+        <link refid="class_cancelable_object"/>
+      </node>
+      <node id="4">
+        <label>AudioRenderWorker</label>
+        <link refid="class_audio_render_worker"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>RenderWorker</label>
+        <link refid="class_render_worker"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>AudioWorker</label>
+        <link refid="class_audio_worker"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>NodeTraverser</label>
+        <link refid="class_node_traverser"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>VideoRenderWorker</label>
+        <link refid="class_video_render_worker"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>CancelableObject</label>
+        <link refid="class_cancelable_object"/>
+      </node>
+      <node id="1">
+        <label>NodeTraverser</label>
+        <link refid="class_node_traverser"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/node/traverser.h" line="33" column="1" bodyfile="C:/Daten/Olive/olive/app/node/traverser.h" bodystart="34" bodyend="51"/>
+    <listofallmembers>
+      <member refid="class_cancelable_object_1a70568a2278397439553639b4fffeab9f" prot="public" virt="non-virtual"><scope>NodeTraverser</scope><name>Cancel</name></member>
+      <member refid="class_cancelable_object_1acda2934b2fbbd008b729ec2aa792751d" prot="public" virt="non-virtual"><scope>NodeTraverser</scope><name>CancelableObject</name></member>
+      <member refid="class_cancelable_object_1a8b2a76dac816afd7527d077ce100993f" prot="private" virt="non-virtual"><scope>NodeTraverser</scope><name>cancelled_</name></member>
+      <member refid="class_node_traverser_1a09179339541b4fc7d62b6b5200b950e7" prot="protected" virt="non-virtual"><scope>NodeTraverser</scope><name>GenerateDatabase</name></member>
+      <member refid="class_node_traverser_1af78b8920bc256e222b8828a704efb983" prot="protected" virt="virtual"><scope>NodeTraverser</scope><name>InputProcessingEvent</name></member>
+      <member refid="class_cancelable_object_1a3a776cf79c9a231efe9a6e81466c2124" prot="public" virt="non-virtual"><scope>NodeTraverser</scope><name>IsCancelled</name></member>
+      <member refid="class_node_traverser_1a602ea9655e868ec8964591abbe5ebc39" prot="public" virt="non-virtual"><scope>NodeTraverser</scope><name>NodeTraverser</name></member>
+      <member refid="class_node_traverser_1a99c8d7465712a88329ff5046a43473db" prot="protected" virt="non-virtual"><scope>NodeTraverser</scope><name>ProcessInput</name></member>
+      <member refid="class_node_traverser_1aacfbee5b8f19495119cb453b6bb2ac18" prot="public" virt="non-virtual"><scope>NodeTraverser</scope><name>ProcessNode</name></member>
+      <member refid="class_node_traverser_1a23e4931e2ffa7302421d1a3852d73c8d" prot="protected" virt="virtual"><scope>NodeTraverser</scope><name>ProcessNodeEvent</name></member>
+      <member refid="class_node_traverser_1addaf2e11dcd16ee873dda63b87c32d0f" prot="protected" virt="virtual"><scope>NodeTraverser</scope><name>RenderBlock</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

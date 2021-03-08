@@ -1,0 +1,421 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_open_g_l_proxy" kind="class" language="C++" prot="public">
+    <compoundname>OpenGLProxy</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QObject</basecompoundref>
+    <includes refid="openglproxy_8h" local="no">openglproxy.h</includes>
+    <innerclass refid="struct_open_g_l_proxy_1_1_cached_still" prot="private">OpenGLProxy::CachedStill</innerclass>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_open_g_l_proxy_1a8c5f284f092debc08b5a1fd1fa4a010e" prot="private" static="no" mutable="no">
+        <type>QOpenGLContext *</type>
+        <definition>QOpenGLContext* OpenGLProxy::ctx_</definition>
+        <argsstring></argsstring>
+        <name>ctx_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglproxy.h" line="93" column="18" bodyfile="C:/Daten/Olive/olive/app/render/backend/opengl/openglproxy.h" bodystart="93" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_open_g_l_proxy_1ad47f7978713175cf85e6d44da4b8367e" prot="private" static="no" mutable="no">
+        <type>QOffscreenSurface</type>
+        <definition>QOffscreenSurface OpenGLProxy::surface_</definition>
+        <argsstring></argsstring>
+        <name>surface_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglproxy.h" line="94" column="21" bodyfile="C:/Daten/Olive/olive/app/render/backend/opengl/openglproxy.h" bodystart="94" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_open_g_l_proxy_1ad0d0bc86a1fb32fc2cc13b315fef1539" prot="private" static="no" mutable="no">
+        <type>QOpenGLFunctions *</type>
+        <definition>QOpenGLFunctions* OpenGLProxy::functions_</definition>
+        <argsstring></argsstring>
+        <name>functions_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglproxy.h" line="96" column="20" bodyfile="C:/Daten/Olive/olive/app/render/backend/opengl/openglproxy.h" bodystart="96" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_open_g_l_proxy_1a80d1072298c0676a5dc3f53a38c0a2eb" prot="private" static="no" mutable="no">
+        <type><ref refid="class_open_g_l_framebuffer" kindref="compound">OpenGLFramebuffer</ref></type>
+        <definition>OpenGLFramebuffer OpenGLProxy::buffer_</definition>
+        <argsstring></argsstring>
+        <name>buffer_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglproxy.h" line="98" column="21" bodyfile="C:/Daten/Olive/olive/app/render/backend/opengl/openglproxy.h" bodystart="98" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_open_g_l_proxy_1a3b9b78dda3e75e27424d708b33eed1b3" prot="private" static="no" mutable="no">
+        <type><ref refid="colorprocessorcache_8h_1ad4c72c6dc0731fd029b293f54332b05c" kindref="member">ColorProcessorCache</ref></type>
+        <definition>ColorProcessorCache OpenGLProxy::color_cache_</definition>
+        <argsstring></argsstring>
+        <name>color_cache_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglproxy.h" line="100" column="23" bodyfile="C:/Daten/Olive/olive/app/render/backend/opengl/openglproxy.h" bodystart="100" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_open_g_l_proxy_1a3e6e7141b99c0391669e2841f5de7ba9" prot="private" static="no" mutable="no">
+        <type><ref refid="class_video_rendering_params" kindref="compound">VideoRenderingParams</ref></type>
+        <definition>VideoRenderingParams OpenGLProxy::video_params_</definition>
+        <argsstring></argsstring>
+        <name>video_params_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglproxy.h" line="102" column="24" bodyfile="C:/Daten/Olive/olive/app/render/backend/opengl/openglproxy.h" bodystart="102" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_open_g_l_proxy_1a326d3fd455425e6e149e1c3cee2bc312" prot="private" static="no" mutable="no">
+        <type><ref refid="openglshader_8h_1a99853974927ec0ae59c90cd3f1f618fe" kindref="member">OpenGLShaderPtr</ref></type>
+        <definition>OpenGLShaderPtr OpenGLProxy::copy_pipeline_</definition>
+        <argsstring></argsstring>
+        <name>copy_pipeline_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglproxy.h" line="104" column="19" bodyfile="C:/Daten/Olive/olive/app/render/backend/opengl/openglproxy.h" bodystart="104" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_open_g_l_proxy_1a471640284b2c90d70609f816655b8810" prot="private" static="no" mutable="no">
+        <type><ref refid="openglshadercache_8h_1acddf720cf2be96ddfc5cf9de472bc722" kindref="member">OpenGLShaderCache</ref></type>
+        <definition>OpenGLShaderCache OpenGLProxy::shader_cache_</definition>
+        <argsstring></argsstring>
+        <name>shader_cache_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglproxy.h" line="106" column="21" bodyfile="C:/Daten/Olive/olive/app/render/backend/opengl/openglproxy.h" bodystart="106" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_open_g_l_proxy_1a9c7fcf27978b82d90330cb0d0f180e3a" prot="private" static="no" mutable="no">
+        <type><ref refid="class_open_g_l_texture_cache" kindref="compound">OpenGLTextureCache</ref></type>
+        <definition>OpenGLTextureCache OpenGLProxy::texture_cache_</definition>
+        <argsstring></argsstring>
+        <name>texture_cache_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglproxy.h" line="108" column="22" bodyfile="C:/Daten/Olive/olive/app/render/backend/opengl/openglproxy.h" bodystart="108" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_open_g_l_proxy_1a19b1a15a7da57e1a7f4a190de230fcf3" prot="private" static="no" mutable="no">
+        <type><ref refid="class_render_cache" kindref="compound">RenderCache</ref>&lt; <ref refid="class_stream" kindref="compound">Stream</ref> *, <ref refid="struct_open_g_l_proxy_1_1_cached_still" kindref="compound">CachedStill</ref> &gt;</type>
+        <definition>RenderCache&lt;Stream*, CachedStill&gt; OpenGLProxy::still_image_cache_</definition>
+        <argsstring></argsstring>
+        <name>still_image_cache_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglproxy.h" line="117" column="15" bodyfile="C:/Daten/Olive/olive/app/render/backend/opengl/openglproxy.h" bodystart="117" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_open_g_l_proxy_1ad1a86e3a4dad089f3be42c6cc84e11a1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>OpenGLProxy::OpenGLProxy</definition>
+        <argsstring>(QObject *parent=nullptr)</argsstring>
+        <name>OpenGLProxy</name>
+        <param>
+          <type>QObject *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglproxy.h" line="55" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_proxy_1a0f5ad329c1090a3d6e4620fd6588aea9" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type></type>
+        <definition>virtual OpenGLProxy::~OpenGLProxy</definition>
+        <argsstring>() override</argsstring>
+        <name>~OpenGLProxy</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglproxy.h" line="57" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_proxy_1a91c77a48843ac5b5e6e1a3f1ab78c117" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool OpenGLProxy::Init</definition>
+        <argsstring>()</argsstring>
+        <name>Init</name>
+        <briefdescription>
+<para>Initialize OpenGL instance in whatever thread this object is a part of. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function creates a context (shared with share_ctx provided in the constructor) as well as various other OpenGL thread-specific objects necessary for rendering. This function should only ever be called from the main thread (i.e. the thread where share_ctx is current on) but AFTER this object has been pushed to its thread with moveToThread(). If this function is called from a different thread, it could fail or even segfault on some platforms.</para>
+<para>The reason this function must be called in the main thread (rather than initializing asynchronously in a separate thread) is because different platforms have different rules about creating a share context with a context that is still &quot;current&quot; in another thread. While some implementations do allow this, Windows OpenGL (wgl) explicitly forbids it and other platforms/drivers will segfault attempting it. While we can obviously call &quot;doneCurrent&quot;, I haven&apos;t found any reliable way to prevent the main thread from making it current again before initialization is complete other than blocking it entirely.</para>
+<para>To get around this, we create all share contexts in the main thread and then move them to the other thread afterwards (which is completely legal). While annoying, this gets around the issue listed above by both preventing the main thread from using the context during initialization and preventing more than one shared context being made at the same time (which may or may not actually make a difference). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglproxy.h" line="80" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_proxy_1a9d9df38d8acd167a4ef334f847ab2546" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void OpenGLProxy::Close</definition>
+        <argsstring>()</argsstring>
+        <name>Close</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglproxy.h" line="82" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_proxy_1af3c6f0520568bc9375936993235d1762" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void OpenGLProxy::FrameToValue</definition>
+        <argsstring>(FramePtr frame, StreamPtr stream, NodeValueTable *table)</argsstring>
+        <name>FrameToValue</name>
+        <param>
+          <type><ref refid="frame_8h_1a2ae9a822fc1e331fa3b449797f717db6" kindref="member">FramePtr</ref></type>
+          <declname>frame</declname>
+        </param>
+        <param>
+          <type><ref refid="stream_8h_1a3ca5b414655d064180098adf46c1a2f1" kindref="member">StreamPtr</ref></type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type><ref refid="class_node_value_table" kindref="compound">NodeValueTable</ref> *</type>
+          <declname>table</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglproxy.h" line="84" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_proxy_1a17cd9fafa22f837ee6e00cc087c7821d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void OpenGLProxy::RunNodeAccelerated</definition>
+        <argsstring>(const Node *node, const TimeRange &amp;range, NodeValueDatabase &amp;input_params, NodeValueTable &amp;output_params)</argsstring>
+        <name>RunNodeAccelerated</name>
+        <param>
+          <type>const <ref refid="class_node" kindref="compound">Node</ref> *</type>
+          <declname>node</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_time_range" kindref="compound">TimeRange</ref> &amp;</type>
+          <declname>range</declname>
+        </param>
+        <param>
+          <type><ref refid="class_node_value_database" kindref="compound">NodeValueDatabase</ref> &amp;</type>
+          <declname>input_params</declname>
+        </param>
+        <param>
+          <type><ref refid="class_node_value_table" kindref="compound">NodeValueTable</ref> &amp;</type>
+          <declname>output_params</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglproxy.h" line="86" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_proxy_1a55bed3706a703841029452f965f7594c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void OpenGLProxy::TextureToBuffer</definition>
+        <argsstring>(const QVariant &amp;texture, int width, int height, const QMatrix4x4 &amp;matrix, void *buffer, int linesize)</argsstring>
+        <name>TextureToBuffer</name>
+        <param>
+          <type>const QVariant &amp;</type>
+          <declname>texture</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>width</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>height</declname>
+        </param>
+        <param>
+          <type>const QMatrix4x4 &amp;</type>
+          <declname>matrix</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>buffer</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>linesize</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglproxy.h" line="88" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_proxy_1ad70d8653d64747df2d1c34ba0c359296" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void OpenGLProxy::SetParameters</definition>
+        <argsstring>(const VideoRenderingParams &amp;params)</argsstring>
+        <name>SetParameters</name>
+        <param>
+          <type>const <ref refid="class_video_rendering_params" kindref="compound">VideoRenderingParams</ref> &amp;</type>
+          <declname>params</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglproxy.h" line="90" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_open_g_l_proxy_1ad51b951b8f29bd59d7c1a35678acc3b1" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void OpenGLProxy::FinishInit</definition>
+        <argsstring>()</argsstring>
+        <name>FinishInit</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglproxy.h" line="120" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="7">
+        <label>OpenGLTextureCache</label>
+        <link refid="class_open_g_l_texture_cache"/>
+      </node>
+      <node id="1">
+        <label>OpenGLProxy</label>
+        <link refid="class_open_g_l_proxy"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>color_cache_</edgelabel>
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>video_params_</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>shader_cache_</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>texture_cache_</edgelabel>
+        </childnode>
+        <childnode refid="8" relation="usage">
+          <edgelabel>still_image_cache_</edgelabel>
+        </childnode>
+        <childnode refid="9" relation="usage">
+          <edgelabel>buffer_</edgelabel>
+        </childnode>
+      </node>
+      <node id="8">
+        <label>RenderCache&lt; Stream *, OpenGLProxy::CachedStill &gt;</label>
+        <link refid="class_render_cache"/>
+      </node>
+      <node id="5">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="3">
+        <label>VideoRenderingParams</label>
+        <link refid="class_video_rendering_params"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>RenderCache&lt; QString, OpenGLShaderPtr &gt;</label>
+        <link refid="class_render_cache"/>
+      </node>
+      <node id="10">
+        <label>OpenGLTexture</label>
+        <link refid="class_open_g_l_texture"/>
+      </node>
+      <node id="4">
+        <label>VideoParams</label>
+        <link refid="class_video_params"/>
+        <childnode refid="5" relation="usage">
+          <edgelabel>time_base_</edgelabel>
+        </childnode>
+      </node>
+      <node id="9">
+        <label>OpenGLFramebuffer</label>
+        <link refid="class_open_g_l_framebuffer"/>
+        <childnode refid="10" relation="usage">
+          <edgelabel>texture_</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>RenderCache&lt; QString, ColorProcessorPtr &gt;</label>
+        <link refid="class_render_cache"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglproxy.h" line="34" column="1" bodyfile="C:/Daten/Olive/olive/app/render/backend/opengl/openglproxy.h" bodystart="34" bodyend="104"/>
+    <listofallmembers>
+      <member refid="class_open_g_l_proxy_1a80d1072298c0676a5dc3f53a38c0a2eb" prot="private" virt="non-virtual"><scope>OpenGLProxy</scope><name>buffer_</name></member>
+      <member refid="class_open_g_l_proxy_1a9d9df38d8acd167a4ef334f847ab2546" prot="public" virt="non-virtual"><scope>OpenGLProxy</scope><name>Close</name></member>
+      <member refid="class_open_g_l_proxy_1a3b9b78dda3e75e27424d708b33eed1b3" prot="private" virt="non-virtual"><scope>OpenGLProxy</scope><name>color_cache_</name></member>
+      <member refid="class_open_g_l_proxy_1a326d3fd455425e6e149e1c3cee2bc312" prot="private" virt="non-virtual"><scope>OpenGLProxy</scope><name>copy_pipeline_</name></member>
+      <member refid="class_open_g_l_proxy_1a8c5f284f092debc08b5a1fd1fa4a010e" prot="private" virt="non-virtual"><scope>OpenGLProxy</scope><name>ctx_</name></member>
+      <member refid="class_open_g_l_proxy_1ad51b951b8f29bd59d7c1a35678acc3b1" prot="private" virt="non-virtual"><scope>OpenGLProxy</scope><name>FinishInit</name></member>
+      <member refid="class_open_g_l_proxy_1af3c6f0520568bc9375936993235d1762" prot="public" virt="non-virtual"><scope>OpenGLProxy</scope><name>FrameToValue</name></member>
+      <member refid="class_open_g_l_proxy_1ad0d0bc86a1fb32fc2cc13b315fef1539" prot="private" virt="non-virtual"><scope>OpenGLProxy</scope><name>functions_</name></member>
+      <member refid="class_open_g_l_proxy_1a91c77a48843ac5b5e6e1a3f1ab78c117" prot="public" virt="non-virtual"><scope>OpenGLProxy</scope><name>Init</name></member>
+      <member refid="class_open_g_l_proxy_1ad1a86e3a4dad089f3be42c6cc84e11a1" prot="public" virt="non-virtual"><scope>OpenGLProxy</scope><name>OpenGLProxy</name></member>
+      <member refid="class_open_g_l_proxy_1a17cd9fafa22f837ee6e00cc087c7821d" prot="public" virt="non-virtual"><scope>OpenGLProxy</scope><name>RunNodeAccelerated</name></member>
+      <member refid="class_open_g_l_proxy_1ad70d8653d64747df2d1c34ba0c359296" prot="public" virt="non-virtual"><scope>OpenGLProxy</scope><name>SetParameters</name></member>
+      <member refid="class_open_g_l_proxy_1a471640284b2c90d70609f816655b8810" prot="private" virt="non-virtual"><scope>OpenGLProxy</scope><name>shader_cache_</name></member>
+      <member refid="class_open_g_l_proxy_1a19b1a15a7da57e1a7f4a190de230fcf3" prot="private" virt="non-virtual"><scope>OpenGLProxy</scope><name>still_image_cache_</name></member>
+      <member refid="class_open_g_l_proxy_1ad47f7978713175cf85e6d44da4b8367e" prot="private" virt="non-virtual"><scope>OpenGLProxy</scope><name>surface_</name></member>
+      <member refid="class_open_g_l_proxy_1a9c7fcf27978b82d90330cb0d0f180e3a" prot="private" virt="non-virtual"><scope>OpenGLProxy</scope><name>texture_cache_</name></member>
+      <member refid="class_open_g_l_proxy_1a55bed3706a703841029452f965f7594c" prot="public" virt="non-virtual"><scope>OpenGLProxy</scope><name>TextureToBuffer</name></member>
+      <member refid="class_open_g_l_proxy_1a3e6e7141b99c0391669e2841f5de7ba9" prot="private" virt="non-virtual"><scope>OpenGLProxy</scope><name>video_params_</name></member>
+      <member refid="class_open_g_l_proxy_1a0f5ad329c1090a3d6e4620fd6588aea9" prot="public" virt="virtual"><scope>OpenGLProxy</scope><name>~OpenGLProxy</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

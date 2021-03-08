@@ -1,0 +1,117 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_export_advanced_video_dialog" kind="class" language="C++" prot="public">
+    <compoundname>ExportAdvancedVideoDialog</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QDialog</basecompoundref>
+    <includes refid="exportadvancedvideodialog_8h" local="no">exportadvancedvideodialog.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_export_advanced_video_dialog_1a3d33514f4b3173663d8d1217e08f9dd3" prot="private" static="no" mutable="no">
+        <type><ref refid="class_integer_slider" kindref="compound">IntegerSlider</ref> *</type>
+        <definition>IntegerSlider* ExportAdvancedVideoDialog::thread_slider_</definition>
+        <argsstring></argsstring>
+        <name>thread_slider_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportadvancedvideodialog.h" line="21" column="17" bodyfile="C:/Daten/Olive/olive/app/dialog/export/exportadvancedvideodialog.h" bodystart="21" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_export_advanced_video_dialog_1a56526ff599386a04de69ceae4d26323b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>ExportAdvancedVideoDialog::ExportAdvancedVideoDialog</definition>
+        <argsstring>(QWidget *parent=nullptr)</argsstring>
+        <name>ExportAdvancedVideoDialog</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportadvancedvideodialog.h" line="15" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_export_advanced_video_dialog_1a7609cbcbbf73694c3d3973141a8d24d8" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int ExportAdvancedVideoDialog::threads</definition>
+        <argsstring>() const</argsstring>
+        <name>threads</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportadvancedvideodialog.h" line="17" column="7"/>
+      </memberdef>
+      <memberdef kind="function" id="class_export_advanced_video_dialog_1abe2c5273898c2ee41c8f9ede6bf4e1e8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ExportAdvancedVideoDialog::set_threads</definition>
+        <argsstring>(int t)</argsstring>
+        <name>set_threads</name>
+        <param>
+          <type>int</type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportadvancedvideodialog.h" line="18" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>ExportAdvancedVideoDialog</label>
+        <link refid="class_export_advanced_video_dialog"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>thread_slider_</edgelabel>
+        </childnode>
+      </node>
+      <node id="5">
+        <label>SliderLabel</label>
+        <link refid="class_slider_label"/>
+      </node>
+      <node id="4">
+        <label>FocusableLineEdit</label>
+        <link refid="class_focusable_line_edit"/>
+      </node>
+      <node id="2">
+        <label>IntegerSlider</label>
+        <link refid="class_integer_slider"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>SliderBase</label>
+        <link refid="class_slider_base"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>editor_</edgelabel>
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>label_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/dialog/export/exportadvancedvideodialog.h" line="11" column="1" bodyfile="C:/Daten/Olive/olive/app/dialog/export/exportadvancedvideodialog.h" bodystart="12" bodyend="23"/>
+    <listofallmembers>
+      <member refid="class_export_advanced_video_dialog_1a56526ff599386a04de69ceae4d26323b" prot="public" virt="non-virtual"><scope>ExportAdvancedVideoDialog</scope><name>ExportAdvancedVideoDialog</name></member>
+      <member refid="class_export_advanced_video_dialog_1abe2c5273898c2ee41c8f9ede6bf4e1e8" prot="public" virt="non-virtual"><scope>ExportAdvancedVideoDialog</scope><name>set_threads</name></member>
+      <member refid="class_export_advanced_video_dialog_1a3d33514f4b3173663d8d1217e08f9dd3" prot="private" virt="non-virtual"><scope>ExportAdvancedVideoDialog</scope><name>thread_slider_</name></member>
+      <member refid="class_export_advanced_video_dialog_1a7609cbcbbf73694c3d3973141a8d24d8" prot="public" virt="non-virtual"><scope>ExportAdvancedVideoDialog</scope><name>threads</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,326 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_speed_duration_dialog" kind="class" language="C++" prot="public">
+    <compoundname>SpeedDurationDialog</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QDialog</basecompoundref>
+    <includes refid="speedduration_8h" local="no">speedduration.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_speed_duration_dialog_1a1b1d1c749f01efe847ed3b4496f8277e" prot="private" static="no" mutable="no">
+        <type>QList&lt; <ref refid="class_clip_block" kindref="compound">ClipBlock</ref> * &gt;</type>
+        <definition>QList&lt;ClipBlock*&gt; SpeedDurationDialog::clips_</definition>
+        <argsstring></argsstring>
+        <name>clips_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/speedduration/speedduration.h" line="69" column="9" bodyfile="C:/Daten/Olive/olive/app/dialog/speedduration/speedduration.h" bodystart="69" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_speed_duration_dialog_1a6eac905123bff49dc1195df856a475d1" prot="private" static="no" mutable="no">
+        <type><ref refid="class_float_slider" kindref="compound">FloatSlider</ref> *</type>
+        <definition>FloatSlider* SpeedDurationDialog::speed_slider_</definition>
+        <argsstring></argsstring>
+        <name>speed_slider_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/speedduration/speedduration.h" line="71" column="15" bodyfile="C:/Daten/Olive/olive/app/dialog/speedduration/speedduration.h" bodystart="71" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_speed_duration_dialog_1a2944fe9d5b3fb215eb6e8f0fc23535f7" prot="private" static="no" mutable="no">
+        <type><ref refid="class_time_slider" kindref="compound">TimeSlider</ref> *</type>
+        <definition>TimeSlider* SpeedDurationDialog::duration_slider_</definition>
+        <argsstring></argsstring>
+        <name>duration_slider_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/speedduration/speedduration.h" line="72" column="14" bodyfile="C:/Daten/Olive/olive/app/dialog/speedduration/speedduration.h" bodystart="72" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_speed_duration_dialog_1a47554f158e9bcbe6255fec0a051778a7" prot="private" static="no" mutable="no">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational SpeedDurationDialog::timebase_</definition>
+        <argsstring></argsstring>
+        <name>timebase_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/speedduration/speedduration.h" line="74" column="12" bodyfile="C:/Daten/Olive/olive/app/dialog/speedduration/speedduration.h" bodystart="74" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_speed_duration_dialog_1a68eec8c85acbce6bd27e82cb524cb3b3" prot="private" static="no" mutable="no">
+        <type>QCheckBox *</type>
+        <definition>QCheckBox* SpeedDurationDialog::link_speed_and_duration_</definition>
+        <argsstring></argsstring>
+        <name>link_speed_and_duration_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/speedduration/speedduration.h" line="76" column="13" bodyfile="C:/Daten/Olive/olive/app/dialog/speedduration/speedduration.h" bodystart="76" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_speed_duration_dialog_1a4f4fb507710950e522694f12699a4f29" prot="private" static="no" mutable="no">
+        <type>QCheckBox *</type>
+        <definition>QCheckBox* SpeedDurationDialog::reverse_speed_checkbox_</definition>
+        <argsstring></argsstring>
+        <name>reverse_speed_checkbox_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/speedduration/speedduration.h" line="77" column="13" bodyfile="C:/Daten/Olive/olive/app/dialog/speedduration/speedduration.h" bodystart="77" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_speed_duration_dialog_1a67b4be258fc1c724300e2487013e36d8" prot="private" static="no" mutable="no">
+        <type>QCheckBox *</type>
+        <definition>QCheckBox* SpeedDurationDialog::maintain_audio_pitch_checkbox_</definition>
+        <argsstring></argsstring>
+        <name>maintain_audio_pitch_checkbox_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/speedduration/speedduration.h" line="78" column="13" bodyfile="C:/Daten/Olive/olive/app/dialog/speedduration/speedduration.h" bodystart="78" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_speed_duration_dialog_1a7f8e4f665b4382290f327b8f52304243" prot="private" static="no" mutable="no">
+        <type>QCheckBox *</type>
+        <definition>QCheckBox* SpeedDurationDialog::ripple_clips_checkbox_</definition>
+        <argsstring></argsstring>
+        <name>ripple_clips_checkbox_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/speedduration/speedduration.h" line="79" column="13" bodyfile="C:/Daten/Olive/olive/app/dialog/speedduration/speedduration.h" bodystart="79" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_speed_duration_dialog_1a1bd56b664bddfe052e095b6a45ffef10" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>SpeedDurationDialog::SpeedDurationDialog</definition>
+        <argsstring>(const rational &amp;timebase, const QList&lt; ClipBlock * &gt; &amp;clips, QWidget *parent=nullptr)</argsstring>
+        <name>SpeedDurationDialog</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>timebase</declname>
+        </param>
+        <param>
+          <type>const QList&lt; <ref refid="class_clip_block" kindref="compound">ClipBlock</ref> * &gt; &amp;</type>
+          <declname>clips</declname>
+        </param>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/speedduration/speedduration.h" line="57" column="3"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-slot">
+      <memberdef kind="slot" id="class_speed_duration_dialog_1a192accd72aea641aff788a313ead07e8" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void SpeedDurationDialog::accept</definition>
+        <argsstring>() override</argsstring>
+        <name>accept</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/speedduration/speedduration.h" line="60" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_speed_duration_dialog_1a86ee0aa65619b9b9d3872abdb041cab9" prot="private" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double SpeedDurationDialog::GetUnadjustedLengthTimestamp</definition>
+        <argsstring>(ClipBlock *clip) const</argsstring>
+        <name>GetUnadjustedLengthTimestamp</name>
+        <param>
+          <type><ref refid="class_clip_block" kindref="compound">ClipBlock</ref> *</type>
+          <declname>clip</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/speedduration/speedduration.h" line="63" column="10"/>
+      </memberdef>
+      <memberdef kind="function" id="class_speed_duration_dialog_1a96b94a1d44591ba804175e2942847cfb" prot="private" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int64_t</type>
+        <definition>int64_t SpeedDurationDialog::GetAdjustedDuration</definition>
+        <argsstring>(ClipBlock *clip, const double &amp;new_speed) const</argsstring>
+        <name>GetAdjustedDuration</name>
+        <param>
+          <type><ref refid="class_clip_block" kindref="compound">ClipBlock</ref> *</type>
+          <declname>clip</declname>
+        </param>
+        <param>
+          <type>const double &amp;</type>
+          <declname>new_speed</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/speedduration/speedduration.h" line="65" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_speed_duration_dialog_1aa8df8e6fce6bced87904221751d6f18f" prot="private" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double SpeedDurationDialog::GetAdjustedSpeed</definition>
+        <argsstring>(ClipBlock *clip, const int64_t &amp;new_duration) const</argsstring>
+        <name>GetAdjustedSpeed</name>
+        <param>
+          <type><ref refid="class_clip_block" kindref="compound">ClipBlock</ref> *</type>
+          <declname>clip</declname>
+        </param>
+        <param>
+          <type>const int64_t &amp;</type>
+          <declname>new_duration</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/speedduration/speedduration.h" line="67" column="10"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_speed_duration_dialog_1a7938df0fb4516c79c3693b33280490cc" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void SpeedDurationDialog::SpeedChanged</definition>
+        <argsstring>()</argsstring>
+        <name>SpeedChanged</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/speedduration/speedduration.h" line="82" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_speed_duration_dialog_1a0c9e696a79cec337073a92df04913b11" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void SpeedDurationDialog::DurationChanged</definition>
+        <argsstring>()</argsstring>
+        <name>DurationChanged</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/speedduration/speedduration.h" line="84" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="8">
+        <label>FloatSlider</label>
+        <link refid="class_float_slider"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="6">
+        <label>SliderLabel</label>
+        <link refid="class_slider_label"/>
+      </node>
+      <node id="5">
+        <label>FocusableLineEdit</label>
+        <link refid="class_focusable_line_edit"/>
+      </node>
+      <node id="3">
+        <label>IntegerSlider</label>
+        <link refid="class_integer_slider"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>TimeSlider</label>
+        <link refid="class_time_slider"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>timebase_</edgelabel>
+        </childnode>
+      </node>
+      <node id="1">
+        <label>SpeedDurationDialog</label>
+        <link refid="class_speed_duration_dialog"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>duration_slider_</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>timebase_</edgelabel>
+        </childnode>
+        <childnode refid="8" relation="usage">
+          <edgelabel>speed_slider_</edgelabel>
+        </childnode>
+      </node>
+      <node id="4">
+        <label>SliderBase</label>
+        <link refid="class_slider_base"/>
+        <childnode refid="5" relation="usage">
+          <edgelabel>editor_</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>label_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/dialog/speedduration/speedduration.h" line="35" column="1" bodyfile="C:/Daten/Olive/olive/app/dialog/speedduration/speedduration.h" bodystart="36" bodyend="67"/>
+    <listofallmembers>
+      <member refid="class_speed_duration_dialog_1a192accd72aea641aff788a313ead07e8" prot="public" virt="virtual"><scope>SpeedDurationDialog</scope><name>accept</name></member>
+      <member refid="class_speed_duration_dialog_1a1b1d1c749f01efe847ed3b4496f8277e" prot="private" virt="non-virtual"><scope>SpeedDurationDialog</scope><name>clips_</name></member>
+      <member refid="class_speed_duration_dialog_1a2944fe9d5b3fb215eb6e8f0fc23535f7" prot="private" virt="non-virtual"><scope>SpeedDurationDialog</scope><name>duration_slider_</name></member>
+      <member refid="class_speed_duration_dialog_1a0c9e696a79cec337073a92df04913b11" prot="private" virt="non-virtual"><scope>SpeedDurationDialog</scope><name>DurationChanged</name></member>
+      <member refid="class_speed_duration_dialog_1a96b94a1d44591ba804175e2942847cfb" prot="private" virt="non-virtual"><scope>SpeedDurationDialog</scope><name>GetAdjustedDuration</name></member>
+      <member refid="class_speed_duration_dialog_1aa8df8e6fce6bced87904221751d6f18f" prot="private" virt="non-virtual"><scope>SpeedDurationDialog</scope><name>GetAdjustedSpeed</name></member>
+      <member refid="class_speed_duration_dialog_1a86ee0aa65619b9b9d3872abdb041cab9" prot="private" virt="non-virtual"><scope>SpeedDurationDialog</scope><name>GetUnadjustedLengthTimestamp</name></member>
+      <member refid="class_speed_duration_dialog_1a68eec8c85acbce6bd27e82cb524cb3b3" prot="private" virt="non-virtual"><scope>SpeedDurationDialog</scope><name>link_speed_and_duration_</name></member>
+      <member refid="class_speed_duration_dialog_1a67b4be258fc1c724300e2487013e36d8" prot="private" virt="non-virtual"><scope>SpeedDurationDialog</scope><name>maintain_audio_pitch_checkbox_</name></member>
+      <member refid="class_speed_duration_dialog_1a4f4fb507710950e522694f12699a4f29" prot="private" virt="non-virtual"><scope>SpeedDurationDialog</scope><name>reverse_speed_checkbox_</name></member>
+      <member refid="class_speed_duration_dialog_1a7f8e4f665b4382290f327b8f52304243" prot="private" virt="non-virtual"><scope>SpeedDurationDialog</scope><name>ripple_clips_checkbox_</name></member>
+      <member refid="class_speed_duration_dialog_1a6eac905123bff49dc1195df856a475d1" prot="private" virt="non-virtual"><scope>SpeedDurationDialog</scope><name>speed_slider_</name></member>
+      <member refid="class_speed_duration_dialog_1a7938df0fb4516c79c3693b33280490cc" prot="private" virt="non-virtual"><scope>SpeedDurationDialog</scope><name>SpeedChanged</name></member>
+      <member refid="class_speed_duration_dialog_1a1bd56b664bddfe052e095b6a45ffef10" prot="public" virt="non-virtual"><scope>SpeedDurationDialog</scope><name>SpeedDurationDialog</name></member>
+      <member refid="class_speed_duration_dialog_1a47554f158e9bcbe6255fec0a051778a7" prot="private" virt="non-virtual"><scope>SpeedDurationDialog</scope><name>timebase_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,391 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="encoder_8h" kind="file" language="C++">
+    <compoundname>encoder.h</compoundname>
+    <includes local="no">memory</includes>
+    <includes local="no">QString</includes>
+    <includes refid="frame_8h" local="yes">codec/frame.h</includes>
+    <includes refid="timerange_8h" local="yes">common/timerange.h</includes>
+    <includes refid="audioparams_8h" local="yes">render/audioparams.h</includes>
+    <includes refid="videoparams_8h" local="yes">render/videoparams.h</includes>
+    <includedby refid="ffmpegencoder_8h" local="yes">ffmpegencoder.h</includedby>
+    <includedby refid="codecsection_8h" local="yes">codecsection.h</includedby>
+    <includedby refid="exporter_8h" local="yes">exporter.h</includedby>
+    <includedby refid="exportparams_8h" local="yes">exportparams.h</includedby>
+    <incdepgraph>
+      <node id="10">
+        <label>libavformat/avformat.h</label>
+      </node>
+      <node id="23">
+        <label>QObject</label>
+      </node>
+      <node id="19">
+        <label>common/timerange.h</label>
+        <link refid="timerange_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>QMetaType</label>
+      </node>
+      <node id="14">
+        <label>render/pixelformat.h</label>
+        <link refid="pixelformat_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>common/rational.h</label>
+        <link refid="rational_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>render/rendermodes.h</label>
+        <link refid="rendermodes_8h"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>common/define.h</label>
+        <link refid="define_8h"/>
+      </node>
+      <node id="16">
+        <label>QOpenGLExtraFunctions</label>
+      </node>
+      <node id="21">
+        <label>QtMath</label>
+      </node>
+      <node id="8">
+        <label>QDebug</label>
+      </node>
+      <node id="3">
+        <label>QString</label>
+      </node>
+      <node id="12">
+        <label>render/color.h</label>
+        <link refid="color_8h"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>QColor</label>
+      </node>
+      <node id="22">
+        <label>audio/sampleformat.h</label>
+        <link refid="sampleformat_8h"/>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>iostream</label>
+      </node>
+      <node id="18">
+        <label>render/videoparams.h</label>
+        <link refid="videoparams_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>codec/frame.h</label>
+        <link refid="frame_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>OpenImageIO/imageio.h</label>
+      </node>
+      <node id="20">
+        <label>render/audioparams.h</label>
+        <link refid="audioparams_8h"/>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>memory</label>
+      </node>
+      <node id="1">
+        <label>encoder.h</label>
+        <link refid="encoder_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>QVector</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="9">
+        <label>exportparams.h</label>
+        <link refid="exportparams_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>exporter.h</label>
+        <link refid="exporter_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>codecsection.h</label>
+        <link refid="codecsection_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>h264section.h</label>
+        <link refid="h264section_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>exportadvancedvideodialog.h</label>
+        <link refid="exportadvancedvideodialog_8h"/>
+      </node>
+      <node id="6">
+        <label>export.h</label>
+        <link refid="export_8h"/>
+      </node>
+      <node id="7">
+        <label>imagesection.h</label>
+        <link refid="imagesection_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>exportvideotab.h</label>
+        <link refid="exportvideotab_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>ffmpegencoder.h</label>
+        <link refid="ffmpegencoder_8h"/>
+      </node>
+      <node id="1">
+        <label>encoder.h</label>
+        <link refid="encoder_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="class_encoding_params" prot="public">EncodingParams</innerclass>
+    <innerclass refid="class_encoder" prot="public">Encoder</innerclass>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="encoder_8h_1ac244ffe4dd424f71495be33e99403685" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="class_encoder" kindref="compound">Encoder</ref> &gt;</type>
+        <definition>using EncoderPtr =  std::shared_ptr&lt;Encoder&gt;</definition>
+        <argsstring></argsstring>
+        <name>EncoderPtr</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="35" column="1" bodyfile="C:/Daten/Olive/olive/app/codec/encoder.h" bodystart="35" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/***</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"></highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/><sp/>Olive<sp/>-<sp/>Non-Linear<sp/>Video<sp/>Editor</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/><sp/>Copyright<sp/>(C)<sp/>2019<sp/>Olive<sp/>Team</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"></highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/><sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/><sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/><sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"></highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/><sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/><sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/><sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"></highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/><sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/><sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"></highlight></codeline>
+<codeline lineno="19"><highlight class="comment">***/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>ENCODER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>ENCODER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;memory&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QString&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="frame_8h" kindref="compound">codec/frame.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="timerange_8h" kindref="compound">common/timerange.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="audioparams_8h" kindref="compound">render/audioparams.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="videoparams_8h" kindref="compound">render/videoparams.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><ref refid="define_8h_1a0472692dd1f22472ad63da20da919e8c" kindref="member">OLIVE_NAMESPACE_ENTER</ref></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_encoder" kindref="compound">Encoder</ref>;</highlight></codeline>
+<codeline lineno="35" refid="encoder_8h_1ac244ffe4dd424f71495be33e99403685" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">using</highlight><highlight class="normal"><sp/><ref refid="encoder_8h_1ac244ffe4dd424f71495be33e99403685" kindref="member">EncoderPtr</ref><sp/>=<sp/>std::shared_ptr&lt;Encoder&gt;;</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37" refid="class_encoding_params" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_encoding_params" kindref="compound">EncodingParams</ref><sp/>{</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="39" refid="class_encoding_params_1a7af5384111245a8efe1657196e531e77" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_encoding_params_1a7af5384111245a8efe1657196e531e77" kindref="member">EncodingParams</ref>();</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41" refid="class_encoding_params_1a05cedf1287aab670a682fcc4c744915d" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_encoding_params_1a05cedf1287aab670a682fcc4c744915d" kindref="member">SetFilename</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/><ref refid="class_encoding_params_1a8c1f8964a3794d90716f4c671c0a477d" kindref="member">filename</ref>);</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43" refid="class_encoding_params_1a37babc18c8873e4ee956a093a58980fb" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_encoding_params_1a37babc18c8873e4ee956a093a58980fb" kindref="member">EnableVideo</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_video_rendering_params" kindref="compound">VideoRenderingParams</ref>&amp;<sp/><ref refid="class_encoding_params_1a800534a1d31f6d906252bc0e18fb83cc" kindref="member">video_params</ref>,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/>vcodec);</highlight></codeline>
+<codeline lineno="44" refid="class_encoding_params_1a0c6fe41c7aba17510505f5103a2f769d" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_encoding_params_1a0c6fe41c7aba17510505f5103a2f769d" kindref="member">EnableAudio</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref>&amp;<sp/><ref refid="class_encoding_params_1a783ee115b8b72297bacd83f5a60a77ba" kindref="member">audio_params</ref>,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/>acodec);</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46" refid="class_encoding_params_1ac822ec1bfb587fd5f08cd47327dcac37" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_encoding_params_1ac822ec1bfb587fd5f08cd47327dcac37" kindref="member">set_video_option</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/>key,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/>value);</highlight></codeline>
+<codeline lineno="47" refid="class_encoding_params_1a732e4180116d30ed5ab07da6503198f4" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_encoding_params_1a732e4180116d30ed5ab07da6503198f4" kindref="member">set_video_bit_rate</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int64_t&amp;<sp/>rate);</highlight></codeline>
+<codeline lineno="48" refid="class_encoding_params_1a0ca92f6e9322744683103a467819b7dd" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_encoding_params_1a0ca92f6e9322744683103a467819b7dd" kindref="member">set_video_max_bit_rate</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int64_t&amp;<sp/>rate);</highlight></codeline>
+<codeline lineno="49" refid="class_encoding_params_1a105ab0b6d5ce6c20ff4de465bded46bb" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_encoding_params_1a105ab0b6d5ce6c20ff4de465bded46bb" kindref="member">set_video_buffer_size</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int64_t&amp;<sp/>sz);</highlight></codeline>
+<codeline lineno="50" refid="class_encoding_params_1aca058d4203d637c75aeffb57b5d0edc5" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_encoding_params_1aca058d4203d637c75aeffb57b5d0edc5" kindref="member">set_video_threads</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">&amp;<sp/>threads);</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52" refid="class_encoding_params_1a8c1f8964a3794d90716f4c671c0a477d" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/><ref refid="class_encoding_params_1a8c1f8964a3794d90716f4c671c0a477d" kindref="member">filename</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54" refid="class_encoding_params_1a86a3c52695c432789165af725758d15b" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_encoding_params_1a86a3c52695c432789165af725758d15b" kindref="member">video_enabled</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="55" refid="class_encoding_params_1a1e1564a14ea457e9c1cd63fe16478221" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/><ref refid="class_encoding_params_1a1e1564a14ea457e9c1cd63fe16478221" kindref="member">video_codec</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="56" refid="class_encoding_params_1a800534a1d31f6d906252bc0e18fb83cc" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_video_rendering_params" kindref="compound">VideoRenderingParams</ref>&amp;<sp/><ref refid="class_encoding_params_1a800534a1d31f6d906252bc0e18fb83cc" kindref="member">video_params</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="57" refid="class_encoding_params_1a259089ead00c935b0a2143cc074ef164" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QHash&lt;QString,<sp/>QString&gt;&amp;<sp/><ref refid="class_encoding_params_1a259089ead00c935b0a2143cc074ef164" kindref="member">video_opts</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="58" refid="class_encoding_params_1a72e7a86b5938448f84e934c97d567d01" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int64_t&amp;<sp/><ref refid="class_encoding_params_1a72e7a86b5938448f84e934c97d567d01" kindref="member">video_bit_rate</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="59" refid="class_encoding_params_1a22556fa5d01cf76cc517ea2d58be9f51" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int64_t&amp;<sp/><ref refid="class_encoding_params_1a22556fa5d01cf76cc517ea2d58be9f51" kindref="member">video_max_bit_rate</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="60" refid="class_encoding_params_1ac599be07c03026037e566103529d9afb" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int64_t&amp;<sp/><ref refid="class_encoding_params_1ac599be07c03026037e566103529d9afb" kindref="member">video_buffer_size</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="61" refid="class_encoding_params_1a1d4b8e7736b694eea4f94284d88ad590" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">&amp;<sp/><ref refid="class_encoding_params_1a1d4b8e7736b694eea4f94284d88ad590" kindref="member">video_threads</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63" refid="class_encoding_params_1a448a775af607e3f5731b68fe7565fe1a" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_encoding_params_1a448a775af607e3f5731b68fe7565fe1a" kindref="member">audio_enabled</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="64" refid="class_encoding_params_1af61556a9014fe0b09f9d27179c44d11f" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/><ref refid="class_encoding_params_1af61556a9014fe0b09f9d27179c44d11f" kindref="member">audio_codec</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="65" refid="class_encoding_params_1a783ee115b8b72297bacd83f5a60a77ba" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref>&amp;<sp/><ref refid="class_encoding_params_1a783ee115b8b72297bacd83f5a60a77ba" kindref="member">audio_params</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67" refid="class_encoding_params_1a58697c328746d2ca67a89cbcf32e9f0e" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classrational" kindref="compound">rational</ref>&amp;<sp/><ref refid="class_encoding_params_1a58697c328746d2ca67a89cbcf32e9f0e" kindref="member">GetExportLength</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="68" refid="class_encoding_params_1a5c16f20d95c9c39e626f55f0c26ea6fc" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_encoding_params_1a5c16f20d95c9c39e626f55f0c26ea6fc" kindref="member">SetExportLength</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classrational" kindref="compound">rational</ref>&amp;<sp/><ref refid="class_encoding_params_1a58697c328746d2ca67a89cbcf32e9f0e" kindref="member">GetExportLength</ref>);</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="71" refid="class_encoding_params_1a3923a2cc6518c1973857fb3ffdb369c2" refkind="member"><highlight class="normal"><sp/><sp/>QString<sp/><ref refid="class_encoding_params_1a3923a2cc6518c1973857fb3ffdb369c2" kindref="member">filename_</ref>;</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73" refid="class_encoding_params_1a43f8d919b63fb3fcccc9c272ca172c66" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_encoding_params_1a43f8d919b63fb3fcccc9c272ca172c66" kindref="member">video_enabled_</ref>;</highlight></codeline>
+<codeline lineno="74" refid="class_encoding_params_1ab7cab50ad6984bcf65f827924ed69e0b" refkind="member"><highlight class="normal"><sp/><sp/>QString<sp/><ref refid="class_encoding_params_1ab7cab50ad6984bcf65f827924ed69e0b" kindref="member">video_codec_</ref>;</highlight></codeline>
+<codeline lineno="75" refid="class_encoding_params_1a5303857f48a3d0e5ec5b73b100101100" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_video_rendering_params" kindref="compound">VideoRenderingParams</ref><sp/><ref refid="class_encoding_params_1a5303857f48a3d0e5ec5b73b100101100" kindref="member">video_params_</ref>;</highlight></codeline>
+<codeline lineno="76" refid="class_encoding_params_1a9a7cb831f60a05269f6d4fb2cf7331a6" refkind="member"><highlight class="normal"><sp/><sp/>QHash&lt;QString,<sp/>QString&gt;<sp/><ref refid="class_encoding_params_1a9a7cb831f60a05269f6d4fb2cf7331a6" kindref="member">video_opts_</ref>;</highlight></codeline>
+<codeline lineno="77" refid="class_encoding_params_1a51d2997d3a5c02f19a6c47ddf51df28f" refkind="member"><highlight class="normal"><sp/><sp/>int64_t<sp/><ref refid="class_encoding_params_1a51d2997d3a5c02f19a6c47ddf51df28f" kindref="member">video_bit_rate_</ref>;</highlight></codeline>
+<codeline lineno="78" refid="class_encoding_params_1a4419296667e996156b44da46ed1f4f59" refkind="member"><highlight class="normal"><sp/><sp/>int64_t<sp/><ref refid="class_encoding_params_1a4419296667e996156b44da46ed1f4f59" kindref="member">video_max_bit_rate_</ref>;</highlight></codeline>
+<codeline lineno="79" refid="class_encoding_params_1a675392b3e4ef04a57f8c7ad82cfc3de4" refkind="member"><highlight class="normal"><sp/><sp/>int64_t<sp/><ref refid="class_encoding_params_1a675392b3e4ef04a57f8c7ad82cfc3de4" kindref="member">video_buffer_size_</ref>;</highlight></codeline>
+<codeline lineno="80" refid="class_encoding_params_1a5a2d0e8ed05ca9d1f39e0a37572d31b6" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="class_encoding_params_1a5a2d0e8ed05ca9d1f39e0a37572d31b6" kindref="member">video_threads_</ref>;</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82" refid="class_encoding_params_1a02e8ef02ac30adbf4676376e5c4e2525" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_encoding_params_1a02e8ef02ac30adbf4676376e5c4e2525" kindref="member">audio_enabled_</ref>;</highlight></codeline>
+<codeline lineno="83" refid="class_encoding_params_1abc798fcf7e8e1cef46119455fe177c8b" refkind="member"><highlight class="normal"><sp/><sp/>QString<sp/><ref refid="class_encoding_params_1abc798fcf7e8e1cef46119455fe177c8b" kindref="member">audio_codec_</ref>;</highlight></codeline>
+<codeline lineno="84" refid="class_encoding_params_1ae204390c965e6f53d017842acf2f7b02" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref><sp/><ref refid="class_encoding_params_1ae204390c965e6f53d017842acf2f7b02" kindref="member">audio_params_</ref>;</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86" refid="class_encoding_params_1aaf08bbb6f2ca4793c9f54eef00413c39" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classrational" kindref="compound">rational</ref><sp/><ref refid="class_encoding_params_1aaf08bbb6f2ca4793c9f54eef00413c39" kindref="member">export_length_</ref>;</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90" refid="class_encoder" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_encoder" kindref="compound">Encoder</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>QObject</highlight></codeline>
+<codeline lineno="91"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/>Q_OBJECT</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="94" refid="class_encoder_1a37230f207a2e38e1edee28ef7302d1e4" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_encoder_1a37230f207a2e38e1edee28ef7302d1e4" kindref="member">Encoder</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_encoding_params" kindref="compound">EncodingParams</ref>&amp;<sp/><ref refid="class_encoder_1aae58d67791f76a7243097471215bbe69" kindref="member">params</ref>);</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103" refid="class_encoder_1aab9c0156534b5a6dd2c73f2e856ece4d" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="class_encoder" kindref="compound">Encoder</ref><sp/>*<ref refid="class_encoder_1aab9c0156534b5a6dd2c73f2e856ece4d" kindref="member">CreateFromID</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_encoding_params" kindref="compound">EncodingParams</ref><sp/>&amp;<ref refid="class_encoder_1aae58d67791f76a7243097471215bbe69" kindref="member">params</ref>);</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105" refid="class_encoder_1aae58d67791f76a7243097471215bbe69" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_encoding_params" kindref="compound">EncodingParams</ref>&amp;<sp/><ref refid="class_encoder_1aae58d67791f76a7243097471215bbe69" kindref="member">params</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>slots:</highlight></codeline>
+<codeline lineno="108" refid="class_encoder_1a74c06332f28148e5cfb772043cc29ad9" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_encoder_1a74c06332f28148e5cfb772043cc29ad9" kindref="member">Open</ref>();</highlight></codeline>
+<codeline lineno="109" refid="class_encoder_1aeb9344e5b4fd6203bcdf757a5f5050ba" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_encoder_1aeb9344e5b4fd6203bcdf757a5f5050ba" kindref="member">WriteFrame</ref>(<ref refid="frame_8h_1a2ae9a822fc1e331fa3b449797f717db6" kindref="member">OLIVE_NAMESPACE::FramePtr</ref><sp/>frame,<sp/>OLIVE_NAMESPACE::rational<sp/>time);</highlight></codeline>
+<codeline lineno="110" refid="class_encoder_1a602fc09159cd1cd5c22f6565f1aee445" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_encoder_1a602fc09159cd1cd5c22f6565f1aee445" kindref="member">WriteAudio</ref>(OLIVE_NAMESPACE::AudioRenderingParams<sp/>pcm_info,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/>pcm_filename,<sp/>OLIVE_NAMESPACE::TimeRange<sp/>range)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="111" refid="class_encoder_1a57fb95be15da5e8547fe01f07067b1d4" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_encoder_1a57fb95be15da5e8547fe01f07067b1d4" kindref="member">Close</ref>();</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal">signals:</highlight></codeline>
+<codeline lineno="114" refid="class_encoder_1a5fa47f38d1ee12a5800abee7c4c5f4e7" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_encoder_1a5fa47f38d1ee12a5800abee7c4c5f4e7" kindref="member">OpenSucceeded</ref>();</highlight></codeline>
+<codeline lineno="115" refid="class_encoder_1a44a8f407d65ce5ff57575bfc2bccaaf6" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_encoder_1a44a8f407d65ce5ff57575bfc2bccaaf6" kindref="member">OpenFailed</ref>();</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117" refid="class_encoder_1aafe1a106b7c249e7fea1337aff522b98" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_encoder_1aafe1a106b7c249e7fea1337aff522b98" kindref="member">Closed</ref>();</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119" refid="class_encoder_1adf19c2819613c078569812f2e2b023ea" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_encoder_1adf19c2819613c078569812f2e2b023ea" kindref="member">AudioComplete</ref>();</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="122" refid="class_encoder_1a34af48df479f808685f7d2b83b87b105" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_encoder_1a34af48df479f808685f7d2b83b87b105" kindref="member">OpenInternal</ref>()<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="123" refid="class_encoder_1a6a5b4fe2d5950b0f25b13ae96aa8425d" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_encoder_1a6a5b4fe2d5950b0f25b13ae96aa8425d" kindref="member">WriteInternal</ref>(<ref refid="frame_8h_1a2ae9a822fc1e331fa3b449797f717db6" kindref="member">FramePtr</ref><sp/>frame,<sp/><ref refid="classrational" kindref="compound">rational</ref><sp/>time)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="124" refid="class_encoder_1adb19fc95ac5892b427a5753ee45c723e" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_encoder_1adb19fc95ac5892b427a5753ee45c723e" kindref="member">CloseInternal</ref>()<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight></codeline>
+<codeline lineno="126" refid="class_encoder_1a1e62d5081161701966a1ba00b7a6ca63" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_encoder_1a1e62d5081161701966a1ba00b7a6ca63" kindref="member">IsOpen</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="129" refid="class_encoder_1a07fad689f0ed15f301c9e3e347197dfb" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_encoding_params" kindref="compound">EncodingParams</ref><sp/><ref refid="class_encoder_1a07fad689f0ed15f301c9e3e347197dfb" kindref="member">params_</ref>;</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight></codeline>
+<codeline lineno="131" refid="class_encoder_1acd726a10bd1391a7b4d985e864e7e0ad" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_encoder_1acd726a10bd1391a7b4d985e864e7e0ad" kindref="member">open_</ref>;</highlight></codeline>
+<codeline lineno="132"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><ref refid="define_8h_1abe3de0634d907ca0f5d1acf732c49dac" kindref="member">OLIVE_NAMESPACE_EXIT</ref></highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//<sp/>ENCODER_H</highlight></codeline>
+    </programlisting>
+    <location file="C:/Daten/Olive/olive/app/codec/encoder.h"/>
+  </compounddef>
+</doxygen>

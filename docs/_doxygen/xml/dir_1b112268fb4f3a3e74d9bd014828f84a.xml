@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_1b112268fb4f3a3e74d9bd014828f84a" kind="dir">
+    <compoundname>slider</compoundname>
+    <innerfile refid="floatslider_8h">floatslider.h</innerfile>
+    <innerfile refid="integerslider_8h">integerslider.h</innerfile>
+    <innerfile refid="sliderbase_8h">sliderbase.h</innerfile>
+    <innerfile refid="sliderlabel_8h">sliderlabel.h</innerfile>
+    <innerfile refid="stringslider_8h">stringslider.h</innerfile>
+    <innerfile refid="timeslider_8h">timeslider.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/widget/slider/"/>
+  </compounddef>
+</doxygen>

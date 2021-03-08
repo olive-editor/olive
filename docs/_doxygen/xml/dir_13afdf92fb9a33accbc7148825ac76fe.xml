@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_13afdf92fb9a33accbc7148825ac76fe" kind="dir">
+    <compoundname>ui</compoundname>
+    <innerdir refid="dir_4c89a0278233fffb9f78eab7ed4d4a98">icons</innerdir>
+    <innerdir refid="dir_fff8767fd97a88e87b782dd54f320bb9">style</innerdir>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/ui/"/>
+  </compounddef>
+</doxygen>

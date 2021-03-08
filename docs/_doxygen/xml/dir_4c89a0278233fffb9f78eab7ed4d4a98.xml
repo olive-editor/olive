@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_4c89a0278233fffb9f78eab7ed4d4a98" kind="dir">
+    <compoundname>icons</compoundname>
+    <innerfile refid="icons_8h">icons.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/ui/icons/"/>
+  </compounddef>
+</doxygen>

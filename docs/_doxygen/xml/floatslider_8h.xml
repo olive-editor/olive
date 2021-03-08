@@ -1,0 +1,206 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="floatslider_8h" kind="file" language="C++">
+    <compoundname>floatslider.h</compoundname>
+    <includes refid="sliderbase_8h" local="yes">sliderbase.h</includes>
+    <includedby refid="h264section_8h" local="yes">h264section.h</includedby>
+    <includedby refid="keyframeproperties_8h" local="yes">keyframeproperties.h</includedby>
+    <includedby refid="preferencesdisktab_8h" local="yes">preferencesdisktab.h</includedby>
+    <includedby refid="preferencesgeneraltab_8h" local="yes">preferencesgeneraltab.h</includedby>
+    <includedby refid="speedduration_8h" local="yes">speedduration.h</includedby>
+    <includedby refid="colorvalueswidget_8h" local="yes">colorvalueswidget.h</includedby>
+    <incdepgraph>
+      <node id="4">
+        <label>sliderlabel.h</label>
+        <link refid="sliderlabel_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>QStackedWidget</label>
+      </node>
+      <node id="1">
+        <label>floatslider.h</label>
+        <link refid="floatslider_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>common/define.h</label>
+        <link refid="define_8h"/>
+      </node>
+      <node id="8">
+        <label>QLineEdit</label>
+      </node>
+      <node id="5">
+        <label>QLabel</label>
+      </node>
+      <node id="7">
+        <label>widget/focusablelineedit/focusablelineedit.h</label>
+        <link refid="focusablelineedit_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>sliderbase.h</label>
+        <link refid="sliderbase_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="1">
+        <label>floatslider.h</label>
+        <link refid="floatslider_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>h264section.h</label>
+        <link refid="h264section_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>preferencesgeneraltab.h</label>
+        <link refid="preferencesgeneraltab_8h"/>
+      </node>
+      <node id="8">
+        <label>speedduration.h</label>
+        <link refid="speedduration_8h"/>
+      </node>
+      <node id="5">
+        <label>keyframeproperties.h</label>
+        <link refid="keyframeproperties_8h"/>
+      </node>
+      <node id="9">
+        <label>colorvalueswidget.h</label>
+        <link refid="colorvalueswidget_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>colordialog.h</label>
+        <link refid="colordialog_8h"/>
+      </node>
+      <node id="6">
+        <label>preferencesdisktab.h</label>
+        <link refid="preferencesdisktab_8h"/>
+      </node>
+      <node id="4">
+        <label>export.h</label>
+        <link refid="export_8h"/>
+      </node>
+      <node id="3">
+        <label>exportvideotab.h</label>
+        <link refid="exportvideotab_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="class_float_slider" prot="public">FloatSlider</innerclass>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/***</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"></highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/><sp/>Olive<sp/>-<sp/>Non-Linear<sp/>Video<sp/>Editor</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/><sp/>Copyright<sp/>(C)<sp/>2019<sp/>Olive<sp/>Team</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"></highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/><sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/><sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/><sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"></highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/><sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/><sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/><sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"></highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/><sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/><sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"></highlight></codeline>
+<codeline lineno="19"><highlight class="comment">***/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>FLOATSLIDER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>FLOATSLIDER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="sliderbase_8h" kindref="compound">sliderbase.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><ref refid="define_8h_1a0472692dd1f22472ad63da20da919e8c" kindref="member">OLIVE_NAMESPACE_ENTER</ref></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28" refid="class_float_slider" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_float_slider" kindref="compound">FloatSlider</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="class_slider_base" kindref="compound">SliderBase</ref></highlight></codeline>
+<codeline lineno="29"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/>Q_OBJECT</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><ref refid="class_float_slider_1ae3c3e252758caf98f3a137e5f7e77cb5" kindref="member">FloatSlider</ref>(QWidget*<sp/>parent<sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/><ref refid="class_float_slider_1abefef0e5be07fbe09fd285920e0b74b5" kindref="member">DisplayType</ref><sp/>{</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_float_slider_1abefef0e5be07fbe09fd285920e0b74b5ac2a2c98d535d75fc4364720cc5b66602" kindref="member">kNormal</ref>,</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_float_slider_1abefef0e5be07fbe09fd285920e0b74b5a6d0afb0af10056ee82a179c7d8b445ca" kindref="member">kDecibel</ref>,</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_float_slider_1abefef0e5be07fbe09fd285920e0b74b5ac62947b03b5e0719ca3ef1982a2bdb52" kindref="member">kPercentage</ref></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="class_float_slider_1af926bf503be3e0989f7ddf7d53aef282" kindref="member">GetValue</ref>();</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_float_slider_1a4a3e4174e2b7899b9da361b7db8fe85b" kindref="member">SetValue</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">&amp;<sp/>d);</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_float_slider_1a5d081cbf6d8a85152332e5c64947cc4f" kindref="member">SetMinimum</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">&amp;<sp/>d);</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_float_slider_1a70e0cc448c79deb88767ccf2fde08398" kindref="member">SetMaximum</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">&amp;<sp/>d);</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_float_slider_1a7fcda6e04e8d8ea632c8bb49fc0c1cb2" kindref="member">SetDecimalPlaces</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i);</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50" refid="class_float_slider_1ae3c3e252758caf98f3a137e5f7e77cb5" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_float_slider_1a1118fd5d3cc75f6837cf2cdc7c7aa08f" kindref="member">SetDisplayType</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_float_slider_1abefef0e5be07fbe09fd285920e0b74b5" kindref="member">DisplayType</ref>&amp;<sp/>type);</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52" refid="class_float_slider_1abefef0e5be07fbe09fd285920e0b74b5" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_float_slider_1a6554d713cfc16fe51aa45070e1ce6097" kindref="member">SetAutoTrimDecimalPlaces</ref>(</highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>e);</highlight></codeline>
+<codeline lineno="53" refid="class_float_slider_1abefef0e5be07fbe09fd285920e0b74b5ac2a2c98d535d75fc4364720cc5b66602" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54" refid="class_float_slider_1abefef0e5be07fbe09fd285920e0b74b5a6d0afb0af10056ee82a179c7d8b445ca" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>QString<sp/><ref refid="class_float_slider_1ab0096a188191c28f48c39b8305909a94" kindref="member">ValueToString</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QVariant&amp;<sp/>v)<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="56" refid="class_float_slider_1abefef0e5be07fbe09fd285920e0b74b5ac62947b03b5e0719ca3ef1982a2bdb52" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>QVariant<sp/><ref refid="class_float_slider_1a9d2d458f4150b0bbc66c7dcb1403c8af" kindref="member">StringToValue</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/>s,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal">*<sp/>ok)<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="58" refid="class_float_slider_1af926bf503be3e0989f7ddf7d53aef282" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="class_float_slider_1a86cb88c0f001ca329a56b31140e8cba7" kindref="member">AdjustDragDistanceInternal</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">&amp;<sp/>start,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">&amp;<sp/>drag)<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="60" refid="class_float_slider_1a4a3e4174e2b7899b9da361b7db8fe85b" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal">signals:</highlight></codeline>
+<codeline lineno="62" refid="class_float_slider_1a5d081cbf6d8a85152332e5c64947cc4f" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_float_slider_1a2cd761ac62e95bedeb4cb3f8658729e9" kindref="member">ValueChanged</ref>(</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64" refid="class_float_slider_1a70e0cc448c79deb88767ccf2fde08398" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal"><sp/>slots:</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_float_slider_1ae2ea53537fbda438f14d1085a4a31559" kindref="member">ConvertValue</ref>(QVariant<sp/>v);</highlight></codeline>
+<codeline lineno="66" refid="class_float_slider_1a7fcda6e04e8d8ea632c8bb49fc0c1cb2" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="68" refid="class_float_slider_1a1118fd5d3cc75f6837cf2cdc7c7aa08f" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_float_slider_1abefef0e5be07fbe09fd285920e0b74b5" kindref="member">DisplayType</ref><sp/><ref refid="class_float_slider_1a31c312d9e9256e802cba6c31e0b9f809" kindref="member">display_type_</ref>;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70" refid="class_float_slider_1a6554d713cfc16fe51aa45070e1ce6097" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="class_float_slider_1a7f68fa9616a6fb7e07fad9109545bc61" kindref="member">decimal_places_</ref>;</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_float_slider_1a237f467e6edddd7cf0e76056e085424b" kindref="member">autotrim_decimal_places_</ref>;</highlight></codeline>
+<codeline lineno="73" refid="class_float_slider_1ab0096a188191c28f48c39b8305909a94" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="75" refid="class_float_slider_1a9d2d458f4150b0bbc66c7dcb1403c8af" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><ref refid="define_8h_1abe3de0634d907ca0f5d1acf732c49dac" kindref="member">OLIVE_NAMESPACE_EXIT</ref></highlight></codeline>
+<codeline lineno="77" refid="class_float_slider_1a86cb88c0f001ca329a56b31140e8cba7" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//<sp/>FLOATSLIDER_H</highlight></codeline>
+    </programlisting>
+    <location file="C:/Daten/Olive/olive/app/widget/slider/floatslider.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,101 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="struct_x_m_l_node_data_1_1_block_link" kind="struct" language="C++" prot="public">
+    <compoundname>XMLNodeData::BlockLink</compoundname>
+    <includes refid="xmlutils_8h" local="no">xmlutils.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="struct_x_m_l_node_data_1_1_block_link_1a9404e2313a85d7d16cc02ef82afbcf7d" prot="public" static="no" mutable="no">
+        <type><ref refid="class_block" kindref="compound">Block</ref> *</type>
+        <definition>Block* XMLNodeData::BlockLink::block</definition>
+        <argsstring></argsstring>
+        <name>block</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/xmlutils.h" line="56" column="11" bodyfile="C:/Daten/Olive/olive/app/common/xmlutils.h" bodystart="56" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_x_m_l_node_data_1_1_block_link_1afdb4fd384eef04d805c2a60c7a1b381e" prot="public" static="no" mutable="no">
+        <type>quintptr</type>
+        <definition>quintptr XMLNodeData::BlockLink::link</definition>
+        <argsstring></argsstring>
+        <name>link</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/xmlutils.h" line="57" column="14" bodyfile="C:/Daten/Olive/olive/app/common/xmlutils.h" bodystart="57" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="4">
+        <label>NodeOutput</label>
+        <link refid="class_node_output"/>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>Block</label>
+        <link refid="class_block"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>in_point_</edgelabel>
+          <edgelabel>out_point_</edgelabel>
+        </childnode>
+        <childnode refid="2" relation="usage">
+          <edgelabel>next_</edgelabel>
+          <edgelabel>previous_</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>enabled_input_</edgelabel>
+          <edgelabel>speed_input_</edgelabel>
+          <edgelabel>media_in_input_</edgelabel>
+          <edgelabel>name_input_</edgelabel>
+          <edgelabel>length_input_</edgelabel>
+        </childnode>
+      </node>
+      <node id="1">
+        <label>XMLNodeData::BlockLink</label>
+        <link refid="struct_x_m_l_node_data_1_1_block_link"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>block</edgelabel>
+        </childnode>
+      </node>
+      <node id="6">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="3">
+        <label>Node</label>
+        <link refid="class_node"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>output_</edgelabel>
+        </childnode>
+      </node>
+      <node id="7">
+        <label>NodeInput</label>
+        <link refid="class_node_input"/>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>NodeParam</label>
+        <link refid="class_node_param"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/common/xmlutils.h" line="55" column="3" bodyfile="C:/Daten/Olive/olive/app/common/xmlutils.h" bodystart="55" bodyend="58"/>
+    <listofallmembers>
+      <member refid="struct_x_m_l_node_data_1_1_block_link_1a9404e2313a85d7d16cc02ef82afbcf7d" prot="public" virt="non-virtual"><scope>XMLNodeData::BlockLink</scope><name>block</name></member>
+      <member refid="struct_x_m_l_node_data_1_1_block_link_1afdb4fd384eef04d805c2a60c7a1b381e" prot="public" virt="non-virtual"><scope>XMLNodeData::BlockLink</scope><name>link</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

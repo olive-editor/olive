@@ -1,0 +1,246 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_project_view_model_1_1_remove_item_command" kind="class" language="C++" prot="public">
+    <compoundname>ProjectViewModel::RemoveItemCommand</compoundname>
+    <basecompoundref refid="class_undo_command" prot="public" virt="non-virtual">UndoCommand</basecompoundref>
+    <includes refid="projectviewmodel_8h" local="no">projectviewmodel.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_project_view_model_1_1_remove_item_command_1a4611c237f7fd73aabf02b17434a85716" prot="private" static="no" mutable="no">
+        <type><ref refid="class_project_view_model" kindref="compound">ProjectViewModel</ref> *</type>
+        <definition>ProjectViewModel* ProjectViewModel::RemoveItemCommand::model_</definition>
+        <argsstring></argsstring>
+        <name>model_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/projectviewmodel.h" line="207" column="22" bodyfile="C:/Daten/Olive/olive/app/project/projectviewmodel.h" bodystart="207" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_project_view_model_1_1_remove_item_command_1a3939d3324327b4a998a536be6794332b" prot="private" static="no" mutable="no">
+        <type><ref refid="item_8h_1ab17f9c749f423747869d900d2418ffde" kindref="member">ItemPtr</ref></type>
+        <definition>ItemPtr ProjectViewModel::RemoveItemCommand::item_</definition>
+        <argsstring></argsstring>
+        <name>item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/projectviewmodel.h" line="209" column="13" bodyfile="C:/Daten/Olive/olive/app/project/projectviewmodel.h" bodystart="209" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_project_view_model_1_1_remove_item_command_1af4a2222d07f80180446d3bcc9efb97d1" prot="private" static="no" mutable="no">
+        <type><ref refid="class_item" kindref="compound">Item</ref> *</type>
+        <definition>Item* ProjectViewModel::RemoveItemCommand::parent_</definition>
+        <argsstring></argsstring>
+        <name>parent_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/projectviewmodel.h" line="211" column="10" bodyfile="C:/Daten/Olive/olive/app/project/projectviewmodel.h" bodystart="211" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_undo_command_1a6c06f9c1b7bfeeff3c4724491945992b" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool UndoCommand::modified_</definition>
+        <argsstring></argsstring>
+        <name>modified_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="64" column="8" bodyfile="C:/Daten/Olive/olive/app/undo/undocommand.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_project_view_model_1_1_remove_item_command_1a9a0d2762f7140346cb2019494ecb0105" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>ProjectViewModel::RemoveItemCommand::RemoveItemCommand</definition>
+        <argsstring>(ProjectViewModel *model, ItemPtr item, QUndoCommand *parent=nullptr)</argsstring>
+        <name>RemoveItemCommand</name>
+        <param>
+          <type><ref refid="class_project_view_model" kindref="compound">ProjectViewModel</ref> *</type>
+          <declname>model</declname>
+        </param>
+        <param>
+          <type><ref refid="item_8h_1ab17f9c749f423747869d900d2418ffde" kindref="member">ItemPtr</ref></type>
+          <declname>item</declname>
+        </param>
+        <param>
+          <type>QUndoCommand *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/projectviewmodel.h" line="197" column="5"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_view_model_1_1_remove_item_command_1af8262cd80e20925b7309dfbd9ab4d9ad" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="class_project" kindref="compound">Project</ref> *</type>
+        <definition>virtual Project* ProjectViewModel::RemoveItemCommand::GetRelevantProject</definition>
+        <argsstring>() const override</argsstring>
+        <name>GetRelevantProject</name>
+        <reimplements refid="class_undo_command_1ab5c8967132833ea6be76a63dc5472f4f">GetRelevantProject</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/projectviewmodel.h" line="199" column="21"/>
+      </memberdef>
+      <memberdef kind="function" id="class_undo_command_1a9907db368d01fb26f5082a36c6d90bd4" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void UndoCommand::redo</definition>
+        <argsstring>() override</argsstring>
+        <name>redo</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="54" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_undo_command_1a09d00f8a2e1c8b3c97d72d9585503030" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void UndoCommand::undo</definition>
+        <argsstring>() override</argsstring>
+        <name>undo</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="55" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_project_view_model_1_1_remove_item_command_1ab1965b1ee4fec7c107f06751f9dc276e" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void ProjectViewModel::RemoveItemCommand::redo_internal</definition>
+        <argsstring>() override</argsstring>
+        <name>redo_internal</name>
+        <reimplements refid="class_undo_command_1ac8aa20d444a655cd36fa3c7dc01928b4">redo_internal</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/projectviewmodel.h" line="202" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_view_model_1_1_remove_item_command_1a43f0bcf4f0ce4c5548cb20c0117b9f22" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void ProjectViewModel::RemoveItemCommand::undo_internal</definition>
+        <argsstring>() override</argsstring>
+        <name>undo_internal</name>
+        <reimplements refid="class_undo_command_1a871dbc8a1f95b58e641be13703563faa">undo_internal</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/projectviewmodel.h" line="204" column="18"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>An undo command for removing an item. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>ProjectViewModel::RemoveItemCommand</label>
+        <link refid="class_project_view_model_1_1_remove_item_command"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>UndoCommand</label>
+        <link refid="class_undo_command"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>ProjectViewModel::RemoveItemCommand</label>
+        <link refid="class_project_view_model_1_1_remove_item_command"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>parent_</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>model_</edgelabel>
+        </childnode>
+      </node>
+      <node id="5">
+        <label>ColorManager</label>
+        <link refid="class_color_manager"/>
+      </node>
+      <node id="3">
+        <label>Item</label>
+        <link refid="class_item"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>parent_</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>project_</edgelabel>
+        </childnode>
+      </node>
+      <node id="4">
+        <label>Project</label>
+        <link refid="class_project"/>
+        <childnode refid="5" relation="usage">
+          <edgelabel>color_manager_</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>root_</edgelabel>
+        </childnode>
+      </node>
+      <node id="6">
+        <label>Folder</label>
+        <link refid="class_folder"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>ProjectViewModel</label>
+        <link refid="class_project_view_model"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>project_</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>UndoCommand</label>
+        <link refid="class_undo_command"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/project/projectviewmodel.h" line="195" column="3" bodyfile="C:/Daten/Olive/olive/app/project/projectviewmodel.h" bodystart="195" bodyend="213"/>
+    <listofallmembers>
+      <member refid="class_project_view_model_1_1_remove_item_command_1af8262cd80e20925b7309dfbd9ab4d9ad" prot="public" virt="virtual"><scope>ProjectViewModel::RemoveItemCommand</scope><name>GetRelevantProject</name></member>
+      <member refid="class_project_view_model_1_1_remove_item_command_1a3939d3324327b4a998a536be6794332b" prot="private" virt="non-virtual"><scope>ProjectViewModel::RemoveItemCommand</scope><name>item_</name></member>
+      <member refid="class_project_view_model_1_1_remove_item_command_1a4611c237f7fd73aabf02b17434a85716" prot="private" virt="non-virtual"><scope>ProjectViewModel::RemoveItemCommand</scope><name>model_</name></member>
+      <member refid="class_undo_command_1a6c06f9c1b7bfeeff3c4724491945992b" prot="private" virt="non-virtual"><scope>ProjectViewModel::RemoveItemCommand</scope><name>modified_</name></member>
+      <member refid="class_project_view_model_1_1_remove_item_command_1af4a2222d07f80180446d3bcc9efb97d1" prot="private" virt="non-virtual"><scope>ProjectViewModel::RemoveItemCommand</scope><name>parent_</name></member>
+      <member refid="class_undo_command_1a9907db368d01fb26f5082a36c6d90bd4" prot="public" virt="virtual"><scope>ProjectViewModel::RemoveItemCommand</scope><name>redo</name></member>
+      <member refid="class_project_view_model_1_1_remove_item_command_1ab1965b1ee4fec7c107f06751f9dc276e" prot="protected" virt="virtual"><scope>ProjectViewModel::RemoveItemCommand</scope><name>redo_internal</name></member>
+      <member refid="class_project_view_model_1_1_remove_item_command_1a9a0d2762f7140346cb2019494ecb0105" prot="public" virt="non-virtual"><scope>ProjectViewModel::RemoveItemCommand</scope><name>RemoveItemCommand</name></member>
+      <member refid="class_undo_command_1a09d00f8a2e1c8b3c97d72d9585503030" prot="public" virt="virtual"><scope>ProjectViewModel::RemoveItemCommand</scope><name>undo</name></member>
+      <member refid="class_project_view_model_1_1_remove_item_command_1a43f0bcf4f0ce4c5548cb20c0117b9f22" prot="protected" virt="virtual"><scope>ProjectViewModel::RemoveItemCommand</scope><name>undo_internal</name></member>
+      <member refid="class_undo_command_1a5a07a6505a207cf7186c7c726ff9c5fa" prot="public" virt="non-virtual"><scope>ProjectViewModel::RemoveItemCommand</scope><name>UndoCommand</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

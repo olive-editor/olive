@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_eee8a72db89134f084d4f8739ca4f172" kind="dir">
+    <compoundname>export</compoundname>
+    <innerdir refid="dir_6033c2b763b3fc85af6d47c0a79e5c09">codec</innerdir>
+    <innerfile refid="export_8h">export.h</innerfile>
+    <innerfile refid="exportadvancedvideodialog_8h">exportadvancedvideodialog.h</innerfile>
+    <innerfile refid="exportaudiotab_8h">exportaudiotab.h</innerfile>
+    <innerfile refid="exportcodec_8h">exportcodec.h</innerfile>
+    <innerfile refid="exportformat_8h">exportformat.h</innerfile>
+    <innerfile refid="exportvideotab_8h">exportvideotab.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/dialog/export/"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,791 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="projectviewmodel_8h" kind="file" language="C++">
+    <compoundname>projectviewmodel.h</compoundname>
+    <includes local="no">QAbstractItemModel</includes>
+    <includes refid="project_2project_8h" local="yes">project.h</includes>
+    <includes refid="undocommand_8h" local="yes">undo/undocommand.h</includes>
+    <includedby refid="core_8h" local="yes">core.h</includedby>
+    <includedby refid="projectimportmanager_8h" local="yes">projectimportmanager.h</includedby>
+    <includedby refid="projectexplorer_8h" local="yes">projectexplorer.h</includedby>
+    <incdepgraph>
+      <node id="53">
+        <label>undo/undocommand.h</label>
+        <link refid="undocommand_8h"/>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="54" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>libavformat/avformat.h</label>
+      </node>
+      <node id="27">
+        <label>node/param.h</label>
+        <link refid="node_2param_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+      </node>
+      <node id="47">
+        <label>project/item/footage/imagestream.h</label>
+        <link refid="imagestream_8h"/>
+        <childnode refid="33" relation="include">
+        </childnode>
+      </node>
+      <node id="39">
+        <label>QDateTime</label>
+      </node>
+      <node id="4">
+        <label>QObject</label>
+      </node>
+      <node id="51">
+        <label>common/timerange.h</label>
+        <link refid="timerange_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="32">
+        <label>QXmlStreamReader</label>
+      </node>
+      <node id="38">
+        <label>QList</label>
+      </node>
+      <node id="43">
+        <label>project/item/footage/audiostream.h</label>
+        <link refid="audiostream_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="44" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+      </node>
+      <node id="50">
+        <label>timelinemarker.h</label>
+        <link refid="timelinemarker_8h"/>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="51" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>QMetaType</label>
+      </node>
+      <node id="52">
+        <label>timelineworkarea.h</label>
+        <link refid="timelineworkarea_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="51" relation="include">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>project/item/folder/folder.h</label>
+        <link refid="folder_8h"/>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>render/pixelformat.h</label>
+        <link refid="pixelformat_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="31">
+        <label>QUndoCommand</label>
+      </node>
+      <node id="1">
+        <label>projectviewmodel.h</label>
+        <link refid="projectviewmodel_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="53" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>common/rational.h</label>
+        <link refid="rational_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="41">
+        <label>QIcon</label>
+      </node>
+      <node id="21">
+        <label>render/rendermodes.h</label>
+        <link refid="rendermodes_8h"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="23">
+        <label>colorprocessor.h</label>
+        <link refid="colorprocessor_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+      </node>
+      <node id="35">
+        <label>QMutex</label>
+      </node>
+      <node id="54">
+        <label>project/project.h</label>
+      </node>
+      <node id="14">
+        <label>common/define.h</label>
+        <link refid="define_8h"/>
+      </node>
+      <node id="19">
+        <label>QOpenGLExtraFunctions</label>
+      </node>
+      <node id="45">
+        <label>QtMath</label>
+      </node>
+      <node id="11">
+        <label>QDebug</label>
+      </node>
+      <node id="3">
+        <label>project.h</label>
+        <link refid="project_2project_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+      </node>
+      <node id="36">
+        <label>node/edge.h</label>
+        <link refid="edge_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="40">
+        <label>project/item/item.h</label>
+        <link refid="item_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+      </node>
+      <node id="37">
+        <label>project/item/footage/footage.h</label>
+        <link refid="footage_8h"/>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+        <childnode refid="48" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>QString</label>
+      </node>
+      <node id="24">
+        <label>render/colortransform.h</label>
+        <link refid="colortransform_8h"/>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>render/color.h</label>
+        <link refid="color_8h"/>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>QColor</label>
+      </node>
+      <node id="49">
+        <label>timeline/timelinepoints.h</label>
+        <link refid="timelinepoints_8h"/>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+        <childnode refid="52" relation="include">
+        </childnode>
+      </node>
+      <node id="46">
+        <label>audio/sampleformat.h</label>
+        <link refid="sampleformat_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>QAbstractItemModel</label>
+      </node>
+      <node id="10">
+        <label>iostream</label>
+      </node>
+      <node id="29">
+        <label>QXmlStreamWriter</label>
+      </node>
+      <node id="22">
+        <label>render/videoparams.h</label>
+        <link refid="videoparams_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>render/colormanager.h</label>
+        <link refid="colormanager_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="25">
+        <label>OpenColorIO/OpenColorIO.h</label>
+      </node>
+      <node id="33">
+        <label>project/item/footage/stream.h</label>
+        <link refid="stream_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="48">
+        <label>project/item/footage/videostream.h</label>
+        <link refid="videostream_8h"/>
+        <childnode refid="47" relation="include">
+        </childnode>
+      </node>
+      <node id="30">
+        <label>common/xmlutils.h</label>
+        <link refid="xmlutils_8h"/>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+      </node>
+      <node id="28">
+        <label>QVariant</label>
+      </node>
+      <node id="7">
+        <label>codec/frame.h</label>
+        <link refid="frame_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+      </node>
+      <node id="18">
+        <label>OpenImageIO/imageio.h</label>
+      </node>
+      <node id="44">
+        <label>render/audioparams.h</label>
+        <link refid="audioparams_8h"/>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="46" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>memory</label>
+      </node>
+      <node id="42">
+        <label>common/threadedobject.h</label>
+        <link refid="threadedobject_8h"/>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>QVector</label>
+      </node>
+      <node id="34">
+        <label>QCoreApplication</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="9">
+        <label>param.h</label>
+        <link refid="panel_2param_2param_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>curve.h</label>
+        <link refid="curve_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>mainwindow.h</label>
+        <link refid="mainwindow_8h"/>
+      </node>
+      <node id="5">
+        <label>keyframeview.h</label>
+        <link refid="keyframeview_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>viewer.h</label>
+        <link refid="widget_2viewer_2viewer_8h"/>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>timelineview.h</label>
+        <link refid="timelineview_8h"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>viewerbase.h</label>
+        <link refid="viewerbase_8h"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>timelineviewbase.h</label>
+        <link refid="timelineviewbase_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="27">
+        <label>project.h</label>
+        <link refid="panel_2project_2project_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>timebased.h</label>
+        <link refid="panel_2timebased_2timebased_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>projectviewmodel.h</label>
+        <link refid="projectviewmodel_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>timelinewidget.h</label>
+        <link refid="timelinewidget_8h"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>projectexplorer.h</label>
+        <link refid="projectexplorer_8h"/>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+      <node id="25">
+        <label>projectimportmanager.h</label>
+        <link refid="projectimportmanager_8h"/>
+      </node>
+      <node id="23">
+        <label>footageviewer.h</label>
+        <link refid="widget_2viewer_2footageviewer_8h"/>
+      </node>
+      <node id="7">
+        <label>curvewidget.h</label>
+        <link refid="curvewidget_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>timebased.h</label>
+        <link refid="widget_2timebased_2timebased_8h"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>curveview.h</label>
+        <link refid="curveview_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>keyframeviewbase.h</label>
+        <link refid="keyframeviewbase_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="19">
+        <label>sequenceviewer.h</label>
+        <link refid="sequenceviewer_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>nodeparamview.h</label>
+        <link refid="nodeparamview_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>timeline.h</label>
+        <link refid="timeline_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>export.h</label>
+        <link refid="export_8h"/>
+      </node>
+      <node id="2">
+        <label>core.h</label>
+        <link refid="core_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="18">
+        <label>viewer.h</label>
+        <link refid="panel_2viewer_2viewer_8h"/>
+        <childnode refid="19" relation="include">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>footageviewer.h</label>
+        <link refid="panel_2footageviewer_2footageviewer_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="24">
+        <label>timelineandtrackview.h</label>
+        <link refid="timelineandtrackview_8h"/>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="class_project_view_model" prot="public">ProjectViewModel</innerclass>
+    <innerclass refid="class_project_view_model_1_1_move_item_command" prot="public">ProjectViewModel::MoveItemCommand</innerclass>
+    <innerclass refid="class_project_view_model_1_1_rename_item_command" prot="public">ProjectViewModel::RenameItemCommand</innerclass>
+    <innerclass refid="class_project_view_model_1_1_add_item_command" prot="public">ProjectViewModel::AddItemCommand</innerclass>
+    <innerclass refid="class_project_view_model_1_1_remove_item_command" prot="public">ProjectViewModel::RemoveItemCommand</innerclass>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/***</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"></highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/><sp/>Olive<sp/>-<sp/>Non-Linear<sp/>Video<sp/>Editor</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/><sp/>Copyright<sp/>(C)<sp/>2019<sp/>Olive<sp/>Team</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"></highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/><sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/><sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/><sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"></highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/><sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/><sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/><sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"></highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/><sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/><sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"></highlight></codeline>
+<codeline lineno="19"><highlight class="comment">***/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>VIEWMODEL_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VIEWMODEL_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QAbstractItemModel&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="project_2project_8h" kindref="compound">project.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="undocommand_8h" kindref="compound">undo/undocommand.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><ref refid="define_8h_1a0472692dd1f22472ad63da20da919e8c" kindref="member">OLIVE_NAMESPACE_ENTER</ref></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39" refid="class_project_view_model" refkind="compound"><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_project_view_model" kindref="compound">ProjectViewModel</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>QAbstractItemModel</highlight></codeline>
+<codeline lineno="40"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/><ref refid="class_project_view_model_1af365225d0088affca74de6135cb3c48d" kindref="member">ColumnType</ref><sp/>{</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_project_view_model_1af365225d0088affca74de6135cb3c48da4e1832099e9472f0cdfc315839d8b8e7" kindref="member">kName</ref>,</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_project_view_model_1af365225d0088affca74de6135cb3c48dac0cdd767ce99fdf76f7a1b401216da1a" kindref="member">kDuration</ref>,</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_project_view_model_1af365225d0088affca74de6135cb3c48da37c807ff154d3201df1fc53d442e9820" kindref="member">kRate</ref></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><ref refid="class_project_view_model_1a2c4632c14ef3bdfa912cb06ae7107521" kindref="member">ProjectViewModel</ref>(QObject*<sp/><ref refid="class_project_view_model_1a8a786ba8fade170d0396abd52a3b13bc" kindref="member">parent</ref>);</highlight></codeline>
+<codeline lineno="60" refid="class_project_view_model_1af365225d0088affca74de6135cb3c48d" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><ref refid="class_project" kindref="compound">Project</ref>*<sp/><ref refid="class_project_view_model_1a4a91cde2e81995132a0445a2f3f3af74" kindref="member">project</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_project_view_model_1a98a351c4027365d12b827b6c8c53f67c" kindref="member">set_project</ref>(<ref refid="class_project" kindref="compound">Project</ref>*<sp/>p);</highlight></codeline>
+<codeline lineno="80" refid="class_project_view_model_1af365225d0088affca74de6135cb3c48da4e1832099e9472f0cdfc315839d8b8e7" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>QModelIndex<sp/><ref refid="class_project_view_model_1a08e6778191f75a60bbafd9181618b943" kindref="member">index</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>row,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>column,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QModelIndex<sp/>&amp;<ref refid="class_project_view_model_1a8a786ba8fade170d0396abd52a3b13bc" kindref="member">parent</ref><sp/>=<sp/>QModelIndex())<sp/></highlight><highlight class="keyword">const<sp/>override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="83" refid="class_project_view_model_1af365225d0088affca74de6135cb3c48dac0cdd767ce99fdf76f7a1b401216da1a" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>QModelIndex<sp/><ref refid="class_project_view_model_1a8a786ba8fade170d0396abd52a3b13bc" kindref="member">parent</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QModelIndex<sp/>&amp;child)<sp/></highlight><highlight class="keyword">const<sp/>override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="class_project_view_model_1a1a39a698a9714af006cb18b905d6b9d0" kindref="member">rowCount</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QModelIndex<sp/>&amp;<ref refid="class_project_view_model_1a8a786ba8fade170d0396abd52a3b13bc" kindref="member">parent</ref><sp/>=<sp/>QModelIndex())<sp/></highlight><highlight class="keyword">const<sp/>override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="class_project_view_model_1a0092da83dc72d0b846ddf0fe577e5c1f" kindref="member">columnCount</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QModelIndex<sp/>&amp;<ref refid="class_project_view_model_1a8a786ba8fade170d0396abd52a3b13bc" kindref="member">parent</ref><sp/>=<sp/>QModelIndex())<sp/></highlight><highlight class="keyword">const<sp/>override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="86" refid="class_project_view_model_1a4a91cde2e81995132a0445a2f3f3af74" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>QVariant<sp/><ref refid="class_project_view_model_1ac100cb80005c5da4d4e063fa5b25975d" kindref="member">data</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QModelIndex<sp/>&amp;<ref refid="class_project_view_model_1a08e6778191f75a60bbafd9181618b943" kindref="member">index</ref>,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>role<sp/>=<sp/>Qt::DisplayRole)<sp/></highlight><highlight class="keyword">const<sp/>override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="87" refid="class_project_view_model_1af365225d0088affca74de6135cb3c48da37c807ff154d3201df1fc53d442e9820" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>QVariant<sp/><ref refid="class_project_view_model_1a0d5743d0d52edff782accb3897edabea" kindref="member">headerData</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>section,<sp/>Qt::Orientation<sp/>orientation,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>role<sp/>=<sp/>Qt::DisplayRole)<sp/></highlight><highlight class="keyword">const<sp/>override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_project_view_model_1a3e204584fa249671a2154fe3ae1a1adf" kindref="member">hasChildren</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QModelIndex<sp/>&amp;<ref refid="class_project_view_model_1a8a786ba8fade170d0396abd52a3b13bc" kindref="member">parent</ref><sp/>=<sp/>QModelIndex())<sp/></highlight><highlight class="keyword">const<sp/>override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_project_view_model_1a34cabf55c9dc198905ea3662c1443f60" kindref="member">setData</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QModelIndex<sp/>&amp;<ref refid="class_project_view_model_1a08e6778191f75a60bbafd9181618b943" kindref="member">index</ref>,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QVariant<sp/>&amp;value,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>role<sp/>=<sp/>Qt::EditRole)<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_project_view_model_1a16020f5510e7a81835a0f6f91426acda" kindref="member">canFetchMore</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QModelIndex<sp/>&amp;<ref refid="class_project_view_model_1a8a786ba8fade170d0396abd52a3b13bc" kindref="member">parent</ref>)<sp/></highlight><highlight class="keyword">const<sp/>override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>Qt::ItemFlags<sp/><ref refid="class_project_view_model_1a03ac877f4f38fb25ecbe3086611aad18" kindref="member">flags</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QModelIndex<sp/>&amp;<ref refid="class_project_view_model_1a08e6778191f75a60bbafd9181618b943" kindref="member">index</ref>)<sp/></highlight><highlight class="keyword">const<sp/>override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>QStringList<sp/><ref refid="class_project_view_model_1a76a18d5ca0f01aef6ffc96e9d3a98aee" kindref="member">mimeTypes</ref>()<sp/></highlight><highlight class="keyword">const<sp/>override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="97" refid="class_project_view_model_1a98a351c4027365d12b827b6c8c53f67c" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>QMimeData<sp/>*<sp/><ref refid="class_project_view_model_1aa5f2ba863aba3347f2645bb2d5991365" kindref="member">mimeData</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QModelIndexList<sp/>&amp;indexes)<sp/></highlight><highlight class="keyword">const<sp/>override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_project_view_model_1aa3e9574f2cd0e646d01d826eb19c06d7" kindref="member">dropMimeData</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QMimeData<sp/>*<ref refid="class_project_view_model_1ac100cb80005c5da4d4e063fa5b25975d" kindref="member">data</ref>,<sp/>Qt::DropAction<sp/>action,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>row,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>column,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QModelIndex<sp/>&amp;<ref refid="class_project_view_model_1a8a786ba8fade170d0396abd52a3b13bc" kindref="member">parent</ref>)<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="101" refid="class_project_view_model_1a8a786ba8fade170d0396abd52a3b13bc" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_project_view_model_1ac5b4b4425c1ad53ebda9e5ae4d795e97" kindref="member">AddChild</ref>(<ref refid="class_item" kindref="compound">Item</ref>*<sp/><ref refid="class_project_view_model_1a8a786ba8fade170d0396abd52a3b13bc" kindref="member">parent</ref>,<sp/><ref refid="item_8h_1ab17f9c749f423747869d900d2418ffde" kindref="member">ItemPtr</ref><sp/>child);</highlight></codeline>
+<codeline lineno="102" refid="class_project_view_model_1a1a39a698a9714af006cb18b905d6b9d0" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_project_view_model_1a26e7a1d0f5be97e8d6caf22948a4d19d" kindref="member">RemoveChild</ref>(<ref refid="class_item" kindref="compound">Item</ref>*<sp/><ref refid="class_project_view_model_1a8a786ba8fade170d0396abd52a3b13bc" kindref="member">parent</ref>,<sp/><ref refid="class_item" kindref="compound">Item</ref>*<sp/>child);</highlight></codeline>
+<codeline lineno="103" refid="class_project_view_model_1a0092da83dc72d0b846ddf0fe577e5c1f" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_project_view_model_1a131fc7040378b1c44116678e3ab929e4" kindref="member">RenameChild</ref>(<ref refid="class_item" kindref="compound">Item</ref>*<sp/>item,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/>name);</highlight></codeline>
+<codeline lineno="104" refid="class_project_view_model_1ac100cb80005c5da4d4e063fa5b25975d" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108" refid="class_project_view_model_1a3e204584fa249671a2154fe3ae1a1adf" refkind="member"><highlight class="normal"><sp/><sp/>QModelIndex<sp/><ref refid="class_project_view_model_1a6d4fbd4eb743358e659a9dc021d262ce" kindref="member">CreateIndexFromItem</ref>(<ref refid="class_item" kindref="compound">Item</ref>*<sp/>item,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>column<sp/>=<sp/>0);</highlight></codeline>
+<codeline lineno="109" refid="class_project_view_model_1a34cabf55c9dc198905ea3662c1443f60" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113" refid="class_project_view_model_1a03ac877f4f38fb25ecbe3086611aad18" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_project_view_model_1_1_move_item_command" kindref="compound">MoveItemCommand</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="class_undo_command" kindref="compound">UndoCommand</ref><sp/>{</highlight></codeline>
+<codeline lineno="114" refid="class_project_view_model_1a76a18d5ca0f01aef6ffc96e9d3a98aee" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="115" refid="class_project_view_model_1aa5f2ba863aba3347f2645bb2d5991365" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_project_view_model_1_1_move_item_command_1a14c47a8ce89f344d878901133263cb6e" kindref="member">MoveItemCommand</ref>(<ref refid="class_project_view_model" kindref="compound">ProjectViewModel</ref>*<sp/>model,<sp/><ref refid="class_item" kindref="compound">Item</ref>*<sp/>item,<sp/><ref refid="class_folder" kindref="compound">Folder</ref>*<sp/>destination,<sp/>QUndoCommand*<sp/><ref refid="class_project_view_model_1a8a786ba8fade170d0396abd52a3b13bc" kindref="member">parent</ref><sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="116" refid="class_project_view_model_1aa3e9574f2cd0e646d01d826eb19c06d7" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="class_project" kindref="compound">Project</ref>*<sp/><ref refid="class_project_view_model_1_1_move_item_command_1a19e58b10bfc129aac5cbb226232b9867" kindref="member">GetRelevantProject</ref>()<sp/></highlight><highlight class="keyword">const<sp/>override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119" refid="class_project_view_model_1ac5b4b4425c1ad53ebda9e5ae4d795e97" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="120" refid="class_project_view_model_1a26e7a1d0f5be97e8d6caf22948a4d19d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_project_view_model_1_1_move_item_command_1aef1c045bff0bd64031518ddf3f57a800" kindref="member">redo_internal</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="121" refid="class_project_view_model_1a131fc7040378b1c44116678e3ab929e4" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_project_view_model_1_1_move_item_command_1a3a1f98dfe6a8be162cae128a590f324b" kindref="member">undo_internal</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_project_view_model" kindref="compound">ProjectViewModel</ref>*<sp/><ref refid="class_project_view_model_1_1_move_item_command_1ae8e7666da424f544566a3cee7d00d352" kindref="member">model_</ref>;</highlight></codeline>
+<codeline lineno="126" refid="class_project_view_model_1a6d4fbd4eb743358e659a9dc021d262ce" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_item" kindref="compound">Item</ref>*<sp/><ref refid="class_project_view_model_1_1_move_item_command_1a043febff02d33e53ef7cab25f413b6a3" kindref="member">item_</ref>;</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_folder" kindref="compound">Folder</ref>*<sp/><ref refid="class_project_view_model_1_1_move_item_command_1a23e372d40f09046a698855aa46943e30" kindref="member">source_</ref>;</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_folder" kindref="compound">Folder</ref>*<sp/><ref refid="class_project_view_model_1_1_move_item_command_1a8956be361274bb45b9e781d23c9c1ee8" kindref="member">destination_</ref>;</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="131" refid="class_project_view_model_1_1_move_item_command" refkind="compound"><highlight class="normal"></highlight></codeline>
+<codeline lineno="135" refid="class_project_view_model_1_1_move_item_command_1a19e58b10bfc129aac5cbb226232b9867" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_project_view_model_1_1_rename_item_command" kindref="compound">RenameItemCommand</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="class_undo_command" kindref="compound">UndoCommand</ref><sp/>{</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_project_view_model_1_1_rename_item_command_1a559bbabdc80e11080600961b6fd99c4b" kindref="member">RenameItemCommand</ref>(<ref refid="class_project_view_model" kindref="compound">ProjectViewModel</ref>*<sp/>model,<sp/><ref refid="class_item" kindref="compound">Item</ref>*<sp/>item,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/>name,<sp/>QUndoCommand*<sp/><ref refid="class_project_view_model_1a8a786ba8fade170d0396abd52a3b13bc" kindref="member">parent</ref><sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="138" refid="class_project_view_model_1_1_move_item_command_1aef1c045bff0bd64031518ddf3f57a800" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="class_project" kindref="compound">Project</ref>*<sp/><ref refid="class_project_view_model_1_1_rename_item_command_1a66283a829b4ba96938bc5d2bc6a827b7" kindref="member">GetRelevantProject</ref>()<sp/></highlight><highlight class="keyword">const<sp/>override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="140" refid="class_project_view_model_1_1_move_item_command_1a3a1f98dfe6a8be162cae128a590f324b" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_project_view_model_1_1_rename_item_command_1aa342ea316a20c0be6e452ac08606b65b" kindref="member">redo_internal</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="143" refid="class_project_view_model_1_1_move_item_command_1ae8e7666da424f544566a3cee7d00d352" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="144" refid="class_project_view_model_1_1_move_item_command_1a043febff02d33e53ef7cab25f413b6a3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_project_view_model_1_1_rename_item_command_1ae4378b65b10fd527a349cb5e62823089" kindref="member">undo_internal</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="145" refid="class_project_view_model_1_1_move_item_command_1a23e372d40f09046a698855aa46943e30" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="146" refid="class_project_view_model_1_1_move_item_command_1a8956be361274bb45b9e781d23c9c1ee8" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_project_view_model" kindref="compound">ProjectViewModel</ref>*<sp/><ref refid="class_project_view_model_1_1_rename_item_command_1a7f0a3dd8a069789d1e80515c381ea427" kindref="member">model_</ref>;</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_item" kindref="compound">Item</ref>*<sp/><ref refid="class_project_view_model_1_1_rename_item_command_1ade0d0bba44f172076ad2325fc4a59610" kindref="member">item_</ref>;</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/>QString<sp/><ref refid="class_project_view_model_1_1_rename_item_command_1af2adaaf1bcb496cc5626ffec878622c1" kindref="member">old_name_</ref>;</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/>QString<sp/><ref refid="class_project_view_model_1_1_rename_item_command_1a0630f97e086ced64af9b62950dd3bd11" kindref="member">new_name_</ref>;</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_project_view_model_1_1_add_item_command" kindref="compound">AddItemCommand</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="class_undo_command" kindref="compound">UndoCommand</ref><sp/>{</highlight></codeline>
+<codeline lineno="157" refid="class_project_view_model_1_1_rename_item_command_1a66283a829b4ba96938bc5d2bc6a827b7" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_project_view_model_1_1_add_item_command_1a933f3957245576f167cc208b1317f847" kindref="member">AddItemCommand</ref>(<ref refid="class_project_view_model" kindref="compound">ProjectViewModel</ref>*<sp/>model,<sp/><ref refid="class_item" kindref="compound">Item</ref>*<sp/>folder,<sp/><ref refid="item_8h_1ab17f9c749f423747869d900d2418ffde" kindref="member">ItemPtr</ref><sp/>child,<sp/>QUndoCommand*<sp/><ref refid="class_project_view_model_1a8a786ba8fade170d0396abd52a3b13bc" kindref="member">parent</ref><sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight></codeline>
+<codeline lineno="160" refid="class_project_view_model_1_1_rename_item_command_1aa342ea316a20c0be6e452ac08606b65b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="class_project" kindref="compound">Project</ref>*<sp/><ref refid="class_project_view_model_1_1_add_item_command_1a0af568872dc5e61ba6e1c644046ae2a5" kindref="member">GetRelevantProject</ref>()<sp/></highlight><highlight class="keyword">const<sp/>override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight></codeline>
+<codeline lineno="162" refid="class_project_view_model_1_1_rename_item_command_1ae4378b65b10fd527a349cb5e62823089" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_project_view_model_1_1_add_item_command_1a21e1e48d7e672689a7cd5bbe59781a9a" kindref="member">redo_internal</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight></codeline>
+<codeline lineno="165" refid="class_project_view_model_1_1_rename_item_command_1a7f0a3dd8a069789d1e80515c381ea427" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_project_view_model_1_1_add_item_command_1ac33d467a01cf476cd522e1257093dfbf" kindref="member">undo_internal</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="166" refid="class_project_view_model_1_1_rename_item_command_1ade0d0bba44f172076ad2325fc4a59610" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="167" refid="class_project_view_model_1_1_rename_item_command_1af2adaaf1bcb496cc5626ffec878622c1" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="168" refid="class_project_view_model_1_1_rename_item_command_1a0630f97e086ced64af9b62950dd3bd11" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_project_view_model" kindref="compound">ProjectViewModel</ref>*<sp/><ref refid="class_project_view_model_1_1_add_item_command_1a04f71e2eb90f30497a608076f9121964" kindref="member">model_</ref>;</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_item" kindref="compound">Item</ref>*<sp/><ref refid="class_project_view_model_1_1_add_item_command_1abd35c18509f400711afbf32935d9b9cd" kindref="member">parent_</ref>;</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="item_8h_1ab17f9c749f423747869d900d2418ffde" kindref="member">ItemPtr</ref><sp/><ref refid="class_project_view_model_1_1_add_item_command_1aab9eb74f5e00cdab84b369f18a5adbde" kindref="member">child_</ref>;</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_project_view_model_1_1_add_item_command_1ad93cb7e80665564699d83918a739674a" kindref="member">done_</ref>;</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"></highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_project_view_model_1_1_remove_item_command" kindref="compound">RemoveItemCommand</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="class_undo_command" kindref="compound">UndoCommand</ref><sp/>{</highlight></codeline>
+<codeline lineno="178" refid="class_project_view_model_1_1_add_item_command_1a0af568872dc5e61ba6e1c644046ae2a5" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_project_view_model_1_1_remove_item_command_1a9a0d2762f7140346cb2019494ecb0105" kindref="member">RemoveItemCommand</ref>(<ref refid="class_project_view_model" kindref="compound">ProjectViewModel</ref>*<sp/>model,<sp/><ref refid="item_8h_1ab17f9c749f423747869d900d2418ffde" kindref="member">ItemPtr</ref><sp/>item,<sp/>QUndoCommand*<sp/><ref refid="class_project_view_model_1a8a786ba8fade170d0396abd52a3b13bc" kindref="member">parent</ref><sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"></highlight></codeline>
+<codeline lineno="181" refid="class_project_view_model_1_1_add_item_command_1a21e1e48d7e672689a7cd5bbe59781a9a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="class_project" kindref="compound">Project</ref>*<sp/><ref refid="class_project_view_model_1_1_remove_item_command_1af8262cd80e20925b7309dfbd9ab4d9ad" kindref="member">GetRelevantProject</ref>()<sp/></highlight><highlight class="keyword">const<sp/>override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"></highlight></codeline>
+<codeline lineno="183" refid="class_project_view_model_1_1_add_item_command_1ac33d467a01cf476cd522e1257093dfbf" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_project_view_model_1_1_remove_item_command_1ab1965b1ee4fec7c107f06751f9dc276e" kindref="member">redo_internal</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"></highlight></codeline>
+<codeline lineno="186" refid="class_project_view_model_1_1_add_item_command_1a04f71e2eb90f30497a608076f9121964" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_project_view_model_1_1_remove_item_command_1a43f0bcf4f0ce4c5548cb20c0117b9f22" kindref="member">undo_internal</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="187" refid="class_project_view_model_1_1_add_item_command_1abd35c18509f400711afbf32935d9b9cd" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="188" refid="class_project_view_model_1_1_add_item_command_1aab9eb74f5e00cdab84b369f18a5adbde" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="189" refid="class_project_view_model_1_1_add_item_command_1ad93cb7e80665564699d83918a739674a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_project_view_model" kindref="compound">ProjectViewModel</ref>*<sp/><ref refid="class_project_view_model_1_1_remove_item_command_1a4611c237f7fd73aabf02b17434a85716" kindref="member">model_</ref>;</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"></highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="item_8h_1ab17f9c749f423747869d900d2418ffde" kindref="member">ItemPtr</ref><sp/><ref refid="class_project_view_model_1_1_remove_item_command_1a3939d3324327b4a998a536be6794332b" kindref="member">item_</ref>;</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"></highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_item" kindref="compound">Item</ref>*<sp/><ref refid="class_project_view_model_1_1_remove_item_command_1af4a2222d07f80180446d3bcc9efb97d1" kindref="member">parent_</ref>;</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"></highlight></codeline>
+<codeline lineno="195" refid="class_project_view_model_1_1_remove_item_command" refkind="compound"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"></highlight></codeline>
+<codeline lineno="197" refid="class_project_view_model_1_1_remove_item_command_1a9a0d2762f7140346cb2019494ecb0105" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="class_project_view_model_1a9a40a8489bc3e6dd1049ee8bb0258b29" kindref="member">IndexOfChild</ref>(<ref refid="class_item" kindref="compound">Item</ref>*<sp/>item)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="209" refid="class_project_view_model_1_1_remove_item_command_1a3939d3324327b4a998a536be6794332b" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="class_project_view_model_1aa177ee18b55fff3147cde9e6c7ba827e" kindref="member">ChildCount</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QModelIndex&amp;<sp/><ref refid="class_project_view_model_1a08e6778191f75a60bbafd9181618b943" kindref="member">index</ref>);</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"></highlight></codeline>
+<codeline lineno="226" refid="class_project_view_model_1a9a40a8489bc3e6dd1049ee8bb0258b29" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_item" kindref="compound">Item</ref>*<sp/><ref refid="class_project_view_model_1ade30b73856206d72035ea7eac7e9f9d6" kindref="member">GetItemObjectFromIndex</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QModelIndex&amp;<sp/><ref refid="class_project_view_model_1a08e6778191f75a60bbafd9181618b943" kindref="member">index</ref>)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"></highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_project_view_model_1a60b8c759a91bda5c9ec8f600bc03d5a9" kindref="member">ItemIsParentOfChild</ref>(<ref refid="class_item" kindref="compound">Item</ref>*<sp/><ref refid="class_project_view_model_1a8a786ba8fade170d0396abd52a3b13bc" kindref="member">parent</ref>,<sp/><ref refid="class_item" kindref="compound">Item</ref>*<sp/>child)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"></highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_project_view_model_1a70b2cb39f92f874933ed7ceb105280cb" kindref="member">MoveItemInternal</ref>(<ref refid="class_item" kindref="compound">Item</ref>*<sp/>item,<sp/><ref refid="class_item" kindref="compound">Item</ref>*<sp/>destination);</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"></highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><ref refid="class_project" kindref="compound">Project</ref>*<sp/><ref refid="class_project_view_model_1ae77c904bf15e89fa6eb093b9835f8e21" kindref="member">project_</ref>;</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"></highlight></codeline>
+<codeline lineno="249"><highlight class="normal"><sp/><sp/>QVector&lt;ColumnType&gt;<sp/><ref refid="class_project_view_model_1ab5bc043a6cdba2d2c02cf0ce2ff0f748" kindref="member">columns_</ref>;</highlight></codeline>
+<codeline lineno="250"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="251" refid="class_project_view_model_1a60b8c759a91bda5c9ec8f600bc03d5a9" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><ref refid="define_8h_1abe3de0634d907ca0f5d1acf732c49dac" kindref="member">OLIVE_NAMESPACE_EXIT</ref></highlight></codeline>
+<codeline lineno="253"><highlight class="normal"></highlight></codeline>
+<codeline lineno="254"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//<sp/>VIEWMODEL_H</highlight></codeline>
+    </programlisting>
+    <location file="C:/Daten/Olive/olive/app/project/projectviewmodel.h"/>
+  </compounddef>
+</doxygen>

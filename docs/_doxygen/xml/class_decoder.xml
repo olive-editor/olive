@@ -1,0 +1,662 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_decoder" kind="class" language="C++" prot="public" abstract="yes">
+    <compoundname>Decoder</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QObject</basecompoundref>
+    <derivedcompoundref refid="class_f_fmpeg_decoder" prot="public" virt="non-virtual">FFmpegDecoder</derivedcompoundref>
+    <derivedcompoundref refid="class_o_i_i_o_decoder" prot="public" virt="non-virtual">OIIODecoder</derivedcompoundref>
+    <includes refid="decoder_8h" local="no">decoder.h</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="enum" id="class_decoder_1aaf2969a042349edc13d9b054894d105f" prot="public" static="no" strong="no">
+        <type></type>
+        <name>RetrieveState</name>
+        <enumvalue id="class_decoder_1aaf2969a042349edc13d9b054894d105fabd3e02331c859481b55ea588119cc6c4" prot="public">
+          <name>kReady</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_decoder_1aaf2969a042349edc13d9b054894d105facf91f190f975de43755054b2e812c751" prot="public">
+          <name>kFailedToOpen</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_decoder_1aaf2969a042349edc13d9b054894d105fa67c4ec6806b95854af466eac34c798bd" prot="public">
+          <name>kIndexUnavailable</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/decoder.h" line="63" column="3" bodyfile="C:/Daten/Olive/olive/app/codec/decoder.h" bodystart="63" bodyend="67"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="class_decoder_1a4b6509473b3fa917cb3c066ae44af6c7" prot="protected" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool Decoder::open_</definition>
+        <argsstring></argsstring>
+        <name>open_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/decoder.h" line="268" column="8" bodyfile="C:/Daten/Olive/olive/app/codec/decoder.h" bodystart="268" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_decoder_1ac09fc7131e8955106db416ade8b264a1" prot="protected" static="no" mutable="no">
+        <type>QMutex</type>
+        <definition>QMutex Decoder::mutex_</definition>
+        <argsstring></argsstring>
+        <name>mutex_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/decoder.h" line="270" column="10" bodyfile="C:/Daten/Olive/olive/app/codec/decoder.h" bodystart="270" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_decoder_1a43ab5fbc422aa7d11f205b1fff3d38b7" prot="private" static="no" mutable="no">
+        <type><ref refid="stream_8h_1a3ca5b414655d064180098adf46c1a2f1" kindref="member">StreamPtr</ref></type>
+        <definition>StreamPtr Decoder::stream_</definition>
+        <argsstring></argsstring>
+        <name>stream_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/decoder.h" line="275" column="13" bodyfile="C:/Daten/Olive/olive/app/codec/decoder.h" bodystart="275" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_decoder_1a691a867940a1c494b77e458ae1325352" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Decoder::Decoder</definition>
+        <argsstring>()</argsstring>
+        <name>Decoder</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/decoder.h" line="69" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_decoder_1adbea95d1bc5f127e19bbfacaedc18c4a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Decoder::Decoder</definition>
+        <argsstring>(Stream *fs)</argsstring>
+        <name>Decoder</name>
+        <param>
+          <type><ref refid="class_stream" kindref="compound">Stream</ref> *</type>
+          <declname>fs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/decoder.h" line="71" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_decoder_1a4043a5c61c184331d9db680b653685cf" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>QString</type>
+        <definition>virtual QString Decoder::id</definition>
+        <argsstring>()=0</argsstring>
+        <name>id</name>
+        <reimplementedby refid="class_o_i_i_o_decoder_1ae32f9dfdee0730e415af963dd530e9fa">id</reimplementedby>
+        <reimplementedby refid="class_f_fmpeg_decoder_1a88cbb0fb44337c5263b5131b93a5fe41">id</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/decoder.h" line="75" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_decoder_1a766960ea42ec5dcef66fd22d8482b94a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="stream_8h_1a3ca5b414655d064180098adf46c1a2f1" kindref="member">StreamPtr</ref></type>
+        <definition>StreamPtr Decoder::stream</definition>
+        <argsstring>()</argsstring>
+        <name>stream</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/decoder.h" line="77" column="13"/>
+      </memberdef>
+      <memberdef kind="function" id="class_decoder_1a209ef567e42228ccd0739378504a9edc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Decoder::set_stream</definition>
+        <argsstring>(StreamPtr fs)</argsstring>
+        <name>set_stream</name>
+        <param>
+          <type><ref refid="stream_8h_1a3ca5b414655d064180098adf46c1a2f1" kindref="member">StreamPtr</ref></type>
+          <declname>fs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/decoder.h" line="78" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_decoder_1ad337c171cc239556fa57260698fa2ee6" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>bool</type>
+        <definition>virtual bool Decoder::Probe</definition>
+        <argsstring>(Footage *f, const QAtomicInt *cancelled)=0</argsstring>
+        <name>Probe</name>
+        <reimplementedby refid="class_o_i_i_o_decoder_1a56a4c755885c47676deddcf0277242a1">Probe</reimplementedby>
+        <reimplementedby refid="class_f_fmpeg_decoder_1af350a8ecd1056bed082b3f0308212e83">Probe</reimplementedby>
+        <param>
+          <type><ref refid="class_footage" kindref="compound">Footage</ref> *</type>
+          <declname>f</declname>
+        </param>
+        <param>
+          <type>const QAtomicInt *</type>
+          <declname>cancelled</declname>
+        </param>
+        <briefdescription>
+<para>Probe a footage file and dump metadata about it. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>When a <ref refid="class_footage" kindref="compound">Footage</ref> file is imported, we&apos;ll need to know whether Olive is equipped with a decoder for utilizing it and metadata should be retrieved about it if so. For this purpose, the <ref refid="class_footage" kindref="compound">Footage</ref> object is passed through all <ref refid="class_decoder_1ad337c171cc239556fa57260698fa2ee6" kindref="member">Probe()</ref> functions of available deocders until one returns TRUE. A FALSE return means the <ref refid="class_decoder" kindref="compound">Decoder</ref> was unable to parse this file and the next should be tried.</para>
+<para><ref refid="class_decoder_1ad337c171cc239556fa57260698fa2ee6" kindref="member">Probe()</ref> differs from <ref refid="class_decoder_1a2fe2c3c44ce777ccf950b31a2317ac35" kindref="member">Open()</ref> since it focuses on a file as a whole rather than one particular stream. <ref refid="class_decoder_1ad337c171cc239556fa57260698fa2ee6" kindref="member">Probe()</ref> should be able to be run directly without calling <ref refid="class_decoder_1a2fe2c3c44ce777ccf950b31a2317ac35" kindref="member">Open()</ref> or <ref refid="class_decoder_1a5fd4e728c00a568890410ab3b5d308c2" kindref="member">Close()</ref> and should free its memory before returning.</para>
+<para><ref refid="class_decoder_1ad337c171cc239556fa57260698fa2ee6" kindref="member">Probe()</ref> will never be called on an object that is also used for decoding. In other words, it will never be called alongside <ref refid="class_decoder_1a2fe2c3c44ce777ccf950b31a2317ac35" kindref="member">Open()</ref> or <ref refid="class_decoder_1a5fd4e728c00a568890410ab3b5d308c2" kindref="member">Close()</ref> externally, so <ref refid="class_decoder_1ad337c171cc239556fa57260698fa2ee6" kindref="member">Probe()</ref> can use variables that would otherwise be used for decoding without conflict.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>f</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A <ref refid="class_footage" kindref="compound">Footage</ref> object to probe. The <ref refid="class_footage" kindref="compound">Footage</ref> object will have a valid filename and will be empty prior to being sent to this function (i.e. <ref refid="class_footage_1a93958d4ee4da8739c6367eae69ead8e2" kindref="member">Footage::Clear()</ref> will not have to be called).</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para></para>
+</simplesect>
+TRUE if the <ref refid="class_decoder" kindref="compound">Decoder</ref> was able to decode this file. FALSE if not. This function should have filled the <ref refid="class_footage" kindref="compound">Footage</ref> object with metadata if it returns TRUE. Otherwise, the <ref refid="class_footage" kindref="compound">Footage</ref> object should be untouched. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/decoder.h" line="105" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_decoder_1a2fe2c3c44ce777ccf950b31a2317ac35" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>bool</type>
+        <definition>virtual bool Decoder::Open</definition>
+        <argsstring>()=0</argsstring>
+        <name>Open</name>
+        <reimplementedby refid="class_o_i_i_o_decoder_1a99d9096ffee7a769abe6e48f7c1b65e8">Open</reimplementedby>
+        <reimplementedby refid="class_f_fmpeg_decoder_1a47cde448081fd10f934910201adc6033">Open</reimplementedby>
+        <briefdescription>
+<para>Open media/allocate memory. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Any file handles or memory allocation that needs to be done before this instance of a <ref refid="class_decoder" kindref="compound">Decoder</ref> can return data should be done here.</para>
+<para><simplesect kind="return"><para></para>
+</simplesect>
+TRUE if successful and ready to return data, FALSE if failed to open and unable to retrieve data. If the function fails, any memory allocated should be free&apos;d before returning FALSE, possibly by calling <ref refid="class_decoder_1a5fd4e728c00a568890410ab3b5d308c2" kindref="member">Close()</ref>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/decoder.h" line="118" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_decoder_1a274f1d219d51d9549c1201f1f14bafa0" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type><ref refid="class_decoder_1aaf2969a042349edc13d9b054894d105f" kindref="member">RetrieveState</ref></type>
+        <definition>virtual RetrieveState Decoder::GetRetrieveState</definition>
+        <argsstring>(const rational &amp;time)=0</argsstring>
+        <name>GetRetrieveState</name>
+        <reimplementedby refid="class_o_i_i_o_decoder_1afbfbb1dac6a78b0a42f02deeed095226">GetRetrieveState</reimplementedby>
+        <reimplementedby refid="class_f_fmpeg_decoder_1a894d10a0c743c2ed225ac6ac40aa1156">GetRetrieveState</reimplementedby>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+<para>Determine whether the <ref refid="class_decoder" kindref="compound">Decoder</ref> is able to retrieve data. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/decoder.h" line="123" column="25"/>
+      </memberdef>
+      <memberdef kind="function" id="class_decoder_1a568cf374d3fe1dd02ddadcaccbd43a96" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="frame_8h_1a2ae9a822fc1e331fa3b449797f717db6" kindref="member">FramePtr</ref></type>
+        <definition>virtual FramePtr Decoder::RetrieveVideo</definition>
+        <argsstring>(const rational &amp;timecode, const int &amp;divider)</argsstring>
+        <name>RetrieveVideo</name>
+        <reimplementedby refid="class_o_i_i_o_decoder_1a5eac6006565e30ba4c5a620e10891744">RetrieveVideo</reimplementedby>
+        <reimplementedby refid="class_f_fmpeg_decoder_1a5f1c5cda7d302aed32bb0c557f4d8987">RetrieveVideo</reimplementedby>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>timecode</declname>
+        </param>
+        <param>
+          <type>const int &amp;</type>
+          <declname>divider</declname>
+        </param>
+        <briefdescription>
+<para>Retrieve video frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The main function for retrieving video data from the <ref refid="class_decoder" kindref="compound">Decoder</ref>. This function should always provide complete frame data (i.e. no partial frames) at the timecode provided. The <ref refid="class_decoder" kindref="compound">Decoder</ref> should perform any steps required to retrieve a complete frame separate from the rest of the program, using any form of caching/indexing to keep this as performant as possible.</para>
+<para>It&apos;s acceptable for this function to check whether the <ref refid="class_decoder" kindref="compound">Decoder</ref> is open, and call <ref refid="class_decoder_1a2fe2c3c44ce777ccf950b31a2317ac35" kindref="member">Open()</ref> if not. If <ref refid="class_decoder_1a2fe2c3c44ce777ccf950b31a2317ac35" kindref="member">Open()</ref> returns false, this function should return nullptr.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>timecode</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The timecode (a rational in seconds) to retrieve the frame at. If there is not a frame at this precise location this should be corrected internally to the closest fit for the timecode.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para></para>
+</simplesect>
+A FramePtr of valid data at this timecode or nullptr if there was nothing to retrieve at the provided timecode or the media could not be opened. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/decoder.h" line="146" column="20"/>
+      </memberdef>
+      <memberdef kind="function" id="class_decoder_1a37bac11d9b19042f13dd2742c964f1ff" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="samplebuffer_8h_1aa60dc68e3e43775112c8dabb364d0a33" kindref="member">SampleBufferPtr</ref></type>
+        <definition>virtual SampleBufferPtr Decoder::RetrieveAudio</definition>
+        <argsstring>(const rational &amp;timecode, const rational &amp;length, const AudioRenderingParams &amp;params)</argsstring>
+        <name>RetrieveAudio</name>
+        <reimplementedby refid="class_f_fmpeg_decoder_1a36cb8de8038d339836fd4061965e135f">RetrieveAudio</reimplementedby>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>timecode</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>length</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref> &amp;</type>
+          <declname>params</declname>
+        </param>
+        <briefdescription>
+<para>Retrieve video frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The main function for retrieving audio data from the <ref refid="class_decoder" kindref="compound">Decoder</ref>. This function should always provide complete frame data (i.e. no missing samples) at the timecode and length requested. The <ref refid="class_decoder" kindref="compound">Decoder</ref> should perform any steps required to retrieve a complete frame separate from the rest of the program, using any form of caching/indexing to keep this as performant as possible.</para>
+<para>It&apos;s acceptable for this function to check whether the <ref refid="class_decoder" kindref="compound">Decoder</ref> is open, and call <ref refid="class_decoder_1a2fe2c3c44ce777ccf950b31a2317ac35" kindref="member">Open()</ref> if not. If <ref refid="class_decoder_1a2fe2c3c44ce777ccf950b31a2317ac35" kindref="member">Open()</ref> returns false, this function should return nullptr.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>timecode</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The starting timecode (a rational in seconds) to retrieve the data at.</para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>length</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The total length of audio data to retrieve (a rational in seconds).</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para></para>
+</simplesect>
+A FramePtr of valid data at this timecode of the requested length or nullptr if there was nothing to retrieve at the provided timecode or the media could not be opened. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/decoder.h" line="172" column="27"/>
+      </memberdef>
+      <memberdef kind="function" id="class_decoder_1ab4d5d39d1903e47e191e2824bfb2438f" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>bool</type>
+        <definition>virtual bool Decoder::SupportsVideo</definition>
+        <argsstring>()</argsstring>
+        <name>SupportsVideo</name>
+        <reimplementedby refid="class_o_i_i_o_decoder_1ad62ea4c2374315c30241b90aee0d3d38">SupportsVideo</reimplementedby>
+        <reimplementedby refid="class_f_fmpeg_decoder_1ac2f243692f124b7c18c37bf7bc3a143d">SupportsVideo</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/decoder.h" line="174" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_decoder_1aa55e65e31e55399682c6cc9fcd9f2f60" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>bool</type>
+        <definition>virtual bool Decoder::SupportsAudio</definition>
+        <argsstring>()</argsstring>
+        <name>SupportsAudio</name>
+        <reimplementedby refid="class_f_fmpeg_decoder_1a0c7860125554b8d58a949cdeed24a1e5">SupportsAudio</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/decoder.h" line="175" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_decoder_1a5fd4e728c00a568890410ab3b5d308c2" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>void</type>
+        <definition>virtual void Decoder::Close</definition>
+        <argsstring>()=0</argsstring>
+        <name>Close</name>
+        <reimplementedby refid="class_o_i_i_o_decoder_1ab90e9547a1bb661b8748927f354268f9">Close</reimplementedby>
+        <reimplementedby refid="class_f_fmpeg_decoder_1a71b80b5b8edd94733edec61b1be2139d">Close</reimplementedby>
+        <briefdescription>
+<para>Close media/deallocate memory. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Any file handles or memory allocations opened in <ref refid="class_decoder_1a2fe2c3c44ce777ccf950b31a2317ac35" kindref="member">Open()</ref> should be cleaned up here.</para>
+<para>As the main memory freeing function, it&apos;s good practice to call this in <ref refid="class_decoder_1a2fe2c3c44ce777ccf950b31a2317ac35" kindref="member">Open()</ref> if there&apos;s an error that prevents correct function before <ref refid="class_decoder_1a2fe2c3c44ce777ccf950b31a2317ac35" kindref="member">Open()</ref> returns. As such, <ref refid="class_decoder_1a5fd4e728c00a568890410ab3b5d308c2" kindref="member">Close()</ref> should be prepared for not all memory/file handles to have been opened successfully. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/decoder.h" line="186" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_decoder_1a9c2d54ca80a2a58bf4e03f934e3338de" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Decoder::Conform</definition>
+        <argsstring>(const AudioRenderingParams &amp;params, const QAtomicInt *cancelled)</argsstring>
+        <name>Conform</name>
+        <param>
+          <type>const <ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref> &amp;</type>
+          <declname>params</declname>
+        </param>
+        <param>
+          <type>const QAtomicInt *</type>
+          <declname>cancelled</declname>
+        </param>
+        <briefdescription>
+<para>Conform an audio stream to match certain parameters (audio only) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Resamples and converts the currently open audio to match the params. If the audio doesn&apos;t need conforming (e.g. audio params already match or a conformed match already exists), this function will return immediately. Otherwise it will block the calling thread until the conform is complete. This function should therefore only be called from a background render thread.</para>
+<para>All audio decoders must override this. It&apos;s not pure since video decoders don&apos;t need to use this, but default behavior will abort since it should never be called. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/decoder.h" line="229" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_decoder_1a435d1fe3141a553223a8f43e47fbf308" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void Decoder::Index</definition>
+        <argsstring>(const QAtomicInt *cancelled)</argsstring>
+        <name>Index</name>
+        <reimplementedby refid="class_f_fmpeg_decoder_1a83e58b6ea6a9521c24282b43a1773d7c">Index</reimplementedby>
+        <param>
+          <type>const QAtomicInt *</type>
+          <declname>cancelled</declname>
+        </param>
+        <briefdescription>
+<para>Create an index for this media. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Indexes are used to improve speed and reliability of imported media. Calling Retrieve() will automatically check for an index and create one if it doesn&apos;t exist.</para>
+<para>Indexing is slow so it&apos;s recommended to do it in a background thread. <ref refid="class_decoder_1a435d1fe3141a553223a8f43e47fbf308" kindref="member">Index()</ref> must be called while the <ref refid="class_decoder" kindref="compound">Decoder</ref> is open, and does not automatically call <ref refid="class_decoder_1a2fe2c3c44ce777ccf950b31a2317ac35" kindref="member">Open()</ref> and <ref refid="class_decoder_1a5fd4e728c00a568890410ab3b5d308c2" kindref="member">Close()</ref> the <ref refid="class_decoder" kindref="compound">Decoder</ref>. The caller must call thse manually. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/decoder.h" line="240" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_decoder_1aa891c486348824beb350ddb77cb6f0fa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Decoder::HasConformedVersion</definition>
+        <argsstring>(const AudioRenderingParams &amp;params)</argsstring>
+        <name>HasConformedVersion</name>
+        <param>
+          <type>const <ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref> &amp;</type>
+          <declname>params</declname>
+        </param>
+        <briefdescription>
+<para>AUDIO ONLY: Returns whether a cached transcode of this audio matching the specified params already exists. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/decoder.h" line="245" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="class_decoder_1a014f610ba2c4122464fc715b6c13d870" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool Decoder::ProbeMedia</definition>
+        <argsstring>(Footage *f, const QAtomicInt *cancelled)</argsstring>
+        <name>ProbeMedia</name>
+        <param>
+          <type><ref refid="class_footage" kindref="compound">Footage</ref> *</type>
+          <declname>f</declname>
+        </param>
+        <param>
+          <type>const QAtomicInt *</type>
+          <declname>cancelled</declname>
+        </param>
+        <briefdescription>
+<para>Try to probe a <ref refid="class_footage" kindref="compound">Footage</ref> file by passing it through all available Decoders. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This is a helper function designed to abstract the process of communicating with several Decoders from the rest of the application. This function will take a <ref refid="class_footage" kindref="compound">Footage</ref> file and manually pass it through the available Decoders&apos; <ref refid="class_decoder_1ad337c171cc239556fa57260698fa2ee6" kindref="member">Probe()</ref> functions until one indicates that it can decode this file. That <ref refid="class_decoder" kindref="compound">Decoder</ref> will then dump information about the file into the <ref refid="class_footage" kindref="compound">Footage</ref> object for use throughout the program.</para>
+<para>Probing may be a lengthy process and it&apos;s recommended to run this in a separate thread.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>f</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A <ref refid="class_footage" kindref="compound">Footage</ref> object with a valid filename. If the <ref refid="class_footage" kindref="compound">Footage</ref> does not have a valid filename (e.g. is empty or file doesn&apos;t exist), this function will return FALSE.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para></para>
+</simplesect>
+TRUE if a <ref refid="class_decoder" kindref="compound">Decoder</ref> was successfully able to parse and probe this file. FALSE if not. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/decoder.h" line="207" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_decoder_1ad79f8bc9438171d55bb872f567d0e615" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="decoder_8h_1ad3c54eeaaa80a244c75e2fadabe0944c" kindref="member">DecoderPtr</ref></type>
+        <definition>static DecoderPtr Decoder::CreateFromID</definition>
+        <argsstring>(const QString &amp;id)</argsstring>
+        <name>CreateFromID</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>id</declname>
+        </param>
+        <briefdescription>
+<para>Create a <ref refid="class_decoder" kindref="compound">Decoder</ref> instance using a <ref refid="class_decoder" kindref="compound">Decoder</ref> ID. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para></para>
+</simplesect>
+A <ref refid="class_decoder" kindref="compound">Decoder</ref> instance or nullptr if a <ref refid="class_decoder" kindref="compound">Decoder</ref> with this ID does not exist </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/decoder.h" line="216" column="21"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_decoder_1ad37b8056bca7618fec6a562d6a3bec30" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Decoder::IndexProgress</definition>
+        <argsstring>(int)</argsstring>
+        <name>IndexProgress</name>
+        <param>
+          <type>int</type>
+        </param>
+        <briefdescription>
+<para>While indexing, this signal will provide progress as a percentage (0-100 inclusive) if available. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/decoder.h" line="251" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_decoder_1a34257307ae1ce675458a07a84118cff3" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Decoder::SignalIndexProgress</definition>
+        <argsstring>(const int64_t &amp;ts)</argsstring>
+        <name>SignalIndexProgress</name>
+        <param>
+          <type>const int64_t &amp;</type>
+          <declname>ts</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/decoder.h" line="254" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_decoder_1ad843b561f49d06356a20b9c9f480d3a6" prot="protected" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>QString</type>
+        <definition>virtual QString Decoder::GetIndexFilename</definition>
+        <argsstring>()=0</argsstring>
+        <name>GetIndexFilename</name>
+        <reimplementedby refid="class_o_i_i_o_decoder_1a031f94801f853351274f739e2124b868">GetIndexFilename</reimplementedby>
+        <reimplementedby refid="class_f_fmpeg_decoder_1a64cfd8deafd5f9dcd4689dcc53113d62">GetIndexFilename</reimplementedby>
+        <briefdescription>
+<para>Returns the filename for the index. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Retrieves the absolute filename of the index file for this stream. <ref refid="class_decoder" kindref="compound">Decoder</ref> must be open for this to work correctly. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/decoder.h" line="261" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_decoder_1a533882d542f18da5a00713428dc22704" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>QString Decoder::GetConformedFilename</definition>
+        <argsstring>(const AudioRenderingParams &amp;params)</argsstring>
+        <name>GetConformedFilename</name>
+        <param>
+          <type>const <ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref> &amp;</type>
+          <declname>params</declname>
+        </param>
+        <briefdescription>
+<para>Get the destination filename of an audio stream conformed to a set of parameters. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/decoder.h" line="266" column="11"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_decoder_1ac1d273379b1d64b939d365195a7e9b85" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Decoder::ConformInternal</definition>
+        <argsstring>(SwrContext *resampler, WaveOutput *output, const char *in_data, int in_sample_count)</argsstring>
+        <name>ConformInternal</name>
+        <param>
+          <type>SwrContext *</type>
+          <declname>resampler</declname>
+        </param>
+        <param>
+          <type><ref refid="class_wave_output" kindref="compound">WaveOutput</ref> *</type>
+          <declname>output</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>in_data</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>in_sample_count</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/decoder.h" line="273" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A decoder&apos;s is the main class for bringing external media into Olive. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Its responsibilities are to serve as abstraction from codecs/decoders and provide complete frames. These frames can be video or audio data and are provided as <ref refid="class_frame" kindref="compound">Frame</ref> objects in shared pointers to alleviate the responsibility of memory handling.</para>
+<para>The main function in a decoder is Retrieve() which should return complete image/audio data. A decoder should alleviate all the complexities of codec compression from the rest of the application (i.e. a decoder should never return a partial frame or require other parts of the system to interface directly with the codec). Often this will necessitate pre-emptively caching, indexing, or even fully transcoding media before using it which can be implemented through the Analyze() function.</para>
+<para>A decoder does NOT perform any pixel/sample format conversion. Frames should pass through the PixelService to be utilized in the rest of the rendering pipeline. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>FFmpegDecoder</label>
+        <link refid="class_f_fmpeg_decoder"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>Decoder</label>
+        <link refid="class_decoder"/>
+      </node>
+      <node id="3">
+        <label>OIIODecoder</label>
+        <link refid="class_o_i_i_o_decoder"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <location file="C:/Daten/Olive/olive/app/codec/decoder.h" line="59" column="1" bodyfile="C:/Daten/Olive/olive/app/codec/decoder.h" bodystart="60" bodyend="277"/>
+    <listofallmembers>
+      <member refid="class_decoder_1a5fd4e728c00a568890410ab3b5d308c2" prot="public" virt="pure-virtual"><scope>Decoder</scope><name>Close</name></member>
+      <member refid="class_decoder_1a9c2d54ca80a2a58bf4e03f934e3338de" prot="public" virt="non-virtual"><scope>Decoder</scope><name>Conform</name></member>
+      <member refid="class_decoder_1ac1d273379b1d64b939d365195a7e9b85" prot="private" virt="non-virtual"><scope>Decoder</scope><name>ConformInternal</name></member>
+      <member refid="class_decoder_1ad79f8bc9438171d55bb872f567d0e615" prot="public" virt="non-virtual"><scope>Decoder</scope><name>CreateFromID</name></member>
+      <member refid="class_decoder_1a691a867940a1c494b77e458ae1325352" prot="public" virt="non-virtual"><scope>Decoder</scope><name>Decoder</name></member>
+      <member refid="class_decoder_1adbea95d1bc5f127e19bbfacaedc18c4a" prot="public" virt="non-virtual"><scope>Decoder</scope><name>Decoder</name></member>
+      <member refid="class_decoder_1a533882d542f18da5a00713428dc22704" prot="protected" virt="non-virtual"><scope>Decoder</scope><name>GetConformedFilename</name></member>
+      <member refid="class_decoder_1ad843b561f49d06356a20b9c9f480d3a6" prot="protected" virt="pure-virtual"><scope>Decoder</scope><name>GetIndexFilename</name></member>
+      <member refid="class_decoder_1a274f1d219d51d9549c1201f1f14bafa0" prot="public" virt="pure-virtual"><scope>Decoder</scope><name>GetRetrieveState</name></member>
+      <member refid="class_decoder_1aa891c486348824beb350ddb77cb6f0fa" prot="public" virt="non-virtual"><scope>Decoder</scope><name>HasConformedVersion</name></member>
+      <member refid="class_decoder_1a4043a5c61c184331d9db680b653685cf" prot="public" virt="pure-virtual"><scope>Decoder</scope><name>id</name></member>
+      <member refid="class_decoder_1a435d1fe3141a553223a8f43e47fbf308" prot="public" virt="virtual"><scope>Decoder</scope><name>Index</name></member>
+      <member refid="class_decoder_1ad37b8056bca7618fec6a562d6a3bec30" prot="public" virt="non-virtual"><scope>Decoder</scope><name>IndexProgress</name></member>
+      <member refid="class_decoder_1aaf2969a042349edc13d9b054894d105facf91f190f975de43755054b2e812c751" prot="public" virt="non-virtual"><scope>Decoder</scope><name>kFailedToOpen</name></member>
+      <member refid="class_decoder_1aaf2969a042349edc13d9b054894d105fa67c4ec6806b95854af466eac34c798bd" prot="public" virt="non-virtual"><scope>Decoder</scope><name>kIndexUnavailable</name></member>
+      <member refid="class_decoder_1aaf2969a042349edc13d9b054894d105fabd3e02331c859481b55ea588119cc6c4" prot="public" virt="non-virtual"><scope>Decoder</scope><name>kReady</name></member>
+      <member refid="class_decoder_1ac09fc7131e8955106db416ade8b264a1" prot="protected" virt="non-virtual"><scope>Decoder</scope><name>mutex_</name></member>
+      <member refid="class_decoder_1a2fe2c3c44ce777ccf950b31a2317ac35" prot="public" virt="pure-virtual"><scope>Decoder</scope><name>Open</name></member>
+      <member refid="class_decoder_1a4b6509473b3fa917cb3c066ae44af6c7" prot="protected" virt="non-virtual"><scope>Decoder</scope><name>open_</name></member>
+      <member refid="class_decoder_1ad337c171cc239556fa57260698fa2ee6" prot="public" virt="pure-virtual"><scope>Decoder</scope><name>Probe</name></member>
+      <member refid="class_decoder_1a014f610ba2c4122464fc715b6c13d870" prot="public" virt="non-virtual"><scope>Decoder</scope><name>ProbeMedia</name></member>
+      <member refid="class_decoder_1a37bac11d9b19042f13dd2742c964f1ff" prot="public" virt="virtual"><scope>Decoder</scope><name>RetrieveAudio</name></member>
+      <member refid="class_decoder_1aaf2969a042349edc13d9b054894d105f" prot="public" virt="non-virtual"><scope>Decoder</scope><name>RetrieveState</name></member>
+      <member refid="class_decoder_1a568cf374d3fe1dd02ddadcaccbd43a96" prot="public" virt="virtual"><scope>Decoder</scope><name>RetrieveVideo</name></member>
+      <member refid="class_decoder_1a209ef567e42228ccd0739378504a9edc" prot="public" virt="non-virtual"><scope>Decoder</scope><name>set_stream</name></member>
+      <member refid="class_decoder_1a34257307ae1ce675458a07a84118cff3" prot="protected" virt="non-virtual"><scope>Decoder</scope><name>SignalIndexProgress</name></member>
+      <member refid="class_decoder_1a766960ea42ec5dcef66fd22d8482b94a" prot="public" virt="non-virtual"><scope>Decoder</scope><name>stream</name></member>
+      <member refid="class_decoder_1a43ab5fbc422aa7d11f205b1fff3d38b7" prot="private" virt="non-virtual"><scope>Decoder</scope><name>stream_</name></member>
+      <member refid="class_decoder_1aa55e65e31e55399682c6cc9fcd9f2f60" prot="public" virt="virtual"><scope>Decoder</scope><name>SupportsAudio</name></member>
+      <member refid="class_decoder_1ab4d5d39d1903e47e191e2824bfb2438f" prot="public" virt="virtual"><scope>Decoder</scope><name>SupportsVideo</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,257 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_block_set_speed_command" kind="class" language="C++" prot="public">
+    <compoundname>BlockSetSpeedCommand</compoundname>
+    <basecompoundref refid="class_undo_command" prot="public" virt="non-virtual">UndoCommand</basecompoundref>
+    <includes refid="undo_8h" local="no">undo.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_block_set_speed_command_1a287d05cec0b4d39412a1867b26b68bbe" prot="private" static="no" mutable="no">
+        <type><ref refid="class_block" kindref="compound">Block</ref> *</type>
+        <definition>Block* BlockSetSpeedCommand::block_</definition>
+        <argsstring></argsstring>
+        <name>block_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="94" column="9" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="94" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_block_set_speed_command_1afb7d862e95c4cbc65b805c0dc9db65d2" prot="private" static="no" mutable="no">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational BlockSetSpeedCommand::old_speed_</definition>
+        <argsstring></argsstring>
+        <name>old_speed_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="96" column="12" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="96" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_block_set_speed_command_1ae9b5b12388392c97bf1285205d5c6336" prot="private" static="no" mutable="no">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational BlockSetSpeedCommand::new_speed_</definition>
+        <argsstring></argsstring>
+        <name>new_speed_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="97" column="12" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="97" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_undo_command_1a6c06f9c1b7bfeeff3c4724491945992b" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool UndoCommand::modified_</definition>
+        <argsstring></argsstring>
+        <name>modified_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="64" column="8" bodyfile="C:/Daten/Olive/olive/app/undo/undocommand.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_block_set_speed_command_1ad97c926de2dd9717588bf066f43f518e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>BlockSetSpeedCommand::BlockSetSpeedCommand</definition>
+        <argsstring>(Block *block, const rational &amp;new_speed, QUndoCommand *parent=nullptr)</argsstring>
+        <name>BlockSetSpeedCommand</name>
+        <param>
+          <type><ref refid="class_block" kindref="compound">Block</ref> *</type>
+          <declname>block</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>new_speed</declname>
+        </param>
+        <param>
+          <type>QUndoCommand *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="85" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_block_set_speed_command_1ae9277c643d93d367a1a8d612b287aaa4" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="class_project" kindref="compound">Project</ref> *</type>
+        <definition>virtual Project* BlockSetSpeedCommand::GetRelevantProject</definition>
+        <argsstring>() const override</argsstring>
+        <name>GetRelevantProject</name>
+        <reimplements refid="class_undo_command_1ab5c8967132833ea6be76a63dc5472f4f">GetRelevantProject</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="87" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_undo_command_1a9907db368d01fb26f5082a36c6d90bd4" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void UndoCommand::redo</definition>
+        <argsstring>() override</argsstring>
+        <name>redo</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="54" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_undo_command_1a09d00f8a2e1c8b3c97d72d9585503030" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void UndoCommand::undo</definition>
+        <argsstring>() override</argsstring>
+        <name>undo</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="55" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_block_set_speed_command_1a04f2ed7b51dc03e8868c5cef085ec04c" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void BlockSetSpeedCommand::redo_internal</definition>
+        <argsstring>() override</argsstring>
+        <name>redo_internal</name>
+        <reimplements refid="class_undo_command_1ac8aa20d444a655cd36fa3c7dc01928b4">redo_internal</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="90" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_block_set_speed_command_1a823c3cb08f96799737a3cda6e12d805b" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void BlockSetSpeedCommand::undo_internal</definition>
+        <argsstring>() override</argsstring>
+        <name>undo_internal</name>
+        <reimplements refid="class_undo_command_1a871dbc8a1f95b58e641be13703563faa">undo_internal</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="91" column="16"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>BlockSetSpeedCommand</label>
+        <link refid="class_block_set_speed_command"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>UndoCommand</label>
+        <link refid="class_undo_command"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="6">
+        <label>NodeOutput</label>
+        <link refid="class_node_output"/>
+        <childnode refid="7" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>Block</label>
+        <link refid="class_block"/>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>in_point_</edgelabel>
+          <edgelabel>out_point_</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>next_</edgelabel>
+          <edgelabel>previous_</edgelabel>
+        </childnode>
+        <childnode refid="8" relation="usage">
+          <edgelabel>enabled_input_</edgelabel>
+          <edgelabel>speed_input_</edgelabel>
+          <edgelabel>media_in_input_</edgelabel>
+          <edgelabel>name_input_</edgelabel>
+          <edgelabel>length_input_</edgelabel>
+        </childnode>
+      </node>
+      <node id="1">
+        <label>BlockSetSpeedCommand</label>
+        <link refid="class_block_set_speed_command"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>new_speed_</edgelabel>
+          <edgelabel>old_speed_</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>block_</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="5">
+        <label>Node</label>
+        <link refid="class_node"/>
+        <childnode refid="6" relation="usage">
+          <edgelabel>output_</edgelabel>
+        </childnode>
+      </node>
+      <node id="8">
+        <label>NodeInput</label>
+        <link refid="class_node_input"/>
+        <childnode refid="7" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>NodeParam</label>
+        <link refid="class_node_param"/>
+      </node>
+      <node id="2">
+        <label>UndoCommand</label>
+        <link refid="class_undo_command"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="83" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="83" bodyend="98"/>
+    <listofallmembers>
+      <member refid="class_block_set_speed_command_1a287d05cec0b4d39412a1867b26b68bbe" prot="private" virt="non-virtual"><scope>BlockSetSpeedCommand</scope><name>block_</name></member>
+      <member refid="class_block_set_speed_command_1ad97c926de2dd9717588bf066f43f518e" prot="public" virt="non-virtual"><scope>BlockSetSpeedCommand</scope><name>BlockSetSpeedCommand</name></member>
+      <member refid="class_block_set_speed_command_1ae9277c643d93d367a1a8d612b287aaa4" prot="public" virt="virtual"><scope>BlockSetSpeedCommand</scope><name>GetRelevantProject</name></member>
+      <member refid="class_undo_command_1a6c06f9c1b7bfeeff3c4724491945992b" prot="private" virt="non-virtual"><scope>BlockSetSpeedCommand</scope><name>modified_</name></member>
+      <member refid="class_block_set_speed_command_1ae9b5b12388392c97bf1285205d5c6336" prot="private" virt="non-virtual"><scope>BlockSetSpeedCommand</scope><name>new_speed_</name></member>
+      <member refid="class_block_set_speed_command_1afb7d862e95c4cbc65b805c0dc9db65d2" prot="private" virt="non-virtual"><scope>BlockSetSpeedCommand</scope><name>old_speed_</name></member>
+      <member refid="class_undo_command_1a9907db368d01fb26f5082a36c6d90bd4" prot="public" virt="virtual"><scope>BlockSetSpeedCommand</scope><name>redo</name></member>
+      <member refid="class_block_set_speed_command_1a04f2ed7b51dc03e8868c5cef085ec04c" prot="protected" virt="virtual"><scope>BlockSetSpeedCommand</scope><name>redo_internal</name></member>
+      <member refid="class_undo_command_1a09d00f8a2e1c8b3c97d72d9585503030" prot="public" virt="virtual"><scope>BlockSetSpeedCommand</scope><name>undo</name></member>
+      <member refid="class_block_set_speed_command_1a823c3cb08f96799737a3cda6e12d805b" prot="protected" virt="virtual"><scope>BlockSetSpeedCommand</scope><name>undo_internal</name></member>
+      <member refid="class_undo_command_1a5a07a6505a207cf7186c7c726ff9c5fa" prot="public" virt="non-virtual"><scope>BlockSetSpeedCommand</scope><name>UndoCommand</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

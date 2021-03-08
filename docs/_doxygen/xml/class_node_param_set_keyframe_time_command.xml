@@ -1,0 +1,241 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_node_param_set_keyframe_time_command" kind="class" language="C++" prot="public">
+    <compoundname>NodeParamSetKeyframeTimeCommand</compoundname>
+    <basecompoundref refid="class_undo_command" prot="public" virt="non-virtual">UndoCommand</basecompoundref>
+    <includes refid="nodeparamviewundo_8h" local="no">nodeparamviewundo.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_node_param_set_keyframe_time_command_1a1ed4ffa50dc4f4166e533b12d3af8f7f" prot="private" static="no" mutable="no">
+        <type><ref refid="keyframe_8h_1a741b7edf62813e254aba77dca9f281ea" kindref="member">NodeKeyframePtr</ref></type>
+        <definition>NodeKeyframePtr NodeParamSetKeyframeTimeCommand::key_</definition>
+        <argsstring></argsstring>
+        <name>key_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewundo.h" line="93" column="19" bodyfile="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewundo.h" bodystart="93" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_param_set_keyframe_time_command_1ac20aa9fcef4ec78bf950e71d9fc35e58" prot="private" static="no" mutable="no">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational NodeParamSetKeyframeTimeCommand::old_time_</definition>
+        <argsstring></argsstring>
+        <name>old_time_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewundo.h" line="95" column="12" bodyfile="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewundo.h" bodystart="95" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_param_set_keyframe_time_command_1a3f626ae171f6f6e5e3bb8ec033ca7198" prot="private" static="no" mutable="no">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational NodeParamSetKeyframeTimeCommand::new_time_</definition>
+        <argsstring></argsstring>
+        <name>new_time_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewundo.h" line="96" column="12" bodyfile="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewundo.h" bodystart="96" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_undo_command_1a6c06f9c1b7bfeeff3c4724491945992b" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool UndoCommand::modified_</definition>
+        <argsstring></argsstring>
+        <name>modified_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="64" column="8" bodyfile="C:/Daten/Olive/olive/app/undo/undocommand.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_node_param_set_keyframe_time_command_1a7fc0841c56a27ce4946edf10bc9f1316" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>NodeParamSetKeyframeTimeCommand::NodeParamSetKeyframeTimeCommand</definition>
+        <argsstring>(NodeKeyframePtr key, const rational &amp;time, QUndoCommand *parent=nullptr)</argsstring>
+        <name>NodeParamSetKeyframeTimeCommand</name>
+        <param>
+          <type><ref refid="keyframe_8h_1a741b7edf62813e254aba77dca9f281ea" kindref="member">NodeKeyframePtr</ref></type>
+          <declname>key</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>time</declname>
+        </param>
+        <param>
+          <type>QUndoCommand *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewundo.h" line="83" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_param_set_keyframe_time_command_1ab824b2f273f3bdb804d56a2cc539b734" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>NodeParamSetKeyframeTimeCommand::NodeParamSetKeyframeTimeCommand</definition>
+        <argsstring>(NodeKeyframePtr key, const rational &amp;new_time, const rational &amp;old_time, QUndoCommand *parent=nullptr)</argsstring>
+        <name>NodeParamSetKeyframeTimeCommand</name>
+        <param>
+          <type><ref refid="keyframe_8h_1a741b7edf62813e254aba77dca9f281ea" kindref="member">NodeKeyframePtr</ref></type>
+          <declname>key</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>new_time</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>old_time</declname>
+        </param>
+        <param>
+          <type>QUndoCommand *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewundo.h" line="84" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_param_set_keyframe_time_command_1ab3bb0e202cfedc40cc6ac6b72eafa4f4" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="class_project" kindref="compound">Project</ref> *</type>
+        <definition>virtual Project* NodeParamSetKeyframeTimeCommand::GetRelevantProject</definition>
+        <argsstring>() const override</argsstring>
+        <name>GetRelevantProject</name>
+        <reimplements refid="class_undo_command_1ab5c8967132833ea6be76a63dc5472f4f">GetRelevantProject</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewundo.h" line="86" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_undo_command_1a9907db368d01fb26f5082a36c6d90bd4" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void UndoCommand::redo</definition>
+        <argsstring>() override</argsstring>
+        <name>redo</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="54" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_undo_command_1a09d00f8a2e1c8b3c97d72d9585503030" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void UndoCommand::undo</definition>
+        <argsstring>() override</argsstring>
+        <name>undo</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="55" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_node_param_set_keyframe_time_command_1a243163b0def2abfe2e01ffd131104937" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void NodeParamSetKeyframeTimeCommand::redo_internal</definition>
+        <argsstring>() override</argsstring>
+        <name>redo_internal</name>
+        <reimplements refid="class_undo_command_1ac8aa20d444a655cd36fa3c7dc01928b4">redo_internal</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewundo.h" line="89" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_param_set_keyframe_time_command_1a4dbcdcc8f5bd29b7ad791a708805a7d9" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void NodeParamSetKeyframeTimeCommand::undo_internal</definition>
+        <argsstring>() override</argsstring>
+        <name>undo_internal</name>
+        <reimplements refid="class_undo_command_1a871dbc8a1f95b58e641be13703563faa">undo_internal</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewundo.h" line="90" column="16"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>NodeParamSetKeyframeTimeCommand</label>
+        <link refid="class_node_param_set_keyframe_time_command"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>UndoCommand</label>
+        <link refid="class_undo_command"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="3">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="1">
+        <label>NodeParamSetKeyframeTimeCommand</label>
+        <link refid="class_node_param_set_keyframe_time_command"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>old_time_</edgelabel>
+          <edgelabel>new_time_</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>UndoCommand</label>
+        <link refid="class_undo_command"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewundo.h" line="81" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewundo.h" bodystart="81" bodyend="98"/>
+    <listofallmembers>
+      <member refid="class_node_param_set_keyframe_time_command_1ab3bb0e202cfedc40cc6ac6b72eafa4f4" prot="public" virt="virtual"><scope>NodeParamSetKeyframeTimeCommand</scope><name>GetRelevantProject</name></member>
+      <member refid="class_node_param_set_keyframe_time_command_1a1ed4ffa50dc4f4166e533b12d3af8f7f" prot="private" virt="non-virtual"><scope>NodeParamSetKeyframeTimeCommand</scope><name>key_</name></member>
+      <member refid="class_undo_command_1a6c06f9c1b7bfeeff3c4724491945992b" prot="private" virt="non-virtual"><scope>NodeParamSetKeyframeTimeCommand</scope><name>modified_</name></member>
+      <member refid="class_node_param_set_keyframe_time_command_1a3f626ae171f6f6e5e3bb8ec033ca7198" prot="private" virt="non-virtual"><scope>NodeParamSetKeyframeTimeCommand</scope><name>new_time_</name></member>
+      <member refid="class_node_param_set_keyframe_time_command_1a7fc0841c56a27ce4946edf10bc9f1316" prot="public" virt="non-virtual"><scope>NodeParamSetKeyframeTimeCommand</scope><name>NodeParamSetKeyframeTimeCommand</name></member>
+      <member refid="class_node_param_set_keyframe_time_command_1ab824b2f273f3bdb804d56a2cc539b734" prot="public" virt="non-virtual"><scope>NodeParamSetKeyframeTimeCommand</scope><name>NodeParamSetKeyframeTimeCommand</name></member>
+      <member refid="class_node_param_set_keyframe_time_command_1ac20aa9fcef4ec78bf950e71d9fc35e58" prot="private" virt="non-virtual"><scope>NodeParamSetKeyframeTimeCommand</scope><name>old_time_</name></member>
+      <member refid="class_undo_command_1a9907db368d01fb26f5082a36c6d90bd4" prot="public" virt="virtual"><scope>NodeParamSetKeyframeTimeCommand</scope><name>redo</name></member>
+      <member refid="class_node_param_set_keyframe_time_command_1a243163b0def2abfe2e01ffd131104937" prot="protected" virt="virtual"><scope>NodeParamSetKeyframeTimeCommand</scope><name>redo_internal</name></member>
+      <member refid="class_undo_command_1a09d00f8a2e1c8b3c97d72d9585503030" prot="public" virt="virtual"><scope>NodeParamSetKeyframeTimeCommand</scope><name>undo</name></member>
+      <member refid="class_node_param_set_keyframe_time_command_1a4dbcdcc8f5bd29b7ad791a708805a7d9" prot="protected" virt="virtual"><scope>NodeParamSetKeyframeTimeCommand</scope><name>undo_internal</name></member>
+      <member refid="class_undo_command_1a5a07a6505a207cf7186c7c726ff9c5fa" prot="public" virt="non-virtual"><scope>NodeParamSetKeyframeTimeCommand</scope><name>UndoCommand</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

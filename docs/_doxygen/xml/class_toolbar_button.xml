@@ -1,0 +1,92 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_toolbar_button" kind="class" language="C++" prot="public">
+    <compoundname>ToolbarButton</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QPushButton</basecompoundref>
+    <includes refid="toolbarbutton_8h" local="no">toolbarbutton.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_toolbar_button_1af3962af3830fbbddb9aacb5da73e8f44" prot="private" static="no" mutable="no">
+        <type><ref refid="class_tool_1aa5b3343d5a8a21b7473dfe74af2976cb" kindref="member">Tool::Item</ref></type>
+        <definition>Tool::Item ToolbarButton::tool_</definition>
+        <argsstring></argsstring>
+        <name>tool_</name>
+        <briefdescription>
+<para>Internal tool value. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/toolbar/toolbarbutton.h" line="77" column="14" bodyfile="C:/Daten/Olive/olive/app/widget/toolbar/toolbarbutton.h" bodystart="77" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_toolbar_button_1a65a99aeb55b319548426036126421a16" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>ToolbarButton::ToolbarButton</definition>
+        <argsstring>(QWidget *parent, const Tool::Item &amp;tool)</argsstring>
+        <name>ToolbarButton</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_tool_1aa5b3343d5a8a21b7473dfe74af2976cb" kindref="member">Tool::Item</ref> &amp;</type>
+          <declname>tool</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="class_toolbar_button" kindref="compound">ToolbarButton</ref> Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parent</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>QWidget parent. Almost always an instance of <ref refid="class_toolbar" kindref="compound">Toolbar</ref>.</para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tool</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="class_tool" kindref="compound">Tool</ref> object. Must be a member of enum <ref refid="class_tool_1aa5b3343d5a8a21b7473dfe74af2976cb" kindref="member">Tool::Item</ref>, including kNone if this button does not represent a tool. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/toolbar/toolbarbutton.h" line="65" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_toolbar_button_1a62f002468209fcaa7bdf32a195fa7b6a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="class_tool_1aa5b3343d5a8a21b7473dfe74af2976cb" kindref="member">Tool::Item</ref> &amp;</type>
+        <definition>const Tool::Item&amp; ToolbarButton::tool</definition>
+        <argsstring>()</argsstring>
+        <name>tool</name>
+        <briefdescription>
+<para>Retrieve tool ID that this button represents. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Set in the constructor and shouldn&apos;t change throughout its lifetime. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/toolbar/toolbarbutton.h" line="72" column="20"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Simple derived class of QPushButton to contain an <ref refid="class_tool" kindref="compound">Tool</ref> ID. Used as the main widget through <ref refid="class_toolbar" kindref="compound">Toolbar</ref>. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/widget/toolbar/toolbarbutton.h" line="33" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/toolbar/toolbarbutton.h" bodystart="34" bodyend="60"/>
+    <listofallmembers>
+      <member refid="class_toolbar_button_1a62f002468209fcaa7bdf32a195fa7b6a" prot="public" virt="non-virtual"><scope>ToolbarButton</scope><name>tool</name></member>
+      <member refid="class_toolbar_button_1af3962af3830fbbddb9aacb5da73e8f44" prot="private" virt="non-virtual"><scope>ToolbarButton</scope><name>tool_</name></member>
+      <member refid="class_toolbar_button_1a65a99aeb55b319548426036126421a16" prot="public" virt="non-virtual"><scope>ToolbarButton</scope><name>ToolbarButton</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

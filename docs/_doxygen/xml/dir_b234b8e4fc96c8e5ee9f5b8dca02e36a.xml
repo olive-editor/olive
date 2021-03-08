@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_b234b8e4fc96c8e5ee9f5b8dca02e36a" kind="dir">
+    <compoundname>matrix</compoundname>
+    <innerfile refid="matrix_8h">matrix.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/node/generator/matrix/"/>
+  </compounddef>
+</doxygen>

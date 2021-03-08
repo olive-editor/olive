@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_a140c51107e7080b9697a115d5076453" kind="dir">
+    <compoundname>transition</compoundname>
+    <innerfile refid="externaltransition_8h">externaltransition.h</innerfile>
+    <innerfile refid="transition_8h">transition.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/node/block/transition/"/>
+  </compounddef>
+</doxygen>

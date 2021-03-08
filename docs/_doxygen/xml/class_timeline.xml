@@ -1,0 +1,133 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_timeline" kind="class" language="C++" prot="public">
+    <compoundname>Timeline</compoundname>
+    <includes refid="timelinecommon_8h" local="no">timelinecommon.h</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="enum" id="class_timeline_1a541f8e285446d35262af274e46ef62ec" prot="public" static="no" strong="no">
+        <type></type>
+        <name>MovementMode</name>
+        <enumvalue id="class_timeline_1a541f8e285446d35262af274e46ef62eca3d9ef536990422b02b90cfe245a9d723" prot="public">
+          <name>kNone</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_timeline_1a541f8e285446d35262af274e46ef62ecacfdd91ab82baae8bbb56f69c57972ce3" prot="public">
+          <name>kMove</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_timeline_1a541f8e285446d35262af274e46ef62eca1cc1916cca9a7f49a550c74830b5d6b2" prot="public">
+          <name>kTrimIn</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_timeline_1a541f8e285446d35262af274e46ef62eca3a683e1daec2a99469f388e91fcb3ae3" prot="public">
+          <name>kTrimOut</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/timelinecommon.h" line="48" column="3" bodyfile="C:/Daten/Olive/olive/app/common/timelinecommon.h" bodystart="48" bodyend="53"/>
+      </memberdef>
+      <memberdef kind="enum" id="class_timeline_1ac18e2f98ba3b99570e714506df77ba51" prot="public" static="no" strong="no">
+        <type></type>
+        <name>TrackType</name>
+        <enumvalue id="class_timeline_1ac18e2f98ba3b99570e714506df77ba51aad8e48ba103fa2f1266e8096f2d03877" prot="public">
+          <name>kTrackTypeNone</name>
+          <initializer>= -1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_timeline_1ac18e2f98ba3b99570e714506df77ba51acd2562da6ba5468105b6c8f373f100c0" prot="public">
+          <name>kTrackTypeVideo</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_timeline_1ac18e2f98ba3b99570e714506df77ba51a38196ee08e7a3936e8ea709212905765" prot="public">
+          <name>kTrackTypeAudio</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_timeline_1ac18e2f98ba3b99570e714506df77ba51aa85ebdd30f3454ce70bf5c0b3db7c475" prot="public">
+          <name>kTrackTypeSubtitle</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_timeline_1ac18e2f98ba3b99570e714506df77ba51a4f2fcb9cb729d65a6c825a7bbe6e6702" prot="public">
+          <name>kTrackTypeCount</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/timelinecommon.h" line="55" column="3" bodyfile="C:/Daten/Olive/olive/app/common/timelinecommon.h" bodystart="55" bodyend="61"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="class_timeline_1abc47ce314abff208decb74c92a80e1a9" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool Timeline::IsATrimMode</definition>
+        <argsstring>(MovementMode mode)</argsstring>
+        <name>IsATrimMode</name>
+        <param>
+          <type><ref refid="class_timeline_1a541f8e285446d35262af274e46ef62ec" kindref="member">MovementMode</ref></type>
+          <declname>mode</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/timelinecommon.h" line="63" column="15" bodyfile="C:/Daten/Olive/olive/app/common/timelinecommon.h" bodystart="63" bodyend="63"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/common/timelinecommon.h" line="28" column="1" bodyfile="C:/Daten/Olive/olive/app/common/timelinecommon.h" bodystart="28" bodyend="46"/>
+    <listofallmembers>
+      <member refid="class_timeline_1abc47ce314abff208decb74c92a80e1a9" prot="public" virt="non-virtual"><scope>Timeline</scope><name>IsATrimMode</name></member>
+      <member refid="class_timeline_1a541f8e285446d35262af274e46ef62ecacfdd91ab82baae8bbb56f69c57972ce3" prot="public" virt="non-virtual"><scope>Timeline</scope><name>kMove</name></member>
+      <member refid="class_timeline_1a541f8e285446d35262af274e46ef62eca3d9ef536990422b02b90cfe245a9d723" prot="public" virt="non-virtual"><scope>Timeline</scope><name>kNone</name></member>
+      <member refid="class_timeline_1ac18e2f98ba3b99570e714506df77ba51a38196ee08e7a3936e8ea709212905765" prot="public" virt="non-virtual"><scope>Timeline</scope><name>kTrackTypeAudio</name></member>
+      <member refid="class_timeline_1ac18e2f98ba3b99570e714506df77ba51a4f2fcb9cb729d65a6c825a7bbe6e6702" prot="public" virt="non-virtual"><scope>Timeline</scope><name>kTrackTypeCount</name></member>
+      <member refid="class_timeline_1ac18e2f98ba3b99570e714506df77ba51aad8e48ba103fa2f1266e8096f2d03877" prot="public" virt="non-virtual"><scope>Timeline</scope><name>kTrackTypeNone</name></member>
+      <member refid="class_timeline_1ac18e2f98ba3b99570e714506df77ba51aa85ebdd30f3454ce70bf5c0b3db7c475" prot="public" virt="non-virtual"><scope>Timeline</scope><name>kTrackTypeSubtitle</name></member>
+      <member refid="class_timeline_1ac18e2f98ba3b99570e714506df77ba51acd2562da6ba5468105b6c8f373f100c0" prot="public" virt="non-virtual"><scope>Timeline</scope><name>kTrackTypeVideo</name></member>
+      <member refid="class_timeline_1a541f8e285446d35262af274e46ef62eca1cc1916cca9a7f49a550c74830b5d6b2" prot="public" virt="non-virtual"><scope>Timeline</scope><name>kTrimIn</name></member>
+      <member refid="class_timeline_1a541f8e285446d35262af274e46ef62eca3a683e1daec2a99469f388e91fcb3ae3" prot="public" virt="non-virtual"><scope>Timeline</scope><name>kTrimOut</name></member>
+      <member refid="class_timeline_1a541f8e285446d35262af274e46ef62ec" prot="public" virt="non-virtual"><scope>Timeline</scope><name>MovementMode</name></member>
+      <member refid="class_timeline_1ac18e2f98ba3b99570e714506df77ba51" prot="public" virt="non-virtual"><scope>Timeline</scope><name>TrackType</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

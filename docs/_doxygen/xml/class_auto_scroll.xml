@@ -1,0 +1,52 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_auto_scroll" kind="class" language="C++" prot="public">
+    <compoundname>AutoScroll</compoundname>
+    <includes refid="autoscroll_8h" local="no">autoscroll.h</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="enum" id="class_auto_scroll_1a38e9c0a54fe0f71104c49ce3439c52a2" prot="public" static="no" strong="no">
+        <type></type>
+        <name>Method</name>
+        <enumvalue id="class_auto_scroll_1a38e9c0a54fe0f71104c49ce3439c52a2a954f8427def47b546d285a232400fb7b" prot="public">
+          <name>kNone</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_auto_scroll_1a38e9c0a54fe0f71104c49ce3439c52a2adfc7035e4ae1e78fdab38f7af79b2837" prot="public">
+          <name>kPage</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_auto_scroll_1a38e9c0a54fe0f71104c49ce3439c52a2af1e7d19a77faa8e99a744194d8ffd32f" prot="public">
+          <name>kSmooth</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/autoscroll.h" line="48" column="3" bodyfile="C:/Daten/Olive/olive/app/common/autoscroll.h" bodystart="48" bodyend="52"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/common/autoscroll.h" line="28" column="1" bodyfile="C:/Daten/Olive/olive/app/common/autoscroll.h" bodystart="28" bodyend="35"/>
+    <listofallmembers>
+      <member refid="class_auto_scroll_1a38e9c0a54fe0f71104c49ce3439c52a2a954f8427def47b546d285a232400fb7b" prot="public" virt="non-virtual"><scope>AutoScroll</scope><name>kNone</name></member>
+      <member refid="class_auto_scroll_1a38e9c0a54fe0f71104c49ce3439c52a2adfc7035e4ae1e78fdab38f7af79b2837" prot="public" virt="non-virtual"><scope>AutoScroll</scope><name>kPage</name></member>
+      <member refid="class_auto_scroll_1a38e9c0a54fe0f71104c49ce3439c52a2af1e7d19a77faa8e99a744194d8ffd32f" prot="public" virt="non-virtual"><scope>AutoScroll</scope><name>kSmooth</name></member>
+      <member refid="class_auto_scroll_1a38e9c0a54fe0f71104c49ce3439c52a2" prot="public" virt="non-virtual"><scope>AutoScroll</scope><name>Method</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

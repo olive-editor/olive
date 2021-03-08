@@ -1,0 +1,62 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="struct_task_manager_1_1_task_container" kind="struct" language="C++" prot="private">
+    <compoundname>TaskManager::TaskContainer</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="struct_task_manager_1_1_task_container_1afbd5a60834a74bc96b21733150b04b86" prot="public" static="no" mutable="no">
+        <type><ref refid="class_task" kindref="compound">Task</ref> *</type>
+        <definition>Task* TaskManager::TaskContainer::task</definition>
+        <argsstring></argsstring>
+        <name>task</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/task/taskmanager.h" line="138" column="10" bodyfile="C:/Daten/Olive/olive/app/task/taskmanager.h" bodystart="138" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_task_manager_1_1_task_container_1a52e2d3faad110ffcf3ce31a7d8efd406" prot="public" static="no" mutable="no">
+        <type><ref refid="class_task_manager_1a160e9e8489362a153974585e637f606f" kindref="member">TaskStatus</ref></type>
+        <definition>TaskStatus TaskManager::TaskContainer::status</definition>
+        <argsstring></argsstring>
+        <name>status</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/task/taskmanager.h" line="139" column="16" bodyfile="C:/Daten/Olive/olive/app/task/taskmanager.h" bodystart="139" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="3">
+        <label>CancelableObject</label>
+        <link refid="class_cancelable_object"/>
+      </node>
+      <node id="2">
+        <label>Task</label>
+        <link refid="class_task"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>TaskManager::TaskContainer</label>
+        <link refid="struct_task_manager_1_1_task_container"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>task</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/task/taskmanager.h" line="137" column="3" bodyfile="C:/Daten/Olive/olive/app/task/taskmanager.h" bodystart="137" bodyend="140"/>
+    <listofallmembers>
+      <member refid="struct_task_manager_1_1_task_container_1a52e2d3faad110ffcf3ce31a7d8efd406" prot="public" virt="non-virtual"><scope>TaskManager::TaskContainer</scope><name>status</name></member>
+      <member refid="struct_task_manager_1_1_task_container_1afbd5a60834a74bc96b21733150b04b86" prot="public" virt="non-virtual"><scope>TaskManager::TaskContainer</scope><name>task</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

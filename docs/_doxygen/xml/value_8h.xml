@@ -1,0 +1,452 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="value_8h" kind="file" language="C++">
+    <compoundname>value.h</compoundname>
+    <includes local="no">QString</includes>
+    <includes refid="input_8h" local="yes">input.h</includes>
+    <includedby refid="node_2node_8h" local="yes">node.h</includedby>
+    <includedby refid="traverser_8h" local="yes">traverser.h</includedby>
+    <incdepgraph>
+      <node id="9">
+        <label>libavformat/avformat.h</label>
+      </node>
+      <node id="15">
+        <label>param.h</label>
+        <link refid="node_2param_8h"/>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>QObject</label>
+      </node>
+      <node id="4">
+        <label>common/timerange.h</label>
+        <link refid="timerange_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>QXmlStreamReader</label>
+      </node>
+      <node id="13">
+        <label>QPointF</label>
+      </node>
+      <node id="11">
+        <label>keyframe.h</label>
+        <link refid="keyframe_8h"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>QMetaType</label>
+      </node>
+      <node id="20">
+        <label>QUndoCommand</label>
+      </node>
+      <node id="5">
+        <label>rational.h</label>
+        <link refid="rational_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="24">
+        <label>QMutex</label>
+      </node>
+      <node id="10">
+        <label>common/define.h</label>
+        <link refid="define_8h"/>
+      </node>
+      <node id="7">
+        <label>QDebug</label>
+      </node>
+      <node id="25">
+        <label>node/edge.h</label>
+        <link refid="edge_8h"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>QString</label>
+      </node>
+      <node id="6">
+        <label>iostream</label>
+      </node>
+      <node id="18">
+        <label>QXmlStreamWriter</label>
+      </node>
+      <node id="1">
+        <label>value.h</label>
+        <link refid="value_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>project/item/footage/stream.h</label>
+        <link refid="stream_8h"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>input.h</label>
+        <link refid="input_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="19">
+        <label>common/xmlutils.h</label>
+        <link refid="xmlutils_8h"/>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>QVariant</label>
+      </node>
+      <node id="12">
+        <label>memory</label>
+      </node>
+      <node id="17">
+        <label>QVector</label>
+      </node>
+      <node id="23">
+        <label>QCoreApplication</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="19">
+        <label>audiowaveformview.h</label>
+        <link refid="audiowaveformview_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>factory.h</label>
+        <link refid="factory_8h"/>
+      </node>
+      <node id="14">
+        <label>mainwindow.h</label>
+        <link refid="mainwindow_8h"/>
+      </node>
+      <node id="5">
+        <label>traverser.h</label>
+        <link refid="traverser_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>external.h</label>
+        <link refid="external_8h"/>
+      </node>
+      <node id="18">
+        <label>exporter.h</label>
+        <link refid="exporter_8h"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>viewer.h</label>
+        <link refid="widget_2viewer_2viewer_8h"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>videorenderbackend.h</label>
+        <link refid="videorenderbackend_8h"/>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>viewerbase.h</label>
+        <link refid="viewerbase_8h"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>openglworker.h</label>
+        <link refid="openglworker_8h"/>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>audiobackend.h</label>
+        <link refid="audiobackend_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="23">
+        <label>audioworker.h</label>
+        <link refid="audioworker_8h"/>
+      </node>
+      <node id="6">
+        <label>renderworker.h</label>
+        <link refid="renderworker_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>renderbackend.h</label>
+        <link refid="renderbackend_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>footageviewer.h</label>
+        <link refid="widget_2viewer_2footageviewer_8h"/>
+      </node>
+      <node id="25">
+        <label>openglproxy.h</label>
+        <link refid="openglproxy_8h"/>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="24">
+        <label>videorenderworker.h</label>
+        <link refid="videorenderworker_8h"/>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>audiorenderbackend.h</label>
+        <link refid="audiorenderbackend_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>sequenceviewer.h</label>
+        <link refid="sequenceviewer_8h"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>export.h</label>
+        <link refid="export_8h"/>
+      </node>
+      <node id="1">
+        <label>value.h</label>
+        <link refid="value_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>node.h</label>
+        <link refid="node_2node_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>viewer.h</label>
+        <link refid="panel_2viewer_2viewer_8h"/>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>footageviewer.h</label>
+        <link refid="panel_2footageviewer_2footageviewer_8h"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>openglbackend.h</label>
+        <link refid="openglbackend_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>audiorenderworker.h</label>
+        <link refid="audiorenderworker_8h"/>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="class_node_value" prot="public">NodeValue</innerclass>
+    <innerclass refid="class_node_value_table" prot="public">NodeValueTable</innerclass>
+    <innerclass refid="class_node_value_database" prot="public">NodeValueDatabase</innerclass>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/***</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"></highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/><sp/>Olive<sp/>-<sp/>Non-Linear<sp/>Video<sp/>Editor</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/><sp/>Copyright<sp/>(C)<sp/>2019<sp/>Olive<sp/>Team</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"></highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/><sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/><sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/><sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"></highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/><sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/><sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/><sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"></highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/><sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/><sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"></highlight></codeline>
+<codeline lineno="19"><highlight class="comment">***/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>VALUE_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VALUE_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QString&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="input_8h" kindref="compound">input.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><ref refid="define_8h_1a0472692dd1f22472ad63da20da919e8c" kindref="member">OLIVE_NAMESPACE_ENTER</ref></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30" refid="class_node_value" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_node_value" kindref="compound">NodeValue</ref></highlight></codeline>
+<codeline lineno="31"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><ref refid="class_node_value_1a80b0d089fe9e26f582fc6a307c95b3ae" kindref="member">NodeValue</ref>()<sp/>=<sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><ref refid="class_node_value_1a80b0d089fe9e26f582fc6a307c95b3ae" kindref="member">NodeValue</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_node_param_1afcf9957577948de11f721af9ea6f3685" kindref="member">NodeParam::DataType</ref>&amp;<sp/><ref refid="class_node_value_1abfd908740677dcf47e6bc48815055811" kindref="member">type</ref>,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QVariant&amp;<sp/><ref refid="class_node_value_1ab0e0508ea2a148f07ff9ae9b2e482cba" kindref="member">data</ref>,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/><ref refid="class_node_value_1ac9c2ae07bebabb56eeee5e17a00d8dec" kindref="member">tag</ref><sp/>=<sp/>QString());</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_node_param_1afcf9957577948de11f721af9ea6f3685" kindref="member">NodeParam::DataType</ref>&amp;<sp/><ref refid="class_node_value_1abfd908740677dcf47e6bc48815055811" kindref="member">type</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QVariant&amp;<sp/><ref refid="class_node_value_1ab0e0508ea2a148f07ff9ae9b2e482cba" kindref="member">data</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/><ref refid="class_node_value_1ac9c2ae07bebabb56eeee5e17a00d8dec" kindref="member">tag</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_node_value_1a31422ba702cb5f7bf128abe9d4d61d46" kindref="member">operator==</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_node_value" kindref="compound">NodeValue</ref>&amp;<sp/>rhs)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><ref refid="class_node_param_1afcf9957577948de11f721af9ea6f3685" kindref="member">NodeParam::DataType</ref><sp/><ref refid="class_node_value_1a9a487d1b226701d458911dfc415f21fd" kindref="member">type_</ref>;</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/>QVariant<sp/><ref refid="class_node_value_1a5102877c00ae66d850fe77d6a39d915b" kindref="member">data_</ref>;</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/>QString<sp/><ref refid="class_node_value_1a551f497bd50e937a496e6a8a6501729f" kindref="member">tag_</ref>;</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49" refid="class_node_value_table" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_node_value_table" kindref="compound">NodeValueTable</ref></highlight></codeline>
+<codeline lineno="50"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="51" refid="class_node_value_1a80b0d089fe9e26f582fc6a307c95b3ae" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="52" refid="class_node_value_table_1ae13fcfabf0b5ab21c44fac6acff3144a" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_node_value_table_1ae13fcfabf0b5ab21c44fac6acff3144a" kindref="member">NodeValueTable</ref>()<sp/>=<sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54" refid="class_node_value_1abfd908740677dcf47e6bc48815055811" refkind="member"><highlight class="normal"><sp/><sp/>QVariant<sp/><ref refid="class_node_value_table_1a2578fceafc4efa919a4540fb597854ce" kindref="member">Get</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_node_param_1afcf9957577948de11f721af9ea6f3685" kindref="member">NodeParam::DataType</ref>&amp;<sp/>type,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/>tag<sp/>=<sp/>QString())<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="55" refid="class_node_value_table_1add14b5a286848e55b8a6dc620c754945" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_node_value" kindref="compound">NodeValue</ref><sp/><ref refid="class_node_value_table_1add14b5a286848e55b8a6dc620c754945" kindref="member">GetWithMeta</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_node_param_1afcf9957577948de11f721af9ea6f3685" kindref="member">NodeParam::DataType</ref>&amp;<sp/>type,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/>tag<sp/>=<sp/>QString())<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="56" refid="class_node_value_table_1a5a990dbfed967a147d243f0ba952784d" refkind="member"><highlight class="normal"><sp/><sp/>QVariant<sp/><ref refid="class_node_value_table_1a5a990dbfed967a147d243f0ba952784d" kindref="member">Take</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_node_param_1afcf9957577948de11f721af9ea6f3685" kindref="member">NodeParam::DataType</ref>&amp;<sp/>type,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/>tag<sp/>=<sp/>QString());</highlight></codeline>
+<codeline lineno="57" refid="class_node_value_table_1a9e7e3af3ef142b848e60ae59c0b54ddb" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_node_value" kindref="compound">NodeValue</ref><sp/><ref refid="class_node_value_table_1a9e7e3af3ef142b848e60ae59c0b54ddb" kindref="member">TakeWithMeta</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_node_param_1afcf9957577948de11f721af9ea6f3685" kindref="member">NodeParam::DataType</ref>&amp;<sp/>type,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/>tag<sp/>=<sp/>QString());</highlight></codeline>
+<codeline lineno="58" refid="class_node_value_table_1a2245eebe8f0000bc1caa9b22680ab8e7" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_value_table_1a2245eebe8f0000bc1caa9b22680ab8e7" kindref="member">Push</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_node_value" kindref="compound">NodeValue</ref>&amp;<sp/>value);</highlight></codeline>
+<codeline lineno="59" refid="class_node_value_table_1adf38c96310e9c0464ffa3706ed94a9e2" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_value_table_1adf38c96310e9c0464ffa3706ed94a9e2" kindref="member">Push</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_node_param_1afcf9957577948de11f721af9ea6f3685" kindref="member">NodeParam::DataType</ref>&amp;<sp/>type,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QVariant&amp;<sp/>data,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/>tag<sp/>=<sp/>QString());</highlight></codeline>
+<codeline lineno="60" refid="class_node_value_table_1a1c486f2c14a43e55b3c9c2a42a6e1e8b" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_value_table_1a1c486f2c14a43e55b3c9c2a42a6e1e8b" kindref="member">Prepend</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_node_value" kindref="compound">NodeValue</ref>&amp;<sp/>value);</highlight></codeline>
+<codeline lineno="61" refid="class_node_value_1a9a487d1b226701d458911dfc415f21fd" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_value_table_1a1c486f2c14a43e55b3c9c2a42a6e1e8b" kindref="member">Prepend</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_node_param_1afcf9957577948de11f721af9ea6f3685" kindref="member">NodeParam::DataType</ref>&amp;<sp/>type,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QVariant&amp;<sp/>data,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/>tag<sp/>=<sp/>QString());</highlight></codeline>
+<codeline lineno="62" refid="class_node_value_1a5102877c00ae66d850fe77d6a39d915b" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_node_value" kindref="compound">NodeValue</ref>&amp;<sp/><ref refid="class_node_value_table_1a94d23b8456738eb39e30d38a817a7e72" kindref="member">At</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>index)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="63" refid="class_node_value_table_1aef171332ba3d82a8568d610c2f1544b2" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_node_value" kindref="compound">NodeValue</ref><sp/><ref refid="class_node_value_table_1aef171332ba3d82a8568d610c2f1544b2" kindref="member">TakeAt</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>index);</highlight></codeline>
+<codeline lineno="64" refid="class_node_value_table_1ad384cce02555e16dd61c9e4eff18923f" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="class_node_value_table_1ad384cce02555e16dd61c9e4eff18923f" kindref="member">Count</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="65" refid="class_node_value_table_1a2e2a9a210fd1a19841ad1219e063527f" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_node_value_table_1a2e2a9a210fd1a19841ad1219e063527f" kindref="member">Has</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_node_param_1afcf9957577948de11f721af9ea6f3685" kindref="member">NodeParam::DataType</ref>&amp;<sp/>type)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="66" refid="class_node_value_table_1ad5d07d4455bbac7970e86f85bcb8714d" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_value_table_1ad5d07d4455bbac7970e86f85bcb8714d" kindref="member">Remove</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_node_value" kindref="compound">NodeValue</ref>&amp;<sp/>v);</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight></codeline>
+<codeline lineno="68" refid="class_node_value_table_1a9d84d76e6408ac04b833e3ae7842c680" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_node_value_table_1a9d84d76e6408ac04b833e3ae7842c680" kindref="member">isEmpty</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70" refid="class_node_value_table_1a00088f91f09ee0929a55fea43db8cc7c" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="class_node_value_table" kindref="compound">NodeValueTable</ref><sp/><ref refid="class_node_value_table_1a00088f91f09ee0929a55fea43db8cc7c" kindref="member">Merge</ref>(QList&lt;NodeValueTable&gt;<sp/>tables);</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="73" refid="class_node_value_table_1a2c3b7d5913ae28e3e9e394bb5edf5761" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="class_node_value_table_1a2c3b7d5913ae28e3e9e394bb5edf5761" kindref="member">GetInternal</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_node_param_1afcf9957577948de11f721af9ea6f3685" kindref="member">NodeParam::DataType</ref>&amp;<sp/>type,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/>tag)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75" refid="class_node_value_table_1a14a69a7cf3450f3dc8f8fc1b99b2ba1e" refkind="member"><highlight class="normal"><sp/><sp/>QList&lt;NodeValue&gt;<sp/><ref refid="class_node_value_table_1a14a69a7cf3450f3dc8f8fc1b99b2ba1e" kindref="member">values_</ref>;</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight></codeline>
+<codeline lineno="79" refid="class_node_value_database" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_node_value_database" kindref="compound">NodeValueDatabase</ref></highlight></codeline>
+<codeline lineno="80"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="82" refid="class_node_value_database_1a16c03e38f9e26e7f35b742410ee85ff9" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_node_value_database_1a16c03e38f9e26e7f35b742410ee85ff9" kindref="member">NodeValueDatabase</ref>()<sp/>=<sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84" refid="class_node_value_database_1a8511ca1f420c2c07e02a98d1ab00bf93" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_node_value_table" kindref="compound">NodeValueTable</ref>&amp;<sp/><ref refid="class_node_value_database_1a8511ca1f420c2c07e02a98d1ab00bf93" kindref="member">operator[]</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/>input_id);</highlight></codeline>
+<codeline lineno="85" refid="class_node_value_database_1aa86a940c423ad069c50935dc2624e9ae" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_node_value_table" kindref="compound">NodeValueTable</ref>&amp;<sp/><ref refid="class_node_value_database_1aa86a940c423ad069c50935dc2624e9ae" kindref="member">operator[]</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_node_input" kindref="compound">NodeInput</ref>*<sp/>input);</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87" refid="class_node_value_database_1a03db6223c8c024eaa64659db353709f4" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_node_value_table" kindref="compound">NodeValueTable</ref><sp/><ref refid="class_node_value_database_1a03db6223c8c024eaa64659db353709f4" kindref="member">operator[]</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/>input_id)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="88" refid="class_node_value_database_1abc5988bf23530ba2a4db07556dec5a03" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_node_value_table" kindref="compound">NodeValueTable</ref><sp/><ref refid="class_node_value_database_1abc5988bf23530ba2a4db07556dec5a03" kindref="member">operator[]</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_node_input" kindref="compound">NodeInput</ref>*<sp/>input)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90" refid="class_node_value_database_1ae71dffce2e24de02fb7dc9388293b8d1" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_value_database_1ae71dffce2e24de02fb7dc9388293b8d1" kindref="member">Insert</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/>key,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_node_value_table" kindref="compound">NodeValueTable</ref><sp/>&amp;value);</highlight></codeline>
+<codeline lineno="91" refid="class_node_value_database_1a0eb1efaadab44dd86be614b5d57c7467" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_value_database_1a0eb1efaadab44dd86be614b5d57c7467" kindref="member">Insert</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_node_input" kindref="compound">NodeInput</ref>*<sp/>key,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_node_value_table" kindref="compound">NodeValueTable</ref>&amp;<sp/>value);</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93" refid="class_node_value_database_1a364c82f86aaadd3999cf3963541115bd" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_node_value_table" kindref="compound">NodeValueTable</ref><sp/><ref refid="class_node_value_database_1a364c82f86aaadd3999cf3963541115bd" kindref="member">Merge</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="96" refid="class_node_value_database_1ad10015d9f4809049081dc57f42611597" refkind="member"><highlight class="normal"><sp/><sp/>QHash&lt;QString,<sp/>NodeValueTable&gt;<sp/><ref refid="class_node_value_database_1ad10015d9f4809049081dc57f42611597" kindref="member">tables_</ref>;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><ref refid="define_8h_1abe3de0634d907ca0f5d1acf732c49dac" kindref="member">OLIVE_NAMESPACE_EXIT</ref></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal">Q_DECLARE_METATYPE(OLIVE_NAMESPACE::NodeValueTable)</highlight></codeline>
+<codeline lineno="103"><highlight class="normal">Q_DECLARE_METATYPE(OLIVE_NAMESPACE::NodeValueDatabase)</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//<sp/>VALUE_H</highlight></codeline>
+    </programlisting>
+    <location file="C:/Daten/Olive/olive/app/node/value.h"/>
+  </compounddef>
+</doxygen>

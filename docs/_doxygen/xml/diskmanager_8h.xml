@@ -1,0 +1,122 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="diskmanager_8h" kind="file" language="C++">
+    <compoundname>diskmanager.h</compoundname>
+    <includes local="no">QMutex</includes>
+    <includes local="no">QObject</includes>
+    <includes refid="define_8h" local="yes">common/define.h</includes>
+    <incdepgraph>
+      <node id="1">
+        <label>diskmanager.h</label>
+        <link refid="diskmanager_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>QObject</label>
+      </node>
+      <node id="2">
+        <label>QMutex</label>
+      </node>
+      <node id="4">
+        <label>common/define.h</label>
+        <link refid="define_8h"/>
+      </node>
+    </incdepgraph>
+    <innerclass refid="class_disk_manager" prot="public">DiskManager</innerclass>
+    <innerclass refid="struct_disk_manager_1_1_hash_time" prot="private">DiskManager::HashTime</innerclass>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/***</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"></highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/><sp/>Olive<sp/>-<sp/>Non-Linear<sp/>Video<sp/>Editor</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/><sp/>Copyright<sp/>(C)<sp/>2019<sp/>Olive<sp/>Team</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"></highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/><sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/><sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/><sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"></highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/><sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/><sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/><sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"></highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/><sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/><sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"></highlight></codeline>
+<codeline lineno="19"><highlight class="comment">***/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>DISKMANAGER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>DISKMANAGER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QMutex&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QObject&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="define_8h" kindref="compound">common/define.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><ref refid="define_8h_1a0472692dd1f22472ad63da20da919e8c" kindref="member">OLIVE_NAMESPACE_ENTER</ref></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31" refid="class_disk_manager" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_disk_manager" kindref="compound">DiskManager</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>QObject</highlight></codeline>
+<codeline lineno="32"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/>Q_OBJECT</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_disk_manager_1af582654cea13ff99b0d351c340760060" kindref="member">CreateInstance</ref>();</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_disk_manager_1a51789ab34e608d7f7f705a0696091e7a" kindref="member">DestroyInstance</ref>();</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="class_disk_manager" kindref="compound">DiskManager</ref>*<sp/><ref refid="class_disk_manager_1a9e663d35d6889f2bbe0fed2b5d10c4ab" kindref="member">instance</ref>();</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_disk_manager_1a80dc8882d9dfcf8c7f18a5bb5d08d624" kindref="member">Accessed</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QByteArray&amp;<sp/>hash);</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_disk_manager_1a80dc8882d9dfcf8c7f18a5bb5d08d624" kindref="member">Accessed</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/>filename);</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_disk_manager_1aac59214476214df8616a81046299733d" kindref="member">CreatedFile</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/>file_name,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QByteArray&amp;<sp/>hash);</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_disk_manager_1a63fcfb8d36fef21ba7a141426ec882b6" kindref="member">ClearDiskCache</ref>(</highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>quick_delete);</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal">signals:</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_disk_manager_1ab69dbff70d65b760125af27aec4a6ceb" kindref="member">DeletedFrame</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QByteArray&amp;<sp/>hash);</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="53" refid="class_disk_manager_1af582654cea13ff99b0d351c340760060" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_disk_manager_1a51b8ebf5fe5098b1ecd5dafbbbf204da" kindref="member">DiskManager</ref>();</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55" refid="class_disk_manager_1a51789ab34e608d7f7f705a0696091e7a" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="class_disk_manager_1aa926a4da1a570c7a21c84207e74a4afe" kindref="member">~DiskManager</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57" refid="class_disk_manager_1a9e663d35d6889f2bbe0fed2b5d10c4ab" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="class_disk_manager" kindref="compound">DiskManager</ref>*<sp/><ref refid="class_disk_manager_1a960ce8c04bfa96848093de20e6c5703f" kindref="member">instance_</ref>;</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59" refid="class_disk_manager_1a80dc8882d9dfcf8c7f18a5bb5d08d624" refkind="member"><highlight class="normal"><sp/><sp/>QByteArray<sp/><ref refid="class_disk_manager_1a6ff4b68f6f2d2581dcd8d8559974c0c2" kindref="member">DeleteLeastRecent</ref>();</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61" refid="class_disk_manager_1a9fe9ef13334d1ad450b1419d39100ec1" refkind="member"><highlight class="normal"><sp/><sp/>qint64<sp/><ref refid="class_disk_manager_1afd2c7ceb12190565cadba26a7a930545" kindref="member">DiskLimit</ref>();</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63" refid="class_disk_manager_1aac59214476214df8616a81046299733d" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>QString<sp/><ref refid="class_disk_manager_1ade5cb0c12de778341ee45b6398ca1523" kindref="member">GetCacheIndexFilename</ref>();</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65" refid="class_disk_manager_1a63fcfb8d36fef21ba7a141426ec882b6" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="struct_disk_manager_1_1_hash_time" kindref="compound">HashTime</ref><sp/>{</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/>QString<sp/><ref refid="struct_disk_manager_1_1_hash_time_1a9ae3024befb779bf3705849a5660d469" kindref="member">file_name</ref>;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/>QByteArray<sp/><ref refid="struct_disk_manager_1_1_hash_time_1a609b827c6936498e14c8ec8be92896cd" kindref="member">hash</ref>;</highlight></codeline>
+<codeline lineno="68" refid="class_disk_manager_1ab69dbff70d65b760125af27aec4a6ceb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>qint64<sp/><ref refid="struct_disk_manager_1_1_hash_time_1ae22c7c0e5e691887b456465a635e0350" kindref="member">access_time</ref>;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/>qint64<sp/><ref refid="struct_disk_manager_1_1_hash_time_1a9eb27e1982222e09dc0efb2e738b5634" kindref="member">file_size</ref>;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="71" refid="class_disk_manager_1a51b8ebf5fe5098b1ecd5dafbbbf204da" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/>QList&lt;HashTime&gt;<sp/><ref refid="class_disk_manager_1a0d4c92ef80d00fbd975d14215263a60d" kindref="member">disk_data_</ref>;</highlight></codeline>
+<codeline lineno="73" refid="class_disk_manager_1aa926a4da1a570c7a21c84207e74a4afe" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/>qint64<sp/><ref refid="class_disk_manager_1a69c3b3c4e5f4de49984f95dac3a2407b" kindref="member">consumption_</ref>;</highlight></codeline>
+<codeline lineno="75" refid="class_disk_manager_1a960ce8c04bfa96848093de20e6c5703f" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/>QMutex<sp/><ref refid="class_disk_manager_1ab93bc053a72aefdf0ba0e1894dc3bae9" kindref="member">lock_</ref>;</highlight></codeline>
+<codeline lineno="77" refid="class_disk_manager_1a6ff4b68f6f2d2581dcd8d8559974c0c2" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="79" refid="class_disk_manager_1afd2c7ceb12190565cadba26a7a930545" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><ref refid="define_8h_1abe3de0634d907ca0f5d1acf732c49dac" kindref="member">OLIVE_NAMESPACE_EXIT</ref></highlight></codeline>
+<codeline lineno="81" refid="class_disk_manager_1ade5cb0c12de778341ee45b6398ca1523" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//<sp/>DISKMANAGER_H</highlight></codeline>
+    </programlisting>
+    <location file="C:/Daten/Olive/olive/app/render/diskmanager.h"/>
+  </compounddef>
+</doxygen>

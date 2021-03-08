@@ -1,0 +1,180 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_timeline_widget_1_1_dragged_footage" kind="class" language="C++" prot="private">
+    <compoundname>TimelineWidget::DraggedFootage</compoundname>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_timeline_widget_1_1_dragged_footage_1a0b7f79a33f25e5c6448d033b021ea7f4" prot="private" static="no" mutable="no">
+        <type><ref refid="class_footage" kindref="compound">Footage</ref> *</type>
+        <definition>Footage* TimelineWidget::DraggedFootage::footage_</definition>
+        <argsstring></argsstring>
+        <name>footage_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" line="154" column="13" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" bodystart="154" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_timeline_widget_1_1_dragged_footage_1a51db5146f11e48eccc051670d8cdbc44" prot="private" static="no" mutable="no">
+        <type>quint64</type>
+        <definition>quint64 TimelineWidget::DraggedFootage::streams_</definition>
+        <argsstring></argsstring>
+        <name>streams_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" line="156" column="13" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" bodystart="156" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_timeline_widget_1_1_dragged_footage_1a49b2f85baa0e21a8d087d0e52170d553" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>TimelineWidget::DraggedFootage::DraggedFootage</definition>
+        <argsstring>(Footage *f, quint64 streams)</argsstring>
+        <name>DraggedFootage</name>
+        <param>
+          <type><ref refid="class_footage" kindref="compound">Footage</ref> *</type>
+          <declname>f</declname>
+        </param>
+        <param>
+          <type>quint64</type>
+          <declname>streams</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" line="139" column="5" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" bodystart="139" bodyend="143"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_widget_1_1_dragged_footage_1a6e24abfbbc87103519612173257f56c6" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="class_footage" kindref="compound">Footage</ref> *</type>
+        <definition>Footage* TimelineWidget::DraggedFootage::footage</definition>
+        <argsstring>() const</argsstring>
+        <name>footage</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" line="145" column="13" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" bodystart="145" bodyend="147"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_widget_1_1_dragged_footage_1a53b54390bfe43e1561582c7d00d78bf1" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>const quint64 &amp;</type>
+        <definition>const quint64&amp; TimelineWidget::DraggedFootage::streams</definition>
+        <argsstring>() const</argsstring>
+        <name>streams</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" line="149" column="19" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" bodystart="149" bodyend="151"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="7">
+        <label>TimelinePoints</label>
+        <link refid="class_timeline_points"/>
+        <childnode refid="8" relation="usage">
+          <edgelabel>markers_</edgelabel>
+        </childnode>
+        <childnode refid="9" relation="usage">
+          <edgelabel>workarea_</edgelabel>
+        </childnode>
+      </node>
+      <node id="5">
+        <label>ColorManager</label>
+        <link refid="class_color_manager"/>
+      </node>
+      <node id="11">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="1">
+        <label>TimelineWidget::DraggedFootage</label>
+        <link refid="class_timeline_widget_1_1_dragged_footage"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>footage_</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>Item</label>
+        <link refid="class_item"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>parent_</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>project_</edgelabel>
+        </childnode>
+      </node>
+      <node id="9">
+        <label>TimelineWorkArea</label>
+        <link refid="class_timeline_work_area"/>
+        <childnode refid="10" relation="usage">
+          <edgelabel>workarea_range_</edgelabel>
+        </childnode>
+        <childnode refid="11" relation="usage">
+          <edgelabel>kResetOut</edgelabel>
+          <edgelabel>kResetIn</edgelabel>
+        </childnode>
+      </node>
+      <node id="4">
+        <label>Project</label>
+        <link refid="class_project"/>
+        <childnode refid="5" relation="usage">
+          <edgelabel>color_manager_</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>root_</edgelabel>
+        </childnode>
+      </node>
+      <node id="6">
+        <label>Folder</label>
+        <link refid="class_folder"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>TimeRange</label>
+        <link refid="class_time_range"/>
+        <childnode refid="11" relation="usage">
+          <edgelabel>out_</edgelabel>
+          <edgelabel>in_</edgelabel>
+          <edgelabel>length_</edgelabel>
+        </childnode>
+      </node>
+      <node id="8">
+        <label>TimelineMarkerList</label>
+        <link refid="class_timeline_marker_list"/>
+      </node>
+      <node id="2">
+        <label>Footage</label>
+        <link refid="class_footage"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+        <childnode refid="7" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" line="137" column="3" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" bodystart="137" bodyend="158"/>
+    <listofallmembers>
+      <member refid="class_timeline_widget_1_1_dragged_footage_1a49b2f85baa0e21a8d087d0e52170d553" prot="public" virt="non-virtual"><scope>TimelineWidget::DraggedFootage</scope><name>DraggedFootage</name></member>
+      <member refid="class_timeline_widget_1_1_dragged_footage_1a6e24abfbbc87103519612173257f56c6" prot="public" virt="non-virtual"><scope>TimelineWidget::DraggedFootage</scope><name>footage</name></member>
+      <member refid="class_timeline_widget_1_1_dragged_footage_1a0b7f79a33f25e5c6448d033b021ea7f4" prot="private" virt="non-virtual"><scope>TimelineWidget::DraggedFootage</scope><name>footage_</name></member>
+      <member refid="class_timeline_widget_1_1_dragged_footage_1a53b54390bfe43e1561582c7d00d78bf1" prot="public" virt="non-virtual"><scope>TimelineWidget::DraggedFootage</scope><name>streams</name></member>
+      <member refid="class_timeline_widget_1_1_dragged_footage_1a51db5146f11e48eccc051670d8cdbc44" prot="private" virt="non-virtual"><scope>TimelineWidget::DraggedFootage</scope><name>streams_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

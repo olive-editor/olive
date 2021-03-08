@@ -1,0 +1,457 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="scope_8h" kind="file" language="C++">
+    <compoundname>scope.h</compoundname>
+    <includes local="no">QComboBox</includes>
+    <includes local="no">QStackedWidget</includes>
+    <includes refid="panel_8h" local="yes">widget/panel/panel.h</includes>
+    <includes refid="histogram_8h" local="yes">widget/scope/histogram/histogram.h</includes>
+    <includes refid="waveform_8h" local="yes">widget/scope/waveform/waveform.h</includes>
+    <includedby refid="widget_2viewer_2viewer_8h" local="yes">viewer.h</includedby>
+    <includedby refid="mainwindow_8h" local="yes">mainwindow.h</includedby>
+    <incdepgraph>
+      <node id="19">
+        <label>libavformat/avformat.h</label>
+      </node>
+      <node id="1">
+        <label>scope.h</label>
+        <link refid="scope_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+      </node>
+      <node id="34">
+        <label>openglshader.h</label>
+        <link refid="openglshader_8h"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="39">
+        <label>QMenu</label>
+      </node>
+      <node id="41">
+        <label>widget/scope/waveform/waveform.h</label>
+        <link refid="waveform_8h"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="44" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>QStackedWidget</label>
+      </node>
+      <node id="38">
+        <label>QMenuBar</label>
+      </node>
+      <node id="32">
+        <label>QOpenGLWidget</label>
+      </node>
+      <node id="10">
+        <label>QThread</label>
+      </node>
+      <node id="6">
+        <label>QEvent</label>
+      </node>
+      <node id="18">
+        <label>QMetaType</label>
+      </node>
+      <node id="33">
+        <label>render/backend/opengl/openglcolorprocessor.h</label>
+        <link refid="openglcolorprocessor_8h"/>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+      </node>
+      <node id="31">
+        <label>widget/manageddisplay/manageddisplay.h</label>
+        <link refid="manageddisplay_8h"/>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>render/pixelformat.h</label>
+        <link refid="pixelformat_8h"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+      </node>
+      <node id="35">
+        <label>QOpenGLShaderProgram</label>
+      </node>
+      <node id="15">
+        <label>common/rational.h</label>
+        <link refid="rational_8h"/>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>render/rendermodes.h</label>
+        <link refid="rendermodes_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="28">
+        <label>render/colorprocessor.h</label>
+        <link refid="colorprocessor_8h"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>QMutex</label>
+      </node>
+      <node id="5">
+        <label>QDockWidget</label>
+      </node>
+      <node id="4">
+        <label>widget/panel/panel.h</label>
+        <link refid="panel_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>common/define.h</label>
+        <link refid="define_8h"/>
+      </node>
+      <node id="24">
+        <label>QOpenGLExtraFunctions</label>
+      </node>
+      <node id="17">
+        <label>QDebug</label>
+      </node>
+      <node id="25">
+        <label>QString</label>
+      </node>
+      <node id="45">
+        <label>QOpenGLFunctions</label>
+      </node>
+      <node id="29">
+        <label>render/colortransform.h</label>
+        <link refid="colortransform_8h"/>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="44">
+        <label>opengltexture.h</label>
+        <link refid="opengltexture_8h"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>render/color.h</label>
+        <link refid="color_8h"/>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>QColor</label>
+      </node>
+      <node id="11">
+        <label>QWaitCondition</label>
+      </node>
+      <node id="8">
+        <label>widget/scope/histogram/histogram.h</label>
+        <link refid="histogram_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>QComboBox</label>
+      </node>
+      <node id="16">
+        <label>iostream</label>
+      </node>
+      <node id="37">
+        <label>widget/menu/menu.h</label>
+        <link refid="menu_8h"/>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="40">
+        <label>QMetaMethod</label>
+      </node>
+      <node id="27">
+        <label>render/videoparams.h</label>
+        <link refid="videoparams_8h"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+      </node>
+      <node id="36">
+        <label>render/colormanager.h</label>
+        <link refid="colormanager_8h"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+      </node>
+      <node id="43">
+        <label>QOpenGLContext</label>
+      </node>
+      <node id="30">
+        <label>OpenColorIO/OpenColorIO.h</label>
+      </node>
+      <node id="42">
+        <label>render/backend/opengl/openglframebuffer.h</label>
+        <link refid="openglframebuffer_8h"/>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="44" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>codec/frame.h</label>
+        <link refid="frame_8h"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+      <node id="23">
+        <label>OpenImageIO/imageio.h</label>
+      </node>
+      <node id="13">
+        <label>memory</label>
+      </node>
+      <node id="14">
+        <label>QVector</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="1">
+        <label>scope.h</label>
+        <link refid="scope_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>mainwindow.h</label>
+        <link refid="mainwindow_8h"/>
+      </node>
+      <node id="2">
+        <label>viewer.h</label>
+        <link refid="widget_2viewer_2viewer_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>viewerbase.h</label>
+        <link refid="viewerbase_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>footageviewer.h</label>
+        <link refid="widget_2viewer_2footageviewer_8h"/>
+      </node>
+      <node id="8">
+        <label>sequenceviewer.h</label>
+        <link refid="sequenceviewer_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>export.h</label>
+        <link refid="export_8h"/>
+      </node>
+      <node id="7">
+        <label>viewer.h</label>
+        <link refid="panel_2viewer_2viewer_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>footageviewer.h</label>
+        <link refid="panel_2footageviewer_2footageviewer_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="class_scope_panel" prot="public">ScopePanel</innerclass>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/***</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"></highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/><sp/>Olive<sp/>-<sp/>Non-Linear<sp/>Video<sp/>Editor</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/><sp/>Copyright<sp/>(C)<sp/>2019<sp/>Olive<sp/>Team</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"></highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/><sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/><sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/><sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"></highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/><sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/><sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/><sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"></highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/><sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/><sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"></highlight></codeline>
+<codeline lineno="19"><highlight class="comment">***/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SCOPE_PANEL_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SCOPE_PANEL_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QComboBox&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QStackedWidget&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="panel_8h" kindref="compound">widget/panel/panel.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="histogram_8h" kindref="compound">widget/scope/histogram/histogram.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="waveform_8h" kindref="compound">widget/scope/waveform/waveform.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><ref refid="define_8h_1a0472692dd1f22472ad63da20da919e8c" kindref="member">OLIVE_NAMESPACE_ENTER</ref></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_viewer_panel" kindref="compound">ViewerPanel</ref>;</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35" refid="class_scope_panel" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_scope_panel" kindref="compound">ScopePanel</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="class_panel_widget" kindref="compound">PanelWidget</ref></highlight></codeline>
+<codeline lineno="36"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/>Q_OBJECT</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="39" refid="class_scope_panel_1a15abea9cc6f00f55ad35b9cc1853051d" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/><ref refid="class_scope_panel_1a15abea9cc6f00f55ad35b9cc1853051d" kindref="member">Type</ref><sp/>{</highlight></codeline>
+<codeline lineno="40" refid="class_scope_panel_1a15abea9cc6f00f55ad35b9cc1853051dab6bd8ec3afceacb449396a473de259bc" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_scope_panel_1a15abea9cc6f00f55ad35b9cc1853051dab6bd8ec3afceacb449396a473de259bc" kindref="member">kTypeWaveform</ref>,</highlight></codeline>
+<codeline lineno="41" refid="class_scope_panel_1a15abea9cc6f00f55ad35b9cc1853051da785920477ea3ffba199332a24514dee5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_scope_panel_1a15abea9cc6f00f55ad35b9cc1853051da785920477ea3ffba199332a24514dee5" kindref="member">kTypeHistogram</ref>,</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_scope_panel_1a15abea9cc6f00f55ad35b9cc1853051da2933ea4f60e285e150c1ba50fb0bb872" kindref="member">kTypeCount</ref></highlight></codeline>
+<codeline lineno="44" refid="class_scope_panel_1a15abea9cc6f00f55ad35b9cc1853051da2933ea4f60e285e150c1ba50fb0bb872" refkind="member"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46" refid="class_scope_panel_1a33339af14d3d7d24dfe5da40bf5e8a83" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_scope_panel_1a33339af14d3d7d24dfe5da40bf5e8a83" kindref="member">ScopePanel</ref>(QWidget*<sp/>parent<sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48" refid="class_scope_panel_1a7eb432030d9e7dc794432feb89956f40" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_scope_panel_1a7eb432030d9e7dc794432feb89956f40" kindref="member">SetType</ref>(<ref refid="class_scope_panel_1a15abea9cc6f00f55ad35b9cc1853051d" kindref="member">Type</ref><sp/>t);</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50" refid="class_scope_panel_1a4aefbd67aaf3717bd6ca3965b1acf4c3" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>QString<sp/><ref refid="class_scope_panel_1a4aefbd67aaf3717bd6ca3965b1acf4c3" kindref="member">TypeToName</ref>(<ref refid="class_scope_panel_1a15abea9cc6f00f55ad35b9cc1853051d" kindref="member">Type</ref><sp/>t);</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>slots:</highlight></codeline>
+<codeline lineno="53" refid="class_scope_panel_1abad6e1bbab78fd7eb57845b1164ac568" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_scope_panel_1abad6e1bbab78fd7eb57845b1164ac568" kindref="member">SetReferenceBuffer</ref>(<ref refid="class_frame" kindref="compound">Frame</ref>*<sp/>frame);</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55" refid="class_scope_panel_1a3c897630e2c9e9fb86ef69537fe953e7" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_scope_panel_1a3c897630e2c9e9fb86ef69537fe953e7" kindref="member">SetColorManager</ref>(<ref refid="class_color_manager" kindref="compound">ColorManager</ref>*<sp/>manager);</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="58" refid="class_scope_panel_1a9431b8f14ea69efb932c2fa475305220" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_scope_panel_1a9431b8f14ea69efb932c2fa475305220" kindref="member">Retranslate</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="61" refid="class_scope_panel_1a545e8c968cf1096a939ab3e07fe0c3d5" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_scope_panel_1a15abea9cc6f00f55ad35b9cc1853051d" kindref="member">Type</ref><sp/><ref refid="class_scope_panel_1a545e8c968cf1096a939ab3e07fe0c3d5" kindref="member">type_</ref>;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63" refid="class_scope_panel_1ac74932bec8a4b7eb8881a799249c7961" refkind="member"><highlight class="normal"><sp/><sp/>QStackedWidget*<sp/><ref refid="class_scope_panel_1ac74932bec8a4b7eb8881a799249c7961" kindref="member">stack_</ref>;</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65" refid="class_scope_panel_1a10f7053fbd1ca07506476c165e3f8b39" refkind="member"><highlight class="normal"><sp/><sp/>QComboBox*<sp/><ref refid="class_scope_panel_1a10f7053fbd1ca07506476c165e3f8b39" kindref="member">scope_type_combobox_</ref>;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67" refid="class_scope_panel_1a0a4a8c61b4e866008a52082c38e67c71" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_waveform_scope" kindref="compound">WaveformScope</ref>*<sp/><ref refid="class_scope_panel_1a0a4a8c61b4e866008a52082c38e67c71" kindref="member">waveform_view_</ref>;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69" refid="class_scope_panel_1a0c96c8b5286c9824f021db1ceed7d57c" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_histogram_scope" kindref="compound">HistogramScope</ref>*<sp/><ref refid="class_scope_panel_1a0c96c8b5286c9824f021db1ceed7d57c" kindref="member">histogram_</ref>;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><ref refid="define_8h_1abe3de0634d907ca0f5d1acf732c49dac" kindref="member">OLIVE_NAMESPACE_EXIT</ref></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//<sp/>SCOPE_PANEL_H</highlight></codeline>
+    </programlisting>
+    <location file="C:/Daten/Olive/olive/app/panel/scope/scope.h"/>
+  </compounddef>
+</doxygen>

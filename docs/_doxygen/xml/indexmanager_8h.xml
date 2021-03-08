@@ -1,0 +1,407 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="indexmanager_8h" kind="file" language="C++">
+    <compoundname>indexmanager.h</compoundname>
+    <includes local="no">QObject</includes>
+    <includes refid="stream_8h" local="yes">project/item/footage/stream.h</includes>
+    <includes refid="conform_8h" local="yes">task/conform/conform.h</includes>
+    <includes refid="index_8h" local="yes">task/index/index.h</includes>
+    <incdepgraph>
+      <node id="13">
+        <label>libavformat/avformat.h</label>
+      </node>
+      <node id="33">
+        <label>node/param.h</label>
+        <link refid="node_2param_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+      </node>
+      <node id="36">
+        <label>project/item/footage/imagestream.h</label>
+        <link refid="imagestream_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>task/conform/conform.h</label>
+        <link refid="conform_8h"/>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>QDateTime</label>
+      </node>
+      <node id="2">
+        <label>QObject</label>
+      </node>
+      <node id="40">
+        <label>common/timerange.h</label>
+        <link refid="timerange_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="32">
+        <label>QXmlStreamReader</label>
+      </node>
+      <node id="25">
+        <label>QList</label>
+      </node>
+      <node id="16">
+        <label>project/item/footage/audiostream.h</label>
+        <link refid="audiostream_8h"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="39">
+        <label>timelinemarker.h</label>
+        <link refid="timelinemarker_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>QMetaType</label>
+      </node>
+      <node id="41">
+        <label>timelineworkarea.h</label>
+        <link refid="timelineworkarea_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+      </node>
+      <node id="31">
+        <label>QUndoCommand</label>
+      </node>
+      <node id="9">
+        <label>common/rational.h</label>
+        <link refid="rational_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="28">
+        <label>QIcon</label>
+      </node>
+      <node id="21">
+        <label>render/rendermodes.h</label>
+        <link refid="rendermodes_8h"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>QMutex</label>
+      </node>
+      <node id="23">
+        <label>task/index/index.h</label>
+        <link refid="index_8h"/>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>common/define.h</label>
+        <link refid="define_8h"/>
+      </node>
+      <node id="19">
+        <label>QtMath</label>
+      </node>
+      <node id="11">
+        <label>QDebug</label>
+      </node>
+      <node id="1">
+        <label>indexmanager.h</label>
+        <link refid="indexmanager_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="35">
+        <label>node/edge.h</label>
+        <link refid="edge_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="27">
+        <label>project/item/item.h</label>
+        <link refid="item_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="24">
+        <label>project/item/footage/footage.h</label>
+        <link refid="footage_8h"/>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>QString</label>
+      </node>
+      <node id="38">
+        <label>timeline/timelinepoints.h</label>
+        <link refid="timelinepoints_8h"/>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>task/task.h</label>
+      </node>
+      <node id="20">
+        <label>audio/sampleformat.h</label>
+        <link refid="sampleformat_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>iostream</label>
+      </node>
+      <node id="8">
+        <label>QXmlStreamWriter</label>
+      </node>
+      <node id="3">
+        <label>project/item/footage/stream.h</label>
+        <link refid="stream_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="37">
+        <label>project/item/footage/videostream.h</label>
+        <link refid="videostream_8h"/>
+        <childnode refid="36" relation="include">
+        </childnode>
+      </node>
+      <node id="30">
+        <label>common/xmlutils.h</label>
+        <link refid="xmlutils_8h"/>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="34">
+        <label>QVariant</label>
+      </node>
+      <node id="18">
+        <label>render/audioparams.h</label>
+        <link refid="audioparams_8h"/>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>memory</label>
+      </node>
+      <node id="29">
+        <label>common/threadedobject.h</label>
+        <link refid="threadedobject_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>QVector</label>
+      </node>
+      <node id="5">
+        <label>QCoreApplication</label>
+      </node>
+    </incdepgraph>
+    <innerclass refid="class_index_manager" prot="public">IndexManager</innerclass>
+    <innerclass refid="struct_index_manager_1_1_index_pair" prot="private">IndexManager::IndexPair</innerclass>
+    <innerclass refid="struct_index_manager_1_1_conform_pair" prot="private">IndexManager::ConformPair</innerclass>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/***</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"></highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/><sp/>Olive<sp/>-<sp/>Non-Linear<sp/>Video<sp/>Editor</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/><sp/>Copyright<sp/>(C)<sp/>2019<sp/>Olive<sp/>Team</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"></highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/><sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/><sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/><sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"></highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/><sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/><sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/><sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"></highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/><sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/><sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"></highlight></codeline>
+<codeline lineno="19"><highlight class="comment">***/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>INDEXMANAGER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>INDEXMANAGER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QObject&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="stream_8h" kindref="compound">project/item/footage/stream.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="conform_8h" kindref="compound">task/conform/conform.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="index_8h" kindref="compound">task/index/index.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><ref refid="define_8h_1a0472692dd1f22472ad63da20da919e8c" kindref="member">OLIVE_NAMESPACE_ENTER</ref></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="32" refid="class_index_manager" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_index_manager" kindref="compound">IndexManager</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>QObject</highlight></codeline>
+<codeline lineno="33"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/>Q_OBJECT</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><ref refid="class_index_manager_1a2bdf3d0847e29b4d600df4924f15be60" kindref="member">IndexManager</ref>()<sp/>=<sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_index_manager_1ae9397750a9576780a63dcce0c007b4fd" kindref="member">CreateInstance</ref>();</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="class_index_manager" kindref="compound">IndexManager</ref>*<sp/><ref refid="class_index_manager_1a2d970c29e324cfefd72e8a71b4f826f1" kindref="member">instance</ref>();</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_index_manager_1a46ceb169546fb9284274a4af99259f2d" kindref="member">DestroyInstance</ref>();</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_index_manager_1a18c8db05546569e3feb185fbd3908389" kindref="member">IsIndexing</ref>(<ref refid="stream_8h_1a3ca5b414655d064180098adf46c1a2f1" kindref="member">StreamPtr</ref><sp/>stream)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_index_manager_1a1ebae654f8a22a6d864ae973760928be" kindref="member">IsConforming</ref>(<ref refid="audiostream_8h_1a7225e65c10797ffe9af795962d86ba06" kindref="member">AudioStreamPtr</ref><sp/>stream,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref>&amp;<sp/>params)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>slots:</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_index_manager_1a3efd915ec2169cd042c138e46c3b7bc4" kindref="member">StartIndexingStream</ref>(<ref refid="stream_8h_1a3ca5b414655d064180098adf46c1a2f1" kindref="member">OLIVE_NAMESPACE::StreamPtr</ref><sp/>stream);</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_index_manager_1a37403f483dd6e10dd3a8198fb6ac6d3d" kindref="member">StartConformingStream</ref>(<ref refid="audiostream_8h_1a7225e65c10797ffe9af795962d86ba06" kindref="member">OLIVE_NAMESPACE::AudioStreamPtr</ref><sp/>stream,<sp/>OLIVE_NAMESPACE::AudioRenderingParams<sp/>params);</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal">signals:</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_index_manager_1a2d471386e5a50bda4752055a2b5dead7" kindref="member">StreamIndexUpdated</ref>(<ref refid="class_stream" kindref="compound">Stream</ref>*<sp/>stream);</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_index_manager_1a2f184a6eeaa815012d0511d50d48fd93" kindref="member">StreamConformAppended</ref>(<ref refid="class_stream" kindref="compound">Stream</ref>*<sp/>stream,<sp/>OLIVE_NAMESPACE::AudioRenderingParams<sp/>params);</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="54" refid="class_index_manager_1a2bdf3d0847e29b4d600df4924f15be60" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="class_index_manager" kindref="compound">IndexManager</ref>*<sp/><ref refid="class_index_manager_1ad062832cedc18dffb6c1749fc410edd6" kindref="member">instance_</ref>;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56" refid="class_index_manager_1ae9397750a9576780a63dcce0c007b4fd" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="struct_index_manager_1_1_index_pair" kindref="compound">IndexPair</ref><sp/>{</highlight></codeline>
+<codeline lineno="57" refid="class_index_manager_1a2d970c29e324cfefd72e8a71b4f826f1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="stream_8h_1a3ca5b414655d064180098adf46c1a2f1" kindref="member">StreamPtr</ref><sp/><ref refid="struct_index_manager_1_1_index_pair_1a8554ff003f46192b9a203de95ae4cbfe" kindref="member">stream</ref>;</highlight></codeline>
+<codeline lineno="58" refid="class_index_manager_1a46ceb169546fb9284274a4af99259f2d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_index_task" kindref="compound">IndexTask</ref>*<sp/><ref refid="struct_index_manager_1_1_index_pair_1a5939cd3f1441360d282d17e3e5ec3cd0" kindref="member">task</ref>;</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="60" refid="class_index_manager_1a18c8db05546569e3feb185fbd3908389" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61" refid="class_index_manager_1a1ebae654f8a22a6d864ae973760928be" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="struct_index_manager_1_1_conform_pair" kindref="compound">ConformPair</ref><sp/>{</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="stream_8h_1a3ca5b414655d064180098adf46c1a2f1" kindref="member">StreamPtr</ref><sp/><ref refid="struct_index_manager_1_1_conform_pair_1aae7918d0a0afadaa2f198e0260988867" kindref="member">stream</ref>;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref><sp/><ref refid="struct_index_manager_1_1_conform_pair_1add7f54817754244c618817d3aa6c32fa" kindref="member">params</ref>;</highlight></codeline>
+<codeline lineno="64" refid="class_index_manager_1a3efd915ec2169cd042c138e46c3b7bc4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_conform_task" kindref="compound">ConformTask</ref>*<sp/><ref refid="struct_index_manager_1_1_conform_pair_1a0824baba460672aeecceb9d4225aa156" kindref="member">task</ref>;</highlight></codeline>
+<codeline lineno="65" refid="class_index_manager_1a37403f483dd6e10dd3a8198fb6ac6d3d" refkind="member"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/>QList&lt;IndexPair&gt;<sp/><ref refid="class_index_manager_1a05f4d774148a10c64ff2b7f80f071438" kindref="member">indexing_</ref>;</highlight></codeline>
+<codeline lineno="68" refid="class_index_manager_1a2d471386e5a50bda4752055a2b5dead7" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69" refid="class_index_manager_1a2f184a6eeaa815012d0511d50d48fd93" refkind="member"><highlight class="normal"><sp/><sp/>QList&lt;ConformPair&gt;<sp/><ref refid="class_index_manager_1a6bd688d1d2167c087b6bc7b058c8a8ba" kindref="member">conforming_</ref>;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal"><sp/>slots:</highlight></codeline>
+<codeline lineno="72" refid="class_index_manager_1ad062832cedc18dffb6c1749fc410edd6" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_index_manager_1af0afc79f3ad2527f6612baef60bd4a03" kindref="member">IndexTaskFinished</ref>();</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74" refid="struct_index_manager_1_1_index_pair" refkind="compound"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_index_manager_1ae6ab86345ad7c3c18c66c5c952bbb602" kindref="member">StreamIndexUpdatedEvent</ref>();</highlight></codeline>
+<codeline lineno="75" refid="struct_index_manager_1_1_index_pair_1a8554ff003f46192b9a203de95ae4cbfe" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="76" refid="struct_index_manager_1_1_index_pair_1a5939cd3f1441360d282d17e3e5ec3cd0" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_index_manager_1a5c768ca2949933928790cb29ce7ecc11" kindref="member">StreamConformAppendedEvent</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref>&amp;<sp/>params);</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="79" refid="struct_index_manager_1_1_conform_pair" refkind="compound"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80" refid="struct_index_manager_1_1_conform_pair_1aae7918d0a0afadaa2f198e0260988867" refkind="member"><highlight class="normal"><ref refid="define_8h_1abe3de0634d907ca0f5d1acf732c49dac" kindref="member">OLIVE_NAMESPACE_EXIT</ref></highlight></codeline>
+<codeline lineno="81" refid="struct_index_manager_1_1_conform_pair_1add7f54817754244c618817d3aa6c32fa" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82" refid="struct_index_manager_1_1_conform_pair_1a0824baba460672aeecceb9d4225aa156" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//<sp/>INDEXMANAGER_H</highlight></codeline>
+    </programlisting>
+    <location file="C:/Daten/Olive/olive/app/render/backend/indexmanager.h"/>
+  </compounddef>
+</doxygen>

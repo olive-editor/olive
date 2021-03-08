@@ -1,0 +1,144 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_render_cache" kind="class" language="C++" prot="public">
+    <compoundname>RenderCache</compoundname>
+    <includes refid="rendercache_8h" local="no">rendercache.h</includes>
+    <templateparamlist>
+      <param>
+        <type>class K</type>
+      </param>
+      <param>
+        <type>class V</type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_render_cache_1a3047ee079fb88364453fd23ca5506ecd" prot="private" static="no" mutable="no">
+        <type>QHash&lt; K, V &gt;</type>
+        <definition>QHash&lt;K, V&gt; RenderCache&lt; K, V &gt;::values_</definition>
+        <argsstring></argsstring>
+        <name>values_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/rendercache.h" line="64" column="9" bodyfile="C:/Daten/Olive/olive/app/render/backend/rendercache.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_render_cache_1acfed7c991c7c9c790356d2a76c9dd4e9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>RenderCache&lt; K, V &gt;::RenderCache</definition>
+        <argsstring>()=default</argsstring>
+        <name>RenderCache</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/rendercache.h" line="51" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_render_cache_1a171bc4ee12fc2ad87f0585d9b0ad3cd2" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void RenderCache&lt; K, V &gt;::Clear</definition>
+        <argsstring>()</argsstring>
+        <name>Clear</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/rendercache.h" line="53" column="8" bodyfile="C:/Daten/Olive/olive/app/render/backend/rendercache.h" bodystart="53" bodyend="53"/>
+      </memberdef>
+      <memberdef kind="function" id="class_render_cache_1a4e5655a8a07407f9139fb8c301686ada" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void RenderCache&lt; K, V &gt;::Add</definition>
+        <argsstring>(K key, V val)</argsstring>
+        <name>Add</name>
+        <param>
+          <type>K</type>
+          <declname>key</declname>
+        </param>
+        <param>
+          <type>V</type>
+          <declname>val</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/rendercache.h" line="55" column="8" bodyfile="C:/Daten/Olive/olive/app/render/backend/rendercache.h" bodystart="55" bodyend="55"/>
+      </memberdef>
+      <memberdef kind="function" id="class_render_cache_1ac38f01d6ccfeaf85d0a32cc9b7587ad7" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>V</type>
+        <definition>V RenderCache&lt; K, V &gt;::Get</definition>
+        <argsstring>(K key) const</argsstring>
+        <name>Get</name>
+        <param>
+          <type>K</type>
+          <declname>key</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/rendercache.h" line="57" column="5" bodyfile="C:/Daten/Olive/olive/app/render/backend/rendercache.h" bodystart="57" bodyend="57"/>
+      </memberdef>
+      <memberdef kind="function" id="class_render_cache_1aaeee4f409e1e8b616147f4b9caf56394" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool RenderCache&lt; K, V &gt;::Has</definition>
+        <argsstring>(K key) const</argsstring>
+        <name>Has</name>
+        <param>
+          <type>K</type>
+          <declname>key</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/rendercache.h" line="59" column="8" bodyfile="C:/Daten/Olive/olive/app/render/backend/rendercache.h" bodystart="59" bodyend="59"/>
+      </memberdef>
+      <memberdef kind="function" id="class_render_cache_1acaefeffa97ab26c9ad2a8458a57e44ff" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void RenderCache&lt; K, V &gt;::Remove</definition>
+        <argsstring>(K key)</argsstring>
+        <name>Remove</name>
+        <param>
+          <type>K</type>
+          <declname>key</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/rendercache.h" line="61" column="8" bodyfile="C:/Daten/Olive/olive/app/render/backend/rendercache.h" bodystart="61" bodyend="61"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/render/backend/rendercache.h" line="30" column="1" bodyfile="C:/Daten/Olive/olive/app/render/backend/rendercache.h" bodystart="31" bodyend="48"/>
+    <listofallmembers>
+      <member refid="class_render_cache_1a4e5655a8a07407f9139fb8c301686ada" prot="public" virt="non-virtual"><scope>RenderCache</scope><name>Add</name></member>
+      <member refid="class_render_cache_1a171bc4ee12fc2ad87f0585d9b0ad3cd2" prot="public" virt="non-virtual"><scope>RenderCache</scope><name>Clear</name></member>
+      <member refid="class_render_cache_1ac38f01d6ccfeaf85d0a32cc9b7587ad7" prot="public" virt="non-virtual"><scope>RenderCache</scope><name>Get</name></member>
+      <member refid="class_render_cache_1aaeee4f409e1e8b616147f4b9caf56394" prot="public" virt="non-virtual"><scope>RenderCache</scope><name>Has</name></member>
+      <member refid="class_render_cache_1acaefeffa97ab26c9ad2a8458a57e44ff" prot="public" virt="non-virtual"><scope>RenderCache</scope><name>Remove</name></member>
+      <member refid="class_render_cache_1acfed7c991c7c9c790356d2a76c9dd4e9" prot="public" virt="non-virtual"><scope>RenderCache</scope><name>RenderCache</name></member>
+      <member refid="class_render_cache_1a3047ee079fb88364453fd23ca5506ecd" prot="private" virt="non-virtual"><scope>RenderCache</scope><name>values_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

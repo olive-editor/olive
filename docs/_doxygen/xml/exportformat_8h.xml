@@ -1,0 +1,111 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="exportformat_8h" kind="file" language="C++">
+    <compoundname>exportformat.h</compoundname>
+    <includes local="no">QList</includes>
+    <includes local="no">QString</includes>
+    <includes refid="define_8h" local="yes">common/define.h</includes>
+    <includedby refid="export_8h" local="yes">export.h</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>QList</label>
+      </node>
+      <node id="1">
+        <label>exportformat.h</label>
+        <link refid="exportformat_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>common/define.h</label>
+        <link refid="define_8h"/>
+      </node>
+      <node id="3">
+        <label>QString</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="1">
+        <label>exportformat.h</label>
+        <link refid="exportformat_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>export.h</label>
+        <link refid="export_8h"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="class_export_format" prot="public">ExportFormat</innerclass>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/***</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"></highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/><sp/>Olive<sp/>-<sp/>Non-Linear<sp/>Video<sp/>Editor</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/><sp/>Copyright<sp/>(C)<sp/>2019<sp/>Olive<sp/>Team</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"></highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/><sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/><sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/><sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"></highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/><sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/><sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/><sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"></highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/><sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/><sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"></highlight></codeline>
+<codeline lineno="19"><highlight class="comment">***/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>EXPORTFORMAT_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>EXPORTFORMAT_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QList&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QString&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="define_8h" kindref="compound">common/define.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><ref refid="define_8h_1a0472692dd1f22472ad63da20da919e8c" kindref="member">OLIVE_NAMESPACE_ENTER</ref></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31" refid="class_export_format" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_export_format" kindref="compound">ExportFormat</ref><sp/>{</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><ref refid="class_export_format_1a348e186ba3c660f419650b7d2362a801" kindref="member">ExportFormat</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/><ref refid="class_export_format_1a9977c1687f0bbc1a00960bd8b064a940" kindref="member">name</ref>,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/><ref refid="class_export_format_1a98f39a4abb5e095fbd59d194f3813c29" kindref="member">extension</ref>,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/><ref refid="class_export_format_1a53f8c3b17b2563ad2211b7ce1a8a811c" kindref="member">encoder</ref>,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QList&lt;int&gt;&amp;<sp/>vcodecs,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QList&lt;int&gt;&amp;<sp/>acodecs)<sp/>:</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_export_format_1a570b57e29bde48442f8e2e8b2ac5e124" kindref="member">name_</ref>(<ref refid="class_export_format_1a9977c1687f0bbc1a00960bd8b064a940" kindref="member">name</ref>),</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_export_format_1af0d0059690e8a38194ef813c6b74dc53" kindref="member">extension_</ref>(<ref refid="class_export_format_1a98f39a4abb5e095fbd59d194f3813c29" kindref="member">extension</ref>),</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_export_format_1ad69e631db5681e48151d682767f7ba9a" kindref="member">encoder_</ref>(<ref refid="class_export_format_1a53f8c3b17b2563ad2211b7ce1a8a811c" kindref="member">encoder</ref>),</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_export_format_1a9963b6cb6e6c7e0b0687e5b2daf471c4" kindref="member">video_codecs_</ref>(vcodecs),</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_export_format_1a99fd1c88b1275ae1d95fc693a8e538a9" kindref="member">audio_codecs_</ref>(acodecs)</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/>{</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/><ref refid="class_export_format_1a9977c1687f0bbc1a00960bd8b064a940" kindref="member">name</ref>()</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="class_export_format_1a570b57e29bde48442f8e2e8b2ac5e124" kindref="member">name_</ref>;}</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/><ref refid="class_export_format_1a98f39a4abb5e095fbd59d194f3813c29" kindref="member">extension</ref>()</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="class_export_format_1af0d0059690e8a38194ef813c6b74dc53" kindref="member">extension_</ref>;}</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/><ref refid="class_export_format_1a53f8c3b17b2563ad2211b7ce1a8a811c" kindref="member">encoder</ref>()</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="class_export_format_1ad69e631db5681e48151d682767f7ba9a" kindref="member">encoder_</ref>;}</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QList&lt;int&gt;&amp;<sp/><ref refid="class_export_format_1a167c51c04cef9502ca6949514671b641" kindref="member">video_codecs</ref>()</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="class_export_format_1a9963b6cb6e6c7e0b0687e5b2daf471c4" kindref="member">video_codecs_</ref>;}</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QList&lt;int&gt;&amp;<sp/><ref refid="class_export_format_1a06d5687dca593ee5a53dedc52a35eb81" kindref="member">audio_codecs</ref>()</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="class_export_format_1a99fd1c88b1275ae1d95fc693a8e538a9" kindref="member">audio_codecs_</ref>;}</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/>QString<sp/><ref refid="class_export_format_1a570b57e29bde48442f8e2e8b2ac5e124" kindref="member">name_</ref>;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/>QString<sp/><ref refid="class_export_format_1af0d0059690e8a38194ef813c6b74dc53" kindref="member">extension_</ref>;</highlight></codeline>
+<codeline lineno="51" refid="class_export_format_1a348e186ba3c660f419650b7d2362a801" refkind="member"><highlight class="normal"><sp/><sp/>QString<sp/><ref refid="class_export_format_1ad69e631db5681e48151d682767f7ba9a" kindref="member">encoder_</ref>;</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/>QList&lt;int&gt;<sp/><ref refid="class_export_format_1a9963b6cb6e6c7e0b0687e5b2daf471c4" kindref="member">video_codecs_</ref>;</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/>QList&lt;int&gt;<sp/><ref refid="class_export_format_1a99fd1c88b1275ae1d95fc693a8e538a9" kindref="member">audio_codecs_</ref>;</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><ref refid="define_8h_1abe3de0634d907ca0f5d1acf732c49dac" kindref="member">OLIVE_NAMESPACE_EXIT</ref></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//<sp/>EXPORTFORMAT_H</highlight></codeline>
+    </programlisting>
+    <location file="C:/Daten/Olive/olive/app/dialog/export/exportformat.h"/>
+  </compounddef>
+</doxygen>

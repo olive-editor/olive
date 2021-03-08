@@ -1,0 +1,268 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_preferences_audio_tab" kind="class" language="C++" prot="public">
+    <compoundname>PreferencesAudioTab</compoundname>
+    <basecompoundref refid="class_preferences_tab" prot="public" virt="non-virtual">PreferencesTab</basecompoundref>
+    <includes refid="preferencesaudiotab_8h" local="no">preferencesaudiotab.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_preferences_audio_tab_1aabdf5c3e8e61064fd964e77a493260da" prot="private" static="no" mutable="no">
+        <type>QComboBox *</type>
+        <definition>QComboBox* PreferencesAudioTab::audio_output_devices_</definition>
+        <argsstring></argsstring>
+        <name>audio_output_devices_</name>
+        <briefdescription>
+<para>UI widget for selecting the output audio device. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesaudiotab.h" line="62" column="13" bodyfile="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesaudiotab.h" bodystart="62" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_preferences_audio_tab_1abd98f7faf338bc25c5cbad57f8f594f7" prot="private" static="no" mutable="no">
+        <type>QComboBox *</type>
+        <definition>QComboBox* PreferencesAudioTab::audio_input_devices_</definition>
+        <argsstring></argsstring>
+        <name>audio_input_devices_</name>
+        <briefdescription>
+<para>UI widget for selecting the input audio device. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesaudiotab.h" line="67" column="13" bodyfile="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesaudiotab.h" bodystart="67" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_preferences_audio_tab_1a723684dfd8edd812f198151886efb9fc" prot="private" static="no" mutable="no">
+        <type>QComboBox *</type>
+        <definition>QComboBox* PreferencesAudioTab::audio_sample_rate_</definition>
+        <argsstring></argsstring>
+        <name>audio_sample_rate_</name>
+        <briefdescription>
+<para>UI widget for selecting the audio sampling rates. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesaudiotab.h" line="72" column="13" bodyfile="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesaudiotab.h" bodystart="72" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_preferences_audio_tab_1ab23527395b17e36066076bca80218401" prot="private" static="no" mutable="no">
+        <type>QComboBox *</type>
+        <definition>QComboBox* PreferencesAudioTab::recording_combobox_</definition>
+        <argsstring></argsstring>
+        <name>recording_combobox_</name>
+        <briefdescription>
+<para>UI widget for editing the recording channels. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesaudiotab.h" line="77" column="13" bodyfile="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesaudiotab.h" bodystart="77" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_preferences_audio_tab_1a1e9af2a6d4fb607fbf2708af4880d701" prot="private" static="no" mutable="no">
+        <type>QPushButton *</type>
+        <definition>QPushButton* PreferencesAudioTab::refresh_devices_btn_</definition>
+        <argsstring></argsstring>
+        <name>refresh_devices_btn_</name>
+        <briefdescription>
+<para>Button that triggers a refresh of the available audio devices. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesaudiotab.h" line="82" column="15" bodyfile="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesaudiotab.h" bodystart="82" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_preferences_audio_tab_1ac85d868b2d97ee3e4fee6c4460116848" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>PreferencesAudioTab::PreferencesAudioTab</definition>
+        <argsstring>()</argsstring>
+        <name>PreferencesAudioTab</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesaudiotab.h" line="54" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_preferences_audio_tab_1ad99bb69516e16420e016e9b39f03ac8a" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PreferencesAudioTab::Accept</definition>
+        <argsstring>() override</argsstring>
+        <name>Accept</name>
+        <reimplements refid="class_preferences_tab_1ac68d2c1754ce85450eed3fb0920163f2">Accept</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesaudiotab.h" line="56" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_preferences_tab_1aefad5e89125f7a19d26a18ab3931ddfb" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>bool</type>
+        <definition>virtual bool PreferencesTab::Validate</definition>
+        <argsstring>()</argsstring>
+        <name>Validate</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencestab.h" line="53" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_preferences_audio_tab_1a0e041ad2fd05f183207aed7ff57a63b0" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PreferencesAudioTab::RefreshDevices</definition>
+        <argsstring>()</argsstring>
+        <name>RefreshDevices</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesaudiotab.h" line="85" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_preferences_audio_tab_1ac7c211275d6ccaa818ffed996871ab05" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PreferencesAudioTab::RetrieveOutputList</definition>
+        <argsstring>()</argsstring>
+        <name>RetrieveOutputList</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesaudiotab.h" line="87" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_preferences_audio_tab_1a3e557aa38b4cdd6ea96d50961b13a353" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PreferencesAudioTab::RetrieveInputList</definition>
+        <argsstring>()</argsstring>
+        <name>RetrieveInputList</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesaudiotab.h" line="89" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_preferences_audio_tab_1a5407b28efc3dc3af393e61356142808e" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PreferencesAudioTab::RetrieveDeviceLists</definition>
+        <argsstring>()</argsstring>
+        <name>RetrieveDeviceLists</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesaudiotab.h" line="92" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_preferences_audio_tab_1aedc57b93158705fc900bc0f9bbacd953" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PreferencesAudioTab::UpdateRefreshButtonEnabled</definition>
+        <argsstring>()</argsstring>
+        <name>UpdateRefreshButtonEnabled</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesaudiotab.h" line="94" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-func">
+      <memberdef kind="function" id="class_preferences_audio_tab_1ab6c41263dec856be3e43fa451949480a" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void PreferencesAudioTab::PopulateComboBox</definition>
+        <argsstring>(QComboBox *cb, bool still_refreshing, const QList&lt; QAudioDeviceInfo &gt; &amp;list, const QString &amp;preferred)</argsstring>
+        <name>PopulateComboBox</name>
+        <param>
+          <type>QComboBox *</type>
+          <declname>cb</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>still_refreshing</declname>
+        </param>
+        <param>
+          <type>const QList&lt; QAudioDeviceInfo &gt; &amp;</type>
+          <declname>list</declname>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>preferred</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesaudiotab.h" line="96" column="15"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>PreferencesTab</label>
+        <link refid="class_preferences_tab"/>
+      </node>
+      <node id="1">
+        <label>PreferencesAudioTab</label>
+        <link refid="class_preferences_audio_tab"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>PreferencesTab</label>
+        <link refid="class_preferences_tab"/>
+      </node>
+      <node id="1">
+        <label>PreferencesAudioTab</label>
+        <link refid="class_preferences_audio_tab"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesaudiotab.h" line="32" column="1" bodyfile="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesaudiotab.h" bodystart="33" bodyend="80"/>
+    <listofallmembers>
+      <member refid="class_preferences_audio_tab_1ad99bb69516e16420e016e9b39f03ac8a" prot="public" virt="virtual"><scope>PreferencesAudioTab</scope><name>Accept</name></member>
+      <member refid="class_preferences_audio_tab_1abd98f7faf338bc25c5cbad57f8f594f7" prot="private" virt="non-virtual"><scope>PreferencesAudioTab</scope><name>audio_input_devices_</name></member>
+      <member refid="class_preferences_audio_tab_1aabdf5c3e8e61064fd964e77a493260da" prot="private" virt="non-virtual"><scope>PreferencesAudioTab</scope><name>audio_output_devices_</name></member>
+      <member refid="class_preferences_audio_tab_1a723684dfd8edd812f198151886efb9fc" prot="private" virt="non-virtual"><scope>PreferencesAudioTab</scope><name>audio_sample_rate_</name></member>
+      <member refid="class_preferences_audio_tab_1ab6c41263dec856be3e43fa451949480a" prot="private" virt="non-virtual"><scope>PreferencesAudioTab</scope><name>PopulateComboBox</name></member>
+      <member refid="class_preferences_audio_tab_1ac85d868b2d97ee3e4fee6c4460116848" prot="public" virt="non-virtual"><scope>PreferencesAudioTab</scope><name>PreferencesAudioTab</name></member>
+      <member refid="class_preferences_tab_1a5330b203f9973201f677b0daf642f30e" prot="public" virt="non-virtual"><scope>PreferencesAudioTab</scope><name>PreferencesTab</name></member>
+      <member refid="class_preferences_audio_tab_1ab23527395b17e36066076bca80218401" prot="private" virt="non-virtual"><scope>PreferencesAudioTab</scope><name>recording_combobox_</name></member>
+      <member refid="class_preferences_audio_tab_1a1e9af2a6d4fb607fbf2708af4880d701" prot="private" virt="non-virtual"><scope>PreferencesAudioTab</scope><name>refresh_devices_btn_</name></member>
+      <member refid="class_preferences_audio_tab_1a0e041ad2fd05f183207aed7ff57a63b0" prot="private" virt="non-virtual"><scope>PreferencesAudioTab</scope><name>RefreshDevices</name></member>
+      <member refid="class_preferences_audio_tab_1a5407b28efc3dc3af393e61356142808e" prot="private" virt="non-virtual"><scope>PreferencesAudioTab</scope><name>RetrieveDeviceLists</name></member>
+      <member refid="class_preferences_audio_tab_1a3e557aa38b4cdd6ea96d50961b13a353" prot="private" virt="non-virtual"><scope>PreferencesAudioTab</scope><name>RetrieveInputList</name></member>
+      <member refid="class_preferences_audio_tab_1ac7c211275d6ccaa818ffed996871ab05" prot="private" virt="non-virtual"><scope>PreferencesAudioTab</scope><name>RetrieveOutputList</name></member>
+      <member refid="class_preferences_audio_tab_1aedc57b93158705fc900bc0f9bbacd953" prot="private" virt="non-virtual"><scope>PreferencesAudioTab</scope><name>UpdateRefreshButtonEnabled</name></member>
+      <member refid="class_preferences_tab_1aefad5e89125f7a19d26a18ab3931ddfb" prot="public" virt="virtual"><scope>PreferencesAudioTab</scope><name>Validate</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

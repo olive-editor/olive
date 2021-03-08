@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_447d00506b8d08e8dbc7323b9c6ebdf0" kind="dir">
+    <compoundname>columnedgridlayout</compoundname>
+    <innerfile refid="columnedgridlayout_8h">columnedgridlayout.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/widget/columnedgridlayout/"/>
+  </compounddef>
+</doxygen>

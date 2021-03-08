@@ -1,0 +1,371 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_block_split_command" kind="class" language="C++" prot="public">
+    <compoundname>BlockSplitCommand</compoundname>
+    <basecompoundref refid="class_undo_command" prot="public" virt="non-virtual">UndoCommand</basecompoundref>
+    <includes refid="undo_8h" local="no">undo.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_block_split_command_1ad091c6e65452868e539b7d07ca556575" prot="private" static="no" mutable="no">
+        <type><ref refid="class_track_output" kindref="compound">TrackOutput</ref> *</type>
+        <definition>TrackOutput* BlockSplitCommand::track_</definition>
+        <argsstring></argsstring>
+        <name>track_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="231" column="15" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="231" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_block_split_command_1ad4d0e4bb3403415a6858b4dd7d870775" prot="private" static="no" mutable="no">
+        <type><ref refid="class_block" kindref="compound">Block</ref> *</type>
+        <definition>Block* BlockSplitCommand::block_</definition>
+        <argsstring></argsstring>
+        <name>block_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="232" column="9" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="232" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_block_split_command_1a9e3fb8e46d793a98f5a2fe625c96ee36" prot="private" static="no" mutable="no">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational BlockSplitCommand::new_length_</definition>
+        <argsstring></argsstring>
+        <name>new_length_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="234" column="12" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="234" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_block_split_command_1af3edaa8c7a6fc552d4d0c92ccf20f367" prot="private" static="no" mutable="no">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational BlockSplitCommand::old_length_</definition>
+        <argsstring></argsstring>
+        <name>old_length_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="235" column="12" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="235" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_block_split_command_1a4bdf6ba727c72de516c683f58ac80245" prot="private" static="no" mutable="no">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational BlockSplitCommand::point_</definition>
+        <argsstring></argsstring>
+        <name>point_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="236" column="12" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="236" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_block_split_command_1a89b043f1ca52ed75a37d31ea2afff602" prot="private" static="no" mutable="no">
+        <type><ref refid="class_block" kindref="compound">Block</ref> *</type>
+        <definition>Block* BlockSplitCommand::new_block_</definition>
+        <argsstring></argsstring>
+        <name>new_block_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="238" column="9" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="238" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_block_split_command_1a3beb94e7d6761f2040c1106cd93c44e5" prot="private" static="no" mutable="no">
+        <type>QList&lt; <ref refid="class_node_input" kindref="compound">NodeInput</ref> * &gt;</type>
+        <definition>QList&lt;NodeInput*&gt; BlockSplitCommand::transitions_to_move_</definition>
+        <argsstring></argsstring>
+        <name>transitions_to_move_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="240" column="9" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="240" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_block_split_command_1aabc8136f521d8e42cc86fc61693221c1" prot="private" static="no" mutable="no">
+        <type>QObject</type>
+        <definition>QObject BlockSplitCommand::memory_manager_</definition>
+        <argsstring></argsstring>
+        <name>memory_manager_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="242" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="242" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_undo_command_1a6c06f9c1b7bfeeff3c4724491945992b" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool UndoCommand::modified_</definition>
+        <argsstring></argsstring>
+        <name>modified_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="64" column="8" bodyfile="C:/Daten/Olive/olive/app/undo/undocommand.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_block_split_command_1a7a4bc1a5001a469e674e749e633d2f3d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>BlockSplitCommand::BlockSplitCommand</definition>
+        <argsstring>(TrackOutput *track, Block *block, rational point, QUndoCommand *parent=nullptr)</argsstring>
+        <name>BlockSplitCommand</name>
+        <param>
+          <type><ref refid="class_track_output" kindref="compound">TrackOutput</ref> *</type>
+          <declname>track</declname>
+        </param>
+        <param>
+          <type><ref refid="class_block" kindref="compound">Block</ref> *</type>
+          <declname>block</declname>
+        </param>
+        <param>
+          <type><ref refid="classrational" kindref="compound">rational</ref></type>
+          <declname>point</declname>
+        </param>
+        <param>
+          <type>QUndoCommand *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="220" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_block_split_command_1a8e2dab2329ef1506cd7b39283d05e115" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="class_project" kindref="compound">Project</ref> *</type>
+        <definition>virtual Project* BlockSplitCommand::GetRelevantProject</definition>
+        <argsstring>() const override</argsstring>
+        <name>GetRelevantProject</name>
+        <reimplements refid="class_undo_command_1ab5c8967132833ea6be76a63dc5472f4f">GetRelevantProject</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="222" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_block_split_command_1a79e3903a3a4dbf62ebec0285d6f45cb3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_block" kindref="compound">Block</ref> *</type>
+        <definition>Block* BlockSplitCommand::new_block</definition>
+        <argsstring>()</argsstring>
+        <name>new_block</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="224" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="class_undo_command_1a9907db368d01fb26f5082a36c6d90bd4" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void UndoCommand::redo</definition>
+        <argsstring>() override</argsstring>
+        <name>redo</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="54" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_undo_command_1a09d00f8a2e1c8b3c97d72d9585503030" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void UndoCommand::undo</definition>
+        <argsstring>() override</argsstring>
+        <name>undo</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="55" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_block_split_command_1ad2ede147cfb7c248b0e866b127b5486f" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void BlockSplitCommand::redo_internal</definition>
+        <argsstring>() override</argsstring>
+        <name>redo_internal</name>
+        <reimplements refid="class_undo_command_1ac8aa20d444a655cd36fa3c7dc01928b4">redo_internal</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="227" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_block_split_command_1a61f3d72b7dd35ee3db898688ace397c7" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void BlockSplitCommand::undo_internal</definition>
+        <argsstring>() override</argsstring>
+        <name>undo_internal</name>
+        <reimplements refid="class_undo_command_1a871dbc8a1f95b58e641be13703563faa">undo_internal</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="228" column="16"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>BlockSplitCommand</label>
+        <link refid="class_block_split_command"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>UndoCommand</label>
+        <link refid="class_undo_command"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="6">
+        <label>NodeOutput</label>
+        <link refid="class_node_output"/>
+        <childnode refid="7" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>Block</label>
+        <link refid="class_block"/>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>in_point_</edgelabel>
+          <edgelabel>out_point_</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>next_</edgelabel>
+          <edgelabel>previous_</edgelabel>
+        </childnode>
+        <childnode refid="8" relation="usage">
+          <edgelabel>enabled_input_</edgelabel>
+          <edgelabel>speed_input_</edgelabel>
+          <edgelabel>media_in_input_</edgelabel>
+          <edgelabel>name_input_</edgelabel>
+          <edgelabel>length_input_</edgelabel>
+        </childnode>
+      </node>
+      <node id="10">
+        <label>NodeInputArray</label>
+        <link refid="class_node_input_array"/>
+        <childnode refid="8" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="5">
+        <label>Node</label>
+        <link refid="class_node"/>
+        <childnode refid="6" relation="usage">
+          <edgelabel>output_</edgelabel>
+        </childnode>
+      </node>
+      <node id="8">
+        <label>NodeInput</label>
+        <link refid="class_node_input"/>
+        <childnode refid="7" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>TrackOutput</label>
+        <link refid="class_track_output"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+        <childnode refid="10" relation="usage">
+          <edgelabel>block_input_</edgelabel>
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>track_length_</edgelabel>
+        </childnode>
+        <childnode refid="8" relation="usage">
+          <edgelabel>muted_input_</edgelabel>
+        </childnode>
+      </node>
+      <node id="7">
+        <label>NodeParam</label>
+        <link refid="class_node_param"/>
+      </node>
+      <node id="1">
+        <label>BlockSplitCommand</label>
+        <link refid="class_block_split_command"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>point_</edgelabel>
+          <edgelabel>old_length_</edgelabel>
+          <edgelabel>new_length_</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>block_</edgelabel>
+          <edgelabel>new_block_</edgelabel>
+        </childnode>
+        <childnode refid="9" relation="usage">
+          <edgelabel>track_</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>UndoCommand</label>
+        <link refid="class_undo_command"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="218" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="218" bodyend="244"/>
+    <listofallmembers>
+      <member refid="class_block_split_command_1ad4d0e4bb3403415a6858b4dd7d870775" prot="private" virt="non-virtual"><scope>BlockSplitCommand</scope><name>block_</name></member>
+      <member refid="class_block_split_command_1a7a4bc1a5001a469e674e749e633d2f3d" prot="public" virt="non-virtual"><scope>BlockSplitCommand</scope><name>BlockSplitCommand</name></member>
+      <member refid="class_block_split_command_1a8e2dab2329ef1506cd7b39283d05e115" prot="public" virt="virtual"><scope>BlockSplitCommand</scope><name>GetRelevantProject</name></member>
+      <member refid="class_block_split_command_1aabc8136f521d8e42cc86fc61693221c1" prot="private" virt="non-virtual"><scope>BlockSplitCommand</scope><name>memory_manager_</name></member>
+      <member refid="class_undo_command_1a6c06f9c1b7bfeeff3c4724491945992b" prot="private" virt="non-virtual"><scope>BlockSplitCommand</scope><name>modified_</name></member>
+      <member refid="class_block_split_command_1a79e3903a3a4dbf62ebec0285d6f45cb3" prot="public" virt="non-virtual"><scope>BlockSplitCommand</scope><name>new_block</name></member>
+      <member refid="class_block_split_command_1a89b043f1ca52ed75a37d31ea2afff602" prot="private" virt="non-virtual"><scope>BlockSplitCommand</scope><name>new_block_</name></member>
+      <member refid="class_block_split_command_1a9e3fb8e46d793a98f5a2fe625c96ee36" prot="private" virt="non-virtual"><scope>BlockSplitCommand</scope><name>new_length_</name></member>
+      <member refid="class_block_split_command_1af3edaa8c7a6fc552d4d0c92ccf20f367" prot="private" virt="non-virtual"><scope>BlockSplitCommand</scope><name>old_length_</name></member>
+      <member refid="class_block_split_command_1a4bdf6ba727c72de516c683f58ac80245" prot="private" virt="non-virtual"><scope>BlockSplitCommand</scope><name>point_</name></member>
+      <member refid="class_undo_command_1a9907db368d01fb26f5082a36c6d90bd4" prot="public" virt="virtual"><scope>BlockSplitCommand</scope><name>redo</name></member>
+      <member refid="class_block_split_command_1ad2ede147cfb7c248b0e866b127b5486f" prot="protected" virt="virtual"><scope>BlockSplitCommand</scope><name>redo_internal</name></member>
+      <member refid="class_block_split_command_1ad091c6e65452868e539b7d07ca556575" prot="private" virt="non-virtual"><scope>BlockSplitCommand</scope><name>track_</name></member>
+      <member refid="class_block_split_command_1a3beb94e7d6761f2040c1106cd93c44e5" prot="private" virt="non-virtual"><scope>BlockSplitCommand</scope><name>transitions_to_move_</name></member>
+      <member refid="class_undo_command_1a09d00f8a2e1c8b3c97d72d9585503030" prot="public" virt="virtual"><scope>BlockSplitCommand</scope><name>undo</name></member>
+      <member refid="class_block_split_command_1a61f3d72b7dd35ee3db898688ace397c7" prot="protected" virt="virtual"><scope>BlockSplitCommand</scope><name>undo_internal</name></member>
+      <member refid="class_undo_command_1a5a07a6505a207cf7186c7c726ff9c5fa" prot="public" virt="non-virtual"><scope>BlockSplitCommand</scope><name>UndoCommand</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

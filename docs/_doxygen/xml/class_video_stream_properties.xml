@@ -1,0 +1,221 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_video_stream_properties" kind="class" language="C++" prot="public">
+    <compoundname>VideoStreamProperties</compoundname>
+    <basecompoundref refid="class_stream_properties" prot="public" virt="non-virtual">StreamProperties</basecompoundref>
+    <includes refid="videostreamproperties_8h" local="no">videostreamproperties.h</includes>
+    <innerclass refid="class_video_stream_properties_1_1_image_sequence_change_command" prot="private">VideoStreamProperties::ImageSequenceChangeCommand</innerclass>
+    <innerclass refid="class_video_stream_properties_1_1_video_stream_change_command" prot="private">VideoStreamProperties::VideoStreamChangeCommand</innerclass>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_video_stream_properties_1ad966da12a6dc79e848c7bb8bb3621600" prot="private" static="no" mutable="no">
+        <type><ref refid="imagestream_8h_1a82a88e56101f71b0e232fd6f51310dcf" kindref="member">ImageStreamPtr</ref></type>
+        <definition>ImageStreamPtr VideoStreamProperties::stream_</definition>
+        <argsstring></argsstring>
+        <name>stream_</name>
+        <briefdescription>
+<para>Attached video stream. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" line="67" column="18" bodyfile="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" bodystart="67" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_video_stream_properties_1ab4dbcafc495b498f9653650ece8b9c90" prot="private" static="no" mutable="no">
+        <type>QCheckBox *</type>
+        <definition>QCheckBox* VideoStreamProperties::video_premultiply_alpha_</definition>
+        <argsstring></argsstring>
+        <name>video_premultiply_alpha_</name>
+        <briefdescription>
+<para>Setting for associated/premultiplied alpha. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" line="72" column="13" bodyfile="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" bodystart="72" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_video_stream_properties_1a3fde9dce202f9cb082b9c8ab699fa3e6" prot="private" static="no" mutable="no">
+        <type>QComboBox *</type>
+        <definition>QComboBox* VideoStreamProperties::video_color_space_</definition>
+        <argsstring></argsstring>
+        <name>video_color_space_</name>
+        <briefdescription>
+<para>Setting for this media&apos;s color space. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" line="77" column="13" bodyfile="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" bodystart="77" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_video_stream_properties_1a64d2f7a15c77ac1d463f832462fb6849" prot="private" static="no" mutable="no">
+        <type><ref refid="class_integer_slider" kindref="compound">IntegerSlider</ref> *</type>
+        <definition>IntegerSlider* VideoStreamProperties::imgseq_start_time_</definition>
+        <argsstring></argsstring>
+        <name>imgseq_start_time_</name>
+        <briefdescription>
+<para>Sets the start index for image sequences. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" line="82" column="17" bodyfile="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" bodystart="82" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_video_stream_properties_1a460d5d1e7eed05396ab62ec28d8fd70b" prot="private" static="no" mutable="no">
+        <type><ref refid="class_integer_slider" kindref="compound">IntegerSlider</ref> *</type>
+        <definition>IntegerSlider* VideoStreamProperties::imgseq_end_time_</definition>
+        <argsstring></argsstring>
+        <name>imgseq_end_time_</name>
+        <briefdescription>
+<para>Sets the end index for image sequences. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" line="87" column="17" bodyfile="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" bodystart="87" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_video_stream_properties_1ae0ad3c23738ab9cb67bcf24b8c5e5288" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>VideoStreamProperties::VideoStreamProperties</definition>
+        <argsstring>(ImageStreamPtr stream)</argsstring>
+        <name>VideoStreamProperties</name>
+        <param>
+          <type><ref refid="imagestream_8h_1a82a88e56101f71b0e232fd6f51310dcf" kindref="member">ImageStreamPtr</ref></type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" line="55" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_stream_properties_1a6400c7e082e19a09a76617b01488a981" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void VideoStreamProperties::Accept</definition>
+        <argsstring>(QUndoCommand *parent) override</argsstring>
+        <name>Accept</name>
+        <reimplements refid="class_stream_properties_1a7795d5e4f3af459f1b83aa0f6038f3c6">Accept</reimplements>
+        <param>
+          <type>QUndoCommand *</type>
+          <declname>parent</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" line="57" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_stream_properties_1af0649ed6eefdea015630c7d118d01576" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>bool</type>
+        <definition>virtual bool VideoStreamProperties::SanityCheck</definition>
+        <argsstring>() override</argsstring>
+        <name>SanityCheck</name>
+        <reimplements refid="class_stream_properties_1a0420478789a7a22dfeadbd624101652a">SanityCheck</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" line="59" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-func">
+      <memberdef kind="function" id="class_video_stream_properties_1a16cf408e895e512ffb236c9c39e9863e" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool VideoStreamProperties::IsImageSequence</definition>
+        <argsstring>(ImageStream *stream)</argsstring>
+        <name>IsImageSequence</name>
+        <param>
+          <type><ref refid="class_image_stream" kindref="compound">ImageStream</ref> *</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" line="62" column="15"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>VideoStreamProperties</label>
+        <link refid="class_video_stream_properties"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>StreamProperties</label>
+        <link refid="class_stream_properties"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="6">
+        <label>SliderLabel</label>
+        <link refid="class_slider_label"/>
+      </node>
+      <node id="1">
+        <label>VideoStreamProperties</label>
+        <link refid="class_video_stream_properties"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>imgseq_start_time_</edgelabel>
+          <edgelabel>imgseq_end_time_</edgelabel>
+        </childnode>
+      </node>
+      <node id="5">
+        <label>FocusableLineEdit</label>
+        <link refid="class_focusable_line_edit"/>
+      </node>
+      <node id="3">
+        <label>IntegerSlider</label>
+        <link refid="class_integer_slider"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>StreamProperties</label>
+        <link refid="class_stream_properties"/>
+      </node>
+      <node id="4">
+        <label>SliderBase</label>
+        <link refid="class_slider_base"/>
+        <childnode refid="5" relation="usage">
+          <edgelabel>editor_</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>label_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" line="34" column="1" bodyfile="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" bodystart="35" bodyend="118"/>
+    <listofallmembers>
+      <member refid="class_video_stream_properties_1a6400c7e082e19a09a76617b01488a981" prot="public" virt="virtual"><scope>VideoStreamProperties</scope><name>Accept</name></member>
+      <member refid="class_video_stream_properties_1a460d5d1e7eed05396ab62ec28d8fd70b" prot="private" virt="non-virtual"><scope>VideoStreamProperties</scope><name>imgseq_end_time_</name></member>
+      <member refid="class_video_stream_properties_1a64d2f7a15c77ac1d463f832462fb6849" prot="private" virt="non-virtual"><scope>VideoStreamProperties</scope><name>imgseq_start_time_</name></member>
+      <member refid="class_video_stream_properties_1a16cf408e895e512ffb236c9c39e9863e" prot="private" virt="non-virtual"><scope>VideoStreamProperties</scope><name>IsImageSequence</name></member>
+      <member refid="class_video_stream_properties_1af0649ed6eefdea015630c7d118d01576" prot="public" virt="virtual"><scope>VideoStreamProperties</scope><name>SanityCheck</name></member>
+      <member refid="class_video_stream_properties_1ad966da12a6dc79e848c7bb8bb3621600" prot="private" virt="non-virtual"><scope>VideoStreamProperties</scope><name>stream_</name></member>
+      <member refid="class_stream_properties_1a1a7eff92dff9f6e2a12d628279a6bb95" prot="public" virt="non-virtual"><scope>VideoStreamProperties</scope><name>StreamProperties</name></member>
+      <member refid="class_video_stream_properties_1a3fde9dce202f9cb082b9c8ab699fa3e6" prot="private" virt="non-virtual"><scope>VideoStreamProperties</scope><name>video_color_space_</name></member>
+      <member refid="class_video_stream_properties_1ab4dbcafc495b498f9653650ece8b9c90" prot="private" virt="non-virtual"><scope>VideoStreamProperties</scope><name>video_premultiply_alpha_</name></member>
+      <member refid="class_video_stream_properties_1ae0ad3c23738ab9cb67bcf24b8c5e5288" prot="public" virt="non-virtual"><scope>VideoStreamProperties</scope><name>VideoStreamProperties</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

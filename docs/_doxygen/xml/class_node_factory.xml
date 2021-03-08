@@ -1,0 +1,268 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_node_factory" kind="class" language="C++" prot="public">
+    <compoundname>NodeFactory</compoundname>
+    <includes refid="factory_8h" local="no">factory.h</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="enum" id="class_node_factory_1ab5fa634b264486b0ab3b5fe4e21ff663" prot="public" static="no" strong="no">
+        <type></type>
+        <name>InternalID</name>
+        <enumvalue id="class_node_factory_1ab5fa634b264486b0ab3b5fe4e21ff663a9ab1343b7924aabfa822ef733180383e" prot="public">
+          <name>kViewerOutput</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_node_factory_1ab5fa634b264486b0ab3b5fe4e21ff663a4d51cbcad52ef2eae208f3e60ce6e754" prot="public">
+          <name>kClipBlock</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_node_factory_1ab5fa634b264486b0ab3b5fe4e21ff663a43762b9af1238c5040945fb29153f5b8" prot="public">
+          <name>kGapBlock</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_node_factory_1ab5fa634b264486b0ab3b5fe4e21ff663adea8d88f068ce0c42e2d94dfac4713e9" prot="public">
+          <name>kAudioInput</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_node_factory_1ab5fa634b264486b0ab3b5fe4e21ff663ab57b5668e8861f2b57f11a56269a8929" prot="public">
+          <name>kMatrixGenerator</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_node_factory_1ab5fa634b264486b0ab3b5fe4e21ff663a539b42cc047a2e32418127a3f63288c2" prot="public">
+          <name>kVideoInput</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_node_factory_1ab5fa634b264486b0ab3b5fe4e21ff663ada60c01f61b33bd3b61513c95b24349c" prot="public">
+          <name>kTrackOutput</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_node_factory_1ab5fa634b264486b0ab3b5fe4e21ff663a866293ddf38382350767b4b7929a07bd" prot="public">
+          <name>kAudioVolume</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_node_factory_1ab5fa634b264486b0ab3b5fe4e21ff663a839a4f32d21a94c90dc64f54dce268e0" prot="public">
+          <name>kAudioPanning</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_node_factory_1ab5fa634b264486b0ab3b5fe4e21ff663a435430982e5fcf78a7bec5491719007f" prot="public">
+          <name>kMath</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_node_factory_1ab5fa634b264486b0ab3b5fe4e21ff663a662508c401ab8ea25edddde9bb18d819" prot="public">
+          <name>kTime</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_node_factory_1ab5fa634b264486b0ab3b5fe4e21ff663a22c10bd7b02464cd2b72d796a0c5b9df" prot="public">
+          <name>kTrigonometry</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_node_factory_1ab5fa634b264486b0ab3b5fe4e21ff663a4b5b02d13681b5a291626834035ab435" prot="public">
+          <name>kInternalNodeCount</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/factory.h" line="52" column="3" bodyfile="C:/Daten/Olive/olive/app/node/factory.h" bodystart="52" bodyend="68"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-attrib">
+      <memberdef kind="variable" id="class_node_factory_1a050d408bb3cc147c30fb6166dd9c70b8" prot="private" static="yes" mutable="no">
+        <type>QList&lt; <ref refid="class_node" kindref="compound">Node</ref> * &gt;</type>
+        <definition>QList&lt;Node*&gt; NodeFactory::library_</definition>
+        <argsstring></argsstring>
+        <name>library_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/factory.h" line="85" column="16" bodyfile="C:/Daten/Olive/olive/app/node/factory.h" bodystart="85" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_node_factory_1aaae9bdf6587059e2715ae8e862419730" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>NodeFactory::NodeFactory</definition>
+        <argsstring>()=default</argsstring>
+        <name>NodeFactory</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/factory.h" line="70" column="3"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="class_node_factory_1a40f863eea73a82f6027dc0faf6ac240f" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void NodeFactory::Initialize</definition>
+        <argsstring>()</argsstring>
+        <name>Initialize</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/factory.h" line="72" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_factory_1a44f3f7f2015d602a354722bae03ada4d" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void NodeFactory::Destroy</definition>
+        <argsstring>()</argsstring>
+        <name>Destroy</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/factory.h" line="74" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_factory_1ae123a2fbbd72635941fc0a1b1da86d12" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_menu" kindref="compound">Menu</ref> *</type>
+        <definition>static Menu* NodeFactory::CreateMenu</definition>
+        <argsstring>(QWidget *parent)</argsstring>
+        <name>CreateMenu</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/factory.h" line="76" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_factory_1a1f300a1e49f3a8bf7969985090d8042e" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+        <definition>static Node* NodeFactory::CreateFromMenuAction</definition>
+        <argsstring>(QAction *action)</argsstring>
+        <name>CreateFromMenuAction</name>
+        <param>
+          <type>QAction *</type>
+          <declname>action</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/factory.h" line="78" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_factory_1a463c71736ac4ff4e52d1c901d821e443" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+        <definition>static Node* NodeFactory::CreateFromID</definition>
+        <argsstring>(const QString &amp;id)</argsstring>
+        <name>CreateFromID</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>id</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/factory.h" line="80" column="15"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-func">
+      <memberdef kind="function" id="class_node_factory_1afb05170c44a7a21c9d9b2e15655c8db0" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+        <definition>static Node* NodeFactory::CreateInternal</definition>
+        <argsstring>(const InternalID &amp;id)</argsstring>
+        <name>CreateInternal</name>
+        <param>
+          <type>const <ref refid="class_node_factory_1ab5fa634b264486b0ab3b5fe4e21ff663" kindref="member">InternalID</ref> &amp;</type>
+          <declname>id</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/factory.h" line="83" column="15"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/node/factory.h" line="31" column="1" bodyfile="C:/Daten/Olive/olive/app/node/factory.h" bodystart="32" bodyend="68"/>
+    <listofallmembers>
+      <member refid="class_node_factory_1a463c71736ac4ff4e52d1c901d821e443" prot="public" virt="non-virtual"><scope>NodeFactory</scope><name>CreateFromID</name></member>
+      <member refid="class_node_factory_1a1f300a1e49f3a8bf7969985090d8042e" prot="public" virt="non-virtual"><scope>NodeFactory</scope><name>CreateFromMenuAction</name></member>
+      <member refid="class_node_factory_1afb05170c44a7a21c9d9b2e15655c8db0" prot="private" virt="non-virtual"><scope>NodeFactory</scope><name>CreateInternal</name></member>
+      <member refid="class_node_factory_1ae123a2fbbd72635941fc0a1b1da86d12" prot="public" virt="non-virtual"><scope>NodeFactory</scope><name>CreateMenu</name></member>
+      <member refid="class_node_factory_1a44f3f7f2015d602a354722bae03ada4d" prot="public" virt="non-virtual"><scope>NodeFactory</scope><name>Destroy</name></member>
+      <member refid="class_node_factory_1a40f863eea73a82f6027dc0faf6ac240f" prot="public" virt="non-virtual"><scope>NodeFactory</scope><name>Initialize</name></member>
+      <member refid="class_node_factory_1ab5fa634b264486b0ab3b5fe4e21ff663" prot="public" virt="non-virtual"><scope>NodeFactory</scope><name>InternalID</name></member>
+      <member refid="class_node_factory_1ab5fa634b264486b0ab3b5fe4e21ff663adea8d88f068ce0c42e2d94dfac4713e9" prot="public" virt="non-virtual"><scope>NodeFactory</scope><name>kAudioInput</name></member>
+      <member refid="class_node_factory_1ab5fa634b264486b0ab3b5fe4e21ff663a839a4f32d21a94c90dc64f54dce268e0" prot="public" virt="non-virtual"><scope>NodeFactory</scope><name>kAudioPanning</name></member>
+      <member refid="class_node_factory_1ab5fa634b264486b0ab3b5fe4e21ff663a866293ddf38382350767b4b7929a07bd" prot="public" virt="non-virtual"><scope>NodeFactory</scope><name>kAudioVolume</name></member>
+      <member refid="class_node_factory_1ab5fa634b264486b0ab3b5fe4e21ff663a4d51cbcad52ef2eae208f3e60ce6e754" prot="public" virt="non-virtual"><scope>NodeFactory</scope><name>kClipBlock</name></member>
+      <member refid="class_node_factory_1ab5fa634b264486b0ab3b5fe4e21ff663a43762b9af1238c5040945fb29153f5b8" prot="public" virt="non-virtual"><scope>NodeFactory</scope><name>kGapBlock</name></member>
+      <member refid="class_node_factory_1ab5fa634b264486b0ab3b5fe4e21ff663a4b5b02d13681b5a291626834035ab435" prot="public" virt="non-virtual"><scope>NodeFactory</scope><name>kInternalNodeCount</name></member>
+      <member refid="class_node_factory_1ab5fa634b264486b0ab3b5fe4e21ff663a435430982e5fcf78a7bec5491719007f" prot="public" virt="non-virtual"><scope>NodeFactory</scope><name>kMath</name></member>
+      <member refid="class_node_factory_1ab5fa634b264486b0ab3b5fe4e21ff663ab57b5668e8861f2b57f11a56269a8929" prot="public" virt="non-virtual"><scope>NodeFactory</scope><name>kMatrixGenerator</name></member>
+      <member refid="class_node_factory_1ab5fa634b264486b0ab3b5fe4e21ff663a662508c401ab8ea25edddde9bb18d819" prot="public" virt="non-virtual"><scope>NodeFactory</scope><name>kTime</name></member>
+      <member refid="class_node_factory_1ab5fa634b264486b0ab3b5fe4e21ff663ada60c01f61b33bd3b61513c95b24349c" prot="public" virt="non-virtual"><scope>NodeFactory</scope><name>kTrackOutput</name></member>
+      <member refid="class_node_factory_1ab5fa634b264486b0ab3b5fe4e21ff663a22c10bd7b02464cd2b72d796a0c5b9df" prot="public" virt="non-virtual"><scope>NodeFactory</scope><name>kTrigonometry</name></member>
+      <member refid="class_node_factory_1ab5fa634b264486b0ab3b5fe4e21ff663a539b42cc047a2e32418127a3f63288c2" prot="public" virt="non-virtual"><scope>NodeFactory</scope><name>kVideoInput</name></member>
+      <member refid="class_node_factory_1ab5fa634b264486b0ab3b5fe4e21ff663a9ab1343b7924aabfa822ef733180383e" prot="public" virt="non-virtual"><scope>NodeFactory</scope><name>kViewerOutput</name></member>
+      <member refid="class_node_factory_1a050d408bb3cc147c30fb6166dd9c70b8" prot="private" virt="non-virtual"><scope>NodeFactory</scope><name>library_</name></member>
+      <member refid="class_node_factory_1aaae9bdf6587059e2715ae8e862419730" prot="public" virt="non-virtual"><scope>NodeFactory</scope><name>NodeFactory</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

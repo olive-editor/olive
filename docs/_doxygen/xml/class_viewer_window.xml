@@ -1,0 +1,205 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_viewer_window" kind="class" language="C++" prot="public">
+    <compoundname>ViewerWindow</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QWidget</basecompoundref>
+    <includes refid="viewerwindow_8h" local="no">viewerwindow.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_viewer_window_1a5520945eb0d8b21d9eb399c418e01f3d" prot="private" static="no" mutable="no">
+        <type><ref refid="class_viewer_display_widget" kindref="compound">ViewerDisplayWidget</ref> *</type>
+        <definition>ViewerDisplayWidget* ViewerWindow::gl_widget_</definition>
+        <argsstring></argsstring>
+        <name>gl_widget_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewerwindow.h" line="66" column="23" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/viewerwindow.h" bodystart="66" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_viewer_window_1a06ce44a23430c96d972796207f7eab8c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>ViewerWindow::ViewerWindow</definition>
+        <argsstring>(QWidget *parent=nullptr)</argsstring>
+        <name>ViewerWindow</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewerwindow.h" line="51" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_viewer_window_1a8517068466a3021179b9c30f62534726" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_viewer_display_widget" kindref="compound">ViewerDisplayWidget</ref> *</type>
+        <definition>ViewerDisplayWidget* ViewerWindow::gl_widget</definition>
+        <argsstring>() const</argsstring>
+        <name>gl_widget</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewerwindow.h" line="53" column="23"/>
+      </memberdef>
+      <memberdef kind="function" id="class_viewer_window_1ac3ceaf365cd922c6ea223f44034bcec3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerWindow::SetResolution</definition>
+        <argsstring>(int width, int height)</argsstring>
+        <name>SetResolution</name>
+        <param>
+          <type>int</type>
+          <declname>width</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>height</declname>
+        </param>
+        <briefdescription>
+<para>Used to adjust resulting picture to be the right aspect ratio. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewerwindow.h" line="58" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_viewer_window_1a4f79b2e59cf6f604283b2e0290a555f7" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void ViewerWindow::keyPressEvent</definition>
+        <argsstring>(QKeyEvent *e) override</argsstring>
+        <name>keyPressEvent</name>
+        <param>
+          <type>QKeyEvent *</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewerwindow.h" line="61" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_viewer_window_1aa700ea567e93b14699a1939ea2e1bdaa" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void ViewerWindow::closeEvent</definition>
+        <argsstring>(QCloseEvent *e) override</argsstring>
+        <name>closeEvent</name>
+        <param>
+          <type>QCloseEvent *</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewerwindow.h" line="63" column="16"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="3">
+        <label>ManagedDisplayWidget</label>
+        <link refid="class_managed_display_widget"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>color_manager_</edgelabel>
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>color_transform_</edgelabel>
+        </childnode>
+      </node>
+      <node id="4">
+        <label>ColorManager</label>
+        <link refid="class_color_manager"/>
+      </node>
+      <node id="2">
+        <label>ViewerDisplayWidget</label>
+        <link refid="class_viewer_display_widget"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>safe_margin_</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>texture_</edgelabel>
+        </childnode>
+        <childnode refid="8" relation="usage">
+          <edgelabel>load_buffer_</edgelabel>
+        </childnode>
+      </node>
+      <node id="11">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="9">
+        <label>VideoRenderingParams</label>
+        <link refid="class_video_rendering_params"/>
+        <childnode refid="10" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>OpenGLTexture</label>
+        <link refid="class_open_g_l_texture"/>
+      </node>
+      <node id="6">
+        <label>ViewerSafeMarginInfo</label>
+        <link refid="class_viewer_safe_margin_info"/>
+      </node>
+      <node id="8">
+        <label>Frame</label>
+        <link refid="class_frame"/>
+        <childnode refid="9" relation="usage">
+          <edgelabel>params_</edgelabel>
+        </childnode>
+        <childnode refid="11" relation="usage">
+          <edgelabel>sample_aspect_ratio_</edgelabel>
+          <edgelabel>timestamp_</edgelabel>
+        </childnode>
+      </node>
+      <node id="10">
+        <label>VideoParams</label>
+        <link refid="class_video_params"/>
+        <childnode refid="11" relation="usage">
+          <edgelabel>time_base_</edgelabel>
+        </childnode>
+      </node>
+      <node id="5">
+        <label>ColorTransform</label>
+        <link refid="class_color_transform"/>
+      </node>
+      <node id="1">
+        <label>ViewerWindow</label>
+        <link refid="class_viewer_window"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>gl_widget_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/viewer/viewerwindow.h" line="30" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/viewerwindow.h" bodystart="31" bodyend="50"/>
+    <listofallmembers>
+      <member refid="class_viewer_window_1aa700ea567e93b14699a1939ea2e1bdaa" prot="protected" virt="virtual"><scope>ViewerWindow</scope><name>closeEvent</name></member>
+      <member refid="class_viewer_window_1a8517068466a3021179b9c30f62534726" prot="public" virt="non-virtual"><scope>ViewerWindow</scope><name>gl_widget</name></member>
+      <member refid="class_viewer_window_1a5520945eb0d8b21d9eb399c418e01f3d" prot="private" virt="non-virtual"><scope>ViewerWindow</scope><name>gl_widget_</name></member>
+      <member refid="class_viewer_window_1a4f79b2e59cf6f604283b2e0290a555f7" prot="protected" virt="virtual"><scope>ViewerWindow</scope><name>keyPressEvent</name></member>
+      <member refid="class_viewer_window_1ac3ceaf365cd922c6ea223f44034bcec3" prot="public" virt="non-virtual"><scope>ViewerWindow</scope><name>SetResolution</name></member>
+      <member refid="class_viewer_window_1a06ce44a23430c96d972796207f7eab8c" prot="public" virt="non-virtual"><scope>ViewerWindow</scope><name>ViewerWindow</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

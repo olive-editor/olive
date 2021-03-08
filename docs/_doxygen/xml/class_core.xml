@@ -1,0 +1,1927 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_core" kind="class" language="C++" prot="public">
+    <compoundname>Core</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QObject</basecompoundref>
+    <includes refid="core_8h" local="no">core.h</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="enum" id="class_core_1a8d5389d41e51046d5a5e1165e0cfd7f0" prot="public" static="no" strong="no">
+        <type></type>
+        <name>CloseProjectBehavior</name>
+        <enumvalue id="class_core_1a8d5389d41e51046d5a5e1165e0cfd7f0ab7c16c27716571a353fbdc4c2c465c19" prot="public">
+          <name>kCloseProjectOnlyOne</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_core_1a8d5389d41e51046d5a5e1165e0cfd7f0af2a93a78e70d948f38f57510fc5e13c1" prot="public">
+          <name>kCloseProjectAsk</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_core_1a8d5389d41e51046d5a5e1165e0cfd7f0a724a55eb13eba89fb90cca9004f35d37" prot="public">
+          <name>kCloseProjectSave</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_core_1a8d5389d41e51046d5a5e1165e0cfd7f0a04b081177b952fed56880fbb061d2da1" prot="public">
+          <name>kCloseProjectDontSave</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="214" column="3" bodyfile="C:/Daten/Olive/olive/app/core.h" bodystart="214" bodyend="219"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_core_1a53635512bb5f6523823d223f0c03e751" prot="private" static="no" mutable="no">
+        <type><ref refid="class_main_window" kindref="compound">MainWindow</ref> *</type>
+        <definition>MainWindow* Core::main_window_</definition>
+        <argsstring></argsstring>
+        <name>main_window_</name>
+        <briefdescription>
+<para>Internal main window object. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="422" column="14" bodyfile="C:/Daten/Olive/olive/app/core.h" bodystart="422" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_core_1a7230b01cfbae24dcbb07b568ade2fbe7" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString Core::startup_project_</definition>
+        <argsstring></argsstring>
+        <name>startup_project_</name>
+        <briefdescription>
+<para>Internal startup project object. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If the user specifies a project file on the command line, the command line parser in <ref refid="class_core_1a2411cfe9606d10f9a00c595f3082e72e" kindref="member">Start()</ref> will write the project URL here to be loaded once Olive has finished initializing. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="430" column="11" bodyfile="C:/Daten/Olive/olive/app/core.h" bodystart="430" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_core_1a40fe2b7c5fa00832e701204b4558c61d" prot="private" static="no" mutable="no">
+        <type>QList&lt; <ref refid="project_2project_8h_1a01d25f812d2a396264376b16a9976583" kindref="member">ProjectPtr</ref> &gt;</type>
+        <definition>QList&lt;ProjectPtr&gt; Core::open_projects_</definition>
+        <argsstring></argsstring>
+        <name>open_projects_</name>
+        <briefdescription>
+<para>List of currently open projects. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="435" column="9" bodyfile="C:/Daten/Olive/olive/app/core.h" bodystart="435" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_core_1ad558d441a98b9a53d2e566354980373c" prot="private" static="no" mutable="no">
+        <type><ref refid="class_tool_1aa5b3343d5a8a21b7473dfe74af2976cb" kindref="member">Tool::Item</ref></type>
+        <definition>Tool::Item Core::tool_</definition>
+        <argsstring></argsstring>
+        <name>tool_</name>
+        <briefdescription>
+<para>Currently active tool. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="440" column="14" bodyfile="C:/Daten/Olive/olive/app/core.h" bodystart="440" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_core_1a35d18e2027d6e6d0bbe027236bb2c41f" prot="private" static="no" mutable="no">
+        <type><ref refid="class_tool_1a0e3e529d5e6fb843a0866537a6e4b7d7" kindref="member">Tool::AddableObject</ref></type>
+        <definition>Tool::AddableObject Core::addable_object_</definition>
+        <argsstring></argsstring>
+        <name>addable_object_</name>
+        <briefdescription>
+<para>Currently active addable object. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="445" column="23" bodyfile="C:/Daten/Olive/olive/app/core.h" bodystart="445" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_core_1a629c20ffb8428e3daf37e64d8a7a4b8b" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool Core::snapping_</definition>
+        <argsstring></argsstring>
+        <name>snapping_</name>
+        <briefdescription>
+<para>Current snapping setting. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="450" column="8" bodyfile="C:/Daten/Olive/olive/app/core.h" bodystart="450" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_core_1aa413d6a4c23c1c88525df132ace73333" prot="private" static="no" mutable="no">
+        <type>QTimer</type>
+        <definition>QTimer Core::autorecovery_timer_</definition>
+        <argsstring></argsstring>
+        <name>autorecovery_timer_</name>
+        <briefdescription>
+<para>Internal timer for saving autorecovery files. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="455" column="10" bodyfile="C:/Daten/Olive/olive/app/core.h" bodystart="455" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_core_1ab73da6c31b8bd477e0de85fa8cd47d86" prot="private" static="no" mutable="no">
+        <type><ref refid="class_undo_stack" kindref="compound">UndoStack</ref></type>
+        <definition>UndoStack Core::undo_stack_</definition>
+        <argsstring></argsstring>
+        <name>undo_stack_</name>
+        <briefdescription>
+<para>Application-wide undo stack instance. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="460" column="13" bodyfile="C:/Daten/Olive/olive/app/core.h" bodystart="460" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_core_1a06e711edf7ae8cd865fe709d6bd45a9b" prot="private" static="no" mutable="no">
+        <type>QStringList</type>
+        <definition>QStringList Core::recent_projects_</definition>
+        <argsstring></argsstring>
+        <name>recent_projects_</name>
+        <briefdescription>
+<para>List of most recently opened/saved projects. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="465" column="15" bodyfile="C:/Daten/Olive/olive/app/core.h" bodystart="465" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_core_1a6b5a30140725fa068dd1bc0c7f5ca837" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool Core::gui_active_</definition>
+        <argsstring></argsstring>
+        <name>gui_active_</name>
+        <briefdescription>
+<para>Internal variable for whether the GUI is active. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="470" column="8" bodyfile="C:/Daten/Olive/olive/app/core.h" bodystart="470" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-attrib">
+      <memberdef kind="variable" id="class_core_1ac864cbaa410d51be913964b838d8570a" prot="private" static="yes" mutable="no">
+        <type><ref refid="class_core" kindref="compound">Core</ref></type>
+        <definition>Core Core::instance_</definition>
+        <argsstring></argsstring>
+        <name>instance_</name>
+        <briefdescription>
+<para>Static singleton core instance. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="475" column="15" bodyfile="C:/Daten/Olive/olive/app/core.h" bodystart="475" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_core_1a14e63188e0aa7c4a6f72d5501384d1f9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Core::Core</definition>
+        <argsstring>()</argsstring>
+        <name>Core</name>
+        <briefdescription>
+<para><ref refid="class_core" kindref="compound">Core</ref> Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Currently empty </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="60" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_core_1a2411cfe9606d10f9a00c595f3082e72e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Core::Start</definition>
+        <argsstring>()</argsstring>
+        <name>Start</name>
+        <briefdescription>
+<para>Start Olive <ref refid="class_core" kindref="compound">Core</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Main application launcher. Parses command line arguments and constructs main window (if entering a GUI mode). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="74" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_core_1acab57c44acf4231e8310d93310667990" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Core::Stop</definition>
+        <argsstring>()</argsstring>
+        <name>Stop</name>
+        <briefdescription>
+<para>Stop Olive <ref refid="class_core" kindref="compound">Core</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Ends all threads and frees all memory ready for the application to exit. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="81" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_core_1acc6c155dd60dea08ea6fae6e2a104eec" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_main_window" kindref="compound">MainWindow</ref> *</type>
+        <definition>MainWindow* Core::main_window</definition>
+        <argsstring>()</argsstring>
+        <name>main_window</name>
+        <briefdescription>
+<para>Retrieve main window instance. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para></para>
+</simplesect>
+Pointer to the olive::MainWindow object, or nullptr if running in CLI mode. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="90" column="14"/>
+      </memberdef>
+      <memberdef kind="function" id="class_core_1a3e2919f190cb0eda011820cef9842b7c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_undo_stack" kindref="compound">UndoStack</ref> *</type>
+        <definition>UndoStack* Core::undo_stack</definition>
+        <argsstring>()</argsstring>
+        <name>undo_stack</name>
+        <briefdescription>
+<para>Retrieve <ref refid="class_undo_stack" kindref="compound">UndoStack</ref> object. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="95" column="13"/>
+      </memberdef>
+      <memberdef kind="function" id="class_core_1a63b80a2a78c3602d328a6522d680b783" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Core::ImportFiles</definition>
+        <argsstring>(const QStringList &amp;urls, ProjectViewModel *model, Folder *parent)</argsstring>
+        <name>ImportFiles</name>
+        <param>
+          <type>const QStringList &amp;</type>
+          <declname>urls</declname>
+        </param>
+        <param>
+          <type><ref refid="class_project_view_model" kindref="compound">ProjectViewModel</ref> *</type>
+          <declname>model</declname>
+        </param>
+        <param>
+          <type><ref refid="class_folder" kindref="compound">Folder</ref> *</type>
+          <declname>parent</declname>
+        </param>
+        <briefdescription>
+<para>Import a list of files. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>FIXME: I kind of hate this, it needs a model to update correctly. Is there a way that Items can signal enough to make passing references to the model unnecessary?</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>urls</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="105" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_core_1a50b7cd240bb80457befd3b19c7c4c276" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="class_tool_1aa5b3343d5a8a21b7473dfe74af2976cb" kindref="member">Tool::Item</ref> &amp;</type>
+        <definition>const Tool::Item&amp; Core::tool</definition>
+        <argsstring>() const</argsstring>
+        <name>tool</name>
+        <briefdescription>
+<para>Get the currently active tool. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="110" column="20"/>
+      </memberdef>
+      <memberdef kind="function" id="class_core_1a3c9c0121fbd43ae333dbb9a396c96a0e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="class_tool_1a0e3e529d5e6fb843a0866537a6e4b7d7" kindref="member">Tool::AddableObject</ref> &amp;</type>
+        <definition>const Tool::AddableObject&amp; Core::selected_addable_object</definition>
+        <argsstring>() const</argsstring>
+        <name>selected_addable_object</name>
+        <briefdescription>
+<para>Get the currently selected object that the add tool should make (if the add tool is active) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="115" column="29"/>
+      </memberdef>
+      <memberdef kind="function" id="class_core_1abecf210d116dc9faf8f9d20760cd5a6c" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const bool &amp;</type>
+        <definition>const bool&amp; Core::snapping</definition>
+        <argsstring>() const</argsstring>
+        <name>snapping</name>
+        <briefdescription>
+<para>Get current snapping value. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="120" column="14"/>
+      </memberdef>
+      <memberdef kind="function" id="class_core_1a114337e29238ab6a784e5878ecfaaa0c" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const QStringList &amp;</type>
+        <definition>const QStringList&amp; Core::GetRecentProjects</definition>
+        <argsstring>() const</argsstring>
+        <name>GetRecentProjects</name>
+        <briefdescription>
+<para>Returns a list of the most recently opened/saved projects. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="125" column="21"/>
+      </memberdef>
+      <memberdef kind="function" id="class_core_1a51acf801d402405265e477881adaf84d" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="project_2project_8h_1a01d25f812d2a396264376b16a9976583" kindref="member">ProjectPtr</ref></type>
+        <definition>ProjectPtr Core::GetSharedPtrFromProject</definition>
+        <argsstring>(Project *project) const</argsstring>
+        <name>GetSharedPtrFromProject</name>
+        <param>
+          <type><ref refid="class_project" kindref="compound">Project</ref> *</type>
+          <declname>project</declname>
+        </param>
+        <briefdescription>
+<para>Convenience function to retrieve a <ref refid="class_project" kindref="compound">Project</ref>&apos;s shared pointer. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="130" column="14"/>
+      </memberdef>
+      <memberdef kind="function" id="class_core_1a0b738769e1176574f2893943447259b9" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="project_2project_8h_1a01d25f812d2a396264376b16a9976583" kindref="member">ProjectPtr</ref></type>
+        <definition>ProjectPtr Core::GetActiveProject</definition>
+        <argsstring>() const</argsstring>
+        <name>GetActiveProject</name>
+        <briefdescription>
+<para>Get the currently active project. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Uses the UI/Panel system to determine which <ref refid="class_project" kindref="compound">Project</ref> was the last focused on and assumes this is the active <ref refid="class_project" kindref="compound">Project</ref> that the user wishes to work on.</para>
+<para><simplesect kind="return"><para></para>
+</simplesect>
+The active <ref refid="class_project" kindref="compound">Project</ref> file, or nullptr if the heuristic couldn&apos;t find one. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="142" column="14"/>
+      </memberdef>
+      <memberdef kind="function" id="class_core_1abcfeafbb07a331b7df9ec59efca6f3c6" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_project_view_model" kindref="compound">ProjectViewModel</ref> *</type>
+        <definition>ProjectViewModel* Core::GetActiveProjectModel</definition>
+        <argsstring>() const</argsstring>
+        <name>GetActiveProjectModel</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="143" column="20"/>
+      </memberdef>
+      <memberdef kind="function" id="class_core_1a032e087751e483b04b56bdcf35b0c4f1" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_folder" kindref="compound">Folder</ref> *</type>
+        <definition>Folder* Core::GetSelectedFolderInActiveProject</definition>
+        <argsstring>() const</argsstring>
+        <name>GetSelectedFolderInActiveProject</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="144" column="10"/>
+      </memberdef>
+      <memberdef kind="function" id="class_core_1a831501b66f5d4b1d871938b5eea77b20" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_timecode_1aff560b56df77be3eeec7a93c000ac4e5" kindref="member">Timecode::Display</ref></type>
+        <definition>Timecode::Display Core::GetTimecodeDisplay</definition>
+        <argsstring>() const</argsstring>
+        <name>GetTimecodeDisplay</name>
+        <briefdescription>
+<para>Gets current timecode display mode. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="149" column="21"/>
+      </memberdef>
+      <memberdef kind="function" id="class_core_1a89b27655c113326e62313dd7d4fd8c08" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Core::SetTimecodeDisplay</definition>
+        <argsstring>(Timecode::Display d)</argsstring>
+        <name>SetTimecodeDisplay</name>
+        <param>
+          <type><ref refid="class_timecode_1aff560b56df77be3eeec7a93c000ac4e5" kindref="member">Timecode::Display</ref></type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para>Sets current timecode display mode. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="154" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_core_1ab4e63774744229000fe60afd232ea85a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Core::SetAutorecoveryInterval</definition>
+        <argsstring>(int minutes)</argsstring>
+        <name>SetAutorecoveryInterval</name>
+        <param>
+          <type>int</type>
+          <declname>minutes</declname>
+        </param>
+        <briefdescription>
+<para>Set how frequently an autorecovery should be saved (if the project has changed, see SetProjectModified()) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="159" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_core_1a97ec50e6345dffbfda737976771b0cd2" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="project_2item_2sequence_2sequence_8h_1a2a0d48184294d399b0adc41f6e1de6c7" kindref="member">SequencePtr</ref></type>
+        <definition>SequencePtr Core::CreateNewSequenceForProject</definition>
+        <argsstring>(Project *project) const</argsstring>
+        <name>CreateNewSequenceForProject</name>
+        <param>
+          <type><ref refid="class_project" kindref="compound">Project</ref> *</type>
+          <declname>project</declname>
+        </param>
+        <briefdescription>
+<para>Create a new sequence named appropriately for the active project. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="207" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_core_1a9c236bc5fab652799240dcdc6f7dfa72" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Core::OpenProjectFromRecentList</definition>
+        <argsstring>(int index)</argsstring>
+        <name>OpenProjectFromRecentList</name>
+        <param>
+          <type>int</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+<para>Opens a project from the recently opened list. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="212" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_core_1a1ae6df39d52bc98208a1e6c4a05f76ba" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Core::CloseProject</definition>
+        <argsstring>(ProjectPtr p, bool auto_open_new, CloseProjectBehavior &amp;confirm_behavior)</argsstring>
+        <name>CloseProject</name>
+        <param>
+          <type><ref refid="project_2project_8h_1a01d25f812d2a396264376b16a9976583" kindref="member">ProjectPtr</ref></type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>auto_open_new</declname>
+        </param>
+        <param>
+          <type><ref refid="class_core_1a8d5389d41e51046d5a5e1165e0cfd7f0" kindref="member">CloseProjectBehavior</ref> &amp;</type>
+          <declname>confirm_behavior</declname>
+        </param>
+        <briefdescription>
+<para>Closes a project. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="224" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_core_1a202176811c774e0970b4533ed29d13ce" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Core::CloseProject</definition>
+        <argsstring>(ProjectPtr p, bool auto_open_new)</argsstring>
+        <name>CloseProject</name>
+        <param>
+          <type><ref refid="project_2project_8h_1a01d25f812d2a396264376b16a9976583" kindref="member">ProjectPtr</ref></type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>auto_open_new</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="225" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_core_1a981ffc611a2deec3b2609b2a772d252d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Core::CloseAllProjects</definition>
+        <argsstring>(bool auto_open_new)</argsstring>
+        <name>CloseAllProjects</name>
+        <param>
+          <type>bool</type>
+          <declname>auto_open_new</declname>
+        </param>
+        <briefdescription>
+<para>Closes all open projects. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="230" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="class_core_1a44739f35213d619ca25aa6742dbdd288" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_core" kindref="compound">Core</ref> *</type>
+        <definition>static Core* Core::instance</definition>
+        <argsstring>()</argsstring>
+        <name>instance</name>
+        <briefdescription>
+<para><ref refid="class_core" kindref="compound">Core</ref> object accessible from anywhere in the code. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Use this to access <ref refid="class_core" kindref="compound">Core</ref> functions. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="67" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_core_1aa733b9922eb34652ffabd4a17ababa47" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void Core::CopyStringToClipboard</definition>
+        <argsstring>(const QString &amp;s)</argsstring>
+        <name>CopyStringToClipboard</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="161" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_core_1a922ee1851d24630beaccf7862f9bc612" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>static QString Core::PasteStringFromClipboard</definition>
+        <argsstring>()</argsstring>
+        <name>PasteStringFromClipboard</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="163" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_core_1a49890263ea56b29efcccd1b46ee70146" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QList&lt; <ref refid="classrational" kindref="compound">rational</ref> &gt;</type>
+        <definition>static QList&lt;rational&gt; Core::SupportedFrameRates</definition>
+        <argsstring>()</argsstring>
+        <name>SupportedFrameRates</name>
+        <briefdescription>
+<para>Return a list of supported frame rates in rational form. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>These rationals can be flipped to create a timebase in this frame rate. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="170" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_core_1a49815da8ef14909f2de93a18de6e10ad" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QList&lt; int &gt;</type>
+        <definition>static QList&lt;int&gt; Core::SupportedSampleRates</definition>
+        <argsstring>()</argsstring>
+        <name>SupportedSampleRates</name>
+        <briefdescription>
+<para>Return a list of supported sample rates in integer form. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="175" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_core_1aa28879f116995028a8106a1ae87dd747" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QList&lt; uint64_t &gt;</type>
+        <definition>static QList&lt;uint64_t&gt; Core::SupportedChannelLayouts</definition>
+        <argsstring>()</argsstring>
+        <name>SupportedChannelLayouts</name>
+        <briefdescription>
+<para>Return a list of supported channel layouts as or&apos;d flags. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="179" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_core_1acab543c336557a4f50bb056367ef5f3e" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>static QString Core::FrameRateToString</definition>
+        <argsstring>(const rational &amp;frame_rate)</argsstring>
+        <name>FrameRateToString</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>frame_rate</declname>
+        </param>
+        <briefdescription>
+<para>Convert rational frame rate (i.e. flipped timebase) to a user-friendly string. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="184" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_core_1a19efbe546354fc3d3f785df95c69cce3" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>static QString Core::SampleRateToString</definition>
+        <argsstring>(const int &amp;sample_rate)</argsstring>
+        <name>SampleRateToString</name>
+        <param>
+          <type>const int &amp;</type>
+          <declname>sample_rate</declname>
+        </param>
+        <briefdescription>
+<para>Convert integer sample rate to a user-friendly string. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="189" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_core_1a5f943219eac641aad63c328eb067af9c" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>static QString Core::ChannelLayoutToString</definition>
+        <argsstring>(const uint64_t &amp;layout)</argsstring>
+        <name>ChannelLayoutToString</name>
+        <param>
+          <type>const uint64_t &amp;</type>
+          <declname>layout</declname>
+        </param>
+        <briefdescription>
+<para>Convert channel layout to a user-friendly string. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="194" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_core_1a586ab14a0ae097817d25e2da295f0bb0" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>static int Core::CountFilesInFileList</definition>
+        <argsstring>(const QFileInfoList &amp;filenames)</argsstring>
+        <name>CountFilesInFileList</name>
+        <param>
+          <type>const QFileInfoList &amp;</type>
+          <declname>filenames</declname>
+        </param>
+        <briefdescription>
+<para>Recursively count files in a file/directory list. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="199" column="14"/>
+      </memberdef>
+      <memberdef kind="function" id="class_core_1a5790cec6b8fa115e3a9cc6201b234d29" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QVariant</type>
+        <definition>static QVariant Core::GetPreferenceForRenderMode</definition>
+        <argsstring>(RenderMode::Mode mode, const QString &amp;preference)</argsstring>
+        <name>GetPreferenceForRenderMode</name>
+        <param>
+          <type><ref refid="class_render_mode_1aa8f6df8efdb14e18f324bf20a40e6a2b" kindref="member">RenderMode::Mode</ref></type>
+          <declname>mode</declname>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>preference</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="201" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_core_1a5c9822b26e6dc9223d85902e74d198d2" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void Core::SetPreferenceForRenderMode</definition>
+        <argsstring>(RenderMode::Mode mode, const QString &amp;preference, const QVariant &amp;value)</argsstring>
+        <name>SetPreferenceForRenderMode</name>
+        <param>
+          <type><ref refid="class_render_mode_1aa8f6df8efdb14e18f324bf20a40e6a2b" kindref="member">RenderMode::Mode</ref></type>
+          <declname>mode</declname>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>preference</declname>
+        </param>
+        <param>
+          <type>const QVariant &amp;</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="202" column="15"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-slot">
+      <memberdef kind="slot" id="class_core_1a9e09f791eb2997c008c35c36dc06f7a0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Core::OpenProject</definition>
+        <argsstring>()</argsstring>
+        <name>OpenProject</name>
+        <briefdescription>
+<para>Starts an open file dialog to load a project from file. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="236" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_core_1ab73a670a372211ca2a293ed1b76139a7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Core::SaveActiveProject</definition>
+        <argsstring>()</argsstring>
+        <name>SaveActiveProject</name>
+        <briefdescription>
+<para>Save the currently active project. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If the project hasn&apos;t been saved before, this will be equivalent to calling <ref refid="class_core_1adad0b377d5394cb0f19a3d547ed9bad2" kindref="member">SaveActiveProjectAs()</ref>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="243" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_core_1adad0b377d5394cb0f19a3d547ed9bad2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Core::SaveActiveProjectAs</definition>
+        <argsstring>()</argsstring>
+        <name>SaveActiveProjectAs</name>
+        <briefdescription>
+<para>Save the currently active project with a new filename. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="248" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_core_1aa4fe2912f4ea7dae0538bc62f051cab1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Core::SaveAllProjects</definition>
+        <argsstring>()</argsstring>
+        <name>SaveAllProjects</name>
+        <briefdescription>
+<para>Save all currently open projects. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="253" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_core_1afa23b3c3cd3694e9642e6a14eab16298" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Core::CloseActiveProject</definition>
+        <argsstring>()</argsstring>
+        <name>CloseActiveProject</name>
+        <briefdescription>
+<para>Closes the active project. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If no other projects are open, a new one is created automatically. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="260" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_core_1aad4cbba34769f3d66b9bc66d12a964b9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Core::CloseAllExceptActiveProject</definition>
+        <argsstring>()</argsstring>
+        <name>CloseAllExceptActiveProject</name>
+        <briefdescription>
+<para>Closes all projects except the active project. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="265" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_core_1a034cced68743e78cf6f8e98e5d960bda" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Core::CloseAllProjects</definition>
+        <argsstring>()</argsstring>
+        <name>CloseAllProjects</name>
+        <briefdescription>
+<para>Closes all open projects. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Equivalent to <computeroutput>CloseAllProjects(true)</computeroutput>, but useful for the signal/slot system where you may not be able to specify parameters. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="273" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_core_1ab108fb1852b26905ca4f0ba2f5a6b9b0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Core::SetTool</definition>
+        <argsstring>(const Tool::Item &amp;tool)</argsstring>
+        <name>SetTool</name>
+        <param>
+          <type>const <ref refid="class_tool_1aa5b3343d5a8a21b7473dfe74af2976cb" kindref="member">Tool::Item</ref> &amp;</type>
+          <declname>tool</declname>
+        </param>
+        <briefdescription>
+<para>Set the current application-wide tool. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tool</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="280" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_core_1afbbc3f2ddad2db784b24bb580334805c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Core::SetSnapping</definition>
+        <argsstring>(const bool &amp;b)</argsstring>
+        <name>SetSnapping</name>
+        <param>
+          <type>const bool &amp;</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para>Set the current snapping setting. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="285" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_core_1a1459d6a25c6bae3f369c37acaa31075b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Core::DialogAboutShow</definition>
+        <argsstring>()</argsstring>
+        <name>DialogAboutShow</name>
+        <briefdescription>
+<para>Show an About dialog. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="290" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_core_1a2145255482dd7aafcc69c7872ff67d1b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Core::DialogImportShow</definition>
+        <argsstring>()</argsstring>
+        <name>DialogImportShow</name>
+        <briefdescription>
+<para>Open the import footage dialog and import the files selected (runs <ref refid="class_core_1a63b80a2a78c3602d328a6522d680b783" kindref="member">ImportFiles()</ref>) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="295" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_core_1a0a2f754b111c4406dcdff6c1e3ae6701" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Core::DialogPreferencesShow</definition>
+        <argsstring>()</argsstring>
+        <name>DialogPreferencesShow</name>
+        <briefdescription>
+<para>Show Preferences dialog. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="300" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_core_1a21cf11d0b87cbdd0ee89a3eb2320a2d2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Core::DialogProjectPropertiesShow</definition>
+        <argsstring>()</argsstring>
+        <name>DialogProjectPropertiesShow</name>
+        <briefdescription>
+<para>Show <ref refid="class_project" kindref="compound">Project</ref> Properties dialog. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="305" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_core_1a856d4f605ea4ee527003778efe5efe65" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Core::DialogExportShow</definition>
+        <argsstring>()</argsstring>
+        <name>DialogExportShow</name>
+        <briefdescription>
+<para>Show Export dialog. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="310" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_core_1a340791cb4db492a44c0bf642afc4c6f2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Core::CreateNewFolder</definition>
+        <argsstring>()</argsstring>
+        <name>CreateNewFolder</name>
+        <briefdescription>
+<para>Create a new folder in the currently active project. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="315" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_core_1a26dac95bbc6d8b3bc4c34d9e8bee4366" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Core::CreateNewSequence</definition>
+        <argsstring>()</argsstring>
+        <name>CreateNewSequence</name>
+        <briefdescription>
+<para>Create a new sequence in the currently active project. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="320" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_core_1ad085ca23e2822980a4425efb684f53d0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Core::SetSelectedAddableObject</definition>
+        <argsstring>(const Tool::AddableObject &amp;obj)</argsstring>
+        <name>SetSelectedAddableObject</name>
+        <param>
+          <type>const <ref refid="class_tool_1a0e3e529d5e6fb843a0866537a6e4b7d7" kindref="member">Tool::AddableObject</ref> &amp;</type>
+          <declname>obj</declname>
+        </param>
+        <briefdescription>
+<para>Set the currently selected object that the add tool should make. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="325" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_core_1a8cb1dbcebf360612c9f0bc7d37084f11" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Core::ClearOpenRecentList</definition>
+        <argsstring>()</argsstring>
+        <name>ClearOpenRecentList</name>
+        <briefdescription>
+<para>Clears the list of recently opened/saved projects. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="330" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_core_1a9798dde2ef61cc345a85c4059609ab58" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Core::CreateNewProject</definition>
+        <argsstring>()</argsstring>
+        <name>CreateNewProject</name>
+        <briefdescription>
+<para>Creates a new empty project and opens it. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="335" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_core_1ae043094709155bc5ebe8108db7c2dcf3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Core::ProjectOpened</definition>
+        <argsstring>(Project *p)</argsstring>
+        <name>ProjectOpened</name>
+        <param>
+          <type><ref refid="class_project" kindref="compound">Project</ref> *</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Signal emitted when a project is opened. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Connects to main window so its UI can update based on the project</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>p</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="345" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_core_1adf9dbb42cd2c341023bae420a23f5329" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Core::ProjectClosed</definition>
+        <argsstring>(Project *p)</argsstring>
+        <name>ProjectClosed</name>
+        <param>
+          <type><ref refid="class_project" kindref="compound">Project</ref> *</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Signal emitted when a project is closed. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="350" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_core_1a30101bde38bc4f9d9f21692b14a04848" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Core::ToolChanged</definition>
+        <argsstring>(const Tool::Item &amp;tool)</argsstring>
+        <name>ToolChanged</name>
+        <param>
+          <type>const <ref refid="class_tool_1aa5b3343d5a8a21b7473dfe74af2976cb" kindref="member">Tool::Item</ref> &amp;</type>
+          <declname>tool</declname>
+        </param>
+        <briefdescription>
+<para>Signal emitted when the tool is changed from somewhere. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="355" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_core_1abd63efed52e444b67dcc670f99dea836" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Core::SnappingChanged</definition>
+        <argsstring>(const bool &amp;b)</argsstring>
+        <name>SnappingChanged</name>
+        <param>
+          <type>const bool &amp;</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para>Signal emitted when the snapping setting is changed. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="360" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_core_1a20fdfca7a8a90edba158df54fe26fd35" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Core::TimecodeDisplayChanged</definition>
+        <argsstring>(Timecode::Display d)</argsstring>
+        <name>TimecodeDisplayChanged</name>
+        <param>
+          <type><ref refid="class_timecode_1aff560b56df77be3eeec7a93c000ac4e5" kindref="member">Timecode::Display</ref></type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para>Signal emitted when the default timecode display mode changed. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="365" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-func">
+      <memberdef kind="function" id="class_core_1a71863ad756913d3f1511d42770e11f58" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>static QString Core::GetProjectFilter</definition>
+        <argsstring>()</argsstring>
+        <name>GetProjectFilter</name>
+        <briefdescription>
+<para>Get the file filter than can be used with QFileDialog to open and save compatible projects. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="371" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_core_1a59872d683fb80504fb0085b7235d93a4" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>static QString Core::GetRecentProjectsFilePath</definition>
+        <argsstring>()</argsstring>
+        <name>GetRecentProjectsFilePath</name>
+        <briefdescription>
+<para>Returns the filename where the recently opened/saved projects should be stored. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="376" column="18"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_core_1a9e51b4c2f18954e3713739a18669dcd4" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Core::SaveProject</definition>
+        <argsstring>(ProjectPtr p)</argsstring>
+        <name>SaveProject</name>
+        <param>
+          <type><ref refid="project_2project_8h_1a01d25f812d2a396264376b16a9976583" kindref="member">ProjectPtr</ref></type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Saves a specific project. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="381" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_core_1a5a6747d7412c1374815536dd42720373" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Core::SaveProjectAs</definition>
+        <argsstring>(ProjectPtr p)</argsstring>
+        <name>SaveProjectAs</name>
+        <param>
+          <type><ref refid="project_2project_8h_1a01d25f812d2a396264376b16a9976583" kindref="member">ProjectPtr</ref></type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Performs a &quot;save as&quot; on a specific project. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="386" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_core_1a0c4fb694a6733c1079e067632c9d04c2" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Core::PushRecentlyOpenedProject</definition>
+        <argsstring>(const QString &amp;s)</argsstring>
+        <name>PushRecentlyOpenedProject</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Adds a filename to the top of the recently opened projects list (or moves it if it already exists) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="391" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_core_1ae5512ecaad33fd93c22628ed37e180ac" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Core::OpenProjectInternal</definition>
+        <argsstring>(const QString &amp;filename)</argsstring>
+        <name>OpenProjectInternal</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>filename</declname>
+        </param>
+        <briefdescription>
+<para>Internal project open. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="396" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_core_1a552d203c1372fa96aeeecc8756149007" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Core::DeclareTypesForQt</definition>
+        <argsstring>()</argsstring>
+        <name>DeclareTypesForQt</name>
+        <briefdescription>
+<para>Declare custom types/classes for Qt&apos;s signal/slot system. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Qt&apos;s signal/slot system requires types to be declared. In the interest of doing this only at startup, we contain them all in a function here. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="404" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_core_1a9c1a9e7dda25266112de08e556d033e8" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Core::StartGUI</definition>
+        <argsstring>(bool full_screen)</argsstring>
+        <name>StartGUI</name>
+        <param>
+          <type>bool</type>
+          <declname>full_screen</declname>
+        </param>
+        <briefdescription>
+<para>Start GUI portion of Olive. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Starts services and objects required for the GUI of Olive. It&apos;s guaranteed that running without this function will create an application instance that is completely valid minus the UI (e.g. for CLI modes). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="412" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_core_1a889e1636c1fdd846594c21ebce6b10f4" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Core::SaveProjectInternal</definition>
+        <argsstring>(ProjectPtr project)</argsstring>
+        <name>SaveProjectInternal</name>
+        <param>
+          <type><ref refid="project_2project_8h_1a01d25f812d2a396264376b16a9976583" kindref="member">ProjectPtr</ref></type>
+          <declname>project</declname>
+        </param>
+        <briefdescription>
+<para>Internal function for saving a project to a file. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="417" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_core_1aec14734b930475aec9d55b7e65036ef6" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Core::SaveAutorecovery</definition>
+        <argsstring>()</argsstring>
+        <name>SaveAutorecovery</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="478" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_core_1af689b39b9aa75be30806d7375fc202c8" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Core::ProjectSaveSucceeded</definition>
+        <argsstring>(OLIVE_NAMESPACE::ProjectPtr p)</argsstring>
+        <name>ProjectSaveSucceeded</name>
+        <param>
+          <type><ref refid="project_2project_8h_1a01d25f812d2a396264376b16a9976583" kindref="member">OLIVE_NAMESPACE::ProjectPtr</ref></type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="480" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_core_1aa571a2fc100d39259b17bd597ec51139" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Core::AddOpenProject</definition>
+        <argsstring>(OLIVE_NAMESPACE::ProjectPtr p)</argsstring>
+        <name>AddOpenProject</name>
+        <param>
+          <type><ref refid="project_2project_8h_1a01d25f812d2a396264376b16a9976583" kindref="member">OLIVE_NAMESPACE::ProjectPtr</ref></type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Adds a project to the &quot;open projects&quot; list. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="485" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_core_1adca38ae7f708ffbfe7cd1576c593551d" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Core::ImportTaskComplete</definition>
+        <argsstring>(QUndoCommand *command)</argsstring>
+        <name>ImportTaskComplete</name>
+        <param>
+          <type>QUndoCommand *</type>
+          <declname>command</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="487" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_core_1af043d8958c8eb401074a562dcac07f52" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Core::ConfirmImageSequence</definition>
+        <argsstring>(const QString &amp;filename)</argsstring>
+        <name>ConfirmImageSequence</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>filename</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="489" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_core_1ae84b75d597c27178b409b61764e7a4b7" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Core::ProjectWasModified</definition>
+        <argsstring>(bool e)</argsstring>
+        <name>ProjectWasModified</name>
+        <param>
+          <type>bool</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/core.h" line="491" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>The main central Olive application instance. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>This runs both in GUI and CLI modes (and handles what to init based on that). It also contains various global functions/variables for use throughout Olive.</para>
+<para>The &quot;public slots&quot; are usually user-triggered actions and can be connected to UI elements (e.g. creating a folder, opening the import dialog, etc.) </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="24">
+        <label>NodeOutput</label>
+        <link refid="class_node_output"/>
+        <childnode refid="25" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>TimelinePoints</label>
+        <link refid="class_timeline_points"/>
+        <childnode refid="18" relation="usage">
+          <edgelabel>markers_</edgelabel>
+        </childnode>
+        <childnode refid="19" relation="usage">
+          <edgelabel>workarea_</edgelabel>
+        </childnode>
+      </node>
+      <node id="42">
+        <label>TaskManagerPanel</label>
+        <link refid="class_task_manager_panel"/>
+        <childnode refid="8" relation="public-inheritance">
+        </childnode>
+        <childnode refid="43" relation="usage">
+          <edgelabel>view_</edgelabel>
+        </childnode>
+      </node>
+      <node id="1">
+        <label>Core</label>
+        <link refid="class_core"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>undo_stack_</edgelabel>
+        </childnode>
+        <childnode refid="1" relation="usage">
+          <edgelabel>instance_</edgelabel>
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>main_window_</edgelabel>
+        </childnode>
+      </node>
+      <node id="41">
+        <label>ParamPanel</label>
+        <link refid="class_param_panel"/>
+        <childnode refid="7" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="33">
+        <label>NodeViewEdge</label>
+        <link refid="class_node_view_edge"/>
+      </node>
+      <node id="37">
+        <label>PixelSamplerPanel</label>
+        <link refid="class_pixel_sampler_panel"/>
+        <childnode refid="8" relation="public-inheritance">
+        </childnode>
+        <childnode refid="38" relation="usage">
+          <edgelabel>sampler_widget_</edgelabel>
+        </childnode>
+      </node>
+      <node id="43">
+        <label>TaskView</label>
+        <link refid="class_task_view"/>
+      </node>
+      <node id="34">
+        <label>NodeGraph</label>
+        <link refid="class_node_graph"/>
+      </node>
+      <node id="7">
+        <label>TimeBasedPanel</label>
+        <link refid="class_time_based_panel"/>
+        <childnode refid="8" relation="public-inheritance">
+        </childnode>
+        <childnode refid="9" relation="usage">
+          <edgelabel>widget_</edgelabel>
+        </childnode>
+      </node>
+      <node id="48">
+        <label>FootageManagementPanel</label>
+        <link refid="class_footage_management_panel"/>
+      </node>
+      <node id="27">
+        <label>AudioParams</label>
+        <link refid="class_audio_params"/>
+      </node>
+      <node id="29">
+        <label>NodePanel</label>
+        <link refid="class_node_panel"/>
+        <childnode refid="8" relation="public-inheritance">
+        </childnode>
+        <childnode refid="30" relation="usage">
+          <edgelabel>node_view_</edgelabel>
+        </childnode>
+      </node>
+      <node id="22">
+        <label>ViewerOutput</label>
+        <link refid="class_viewer_output"/>
+        <childnode refid="23" relation="public-inheritance">
+        </childnode>
+        <childnode refid="26" relation="usage">
+          <edgelabel>video_params_</edgelabel>
+        </childnode>
+        <childnode refid="12" relation="usage">
+          <edgelabel>timeline_length_</edgelabel>
+        </childnode>
+        <childnode refid="27" relation="usage">
+          <edgelabel>audio_params_</edgelabel>
+        </childnode>
+        <childnode refid="28" relation="usage">
+          <edgelabel>texture_input_</edgelabel>
+          <edgelabel>samples_input_</edgelabel>
+        </childnode>
+      </node>
+      <node id="4">
+        <label>SequenceViewerPanel</label>
+        <link refid="class_sequence_viewer_panel"/>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>TimelinePlayhead</label>
+        <link refid="class_timeline_playhead"/>
+      </node>
+      <node id="8">
+        <label>PanelWidget</label>
+        <link refid="class_panel_widget"/>
+      </node>
+      <node id="44">
+        <label>AudioMonitorPanel</label>
+        <link refid="class_audio_monitor_panel"/>
+        <childnode refid="8" relation="public-inheritance">
+        </childnode>
+        <childnode refid="45" relation="usage">
+          <edgelabel>audio_monitor_</edgelabel>
+        </childnode>
+      </node>
+      <node id="31">
+        <label>HandMovableView</label>
+        <link refid="class_hand_movable_view"/>
+      </node>
+      <node id="39">
+        <label>PixelSamplerWidget</label>
+        <link refid="class_pixel_sampler_widget"/>
+        <childnode refid="40" relation="usage">
+          <edgelabel>color_</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>MainWindow</label>
+        <link refid="class_main_window"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>sequence_viewer_panel_</edgelabel>
+        </childnode>
+        <childnode refid="29" relation="usage">
+          <edgelabel>node_panel_</edgelabel>
+        </childnode>
+        <childnode refid="36" relation="usage">
+          <edgelabel>tool_panel_</edgelabel>
+        </childnode>
+        <childnode refid="37" relation="usage">
+          <edgelabel>pixel_sampler_panel_</edgelabel>
+        </childnode>
+        <childnode refid="41" relation="usage">
+          <edgelabel>param_panel_</edgelabel>
+        </childnode>
+        <childnode refid="42" relation="usage">
+          <edgelabel>task_man_panel_</edgelabel>
+        </childnode>
+        <childnode refid="44" relation="usage">
+          <edgelabel>audio_monitor_panel_</edgelabel>
+        </childnode>
+        <childnode refid="47" relation="usage">
+          <edgelabel>footage_viewer_panel_</edgelabel>
+        </childnode>
+      </node>
+      <node id="38">
+        <label>ManagedPixelSamplerWidget</label>
+        <link refid="class_managed_pixel_sampler_widget"/>
+        <childnode refid="39" relation="usage">
+          <edgelabel>reference_view_</edgelabel>
+          <edgelabel>display_view_</edgelabel>
+        </childnode>
+      </node>
+      <node id="12">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="45">
+        <label>AudioMonitor</label>
+        <link refid="class_audio_monitor"/>
+        <childnode refid="46" relation="usage">
+          <edgelabel>params_</edgelabel>
+        </childnode>
+      </node>
+      <node id="46">
+        <label>AudioRenderingParams</label>
+        <link refid="class_audio_rendering_params"/>
+        <childnode refid="27" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="35">
+        <label>NodeViewScene</label>
+        <link refid="class_node_view_scene"/>
+        <childnode refid="34" relation="usage">
+          <edgelabel>graph_</edgelabel>
+        </childnode>
+      </node>
+      <node id="5">
+        <label>ViewerPanel</label>
+        <link refid="class_viewer_panel"/>
+        <childnode refid="6" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>TimelineScaledObject</label>
+        <link refid="class_timeline_scaled_object"/>
+        <childnode refid="12" relation="usage">
+          <edgelabel>timebase_</edgelabel>
+        </childnode>
+      </node>
+      <node id="23">
+        <label>Node</label>
+        <link refid="class_node"/>
+        <childnode refid="24" relation="usage">
+          <edgelabel>output_</edgelabel>
+        </childnode>
+      </node>
+      <node id="36">
+        <label>ToolPanel</label>
+        <link refid="class_tool_panel"/>
+        <childnode refid="8" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>UndoStack</label>
+        <link refid="class_undo_stack"/>
+      </node>
+      <node id="28">
+        <label>NodeInput</label>
+        <link refid="class_node_input"/>
+        <childnode refid="25" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>TimeBasedWidget</label>
+        <link refid="class_time_based_widget"/>
+        <childnode refid="10" relation="public-inheritance">
+        </childnode>
+        <childnode refid="13" relation="usage">
+          <edgelabel>scrollbar_</edgelabel>
+        </childnode>
+        <childnode refid="14" relation="usage">
+          <edgelabel>ruler_</edgelabel>
+        </childnode>
+        <childnode refid="22" relation="usage">
+          <edgelabel>viewer_node_</edgelabel>
+        </childnode>
+        <childnode refid="17" relation="usage">
+          <edgelabel>points_</edgelabel>
+        </childnode>
+      </node>
+      <node id="21">
+        <label>TimeRangeList</label>
+        <link refid="class_time_range_list"/>
+      </node>
+      <node id="40">
+        <label>Color</label>
+        <link refid="class_color"/>
+      </node>
+      <node id="6">
+        <label>ViewerPanelBase</label>
+        <link refid="class_viewer_panel_base"/>
+        <childnode refid="7" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>TimelineScaledWidget</label>
+        <link refid="class_timeline_scaled_widget"/>
+        <childnode refid="11" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="47">
+        <label>FootageViewerPanel</label>
+        <link refid="class_footage_viewer_panel"/>
+        <childnode refid="6" relation="public-inheritance">
+        </childnode>
+        <childnode refid="48" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="19">
+        <label>TimelineWorkArea</label>
+        <link refid="class_timeline_work_area"/>
+        <childnode refid="20" relation="usage">
+          <edgelabel>workarea_range_</edgelabel>
+        </childnode>
+        <childnode refid="12" relation="usage">
+          <edgelabel>kResetOut</edgelabel>
+          <edgelabel>kResetIn</edgelabel>
+        </childnode>
+      </node>
+      <node id="25">
+        <label>NodeParam</label>
+        <link refid="class_node_param"/>
+      </node>
+      <node id="20">
+        <label>TimeRange</label>
+        <link refid="class_time_range"/>
+        <childnode refid="12" relation="usage">
+          <edgelabel>out_</edgelabel>
+          <edgelabel>in_</edgelabel>
+          <edgelabel>length_</edgelabel>
+        </childnode>
+      </node>
+      <node id="15">
+        <label>SeekableWidget</label>
+        <link refid="class_seekable_widget"/>
+        <childnode refid="10" relation="public-inheritance">
+        </childnode>
+        <childnode refid="16" relation="usage">
+          <edgelabel>style_</edgelabel>
+        </childnode>
+        <childnode refid="17" relation="usage">
+          <edgelabel>timeline_points_</edgelabel>
+        </childnode>
+      </node>
+      <node id="13">
+        <label>ResizableScrollBar</label>
+        <link refid="class_resizable_scroll_bar"/>
+      </node>
+      <node id="32">
+        <label>NodeCopyPasteWidget</label>
+        <link refid="class_node_copy_paste_widget"/>
+      </node>
+      <node id="26">
+        <label>VideoParams</label>
+        <link refid="class_video_params"/>
+        <childnode refid="12" relation="usage">
+          <edgelabel>time_base_</edgelabel>
+        </childnode>
+      </node>
+      <node id="14">
+        <label>TimeRuler</label>
+        <link refid="class_time_ruler"/>
+        <childnode refid="15" relation="public-inheritance">
+        </childnode>
+        <childnode refid="21" relation="usage">
+          <edgelabel>dirty_cache_ranges_</edgelabel>
+        </childnode>
+        <childnode refid="12" relation="usage">
+          <edgelabel>cache_length_</edgelabel>
+        </childnode>
+      </node>
+      <node id="18">
+        <label>TimelineMarkerList</label>
+        <link refid="class_timeline_marker_list"/>
+      </node>
+      <node id="30">
+        <label>NodeView</label>
+        <link refid="class_node_view"/>
+        <childnode refid="31" relation="public-inheritance">
+        </childnode>
+        <childnode refid="32" relation="public-inheritance">
+        </childnode>
+        <childnode refid="33" relation="usage">
+          <edgelabel>drop_edge_</edgelabel>
+        </childnode>
+        <childnode refid="34" relation="usage">
+          <edgelabel>graph_</edgelabel>
+        </childnode>
+        <childnode refid="28" relation="usage">
+          <edgelabel>drop_input_</edgelabel>
+        </childnode>
+        <childnode refid="35" relation="usage">
+          <edgelabel>scene_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/core.h" line="51" column="1" bodyfile="C:/Daten/Olive/olive/app/core.h" bodystart="52" bodyend="493"/>
+    <listofallmembers>
+      <member refid="class_core_1a35d18e2027d6e6d0bbe027236bb2c41f" prot="private" virt="non-virtual"><scope>Core</scope><name>addable_object_</name></member>
+      <member refid="class_core_1aa571a2fc100d39259b17bd597ec51139" prot="private" virt="non-virtual"><scope>Core</scope><name>AddOpenProject</name></member>
+      <member refid="class_core_1aa413d6a4c23c1c88525df132ace73333" prot="private" virt="non-virtual"><scope>Core</scope><name>autorecovery_timer_</name></member>
+      <member refid="class_core_1a5f943219eac641aad63c328eb067af9c" prot="public" virt="non-virtual"><scope>Core</scope><name>ChannelLayoutToString</name></member>
+      <member refid="class_core_1a8cb1dbcebf360612c9f0bc7d37084f11" prot="public" virt="non-virtual"><scope>Core</scope><name>ClearOpenRecentList</name></member>
+      <member refid="class_core_1afa23b3c3cd3694e9642e6a14eab16298" prot="public" virt="non-virtual"><scope>Core</scope><name>CloseActiveProject</name></member>
+      <member refid="class_core_1aad4cbba34769f3d66b9bc66d12a964b9" prot="public" virt="non-virtual"><scope>Core</scope><name>CloseAllExceptActiveProject</name></member>
+      <member refid="class_core_1a981ffc611a2deec3b2609b2a772d252d" prot="public" virt="non-virtual"><scope>Core</scope><name>CloseAllProjects</name></member>
+      <member refid="class_core_1a034cced68743e78cf6f8e98e5d960bda" prot="public" virt="non-virtual"><scope>Core</scope><name>CloseAllProjects</name></member>
+      <member refid="class_core_1a1ae6df39d52bc98208a1e6c4a05f76ba" prot="public" virt="non-virtual"><scope>Core</scope><name>CloseProject</name></member>
+      <member refid="class_core_1a202176811c774e0970b4533ed29d13ce" prot="public" virt="non-virtual"><scope>Core</scope><name>CloseProject</name></member>
+      <member refid="class_core_1a8d5389d41e51046d5a5e1165e0cfd7f0" prot="public" virt="non-virtual"><scope>Core</scope><name>CloseProjectBehavior</name></member>
+      <member refid="class_core_1af043d8958c8eb401074a562dcac07f52" prot="private" virt="non-virtual"><scope>Core</scope><name>ConfirmImageSequence</name></member>
+      <member refid="class_core_1aa733b9922eb34652ffabd4a17ababa47" prot="public" virt="non-virtual"><scope>Core</scope><name>CopyStringToClipboard</name></member>
+      <member refid="class_core_1a14e63188e0aa7c4a6f72d5501384d1f9" prot="public" virt="non-virtual"><scope>Core</scope><name>Core</name></member>
+      <member refid="class_core_1a586ab14a0ae097817d25e2da295f0bb0" prot="public" virt="non-virtual"><scope>Core</scope><name>CountFilesInFileList</name></member>
+      <member refid="class_core_1a340791cb4db492a44c0bf642afc4c6f2" prot="public" virt="non-virtual"><scope>Core</scope><name>CreateNewFolder</name></member>
+      <member refid="class_core_1a9798dde2ef61cc345a85c4059609ab58" prot="public" virt="non-virtual"><scope>Core</scope><name>CreateNewProject</name></member>
+      <member refid="class_core_1a26dac95bbc6d8b3bc4c34d9e8bee4366" prot="public" virt="non-virtual"><scope>Core</scope><name>CreateNewSequence</name></member>
+      <member refid="class_core_1a97ec50e6345dffbfda737976771b0cd2" prot="public" virt="non-virtual"><scope>Core</scope><name>CreateNewSequenceForProject</name></member>
+      <member refid="class_core_1a552d203c1372fa96aeeecc8756149007" prot="private" virt="non-virtual"><scope>Core</scope><name>DeclareTypesForQt</name></member>
+      <member refid="class_core_1a1459d6a25c6bae3f369c37acaa31075b" prot="public" virt="non-virtual"><scope>Core</scope><name>DialogAboutShow</name></member>
+      <member refid="class_core_1a856d4f605ea4ee527003778efe5efe65" prot="public" virt="non-virtual"><scope>Core</scope><name>DialogExportShow</name></member>
+      <member refid="class_core_1a2145255482dd7aafcc69c7872ff67d1b" prot="public" virt="non-virtual"><scope>Core</scope><name>DialogImportShow</name></member>
+      <member refid="class_core_1a0a2f754b111c4406dcdff6c1e3ae6701" prot="public" virt="non-virtual"><scope>Core</scope><name>DialogPreferencesShow</name></member>
+      <member refid="class_core_1a21cf11d0b87cbdd0ee89a3eb2320a2d2" prot="public" virt="non-virtual"><scope>Core</scope><name>DialogProjectPropertiesShow</name></member>
+      <member refid="class_core_1acab543c336557a4f50bb056367ef5f3e" prot="public" virt="non-virtual"><scope>Core</scope><name>FrameRateToString</name></member>
+      <member refid="class_core_1a0b738769e1176574f2893943447259b9" prot="public" virt="non-virtual"><scope>Core</scope><name>GetActiveProject</name></member>
+      <member refid="class_core_1abcfeafbb07a331b7df9ec59efca6f3c6" prot="public" virt="non-virtual"><scope>Core</scope><name>GetActiveProjectModel</name></member>
+      <member refid="class_core_1a5790cec6b8fa115e3a9cc6201b234d29" prot="public" virt="non-virtual"><scope>Core</scope><name>GetPreferenceForRenderMode</name></member>
+      <member refid="class_core_1a71863ad756913d3f1511d42770e11f58" prot="private" virt="non-virtual"><scope>Core</scope><name>GetProjectFilter</name></member>
+      <member refid="class_core_1a114337e29238ab6a784e5878ecfaaa0c" prot="public" virt="non-virtual"><scope>Core</scope><name>GetRecentProjects</name></member>
+      <member refid="class_core_1a59872d683fb80504fb0085b7235d93a4" prot="private" virt="non-virtual"><scope>Core</scope><name>GetRecentProjectsFilePath</name></member>
+      <member refid="class_core_1a032e087751e483b04b56bdcf35b0c4f1" prot="public" virt="non-virtual"><scope>Core</scope><name>GetSelectedFolderInActiveProject</name></member>
+      <member refid="class_core_1a51acf801d402405265e477881adaf84d" prot="public" virt="non-virtual"><scope>Core</scope><name>GetSharedPtrFromProject</name></member>
+      <member refid="class_core_1a831501b66f5d4b1d871938b5eea77b20" prot="public" virt="non-virtual"><scope>Core</scope><name>GetTimecodeDisplay</name></member>
+      <member refid="class_core_1a6b5a30140725fa068dd1bc0c7f5ca837" prot="private" virt="non-virtual"><scope>Core</scope><name>gui_active_</name></member>
+      <member refid="class_core_1a63b80a2a78c3602d328a6522d680b783" prot="public" virt="non-virtual"><scope>Core</scope><name>ImportFiles</name></member>
+      <member refid="class_core_1adca38ae7f708ffbfe7cd1576c593551d" prot="private" virt="non-virtual"><scope>Core</scope><name>ImportTaskComplete</name></member>
+      <member refid="class_core_1a44739f35213d619ca25aa6742dbdd288" prot="public" virt="non-virtual"><scope>Core</scope><name>instance</name></member>
+      <member refid="class_core_1ac864cbaa410d51be913964b838d8570a" prot="private" virt="non-virtual"><scope>Core</scope><name>instance_</name></member>
+      <member refid="class_core_1a8d5389d41e51046d5a5e1165e0cfd7f0af2a93a78e70d948f38f57510fc5e13c1" prot="public" virt="non-virtual"><scope>Core</scope><name>kCloseProjectAsk</name></member>
+      <member refid="class_core_1a8d5389d41e51046d5a5e1165e0cfd7f0a04b081177b952fed56880fbb061d2da1" prot="public" virt="non-virtual"><scope>Core</scope><name>kCloseProjectDontSave</name></member>
+      <member refid="class_core_1a8d5389d41e51046d5a5e1165e0cfd7f0ab7c16c27716571a353fbdc4c2c465c19" prot="public" virt="non-virtual"><scope>Core</scope><name>kCloseProjectOnlyOne</name></member>
+      <member refid="class_core_1a8d5389d41e51046d5a5e1165e0cfd7f0a724a55eb13eba89fb90cca9004f35d37" prot="public" virt="non-virtual"><scope>Core</scope><name>kCloseProjectSave</name></member>
+      <member refid="class_core_1acc6c155dd60dea08ea6fae6e2a104eec" prot="public" virt="non-virtual"><scope>Core</scope><name>main_window</name></member>
+      <member refid="class_core_1a53635512bb5f6523823d223f0c03e751" prot="private" virt="non-virtual"><scope>Core</scope><name>main_window_</name></member>
+      <member refid="class_core_1a40fe2b7c5fa00832e701204b4558c61d" prot="private" virt="non-virtual"><scope>Core</scope><name>open_projects_</name></member>
+      <member refid="class_core_1a9e09f791eb2997c008c35c36dc06f7a0" prot="public" virt="non-virtual"><scope>Core</scope><name>OpenProject</name></member>
+      <member refid="class_core_1a9c236bc5fab652799240dcdc6f7dfa72" prot="public" virt="non-virtual"><scope>Core</scope><name>OpenProjectFromRecentList</name></member>
+      <member refid="class_core_1ae5512ecaad33fd93c22628ed37e180ac" prot="private" virt="non-virtual"><scope>Core</scope><name>OpenProjectInternal</name></member>
+      <member refid="class_core_1a922ee1851d24630beaccf7862f9bc612" prot="public" virt="non-virtual"><scope>Core</scope><name>PasteStringFromClipboard</name></member>
+      <member refid="class_core_1adf9dbb42cd2c341023bae420a23f5329" prot="public" virt="non-virtual"><scope>Core</scope><name>ProjectClosed</name></member>
+      <member refid="class_core_1ae043094709155bc5ebe8108db7c2dcf3" prot="public" virt="non-virtual"><scope>Core</scope><name>ProjectOpened</name></member>
+      <member refid="class_core_1af689b39b9aa75be30806d7375fc202c8" prot="private" virt="non-virtual"><scope>Core</scope><name>ProjectSaveSucceeded</name></member>
+      <member refid="class_core_1ae84b75d597c27178b409b61764e7a4b7" prot="private" virt="non-virtual"><scope>Core</scope><name>ProjectWasModified</name></member>
+      <member refid="class_core_1a0c4fb694a6733c1079e067632c9d04c2" prot="private" virt="non-virtual"><scope>Core</scope><name>PushRecentlyOpenedProject</name></member>
+      <member refid="class_core_1a06e711edf7ae8cd865fe709d6bd45a9b" prot="private" virt="non-virtual"><scope>Core</scope><name>recent_projects_</name></member>
+      <member refid="class_core_1a19efbe546354fc3d3f785df95c69cce3" prot="public" virt="non-virtual"><scope>Core</scope><name>SampleRateToString</name></member>
+      <member refid="class_core_1ab73a670a372211ca2a293ed1b76139a7" prot="public" virt="non-virtual"><scope>Core</scope><name>SaveActiveProject</name></member>
+      <member refid="class_core_1adad0b377d5394cb0f19a3d547ed9bad2" prot="public" virt="non-virtual"><scope>Core</scope><name>SaveActiveProjectAs</name></member>
+      <member refid="class_core_1aa4fe2912f4ea7dae0538bc62f051cab1" prot="public" virt="non-virtual"><scope>Core</scope><name>SaveAllProjects</name></member>
+      <member refid="class_core_1aec14734b930475aec9d55b7e65036ef6" prot="private" virt="non-virtual"><scope>Core</scope><name>SaveAutorecovery</name></member>
+      <member refid="class_core_1a9e51b4c2f18954e3713739a18669dcd4" prot="private" virt="non-virtual"><scope>Core</scope><name>SaveProject</name></member>
+      <member refid="class_core_1a5a6747d7412c1374815536dd42720373" prot="private" virt="non-virtual"><scope>Core</scope><name>SaveProjectAs</name></member>
+      <member refid="class_core_1a889e1636c1fdd846594c21ebce6b10f4" prot="private" virt="non-virtual"><scope>Core</scope><name>SaveProjectInternal</name></member>
+      <member refid="class_core_1a3c9c0121fbd43ae333dbb9a396c96a0e" prot="public" virt="non-virtual"><scope>Core</scope><name>selected_addable_object</name></member>
+      <member refid="class_core_1ab4e63774744229000fe60afd232ea85a" prot="public" virt="non-virtual"><scope>Core</scope><name>SetAutorecoveryInterval</name></member>
+      <member refid="class_core_1a5c9822b26e6dc9223d85902e74d198d2" prot="public" virt="non-virtual"><scope>Core</scope><name>SetPreferenceForRenderMode</name></member>
+      <member refid="class_core_1ad085ca23e2822980a4425efb684f53d0" prot="public" virt="non-virtual"><scope>Core</scope><name>SetSelectedAddableObject</name></member>
+      <member refid="class_core_1afbbc3f2ddad2db784b24bb580334805c" prot="public" virt="non-virtual"><scope>Core</scope><name>SetSnapping</name></member>
+      <member refid="class_core_1a89b27655c113326e62313dd7d4fd8c08" prot="public" virt="non-virtual"><scope>Core</scope><name>SetTimecodeDisplay</name></member>
+      <member refid="class_core_1ab108fb1852b26905ca4f0ba2f5a6b9b0" prot="public" virt="non-virtual"><scope>Core</scope><name>SetTool</name></member>
+      <member refid="class_core_1abecf210d116dc9faf8f9d20760cd5a6c" prot="public" virt="non-virtual"><scope>Core</scope><name>snapping</name></member>
+      <member refid="class_core_1a629c20ffb8428e3daf37e64d8a7a4b8b" prot="private" virt="non-virtual"><scope>Core</scope><name>snapping_</name></member>
+      <member refid="class_core_1abd63efed52e444b67dcc670f99dea836" prot="public" virt="non-virtual"><scope>Core</scope><name>SnappingChanged</name></member>
+      <member refid="class_core_1a2411cfe9606d10f9a00c595f3082e72e" prot="public" virt="non-virtual"><scope>Core</scope><name>Start</name></member>
+      <member refid="class_core_1a9c1a9e7dda25266112de08e556d033e8" prot="private" virt="non-virtual"><scope>Core</scope><name>StartGUI</name></member>
+      <member refid="class_core_1a7230b01cfbae24dcbb07b568ade2fbe7" prot="private" virt="non-virtual"><scope>Core</scope><name>startup_project_</name></member>
+      <member refid="class_core_1acab57c44acf4231e8310d93310667990" prot="public" virt="non-virtual"><scope>Core</scope><name>Stop</name></member>
+      <member refid="class_core_1aa28879f116995028a8106a1ae87dd747" prot="public" virt="non-virtual"><scope>Core</scope><name>SupportedChannelLayouts</name></member>
+      <member refid="class_core_1a49890263ea56b29efcccd1b46ee70146" prot="public" virt="non-virtual"><scope>Core</scope><name>SupportedFrameRates</name></member>
+      <member refid="class_core_1a49815da8ef14909f2de93a18de6e10ad" prot="public" virt="non-virtual"><scope>Core</scope><name>SupportedSampleRates</name></member>
+      <member refid="class_core_1a20fdfca7a8a90edba158df54fe26fd35" prot="public" virt="non-virtual"><scope>Core</scope><name>TimecodeDisplayChanged</name></member>
+      <member refid="class_core_1a50b7cd240bb80457befd3b19c7c4c276" prot="public" virt="non-virtual"><scope>Core</scope><name>tool</name></member>
+      <member refid="class_core_1ad558d441a98b9a53d2e566354980373c" prot="private" virt="non-virtual"><scope>Core</scope><name>tool_</name></member>
+      <member refid="class_core_1a30101bde38bc4f9d9f21692b14a04848" prot="public" virt="non-virtual"><scope>Core</scope><name>ToolChanged</name></member>
+      <member refid="class_core_1a3e2919f190cb0eda011820cef9842b7c" prot="public" virt="non-virtual"><scope>Core</scope><name>undo_stack</name></member>
+      <member refid="class_core_1ab73da6c31b8bd477e0de85fa8cd47d86" prot="private" virt="non-virtual"><scope>Core</scope><name>undo_stack_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

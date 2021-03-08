@@ -1,0 +1,372 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_timeline_view_mouse_event" kind="class" language="C++" prot="public">
+    <compoundname>TimelineViewMouseEvent</compoundname>
+    <includes refid="timelineviewmouseevent_8h" local="no">timelineviewmouseevent.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_timeline_view_mouse_event_1a3030872d0615a3921d0ef4ed8b5c25d6" prot="private" static="no" mutable="no">
+        <type>qreal</type>
+        <definition>qreal TimelineViewMouseEvent::scene_x_</definition>
+        <argsstring></argsstring>
+        <name>scene_x_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewmouseevent.h" line="89" column="9" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewmouseevent.h" bodystart="89" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_timeline_view_mouse_event_1a1fabb4b17781029f477095e0da23df2f" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double TimelineViewMouseEvent::scale_x_</definition>
+        <argsstring></argsstring>
+        <name>scale_x_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewmouseevent.h" line="90" column="10" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewmouseevent.h" bodystart="90" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_timeline_view_mouse_event_1a888ae8b9bcc69cb2e9ef769503ed673e" prot="private" static="no" mutable="no">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational TimelineViewMouseEvent::timebase_</definition>
+        <argsstring></argsstring>
+        <name>timebase_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewmouseevent.h" line="91" column="12" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewmouseevent.h" bodystart="91" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_timeline_view_mouse_event_1ad279c5178a82550496163aa6502c868e" prot="private" static="no" mutable="no">
+        <type><ref refid="class_track_reference" kindref="compound">TrackReference</ref></type>
+        <definition>TrackReference TimelineViewMouseEvent::track_</definition>
+        <argsstring></argsstring>
+        <name>track_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewmouseevent.h" line="93" column="18" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewmouseevent.h" bodystart="93" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_timeline_view_mouse_event_1a455aa67ea4254579bbcff0797bcf8b26" prot="private" static="no" mutable="no">
+        <type>Qt::MouseButton</type>
+        <definition>Qt::MouseButton TimelineViewMouseEvent::button_</definition>
+        <argsstring></argsstring>
+        <name>button_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewmouseevent.h" line="95" column="19" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewmouseevent.h" bodystart="95" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_timeline_view_mouse_event_1a2b7db03ef7e2dc583cd3ce2b8fdc3120" prot="private" static="no" mutable="no">
+        <type>Qt::KeyboardModifiers</type>
+        <definition>Qt::KeyboardModifiers TimelineViewMouseEvent::modifiers_</definition>
+        <argsstring></argsstring>
+        <name>modifiers_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewmouseevent.h" line="97" column="25" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewmouseevent.h" bodystart="97" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_timeline_view_mouse_event_1a4b0b75c7be4e2e2926dde5389a703918" prot="private" static="no" mutable="no">
+        <type>QEvent *</type>
+        <definition>QEvent* TimelineViewMouseEvent::source_event_</definition>
+        <argsstring></argsstring>
+        <name>source_event_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewmouseevent.h" line="99" column="10" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewmouseevent.h" bodystart="99" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_timeline_view_mouse_event_1af9e793ffc42df76c97300c4ddc293d2e" prot="private" static="no" mutable="no">
+        <type>const QMimeData *</type>
+        <definition>const QMimeData* TimelineViewMouseEvent::mime_data_</definition>
+        <argsstring></argsstring>
+        <name>mime_data_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewmouseevent.h" line="101" column="19" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewmouseevent.h" bodystart="101" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_timeline_view_mouse_event_1aa932880ad18adaf64f2d2a04bf2f22fc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>TimelineViewMouseEvent::TimelineViewMouseEvent</definition>
+        <argsstring>(const qreal &amp;scene_x, const double &amp;scale_x, const rational &amp;timebase, const TrackReference &amp;track, const Qt::MouseButton &amp;button, const Qt::KeyboardModifiers &amp;modifiers=Qt::NoModifier)</argsstring>
+        <name>TimelineViewMouseEvent</name>
+        <param>
+          <type>const qreal &amp;</type>
+          <declname>scene_x</declname>
+        </param>
+        <param>
+          <type>const double &amp;</type>
+          <declname>scale_x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>timebase</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_track_reference" kindref="compound">TrackReference</ref> &amp;</type>
+          <declname>track</declname>
+        </param>
+        <param>
+          <type>const Qt::MouseButton &amp;</type>
+          <declname>button</declname>
+        </param>
+        <param>
+          <type>const Qt::KeyboardModifiers &amp;</type>
+          <declname>modifiers</declname>
+          <defval>Qt::NoModifier</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewmouseevent.h" line="53" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_view_mouse_event_1adfe71b63413ad982aa809f4ff7e58089" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_timeline_coordinate" kindref="compound">TimelineCoordinate</ref></type>
+        <definition>TimelineCoordinate TimelineViewMouseEvent::GetCoordinates</definition>
+        <argsstring>(bool round_time=false) const</argsstring>
+        <name>GetCoordinates</name>
+        <param>
+          <type>bool</type>
+          <declname>round_time</declname>
+          <defval>false</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewmouseevent.h" line="60" column="22"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_view_mouse_event_1afcb1d60b6824f95e3f3d293695c472e7" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const Qt::KeyboardModifiers</type>
+        <definition>const Qt::KeyboardModifiers TimelineViewMouseEvent::GetModifiers</definition>
+        <argsstring>() const</argsstring>
+        <name>GetModifiers</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewmouseevent.h" line="61" column="31"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_view_mouse_event_1a92ee45aab821d6997a88de79bc7f779c" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational TimelineViewMouseEvent::GetFrame</definition>
+        <argsstring>(bool round=false) const</argsstring>
+        <name>GetFrame</name>
+        <param>
+          <type>bool</type>
+          <declname>round</declname>
+          <defval>false</defval>
+        </param>
+        <briefdescription>
+<para>Gets the time at this cursor point. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>round</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>If set to true, the time will be rounded to the nearest time. If set to false, the time is floored so the time is always to the left of the cursor. The former behavior is better for clicking between frames (e.g. razor tool) and the latter is better for clicking directly on frames (e.g. pointer tool). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewmouseevent.h" line="72" column="12"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_view_mouse_event_1a7f72d0d58d06f29007002a1c92ec7332" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="class_track_reference" kindref="compound">TrackReference</ref> &amp;</type>
+        <definition>const TrackReference&amp; TimelineViewMouseEvent::GetTrack</definition>
+        <argsstring>() const</argsstring>
+        <name>GetTrack</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewmouseevent.h" line="74" column="24"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_view_mouse_event_1a05e821a3da057304894220df1ffa4001" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const QMimeData *</type>
+        <definition>const QMimeData* TimelineViewMouseEvent::GetMimeData</definition>
+        <argsstring>()</argsstring>
+        <name>GetMimeData</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewmouseevent.h" line="76" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_view_mouse_event_1ae96bea162a3b9613aad1eec34c1b5170" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimelineViewMouseEvent::SetMimeData</definition>
+        <argsstring>(const QMimeData *data)</argsstring>
+        <name>SetMimeData</name>
+        <param>
+          <type>const QMimeData *</type>
+          <declname>data</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewmouseevent.h" line="77" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_view_mouse_event_1a6a29b39179ae9d45b7e64cb58796b26d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimelineViewMouseEvent::SetEvent</definition>
+        <argsstring>(QEvent *event)</argsstring>
+        <name>SetEvent</name>
+        <param>
+          <type>QEvent *</type>
+          <declname>event</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewmouseevent.h" line="79" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_view_mouse_event_1a209f98ab0185ace388073f056d7825c3" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const qreal &amp;</type>
+        <definition>const qreal&amp; TimelineViewMouseEvent::GetSceneX</definition>
+        <argsstring>() const</argsstring>
+        <name>GetSceneX</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewmouseevent.h" line="81" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_view_mouse_event_1aab94cae0ec224f59ea7774bc3240fd62" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const Qt::MouseButton &amp;</type>
+        <definition>const Qt::MouseButton&amp; TimelineViewMouseEvent::GetButton</definition>
+        <argsstring>() const</argsstring>
+        <name>GetButton</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewmouseevent.h" line="83" column="25"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_view_mouse_event_1a960f50130e854812e9eede03642fb97b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimelineViewMouseEvent::accept</definition>
+        <argsstring>()</argsstring>
+        <name>accept</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewmouseevent.h" line="85" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_view_mouse_event_1ad0b8efc6f521ac8340e556f29ef3cb79" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimelineViewMouseEvent::ignore</definition>
+        <argsstring>()</argsstring>
+        <name>ignore</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewmouseevent.h" line="86" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="3">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="2">
+        <label>TrackReference</label>
+        <link refid="class_track_reference"/>
+      </node>
+      <node id="1">
+        <label>TimelineViewMouseEvent</label>
+        <link refid="class_timeline_view_mouse_event"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>track_</edgelabel>
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>timebase_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewmouseevent.h" line="32" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewmouseevent.h" bodystart="33" bodyend="85"/>
+    <listofallmembers>
+      <member refid="class_timeline_view_mouse_event_1a960f50130e854812e9eede03642fb97b" prot="public" virt="non-virtual"><scope>TimelineViewMouseEvent</scope><name>accept</name></member>
+      <member refid="class_timeline_view_mouse_event_1a455aa67ea4254579bbcff0797bcf8b26" prot="private" virt="non-virtual"><scope>TimelineViewMouseEvent</scope><name>button_</name></member>
+      <member refid="class_timeline_view_mouse_event_1aab94cae0ec224f59ea7774bc3240fd62" prot="public" virt="non-virtual"><scope>TimelineViewMouseEvent</scope><name>GetButton</name></member>
+      <member refid="class_timeline_view_mouse_event_1adfe71b63413ad982aa809f4ff7e58089" prot="public" virt="non-virtual"><scope>TimelineViewMouseEvent</scope><name>GetCoordinates</name></member>
+      <member refid="class_timeline_view_mouse_event_1a92ee45aab821d6997a88de79bc7f779c" prot="public" virt="non-virtual"><scope>TimelineViewMouseEvent</scope><name>GetFrame</name></member>
+      <member refid="class_timeline_view_mouse_event_1a05e821a3da057304894220df1ffa4001" prot="public" virt="non-virtual"><scope>TimelineViewMouseEvent</scope><name>GetMimeData</name></member>
+      <member refid="class_timeline_view_mouse_event_1afcb1d60b6824f95e3f3d293695c472e7" prot="public" virt="non-virtual"><scope>TimelineViewMouseEvent</scope><name>GetModifiers</name></member>
+      <member refid="class_timeline_view_mouse_event_1a209f98ab0185ace388073f056d7825c3" prot="public" virt="non-virtual"><scope>TimelineViewMouseEvent</scope><name>GetSceneX</name></member>
+      <member refid="class_timeline_view_mouse_event_1a7f72d0d58d06f29007002a1c92ec7332" prot="public" virt="non-virtual"><scope>TimelineViewMouseEvent</scope><name>GetTrack</name></member>
+      <member refid="class_timeline_view_mouse_event_1ad0b8efc6f521ac8340e556f29ef3cb79" prot="public" virt="non-virtual"><scope>TimelineViewMouseEvent</scope><name>ignore</name></member>
+      <member refid="class_timeline_view_mouse_event_1af9e793ffc42df76c97300c4ddc293d2e" prot="private" virt="non-virtual"><scope>TimelineViewMouseEvent</scope><name>mime_data_</name></member>
+      <member refid="class_timeline_view_mouse_event_1a2b7db03ef7e2dc583cd3ce2b8fdc3120" prot="private" virt="non-virtual"><scope>TimelineViewMouseEvent</scope><name>modifiers_</name></member>
+      <member refid="class_timeline_view_mouse_event_1a1fabb4b17781029f477095e0da23df2f" prot="private" virt="non-virtual"><scope>TimelineViewMouseEvent</scope><name>scale_x_</name></member>
+      <member refid="class_timeline_view_mouse_event_1a3030872d0615a3921d0ef4ed8b5c25d6" prot="private" virt="non-virtual"><scope>TimelineViewMouseEvent</scope><name>scene_x_</name></member>
+      <member refid="class_timeline_view_mouse_event_1a6a29b39179ae9d45b7e64cb58796b26d" prot="public" virt="non-virtual"><scope>TimelineViewMouseEvent</scope><name>SetEvent</name></member>
+      <member refid="class_timeline_view_mouse_event_1ae96bea162a3b9613aad1eec34c1b5170" prot="public" virt="non-virtual"><scope>TimelineViewMouseEvent</scope><name>SetMimeData</name></member>
+      <member refid="class_timeline_view_mouse_event_1a4b0b75c7be4e2e2926dde5389a703918" prot="private" virt="non-virtual"><scope>TimelineViewMouseEvent</scope><name>source_event_</name></member>
+      <member refid="class_timeline_view_mouse_event_1a888ae8b9bcc69cb2e9ef769503ed673e" prot="private" virt="non-virtual"><scope>TimelineViewMouseEvent</scope><name>timebase_</name></member>
+      <member refid="class_timeline_view_mouse_event_1aa932880ad18adaf64f2d2a04bf2f22fc" prot="public" virt="non-virtual"><scope>TimelineViewMouseEvent</scope><name>TimelineViewMouseEvent</name></member>
+      <member refid="class_timeline_view_mouse_event_1ad279c5178a82550496163aa6502c868e" prot="private" virt="non-virtual"><scope>TimelineViewMouseEvent</scope><name>track_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

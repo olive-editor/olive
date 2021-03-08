@@ -1,0 +1,297 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="mainmenu_8h" kind="file" language="C++">
+    <compoundname>mainmenu.h</compoundname>
+    <includes local="no">QMainWindow</includes>
+    <includes local="no">QMenuBar</includes>
+    <includes refid="actionsearch_8h" local="yes">dialog/actionsearch/actionsearch.h</includes>
+    <includes refid="menu_8h" local="yes">widget/menu/menu.h</includes>
+    <incdepgraph>
+      <node id="1">
+        <label>mainmenu.h</label>
+        <link refid="mainmenu_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>QMenu</label>
+      </node>
+      <node id="3">
+        <label>QMenuBar</label>
+      </node>
+      <node id="2">
+        <label>QMainWindow</label>
+      </node>
+      <node id="7">
+        <label>QListWidget</label>
+      </node>
+      <node id="9">
+        <label>common/define.h</label>
+        <link refid="define_8h"/>
+      </node>
+      <node id="4">
+        <label>dialog/actionsearch/actionsearch.h</label>
+        <link refid="actionsearch_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>QDialog</label>
+      </node>
+      <node id="6">
+        <label>QLineEdit</label>
+      </node>
+      <node id="10">
+        <label>widget/menu/menu.h</label>
+        <link refid="menu_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>QMetaMethod</label>
+      </node>
+    </incdepgraph>
+    <innerclass refid="class_main_menu" prot="public">MainMenu</innerclass>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/***</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"></highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/><sp/>Olive<sp/>-<sp/>Non-Linear<sp/>Video<sp/>Editor</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/><sp/>Copyright<sp/>(C)<sp/>2019<sp/>Olive<sp/>Team</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"></highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/><sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/><sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/><sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"></highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/><sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/><sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/><sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"></highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/><sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/><sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"></highlight></codeline>
+<codeline lineno="19"><highlight class="comment">***/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>MAINMENU_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>MAINMENU_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QMainWindow&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QMenuBar&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="actionsearch_8h" kindref="compound">dialog/actionsearch/actionsearch.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="menu_8h" kindref="compound">widget/menu/menu.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><ref refid="define_8h_1a0472692dd1f22472ad63da20da919e8c" kindref="member">OLIVE_NAMESPACE_ENTER</ref></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_main_window" kindref="compound">MainWindow</ref>;</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39" refid="class_main_menu" refkind="compound"><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_main_menu" kindref="compound">MainMenu</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>QMenuBar</highlight></codeline>
+<codeline lineno="40"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/>Q_OBJECT</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="43" refid="class_main_menu_1ac983e029c7e13c5040a07ba99ca691e8" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_main_menu_1ac983e029c7e13c5040a07ba99ca691e8" kindref="member">MainMenu</ref>(<ref refid="class_main_window" kindref="compound">MainWindow</ref><sp/>*parent);</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="53" refid="class_main_menu_1ae2b90f30ccf95f35f17da463bd9e11b6" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_main_menu_1ae2b90f30ccf95f35f17da463bd9e11b6" kindref="member">changeEvent</ref>(QEvent*<sp/>e);</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal"><sp/>slots:</highlight></codeline>
+<codeline lineno="62" refid="class_main_menu_1a70fcd333c2d0e82b32353760750f40ea" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_main_menu_1a70fcd333c2d0e82b32353760750f40ea" kindref="member">ToolItemTriggered</ref>();</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70" refid="class_main_menu_1a4a6c37ab6a328d26e341a78a04a24ebf" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_main_menu_1a4a6c37ab6a328d26e341a78a04a24ebf" kindref="member">TimecodeDisplayTriggered</ref>();</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75" refid="class_main_menu_1aea423edebc45bb95a1b72fe5c4054619" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_main_menu_1aea423edebc45bb95a1b72fe5c4054619" kindref="member">FileMenuAboutToShow</ref>();</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80" refid="class_main_menu_1a14847076c3c75d07f09999dbb5bc9bb5" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_main_menu_1a14847076c3c75d07f09999dbb5bc9bb5" kindref="member">ViewMenuAboutToShow</ref>();</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85" refid="class_main_menu_1a89ba1d6a0d38c43b9f34476f1e15f346" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_main_menu_1a89ba1d6a0d38c43b9f34476f1e15f346" kindref="member">ToolsMenuAboutToShow</ref>();</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90" refid="class_main_menu_1a63c46361704c5986abfe057cac991f4f" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_main_menu_1a63c46361704c5986abfe057cac991f4f" kindref="member">PlaybackMenuAboutToShow</ref>();</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95" refid="class_main_menu_1af53b2e78964c26f784ebe955a8d4e1b6" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_main_menu_1af53b2e78964c26f784ebe955a8d4e1b6" kindref="member">WindowMenuAboutToShow</ref>();</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100" refid="class_main_menu_1a8455c556b3c7c881d9522aa655e6107f" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_main_menu_1a8455c556b3c7c881d9522aa655e6107f" kindref="member">WindowMenuAboutToHide</ref>();</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105" refid="class_main_menu_1aec825f65f02950b086bee08c258b5a25" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_main_menu_1aec825f65f02950b086bee08c258b5a25" kindref="member">PopulateOpenRecent</ref>();</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight></codeline>
+<codeline lineno="110" refid="class_main_menu_1abc9ee923abd2b89997a68b135880e066" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_main_menu_1abc9ee923abd2b89997a68b135880e066" kindref="member">CloseOpenRecentMenu</ref>();</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117" refid="class_main_menu_1a1336f2de103ac87f89f793d70bd89b7e" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_main_menu_1a1336f2de103ac87f89f793d70bd89b7e" kindref="member">ZoomInTriggered</ref>();</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight></codeline>
+<codeline lineno="124" refid="class_main_menu_1a9855821d1d31e43d85bd42e215534a01" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_main_menu_1a9855821d1d31e43d85bd42e215534a01" kindref="member">ZoomOutTriggered</ref>();</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight></codeline>
+<codeline lineno="126" refid="class_main_menu_1a7326c332b481222f4247b9b5e8de92d8" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_main_menu_1a7326c332b481222f4247b9b5e8de92d8" kindref="member">IncreaseTrackHeightTriggered</ref>();</highlight></codeline>
+<codeline lineno="127" refid="class_main_menu_1a2d5a3dc35360132980c18948dfa92665" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_main_menu_1a2d5a3dc35360132980c18948dfa92665" kindref="member">DecreaseTrackHeightTriggered</ref>();</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight></codeline>
+<codeline lineno="129" refid="class_main_menu_1aed42a858045ff14d2f56dffca548acd5" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_main_menu_1aed42a858045ff14d2f56dffca548acd5" kindref="member">GoToStartTriggered</ref>();</highlight></codeline>
+<codeline lineno="130" refid="class_main_menu_1a35be93ac8f3072efb82c076c0fe3aec3" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_main_menu_1a35be93ac8f3072efb82c076c0fe3aec3" kindref="member">PrevFrameTriggered</ref>();</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight></codeline>
+<codeline lineno="137" refid="class_main_menu_1a704ad5f48e4500768f34657e38da3008" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_main_menu_1a704ad5f48e4500768f34657e38da3008" kindref="member">PlayPauseTriggered</ref>();</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight></codeline>
+<codeline lineno="139" refid="class_main_menu_1a72d0bc62cd5f38f810157b9985b8ca34" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_main_menu_1a72d0bc62cd5f38f810157b9985b8ca34" kindref="member">PlayInToOutTriggered</ref>();</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"></highlight></codeline>
+<codeline lineno="141" refid="class_main_menu_1a16de161857cf34bd4dcd661e6afdc485" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_main_menu_1a16de161857cf34bd4dcd661e6afdc485" kindref="member">LoopTriggered</ref>(</highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>enabled);</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight></codeline>
+<codeline lineno="143" refid="class_main_menu_1a8e07bb2830a55f3f1e29d1cc5909a474" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_main_menu_1a8e07bb2830a55f3f1e29d1cc5909a474" kindref="member">NextFrameTriggered</ref>();</highlight></codeline>
+<codeline lineno="144" refid="class_main_menu_1abffc87cd310a4de1438c718f1c33b7cb" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_main_menu_1abffc87cd310a4de1438c718f1c33b7cb" kindref="member">GoToEndTriggered</ref>();</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"></highlight></codeline>
+<codeline lineno="146" refid="class_main_menu_1acca90a7f298e17fb5f5d824f1d73feb5" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_main_menu_1acca90a7f298e17fb5f5d824f1d73feb5" kindref="member">SelectAllTriggered</ref>();</highlight></codeline>
+<codeline lineno="147" refid="class_main_menu_1aca0ec8206d9f8dfd6142a27ee54fa457" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_main_menu_1aca0ec8206d9f8dfd6142a27ee54fa457" kindref="member">DeselectAllTriggered</ref>();</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149" refid="class_main_menu_1a07fa52d456f2f1f269f1441ec5926d84" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_main_menu_1a07fa52d456f2f1f269f1441ec5926d84" kindref="member">InsertTriggered</ref>();</highlight></codeline>
+<codeline lineno="150" refid="class_main_menu_1a33d57e8f436b6a76f33a9f4adee498e2" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_main_menu_1a33d57e8f436b6a76f33a9f4adee498e2" kindref="member">OverwriteTriggered</ref>();</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight></codeline>
+<codeline lineno="152" refid="class_main_menu_1a78914dc41a5ce8053078df8cfdd1b956" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_main_menu_1a78914dc41a5ce8053078df8cfdd1b956" kindref="member">RippleToInTriggered</ref>();</highlight></codeline>
+<codeline lineno="153" refid="class_main_menu_1ae2d8675e9b7e77edd2874889a02228fa" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_main_menu_1ae2d8675e9b7e77edd2874889a02228fa" kindref="member">RippleToOutTriggered</ref>();</highlight></codeline>
+<codeline lineno="154" refid="class_main_menu_1a7b9ad1731f881c52b007fade47537801" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_main_menu_1a7b9ad1731f881c52b007fade47537801" kindref="member">EditToInTriggered</ref>();</highlight></codeline>
+<codeline lineno="155" refid="class_main_menu_1aa301c3d51d817a3fb59704ec63cbd146" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_main_menu_1aa301c3d51d817a3fb59704ec63cbd146" kindref="member">EditToOutTriggered</ref>();</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight></codeline>
+<codeline lineno="157" refid="class_main_menu_1a33c9cb97f01ff7130213c629996a0230" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_main_menu_1a33c9cb97f01ff7130213c629996a0230" kindref="member">ActionSearchTriggered</ref>();</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"></highlight></codeline>
+<codeline lineno="159" refid="class_main_menu_1a5c1a8f1a774b2d69eb992aa527b5845e" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_main_menu_1a5c1a8f1a774b2d69eb992aa527b5845e" kindref="member">ShuttleLeftTriggered</ref>();</highlight></codeline>
+<codeline lineno="160" refid="class_main_menu_1aa44abfe7531aff89939fae5927681f10" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_main_menu_1aa44abfe7531aff89939fae5927681f10" kindref="member">ShuttleStopTriggered</ref>();</highlight></codeline>
+<codeline lineno="161" refid="class_main_menu_1a0cde82ff8e335fcdcd8681afaec4c19d" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_main_menu_1a0cde82ff8e335fcdcd8681afaec4c19d" kindref="member">ShuttleRightTriggered</ref>();</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"></highlight></codeline>
+<codeline lineno="163" refid="class_main_menu_1ad4666b9eb8086d2ea31e75c98a40a102" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_main_menu_1ad4666b9eb8086d2ea31e75c98a40a102" kindref="member">GoToPrevCutTriggered</ref>();</highlight></codeline>
+<codeline lineno="164" refid="class_main_menu_1a7d31136a01b0210e943e73ba4cc986fc" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_main_menu_1a7d31136a01b0210e943e73ba4cc986fc" kindref="member">GoToNextCutTriggered</ref>();</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"></highlight></codeline>
+<codeline lineno="166" refid="class_main_menu_1a856b0f411c6fd95873d90b4bf1b417dc" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_main_menu_1a856b0f411c6fd95873d90b4bf1b417dc" kindref="member">SetMarkerTriggered</ref>();</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"></highlight></codeline>
+<codeline lineno="168" refid="class_main_menu_1af7e1930cc1df86c26fe2603ee3847ca0" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_main_menu_1af7e1930cc1df86c26fe2603ee3847ca0" kindref="member">FullScreenViewerTriggered</ref>();</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"></highlight></codeline>
+<codeline lineno="170" refid="class_main_menu_1a1da200e55a90d76107d736a3d24d8cf4" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_main_menu_1a1da200e55a90d76107d736a3d24d8cf4" kindref="member">ToggleShowAllTriggered</ref>();</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"></highlight></codeline>
+<codeline lineno="172" refid="class_main_menu_1a4af9aceb0bc9528e3592f0b2a9591765" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_main_menu_1a4af9aceb0bc9528e3592f0b2a9591765" kindref="member">DeleteInOutTriggered</ref>();</highlight></codeline>
+<codeline lineno="173" refid="class_main_menu_1a52fb3465382e40ec3e4d75d96276008a" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_main_menu_1a52fb3465382e40ec3e4d75d96276008a" kindref="member">RippleDeleteInOutTriggered</ref>();</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"></highlight></codeline>
+<codeline lineno="175" refid="class_main_menu_1ae296b8132acbbccbd59e9ba0f6ba3f92" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_main_menu_1ae296b8132acbbccbd59e9ba0f6ba3f92" kindref="member">GoToInTriggered</ref>();</highlight></codeline>
+<codeline lineno="176" refid="class_main_menu_1aacc3ebe4485b2e23a86860bf034d776a" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_main_menu_1aacc3ebe4485b2e23a86860bf034d776a" kindref="member">GoToOutTriggered</ref>();</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"></highlight></codeline>
+<codeline lineno="178" refid="class_main_menu_1a7669351eaed15d949ced2791643839b6" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_main_menu_1a7669351eaed15d949ced2791643839b6" kindref="member">OpenRecentItemTriggered</ref>();</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"></highlight></codeline>
+<codeline lineno="180"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="184" refid="class_main_menu_1a77fef2432273f72f37d2a3bc3e7b81ca" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_main_menu_1a77fef2432273f72f37d2a3bc3e7b81ca" kindref="member">Retranslate</ref>();</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"></highlight></codeline>
+<codeline lineno="186" refid="class_main_menu_1ae625c7cdd737dec5ba5c882503a9c757" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_menu" kindref="compound">Menu</ref>*<sp/><ref refid="class_main_menu_1ae625c7cdd737dec5ba5c882503a9c757" kindref="member">file_menu_</ref>;</highlight></codeline>
+<codeline lineno="187" refid="class_main_menu_1ae94a0dcee2c9a800da724bde8f28e7d7" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_menu" kindref="compound">Menu</ref>*<sp/><ref refid="class_main_menu_1ae94a0dcee2c9a800da724bde8f28e7d7" kindref="member">file_new_menu_</ref>;</highlight></codeline>
+<codeline lineno="188" refid="class_main_menu_1a42a9c1f7e6bcd323431a9b1bbce3438b" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1a42a9c1f7e6bcd323431a9b1bbce3438b" kindref="member">file_open_item_</ref>;</highlight></codeline>
+<codeline lineno="189" refid="class_main_menu_1a602ea07d953392e92979fe6b1fb68b04" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_menu" kindref="compound">Menu</ref>*<sp/><ref refid="class_main_menu_1a602ea07d953392e92979fe6b1fb68b04" kindref="member">file_open_recent_menu_</ref>;</highlight></codeline>
+<codeline lineno="190" refid="class_main_menu_1a3f0821109ba6d0b9610863aa35b4858c" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1a3f0821109ba6d0b9610863aa35b4858c" kindref="member">file_open_recent_separator_</ref>;</highlight></codeline>
+<codeline lineno="191" refid="class_main_menu_1aedebd1eb3d9df0fc4aea6df288cb78c1" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1aedebd1eb3d9df0fc4aea6df288cb78c1" kindref="member">file_open_recent_clear_item_</ref>;</highlight></codeline>
+<codeline lineno="192" refid="class_main_menu_1adb1d8c0d651300316b5ea51e9c9fb8e7" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1adb1d8c0d651300316b5ea51e9c9fb8e7" kindref="member">file_save_item_</ref>;</highlight></codeline>
+<codeline lineno="193" refid="class_main_menu_1aaf2fde12679b10ebdcc587b9158b5ff1" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1aaf2fde12679b10ebdcc587b9158b5ff1" kindref="member">file_save_as_item_</ref>;</highlight></codeline>
+<codeline lineno="194" refid="class_main_menu_1a1992b73767af3d7e2e72d2e9ef8a1789" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1a1992b73767af3d7e2e72d2e9ef8a1789" kindref="member">file_save_all_item_</ref>;</highlight></codeline>
+<codeline lineno="195" refid="class_main_menu_1aeffe3e2994e4a4c3f025d56afa16ea22" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1aeffe3e2994e4a4c3f025d56afa16ea22" kindref="member">file_import_item_</ref>;</highlight></codeline>
+<codeline lineno="196" refid="class_main_menu_1af6a36a4eb30ac8ce958ff4a59beb3d6f" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1af6a36a4eb30ac8ce958ff4a59beb3d6f" kindref="member">file_export_item_</ref>;</highlight></codeline>
+<codeline lineno="197" refid="class_main_menu_1a45ad31a99969ceaa5140f3b6a86a56d8" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1a45ad31a99969ceaa5140f3b6a86a56d8" kindref="member">file_project_properties_item_</ref>;</highlight></codeline>
+<codeline lineno="198" refid="class_main_menu_1a2ca36478d3626d94a42b27dc181165e3" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1a2ca36478d3626d94a42b27dc181165e3" kindref="member">file_close_project_item_</ref>;</highlight></codeline>
+<codeline lineno="199" refid="class_main_menu_1ad68e1a510fd7b1407ea5efbe5fbc540b" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1ad68e1a510fd7b1407ea5efbe5fbc540b" kindref="member">file_close_all_projects_item_</ref>;</highlight></codeline>
+<codeline lineno="200" refid="class_main_menu_1a7035d7bf523368755aa89a6bb91c8bd6" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1a7035d7bf523368755aa89a6bb91c8bd6" kindref="member">file_close_all_except_item_</ref>;</highlight></codeline>
+<codeline lineno="201" refid="class_main_menu_1a601a805c67cac64e4ef0b8e58febfe1d" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1a601a805c67cac64e4ef0b8e58febfe1d" kindref="member">file_exit_item_</ref>;</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"></highlight></codeline>
+<codeline lineno="203" refid="class_main_menu_1acab6c0a104edd9af76a8550c1bd99986" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_menu" kindref="compound">Menu</ref>*<sp/><ref refid="class_main_menu_1acab6c0a104edd9af76a8550c1bd99986" kindref="member">edit_menu_</ref>;</highlight></codeline>
+<codeline lineno="204" refid="class_main_menu_1a588355dcb9fda42bf3b3145e2f221b40" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1a588355dcb9fda42bf3b3145e2f221b40" kindref="member">edit_undo_item_</ref>;</highlight></codeline>
+<codeline lineno="205" refid="class_main_menu_1a10af7564f1ad9fe5c231724ee934e889" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1a10af7564f1ad9fe5c231724ee934e889" kindref="member">edit_redo_item_</ref>;</highlight></codeline>
+<codeline lineno="206" refid="class_main_menu_1a0819005a701b98824fb1a070ab7b6e35" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1a0819005a701b98824fb1a070ab7b6e35" kindref="member">edit_select_all_item_</ref>;</highlight></codeline>
+<codeline lineno="207" refid="class_main_menu_1ac1b923da7d3eb4f40c48483c69485766" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1ac1b923da7d3eb4f40c48483c69485766" kindref="member">edit_deselect_all_item_</ref>;</highlight></codeline>
+<codeline lineno="208" refid="class_main_menu_1a1daae80a36d10d7f2a85a6cb4f3dd122" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1a1daae80a36d10d7f2a85a6cb4f3dd122" kindref="member">edit_insert_item_</ref>;</highlight></codeline>
+<codeline lineno="209" refid="class_main_menu_1a77c7edcc7a2f6b3b9a3d70bf4b95b8bd" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1a77c7edcc7a2f6b3b9a3d70bf4b95b8bd" kindref="member">edit_overwrite_item_</ref>;</highlight></codeline>
+<codeline lineno="210" refid="class_main_menu_1acae6b985afd810c7a2cb09cc1a43ae74" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1acae6b985afd810c7a2cb09cc1a43ae74" kindref="member">edit_ripple_to_in_item_</ref>;</highlight></codeline>
+<codeline lineno="211" refid="class_main_menu_1a8ed4749d166227e74c4aedecc7d98f74" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1a8ed4749d166227e74c4aedecc7d98f74" kindref="member">edit_ripple_to_out_item_</ref>;</highlight></codeline>
+<codeline lineno="212" refid="class_main_menu_1aae0e83ef28cad3648ba4446b4276fb9a" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1aae0e83ef28cad3648ba4446b4276fb9a" kindref="member">edit_edit_to_in_item_</ref>;</highlight></codeline>
+<codeline lineno="213" refid="class_main_menu_1ae2291c2726a0736ef46cfff9a0bffa99" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1ae2291c2726a0736ef46cfff9a0bffa99" kindref="member">edit_edit_to_out_item_</ref>;</highlight></codeline>
+<codeline lineno="214" refid="class_main_menu_1abb96618cd4091dd32b3da29c10f29b23" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1abb96618cd4091dd32b3da29c10f29b23" kindref="member">edit_delete_inout_item_</ref>;</highlight></codeline>
+<codeline lineno="215" refid="class_main_menu_1a5ca7e5cc887894874ef3016867293184" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1a5ca7e5cc887894874ef3016867293184" kindref="member">edit_ripple_delete_inout_item_</ref>;</highlight></codeline>
+<codeline lineno="216" refid="class_main_menu_1a535e1f88836a7522b99d85f75e54a922" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1a535e1f88836a7522b99d85f75e54a922" kindref="member">edit_set_marker_item_</ref>;</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"></highlight></codeline>
+<codeline lineno="218" refid="class_main_menu_1a2c3eb966ce4dcfc6af3a5579c4019ed4" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_menu" kindref="compound">Menu</ref>*<sp/><ref refid="class_main_menu_1a2c3eb966ce4dcfc6af3a5579c4019ed4" kindref="member">view_menu_</ref>;</highlight></codeline>
+<codeline lineno="219" refid="class_main_menu_1a193880bf6368a91b0b2993d5005f0581" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1a193880bf6368a91b0b2993d5005f0581" kindref="member">view_zoom_in_item_</ref>;</highlight></codeline>
+<codeline lineno="220" refid="class_main_menu_1af8d1e477c2d4623663425c524688801c" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1af8d1e477c2d4623663425c524688801c" kindref="member">view_zoom_out_item_</ref>;</highlight></codeline>
+<codeline lineno="221" refid="class_main_menu_1af23751a2673e2a7730d41365a1246bd7" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1af23751a2673e2a7730d41365a1246bd7" kindref="member">view_increase_track_height_item_</ref>;</highlight></codeline>
+<codeline lineno="222" refid="class_main_menu_1ae3ee462ea7a8a0bee7bb53ea30849e93" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1ae3ee462ea7a8a0bee7bb53ea30849e93" kindref="member">view_decrease_track_height_item_</ref>;</highlight></codeline>
+<codeline lineno="223" refid="class_main_menu_1a51ebacaa09d76617ccc4eb6e60f985af" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1a51ebacaa09d76617ccc4eb6e60f985af" kindref="member">view_show_all_item_</ref>;</highlight></codeline>
+<codeline lineno="224" refid="class_main_menu_1aba90181cbd895f0e850b8afef8b4ac50" refkind="member"><highlight class="normal"><sp/><sp/>QActionGroup*<sp/><ref refid="class_main_menu_1aba90181cbd895f0e850b8afef8b4ac50" kindref="member">frame_view_mode_group_</ref>;</highlight></codeline>
+<codeline lineno="225" refid="class_main_menu_1ad9b9730cf0ce5e143d57b4ff3674ece3" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1ad9b9730cf0ce5e143d57b4ff3674ece3" kindref="member">view_timecode_view_dropframe_item_</ref>;</highlight></codeline>
+<codeline lineno="226" refid="class_main_menu_1a8e30a22fadfe1938d57f2ff554661587" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1a8e30a22fadfe1938d57f2ff554661587" kindref="member">view_timecode_view_nondropframe_item_</ref>;</highlight></codeline>
+<codeline lineno="227" refid="class_main_menu_1ac365cc03e04b6aad0a9eca2d1a70d8c2" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1ac365cc03e04b6aad0a9eca2d1a70d8c2" kindref="member">view_timecode_view_seconds_item_</ref>;</highlight></codeline>
+<codeline lineno="228" refid="class_main_menu_1a5e95a43c0ee52401dd34a6e6bb3d7045" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1a5e95a43c0ee52401dd34a6e6bb3d7045" kindref="member">view_timecode_view_frames_item_</ref>;</highlight></codeline>
+<codeline lineno="229" refid="class_main_menu_1a15fd7df2d3f108be96441418640615bf" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1a15fd7df2d3f108be96441418640615bf" kindref="member">view_timecode_view_milliseconds_item_</ref>;</highlight></codeline>
+<codeline lineno="230" refid="class_main_menu_1a96b5986f7e56980a84ba75a547e318c4" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1a96b5986f7e56980a84ba75a547e318c4" kindref="member">view_full_screen_item_</ref>;</highlight></codeline>
+<codeline lineno="231" refid="class_main_menu_1abbe426760edbd22384b3f76b5e629f1c" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1abbe426760edbd22384b3f76b5e629f1c" kindref="member">view_full_screen_viewer_item_</ref>;</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"></highlight></codeline>
+<codeline lineno="233" refid="class_main_menu_1ade7720bfb5f306f5f3eae79061312f5b" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_menu" kindref="compound">Menu</ref>*<sp/><ref refid="class_main_menu_1ade7720bfb5f306f5f3eae79061312f5b" kindref="member">playback_menu_</ref>;</highlight></codeline>
+<codeline lineno="234" refid="class_main_menu_1a103be250a6c16132584e06fe14f1de71" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1a103be250a6c16132584e06fe14f1de71" kindref="member">playback_gotostart_item_</ref>;</highlight></codeline>
+<codeline lineno="235" refid="class_main_menu_1a0fddeeb9f297483cd871db61cec37192" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1a0fddeeb9f297483cd871db61cec37192" kindref="member">playback_prevframe_item_</ref>;</highlight></codeline>
+<codeline lineno="236" refid="class_main_menu_1ab4a9877cb173cb85262efab436d937c1" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1ab4a9877cb173cb85262efab436d937c1" kindref="member">playback_playpause_item_</ref>;</highlight></codeline>
+<codeline lineno="237" refid="class_main_menu_1a71573c6f0aa7303c276ebd13895aa553" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1a71573c6f0aa7303c276ebd13895aa553" kindref="member">playback_playinout_item_</ref>;</highlight></codeline>
+<codeline lineno="238" refid="class_main_menu_1abd505500437f119b86d16c6c3da60109" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1abd505500437f119b86d16c6c3da60109" kindref="member">playback_nextframe_item_</ref>;</highlight></codeline>
+<codeline lineno="239" refid="class_main_menu_1a74dd2a4b1c7d389b8a66f2d49aa67af7" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1a74dd2a4b1c7d389b8a66f2d49aa67af7" kindref="member">playback_gotoend_item_</ref>;</highlight></codeline>
+<codeline lineno="240" refid="class_main_menu_1a2b46fccaf1c99b4835d50e779aa50bf2" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1a2b46fccaf1c99b4835d50e779aa50bf2" kindref="member">playback_prevcut_item_</ref>;</highlight></codeline>
+<codeline lineno="241" refid="class_main_menu_1ac01efe20907e386f22c5c0dc11ba67e9" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1ac01efe20907e386f22c5c0dc11ba67e9" kindref="member">playback_nextcut_item_</ref>;</highlight></codeline>
+<codeline lineno="242" refid="class_main_menu_1ad16b490ae1cbf06808b6bd2704986bbe" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1ad16b490ae1cbf06808b6bd2704986bbe" kindref="member">playback_gotoin_item_</ref>;</highlight></codeline>
+<codeline lineno="243" refid="class_main_menu_1a70c6b628287b367593224aa34829e5f7" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1a70c6b628287b367593224aa34829e5f7" kindref="member">playback_gotoout_item_</ref>;</highlight></codeline>
+<codeline lineno="244" refid="class_main_menu_1acf704abddea5390546ce7c14c3b3701d" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1acf704abddea5390546ce7c14c3b3701d" kindref="member">playback_shuttleleft_item_</ref>;</highlight></codeline>
+<codeline lineno="245" refid="class_main_menu_1a717a515e819d1b0bee54c04e8c9a10f2" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1a717a515e819d1b0bee54c04e8c9a10f2" kindref="member">playback_shuttlestop_item_</ref>;</highlight></codeline>
+<codeline lineno="246" refid="class_main_menu_1aa46c1cfab68b6c0a28e6f0a607164d70" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1aa46c1cfab68b6c0a28e6f0a607164d70" kindref="member">playback_shuttleright_item_</ref>;</highlight></codeline>
+<codeline lineno="247" refid="class_main_menu_1a69613d2ccee18dabea4b9f39eee646f9" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1a69613d2ccee18dabea4b9f39eee646f9" kindref="member">playback_loop_item_</ref>;</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"></highlight></codeline>
+<codeline lineno="249" refid="class_main_menu_1ade08cfb4b4f1449d6c873d22ae37d29f" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_menu" kindref="compound">Menu</ref>*<sp/><ref refid="class_main_menu_1ade08cfb4b4f1449d6c873d22ae37d29f" kindref="member">window_menu_</ref>;</highlight></codeline>
+<codeline lineno="250" refid="class_main_menu_1af8ed38197a61811ead278875555d204a" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1af8ed38197a61811ead278875555d204a" kindref="member">window_menu_separator_</ref>;</highlight></codeline>
+<codeline lineno="251" refid="class_main_menu_1ac24abc084b726389b03377128d41f418" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1ac24abc084b726389b03377128d41f418" kindref="member">window_maximize_panel_item_</ref>;</highlight></codeline>
+<codeline lineno="252" refid="class_main_menu_1a90f40dae339c44d32183bb65d5512967" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1a90f40dae339c44d32183bb65d5512967" kindref="member">window_lock_layout_item_</ref>;</highlight></codeline>
+<codeline lineno="253" refid="class_main_menu_1a44e77100dd018ac3a7216b6a720cad1f" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1a44e77100dd018ac3a7216b6a720cad1f" kindref="member">window_reset_layout_item_</ref>;</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"></highlight></codeline>
+<codeline lineno="255" refid="class_main_menu_1a5bc591f03e13a3c2bb19b8bc7ce6988d" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_menu" kindref="compound">Menu</ref>*<sp/><ref refid="class_main_menu_1a5bc591f03e13a3c2bb19b8bc7ce6988d" kindref="member">tools_menu_</ref>;</highlight></codeline>
+<codeline lineno="256" refid="class_main_menu_1a9e20a9d776d732db2fa2ec6d0b1c222a" refkind="member"><highlight class="normal"><sp/><sp/>QActionGroup*<sp/><ref refid="class_main_menu_1a9e20a9d776d732db2fa2ec6d0b1c222a" kindref="member">tools_group_</ref>;</highlight></codeline>
+<codeline lineno="257" refid="class_main_menu_1a6afc2ba38b247de9bffdf0179559e9c7" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1a6afc2ba38b247de9bffdf0179559e9c7" kindref="member">tools_pointer_item_</ref>;</highlight></codeline>
+<codeline lineno="258" refid="class_main_menu_1a48d1a3d6f527bea5f52b06e3ab693317" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1a48d1a3d6f527bea5f52b06e3ab693317" kindref="member">tools_edit_item_</ref>;</highlight></codeline>
+<codeline lineno="259" refid="class_main_menu_1afe13f9bc27e32564d0e802078df7f8d0" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1afe13f9bc27e32564d0e802078df7f8d0" kindref="member">tools_ripple_item_</ref>;</highlight></codeline>
+<codeline lineno="260" refid="class_main_menu_1a1c359b91bc168bb5b27c33ca82a8c7b9" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1a1c359b91bc168bb5b27c33ca82a8c7b9" kindref="member">tools_rolling_item_</ref>;</highlight></codeline>
+<codeline lineno="261" refid="class_main_menu_1a1ce751b363da2fee8e9f19574be773f2" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1a1ce751b363da2fee8e9f19574be773f2" kindref="member">tools_razor_item_</ref>;</highlight></codeline>
+<codeline lineno="262" refid="class_main_menu_1ab6e59647218c02aa4755c0078c358e60" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1ab6e59647218c02aa4755c0078c358e60" kindref="member">tools_slip_item_</ref>;</highlight></codeline>
+<codeline lineno="263" refid="class_main_menu_1a01d62ba69f135d07fb4c4dfc8a6e93c0" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1a01d62ba69f135d07fb4c4dfc8a6e93c0" kindref="member">tools_slide_item_</ref>;</highlight></codeline>
+<codeline lineno="264" refid="class_main_menu_1a11cb612d562a47d50931b8998872baa3" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1a11cb612d562a47d50931b8998872baa3" kindref="member">tools_hand_item_</ref>;</highlight></codeline>
+<codeline lineno="265" refid="class_main_menu_1ab90cacda53a22ce3b74b63de092aa192" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1ab90cacda53a22ce3b74b63de092aa192" kindref="member">tools_zoom_item_</ref>;</highlight></codeline>
+<codeline lineno="266" refid="class_main_menu_1a06205a44dd474d075561cbbed40321dc" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1a06205a44dd474d075561cbbed40321dc" kindref="member">tools_transition_item_</ref>;</highlight></codeline>
+<codeline lineno="267" refid="class_main_menu_1a414ee0f93edb0b775f3272d7504fb895" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1a414ee0f93edb0b775f3272d7504fb895" kindref="member">tools_snapping_item_</ref>;</highlight></codeline>
+<codeline lineno="268" refid="class_main_menu_1a664948170ba41374e3ec89f8460a3ecb" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1a664948170ba41374e3ec89f8460a3ecb" kindref="member">tools_preferences_item_</ref>;</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"></highlight></codeline>
+<codeline lineno="270" refid="class_main_menu_1a824c3f573e0606bb4f289ed6487c34d2" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_menu" kindref="compound">Menu</ref>*<sp/><ref refid="class_main_menu_1a824c3f573e0606bb4f289ed6487c34d2" kindref="member">help_menu_</ref>;</highlight></codeline>
+<codeline lineno="271" refid="class_main_menu_1ac05626c7bfb2c7fb783dc746d37dc902" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1ac05626c7bfb2c7fb783dc746d37dc902" kindref="member">help_action_search_item_</ref>;</highlight></codeline>
+<codeline lineno="272" refid="class_main_menu_1a240c975160aeec8202a4ec8c6b0292f0" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_main_menu_1a240c975160aeec8202a4ec8c6b0292f0" kindref="member">help_about_item_</ref>;</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"></highlight></codeline>
+<codeline lineno="274"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"></highlight></codeline>
+<codeline lineno="276"><highlight class="normal"><ref refid="define_8h_1abe3de0634d907ca0f5d1acf732c49dac" kindref="member">OLIVE_NAMESPACE_EXIT</ref></highlight></codeline>
+<codeline lineno="277"><highlight class="normal"></highlight></codeline>
+<codeline lineno="278"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//<sp/>MAINMENU_H</highlight></codeline>
+    </programlisting>
+    <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h"/>
+  </compounddef>
+</doxygen>

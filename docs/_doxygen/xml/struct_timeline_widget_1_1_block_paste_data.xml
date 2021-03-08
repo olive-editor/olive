@@ -1,0 +1,85 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="struct_timeline_widget_1_1_block_paste_data" kind="struct" language="C++" prot="protected">
+    <compoundname>TimelineWidget::BlockPasteData</compoundname>
+    <includes refid="timelinewidget_8h" local="no">timelinewidget.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="struct_timeline_widget_1_1_block_paste_data_1a2b5bf00bf6866a9b3142ba64c3fbf647" prot="public" static="no" mutable="no">
+        <type>quintptr</type>
+        <definition>quintptr TimelineWidget::BlockPasteData::ptr</definition>
+        <argsstring></argsstring>
+        <name>ptr</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" line="130" column="14" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" bodystart="130" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_timeline_widget_1_1_block_paste_data_1a2a1d2bdde10ddec73dcb7a5d21daf1b1" prot="public" static="no" mutable="no">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational TimelineWidget::BlockPasteData::in</definition>
+        <argsstring></argsstring>
+        <name>in</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" line="131" column="14" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" bodystart="131" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_timeline_widget_1_1_block_paste_data_1a792fcb61ee53619dba2880ca06fdee78" prot="public" static="no" mutable="no">
+        <type><ref refid="class_timeline_1ac18e2f98ba3b99570e714506df77ba51" kindref="member">Timeline::TrackType</ref></type>
+        <definition>Timeline::TrackType TimelineWidget::BlockPasteData::track_type</definition>
+        <argsstring></argsstring>
+        <name>track_type</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" line="132" column="25" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" bodystart="132" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_timeline_widget_1_1_block_paste_data_1a35323cfefaf12cb8a3a75ac5fc648dbd" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int TimelineWidget::BlockPasteData::track_index</definition>
+        <argsstring></argsstring>
+        <name>track_index</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" line="133" column="9" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" bodystart="133" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="2">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="1">
+        <label>TimelineWidget::BlockPasteData</label>
+        <link refid="struct_timeline_widget_1_1_block_paste_data"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>in</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" line="129" column="3" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" bodystart="129" bodyend="134"/>
+    <listofallmembers>
+      <member refid="struct_timeline_widget_1_1_block_paste_data_1a2a1d2bdde10ddec73dcb7a5d21daf1b1" prot="public" virt="non-virtual"><scope>TimelineWidget::BlockPasteData</scope><name>in</name></member>
+      <member refid="struct_timeline_widget_1_1_block_paste_data_1a2b5bf00bf6866a9b3142ba64c3fbf647" prot="public" virt="non-virtual"><scope>TimelineWidget::BlockPasteData</scope><name>ptr</name></member>
+      <member refid="struct_timeline_widget_1_1_block_paste_data_1a35323cfefaf12cb8a3a75ac5fc648dbd" prot="public" virt="non-virtual"><scope>TimelineWidget::BlockPasteData</scope><name>track_index</name></member>
+      <member refid="struct_timeline_widget_1_1_block_paste_data_1a792fcb61ee53619dba2880ca06fdee78" prot="public" virt="non-virtual"><scope>TimelineWidget::BlockPasteData</scope><name>track_type</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

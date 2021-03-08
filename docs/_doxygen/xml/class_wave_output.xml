@@ -1,0 +1,258 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_wave_output" kind="class" language="C++" prot="public">
+    <compoundname>WaveOutput</compoundname>
+    <includes refid="waveoutput_8h" local="no">waveoutput.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_wave_output_1a30a163bbe8e128d098343a8b09d1d37a" prot="private" static="no" mutable="no">
+        <type>QFile</type>
+        <definition>QFile WaveOutput::file_</definition>
+        <argsstring></argsstring>
+        <name>file_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/waveoutput.h" line="77" column="9" bodyfile="C:/Daten/Olive/olive/app/codec/waveoutput.h" bodystart="77" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_wave_output_1a3d948279b74c294d4b75429ba49a0f36" prot="private" static="no" mutable="no">
+        <type><ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref></type>
+        <definition>AudioRenderingParams WaveOutput::params_</definition>
+        <argsstring></argsstring>
+        <name>params_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/waveoutput.h" line="79" column="24" bodyfile="C:/Daten/Olive/olive/app/codec/waveoutput.h" bodystart="79" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_wave_output_1adbfc976e20cd0ecfbfbc6f51a23b6377" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int WaveOutput::data_length_</definition>
+        <argsstring></argsstring>
+        <name>data_length_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/waveoutput.h" line="81" column="7" bodyfile="C:/Daten/Olive/olive/app/codec/waveoutput.h" bodystart="81" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_wave_output_1ab70336c4b8716a9ba8b1a2f718555d62" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>WaveOutput::WaveOutput</definition>
+        <argsstring>(const QString &amp;f, const AudioRenderingParams &amp;params)</argsstring>
+        <name>WaveOutput</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>f</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref> &amp;</type>
+          <declname>params</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/waveoutput.h" line="53" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_wave_output_1a259240f87a4d08361f11a0a21c54438a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>WaveOutput::~WaveOutput</definition>
+        <argsstring>()</argsstring>
+        <name>~WaveOutput</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/waveoutput.h" line="56" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_wave_output_1a2d2993aba5348e04d383dd2aaaa11ea9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool WaveOutput::open</definition>
+        <argsstring>()</argsstring>
+        <name>open</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/waveoutput.h" line="60" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_wave_output_1a24d552a1ad6db7ebf732b03f68783559" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void WaveOutput::write</definition>
+        <argsstring>(const QByteArray &amp;bytes)</argsstring>
+        <name>write</name>
+        <param>
+          <type>const QByteArray &amp;</type>
+          <declname>bytes</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/waveoutput.h" line="62" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_wave_output_1a755b3544f24e010a7a226d192492b7e5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void WaveOutput::write</definition>
+        <argsstring>(const char *bytes, int length)</argsstring>
+        <name>write</name>
+        <param>
+          <type>const char *</type>
+          <declname>bytes</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>length</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/waveoutput.h" line="63" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_wave_output_1a251920934ba49ba7686f3bdd2201bd77" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void WaveOutput::close</definition>
+        <argsstring>()</argsstring>
+        <name>close</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/waveoutput.h" line="65" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_wave_output_1a55b187ee196943afa8d63f3e2769de47" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const int &amp;</type>
+        <definition>const int&amp; WaveOutput::data_length</definition>
+        <argsstring>() const</argsstring>
+        <name>data_length</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/waveoutput.h" line="67" column="13"/>
+      </memberdef>
+      <memberdef kind="function" id="class_wave_output_1ae094a08958ce35c015c87fc2388c57cc" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref> &amp;</type>
+        <definition>const AudioRenderingParams&amp; WaveOutput::params</definition>
+        <argsstring>() const</argsstring>
+        <name>params</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/waveoutput.h" line="69" column="30"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_wave_output_1ae21b161986dfe672d850ea41896a97f9" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void WaveOutput::write_int</definition>
+        <argsstring>(QFile *file, T integer)</argsstring>
+        <name>write_int</name>
+        <param>
+          <type>QFile *</type>
+          <declname>file</declname>
+        </param>
+        <param>
+          <type>T</type>
+          <declname>integer</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/waveoutput.h" line="73" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_wave_output_1aab8d4a89fdbb133131b0b5da22dd91ea" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void WaveOutput::switch_endianness</definition>
+        <argsstring>(QByteArray &amp;array)</argsstring>
+        <name>switch_endianness</name>
+        <param>
+          <type>QByteArray &amp;</type>
+          <declname>array</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/waveoutput.h" line="75" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="3">
+        <label>AudioParams</label>
+        <link refid="class_audio_params"/>
+      </node>
+      <node id="2">
+        <label>AudioRenderingParams</label>
+        <link refid="class_audio_rendering_params"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>WaveOutput</label>
+        <link refid="class_wave_output"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>params_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/codec/waveoutput.h" line="32" column="1" bodyfile="C:/Daten/Olive/olive/app/codec/waveoutput.h" bodystart="33" bodyend="65"/>
+    <listofallmembers>
+      <member refid="class_wave_output_1a251920934ba49ba7686f3bdd2201bd77" prot="public" virt="non-virtual"><scope>WaveOutput</scope><name>close</name></member>
+      <member refid="class_wave_output_1a55b187ee196943afa8d63f3e2769de47" prot="public" virt="non-virtual"><scope>WaveOutput</scope><name>data_length</name></member>
+      <member refid="class_wave_output_1adbfc976e20cd0ecfbfbc6f51a23b6377" prot="private" virt="non-virtual"><scope>WaveOutput</scope><name>data_length_</name></member>
+      <member refid="class_wave_output_1a30a163bbe8e128d098343a8b09d1d37a" prot="private" virt="non-virtual"><scope>WaveOutput</scope><name>file_</name></member>
+      <member refid="class_wave_output_1a2d2993aba5348e04d383dd2aaaa11ea9" prot="public" virt="non-virtual"><scope>WaveOutput</scope><name>open</name></member>
+      <member refid="class_wave_output_1ae094a08958ce35c015c87fc2388c57cc" prot="public" virt="non-virtual"><scope>WaveOutput</scope><name>params</name></member>
+      <member refid="class_wave_output_1a3d948279b74c294d4b75429ba49a0f36" prot="private" virt="non-virtual"><scope>WaveOutput</scope><name>params_</name></member>
+      <member refid="class_wave_output_1aab8d4a89fdbb133131b0b5da22dd91ea" prot="private" virt="non-virtual"><scope>WaveOutput</scope><name>switch_endianness</name></member>
+      <member refid="class_wave_output_1ab70336c4b8716a9ba8b1a2f718555d62" prot="public" virt="non-virtual"><scope>WaveOutput</scope><name>WaveOutput</name></member>
+      <member refid="class_wave_output_1a24d552a1ad6db7ebf732b03f68783559" prot="public" virt="non-virtual"><scope>WaveOutput</scope><name>write</name></member>
+      <member refid="class_wave_output_1a755b3544f24e010a7a226d192492b7e5" prot="public" virt="non-virtual"><scope>WaveOutput</scope><name>write</name></member>
+      <member refid="class_wave_output_1ae21b161986dfe672d850ea41896a97f9" prot="private" virt="non-virtual"><scope>WaveOutput</scope><name>write_int</name></member>
+      <member refid="class_wave_output_1a259240f87a4d08361f11a0a21c54438a" prot="public" virt="non-virtual"><scope>WaveOutput</scope><name>~WaveOutput</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

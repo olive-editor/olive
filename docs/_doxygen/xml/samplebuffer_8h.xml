@@ -1,0 +1,428 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="samplebuffer_8h" kind="file" language="C++">
+    <compoundname>samplebuffer.h</compoundname>
+    <includes local="no">memory</includes>
+    <includes refid="audioparams_8h" local="yes">render/audioparams.h</includes>
+    <includedby refid="sumsamples_8h" local="yes">sumsamples.h</includedby>
+    <includedby refid="decoder_8h" local="yes">decoder.h</includedby>
+    <includedby refid="node_2node_8h" local="yes">node.h</includedby>
+    <incdepgraph>
+      <node id="13">
+        <label>libavformat/avformat.h</label>
+      </node>
+      <node id="6">
+        <label>QObject</label>
+      </node>
+      <node id="12">
+        <label>QMetaType</label>
+      </node>
+      <node id="9">
+        <label>common/rational.h</label>
+        <link refid="rational_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>render/rendermodes.h</label>
+        <link refid="rendermodes_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>common/define.h</label>
+        <link refid="define_8h"/>
+      </node>
+      <node id="4">
+        <label>QtMath</label>
+      </node>
+      <node id="11">
+        <label>QDebug</label>
+      </node>
+      <node id="5">
+        <label>audio/sampleformat.h</label>
+        <link refid="sampleformat_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>samplebuffer.h</label>
+        <link refid="samplebuffer_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>iostream</label>
+      </node>
+      <node id="3">
+        <label>render/audioparams.h</label>
+        <link refid="audioparams_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>memory</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>sumsamples.h</label>
+        <link refid="sumsamples_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>audiowaveformview.h</label>
+        <link refid="audiowaveformview_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="34">
+        <label>factory.h</label>
+        <link refid="factory_8h"/>
+      </node>
+      <node id="8">
+        <label>mainwindow.h</label>
+        <link refid="mainwindow_8h"/>
+      </node>
+      <node id="18">
+        <label>traverser.h</label>
+        <link refid="traverser_8h"/>
+        <childnode refid="19" relation="include">
+        </childnode>
+      </node>
+      <node id="33">
+        <label>external.h</label>
+        <link refid="external_8h"/>
+      </node>
+      <node id="23">
+        <label>exporter.h</label>
+        <link refid="exporter_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>viewer.h</label>
+        <link refid="widget_2viewer_2viewer_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="24">
+        <label>videorenderbackend.h</label>
+        <link refid="videorenderbackend_8h"/>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>viewerbase.h</label>
+        <link refid="viewerbase_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="30">
+        <label>openglworker.h</label>
+        <link refid="openglworker_8h"/>
+        <childnode refid="25" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>audiobackend.h</label>
+        <link refid="audiobackend_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="27">
+        <label>audioworker.h</label>
+        <link refid="audioworker_8h"/>
+      </node>
+      <node id="31">
+        <label>decodercache.h</label>
+        <link refid="decodercache_8h"/>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+      </node>
+      <node id="19">
+        <label>renderworker.h</label>
+        <link refid="renderworker_8h"/>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>renderbackend.h</label>
+        <link refid="renderbackend_8h"/>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>footageviewer.h</label>
+        <link refid="widget_2viewer_2footageviewer_8h"/>
+      </node>
+      <node id="12">
+        <label>decoder.h</label>
+        <link refid="decoder_8h"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+      </node>
+      <node id="29">
+        <label>openglproxy.h</label>
+        <link refid="openglproxy_8h"/>
+        <childnode refid="25" relation="include">
+        </childnode>
+      </node>
+      <node id="28">
+        <label>videorenderworker.h</label>
+        <link refid="videorenderworker_8h"/>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>audiorenderbackend.h</label>
+        <link refid="audiorenderbackend_8h"/>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>sequenceviewer.h</label>
+        <link refid="sequenceviewer_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>samplebuffer.h</label>
+        <link refid="samplebuffer_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>export.h</label>
+        <link refid="export_8h"/>
+      </node>
+      <node id="14">
+        <label>oiiodecoder.h</label>
+        <link refid="oiiodecoder_8h"/>
+      </node>
+      <node id="13">
+        <label>ffmpegdecoder.h</label>
+        <link refid="ffmpegdecoder_8h"/>
+      </node>
+      <node id="32">
+        <label>node.h</label>
+        <link refid="node_2node_8h"/>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>viewer.h</label>
+        <link refid="panel_2viewer_2viewer_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>media.h</label>
+        <link refid="media_8h"/>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>video.h</label>
+        <link refid="video_8h"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>audio.h</label>
+        <link refid="audio_8h"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>footageviewer.h</label>
+        <link refid="panel_2footageviewer_2footageviewer_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="25">
+        <label>openglbackend.h</label>
+        <link refid="openglbackend_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>audiorenderworker.h</label>
+        <link refid="audiorenderworker_8h"/>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="class_sample_buffer" prot="public">SampleBuffer</innerclass>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="samplebuffer_8h_1aa60dc68e3e43775112c8dabb364d0a33" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="class_sample_buffer" kindref="compound">SampleBuffer</ref> &gt;</type>
+        <definition>using SampleBufferPtr =  std::shared_ptr&lt;SampleBuffer&gt;</definition>
+        <argsstring></argsstring>
+        <name>SampleBufferPtr</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/samplebuffer.h" line="31" column="1" bodyfile="C:/Daten/Olive/olive/app/codec/samplebuffer.h" bodystart="31" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/***</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"></highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/><sp/>Olive<sp/>-<sp/>Non-Linear<sp/>Video<sp/>Editor</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/><sp/>Copyright<sp/>(C)<sp/>2019<sp/>Olive<sp/>Team</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"></highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/><sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/><sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/><sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"></highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/><sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/><sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/><sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"></highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/><sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/><sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"></highlight></codeline>
+<codeline lineno="19"><highlight class="comment">***/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SAMPLEBUFFER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SAMPLEBUFFER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;memory&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="audioparams_8h" kindref="compound">render/audioparams.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><ref refid="define_8h_1a0472692dd1f22472ad63da20da919e8c" kindref="member">OLIVE_NAMESPACE_ENTER</ref></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_sample_buffer" kindref="compound">SampleBuffer</ref>;</highlight></codeline>
+<codeline lineno="31" refid="samplebuffer_8h_1aa60dc68e3e43775112c8dabb364d0a33" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">using</highlight><highlight class="normal"><sp/><ref refid="samplebuffer_8h_1aa60dc68e3e43775112c8dabb364d0a33" kindref="member">SampleBufferPtr</ref><sp/>=<sp/>std::shared_ptr&lt;SampleBuffer&gt;;</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41" refid="class_sample_buffer" refkind="compound"><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_sample_buffer" kindref="compound">SampleBuffer</ref></highlight></codeline>
+<codeline lineno="42"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="44" refid="class_sample_buffer_1aaa20344771841121fbb8996837766187" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_sample_buffer_1aaa20344771841121fbb8996837766187" kindref="member">SampleBuffer</ref>();</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46" refid="class_sample_buffer_1aab8dbbf210e82728deb5579ef0464367" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="class_sample_buffer_1aab8dbbf210e82728deb5579ef0464367" kindref="member">~SampleBuffer</ref>();</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48" refid="class_sample_buffer_1af1b87f31420196fb62ec652384a1f646" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="samplebuffer_8h_1aa60dc68e3e43775112c8dabb364d0a33" kindref="member">SampleBufferPtr</ref><sp/><ref refid="class_sample_buffer_1af1b87f31420196fb62ec652384a1f646" kindref="member">Create</ref>();</highlight></codeline>
+<codeline lineno="49" refid="class_sample_buffer_1a8ca4e3d7181158ff44498c48e23ed6eb" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="samplebuffer_8h_1aa60dc68e3e43775112c8dabb364d0a33" kindref="member">SampleBufferPtr</ref><sp/><ref refid="class_sample_buffer_1a8ca4e3d7181158ff44498c48e23ed6eb" kindref="member">CreateAllocated</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref>&amp;<sp/><ref refid="class_sample_buffer_1aa47f985d33c4849179ffa126c288e9b5" kindref="member">audio_params</ref>,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>samples_per_channel);</highlight></codeline>
+<codeline lineno="50" refid="class_sample_buffer_1a0ca5d4c720d35a9a6b0d5dadfa656f46" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="samplebuffer_8h_1aa60dc68e3e43775112c8dabb364d0a33" kindref="member">SampleBufferPtr</ref><sp/><ref refid="class_sample_buffer_1a0ca5d4c720d35a9a6b0d5dadfa656f46" kindref="member">CreateFromPackedData</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref>&amp;<sp/><ref refid="class_sample_buffer_1aa47f985d33c4849179ffa126c288e9b5" kindref="member">audio_params</ref>,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QByteArray&amp;<sp/>bytes);</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><ref refid="define_8h_1a49ad49a490f2b30e39821d11a9cc9769" kindref="member">DISABLE_COPY_MOVE</ref>(<ref refid="class_sample_buffer" kindref="compound">SampleBuffer</ref>)</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54" refid="class_sample_buffer_1aa47f985d33c4849179ffa126c288e9b5" refkind="member"><highlight class="normal"><sp/><sp/>const<sp/><ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref>&amp;<sp/><ref refid="class_sample_buffer_1aa47f985d33c4849179ffa126c288e9b5" kindref="member">audio_params</ref>()<sp/>const;</highlight></codeline>
+<codeline lineno="55" refid="class_sample_buffer_1a4d3337ce0bb97ceaf975bbd24aeb193b" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_sample_buffer_1a4d3337ce0bb97ceaf975bbd24aeb193b" kindref="member">set_audio_params</ref>(const<sp/><ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref>&amp;<sp/>params);</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57" refid="class_sample_buffer_1acc15a5d45fa7ebb20efa7524a03f6f2b" refkind="member"><highlight class="normal"><sp/><sp/>const<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>&amp;<ref refid="class_sample_buffer_1acc15a5d45fa7ebb20efa7524a03f6f2b" kindref="member">sample_count_per_channel</ref>()<sp/>const;</highlight></codeline>
+<codeline lineno="58" refid="class_sample_buffer_1aa425cab07f67a53d286a3e21301add5b" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_sample_buffer_1aa425cab07f67a53d286a3e21301add5b" kindref="member">set_sample_count_per_channel</ref>(const<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>&amp;<ref refid="class_sample_buffer_1acc15a5d45fa7ebb20efa7524a03f6f2b" kindref="member">sample_count_per_channel</ref>);</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60" refid="class_sample_buffer_1acefa1ad60aeb39d57d8638bb51cb9638" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal">**<sp/><ref refid="class_sample_buffer_1acefa1ad60aeb39d57d8638bb51cb9638" kindref="member">data</ref>();</highlight></codeline>
+<codeline lineno="61" refid="class_sample_buffer_1a223ccdfcfa630e1f4ac20c240e254791" refkind="member"><highlight class="normal"><sp/><sp/>const<sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal">**<sp/><ref refid="class_sample_buffer_1a223ccdfcfa630e1f4ac20c240e254791" kindref="member">const_data</ref>()<sp/>const;</highlight></codeline>
+<codeline lineno="62" refid="class_sample_buffer_1a51fa8800029000cd7a64f0a51c91ec78" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal">*<sp/><ref refid="class_sample_buffer_1a51fa8800029000cd7a64f0a51c91ec78" kindref="member">channel_data</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>channel);</highlight></codeline>
+<codeline lineno="63" refid="class_sample_buffer_1abbc31962773f7d2597e4d73df5557b2d" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal">*<sp/><ref refid="class_sample_buffer_1abbc31962773f7d2597e4d73df5557b2d" kindref="member">sample_data</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>index);</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65" refid="class_sample_buffer_1a7938c63262380bb82722b1d7b7bb916d" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_sample_buffer_1a7938c63262380bb82722b1d7b7bb916d" kindref="member">is_allocated</ref>()<sp/>const;</highlight></codeline>
+<codeline lineno="66" refid="class_sample_buffer_1a72071dcd8a9c8a256bcda223c71777c7" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_sample_buffer_1a72071dcd8a9c8a256bcda223c71777c7" kindref="member">allocate</ref>();</highlight></codeline>
+<codeline lineno="67" refid="class_sample_buffer_1a84ee1bc89ad3a6a31cb3d9e99ec873c4" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_sample_buffer_1a84ee1bc89ad3a6a31cb3d9e99ec873c4" kindref="member">destroy</ref>();</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69" refid="class_sample_buffer_1a033b6afaabba1259a81bb919d6e48b12" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_sample_buffer_1a033b6afaabba1259a81bb919d6e48b12" kindref="member">reverse</ref>();</highlight></codeline>
+<codeline lineno="70" refid="class_sample_buffer_1a74ad4b1c25f41b2dbba53b1ca33e3686" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_sample_buffer_1a74ad4b1c25f41b2dbba53b1ca33e3686" kindref="member">speed</ref>(</highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="class_sample_buffer_1a74ad4b1c25f41b2dbba53b1ca33e3686" kindref="member">speed</ref>);</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72" refid="class_sample_buffer_1ade3d268af2da76c02910005c448d6888" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_sample_buffer_1ade3d268af2da76c02910005c448d6888" kindref="member">fill</ref>(const<sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal">&amp;<sp/>f);</highlight></codeline>
+<codeline lineno="73" refid="class_sample_buffer_1acbf57325d00e297c45e98e9dfaabc5d0" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_sample_buffer_1ade3d268af2da76c02910005c448d6888" kindref="member">fill</ref>(const<sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal">&amp;<sp/>f,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>start_sample,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>end_sample);</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75" refid="class_sample_buffer_1af2f21fc8f1da17c12e7e9a485624b8e2" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_sample_buffer_1af2f21fc8f1da17c12e7e9a485624b8e2" kindref="member">set</ref>(const<sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal">**<sp/><ref refid="class_sample_buffer_1acefa1ad60aeb39d57d8638bb51cb9638" kindref="member">data</ref>,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>sample_offset,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>sample_length);</highlight></codeline>
+<codeline lineno="76" refid="class_sample_buffer_1af3ebe0ca26bb77ff4072e4bb08abae64" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_sample_buffer_1af2f21fc8f1da17c12e7e9a485624b8e2" kindref="member">set</ref>(const<sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal">**<sp/><ref refid="class_sample_buffer_1acefa1ad60aeb39d57d8638bb51cb9638" kindref="member">data</ref>,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>sample_length);</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78" refid="class_sample_buffer_1a226cb29c6cd45c801b9347901f8cb176" refkind="member"><highlight class="normal"><sp/><sp/>QByteArray<sp/><ref refid="class_sample_buffer_1a226cb29c6cd45c801b9347901f8cb176" kindref="member">toPackedData</ref>()<sp/>const;</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal">private:</highlight></codeline>
+<codeline lineno="81" refid="class_sample_buffer_1aa30583ca826cd3783286462967b45ef7" refkind="member"><highlight class="normal"><sp/><sp/>static<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_sample_buffer_1aa30583ca826cd3783286462967b45ef7" kindref="member">allocate_sample_buffer</ref>(</highlight><highlight class="keywordtype">float</highlight><highlight class="normal">***<sp/><ref refid="class_sample_buffer_1acefa1ad60aeb39d57d8638bb51cb9638" kindref="member">data</ref>,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>nb_channels,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>nb_samples);</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83" refid="class_sample_buffer_1adc8728c274a78fdc5ffd2dc28a7de99a" refkind="member"><highlight class="normal"><sp/><sp/>static<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_sample_buffer_1adc8728c274a78fdc5ffd2dc28a7de99a" kindref="member">destroy_sample_buffer</ref>(</highlight><highlight class="keywordtype">float</highlight><highlight class="normal">***<sp/><ref refid="class_sample_buffer_1acefa1ad60aeb39d57d8638bb51cb9638" kindref="member">data</ref>,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>nb_channels);</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85" refid="class_sample_buffer_1aa526d502bdfa6e9573843ba1e1c696f1" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref><sp/><ref refid="class_sample_buffer_1aa526d502bdfa6e9573843ba1e1c696f1" kindref="member">audio_params_</ref>;</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87" refid="class_sample_buffer_1aa264d733f94bd514299b0198c42f5fb0" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="class_sample_buffer_1aa264d733f94bd514299b0198c42f5fb0" kindref="member">sample_count_per_channel_</ref>;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="89" refid="class_sample_buffer_1aaaacaf6917e899c8c5111db92b0d133d" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal">**<sp/><ref refid="class_sample_buffer_1aaaacaf6917e899c8c5111db92b0d133d" kindref="member">data_</ref>;</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><ref refid="define_8h_1abe3de0634d907ca0f5d1acf732c49dac" kindref="member">OLIVE_NAMESPACE_EXIT</ref></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal">Q_DECLARE_METATYPE(<ref refid="define_8h_1a4ed90b73ac8dce3334c5adb60d5b7068" kindref="member">OLIVE_NAMESPACE</ref>::<ref refid="samplebuffer_8h_1aa60dc68e3e43775112c8dabb364d0a33" kindref="member">SampleBufferPtr</ref>)</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//<sp/>SAMPLEBUFFER_H</highlight></codeline>
+    </programlisting>
+    <location file="C:/Daten/Olive/olive/app/codec/samplebuffer.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,115 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_pixel_sampler_widget" kind="class" language="C++" prot="public">
+    <compoundname>PixelSamplerWidget</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QGroupBox</basecompoundref>
+    <includes refid="pixelsamplerwidget_8h" local="no">pixelsamplerwidget.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_pixel_sampler_widget_1a487a70a2641d7690d2b1d81f1dd81514" prot="private" static="no" mutable="no">
+        <type><ref refid="class_color" kindref="compound">Color</ref></type>
+        <definition>Color PixelSamplerWidget::color_</definition>
+        <argsstring></argsstring>
+        <name>color_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/pixelsamplerwidget.h" line="62" column="9" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/pixelsamplerwidget.h" bodystart="62" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_pixel_sampler_widget_1aca62723e50b52fd0d9011c6465c579f7" prot="private" static="no" mutable="no">
+        <type>QLabel *</type>
+        <definition>QLabel* PixelSamplerWidget::label_</definition>
+        <argsstring></argsstring>
+        <name>label_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/pixelsamplerwidget.h" line="64" column="10" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/pixelsamplerwidget.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_pixel_sampler_widget_1af9a91b20f7d023cd0440dce02df84c77" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>PixelSamplerWidget::PixelSamplerWidget</definition>
+        <argsstring>(QWidget *parent=nullptr)</argsstring>
+        <name>PixelSamplerWidget</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/pixelsamplerwidget.h" line="54" column="3"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-slot">
+      <memberdef kind="slot" id="class_pixel_sampler_widget_1afb744c4b64d6909c587f5389b9610840" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PixelSamplerWidget::SetValues</definition>
+        <argsstring>(const Color &amp;color)</argsstring>
+        <name>SetValues</name>
+        <param>
+          <type>const <ref refid="class_color" kindref="compound">Color</ref> &amp;</type>
+          <declname>color</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/pixelsamplerwidget.h" line="57" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_pixel_sampler_widget_1aa9c91e9093780edd9fb488f6d9a8f61a" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PixelSamplerWidget::UpdateLabelInternal</definition>
+        <argsstring>()</argsstring>
+        <name>UpdateLabelInternal</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/pixelsamplerwidget.h" line="60" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>PixelSamplerWidget</label>
+        <link refid="class_pixel_sampler_widget"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>color_</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>Color</label>
+        <link refid="class_color"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/viewer/pixelsamplerwidget.h" line="32" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/pixelsamplerwidget.h" bodystart="33" bodyend="48"/>
+    <listofallmembers>
+      <member refid="class_pixel_sampler_widget_1a487a70a2641d7690d2b1d81f1dd81514" prot="private" virt="non-virtual"><scope>PixelSamplerWidget</scope><name>color_</name></member>
+      <member refid="class_pixel_sampler_widget_1aca62723e50b52fd0d9011c6465c579f7" prot="private" virt="non-virtual"><scope>PixelSamplerWidget</scope><name>label_</name></member>
+      <member refid="class_pixel_sampler_widget_1af9a91b20f7d023cd0440dce02df84c77" prot="public" virt="non-virtual"><scope>PixelSamplerWidget</scope><name>PixelSamplerWidget</name></member>
+      <member refid="class_pixel_sampler_widget_1afb744c4b64d6909c587f5389b9610840" prot="public" virt="non-virtual"><scope>PixelSamplerWidget</scope><name>SetValues</name></member>
+      <member refid="class_pixel_sampler_widget_1aa9c91e9093780edd9fb488f6d9a8f61a" prot="private" virt="non-virtual"><scope>PixelSamplerWidget</scope><name>UpdateLabelInternal</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

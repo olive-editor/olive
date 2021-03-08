@@ -1,0 +1,294 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_workarea_set_enabled_command" kind="class" language="C++" prot="public">
+    <compoundname>WorkareaSetEnabledCommand</compoundname>
+    <basecompoundref refid="class_undo_command" prot="public" virt="non-virtual">UndoCommand</basecompoundref>
+    <includes refid="undo_8h" local="no">undo.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_workarea_set_enabled_command_1aaee17b48a3f822ebfeb339f0441d220a" prot="private" static="no" mutable="no">
+        <type><ref refid="class_project" kindref="compound">Project</ref> *</type>
+        <definition>Project* WorkareaSetEnabledCommand::project_</definition>
+        <argsstring></argsstring>
+        <name>project_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="348" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="348" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_workarea_set_enabled_command_1a63cf057bf1b29c4c410b20415920a9e3" prot="private" static="no" mutable="no">
+        <type><ref refid="class_timeline_points" kindref="compound">TimelinePoints</ref> *</type>
+        <definition>TimelinePoints* WorkareaSetEnabledCommand::points_</definition>
+        <argsstring></argsstring>
+        <name>points_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="350" column="18" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="350" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_workarea_set_enabled_command_1adb6ba8773c889c77d9410cf2d33c90b7" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool WorkareaSetEnabledCommand::old_enabled_</definition>
+        <argsstring></argsstring>
+        <name>old_enabled_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="352" column="8" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="352" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_workarea_set_enabled_command_1a5eea6525886faf36e72bd485f913580e" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool WorkareaSetEnabledCommand::new_enabled_</definition>
+        <argsstring></argsstring>
+        <name>new_enabled_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="354" column="8" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="354" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_undo_command_1a6c06f9c1b7bfeeff3c4724491945992b" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool UndoCommand::modified_</definition>
+        <argsstring></argsstring>
+        <name>modified_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="64" column="8" bodyfile="C:/Daten/Olive/olive/app/undo/undocommand.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_workarea_set_enabled_command_1a18d52efae006260263daebea24f451b7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>WorkareaSetEnabledCommand::WorkareaSetEnabledCommand</definition>
+        <argsstring>(Project *project, TimelinePoints *points, bool enabled, QUndoCommand *parent=nullptr)</argsstring>
+        <name>WorkareaSetEnabledCommand</name>
+        <param>
+          <type><ref refid="class_project" kindref="compound">Project</ref> *</type>
+          <declname>project</declname>
+        </param>
+        <param>
+          <type><ref refid="class_timeline_points" kindref="compound">TimelinePoints</ref> *</type>
+          <declname>points</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>enabled</declname>
+        </param>
+        <param>
+          <type>QUndoCommand *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="339" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_workarea_set_enabled_command_1acb5aa0a76350b7f73f2e739b72c9fa18" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="class_project" kindref="compound">Project</ref> *</type>
+        <definition>virtual Project* WorkareaSetEnabledCommand::GetRelevantProject</definition>
+        <argsstring>() const override</argsstring>
+        <name>GetRelevantProject</name>
+        <reimplements refid="class_undo_command_1ab5c8967132833ea6be76a63dc5472f4f">GetRelevantProject</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="341" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_undo_command_1a9907db368d01fb26f5082a36c6d90bd4" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void UndoCommand::redo</definition>
+        <argsstring>() override</argsstring>
+        <name>redo</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="54" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_undo_command_1a09d00f8a2e1c8b3c97d72d9585503030" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void UndoCommand::undo</definition>
+        <argsstring>() override</argsstring>
+        <name>undo</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="55" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_workarea_set_enabled_command_1a2e02f896dacd276c307e25a009ba89f6" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void WorkareaSetEnabledCommand::redo_internal</definition>
+        <argsstring>() override</argsstring>
+        <name>redo_internal</name>
+        <reimplements refid="class_undo_command_1ac8aa20d444a655cd36fa3c7dc01928b4">redo_internal</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="344" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_workarea_set_enabled_command_1a9aea67f44becf6fbed004e0a500882ef" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void WorkareaSetEnabledCommand::undo_internal</definition>
+        <argsstring>() override</argsstring>
+        <name>undo_internal</name>
+        <reimplements refid="class_undo_command_1a871dbc8a1f95b58e641be13703563faa">undo_internal</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="345" column="16"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>WorkareaSetEnabledCommand</label>
+        <link refid="class_workarea_set_enabled_command"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>UndoCommand</label>
+        <link refid="class_undo_command"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="7">
+        <label>TimelinePoints</label>
+        <link refid="class_timeline_points"/>
+        <childnode refid="8" relation="usage">
+          <edgelabel>markers_</edgelabel>
+        </childnode>
+        <childnode refid="9" relation="usage">
+          <edgelabel>workarea_</edgelabel>
+        </childnode>
+      </node>
+      <node id="4">
+        <label>ColorManager</label>
+        <link refid="class_color_manager"/>
+      </node>
+      <node id="11">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="1">
+        <label>WorkareaSetEnabledCommand</label>
+        <link refid="class_workarea_set_enabled_command"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>project_</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>points_</edgelabel>
+        </childnode>
+      </node>
+      <node id="6">
+        <label>Item</label>
+        <link refid="class_item"/>
+        <childnode refid="6" relation="usage">
+          <edgelabel>parent_</edgelabel>
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>project_</edgelabel>
+        </childnode>
+      </node>
+      <node id="9">
+        <label>TimelineWorkArea</label>
+        <link refid="class_timeline_work_area"/>
+        <childnode refid="10" relation="usage">
+          <edgelabel>workarea_range_</edgelabel>
+        </childnode>
+        <childnode refid="11" relation="usage">
+          <edgelabel>kResetOut</edgelabel>
+          <edgelabel>kResetIn</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>Project</label>
+        <link refid="class_project"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>color_manager_</edgelabel>
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>root_</edgelabel>
+        </childnode>
+      </node>
+      <node id="5">
+        <label>Folder</label>
+        <link refid="class_folder"/>
+        <childnode refid="6" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>TimeRange</label>
+        <link refid="class_time_range"/>
+        <childnode refid="11" relation="usage">
+          <edgelabel>out_</edgelabel>
+          <edgelabel>in_</edgelabel>
+          <edgelabel>length_</edgelabel>
+        </childnode>
+      </node>
+      <node id="8">
+        <label>TimelineMarkerList</label>
+        <link refid="class_timeline_marker_list"/>
+      </node>
+      <node id="2">
+        <label>UndoCommand</label>
+        <link refid="class_undo_command"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="337" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="337" bodyend="356"/>
+    <listofallmembers>
+      <member refid="class_workarea_set_enabled_command_1acb5aa0a76350b7f73f2e739b72c9fa18" prot="public" virt="virtual"><scope>WorkareaSetEnabledCommand</scope><name>GetRelevantProject</name></member>
+      <member refid="class_undo_command_1a6c06f9c1b7bfeeff3c4724491945992b" prot="private" virt="non-virtual"><scope>WorkareaSetEnabledCommand</scope><name>modified_</name></member>
+      <member refid="class_workarea_set_enabled_command_1a5eea6525886faf36e72bd485f913580e" prot="private" virt="non-virtual"><scope>WorkareaSetEnabledCommand</scope><name>new_enabled_</name></member>
+      <member refid="class_workarea_set_enabled_command_1adb6ba8773c889c77d9410cf2d33c90b7" prot="private" virt="non-virtual"><scope>WorkareaSetEnabledCommand</scope><name>old_enabled_</name></member>
+      <member refid="class_workarea_set_enabled_command_1a63cf057bf1b29c4c410b20415920a9e3" prot="private" virt="non-virtual"><scope>WorkareaSetEnabledCommand</scope><name>points_</name></member>
+      <member refid="class_workarea_set_enabled_command_1aaee17b48a3f822ebfeb339f0441d220a" prot="private" virt="non-virtual"><scope>WorkareaSetEnabledCommand</scope><name>project_</name></member>
+      <member refid="class_undo_command_1a9907db368d01fb26f5082a36c6d90bd4" prot="public" virt="virtual"><scope>WorkareaSetEnabledCommand</scope><name>redo</name></member>
+      <member refid="class_workarea_set_enabled_command_1a2e02f896dacd276c307e25a009ba89f6" prot="protected" virt="virtual"><scope>WorkareaSetEnabledCommand</scope><name>redo_internal</name></member>
+      <member refid="class_undo_command_1a09d00f8a2e1c8b3c97d72d9585503030" prot="public" virt="virtual"><scope>WorkareaSetEnabledCommand</scope><name>undo</name></member>
+      <member refid="class_workarea_set_enabled_command_1a9aea67f44becf6fbed004e0a500882ef" prot="protected" virt="virtual"><scope>WorkareaSetEnabledCommand</scope><name>undo_internal</name></member>
+      <member refid="class_undo_command_1a5a07a6505a207cf7186c7c726ff9c5fa" prot="public" virt="non-virtual"><scope>WorkareaSetEnabledCommand</scope><name>UndoCommand</name></member>
+      <member refid="class_workarea_set_enabled_command_1a18d52efae006260263daebea24f451b7" prot="public" virt="non-virtual"><scope>WorkareaSetEnabledCommand</scope><name>WorkareaSetEnabledCommand</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

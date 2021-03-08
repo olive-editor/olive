@@ -1,0 +1,264 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="speedduration_8h" kind="file" language="C++">
+    <compoundname>speedduration.h</compoundname>
+    <includes local="no">QCheckBox</includes>
+    <includes local="no">QDialog</includes>
+    <includes refid="clip_8h" local="yes">node/block/clip/clip.h</includes>
+    <includes refid="track_8h" local="yes">node/output/track/track.h</includes>
+    <includes refid="floatslider_8h" local="yes">widget/slider/floatslider.h</includes>
+    <includes refid="timeslider_8h" local="yes">widget/slider/timeslider.h</includes>
+    <includes refid="undocommand_8h" local="yes">undo/undocommand.h</includes>
+    <incdepgraph>
+      <node id="24">
+        <label>undo/undocommand.h</label>
+        <link refid="undocommand_8h"/>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>libavformat/avformat.h</label>
+      </node>
+      <node id="17">
+        <label>widget/slider/timeslider.h</label>
+        <link refid="timeslider_8h"/>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>sliderlabel.h</label>
+        <link refid="sliderlabel_8h"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>QStackedWidget</label>
+      </node>
+      <node id="10">
+        <label>widget/slider/floatslider.h</label>
+        <link refid="floatslider_8h"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>node/output/track/track.h</label>
+        <link refid="track_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>QMetaType</label>
+      </node>
+      <node id="1">
+        <label>speedduration.h</label>
+        <link refid="speedduration_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+      </node>
+      <node id="25">
+        <label>QUndoCommand</label>
+      </node>
+      <node id="2">
+        <label>QCheckBox</label>
+      </node>
+      <node id="4">
+        <label>node/block/clip/clip.h</label>
+        <link refid="clip_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="18">
+        <label>common/rational.h</label>
+        <link refid="rational_8h"/>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>project/project.h</label>
+      </node>
+      <node id="9">
+        <label>common/define.h</label>
+        <link refid="define_8h"/>
+      </node>
+      <node id="3">
+        <label>QDialog</label>
+      </node>
+      <node id="20">
+        <label>QDebug</label>
+      </node>
+      <node id="23">
+        <label>integerslider.h</label>
+        <link refid="integerslider_8h"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>QLineEdit</label>
+      </node>
+      <node id="14">
+        <label>QLabel</label>
+      </node>
+      <node id="19">
+        <label>iostream</label>
+      </node>
+      <node id="5">
+        <label>node/block/block.h</label>
+        <link refid="block_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>common/timelinecommon.h</label>
+        <link refid="timelinecommon_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>widget/focusablelineedit/focusablelineedit.h</label>
+        <link refid="focusablelineedit_8h"/>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>node/node.h</label>
+      </node>
+      <node id="11">
+        <label>sliderbase.h</label>
+        <link refid="sliderbase_8h"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <innerclass refid="class_speed_duration_dialog" prot="public">SpeedDurationDialog</innerclass>
+    <innerclass refid="class_block_reverse_command" prot="public">BlockReverseCommand</innerclass>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/***</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"></highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/><sp/>Olive<sp/>-<sp/>Non-Linear<sp/>Video<sp/>Editor</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/><sp/>Copyright<sp/>(C)<sp/>2019<sp/>Olive<sp/>Team</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"></highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/><sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/><sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/><sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"></highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/><sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/><sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/><sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"></highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/><sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/><sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"></highlight></codeline>
+<codeline lineno="19"><highlight class="comment">***/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SPEEDDURATIONDIALOG_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SPEEDDURATIONDIALOG_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QCheckBox&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QDialog&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="clip_8h" kindref="compound">node/block/clip/clip.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="track_8h" kindref="compound">node/output/track/track.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="floatslider_8h" kindref="compound">widget/slider/floatslider.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="timeslider_8h" kindref="compound">widget/slider/timeslider.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="undocommand_8h" kindref="compound">undo/undocommand.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><ref refid="define_8h_1a0472692dd1f22472ad63da20da919e8c" kindref="member">OLIVE_NAMESPACE_ENTER</ref></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35" refid="class_speed_duration_dialog" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_speed_duration_dialog" kindref="compound">SpeedDurationDialog</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>QDialog</highlight></codeline>
+<codeline lineno="36"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/>Q_OBJECT</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><ref refid="class_speed_duration_dialog_1a1bd56b664bddfe052e095b6a45ffef10" kindref="member">SpeedDurationDialog</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classrational" kindref="compound">rational</ref>&amp;<sp/>timebase,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QList&lt;ClipBlock*&gt;&amp;<sp/>clips,<sp/>QWidget*<sp/>parent<sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>slots:</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_speed_duration_dialog_1a192accd72aea641aff788a313ead07e8" kindref="member">accept</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="class_speed_duration_dialog_1a86ee0aa65619b9b9d3872abdb041cab9" kindref="member">GetUnadjustedLengthTimestamp</ref>(<ref refid="class_clip_block" kindref="compound">ClipBlock</ref>*<sp/>clip)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/>int64_t<sp/><ref refid="class_speed_duration_dialog_1a96b94a1d44591ba804175e2942847cfb" kindref="member">GetAdjustedDuration</ref>(<ref refid="class_clip_block" kindref="compound">ClipBlock</ref>*<sp/>clip,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">&amp;<sp/>new_speed)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="class_speed_duration_dialog_1aa8df8e6fce6bced87904221751d6f18f" kindref="member">GetAdjustedSpeed</ref>(<ref refid="class_clip_block" kindref="compound">ClipBlock</ref>*<sp/>clip,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int64_t&amp;<sp/>new_duration)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/>QList&lt;ClipBlock*&gt;<sp/><ref refid="class_speed_duration_dialog_1a1b1d1c749f01efe847ed3b4496f8277e" kindref="member">clips_</ref>;</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><ref refid="class_float_slider" kindref="compound">FloatSlider</ref>*<sp/><ref refid="class_speed_duration_dialog_1a6eac905123bff49dc1195df856a475d1" kindref="member">speed_slider_</ref>;</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><ref refid="class_time_slider" kindref="compound">TimeSlider</ref>*<sp/><ref refid="class_speed_duration_dialog_1a2944fe9d5b3fb215eb6e8f0fc23535f7" kindref="member">duration_slider_</ref>;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><ref refid="classrational" kindref="compound">rational</ref><sp/><ref refid="class_speed_duration_dialog_1a47554f158e9bcbe6255fec0a051778a7" kindref="member">timebase_</ref>;</highlight></codeline>
+<codeline lineno="57" refid="class_speed_duration_dialog_1a1bd56b664bddfe052e095b6a45ffef10" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/>QCheckBox*<sp/><ref refid="class_speed_duration_dialog_1a68eec8c85acbce6bd27e82cb524cb3b3" kindref="member">link_speed_and_duration_</ref>;</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/>QCheckBox*<sp/><ref refid="class_speed_duration_dialog_1a4f4fb507710950e522694f12699a4f29" kindref="member">reverse_speed_checkbox_</ref>;</highlight></codeline>
+<codeline lineno="60" refid="class_speed_duration_dialog_1a192accd72aea641aff788a313ead07e8" refkind="member"><highlight class="normal"><sp/><sp/>QCheckBox*<sp/><ref refid="class_speed_duration_dialog_1a67b4be258fc1c724300e2487013e36d8" kindref="member">maintain_audio_pitch_checkbox_</ref>;</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/>QCheckBox*<sp/><ref refid="class_speed_duration_dialog_1a7f8e4f665b4382290f327b8f52304243" kindref="member">ripple_clips_checkbox_</ref>;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63" refid="class_speed_duration_dialog_1a86ee0aa65619b9b9d3872abdb041cab9" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal"><sp/>slots:</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_speed_duration_dialog_1a7938df0fb4516c79c3693b33280490cc" kindref="member">SpeedChanged</ref>();</highlight></codeline>
+<codeline lineno="65" refid="class_speed_duration_dialog_1a96b94a1d44591ba804175e2942847cfb" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_speed_duration_dialog_1a0c9e696a79cec337073a92df04913b11" kindref="member">DurationChanged</ref>();</highlight></codeline>
+<codeline lineno="67" refid="class_speed_duration_dialog_1aa8df8e6fce6bced87904221751d6f18f" refkind="member"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69" refid="class_speed_duration_dialog_1a1b1d1c749f01efe847ed3b4496f8277e" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_block_reverse_command" kindref="compound">BlockReverseCommand</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="class_undo_command" kindref="compound">UndoCommand</ref><sp/>{</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="71" refid="class_speed_duration_dialog_1a6eac905123bff49dc1195df856a475d1" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_block_reverse_command_1a7fa75472de61b3c0410693fcb1552a86" kindref="member">BlockReverseCommand</ref>(<ref refid="class_block" kindref="compound">Block</ref>*<sp/>block,<sp/>QUndoCommand*<sp/>parent<sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="72" refid="class_speed_duration_dialog_1a2944fe9d5b3fb215eb6e8f0fc23535f7" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73" refid="class_block_reverse_command_1a95527768504161c7cbf5e5a0b22ebb4f" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="class_project" kindref="compound">Project</ref>*<sp/><ref refid="class_block_reverse_command_1a95527768504161c7cbf5e5a0b22ebb4f" kindref="member">GetRelevantProject</ref>()<sp/></highlight><highlight class="keyword">const<sp/>override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="74" refid="class_speed_duration_dialog_1a47554f158e9bcbe6255fec0a051778a7" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="76" refid="class_block_reverse_command_1a7c1d9f197bbebec09205276138ab0d56" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_block_reverse_command_1a7c1d9f197bbebec09205276138ab0d56" kindref="member">redo_internal</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="77" refid="class_block_reverse_command_1a3acb3992e8d23d6318b7f6cd4a248d1e" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_block_reverse_command_1a3acb3992e8d23d6318b7f6cd4a248d1e" kindref="member">undo_internal</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="78" refid="class_speed_duration_dialog_1a67b4be258fc1c724300e2487013e36d8" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="79" refid="class_speed_duration_dialog_1a7f8e4f665b4382290f327b8f52304243" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="80" refid="class_block_reverse_command_1a9d1c91e6811e9e2e9f26ab05fdac08aa" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_block" kindref="compound">Block</ref>*<sp/><ref refid="class_block_reverse_command_1a9d1c91e6811e9e2e9f26ab05fdac08aa" kindref="member">block_</ref>;</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82" refid="class_speed_duration_dialog_1a7938df0fb4516c79c3693b33280490cc" refkind="member"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84" refid="class_speed_duration_dialog_1a0c9e696a79cec337073a92df04913b11" refkind="member"><highlight class="normal"><ref refid="define_8h_1abe3de0634d907ca0f5d1acf732c49dac" kindref="member">OLIVE_NAMESPACE_EXIT</ref></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//<sp/>SPEEDDURATIONDIALOG_H</highlight></codeline>
+    </programlisting>
+    <location file="C:/Daten/Olive/olive/app/dialog/speedduration/speedduration.h"/>
+  </compounddef>
+</doxygen>

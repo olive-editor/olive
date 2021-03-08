@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_52453a4e16a8e9ce4aeefe61e1df2674" kind="dir">
+    <compoundname>codec</compoundname>
+    <innerdir refid="dir_263f1a1785cb9a9c8afd8997de1bed84">ffmpeg</innerdir>
+    <innerdir refid="dir_fcb3f88c402d9158ed5a0713eb449eb9">oiio</innerdir>
+    <innerfile refid="decoder_8h">decoder.h</innerfile>
+    <innerfile refid="encoder_8h">encoder.h</innerfile>
+    <innerfile refid="frame_8h">frame.h</innerfile>
+    <innerfile refid="samplebuffer_8h">samplebuffer.h</innerfile>
+    <innerfile refid="waveinput_8h">waveinput.h</innerfile>
+    <innerfile refid="waveoutput_8h">waveoutput.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/codec/"/>
+  </compounddef>
+</doxygen>

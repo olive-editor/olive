@@ -1,0 +1,103 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="struct_x_m_l_node_data" kind="struct" language="C++" prot="public">
+    <compoundname>XMLNodeData</compoundname>
+    <includes refid="xmlutils_8h" local="no">xmlutils.h</includes>
+    <innerclass refid="struct_x_m_l_node_data_1_1_block_link" prot="public">XMLNodeData::BlockLink</innerclass>
+    <innerclass refid="struct_x_m_l_node_data_1_1_footage_connection" prot="public">XMLNodeData::FootageConnection</innerclass>
+    <innerclass refid="struct_x_m_l_node_data_1_1_serialized_connection" prot="public">XMLNodeData::SerializedConnection</innerclass>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="struct_x_m_l_node_data_1ab473046c28758f285b4331aec0813f36" prot="public" static="no" mutable="no">
+        <type>QHash&lt; quintptr, <ref refid="class_node_output" kindref="compound">NodeOutput</ref> * &gt;</type>
+        <definition>QHash&lt;quintptr, NodeOutput*&gt; XMLNodeData::output_ptrs</definition>
+        <argsstring></argsstring>
+        <name>output_ptrs</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/xmlutils.h" line="60" column="9" bodyfile="C:/Daten/Olive/olive/app/common/xmlutils.h" bodystart="60" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_x_m_l_node_data_1a667b5e56a80b27cdb2d18cbf59e0ae17" prot="public" static="no" mutable="no">
+        <type>QList&lt; <ref refid="struct_x_m_l_node_data_1_1_serialized_connection" kindref="compound">SerializedConnection</ref> &gt;</type>
+        <definition>QList&lt;SerializedConnection&gt; XMLNodeData::desired_connections</definition>
+        <argsstring></argsstring>
+        <name>desired_connections</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/xmlutils.h" line="61" column="9" bodyfile="C:/Daten/Olive/olive/app/common/xmlutils.h" bodystart="61" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_x_m_l_node_data_1a94ae07824adb43047438569ba040d02b" prot="public" static="no" mutable="no">
+        <type>QHash&lt; quintptr, <ref refid="stream_8h_1a3ca5b414655d064180098adf46c1a2f1" kindref="member">StreamPtr</ref> &gt;</type>
+        <definition>QHash&lt;quintptr, StreamPtr&gt; XMLNodeData::footage_ptrs</definition>
+        <argsstring></argsstring>
+        <name>footage_ptrs</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/xmlutils.h" line="62" column="9" bodyfile="C:/Daten/Olive/olive/app/common/xmlutils.h" bodystart="62" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_x_m_l_node_data_1a87b05db3c6b71634cabd93541f898aae" prot="public" static="no" mutable="no">
+        <type>QList&lt; <ref refid="struct_x_m_l_node_data_1_1_footage_connection" kindref="compound">FootageConnection</ref> &gt;</type>
+        <definition>QList&lt;FootageConnection&gt; XMLNodeData::footage_connections</definition>
+        <argsstring></argsstring>
+        <name>footage_connections</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/xmlutils.h" line="63" column="9" bodyfile="C:/Daten/Olive/olive/app/common/xmlutils.h" bodystart="63" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_x_m_l_node_data_1a16022a18bcba8da0a2f69220fb2f8710" prot="public" static="no" mutable="no">
+        <type>QList&lt; <ref refid="struct_x_m_l_node_data_1_1_block_link" kindref="compound">BlockLink</ref> &gt;</type>
+        <definition>QList&lt;BlockLink&gt; XMLNodeData::block_links</definition>
+        <argsstring></argsstring>
+        <name>block_links</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/xmlutils.h" line="64" column="9" bodyfile="C:/Daten/Olive/olive/app/common/xmlutils.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_x_m_l_node_data_1a00dc25c8cffe0b06c8c3b9bab7eadc48" prot="public" static="no" mutable="no">
+        <type>QHash&lt; quintptr, <ref refid="class_item" kindref="compound">Item</ref> * &gt;</type>
+        <definition>QHash&lt;quintptr, Item*&gt; XMLNodeData::item_ptrs</definition>
+        <argsstring></argsstring>
+        <name>item_ptrs</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/xmlutils.h" line="65" column="9" bodyfile="C:/Daten/Olive/olive/app/common/xmlutils.h" bodystart="65" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/common/xmlutils.h" line="44" column="1" bodyfile="C:/Daten/Olive/olive/app/common/xmlutils.h" bodystart="44" bodyend="67"/>
+    <listofallmembers>
+      <member refid="struct_x_m_l_node_data_1a16022a18bcba8da0a2f69220fb2f8710" prot="public" virt="non-virtual"><scope>XMLNodeData</scope><name>block_links</name></member>
+      <member refid="struct_x_m_l_node_data_1a667b5e56a80b27cdb2d18cbf59e0ae17" prot="public" virt="non-virtual"><scope>XMLNodeData</scope><name>desired_connections</name></member>
+      <member refid="struct_x_m_l_node_data_1a87b05db3c6b71634cabd93541f898aae" prot="public" virt="non-virtual"><scope>XMLNodeData</scope><name>footage_connections</name></member>
+      <member refid="struct_x_m_l_node_data_1a94ae07824adb43047438569ba040d02b" prot="public" virt="non-virtual"><scope>XMLNodeData</scope><name>footage_ptrs</name></member>
+      <member refid="struct_x_m_l_node_data_1a00dc25c8cffe0b06c8c3b9bab7eadc48" prot="public" virt="non-virtual"><scope>XMLNodeData</scope><name>item_ptrs</name></member>
+      <member refid="struct_x_m_l_node_data_1ab473046c28758f285b4331aec0813f36" prot="public" virt="non-virtual"><scope>XMLNodeData</scope><name>output_ptrs</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

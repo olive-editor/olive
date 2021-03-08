@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_a6674ac32f3d4ebfa68d3c5399c7e4e5" kind="dir">
+    <compoundname>curvewidget</compoundname>
+    <innerfile refid="beziercontrolpointitem_8h">beziercontrolpointitem.h</innerfile>
+    <innerfile refid="curveview_8h">curveview.h</innerfile>
+    <innerfile refid="curvewidget_8h">curvewidget.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/widget/curvewidget/"/>
+  </compounddef>
+</doxygen>

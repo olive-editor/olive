@@ -1,0 +1,143 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_track_view_splitter_handle" kind="class" language="C++" prot="public">
+    <compoundname>TrackViewSplitterHandle</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QSplitterHandle</basecompoundref>
+    <includes refid="trackviewsplitter_8h" local="no">trackviewsplitter.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_track_view_splitter_handle_1a536e6bb485792a4a0114400c036e5837" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int TrackViewSplitterHandle::drag_y_</definition>
+        <argsstring></argsstring>
+        <name>drag_y_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackviewsplitter.h" line="62" column="7" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackviewsplitter.h" bodystart="62" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_track_view_splitter_handle_1aa8e78f378cea51045fb14bf9b2b86033" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool TrackViewSplitterHandle::dragging_</definition>
+        <argsstring></argsstring>
+        <name>dragging_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackviewsplitter.h" line="64" column="8" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackviewsplitter.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_track_view_splitter_handle_1a41fae5ab1db535b2175685b59f796661" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>TrackViewSplitterHandle::TrackViewSplitterHandle</definition>
+        <argsstring>(Qt::Orientation orientation, QSplitter *parent)</argsstring>
+        <name>TrackViewSplitterHandle</name>
+        <param>
+          <type>Qt::Orientation</type>
+          <declname>orientation</declname>
+        </param>
+        <param>
+          <type>QSplitter *</type>
+          <declname>parent</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackviewsplitter.h" line="52" column="3"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_track_view_splitter_handle_1a90667b37e447fbbc6345ed148f3eeb67" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void TrackViewSplitterHandle::mousePressEvent</definition>
+        <argsstring>(QMouseEvent *e) override</argsstring>
+        <name>mousePressEvent</name>
+        <param>
+          <type>QMouseEvent *</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackviewsplitter.h" line="55" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_track_view_splitter_handle_1a0dba65a0a83734f86f21ab03d6c675c8" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void TrackViewSplitterHandle::mouseMoveEvent</definition>
+        <argsstring>(QMouseEvent *e) override</argsstring>
+        <name>mouseMoveEvent</name>
+        <param>
+          <type>QMouseEvent *</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackviewsplitter.h" line="56" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_track_view_splitter_handle_1a90aa1ecbf0273b8a9691174612834962" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void TrackViewSplitterHandle::mouseReleaseEvent</definition>
+        <argsstring>(QMouseEvent *e) override</argsstring>
+        <name>mouseReleaseEvent</name>
+        <param>
+          <type>QMouseEvent *</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackviewsplitter.h" line="57" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_track_view_splitter_handle_1a7e008a93abac7b546300d3fb712ad925" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void TrackViewSplitterHandle::paintEvent</definition>
+        <argsstring>(QPaintEvent *e) override</argsstring>
+        <name>paintEvent</name>
+        <param>
+          <type>QPaintEvent *</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackviewsplitter.h" line="59" column="15"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackviewsplitter.h" line="30" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackviewsplitter.h" bodystart="31" bodyend="47"/>
+    <listofallmembers>
+      <member refid="class_track_view_splitter_handle_1a536e6bb485792a4a0114400c036e5837" prot="private" virt="non-virtual"><scope>TrackViewSplitterHandle</scope><name>drag_y_</name></member>
+      <member refid="class_track_view_splitter_handle_1aa8e78f378cea51045fb14bf9b2b86033" prot="private" virt="non-virtual"><scope>TrackViewSplitterHandle</scope><name>dragging_</name></member>
+      <member refid="class_track_view_splitter_handle_1a0dba65a0a83734f86f21ab03d6c675c8" prot="protected" virt="virtual"><scope>TrackViewSplitterHandle</scope><name>mouseMoveEvent</name></member>
+      <member refid="class_track_view_splitter_handle_1a90667b37e447fbbc6345ed148f3eeb67" prot="protected" virt="virtual"><scope>TrackViewSplitterHandle</scope><name>mousePressEvent</name></member>
+      <member refid="class_track_view_splitter_handle_1a90aa1ecbf0273b8a9691174612834962" prot="protected" virt="virtual"><scope>TrackViewSplitterHandle</scope><name>mouseReleaseEvent</name></member>
+      <member refid="class_track_view_splitter_handle_1a7e008a93abac7b546300d3fb712ad925" prot="protected" virt="virtual"><scope>TrackViewSplitterHandle</scope><name>paintEvent</name></member>
+      <member refid="class_track_view_splitter_handle_1a41fae5ab1db535b2175685b59f796661" prot="public" virt="non-virtual"><scope>TrackViewSplitterHandle</scope><name>TrackViewSplitterHandle</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

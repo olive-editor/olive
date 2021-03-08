@@ -1,0 +1,1166 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_sequence" kind="class" language="C++" prot="public">
+    <compoundname>Sequence</compoundname>
+    <basecompoundref refid="class_item" prot="public" virt="non-virtual">Item</basecompoundref>
+    <basecompoundref refid="class_node_graph" prot="public" virt="non-virtual">NodeGraph</basecompoundref>
+    <basecompoundref refid="class_timeline_points" prot="public" virt="non-virtual">TimelinePoints</basecompoundref>
+    <includes refid="project_2item_2sequence_2sequence_8h" local="no">sequence.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_sequence_1a2e6a6266c16e4e80c1ddcf920682688a" prot="private" static="no" mutable="no">
+        <type><ref refid="class_viewer_output" kindref="compound">ViewerOutput</ref> *</type>
+        <definition>ViewerOutput* Sequence::viewer_output_</definition>
+        <argsstring></argsstring>
+        <name>viewer_output_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/sequence/sequence.h" line="83" column="16" bodyfile="C:/Daten/Olive/olive/app/project/item/sequence/sequence.h" bodystart="83" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_item_1aee53eec8a56a22ef69b3925e84c7c1a8" prot="private" static="no" mutable="no">
+        <type>QList&lt; <ref refid="item_8h_1ab17f9c749f423747869d900d2418ffde" kindref="member">ItemPtr</ref> &gt;</type>
+        <definition>QList&lt;ItemPtr&gt; Item::children_</definition>
+        <argsstring></argsstring>
+        <name>children_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="114" column="9" bodyfile="C:/Daten/Olive/olive/app/project/item/item.h" bodystart="114" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_item_1a655e3d9269d60cbb26780cdfa45257b6" prot="private" static="no" mutable="no">
+        <type><ref refid="class_item" kindref="compound">Item</ref> *</type>
+        <definition>Item* Item::parent_</definition>
+        <argsstring></argsstring>
+        <name>parent_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="116" column="8" bodyfile="C:/Daten/Olive/olive/app/project/item/item.h" bodystart="116" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_item_1afef9389b234df33c55597ecbc62a80b9" prot="private" static="no" mutable="no">
+        <type><ref refid="class_project" kindref="compound">Project</ref> *</type>
+        <definition>Project* Item::project_</definition>
+        <argsstring></argsstring>
+        <name>project_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="118" column="11" bodyfile="C:/Daten/Olive/olive/app/project/item/item.h" bodystart="118" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_item_1a73965e7a2042be6cd3234afe29e7c1c6" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString Item::name_</definition>
+        <argsstring></argsstring>
+        <name>name_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="120" column="11" bodyfile="C:/Daten/Olive/olive/app/project/item/item.h" bodystart="120" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_item_1a6f3e200519e34b43514937404c39a83d" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString Item::tooltip_</definition>
+        <argsstring></argsstring>
+        <name>tooltip_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="122" column="11" bodyfile="C:/Daten/Olive/olive/app/project/item/item.h" bodystart="122" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_graph_1ab67dbbbe996a43dad619fdf4cc8dae01" prot="private" static="no" mutable="no">
+        <type>QList&lt; <ref refid="class_node" kindref="compound">Node</ref> * &gt;</type>
+        <definition>QList&lt;Node*&gt; NodeGraph::node_children_</definition>
+        <argsstring></argsstring>
+        <name>node_children_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/graph.h" line="110" column="9" bodyfile="C:/Daten/Olive/olive/app/node/graph.h" bodystart="110" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_timeline_points_1ada7f815bb073b42c1b428afa7a389402" prot="private" static="no" mutable="no">
+        <type><ref refid="class_timeline_marker_list" kindref="compound">TimelineMarkerList</ref></type>
+        <definition>TimelineMarkerList TimelinePoints::markers_</definition>
+        <argsstring></argsstring>
+        <name>markers_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelinepoints.h" line="65" column="22" bodyfile="C:/Daten/Olive/olive/app/timeline/timelinepoints.h" bodystart="65" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_timeline_points_1aed074b41868509cdd652455ea140fff1" prot="private" static="no" mutable="no">
+        <type><ref refid="class_timeline_work_area" kindref="compound">TimelineWorkArea</ref></type>
+        <definition>TimelineWorkArea TimelinePoints::workarea_</definition>
+        <argsstring></argsstring>
+        <name>workarea_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelinepoints.h" line="67" column="20" bodyfile="C:/Daten/Olive/olive/app/timeline/timelinepoints.h" bodystart="67" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_sequence_1a532b7e8df6ff6b2f990c14ae97859ca2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Sequence::Sequence</definition>
+        <argsstring>()</argsstring>
+        <name>Sequence</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/sequence/sequence.h" line="43" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_sequence_1a3020a1ad58fc581345d2ead5a265b848" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void Sequence::Load</definition>
+        <argsstring>(QXmlStreamReader *reader, XMLNodeData &amp;xml_node_data, const QAtomicInt *cancelled) override</argsstring>
+        <name>Load</name>
+        <reimplements refid="class_item_1a43781a013fa174fe62978d80cb159cd0">Load</reimplements>
+        <param>
+          <type>QXmlStreamReader *</type>
+          <declname>reader</declname>
+        </param>
+        <param>
+          <type><ref refid="struct_x_m_l_node_data" kindref="compound">XMLNodeData</ref> &amp;</type>
+          <declname>xml_node_data</declname>
+        </param>
+        <param>
+          <type>const QAtomicInt *</type>
+          <declname>cancelled</declname>
+        </param>
+        <briefdescription>
+<para>Load function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/sequence/sequence.h" line="48" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_sequence_1aa33391ba43d46fd49472eb01eb58af4f" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void Sequence::Save</definition>
+        <argsstring>(QXmlStreamWriter *writer) const override</argsstring>
+        <name>Save</name>
+        <reimplements refid="class_item_1a504a01f0db485e9a53a1ee3e65247398">Save</reimplements>
+        <param>
+          <type>QXmlStreamWriter *</type>
+          <declname>writer</declname>
+        </param>
+        <briefdescription>
+<para>Save function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/sequence/sequence.h" line="53" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_sequence_1ad56dee63045f7a6441937534ce2e1711" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Sequence::add_default_nodes</definition>
+        <argsstring>()</argsstring>
+        <name>add_default_nodes</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/sequence/sequence.h" line="55" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_sequence_1a6b32cfe0c67dc61aa3edf542b19c9628" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="class_item_1a6b718f9918eb7a5b2d4572cc1a231005" kindref="member">Type</ref></type>
+        <definition>virtual Type Sequence::type</definition>
+        <argsstring>() const override</argsstring>
+        <name>type</name>
+        <reimplements refid="class_item_1a0947b2b16652d156b325968265bb12b8">type</reimplements>
+        <briefdescription>
+<para><ref refid="class_item_1a6b718f9918eb7a5b2d4572cc1a231005" kindref="member">Item::Type()</ref> override. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/sequence/sequence.h" line="60" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_sequence_1acf354a42a734b19e8f5fc6843a7d03e1" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>QIcon</type>
+        <definition>virtual QIcon Sequence::icon</definition>
+        <argsstring>() override</argsstring>
+        <name>icon</name>
+        <reimplements refid="class_item_1a4744a05ca511b0613a00c0f5f312eb90">icon</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/sequence/sequence.h" line="62" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_sequence_1a29d2f5177faba43c1e1ccab92e38fd67" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>QString</type>
+        <definition>virtual QString Sequence::duration</definition>
+        <argsstring>() override</argsstring>
+        <name>duration</name>
+        <reimplements refid="class_item_1a23926f6113edf285b17d9903d32aa453">duration</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/sequence/sequence.h" line="64" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_sequence_1a014a32928d52b673e35098db121a39d0" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>QString</type>
+        <definition>virtual QString Sequence::rate</definition>
+        <argsstring>() override</argsstring>
+        <name>rate</name>
+        <reimplements refid="class_item_1a5e0a125de92f5fd5d7e2abd63a1fae17">rate</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/sequence/sequence.h" line="65" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_sequence_1abdb28d8cbcf489b76cfed7109e67f0f0" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="class_video_params" kindref="compound">VideoParams</ref> &amp;</type>
+        <definition>const VideoParams&amp; Sequence::video_params</definition>
+        <argsstring>() const</argsstring>
+        <name>video_params</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/sequence/sequence.h" line="67" column="21"/>
+      </memberdef>
+      <memberdef kind="function" id="class_sequence_1ad5903efdb20ad809d4677cfeed000460" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Sequence::set_video_params</definition>
+        <argsstring>(const VideoParams &amp;vparam)</argsstring>
+        <name>set_video_params</name>
+        <param>
+          <type>const <ref refid="class_video_params" kindref="compound">VideoParams</ref> &amp;</type>
+          <declname>vparam</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/sequence/sequence.h" line="68" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_sequence_1a2be17d535c60c69746a2ca1b0676c9e5" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="class_audio_params" kindref="compound">AudioParams</ref> &amp;</type>
+        <definition>const AudioParams&amp; Sequence::audio_params</definition>
+        <argsstring>() const</argsstring>
+        <name>audio_params</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/sequence/sequence.h" line="70" column="21"/>
+      </memberdef>
+      <memberdef kind="function" id="class_sequence_1a8681a780babc9e23232550f73f8c4b47" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Sequence::set_audio_params</definition>
+        <argsstring>(const AudioParams &amp;params)</argsstring>
+        <name>set_audio_params</name>
+        <param>
+          <type>const <ref refid="class_audio_params" kindref="compound">AudioParams</ref> &amp;</type>
+          <declname>params</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/sequence/sequence.h" line="71" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_sequence_1a055051dcd295c7a940eb7fcfd743ac16" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Sequence::set_default_parameters</definition>
+        <argsstring>()</argsstring>
+        <name>set_default_parameters</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/sequence/sequence.h" line="73" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_sequence_1a9041ef1fa6d6b33f4d4d7c60274b9691" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Sequence::set_parameters_from_footage</definition>
+        <argsstring>(const QList&lt; Footage * &gt; footage)</argsstring>
+        <name>set_parameters_from_footage</name>
+        <param>
+          <type>const QList&lt; <ref refid="class_footage" kindref="compound">Footage</ref> * &gt;</type>
+          <declname>footage</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/sequence/sequence.h" line="75" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_sequence_1abb8d1d7c6060bdb9cde07e9bd09e94b2" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_viewer_output" kindref="compound">ViewerOutput</ref> *</type>
+        <definition>ViewerOutput* Sequence::viewer_output</definition>
+        <argsstring>() const</argsstring>
+        <name>viewer_output</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/sequence/sequence.h" line="77" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_item_1a4b8de93849c7502a91d50cea72c23757" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Item::add_child</definition>
+        <argsstring>(ItemPtr c)</argsstring>
+        <name>add_child</name>
+        <param>
+          <type><ref refid="item_8h_1ab17f9c749f423747869d900d2418ffde" kindref="member">ItemPtr</ref></type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="76" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_item_1a0fafbd7347fba4d8a044e1901b0cd1aa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Item::remove_child</definition>
+        <argsstring>(Item *c)</argsstring>
+        <name>remove_child</name>
+        <param>
+          <type><ref refid="class_item" kindref="compound">Item</ref> *</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="77" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_item_1a968887e70566a5f75b089c4ae8dafadc" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int Item::child_count</definition>
+        <argsstring>() const</argsstring>
+        <name>child_count</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="78" column="7"/>
+      </memberdef>
+      <memberdef kind="function" id="class_item_1a434ef98c160ffcc7ce03929eaabd3e21" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_item" kindref="compound">Item</ref> *</type>
+        <definition>Item* Item::child</definition>
+        <argsstring>(int i) const</argsstring>
+        <name>child</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="79" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_item_1ada3ee063d7280904ef6ac0f3f2713c7d" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const QList&lt; <ref refid="item_8h_1ab17f9c749f423747869d900d2418ffde" kindref="member">ItemPtr</ref> &gt; &amp;</type>
+        <definition>const QList&lt;ItemPtr&gt;&amp; Item::children</definition>
+        <argsstring>() const</argsstring>
+        <name>children</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="80" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_item_1a1be88d478ec143b3d27a653935e684b4" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="item_8h_1ab17f9c749f423747869d900d2418ffde" kindref="member">ItemPtr</ref></type>
+        <definition>ItemPtr Item::get_shared_ptr</definition>
+        <argsstring>() const</argsstring>
+        <name>get_shared_ptr</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="82" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_item_1a6442dac193a2e96ce0c40a1467684569" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const QString &amp;</type>
+        <definition>const QString&amp; Item::name</definition>
+        <argsstring>() const</argsstring>
+        <name>name</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="84" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_item_1a12bcb63d6aa838a43e8078811afdd242" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Item::set_name</definition>
+        <argsstring>(const QString &amp;n)</argsstring>
+        <name>set_name</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="85" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_item_1afbf394c9b9476a4dee65516e59bbe756" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const QString &amp;</type>
+        <definition>const QString&amp; Item::tooltip</definition>
+        <argsstring>() const</argsstring>
+        <name>tooltip</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="87" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_item_1acfde985eaf2c1d393710a2295e58b74c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Item::set_tooltip</definition>
+        <argsstring>(const QString &amp;t)</argsstring>
+        <name>set_tooltip</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="88" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_item_1aaa36e9db0505be6b3cac7a6e3d429ef7" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_item" kindref="compound">Item</ref> *</type>
+        <definition>Item* Item::parent</definition>
+        <argsstring>() const</argsstring>
+        <name>parent</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="96" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_item_1a857b863010848fb782d740249aeeff55" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="class_item" kindref="compound">Item</ref> *</type>
+        <definition>const Item* Item::root</definition>
+        <argsstring>() const</argsstring>
+        <name>root</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="97" column="14"/>
+      </memberdef>
+      <memberdef kind="function" id="class_item_1ac29b8b0d2362b7f44f4033f1d3f38f05" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_project" kindref="compound">Project</ref> *</type>
+        <definition>Project* Item::project</definition>
+        <argsstring>() const</argsstring>
+        <name>project</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="99" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_item_1a85c2c4608db041e2b517d6e1d6cce59e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Item::set_project</definition>
+        <argsstring>(Project *project)</argsstring>
+        <name>set_project</name>
+        <param>
+          <type><ref refid="class_project" kindref="compound">Project</ref> *</type>
+          <declname>project</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="100" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_item_1ac1c89b75c08014f6b365613a0c25f6db" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QList&lt; <ref refid="item_8h_1ab17f9c749f423747869d900d2418ffde" kindref="member">ItemPtr</ref> &gt;</type>
+        <definition>QList&lt;ItemPtr&gt; Item::get_children_of_type</definition>
+        <argsstring>(Type type, bool recursive) const</argsstring>
+        <name>get_children_of_type</name>
+        <param>
+          <type><ref refid="class_item_1a6b718f9918eb7a5b2d4572cc1a231005" kindref="member">Type</ref></type>
+          <declname>type</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>recursive</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="102" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="class_item_1a5b829b0154f084b9771365bdfde325a3" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type>bool</type>
+        <definition>virtual bool Item::CanHaveChildren</definition>
+        <argsstring>() const</argsstring>
+        <name>CanHaveChildren</name>
+        <reimplementedby refid="class_folder_1ab6d627819c20f3d3a9751a225704bed6">CanHaveChildren</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="104" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_item_1ae723219aa2bb4ed029abd95a419f4e8e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Item::ChildExistsWithName</definition>
+        <argsstring>(const QString &amp;name)</argsstring>
+        <name>ChildExistsWithName</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>name</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="106" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_graph_1a6e32f35428bb41927db97e5dd5cd61f6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeGraph::Clear</definition>
+        <argsstring>()</argsstring>
+        <name>Clear</name>
+        <briefdescription>
+<para>Destructively destroys all nodes in the graph. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/graph.h" line="63" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_graph_1af2a3a2346be0e584868095e3c297ec96" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeGraph::AddNode</definition>
+        <argsstring>(Node *node)</argsstring>
+        <name>AddNode</name>
+        <param>
+          <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+          <declname>node</declname>
+        </param>
+        <briefdescription>
+<para>Add a node to this graph. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The node will get added to this graph. It is not automatically connected to anything, any connections will need to be made manually after the node is added. The graph takes ownership of the <ref refid="class_node" kindref="compound">Node</ref>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/graph.h" line="71" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_graph_1ad07da68357789d99b222fde671f4e45b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeGraph::TakeNode</definition>
+        <argsstring>(Node *node, QObject *new_parent=nullptr)</argsstring>
+        <name>TakeNode</name>
+        <param>
+          <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+          <declname>node</declname>
+        </param>
+        <param>
+          <type>QObject *</type>
+          <declname>new_parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+<para>Removes a <ref refid="class_node" kindref="compound">Node</ref> from the graph BUT doesn&apos;t destroy it. Ownership is passed to <computeroutput>new_parent</computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/graph.h" line="76" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_graph_1a56563ed5fd4c4b04c319135c52f17ea7" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const QList&lt; <ref refid="class_node" kindref="compound">Node</ref> * &gt; &amp;</type>
+        <definition>const QList&lt;Node*&gt;&amp; NodeGraph::nodes</definition>
+        <argsstring>() const</argsstring>
+        <name>nodes</name>
+        <briefdescription>
+<para>Retrieve a complete list of the nodes belonging to this graph. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/graph.h" line="81" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_graph_1a39e94be81156d03af9f6930d71f9286b" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool NodeGraph::ContainsNode</definition>
+        <argsstring>(Node *n) const</argsstring>
+        <name>ContainsNode</name>
+        <param>
+          <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Returns whether a certain <ref refid="class_node" kindref="compound">Node</ref> is in the graph or not. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/graph.h" line="86" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_points_1a0ad7fdb42651e09a2ddcc3a601965cc4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_timeline_marker_list" kindref="compound">TimelineMarkerList</ref> *</type>
+        <definition>TimelineMarkerList* TimelinePoints::markers</definition>
+        <argsstring>()</argsstring>
+        <name>markers</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelinepoints.h" line="55" column="22"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_points_1ab54a56959539ad8297964e76c9e03f99" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="class_timeline_marker_list" kindref="compound">TimelineMarkerList</ref> *</type>
+        <definition>const TimelineMarkerList* TimelinePoints::markers</definition>
+        <argsstring>() const</argsstring>
+        <name>markers</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelinepoints.h" line="56" column="28"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_points_1a161106344a6024c2d8a92c3e7857ed9e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_timeline_work_area" kindref="compound">TimelineWorkArea</ref> *</type>
+        <definition>TimelineWorkArea* TimelinePoints::workarea</definition>
+        <argsstring>()</argsstring>
+        <name>workarea</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelinepoints.h" line="58" column="20"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_points_1a8b401f61ea6d1593052b5ebf8cd8320e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="class_timeline_work_area" kindref="compound">TimelineWorkArea</ref> *</type>
+        <definition>const TimelineWorkArea* TimelinePoints::workarea</definition>
+        <argsstring>() const</argsstring>
+        <name>workarea</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelinepoints.h" line="59" column="26"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_points_1a5cb85c5d5b483539f2c42a0348d3e5a5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimelinePoints::Load</definition>
+        <argsstring>(QXmlStreamReader *reader)</argsstring>
+        <name>Load</name>
+        <param>
+          <type>QXmlStreamReader *</type>
+          <declname>reader</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelinepoints.h" line="61" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_sequence_1aad0c5145f9d9ff7dcb252b32b754b810" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void Sequence::NameChangedEvent</definition>
+        <argsstring>(const QString &amp;name) override</argsstring>
+        <name>NameChangedEvent</name>
+        <reimplements refid="class_item_1aa5f6d39b034860063fda047b3c2f2de4">NameChangedEvent</reimplements>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>name</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/sequence/sequence.h" line="80" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-type">
+      <memberdef kind="enum" id="class_item_1a6b718f9918eb7a5b2d4572cc1a231005" prot="public" static="no" strong="no">
+        <type></type>
+        <name>Type</name>
+        <enumvalue id="class_item_1a6b718f9918eb7a5b2d4572cc1a231005aa4fcf77d2c7c47c166fc0245da1dc08c" prot="public">
+          <name>kFolder</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_item_1a6b718f9918eb7a5b2d4572cc1a231005aa14553d7a7d33a1378710b3b318c7944" prot="public">
+          <name>kFootage</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_item_1a6b718f9918eb7a5b2d4572cc1a231005ab757135607183f4629addfb931535c4c" prot="public">
+          <name>kSequence</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="52" column="3" bodyfile="C:/Daten/Olive/olive/app/project/item/item.h" bodystart="52" bodyend="56"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_item_1a674105de1ecd7ca5ba53c8dcb71b14ea" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Item::ChildExistsWithNameInternal</definition>
+        <argsstring>(const QString &amp;name, Item *folder)</argsstring>
+        <name>ChildExistsWithNameInternal</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>name</declname>
+        </param>
+        <param>
+          <type><ref refid="class_item" kindref="compound">Item</ref> *</type>
+          <declname>folder</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="112" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_node_graph_1a12c26233abf2189d5c1b75ff8e97e851" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeGraph::NodeAdded</definition>
+        <argsstring>(Node *node)</argsstring>
+        <name>NodeAdded</name>
+        <param>
+          <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+          <declname>node</declname>
+        </param>
+        <briefdescription>
+<para>Signal emitted when a <ref refid="class_node" kindref="compound">Node</ref> is added to the graph. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/graph.h" line="92" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_node_graph_1ad5981a96376972891cca2a0ce1ec3f91" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeGraph::NodeRemoved</definition>
+        <argsstring>(Node *node)</argsstring>
+        <name>NodeRemoved</name>
+        <param>
+          <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+          <declname>node</declname>
+        </param>
+        <briefdescription>
+<para>Signal emitted when a <ref refid="class_node" kindref="compound">Node</ref> is removed from the graph. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/graph.h" line="97" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_node_graph_1a9ec2356d198c4eea6e1520e481f0b5b0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeGraph::EdgeAdded</definition>
+        <argsstring>(NodeEdgePtr edge)</argsstring>
+        <name>EdgeAdded</name>
+        <param>
+          <type><ref refid="edge_8h_1a9eb6ae7d2b608077e13ab3571ea6b101" kindref="member">NodeEdgePtr</ref></type>
+          <declname>edge</declname>
+        </param>
+        <briefdescription>
+<para>Signal emitted when a member node of this graph has been connected to another (creating an &quot;edge&quot;) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/graph.h" line="102" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_node_graph_1a5921b66fca19e32036453d13bfcf69af" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeGraph::EdgeRemoved</definition>
+        <argsstring>(NodeEdgePtr edge)</argsstring>
+        <name>EdgeRemoved</name>
+        <param>
+          <type><ref refid="edge_8h_1a9eb6ae7d2b608077e13ab3571ea6b101" kindref="member">NodeEdgePtr</ref></type>
+          <declname>edge</declname>
+        </param>
+        <briefdescription>
+<para>Signal emitted when a member node of this graph has been disconnected from another (removing an &quot;edge&quot;) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/graph.h" line="107" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>The main timeline object, an graph of edited clips that forms a complete edit. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="4">
+        <label>TimelinePoints</label>
+        <link refid="class_timeline_points"/>
+      </node>
+      <node id="1">
+        <label>Sequence</label>
+        <link refid="class_sequence"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>NodeGraph</label>
+        <link refid="class_node_graph"/>
+      </node>
+      <node id="2">
+        <label>Item</label>
+        <link refid="class_item"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="14">
+        <label>NodeOutput</label>
+        <link refid="class_node_output"/>
+        <childnode refid="15" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>TimelinePoints</label>
+        <link refid="class_timeline_points"/>
+        <childnode refid="8" relation="usage">
+          <edgelabel>markers_</edgelabel>
+        </childnode>
+        <childnode refid="9" relation="usage">
+          <edgelabel>workarea_</edgelabel>
+        </childnode>
+      </node>
+      <node id="1">
+        <label>Sequence</label>
+        <link refid="class_sequence"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="6" relation="public-inheritance">
+        </childnode>
+        <childnode refid="7" relation="public-inheritance">
+        </childnode>
+        <childnode refid="12" relation="usage">
+          <edgelabel>viewer_output_</edgelabel>
+        </childnode>
+      </node>
+      <node id="6">
+        <label>NodeGraph</label>
+        <link refid="class_node_graph"/>
+      </node>
+      <node id="4">
+        <label>ColorManager</label>
+        <link refid="class_color_manager"/>
+      </node>
+      <node id="17">
+        <label>AudioParams</label>
+        <link refid="class_audio_params"/>
+      </node>
+      <node id="12">
+        <label>ViewerOutput</label>
+        <link refid="class_viewer_output"/>
+        <childnode refid="13" relation="public-inheritance">
+        </childnode>
+        <childnode refid="16" relation="usage">
+          <edgelabel>video_params_</edgelabel>
+        </childnode>
+        <childnode refid="11" relation="usage">
+          <edgelabel>timeline_length_</edgelabel>
+        </childnode>
+        <childnode refid="17" relation="usage">
+          <edgelabel>audio_params_</edgelabel>
+        </childnode>
+        <childnode refid="18" relation="usage">
+          <edgelabel>texture_input_</edgelabel>
+          <edgelabel>samples_input_</edgelabel>
+        </childnode>
+      </node>
+      <node id="11">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="2">
+        <label>Item</label>
+        <link refid="class_item"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>parent_</edgelabel>
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>project_</edgelabel>
+        </childnode>
+      </node>
+      <node id="13">
+        <label>Node</label>
+        <link refid="class_node"/>
+        <childnode refid="14" relation="usage">
+          <edgelabel>output_</edgelabel>
+        </childnode>
+      </node>
+      <node id="18">
+        <label>NodeInput</label>
+        <link refid="class_node_input"/>
+        <childnode refid="15" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>TimelineWorkArea</label>
+        <link refid="class_timeline_work_area"/>
+        <childnode refid="10" relation="usage">
+          <edgelabel>workarea_range_</edgelabel>
+        </childnode>
+        <childnode refid="11" relation="usage">
+          <edgelabel>kResetOut</edgelabel>
+          <edgelabel>kResetIn</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>Project</label>
+        <link refid="class_project"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>color_manager_</edgelabel>
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>root_</edgelabel>
+        </childnode>
+      </node>
+      <node id="5">
+        <label>Folder</label>
+        <link refid="class_folder"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>NodeParam</label>
+        <link refid="class_node_param"/>
+      </node>
+      <node id="10">
+        <label>TimeRange</label>
+        <link refid="class_time_range"/>
+        <childnode refid="11" relation="usage">
+          <edgelabel>out_</edgelabel>
+          <edgelabel>in_</edgelabel>
+          <edgelabel>length_</edgelabel>
+        </childnode>
+      </node>
+      <node id="16">
+        <label>VideoParams</label>
+        <link refid="class_video_params"/>
+        <childnode refid="11" relation="usage">
+          <edgelabel>time_base_</edgelabel>
+        </childnode>
+      </node>
+      <node id="8">
+        <label>TimelineMarkerList</label>
+        <link refid="class_timeline_marker_list"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/project/item/sequence/sequence.h" line="40" column="1" bodyfile="C:/Daten/Olive/olive/app/project/item/sequence/sequence.h" bodystart="41" bodyend="85"/>
+    <listofallmembers>
+      <member refid="class_item_1a4b8de93849c7502a91d50cea72c23757" prot="public" virt="non-virtual"><scope>Sequence</scope><name>add_child</name></member>
+      <member refid="class_sequence_1ad56dee63045f7a6441937534ce2e1711" prot="public" virt="non-virtual"><scope>Sequence</scope><name>add_default_nodes</name></member>
+      <member refid="class_node_graph_1af2a3a2346be0e584868095e3c297ec96" prot="public" virt="non-virtual"><scope>Sequence</scope><name>AddNode</name></member>
+      <member refid="class_sequence_1a2be17d535c60c69746a2ca1b0676c9e5" prot="public" virt="non-virtual"><scope>Sequence</scope><name>audio_params</name></member>
+      <member refid="class_item_1a5b829b0154f084b9771365bdfde325a3" prot="public" virt="virtual"><scope>Sequence</scope><name>CanHaveChildren</name></member>
+      <member refid="class_item_1a434ef98c160ffcc7ce03929eaabd3e21" prot="public" virt="non-virtual"><scope>Sequence</scope><name>child</name></member>
+      <member refid="class_item_1a968887e70566a5f75b089c4ae8dafadc" prot="public" virt="non-virtual"><scope>Sequence</scope><name>child_count</name></member>
+      <member refid="class_item_1ae723219aa2bb4ed029abd95a419f4e8e" prot="public" virt="non-virtual"><scope>Sequence</scope><name>ChildExistsWithName</name></member>
+      <member refid="class_item_1a674105de1ecd7ca5ba53c8dcb71b14ea" prot="private" virt="non-virtual"><scope>Sequence</scope><name>ChildExistsWithNameInternal</name></member>
+      <member refid="class_item_1ada3ee063d7280904ef6ac0f3f2713c7d" prot="public" virt="non-virtual"><scope>Sequence</scope><name>children</name></member>
+      <member refid="class_item_1aee53eec8a56a22ef69b3925e84c7c1a8" prot="private" virt="non-virtual"><scope>Sequence</scope><name>children_</name></member>
+      <member refid="class_node_graph_1a6e32f35428bb41927db97e5dd5cd61f6" prot="public" virt="non-virtual"><scope>Sequence</scope><name>Clear</name></member>
+      <member refid="class_node_graph_1a39e94be81156d03af9f6930d71f9286b" prot="public" virt="non-virtual"><scope>Sequence</scope><name>ContainsNode</name></member>
+      <member refid="class_sequence_1a29d2f5177faba43c1e1ccab92e38fd67" prot="public" virt="virtual"><scope>Sequence</scope><name>duration</name></member>
+      <member refid="class_node_graph_1a9ec2356d198c4eea6e1520e481f0b5b0" prot="public" virt="non-virtual"><scope>Sequence</scope><name>EdgeAdded</name></member>
+      <member refid="class_node_graph_1a5921b66fca19e32036453d13bfcf69af" prot="public" virt="non-virtual"><scope>Sequence</scope><name>EdgeRemoved</name></member>
+      <member refid="class_item_1ac1c89b75c08014f6b365613a0c25f6db" prot="public" virt="non-virtual"><scope>Sequence</scope><name>get_children_of_type</name></member>
+      <member refid="class_item_1a1be88d478ec143b3d27a653935e684b4" prot="public" virt="non-virtual"><scope>Sequence</scope><name>get_shared_ptr</name></member>
+      <member refid="class_sequence_1acf354a42a734b19e8f5fc6843a7d03e1" prot="public" virt="virtual"><scope>Sequence</scope><name>icon</name></member>
+      <member refid="class_item_1a297720c02984eab37332ae795d22189d" prot="public" virt="non-virtual"><scope>Sequence</scope><name>Item</name></member>
+      <member refid="class_item_1a6b718f9918eb7a5b2d4572cc1a231005aa4fcf77d2c7c47c166fc0245da1dc08c" prot="public" virt="non-virtual"><scope>Sequence</scope><name>kFolder</name></member>
+      <member refid="class_item_1a6b718f9918eb7a5b2d4572cc1a231005aa14553d7a7d33a1378710b3b318c7944" prot="public" virt="non-virtual"><scope>Sequence</scope><name>kFootage</name></member>
+      <member refid="class_item_1a6b718f9918eb7a5b2d4572cc1a231005ab757135607183f4629addfb931535c4c" prot="public" virt="non-virtual"><scope>Sequence</scope><name>kSequence</name></member>
+      <member refid="class_sequence_1a3020a1ad58fc581345d2ead5a265b848" prot="public" virt="virtual"><scope>Sequence</scope><name>Load</name></member>
+      <member refid="class_timeline_points_1a5cb85c5d5b483539f2c42a0348d3e5a5" prot="public" virt="non-virtual" ambiguityscope="TimelinePoints::"><scope>Sequence</scope><name>Load</name></member>
+      <member refid="class_timeline_points_1a0ad7fdb42651e09a2ddcc3a601965cc4" prot="public" virt="non-virtual"><scope>Sequence</scope><name>markers</name></member>
+      <member refid="class_timeline_points_1ab54a56959539ad8297964e76c9e03f99" prot="public" virt="non-virtual"><scope>Sequence</scope><name>markers</name></member>
+      <member refid="class_timeline_points_1ada7f815bb073b42c1b428afa7a389402" prot="private" virt="non-virtual"><scope>Sequence</scope><name>markers_</name></member>
+      <member refid="class_item_1a6442dac193a2e96ce0c40a1467684569" prot="public" virt="non-virtual"><scope>Sequence</scope><name>name</name></member>
+      <member refid="class_item_1a73965e7a2042be6cd3234afe29e7c1c6" prot="private" virt="non-virtual"><scope>Sequence</scope><name>name_</name></member>
+      <member refid="class_sequence_1aad0c5145f9d9ff7dcb252b32b754b810" prot="protected" virt="virtual"><scope>Sequence</scope><name>NameChangedEvent</name></member>
+      <member refid="class_node_graph_1ab67dbbbe996a43dad619fdf4cc8dae01" prot="private" virt="non-virtual"><scope>Sequence</scope><name>node_children_</name></member>
+      <member refid="class_node_graph_1a12c26233abf2189d5c1b75ff8e97e851" prot="public" virt="non-virtual"><scope>Sequence</scope><name>NodeAdded</name></member>
+      <member refid="class_node_graph_1afad96f9400912192890cc7873d77cb5b" prot="public" virt="non-virtual"><scope>Sequence</scope><name>NodeGraph</name></member>
+      <member refid="class_node_graph_1ad5981a96376972891cca2a0ce1ec3f91" prot="public" virt="non-virtual"><scope>Sequence</scope><name>NodeRemoved</name></member>
+      <member refid="class_node_graph_1a56563ed5fd4c4b04c319135c52f17ea7" prot="public" virt="non-virtual"><scope>Sequence</scope><name>nodes</name></member>
+      <member refid="class_item_1aaa36e9db0505be6b3cac7a6e3d429ef7" prot="public" virt="non-virtual"><scope>Sequence</scope><name>parent</name></member>
+      <member refid="class_item_1a655e3d9269d60cbb26780cdfa45257b6" prot="private" virt="non-virtual"><scope>Sequence</scope><name>parent_</name></member>
+      <member refid="class_item_1ac29b8b0d2362b7f44f4033f1d3f38f05" prot="public" virt="non-virtual"><scope>Sequence</scope><name>project</name></member>
+      <member refid="class_item_1afef9389b234df33c55597ecbc62a80b9" prot="private" virt="non-virtual"><scope>Sequence</scope><name>project_</name></member>
+      <member refid="class_sequence_1a014a32928d52b673e35098db121a39d0" prot="public" virt="virtual"><scope>Sequence</scope><name>rate</name></member>
+      <member refid="class_item_1a0fafbd7347fba4d8a044e1901b0cd1aa" prot="public" virt="non-virtual"><scope>Sequence</scope><name>remove_child</name></member>
+      <member refid="class_item_1a857b863010848fb782d740249aeeff55" prot="public" virt="non-virtual"><scope>Sequence</scope><name>root</name></member>
+      <member refid="class_sequence_1aa33391ba43d46fd49472eb01eb58af4f" prot="public" virt="virtual"><scope>Sequence</scope><name>Save</name></member>
+      <member refid="class_sequence_1a532b7e8df6ff6b2f990c14ae97859ca2" prot="public" virt="non-virtual"><scope>Sequence</scope><name>Sequence</name></member>
+      <member refid="class_sequence_1a8681a780babc9e23232550f73f8c4b47" prot="public" virt="non-virtual"><scope>Sequence</scope><name>set_audio_params</name></member>
+      <member refid="class_sequence_1a055051dcd295c7a940eb7fcfd743ac16" prot="public" virt="non-virtual"><scope>Sequence</scope><name>set_default_parameters</name></member>
+      <member refid="class_item_1a12bcb63d6aa838a43e8078811afdd242" prot="public" virt="non-virtual"><scope>Sequence</scope><name>set_name</name></member>
+      <member refid="class_sequence_1a9041ef1fa6d6b33f4d4d7c60274b9691" prot="public" virt="non-virtual"><scope>Sequence</scope><name>set_parameters_from_footage</name></member>
+      <member refid="class_item_1a85c2c4608db041e2b517d6e1d6cce59e" prot="public" virt="non-virtual"><scope>Sequence</scope><name>set_project</name></member>
+      <member refid="class_item_1acfde985eaf2c1d393710a2295e58b74c" prot="public" virt="non-virtual"><scope>Sequence</scope><name>set_tooltip</name></member>
+      <member refid="class_sequence_1ad5903efdb20ad809d4677cfeed000460" prot="public" virt="non-virtual"><scope>Sequence</scope><name>set_video_params</name></member>
+      <member refid="class_node_graph_1ad07da68357789d99b222fde671f4e45b" prot="public" virt="non-virtual"><scope>Sequence</scope><name>TakeNode</name></member>
+      <member refid="class_timeline_points_1a56c4492e4dd71afcf969bc62a378b9bc" prot="public" virt="non-virtual"><scope>Sequence</scope><name>TimelinePoints</name></member>
+      <member refid="class_item_1afbf394c9b9476a4dee65516e59bbe756" prot="public" virt="non-virtual"><scope>Sequence</scope><name>tooltip</name></member>
+      <member refid="class_item_1a6f3e200519e34b43514937404c39a83d" prot="private" virt="non-virtual"><scope>Sequence</scope><name>tooltip_</name></member>
+      <member refid="class_item_1a6b718f9918eb7a5b2d4572cc1a231005" prot="public" virt="non-virtual"><scope>Sequence</scope><name>Type</name></member>
+      <member refid="class_sequence_1a6b32cfe0c67dc61aa3edf542b19c9628" prot="public" virt="virtual"><scope>Sequence</scope><name>type</name></member>
+      <member refid="class_sequence_1abdb28d8cbcf489b76cfed7109e67f0f0" prot="public" virt="non-virtual"><scope>Sequence</scope><name>video_params</name></member>
+      <member refid="class_sequence_1abb8d1d7c6060bdb9cde07e9bd09e94b2" prot="public" virt="non-virtual"><scope>Sequence</scope><name>viewer_output</name></member>
+      <member refid="class_sequence_1a2e6a6266c16e4e80c1ddcf920682688a" prot="private" virt="non-virtual"><scope>Sequence</scope><name>viewer_output_</name></member>
+      <member refid="class_timeline_points_1a161106344a6024c2d8a92c3e7857ed9e" prot="public" virt="non-virtual"><scope>Sequence</scope><name>workarea</name></member>
+      <member refid="class_timeline_points_1a8b401f61ea6d1593052b5ebf8cd8320e" prot="public" virt="non-virtual"><scope>Sequence</scope><name>workarea</name></member>
+      <member refid="class_timeline_points_1aed074b41868509cdd652455ea140fff1" prot="private" virt="non-virtual"><scope>Sequence</scope><name>workarea_</name></member>
+      <member refid="class_item_1a33cc9c0bc556b5a33a9d0d58d37c602b" prot="public" virt="virtual"><scope>Sequence</scope><name>~Item</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

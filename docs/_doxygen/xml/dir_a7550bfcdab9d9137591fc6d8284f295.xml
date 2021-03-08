@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_a7550bfcdab9d9137591fc6d8284f295" kind="dir">
+    <compoundname>timeline</compoundname>
+    <innerfile refid="timelinecoordinate_8h">timelinecoordinate.h</innerfile>
+    <innerfile refid="timelinemarker_8h">timelinemarker.h</innerfile>
+    <innerfile refid="timelinepoints_8h">timelinepoints.h</innerfile>
+    <innerfile refid="timelineworkarea_8h">timelineworkarea.h</innerfile>
+    <innerfile refid="trackreference_8h">trackreference.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/timeline/"/>
+  </compounddef>
+</doxygen>

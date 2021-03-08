@@ -1,0 +1,134 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_task_view_item" kind="class" language="C++" prot="public">
+    <compoundname>TaskViewItem</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QFrame</basecompoundref>
+    <includes refid="taskviewitem_8h" local="no">taskviewitem.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_task_view_item_1a8e2246a23bdcee416aa120dbda412af1" prot="private" static="no" mutable="no">
+        <type>QLabel *</type>
+        <definition>QLabel* TaskViewItem::task_name_lbl_</definition>
+        <argsstring></argsstring>
+        <name>task_name_lbl_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/taskview/taskviewitem.h" line="67" column="10" bodyfile="C:/Daten/Olive/olive/app/widget/taskview/taskviewitem.h" bodystart="67" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_task_view_item_1ae09c3f5c7622ab3e7c892aadb09a9d4c" prot="private" static="no" mutable="no">
+        <type>QProgressBar *</type>
+        <definition>QProgressBar* TaskViewItem::progress_bar_</definition>
+        <argsstring></argsstring>
+        <name>progress_bar_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/taskview/taskviewitem.h" line="68" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/taskview/taskviewitem.h" bodystart="68" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_task_view_item_1a46fad5f0a706fad8431239f547a58d8e" prot="private" static="no" mutable="no">
+        <type>QPushButton *</type>
+        <definition>QPushButton* TaskViewItem::cancel_btn_</definition>
+        <argsstring></argsstring>
+        <name>cancel_btn_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/taskview/taskviewitem.h" line="69" column="15" bodyfile="C:/Daten/Olive/olive/app/widget/taskview/taskviewitem.h" bodystart="69" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_task_view_item_1a6f1bb3e81afe6ed25dcace65d4d4f8d2" prot="private" static="no" mutable="no">
+        <type>QLabel *</type>
+        <definition>QLabel* TaskViewItem::task_status_lbl_</definition>
+        <argsstring></argsstring>
+        <name>task_status_lbl_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/taskview/taskviewitem.h" line="70" column="10" bodyfile="C:/Daten/Olive/olive/app/widget/taskview/taskviewitem.h" bodystart="70" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_task_view_item_1a351be74cfc10cb14c6d7a2d9f7ce0e3a" prot="private" static="no" mutable="no">
+        <type><ref refid="class_task" kindref="compound">Task</ref> *</type>
+        <definition>Task* TaskViewItem::task_</definition>
+        <argsstring></argsstring>
+        <name>task_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/taskview/taskviewitem.h" line="72" column="8" bodyfile="C:/Daten/Olive/olive/app/widget/taskview/taskviewitem.h" bodystart="72" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_task_view_item_1a5850dd073b6da9f3f2e8594a7f510689" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>TaskViewItem::TaskViewItem</definition>
+        <argsstring>(Task *task, QWidget *parent=nullptr)</argsstring>
+        <name>TaskViewItem</name>
+        <param>
+          <type><ref refid="class_task" kindref="compound">Task</ref> *</type>
+          <declname>task</declname>
+        </param>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/taskview/taskviewitem.h" line="64" column="3"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A widget that visually represents the status of a <ref refid="class_task" kindref="compound">Task</ref>. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>The <ref refid="class_task_view_item" kindref="compound">TaskViewItem</ref> widget shows a description of the <ref refid="class_task" kindref="compound">Task</ref> (Task::text(), a progress bar (updated by <ref refid="class_task_1ace51d7e4a8007795140abced0bec23e4" kindref="member">Task::ProgressChanged</ref>), the <ref refid="class_task" kindref="compound">Task</ref>&apos;s status (text generated from Task::status() or Task::error()), and provides a cancel button (triggering <ref refid="class_task_1a444d31998ef5379149713bc44007cc92" kindref="member">Task::Cancel()</ref>) for cancelling a <ref refid="class_task" kindref="compound">Task</ref> before it finishes.</para>
+<para>The main entry point is SetTask() after a <ref refid="class_task" kindref="compound">Task</ref> and <ref refid="class_task_view_item" kindref="compound">TaskViewItem</ref> objects are created. </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>TaskViewItem</label>
+        <link refid="class_task_view_item"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>task_</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>CancelableObject</label>
+        <link refid="class_cancelable_object"/>
+      </node>
+      <node id="2">
+        <label>Task</label>
+        <link refid="class_task"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/taskview/taskviewitem.h" line="42" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/taskview/taskviewitem.h" bodystart="43" bodyend="56"/>
+    <listofallmembers>
+      <member refid="class_task_view_item_1a46fad5f0a706fad8431239f547a58d8e" prot="private" virt="non-virtual"><scope>TaskViewItem</scope><name>cancel_btn_</name></member>
+      <member refid="class_task_view_item_1ae09c3f5c7622ab3e7c892aadb09a9d4c" prot="private" virt="non-virtual"><scope>TaskViewItem</scope><name>progress_bar_</name></member>
+      <member refid="class_task_view_item_1a351be74cfc10cb14c6d7a2d9f7ce0e3a" prot="private" virt="non-virtual"><scope>TaskViewItem</scope><name>task_</name></member>
+      <member refid="class_task_view_item_1a8e2246a23bdcee416aa120dbda412af1" prot="private" virt="non-virtual"><scope>TaskViewItem</scope><name>task_name_lbl_</name></member>
+      <member refid="class_task_view_item_1a6f1bb3e81afe6ed25dcace65d4d4f8d2" prot="private" virt="non-virtual"><scope>TaskViewItem</scope><name>task_status_lbl_</name></member>
+      <member refid="class_task_view_item_1a5850dd073b6da9f3f2e8594a7f510689" prot="public" virt="non-virtual"><scope>TaskViewItem</scope><name>TaskViewItem</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

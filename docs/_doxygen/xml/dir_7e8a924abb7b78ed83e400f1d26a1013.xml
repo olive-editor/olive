@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_7e8a924abb7b78ed83e400f1d26a1013" kind="dir">
+    <compoundname>block</compoundname>
+    <innerdir refid="dir_6e7b03e9234388dd8d5256d3274cc689">clip</innerdir>
+    <innerdir refid="dir_65137a83881673ee61a41c5ad985bec2">gap</innerdir>
+    <innerdir refid="dir_a140c51107e7080b9697a115d5076453">transition</innerdir>
+    <innerfile refid="block_8h">block.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/node/block/"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,357 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_open_g_l_color_processor" kind="class" language="C++" prot="public">
+    <compoundname>OpenGLColorProcessor</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QObject</basecompoundref>
+    <basecompoundref refid="class_color_processor" prot="public" virt="non-virtual">ColorProcessor</basecompoundref>
+    <includes refid="openglcolorprocessor_8h" local="no">openglcolorprocessor.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_open_g_l_color_processor_1a5658e0a75b079048147685ce36613c5b" prot="private" static="no" mutable="no">
+        <type>QOpenGLContext *</type>
+        <definition>QOpenGLContext* OpenGLColorProcessor::context_</definition>
+        <argsstring></argsstring>
+        <name>context_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglcolorprocessor.h" line="54" column="18" bodyfile="C:/Daten/Olive/olive/app/render/backend/opengl/openglcolorprocessor.h" bodystart="54" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_open_g_l_color_processor_1a626bb7d3dfbd4b82fc18143f2fd01b9e" prot="private" static="no" mutable="no">
+        <type>GLuint</type>
+        <definition>GLuint OpenGLColorProcessor::ocio_lut_</definition>
+        <argsstring></argsstring>
+        <name>ocio_lut_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglcolorprocessor.h" line="56" column="10" bodyfile="C:/Daten/Olive/olive/app/render/backend/opengl/openglcolorprocessor.h" bodystart="56" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_open_g_l_color_processor_1a931b88c790af777237dd9ae5b1492a46" prot="private" static="no" mutable="no">
+        <type><ref refid="openglshader_8h_1a99853974927ec0ae59c90cd3f1f618fe" kindref="member">OpenGLShaderPtr</ref></type>
+        <definition>OpenGLShaderPtr OpenGLColorProcessor::pipeline_</definition>
+        <argsstring></argsstring>
+        <name>pipeline_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglcolorprocessor.h" line="58" column="19" bodyfile="C:/Daten/Olive/olive/app/render/backend/opengl/openglcolorprocessor.h" bodystart="58" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_color_processor_1a358f3faa1d19b54192bd671ac96fb516" prot="private" static="no" mutable="no">
+        <type>OCIO::ConstProcessorRcPtr</type>
+        <definition>OCIO::ConstProcessorRcPtr ColorProcessor::processor_</definition>
+        <argsstring></argsstring>
+        <name>processor_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colorprocessor.h" line="57" column="29" bodyfile="C:/Daten/Olive/olive/app/render/colorprocessor.h" bodystart="57" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_open_g_l_color_processor_1a64c6f23f47c4af3ed01af24bcb0f8f06" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>OpenGLColorProcessor::OpenGLColorProcessor</definition>
+        <argsstring>(ColorManager *config, const QString &amp;input, const ColorTransform &amp;dest)</argsstring>
+        <name>OpenGLColorProcessor</name>
+        <param>
+          <type><ref refid="class_color_manager" kindref="compound">ColorManager</ref> *</type>
+          <declname>config</declname>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_color_transform" kindref="compound">ColorTransform</ref> &amp;</type>
+          <declname>dest</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglcolorprocessor.h" line="36" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_color_processor_1a1d48e0759d3fd80ff5a07d94040b521c" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type></type>
+        <definition>virtual OpenGLColorProcessor::~OpenGLColorProcessor</definition>
+        <argsstring>() override</argsstring>
+        <name>~OpenGLColorProcessor</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglcolorprocessor.h" line="40" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_color_processor_1ac3b2a5535c758b777e0a4bb9f07c5aa4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void OpenGLColorProcessor::Enable</definition>
+        <argsstring>(QOpenGLContext *context, bool alpha_is_associated)</argsstring>
+        <name>Enable</name>
+        <param>
+          <type>QOpenGLContext *</type>
+          <declname>context</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>alpha_is_associated</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglcolorprocessor.h" line="46" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_color_processor_1a8dfadfda6942e20b3d9450660f59b92e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool OpenGLColorProcessor::IsEnabled</definition>
+        <argsstring>() const</argsstring>
+        <name>IsEnabled</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglcolorprocessor.h" line="47" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_color_processor_1a6b4b9a9dd3bde4fd4aef5317c7e4372d" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="openglshader_8h_1a99853974927ec0ae59c90cd3f1f618fe" kindref="member">OpenGLShaderPtr</ref></type>
+        <definition>OpenGLShaderPtr OpenGLColorProcessor::pipeline</definition>
+        <argsstring>() const</argsstring>
+        <name>pipeline</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglcolorprocessor.h" line="49" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_color_processor_1a381419f6313b276b5733815c3fbd3b68" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void OpenGLColorProcessor::ProcessOpenGL</definition>
+        <argsstring>(bool flipped=false, const QMatrix4x4 &amp;matrix=QMatrix4x4())</argsstring>
+        <name>ProcessOpenGL</name>
+        <param>
+          <type>bool</type>
+          <declname>flipped</declname>
+          <defval>false</defval>
+        </param>
+        <param>
+          <type>const QMatrix4x4 &amp;</type>
+          <declname>matrix</declname>
+          <defval>QMatrix4x4()</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglcolorprocessor.h" line="51" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_processor_1acf4970dc069493de00b2ee4f891a4a36" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>OCIO::ConstProcessorRcPtr</type>
+        <definition>OCIO::ConstProcessorRcPtr ColorProcessor::GetProcessor</definition>
+        <argsstring>()</argsstring>
+        <name>GetProcessor</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colorprocessor.h" line="49" column="29"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_processor_1ae8092d824009dfebccac99ee53232142" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ColorProcessor::ConvertFrame</definition>
+        <argsstring>(FramePtr f)</argsstring>
+        <name>ConvertFrame</name>
+        <param>
+          <type><ref refid="frame_8h_1a2ae9a822fc1e331fa3b449797f717db6" kindref="member">FramePtr</ref></type>
+          <declname>f</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colorprocessor.h" line="51" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_processor_1a3cc21610bcf49707d253d93fb9cc373e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ColorProcessor::ConvertFrame</definition>
+        <argsstring>(Frame *f)</argsstring>
+        <name>ConvertFrame</name>
+        <param>
+          <type><ref refid="class_frame" kindref="compound">Frame</ref> *</type>
+          <declname>f</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colorprocessor.h" line="52" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_processor_1a078323d79e2f98d321f9f3f9a11d4b56" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_color" kindref="compound">Color</ref></type>
+        <definition>Color ColorProcessor::ConvertColor</definition>
+        <argsstring>(Color in)</argsstring>
+        <name>ConvertColor</name>
+        <param>
+          <type><ref refid="class_color" kindref="compound">Color</ref></type>
+          <declname>in</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colorprocessor.h" line="54" column="9"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="class_open_g_l_color_processor_1a52b719a060b25ea71683d03b893c5b55" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="openglcolorprocessor_8h_1adbd01a7d0ec2e2c2ccb318c7c1cce161" kindref="member">OpenGLColorProcessorPtr</ref></type>
+        <definition>static OpenGLColorProcessorPtr OpenGLColorProcessor::Create</definition>
+        <argsstring>(ColorManager *config, const QString &amp;input, const ColorTransform &amp;dest)</argsstring>
+        <name>Create</name>
+        <param>
+          <type><ref refid="class_color_manager" kindref="compound">ColorManager</ref> *</type>
+          <declname>config</declname>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_color_transform" kindref="compound">ColorTransform</ref> &amp;</type>
+          <declname>dest</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglcolorprocessor.h" line="42" column="34"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_open_g_l_color_processor_1adc00ecfcaa199d98ce12d31738f89165" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void OpenGLColorProcessor::ClearTexture</definition>
+        <argsstring>()</argsstring>
+        <name>ClearTexture</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglcolorprocessor.h" line="61" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-type">
+      <memberdef kind="enum" id="class_color_processor_1a391163164395ec92cd46bf0354637503" prot="public" static="no" strong="no">
+        <type></type>
+        <name>Direction</name>
+        <enumvalue id="class_color_processor_1a391163164395ec92cd46bf0354637503a04772a79279ff2b63be7ab2e9649a2d7" prot="public">
+          <name>kNormal</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_color_processor_1a391163164395ec92cd46bf0354637503adf74fae7cfcf953584b44c3853b840e1" prot="public">
+          <name>kInverse</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colorprocessor.h" line="38" column="3" bodyfile="C:/Daten/Olive/olive/app/render/colorprocessor.h" bodystart="38" bodyend="41"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>ColorProcessor</label>
+        <link refid="class_color_processor"/>
+      </node>
+      <node id="1">
+        <label>OpenGLColorProcessor</label>
+        <link refid="class_open_g_l_color_processor"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>ColorProcessor</label>
+        <link refid="class_color_processor"/>
+      </node>
+      <node id="1">
+        <label>OpenGLColorProcessor</label>
+        <link refid="class_open_g_l_color_processor"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglcolorprocessor.h" line="32" column="1" bodyfile="C:/Daten/Olive/olive/app/render/backend/opengl/openglcolorprocessor.h" bodystart="33" bodyend="63"/>
+    <listofallmembers>
+      <member refid="class_open_g_l_color_processor_1adc00ecfcaa199d98ce12d31738f89165" prot="private" virt="non-virtual"><scope>OpenGLColorProcessor</scope><name>ClearTexture</name></member>
+      <member refid="class_color_processor_1abb07b6ad8f44fba32dbcfcfde48590fe" prot="public" virt="non-virtual"><scope>OpenGLColorProcessor</scope><name>ColorProcessor</name></member>
+      <member refid="class_open_g_l_color_processor_1a5658e0a75b079048147685ce36613c5b" prot="private" virt="non-virtual"><scope>OpenGLColorProcessor</scope><name>context_</name></member>
+      <member refid="class_color_processor_1a078323d79e2f98d321f9f3f9a11d4b56" prot="public" virt="non-virtual"><scope>OpenGLColorProcessor</scope><name>ConvertColor</name></member>
+      <member refid="class_color_processor_1ae8092d824009dfebccac99ee53232142" prot="public" virt="non-virtual"><scope>OpenGLColorProcessor</scope><name>ConvertFrame</name></member>
+      <member refid="class_color_processor_1a3cc21610bcf49707d253d93fb9cc373e" prot="public" virt="non-virtual"><scope>OpenGLColorProcessor</scope><name>ConvertFrame</name></member>
+      <member refid="class_open_g_l_color_processor_1a52b719a060b25ea71683d03b893c5b55" prot="public" virt="non-virtual"><scope>OpenGLColorProcessor</scope><name>Create</name></member>
+      <member refid="class_color_processor_1a391163164395ec92cd46bf0354637503" prot="public" virt="non-virtual"><scope>OpenGLColorProcessor</scope><name>Direction</name></member>
+      <member refid="class_open_g_l_color_processor_1ac3b2a5535c758b777e0a4bb9f07c5aa4" prot="public" virt="non-virtual"><scope>OpenGLColorProcessor</scope><name>Enable</name></member>
+      <member refid="class_color_processor_1acf4970dc069493de00b2ee4f891a4a36" prot="public" virt="non-virtual"><scope>OpenGLColorProcessor</scope><name>GetProcessor</name></member>
+      <member refid="class_open_g_l_color_processor_1a8dfadfda6942e20b3d9450660f59b92e" prot="public" virt="non-virtual"><scope>OpenGLColorProcessor</scope><name>IsEnabled</name></member>
+      <member refid="class_color_processor_1a391163164395ec92cd46bf0354637503adf74fae7cfcf953584b44c3853b840e1" prot="public" virt="non-virtual"><scope>OpenGLColorProcessor</scope><name>kInverse</name></member>
+      <member refid="class_color_processor_1a391163164395ec92cd46bf0354637503a04772a79279ff2b63be7ab2e9649a2d7" prot="public" virt="non-virtual"><scope>OpenGLColorProcessor</scope><name>kNormal</name></member>
+      <member refid="class_open_g_l_color_processor_1a626bb7d3dfbd4b82fc18143f2fd01b9e" prot="private" virt="non-virtual"><scope>OpenGLColorProcessor</scope><name>ocio_lut_</name></member>
+      <member refid="class_open_g_l_color_processor_1a64c6f23f47c4af3ed01af24bcb0f8f06" prot="public" virt="non-virtual"><scope>OpenGLColorProcessor</scope><name>OpenGLColorProcessor</name></member>
+      <member refid="class_open_g_l_color_processor_1a6b4b9a9dd3bde4fd4aef5317c7e4372d" prot="public" virt="non-virtual"><scope>OpenGLColorProcessor</scope><name>pipeline</name></member>
+      <member refid="class_open_g_l_color_processor_1a931b88c790af777237dd9ae5b1492a46" prot="private" virt="non-virtual"><scope>OpenGLColorProcessor</scope><name>pipeline_</name></member>
+      <member refid="class_open_g_l_color_processor_1a381419f6313b276b5733815c3fbd3b68" prot="public" virt="non-virtual"><scope>OpenGLColorProcessor</scope><name>ProcessOpenGL</name></member>
+      <member refid="class_color_processor_1a358f3faa1d19b54192bd671ac96fb516" prot="private" virt="non-virtual"><scope>OpenGLColorProcessor</scope><name>processor_</name></member>
+      <member refid="class_open_g_l_color_processor_1a1d48e0759d3fd80ff5a07d94040b521c" prot="public" virt="virtual"><scope>OpenGLColorProcessor</scope><name>~OpenGLColorProcessor</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

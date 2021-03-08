@@ -1,0 +1,110 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_image_section" kind="class" language="C++" prot="public">
+    <compoundname>ImageSection</compoundname>
+    <basecompoundref refid="class_codec_section" prot="public" virt="non-virtual">CodecSection</basecompoundref>
+    <includes refid="imagesection_8h" local="no">imagesection.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_image_section_1ad711944fddb3e9c2e757f3fcda93cad1" prot="private" static="no" mutable="no">
+        <type>QCheckBox *</type>
+        <definition>QCheckBox* ImageSection::image_sequence_checkbox_</definition>
+        <argsstring></argsstring>
+        <name>image_sequence_checkbox_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/codec/imagesection.h" line="56" column="13" bodyfile="C:/Daten/Olive/olive/app/dialog/export/codec/imagesection.h" bodystart="56" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_image_section_1a7f46ec5ed5119ceb7b56b43ba5724d7d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>ImageSection::ImageSection</definition>
+        <argsstring>(QWidget *parent=nullptr)</argsstring>
+        <name>ImageSection</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/codec/imagesection.h" line="51" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_image_section_1a1577d6c6809b6ea40701c8b6b7233906" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QCheckBox *</type>
+        <definition>QCheckBox* ImageSection::image_sequence_checkbox</definition>
+        <argsstring>() const</argsstring>
+        <name>image_sequence_checkbox</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/codec/imagesection.h" line="53" column="13"/>
+      </memberdef>
+      <memberdef kind="function" id="class_codec_section_1a5cf8d3c3bbdd8fc24378e657a453a374" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void CodecSection::AddOpts</definition>
+        <argsstring>(EncodingParams *params)</argsstring>
+        <name>AddOpts</name>
+        <reimplementedby refid="class_h264_section_1a828c9cd970efcadc203e875eb234ed1b">AddOpts</reimplementedby>
+        <param>
+          <type><ref refid="class_encoding_params" kindref="compound">EncodingParams</ref> *</type>
+          <declname>params</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/codec/codecsection.h" line="53" column="16" bodyfile="C:/Daten/Olive/olive/app/dialog/export/codec/codecsection.h" bodystart="53" bodyend="53"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>CodecSection</label>
+        <link refid="class_codec_section"/>
+      </node>
+      <node id="1">
+        <label>ImageSection</label>
+        <link refid="class_image_section"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>CodecSection</label>
+        <link refid="class_codec_section"/>
+      </node>
+      <node id="1">
+        <label>ImageSection</label>
+        <link refid="class_image_section"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/dialog/export/codec/imagesection.h" line="30" column="1" bodyfile="C:/Daten/Olive/olive/app/dialog/export/codec/imagesection.h" bodystart="31" bodyend="40"/>
+    <listofallmembers>
+      <member refid="class_codec_section_1a5cf8d3c3bbdd8fc24378e657a453a374" prot="public" virt="virtual"><scope>ImageSection</scope><name>AddOpts</name></member>
+      <member refid="class_codec_section_1affc1f536d95abca37de43b4c32cc1e07" prot="public" virt="non-virtual"><scope>ImageSection</scope><name>CodecSection</name></member>
+      <member refid="class_image_section_1a1577d6c6809b6ea40701c8b6b7233906" prot="public" virt="non-virtual"><scope>ImageSection</scope><name>image_sequence_checkbox</name></member>
+      <member refid="class_image_section_1ad711944fddb3e9c2e757f3fcda93cad1" prot="private" virt="non-virtual"><scope>ImageSection</scope><name>image_sequence_checkbox_</name></member>
+      <member refid="class_image_section_1a7f46ec5ed5119ceb7b56b43ba5724d7d" prot="public" virt="non-virtual"><scope>ImageSection</scope><name>ImageSection</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

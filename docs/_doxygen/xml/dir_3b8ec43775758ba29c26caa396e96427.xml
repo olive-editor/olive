@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_3b8ec43775758ba29c26caa396e96427" kind="dir">
+    <compoundname>param</compoundname>
+    <innerfile refid="panel_2param_2param_8h">panel/param/param.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/panel/param/"/>
+  </compounddef>
+</doxygen>

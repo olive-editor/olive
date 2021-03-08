@@ -1,0 +1,212 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_timeline_points" kind="class" language="C++" prot="public">
+    <compoundname>TimelinePoints</compoundname>
+    <derivedcompoundref refid="class_footage" prot="public" virt="non-virtual">Footage</derivedcompoundref>
+    <derivedcompoundref refid="class_sequence" prot="public" virt="non-virtual">Sequence</derivedcompoundref>
+    <includes refid="timelinepoints_8h" local="no">timelinepoints.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_timeline_points_1ada7f815bb073b42c1b428afa7a389402" prot="private" static="no" mutable="no">
+        <type><ref refid="class_timeline_marker_list" kindref="compound">TimelineMarkerList</ref></type>
+        <definition>TimelineMarkerList TimelinePoints::markers_</definition>
+        <argsstring></argsstring>
+        <name>markers_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelinepoints.h" line="65" column="22" bodyfile="C:/Daten/Olive/olive/app/timeline/timelinepoints.h" bodystart="65" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_timeline_points_1aed074b41868509cdd652455ea140fff1" prot="private" static="no" mutable="no">
+        <type><ref refid="class_timeline_work_area" kindref="compound">TimelineWorkArea</ref></type>
+        <definition>TimelineWorkArea TimelinePoints::workarea_</definition>
+        <argsstring></argsstring>
+        <name>workarea_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelinepoints.h" line="67" column="20" bodyfile="C:/Daten/Olive/olive/app/timeline/timelinepoints.h" bodystart="67" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_timeline_points_1a56c4492e4dd71afcf969bc62a378b9bc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>TimelinePoints::TimelinePoints</definition>
+        <argsstring>()=default</argsstring>
+        <name>TimelinePoints</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelinepoints.h" line="53" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_points_1a0ad7fdb42651e09a2ddcc3a601965cc4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_timeline_marker_list" kindref="compound">TimelineMarkerList</ref> *</type>
+        <definition>TimelineMarkerList* TimelinePoints::markers</definition>
+        <argsstring>()</argsstring>
+        <name>markers</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelinepoints.h" line="55" column="22"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_points_1ab54a56959539ad8297964e76c9e03f99" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="class_timeline_marker_list" kindref="compound">TimelineMarkerList</ref> *</type>
+        <definition>const TimelineMarkerList* TimelinePoints::markers</definition>
+        <argsstring>() const</argsstring>
+        <name>markers</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelinepoints.h" line="56" column="28"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_points_1a161106344a6024c2d8a92c3e7857ed9e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_timeline_work_area" kindref="compound">TimelineWorkArea</ref> *</type>
+        <definition>TimelineWorkArea* TimelinePoints::workarea</definition>
+        <argsstring>()</argsstring>
+        <name>workarea</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelinepoints.h" line="58" column="20"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_points_1a8b401f61ea6d1593052b5ebf8cd8320e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="class_timeline_work_area" kindref="compound">TimelineWorkArea</ref> *</type>
+        <definition>const TimelineWorkArea* TimelinePoints::workarea</definition>
+        <argsstring>() const</argsstring>
+        <name>workarea</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelinepoints.h" line="59" column="26"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_points_1a5cb85c5d5b483539f2c42a0348d3e5a5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimelinePoints::Load</definition>
+        <argsstring>(QXmlStreamReader *reader)</argsstring>
+        <name>Load</name>
+        <param>
+          <type>QXmlStreamReader *</type>
+          <declname>reader</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelinepoints.h" line="61" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_points_1ad296b44f166412ad6b0cfa30396aa28f" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimelinePoints::Save</definition>
+        <argsstring>(QXmlStreamWriter *writer) const</argsstring>
+        <name>Save</name>
+        <param>
+          <type>QXmlStreamWriter *</type>
+          <declname>writer</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelinepoints.h" line="62" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>TimelinePoints</label>
+        <link refid="class_timeline_points"/>
+      </node>
+      <node id="3">
+        <label>Sequence</label>
+        <link refid="class_sequence"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>Footage</label>
+        <link refid="class_footage"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>TimelinePoints</label>
+        <link refid="class_timeline_points"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>markers_</edgelabel>
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>workarea_</edgelabel>
+        </childnode>
+      </node>
+      <node id="5">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="3">
+        <label>TimelineWorkArea</label>
+        <link refid="class_timeline_work_area"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>workarea_range_</edgelabel>
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>kResetOut</edgelabel>
+          <edgelabel>kResetIn</edgelabel>
+        </childnode>
+      </node>
+      <node id="4">
+        <label>TimeRange</label>
+        <link refid="class_time_range"/>
+        <childnode refid="5" relation="usage">
+          <edgelabel>out_</edgelabel>
+          <edgelabel>in_</edgelabel>
+          <edgelabel>length_</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>TimelineMarkerList</label>
+        <link refid="class_timeline_marker_list"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/timeline/timelinepoints.h" line="32" column="1" bodyfile="C:/Daten/Olive/olive/app/timeline/timelinepoints.h" bodystart="33" bodyend="51"/>
+    <listofallmembers>
+      <member refid="class_timeline_points_1a5cb85c5d5b483539f2c42a0348d3e5a5" prot="public" virt="non-virtual"><scope>TimelinePoints</scope><name>Load</name></member>
+      <member refid="class_timeline_points_1a0ad7fdb42651e09a2ddcc3a601965cc4" prot="public" virt="non-virtual"><scope>TimelinePoints</scope><name>markers</name></member>
+      <member refid="class_timeline_points_1ab54a56959539ad8297964e76c9e03f99" prot="public" virt="non-virtual"><scope>TimelinePoints</scope><name>markers</name></member>
+      <member refid="class_timeline_points_1ada7f815bb073b42c1b428afa7a389402" prot="private" virt="non-virtual"><scope>TimelinePoints</scope><name>markers_</name></member>
+      <member refid="class_timeline_points_1ad296b44f166412ad6b0cfa30396aa28f" prot="public" virt="non-virtual"><scope>TimelinePoints</scope><name>Save</name></member>
+      <member refid="class_timeline_points_1a56c4492e4dd71afcf969bc62a378b9bc" prot="public" virt="non-virtual"><scope>TimelinePoints</scope><name>TimelinePoints</name></member>
+      <member refid="class_timeline_points_1a161106344a6024c2d8a92c3e7857ed9e" prot="public" virt="non-virtual"><scope>TimelinePoints</scope><name>workarea</name></member>
+      <member refid="class_timeline_points_1a8b401f61ea6d1593052b5ebf8cd8320e" prot="public" virt="non-virtual"><scope>TimelinePoints</scope><name>workarea</name></member>
+      <member refid="class_timeline_points_1aed074b41868509cdd652455ea140fff1" prot="private" virt="non-virtual"><scope>TimelinePoints</scope><name>workarea_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

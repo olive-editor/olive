@@ -1,0 +1,137 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_preferences_dialog" kind="class" language="C++" prot="public">
+    <compoundname>PreferencesDialog</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QDialog</basecompoundref>
+    <includes refid="preferences_8h" local="no">preferences.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_preferences_dialog_1afdaa321b39777c5ee06e7459781818a8" prot="private" static="no" mutable="no">
+        <type>QListWidget *</type>
+        <definition>QListWidget* PreferencesDialog::list_widget_</definition>
+        <argsstring></argsstring>
+        <name>list_widget_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/preferences.h" line="82" column="15" bodyfile="C:/Daten/Olive/olive/app/dialog/preferences/preferences.h" bodystart="82" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_preferences_dialog_1a4e38055e31d1f18f6b14c2ac0854240b" prot="private" static="no" mutable="no">
+        <type>QStackedWidget *</type>
+        <definition>QStackedWidget* PreferencesDialog::preference_pane_stack_</definition>
+        <argsstring></argsstring>
+        <name>preference_pane_stack_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/preferences.h" line="84" column="18" bodyfile="C:/Daten/Olive/olive/app/dialog/preferences/preferences.h" bodystart="84" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_preferences_dialog_1a7bf068aa47dac20e556a13731327a58b" prot="private" static="no" mutable="no">
+        <type>QList&lt; <ref refid="class_preferences_tab" kindref="compound">PreferencesTab</ref> * &gt;</type>
+        <definition>QList&lt;PreferencesTab*&gt; PreferencesDialog::tabs_</definition>
+        <argsstring></argsstring>
+        <name>tabs_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/preferences.h" line="86" column="9" bodyfile="C:/Daten/Olive/olive/app/dialog/preferences/preferences.h" bodystart="86" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_preferences_dialog_1a6cc7929111a15289a480dde30a2be650" prot="public" static="no" const="no" explicit="yes" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>PreferencesDialog::PreferencesDialog</definition>
+        <argsstring>(QWidget *parent, QMenuBar *main_menu_bar)</argsstring>
+        <name>PreferencesDialog</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+        </param>
+        <param>
+          <type>QMenuBar *</type>
+          <declname>main_menu_bar</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="class_preferences_dialog" kindref="compound">PreferencesDialog</ref> Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parent</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>QWidget parent. Usually <ref refid="class_main_window" kindref="compound">MainWindow</ref>. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/preferences.h" line="71" column="12"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_preferences_dialog_1a4008934bd185d9bf586de34c403cbbc4" prot="private" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PreferencesDialog::accept</definition>
+        <argsstring>() override</argsstring>
+        <name>accept</name>
+        <briefdescription>
+<para>Override of accept to save preferences to <ref refid="class_config" kindref="compound">Config</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/preferences.h" line="77" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_preferences_dialog_1a3756874bbe18723b7fdc99bb21681901" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PreferencesDialog::AddTab</definition>
+        <argsstring>(PreferencesTab *tab, const QString &amp;title)</argsstring>
+        <name>AddTab</name>
+        <param>
+          <type><ref refid="class_preferences_tab" kindref="compound">PreferencesTab</ref> *</type>
+          <declname>tab</declname>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>title</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/preferences.h" line="80" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>The <ref refid="class_preferences_dialog" kindref="compound">PreferencesDialog</ref> class. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>A dialog for the global application settings. Mostly an interface for <ref refid="class_config" kindref="compound">Config</ref>. Can be loaded from any part of the application. </para>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/dialog/preferences/preferences.h" line="41" column="1" bodyfile="C:/Daten/Olive/olive/app/dialog/preferences/preferences.h" bodystart="42" bodyend="70"/>
+    <listofallmembers>
+      <member refid="class_preferences_dialog_1a4008934bd185d9bf586de34c403cbbc4" prot="private" virt="virtual"><scope>PreferencesDialog</scope><name>accept</name></member>
+      <member refid="class_preferences_dialog_1a3756874bbe18723b7fdc99bb21681901" prot="private" virt="non-virtual"><scope>PreferencesDialog</scope><name>AddTab</name></member>
+      <member refid="class_preferences_dialog_1afdaa321b39777c5ee06e7459781818a8" prot="private" virt="non-virtual"><scope>PreferencesDialog</scope><name>list_widget_</name></member>
+      <member refid="class_preferences_dialog_1a4e38055e31d1f18f6b14c2ac0854240b" prot="private" virt="non-virtual"><scope>PreferencesDialog</scope><name>preference_pane_stack_</name></member>
+      <member refid="class_preferences_dialog_1a6cc7929111a15289a480dde30a2be650" prot="public" virt="non-virtual"><scope>PreferencesDialog</scope><name>PreferencesDialog</name></member>
+      <member refid="class_preferences_dialog_1a7bf068aa47dac20e556a13731327a58b" prot="private" virt="non-virtual"><scope>PreferencesDialog</scope><name>tabs_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

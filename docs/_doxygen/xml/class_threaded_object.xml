@@ -1,0 +1,135 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_threaded_object" kind="class" language="C++" prot="public">
+    <compoundname>ThreadedObject</compoundname>
+    <includes refid="threadedobject_8h" local="no">threadedobject.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_threaded_object_1a7a05a16ebc8423fe1894ae8752e6df58" prot="private" static="no" mutable="no">
+        <type>QMutex</type>
+        <definition>QMutex ThreadedObject::threadobj_main_lock_</definition>
+        <argsstring></argsstring>
+        <name>threadobj_main_lock_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/threadedobject.h" line="61" column="10" bodyfile="C:/Daten/Olive/olive/app/common/threadedobject.h" bodystart="61" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_threaded_object_1a9c468366b3d3201bbbb7010d5db210ba" prot="private" static="no" mutable="no">
+        <type>QAtomicInt</type>
+        <definition>QAtomicInt ThreadedObject::threadobj_delete_lock_</definition>
+        <argsstring></argsstring>
+        <name>threadobj_delete_lock_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/threadedobject.h" line="63" column="14" bodyfile="C:/Daten/Olive/olive/app/common/threadedobject.h" bodystart="63" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_threaded_object_1a13bce6629a0c90d94efd01095891182d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ThreadedObject::LockMutex</definition>
+        <argsstring>()</argsstring>
+        <name>LockMutex</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/threadedobject.h" line="52" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_threaded_object_1a2f5dde608684a2ac4d0bfa8bdc9e337f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ThreadedObject::UnlockMutex</definition>
+        <argsstring>()</argsstring>
+        <name>UnlockMutex</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/threadedobject.h" line="53" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_threaded_object_1a2752105b0e54d346a2c24a30bf19fc84" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool ThreadedObject::TryLockMutex</definition>
+        <argsstring>(int timeout=0)</argsstring>
+        <name>TryLockMutex</name>
+        <param>
+          <type>int</type>
+          <declname>timeout</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/threadedobject.h" line="54" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_threaded_object_1a0eca3993d91da8bc8eaf4977df604d26" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ThreadedObject::LockDeletes</definition>
+        <argsstring>()</argsstring>
+        <name>LockDeletes</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/threadedobject.h" line="56" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_threaded_object_1a84196b97e189b854ba1819922de2d4f9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ThreadedObject::UnlockDeletes</definition>
+        <argsstring>()</argsstring>
+        <name>UnlockDeletes</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/threadedobject.h" line="57" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_threaded_object_1a1d3838a1c7d4b28340a9cdabfd77b7d2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool ThreadedObject::AreDeletesLocked</definition>
+        <argsstring>()</argsstring>
+        <name>AreDeletesLocked</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/threadedobject.h" line="58" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/common/threadedobject.h" line="30" column="1" bodyfile="C:/Daten/Olive/olive/app/common/threadedobject.h" bodystart="31" bodyend="46"/>
+    <listofallmembers>
+      <member refid="class_threaded_object_1a1d3838a1c7d4b28340a9cdabfd77b7d2" prot="public" virt="non-virtual"><scope>ThreadedObject</scope><name>AreDeletesLocked</name></member>
+      <member refid="class_threaded_object_1a0eca3993d91da8bc8eaf4977df604d26" prot="public" virt="non-virtual"><scope>ThreadedObject</scope><name>LockDeletes</name></member>
+      <member refid="class_threaded_object_1a13bce6629a0c90d94efd01095891182d" prot="public" virt="non-virtual"><scope>ThreadedObject</scope><name>LockMutex</name></member>
+      <member refid="class_threaded_object_1a9c468366b3d3201bbbb7010d5db210ba" prot="private" virt="non-virtual"><scope>ThreadedObject</scope><name>threadobj_delete_lock_</name></member>
+      <member refid="class_threaded_object_1a7a05a16ebc8423fe1894ae8752e6df58" prot="private" virt="non-virtual"><scope>ThreadedObject</scope><name>threadobj_main_lock_</name></member>
+      <member refid="class_threaded_object_1a2752105b0e54d346a2c24a30bf19fc84" prot="public" virt="non-virtual"><scope>ThreadedObject</scope><name>TryLockMutex</name></member>
+      <member refid="class_threaded_object_1a84196b97e189b854ba1819922de2d4f9" prot="public" virt="non-virtual"><scope>ThreadedObject</scope><name>UnlockDeletes</name></member>
+      <member refid="class_threaded_object_1a2f5dde608684a2ac4d0bfa8bdc9e337f" prot="public" virt="non-virtual"><scope>ThreadedObject</scope><name>UnlockMutex</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

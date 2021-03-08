@@ -1,0 +1,85 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_project_explorer_list_view_item_delegate" kind="class" language="C++" prot="public">
+    <compoundname>ProjectExplorerListViewItemDelegate</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QStyledItemDelegate</basecompoundref>
+    <includes refid="projectexplorerlistviewitemdelegate_8h" local="no">projectexplorerlistviewitemdelegate.h</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_project_explorer_list_view_item_delegate_1a32b8183fb860705411dc09c63abd626d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>ProjectExplorerListViewItemDelegate::ProjectExplorerListViewItemDelegate</definition>
+        <argsstring>(QObject *parent=nullptr)</argsstring>
+        <name>ProjectExplorerListViewItemDelegate</name>
+        <param>
+          <type>QObject *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorerlistviewitemdelegate.h" line="54" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_explorer_list_view_item_delegate_1a5ee984976df15e225f296e28358d9c8b" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type>QSize</type>
+        <definition>virtual QSize ProjectExplorerListViewItemDelegate::sizeHint</definition>
+        <argsstring>(const QStyleOptionViewItem &amp;option, const QModelIndex &amp;index) const override</argsstring>
+        <name>sizeHint</name>
+        <param>
+          <type>const QStyleOptionViewItem &amp;</type>
+          <declname>option</declname>
+        </param>
+        <param>
+          <type>const QModelIndex &amp;</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorerlistviewitemdelegate.h" line="56" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_explorer_list_view_item_delegate_1a828ec25e1a826dc4410778be91db1f1b" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void ProjectExplorerListViewItemDelegate::paint</definition>
+        <argsstring>(QPainter *painter, const QStyleOptionViewItem &amp;option, const QModelIndex &amp;index) const override</argsstring>
+        <name>paint</name>
+        <param>
+          <type>QPainter *</type>
+          <declname>painter</declname>
+        </param>
+        <param>
+          <type>const QStyleOptionViewItem &amp;</type>
+          <declname>option</declname>
+        </param>
+        <param>
+          <type>const QModelIndex &amp;</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorerlistviewitemdelegate.h" line="57" column="16"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>The delegate that&apos;s used to draw items when <ref refid="class_project_explorer" kindref="compound">ProjectExplorer</ref> is in List view. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorerlistviewitemdelegate.h" line="33" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorerlistviewitemdelegate.h" bodystart="34" bodyend="40"/>
+    <listofallmembers>
+      <member refid="class_project_explorer_list_view_item_delegate_1a828ec25e1a826dc4410778be91db1f1b" prot="public" virt="virtual"><scope>ProjectExplorerListViewItemDelegate</scope><name>paint</name></member>
+      <member refid="class_project_explorer_list_view_item_delegate_1a32b8183fb860705411dc09c63abd626d" prot="public" virt="non-virtual"><scope>ProjectExplorerListViewItemDelegate</scope><name>ProjectExplorerListViewItemDelegate</name></member>
+      <member refid="class_project_explorer_list_view_item_delegate_1a5ee984976df15e225f296e28358d9c8b" prot="public" virt="virtual"><scope>ProjectExplorerListViewItemDelegate</scope><name>sizeHint</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

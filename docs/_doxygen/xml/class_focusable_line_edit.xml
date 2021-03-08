@@ -1,0 +1,102 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_focusable_line_edit" kind="class" language="C++" prot="public">
+    <compoundname>FocusableLineEdit</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QLineEdit</basecompoundref>
+    <includes refid="focusablelineedit_8h" local="no">focusablelineedit.h</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_focusable_line_edit_1a7df8fda58562a520e521667b766125b0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>FocusableLineEdit::FocusableLineEdit</definition>
+        <argsstring>(QWidget *parent=nullptr)</argsstring>
+        <name>FocusableLineEdit</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/focusablelineedit/focusablelineedit.h" line="52" column="3"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_focusable_line_edit_1a043ae7f0da9786e30e74575f92ab026d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void FocusableLineEdit::Confirmed</definition>
+        <argsstring>()</argsstring>
+        <name>Confirmed</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/focusablelineedit/focusablelineedit.h" line="55" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_focusable_line_edit_1a9e7b0a2353b2283b324cd1bc22bcc676" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void FocusableLineEdit::Cancelled</definition>
+        <argsstring>()</argsstring>
+        <name>Cancelled</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/focusablelineedit/focusablelineedit.h" line="57" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_focusable_line_edit_1a836de79f439935fc1d44113677a03709" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void FocusableLineEdit::keyPressEvent</definition>
+        <argsstring>(QKeyEvent *) override</argsstring>
+        <name>keyPressEvent</name>
+        <param>
+          <type>QKeyEvent *</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/focusablelineedit/focusablelineedit.h" line="60" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_focusable_line_edit_1a03bdd1512effde2843031366011f59ce" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void FocusableLineEdit::focusOutEvent</definition>
+        <argsstring>(QFocusEvent *) override</argsstring>
+        <name>focusOutEvent</name>
+        <param>
+          <type>QFocusEvent *</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/focusablelineedit/focusablelineedit.h" line="62" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/widget/focusablelineedit/focusablelineedit.h" line="30" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/focusablelineedit/focusablelineedit.h" bodystart="31" bodyend="47"/>
+    <listofallmembers>
+      <member refid="class_focusable_line_edit_1a9e7b0a2353b2283b324cd1bc22bcc676" prot="public" virt="non-virtual"><scope>FocusableLineEdit</scope><name>Cancelled</name></member>
+      <member refid="class_focusable_line_edit_1a043ae7f0da9786e30e74575f92ab026d" prot="public" virt="non-virtual"><scope>FocusableLineEdit</scope><name>Confirmed</name></member>
+      <member refid="class_focusable_line_edit_1a7df8fda58562a520e521667b766125b0" prot="public" virt="non-virtual"><scope>FocusableLineEdit</scope><name>FocusableLineEdit</name></member>
+      <member refid="class_focusable_line_edit_1a03bdd1512effde2843031366011f59ce" prot="protected" virt="non-virtual"><scope>FocusableLineEdit</scope><name>focusOutEvent</name></member>
+      <member refid="class_focusable_line_edit_1a836de79f439935fc1d44113677a03709" prot="protected" virt="non-virtual"><scope>FocusableLineEdit</scope><name>keyPressEvent</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

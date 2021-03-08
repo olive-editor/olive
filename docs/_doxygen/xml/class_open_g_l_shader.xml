@@ -1,0 +1,194 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_open_g_l_shader" kind="class" language="C++" prot="public">
+    <compoundname>OpenGLShader</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QOpenGLShaderProgram</basecompoundref>
+    <includes refid="openglshader_8h" local="no">openglshader.h</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_open_g_l_shader_1a4bd72ba315cafc0cc5e1f1dba360f7cd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>OpenGLShader::OpenGLShader</definition>
+        <argsstring>()=default</argsstring>
+        <name>OpenGLShader</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglshader.h" line="42" column="3"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="class_open_g_l_shader_1aeeeaed982f777d4c2953044297995ad5" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="openglshader_8h_1a99853974927ec0ae59c90cd3f1f618fe" kindref="member">OpenGLShaderPtr</ref></type>
+        <definition>static OpenGLShaderPtr OpenGLShader::Create</definition>
+        <argsstring>()</argsstring>
+        <name>Create</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglshader.h" line="44" column="26"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_shader_1a568beba3d9d72d3ca1559d9a723e2355" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="openglshader_8h_1a99853974927ec0ae59c90cd3f1f618fe" kindref="member">OpenGLShaderPtr</ref></type>
+        <definition>static OpenGLShaderPtr OpenGLShader::CreateDefault</definition>
+        <argsstring>(const QString &amp;function_name=QString(), const QString &amp;shader_code=QString())</argsstring>
+        <name>CreateDefault</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>function_name</declname>
+          <defval>QString()</defval>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>shader_code</declname>
+          <defval>QString()</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglshader.h" line="46" column="26"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_shader_1a08742a605ff8e1964b651c506186c424" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="openglshader_8h_1a99853974927ec0ae59c90cd3f1f618fe" kindref="member">OpenGLShaderPtr</ref></type>
+        <definition>static OpenGLShaderPtr OpenGLShader::CreateOCIO</definition>
+        <argsstring>(QOpenGLContext *ctx, GLuint &amp;lut_texture, OCIO::ConstProcessorRcPtr processor, bool alpha_is_associated)</argsstring>
+        <name>CreateOCIO</name>
+        <param>
+          <type>QOpenGLContext *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>GLuint &amp;</type>
+          <declname>lut_texture</declname>
+        </param>
+        <param>
+          <type>OCIO::ConstProcessorRcPtr</type>
+          <declname>processor</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>alpha_is_associated</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglshader.h" line="49" column="26"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_shader_1af858ca25ca02009798574d3f283cf32c" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>static QString OpenGLShader::CodeDefaultFragment</definition>
+        <argsstring>(const QString &amp;function_name=QString(), const QString &amp;shader_code=QString())</argsstring>
+        <name>CodeDefaultFragment</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>function_name</declname>
+          <defval>QString()</defval>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>shader_code</declname>
+          <defval>QString()</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglshader.h" line="54" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_shader_1abe60c7e2c6cad8f8336aefc6780d1cb0" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>static QString OpenGLShader::CodeDefaultVertex</definition>
+        <argsstring>()</argsstring>
+        <name>CodeDefaultVertex</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglshader.h" line="56" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_shader_1a2a3bada7eef3d5e02fcbf989fefc7c8d" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>static QString OpenGLShader::CodeAlphaDisassociate</definition>
+        <argsstring>(const QString &amp;function_name)</argsstring>
+        <name>CodeAlphaDisassociate</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>function_name</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglshader.h" line="57" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_shader_1a914e5e0b3510b14268d1ae40890b67f5" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>static QString OpenGLShader::CodeAlphaReassociate</definition>
+        <argsstring>(const QString &amp;function_name)</argsstring>
+        <name>CodeAlphaReassociate</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>function_name</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglshader.h" line="58" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_shader_1a13f78c2ccc0aa63222523f4c2c751a18" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>static QString OpenGLShader::CodeAlphaAssociate</definition>
+        <argsstring>(const QString &amp;function_name)</argsstring>
+        <name>CodeAlphaAssociate</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>function_name</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglshader.h" line="59" column="18"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A simple QOpenGLShaderProgram derivative with static functions for creating. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglshader.h" line="40" column="1" bodyfile="C:/Daten/Olive/olive/app/render/backend/opengl/openglshader.h" bodystart="40" bodyend="61"/>
+    <listofallmembers>
+      <member refid="class_open_g_l_shader_1a13f78c2ccc0aa63222523f4c2c751a18" prot="public" virt="non-virtual"><scope>OpenGLShader</scope><name>CodeAlphaAssociate</name></member>
+      <member refid="class_open_g_l_shader_1a2a3bada7eef3d5e02fcbf989fefc7c8d" prot="public" virt="non-virtual"><scope>OpenGLShader</scope><name>CodeAlphaDisassociate</name></member>
+      <member refid="class_open_g_l_shader_1a914e5e0b3510b14268d1ae40890b67f5" prot="public" virt="non-virtual"><scope>OpenGLShader</scope><name>CodeAlphaReassociate</name></member>
+      <member refid="class_open_g_l_shader_1af858ca25ca02009798574d3f283cf32c" prot="public" virt="non-virtual"><scope>OpenGLShader</scope><name>CodeDefaultFragment</name></member>
+      <member refid="class_open_g_l_shader_1abe60c7e2c6cad8f8336aefc6780d1cb0" prot="public" virt="non-virtual"><scope>OpenGLShader</scope><name>CodeDefaultVertex</name></member>
+      <member refid="class_open_g_l_shader_1aeeeaed982f777d4c2953044297995ad5" prot="public" virt="non-virtual"><scope>OpenGLShader</scope><name>Create</name></member>
+      <member refid="class_open_g_l_shader_1a568beba3d9d72d3ca1559d9a723e2355" prot="public" virt="non-virtual"><scope>OpenGLShader</scope><name>CreateDefault</name></member>
+      <member refid="class_open_g_l_shader_1a08742a605ff8e1964b651c506186c424" prot="public" virt="non-virtual"><scope>OpenGLShader</scope><name>CreateOCIO</name></member>
+      <member refid="class_open_g_l_shader_1a4bd72ba315cafc0cc5e1f1dba360f7cd" prot="public" virt="non-virtual"><scope>OpenGLShader</scope><name>OpenGLShader</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

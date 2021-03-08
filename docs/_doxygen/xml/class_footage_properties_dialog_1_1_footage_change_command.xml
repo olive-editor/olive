@@ -1,0 +1,280 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_footage_properties_dialog_1_1_footage_change_command" kind="class" language="C++" prot="private">
+    <compoundname>FootagePropertiesDialog::FootageChangeCommand</compoundname>
+    <basecompoundref refid="class_undo_command" prot="public" virt="non-virtual">UndoCommand</basecompoundref>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_footage_properties_dialog_1_1_footage_change_command_1a979dd933e00b10fe0d3dd439522904e2" prot="private" static="no" mutable="no">
+        <type><ref refid="class_footage" kindref="compound">Footage</ref> *</type>
+        <definition>Footage* FootagePropertiesDialog::FootageChangeCommand::footage_</definition>
+        <argsstring></argsstring>
+        <name>footage_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/footageproperties.h" line="90" column="13" bodyfile="C:/Daten/Olive/olive/app/dialog/footageproperties/footageproperties.h" bodystart="90" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_footage_properties_dialog_1_1_footage_change_command_1ab1a8004e4167bd0f55fdf3903b1d3a06" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString FootagePropertiesDialog::FootageChangeCommand::new_name_</definition>
+        <argsstring></argsstring>
+        <name>new_name_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/footageproperties.h" line="92" column="13" bodyfile="C:/Daten/Olive/olive/app/dialog/footageproperties/footageproperties.h" bodystart="92" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_footage_properties_dialog_1_1_footage_change_command_1af828a9e7f4ccf9e6c9a764acfed1f5ab" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString FootagePropertiesDialog::FootageChangeCommand::old_name_</definition>
+        <argsstring></argsstring>
+        <name>old_name_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/footageproperties.h" line="93" column="13" bodyfile="C:/Daten/Olive/olive/app/dialog/footageproperties/footageproperties.h" bodystart="93" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_undo_command_1a6c06f9c1b7bfeeff3c4724491945992b" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool UndoCommand::modified_</definition>
+        <argsstring></argsstring>
+        <name>modified_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="64" column="8" bodyfile="C:/Daten/Olive/olive/app/undo/undocommand.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_footage_properties_dialog_1_1_footage_change_command_1a8a425f1c2eb8072da6e324204faa34a3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>FootagePropertiesDialog::FootageChangeCommand::FootageChangeCommand</definition>
+        <argsstring>(Footage *footage, const QString &amp;name, QUndoCommand *command=nullptr)</argsstring>
+        <name>FootageChangeCommand</name>
+        <param>
+          <type><ref refid="class_footage" kindref="compound">Footage</ref> *</type>
+          <declname>footage</declname>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>name</declname>
+        </param>
+        <param>
+          <type>QUndoCommand *</type>
+          <declname>command</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/footageproperties.h" line="79" column="5"/>
+      </memberdef>
+      <memberdef kind="function" id="class_footage_properties_dialog_1_1_footage_change_command_1a03dfc031e0d762c5835252f2d2f8921e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="class_project" kindref="compound">Project</ref> *</type>
+        <definition>virtual Project* FootagePropertiesDialog::FootageChangeCommand::GetRelevantProject</definition>
+        <argsstring>() const override</argsstring>
+        <name>GetRelevantProject</name>
+        <reimplements refid="class_undo_command_1ab5c8967132833ea6be76a63dc5472f4f">GetRelevantProject</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/footageproperties.h" line="83" column="21"/>
+      </memberdef>
+      <memberdef kind="function" id="class_undo_command_1a9907db368d01fb26f5082a36c6d90bd4" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void UndoCommand::redo</definition>
+        <argsstring>() override</argsstring>
+        <name>redo</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="54" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_undo_command_1a09d00f8a2e1c8b3c97d72d9585503030" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void UndoCommand::undo</definition>
+        <argsstring>() override</argsstring>
+        <name>undo</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="55" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_footage_properties_dialog_1_1_footage_change_command_1a9ea5384081879e946ef747a12a3e297b" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void FootagePropertiesDialog::FootageChangeCommand::redo_internal</definition>
+        <argsstring>() override</argsstring>
+        <name>redo_internal</name>
+        <reimplements refid="class_undo_command_1ac8aa20d444a655cd36fa3c7dc01928b4">redo_internal</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/footageproperties.h" line="86" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_footage_properties_dialog_1_1_footage_change_command_1a884213bd92343fe151d73cc19641a8c8" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void FootagePropertiesDialog::FootageChangeCommand::undo_internal</definition>
+        <argsstring>() override</argsstring>
+        <name>undo_internal</name>
+        <reimplements refid="class_undo_command_1a871dbc8a1f95b58e641be13703563faa">undo_internal</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/footageproperties.h" line="87" column="18"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>UndoCommand</label>
+        <link refid="class_undo_command"/>
+      </node>
+      <node id="1">
+        <label>FootagePropertiesDialog::FootageChangeCommand</label>
+        <link refid="class_footage_properties_dialog_1_1_footage_change_command"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="8">
+        <label>TimelinePoints</label>
+        <link refid="class_timeline_points"/>
+        <childnode refid="9" relation="usage">
+          <edgelabel>markers_</edgelabel>
+        </childnode>
+        <childnode refid="10" relation="usage">
+          <edgelabel>workarea_</edgelabel>
+        </childnode>
+      </node>
+      <node id="6">
+        <label>ColorManager</label>
+        <link refid="class_color_manager"/>
+      </node>
+      <node id="12">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="4">
+        <label>Item</label>
+        <link refid="class_item"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>parent_</edgelabel>
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>project_</edgelabel>
+        </childnode>
+      </node>
+      <node id="10">
+        <label>TimelineWorkArea</label>
+        <link refid="class_timeline_work_area"/>
+        <childnode refid="11" relation="usage">
+          <edgelabel>workarea_range_</edgelabel>
+        </childnode>
+        <childnode refid="12" relation="usage">
+          <edgelabel>kResetOut</edgelabel>
+          <edgelabel>kResetIn</edgelabel>
+        </childnode>
+      </node>
+      <node id="5">
+        <label>Project</label>
+        <link refid="class_project"/>
+        <childnode refid="6" relation="usage">
+          <edgelabel>color_manager_</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>root_</edgelabel>
+        </childnode>
+      </node>
+      <node id="7">
+        <label>Folder</label>
+        <link refid="class_folder"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>TimeRange</label>
+        <link refid="class_time_range"/>
+        <childnode refid="12" relation="usage">
+          <edgelabel>out_</edgelabel>
+          <edgelabel>in_</edgelabel>
+          <edgelabel>length_</edgelabel>
+        </childnode>
+      </node>
+      <node id="9">
+        <label>TimelineMarkerList</label>
+        <link refid="class_timeline_marker_list"/>
+      </node>
+      <node id="3">
+        <label>Footage</label>
+        <link refid="class_footage"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+        <childnode refid="8" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>UndoCommand</label>
+        <link refid="class_undo_command"/>
+      </node>
+      <node id="1">
+        <label>FootagePropertiesDialog::FootageChangeCommand</label>
+        <link refid="class_footage_properties_dialog_1_1_footage_change_command"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>footage_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/footageproperties.h" line="77" column="3" bodyfile="C:/Daten/Olive/olive/app/dialog/footageproperties/footageproperties.h" bodystart="77" bodyend="94"/>
+    <listofallmembers>
+      <member refid="class_footage_properties_dialog_1_1_footage_change_command_1a979dd933e00b10fe0d3dd439522904e2" prot="private" virt="non-virtual"><scope>FootagePropertiesDialog::FootageChangeCommand</scope><name>footage_</name></member>
+      <member refid="class_footage_properties_dialog_1_1_footage_change_command_1a8a425f1c2eb8072da6e324204faa34a3" prot="public" virt="non-virtual"><scope>FootagePropertiesDialog::FootageChangeCommand</scope><name>FootageChangeCommand</name></member>
+      <member refid="class_footage_properties_dialog_1_1_footage_change_command_1a03dfc031e0d762c5835252f2d2f8921e" prot="public" virt="virtual"><scope>FootagePropertiesDialog::FootageChangeCommand</scope><name>GetRelevantProject</name></member>
+      <member refid="class_undo_command_1a6c06f9c1b7bfeeff3c4724491945992b" prot="private" virt="non-virtual"><scope>FootagePropertiesDialog::FootageChangeCommand</scope><name>modified_</name></member>
+      <member refid="class_footage_properties_dialog_1_1_footage_change_command_1ab1a8004e4167bd0f55fdf3903b1d3a06" prot="private" virt="non-virtual"><scope>FootagePropertiesDialog::FootageChangeCommand</scope><name>new_name_</name></member>
+      <member refid="class_footage_properties_dialog_1_1_footage_change_command_1af828a9e7f4ccf9e6c9a764acfed1f5ab" prot="private" virt="non-virtual"><scope>FootagePropertiesDialog::FootageChangeCommand</scope><name>old_name_</name></member>
+      <member refid="class_undo_command_1a9907db368d01fb26f5082a36c6d90bd4" prot="public" virt="virtual"><scope>FootagePropertiesDialog::FootageChangeCommand</scope><name>redo</name></member>
+      <member refid="class_footage_properties_dialog_1_1_footage_change_command_1a9ea5384081879e946ef747a12a3e297b" prot="protected" virt="virtual"><scope>FootagePropertiesDialog::FootageChangeCommand</scope><name>redo_internal</name></member>
+      <member refid="class_undo_command_1a09d00f8a2e1c8b3c97d72d9585503030" prot="public" virt="virtual"><scope>FootagePropertiesDialog::FootageChangeCommand</scope><name>undo</name></member>
+      <member refid="class_footage_properties_dialog_1_1_footage_change_command_1a884213bd92343fe151d73cc19641a8c8" prot="protected" virt="virtual"><scope>FootagePropertiesDialog::FootageChangeCommand</scope><name>undo_internal</name></member>
+      <member refid="class_undo_command_1a5a07a6505a207cf7186c7c726ff9c5fa" prot="public" virt="non-virtual"><scope>FootagePropertiesDialog::FootageChangeCommand</scope><name>UndoCommand</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

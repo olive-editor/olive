@@ -1,0 +1,111 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_action_search_entry" kind="class" language="C++" prot="public">
+    <compoundname>ActionSearchEntry</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QLineEdit</basecompoundref>
+    <includes refid="actionsearch_8h" local="no">actionsearch.h</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_action_search_entry_1a05b453b8333db8a3b32f5c8c1cb0cf10" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>ActionSearchEntry::ActionSearchEntry</definition>
+        <argsstring>(QWidget *parent)</argsstring>
+        <name>ActionSearchEntry</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="class_action_search_entry" kindref="compound">ActionSearchEntry</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parent</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Usually <ref refid="class_action_search" kindref="compound">ActionSearch</ref>. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/actionsearch/actionsearch.h" line="166" column="3"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_action_search_entry_1a7d89d69694d5c9eb7608fdaf48d8a925" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ActionSearchEntry::keyPressEvent</definition>
+        <argsstring>(QKeyEvent *event)</argsstring>
+        <name>keyPressEvent</name>
+        <param>
+          <type>QKeyEvent *</type>
+          <declname>event</declname>
+        </param>
+        <briefdescription>
+<para>Override of QLineEdit&apos;s key press event that listens for up/down key presses. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>event</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/actionsearch/actionsearch.h" line="172" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_action_search_entry_1a3e82772c363721ccf64a23c3e3bc8225" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ActionSearchEntry::moveSelectionUp</definition>
+        <argsstring>()</argsstring>
+        <name>moveSelectionUp</name>
+        <briefdescription>
+<para>Emitted when the user presses the up arrow key. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/actionsearch/actionsearch.h" line="177" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_action_search_entry_1af64a4bea133c85fd4182d7573f13688d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ActionSearchEntry::moveSelectionDown</definition>
+        <argsstring>()</argsstring>
+        <name>moveSelectionDown</name>
+        <briefdescription>
+<para>Emitted when the user presses the down arrow key. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/actionsearch/actionsearch.h" line="182" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>The <ref refid="class_action_search_entry" kindref="compound">ActionSearchEntry</ref> class. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Simple wrapper around QLineEdit that emits signals when the up or down arrow keys are pressed so that <ref refid="class_action_search" kindref="compound">ActionSearch</ref> can connect them to moving the current selection up or down. </para>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/dialog/actionsearch/actionsearch.h" line="157" column="1" bodyfile="C:/Daten/Olive/olive/app/dialog/actionsearch/actionsearch.h" bodystart="157" bodyend="183"/>
+    <listofallmembers>
+      <member refid="class_action_search_entry_1a05b453b8333db8a3b32f5c8c1cb0cf10" prot="public" virt="non-virtual"><scope>ActionSearchEntry</scope><name>ActionSearchEntry</name></member>
+      <member refid="class_action_search_entry_1a7d89d69694d5c9eb7608fdaf48d8a925" prot="protected" virt="non-virtual"><scope>ActionSearchEntry</scope><name>keyPressEvent</name></member>
+      <member refid="class_action_search_entry_1af64a4bea133c85fd4182d7573f13688d" prot="public" virt="non-virtual"><scope>ActionSearchEntry</scope><name>moveSelectionDown</name></member>
+      <member refid="class_action_search_entry_1a3e82772c363721ccf64a23c3e3bc8225" prot="public" virt="non-virtual"><scope>ActionSearchEntry</scope><name>moveSelectionUp</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

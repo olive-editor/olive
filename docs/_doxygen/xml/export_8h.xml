@@ -1,0 +1,1876 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="export_8h" kind="file" language="C++">
+    <compoundname>export.h</compoundname>
+    <includes local="no">QComboBox</includes>
+    <includes local="no">QDialog</includes>
+    <includes local="no">QDialogButtonBox</includes>
+    <includes local="no">QLineEdit</includes>
+    <includes local="no">QProgressBar</includes>
+    <includes refid="exportaudiotab_8h" local="yes">exportaudiotab.h</includes>
+    <includes refid="exportcodec_8h" local="yes">exportcodec.h</includes>
+    <includes refid="exportformat_8h" local="yes">exportformat.h</includes>
+    <includes refid="exportvideotab_8h" local="yes">exportvideotab.h</includes>
+    <includes refid="exporter_8h" local="yes">render/backend/exporter.h</includes>
+    <includes refid="widget_2viewer_2viewer_8h" local="yes">widget/viewer/viewer.h</includes>
+    <incdepgraph>
+      <node id="122">
+        <label>audio/sumsamples.h</label>
+        <link refid="sumsamples_8h"/>
+        <childnode refid="123" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="77" relation="include">
+        </childnode>
+      </node>
+      <node id="102">
+        <label>QMap</label>
+      </node>
+      <node id="180">
+        <label>undo/undocommand.h</label>
+        <link refid="undocommand_8h"/>
+        <childnode refid="88" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="181" relation="include">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>libavformat/avformat.h</label>
+      </node>
+      <node id="158">
+        <label>viewerwindow.h</label>
+        <link refid="viewerwindow_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="155" relation="include">
+        </childnode>
+      </node>
+      <node id="174">
+        <label>common/timecodefunctions.h</label>
+        <link refid="timecodefunctions_8h"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="126">
+        <label>widget/timelinewidget/timelinescaledobject.h</label>
+        <link refid="timelinescaledobject_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="196">
+        <label>widget/timelinewidget/undo/undo.h</label>
+        <link refid="undo_8h"/>
+        <childnode refid="88" relation="include">
+        </childnode>
+        <childnode refid="60" relation="include">
+        </childnode>
+        <childnode refid="197" relation="include">
+        </childnode>
+        <childnode refid="62" relation="include">
+        </childnode>
+        <childnode refid="63" relation="include">
+        </childnode>
+        <childnode refid="98" relation="include">
+        </childnode>
+        <childnode refid="180" relation="include">
+        </childnode>
+      </node>
+      <node id="192">
+        <label>timelineviewmouseevent.h</label>
+        <link refid="timelineviewmouseevent_8h"/>
+        <childnode refid="193" relation="include">
+        </childnode>
+        <childnode refid="111" relation="include">
+        </childnode>
+        <childnode refid="194" relation="include">
+        </childnode>
+        <childnode refid="191" relation="include">
+        </childnode>
+      </node>
+      <node id="92">
+        <label>node/param.h</label>
+        <link refid="node_2param_8h"/>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="93" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="85" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="87" relation="include">
+        </childnode>
+        <childnode refid="94" relation="include">
+        </childnode>
+      </node>
+      <node id="121">
+        <label>audiowaveformview.h</label>
+        <link refid="audiowaveformview_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="122" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="66" relation="include">
+        </childnode>
+        <childnode refid="124" relation="include">
+        </childnode>
+      </node>
+      <node id="78">
+        <label>codec/waveoutput.h</label>
+        <link refid="waveoutput_8h"/>
+        <childnode refid="79" relation="include">
+        </childnode>
+        <childnode refid="80" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+      </node>
+      <node id="167">
+        <label>QDragMoveEvent</label>
+      </node>
+      <node id="163">
+        <label>widget/resizablescrollbar/resizablescrollbar.h</label>
+        <link refid="resizablescrollbar_8h"/>
+        <childnode refid="120" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="186">
+        <label>handmovableview.h</label>
+        <link refid="handmovableview_8h"/>
+        <childnode refid="165" relation="include">
+        </childnode>
+        <childnode refid="187" relation="include">
+        </childnode>
+      </node>
+      <node id="127">
+        <label>panel/scope/scope.h</label>
+        <link refid="scope_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="128" relation="include">
+        </childnode>
+        <childnode refid="131" relation="include">
+        </childnode>
+        <childnode refid="143" relation="include">
+        </childnode>
+      </node>
+      <node id="112">
+        <label>render/backend/exportparams.h</label>
+        <link refid="exportparams_8h"/>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="57" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+      </node>
+      <node id="161">
+        <label>widget/slider/timeslider.h</label>
+        <link refid="timeslider_8h"/>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="53" relation="include">
+        </childnode>
+      </node>
+      <node id="96">
+        <label>project/item/footage/imagestream.h</label>
+        <link refid="imagestream_8h"/>
+        <childnode refid="90" relation="include">
+        </childnode>
+      </node>
+      <node id="104">
+        <label>node/traverser.h</label>
+        <link refid="traverser_8h"/>
+        <childnode refid="73" relation="include">
+        </childnode>
+        <childnode refid="105" relation="include">
+        </childnode>
+        <childnode refid="107" relation="include">
+        </childnode>
+        <childnode refid="62" relation="include">
+        </childnode>
+        <childnode refid="90" relation="include">
+        </childnode>
+        <childnode refid="108" relation="include">
+        </childnode>
+      </node>
+      <node id="69">
+        <label>dialog/rendercancel/rendercancel.h</label>
+        <link refid="rendercancel_8h"/>
+        <childnode refid="70" relation="include">
+        </childnode>
+      </node>
+      <node id="183">
+        <label>tool/tool.h</label>
+        <link refid="tool_2tool_8h"/>
+        <childnode refid="91" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="151">
+        <label>openglshadercache.h</label>
+        <link refid="openglshadercache_8h"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="137" relation="include">
+        </childnode>
+        <childnode refid="101" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>QSlider</label>
+      </node>
+      <node id="82">
+        <label>QDateTime</label>
+      </node>
+      <node id="40">
+        <label>QObject</label>
+      </node>
+      <node id="156">
+        <label>viewersafemargininfo.h</label>
+        <link refid="viewersafemargininfo_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="150">
+        <label>QOffscreenSurface</label>
+      </node>
+      <node id="36">
+        <label>common/timerange.h</label>
+        <link refid="timerange_8h"/>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="89">
+        <label>QXmlStreamReader</label>
+      </node>
+      <node id="137">
+        <label>openglshader.h</label>
+        <link refid="openglshader_8h"/>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="138" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="141">
+        <label>QMenu</label>
+      </node>
+      <node id="185">
+        <label>QUndoStack</label>
+      </node>
+      <node id="111">
+        <label>QPointF</label>
+      </node>
+      <node id="43">
+        <label>sliderlabel.h</label>
+        <link refid="sliderlabel_8h"/>
+        <childnode refid="44" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>QList</label>
+      </node>
+      <node id="76">
+        <label>stdint.h</label>
+      </node>
+      <node id="143">
+        <label>widget/scope/waveform/waveform.h</label>
+        <link refid="waveform_8h"/>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="136" relation="include">
+        </childnode>
+        <childnode refid="144" relation="include">
+        </childnode>
+        <childnode refid="137" relation="include">
+        </childnode>
+        <childnode refid="146" relation="include">
+        </childnode>
+        <childnode refid="134" relation="include">
+        </childnode>
+      </node>
+      <node id="54">
+        <label>render/backend/exporter.h</label>
+        <link refid="exporter_8h"/>
+        <childnode refid="55" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="56" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="57" relation="include">
+        </childnode>
+        <childnode refid="66" relation="include">
+        </childnode>
+        <childnode refid="112" relation="include">
+        </childnode>
+        <childnode refid="113" relation="include">
+        </childnode>
+        <childnode refid="48" relation="include">
+        </childnode>
+      </node>
+      <node id="23">
+        <label>QStackedWidget</label>
+      </node>
+      <node id="173">
+        <label>QFileInfoList</label>
+      </node>
+      <node id="95">
+        <label>project/item/footage/audiostream.h</label>
+        <link refid="audiostream_8h"/>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="90" relation="include">
+        </childnode>
+      </node>
+      <node id="110">
+        <label>keyframe.h</label>
+        <link refid="keyframe_8h"/>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="111" relation="include">
+        </childnode>
+        <childnode refid="93" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="140">
+        <label>QMenuBar</label>
+      </node>
+      <node id="41">
+        <label>widget/slider/floatslider.h</label>
+        <link refid="floatslider_8h"/>
+        <childnode refid="42" relation="include">
+        </childnode>
+      </node>
+      <node id="99">
+        <label>timelinemarker.h</label>
+        <link refid="timelinemarker_8h"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="89" relation="include">
+        </childnode>
+        <childnode refid="85" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+      </node>
+      <node id="135">
+        <label>QOpenGLWidget</label>
+      </node>
+      <node id="187">
+        <label>tool/tool.h</label>
+      </node>
+      <node id="6">
+        <label>QProgressBar</label>
+      </node>
+      <node id="165">
+        <label>QGraphicsView</label>
+      </node>
+      <node id="118">
+        <label>widget/viewer/viewer.h</label>
+        <link refid="widget_2viewer_2viewer_8h"/>
+        <childnode refid="80" relation="include">
+        </childnode>
+        <childnode refid="44" relation="include">
+        </childnode>
+        <childnode refid="119" relation="include">
+        </childnode>
+        <childnode refid="120" relation="include">
+        </childnode>
+        <childnode refid="56" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="121" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="57" relation="include">
+        </childnode>
+        <childnode refid="127" relation="include">
+        </childnode>
+        <childnode refid="148" relation="include">
+        </childnode>
+        <childnode refid="146" relation="include">
+        </childnode>
+        <childnode refid="154" relation="include">
+        </childnode>
+        <childnode refid="155" relation="include">
+        </childnode>
+        <childnode refid="157" relation="include">
+        </childnode>
+        <childnode refid="158" relation="include">
+        </childnode>
+        <childnode refid="159" relation="include">
+        </childnode>
+        <childnode refid="162" relation="include">
+        </childnode>
+      </node>
+      <node id="132">
+        <label>QThread</label>
+      </node>
+      <node id="130">
+        <label>QEvent</label>
+      </node>
+      <node id="62">
+        <label>node/output/track/track.h</label>
+        <link refid="track_8h"/>
+        <childnode refid="59" relation="include">
+        </childnode>
+        <childnode refid="60" relation="include">
+        </childnode>
+      </node>
+      <node id="155">
+        <label>viewerdisplay.h</label>
+        <link refid="viewerdisplay_8h"/>
+        <childnode refid="135" relation="include">
+        </childnode>
+        <childnode refid="136" relation="include">
+        </childnode>
+        <childnode refid="144" relation="include">
+        </childnode>
+        <childnode refid="137" relation="include">
+        </childnode>
+        <childnode refid="146" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+        <childnode refid="156" relation="include">
+        </childnode>
+        <childnode refid="134" relation="include">
+        </childnode>
+      </node>
+      <node id="113">
+        <label>render/backend/videorenderbackend.h</label>
+        <link refid="videorenderbackend_8h"/>
+        <childnode refid="68" relation="include">
+        </childnode>
+        <childnode refid="114" relation="include">
+        </childnode>
+        <childnode refid="57" relation="include">
+        </childnode>
+        <childnode refid="67" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="115" relation="include">
+        </childnode>
+        <childnode refid="116" relation="include">
+        </childnode>
+      </node>
+      <node id="24">
+        <label>codecsection.h</label>
+        <link refid="codecsection_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+      </node>
+      <node id="19">
+        <label>QMetaType</label>
+      </node>
+      <node id="164">
+        <label>widget/timelinewidget/view/timelineview.h</label>
+        <link refid="timelineview_8h"/>
+        <childnode refid="165" relation="include">
+        </childnode>
+        <childnode refid="166" relation="include">
+        </childnode>
+        <childnode refid="167" relation="include">
+        </childnode>
+        <childnode refid="168" relation="include">
+        </childnode>
+        <childnode refid="169" relation="include">
+        </childnode>
+        <childnode refid="170" relation="include">
+        </childnode>
+        <childnode refid="171" relation="include">
+        </childnode>
+        <childnode refid="188" relation="include">
+        </childnode>
+        <childnode refid="192" relation="include">
+        </childnode>
+        <childnode refid="195" relation="include">
+        </childnode>
+        <childnode refid="196" relation="include">
+        </childnode>
+        <childnode refid="184" relation="include">
+        </childnode>
+      </node>
+      <node id="136">
+        <label>render/backend/opengl/openglcolorprocessor.h</label>
+        <link refid="openglcolorprocessor_8h"/>
+        <childnode refid="137" relation="include">
+        </childnode>
+        <childnode refid="48" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>exportformat.h</label>
+        <link refid="exportformat_8h"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="134">
+        <label>widget/manageddisplay/manageddisplay.h</label>
+        <link refid="manageddisplay_8h"/>
+        <childnode refid="135" relation="include">
+        </childnode>
+        <childnode refid="136" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+        <childnode refid="139" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>dialog/export/codec/h264section.h</label>
+        <link refid="h264section_8h"/>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+      </node>
+      <node id="194">
+        <label>QPoint</label>
+      </node>
+      <node id="153">
+        <label>openglworker.h</label>
+        <link refid="openglworker_8h"/>
+        <childnode refid="150" relation="include">
+        </childnode>
+        <childnode refid="145" relation="include">
+        </childnode>
+        <childnode refid="116" relation="include">
+        </childnode>
+        <childnode refid="144" relation="include">
+        </childnode>
+        <childnode refid="151" relation="include">
+        </childnode>
+        <childnode refid="152" relation="include">
+        </childnode>
+      </node>
+      <node id="114">
+        <label>colorprocessorcache.h</label>
+        <link refid="colorprocessorcache_8h"/>
+        <childnode refid="90" relation="include">
+        </childnode>
+        <childnode refid="48" relation="include">
+        </childnode>
+        <childnode refid="101" relation="include">
+        </childnode>
+      </node>
+      <node id="171">
+        <label>timelineviewbase.h</label>
+        <link refid="timelineviewbase_8h"/>
+        <childnode refid="165" relation="include">
+        </childnode>
+        <childnode refid="172" relation="include">
+        </childnode>
+        <childnode refid="186" relation="include">
+        </childnode>
+        <childnode refid="125" relation="include">
+        </childnode>
+        <childnode refid="126" relation="include">
+        </childnode>
+      </node>
+      <node id="71">
+        <label>common/debug.h</label>
+        <link refid="debug_8h"/>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="177">
+        <label>project/item/folder/folder.h</label>
+        <link refid="folder_8h"/>
+        <childnode refid="92" relation="include">
+        </childnode>
+        <childnode refid="81" relation="include">
+        </childnode>
+        <childnode refid="83" relation="include">
+        </childnode>
+      </node>
+      <node id="100">
+        <label>timelineworkarea.h</label>
+        <link refid="timelineworkarea_8h"/>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="89" relation="include">
+        </childnode>
+        <childnode refid="85" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+      </node>
+      <node id="31">
+        <label>render/pixelformat.h</label>
+        <link refid="pixelformat_8h"/>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+      </node>
+      <node id="68">
+        <label>QLinkedList</label>
+      </node>
+      <node id="159">
+        <label>widget/playbackcontrols/playbackcontrols.h</label>
+        <link refid="playbackcontrols_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="44" relation="include">
+        </childnode>
+        <childnode refid="119" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="160" relation="include">
+        </childnode>
+        <childnode refid="161" relation="include">
+        </childnode>
+      </node>
+      <node id="88">
+        <label>QUndoCommand</label>
+      </node>
+      <node id="178">
+        <label>project/projectviewmodel.h</label>
+        <link refid="projectviewmodel_8h"/>
+        <childnode refid="179" relation="include">
+        </childnode>
+        <childnode refid="176" relation="include">
+        </childnode>
+        <childnode refid="180" relation="include">
+        </childnode>
+      </node>
+      <node id="138">
+        <label>QOpenGLShaderProgram</label>
+      </node>
+      <node id="15">
+        <label>QCheckBox</label>
+      </node>
+      <node id="184">
+        <label>undo/undostack.h</label>
+        <link refid="undostack_8h"/>
+        <childnode refid="185" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="154">
+        <label>render/backend/audio/audiobackend.h</label>
+        <link refid="audiobackend_8h"/>
+        <childnode refid="80" relation="include">
+        </childnode>
+        <childnode refid="66" relation="include">
+        </childnode>
+      </node>
+      <node id="170">
+        <label>node/block/clip/clip.h</label>
+        <link refid="clip_8h"/>
+        <childnode refid="60" relation="include">
+        </childnode>
+      </node>
+      <node id="72">
+        <label>decodercache.h</label>
+        <link refid="decodercache_8h"/>
+        <childnode refid="73" relation="include">
+        </childnode>
+        <childnode refid="90" relation="include">
+        </childnode>
+        <childnode refid="101" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>common/rational.h</label>
+        <link refid="rational_8h"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="103">
+        <label>renderworker.h</label>
+        <link refid="renderworker_8h"/>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="72" relation="include">
+        </childnode>
+        <childnode refid="61" relation="include">
+        </childnode>
+        <childnode refid="62" relation="include">
+        </childnode>
+        <childnode refid="104" relation="include">
+        </childnode>
+      </node>
+      <node id="84">
+        <label>QIcon</label>
+      </node>
+      <node id="34">
+        <label>render/rendermodes.h</label>
+        <link refid="rendermodes_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="157">
+        <label>viewersizer.h</label>
+        <link refid="viewersizer_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="79">
+        <label>QByteArray</label>
+      </node>
+      <node id="48">
+        <label>colorprocessor.h</label>
+        <link refid="colorprocessor_8h"/>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+      </node>
+      <node id="190">
+        <label>QGraphicsRectItem</label>
+      </node>
+      <node id="115">
+        <label>videorenderframecache.h</label>
+        <link refid="videorenderframecache_8h"/>
+        <childnode refid="75" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+      </node>
+      <node id="75">
+        <label>QMutex</label>
+      </node>
+      <node id="191">
+        <label>timeline/timelinecoordinate.h</label>
+        <link refid="timelinecoordinate_8h"/>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="65" relation="include">
+        </childnode>
+      </node>
+      <node id="125">
+        <label>widget/timelinewidget/view/timelineplayhead.h</label>
+        <link refid="timelineplayhead_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="67">
+        <label>renderbackend.h</label>
+        <link refid="renderbackend_8h"/>
+        <childnode refid="68" relation="include">
+        </childnode>
+        <childnode refid="69" relation="include">
+        </childnode>
+        <childnode refid="72" relation="include">
+        </childnode>
+        <childnode refid="64" relation="include">
+        </childnode>
+        <childnode refid="57" relation="include">
+        </childnode>
+        <childnode refid="103" relation="include">
+        </childnode>
+      </node>
+      <node id="166">
+        <label>QDragEnterEvent</label>
+      </node>
+      <node id="70">
+        <label>dialog/progress/progress.h</label>
+        <link refid="progress_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="71" relation="include">
+        </childnode>
+      </node>
+      <node id="129">
+        <label>QDockWidget</label>
+      </node>
+      <node id="73">
+        <label>codec/decoder.h</label>
+        <link refid="decoder_8h"/>
+        <childnode refid="74" relation="include">
+        </childnode>
+        <childnode refid="75" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="76" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="77" relation="include">
+        </childnode>
+        <childnode refid="78" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="81" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>QDialogButtonBox</label>
+      </node>
+      <node id="74">
+        <label>libswresample/swresample.h</label>
+      </node>
+      <node id="128">
+        <label>widget/panel/panel.h</label>
+        <link refid="panel_8h"/>
+        <childnode refid="129" relation="include">
+        </childnode>
+        <childnode refid="130" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="197">
+        <label>node/block/gap/gap.h</label>
+        <link refid="gap_8h"/>
+        <childnode refid="60" relation="include">
+        </childnode>
+      </node>
+      <node id="181">
+        <label>project/project.h</label>
+      </node>
+      <node id="162">
+        <label>widget/timebased/timebased.h</label>
+        <link refid="widget_2timebased_2timebased_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="59" relation="include">
+        </childnode>
+        <childnode refid="57" relation="include">
+        </childnode>
+        <childnode refid="163" relation="include">
+        </childnode>
+        <childnode refid="126" relation="include">
+        </childnode>
+        <childnode refid="164" relation="include">
+        </childnode>
+        <childnode refid="198" relation="include">
+        </childnode>
+      </node>
+      <node id="51">
+        <label>widget/colorwheel/colorspacechooser.h</label>
+        <link refid="colorspacechooser_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="52" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+      </node>
+      <node id="160">
+        <label>dragbutton.h</label>
+        <link refid="dragbutton_8h"/>
+        <childnode refid="119" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>common/define.h</label>
+        <link refid="define_8h"/>
+      </node>
+      <node id="33">
+        <label>QOpenGLExtraFunctions</label>
+      </node>
+      <node id="38">
+        <label>QtMath</label>
+      </node>
+      <node id="58">
+        <label>QUuid</label>
+      </node>
+      <node id="198">
+        <label>widget/timeruler/timeruler.h</label>
+        <link refid="timeruler_8h"/>
+        <childnode refid="56" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="124" relation="include">
+        </childnode>
+      </node>
+      <node id="149">
+        <label>openglproxy.h</label>
+        <link refid="openglproxy_8h"/>
+        <childnode refid="150" relation="include">
+        </childnode>
+        <childnode refid="145" relation="include">
+        </childnode>
+        <childnode refid="116" relation="include">
+        </childnode>
+        <childnode refid="144" relation="include">
+        </childnode>
+        <childnode refid="151" relation="include">
+        </childnode>
+        <childnode refid="152" relation="include">
+        </childnode>
+      </node>
+      <node id="116">
+        <label>videorenderworker.h</label>
+        <link refid="videorenderworker_8h"/>
+        <childnode refid="117" relation="include">
+        </childnode>
+        <childnode refid="55" relation="include">
+        </childnode>
+        <childnode refid="114" relation="include">
+        </childnode>
+        <childnode refid="107" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="103" relation="include">
+        </childnode>
+        <childnode refid="115" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>QDialog</label>
+      </node>
+      <node id="18">
+        <label>QDebug</label>
+      </node>
+      <node id="176">
+        <label>project/project.h</label>
+        <link refid="project_2project_8h"/>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+        <childnode refid="177" relation="include">
+        </childnode>
+      </node>
+      <node id="53">
+        <label>widget/slider/integerslider.h</label>
+        <link refid="integerslider_8h"/>
+        <childnode refid="42" relation="include">
+        </childnode>
+      </node>
+      <node id="56">
+        <label>QTimer</label>
+      </node>
+      <node id="52">
+        <label>QGroupBox</label>
+      </node>
+      <node id="94">
+        <label>node/edge.h</label>
+        <link refid="edge_8h"/>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>QWidget</label>
+      </node>
+      <node id="66">
+        <label>render/backend/audiorenderbackend.h</label>
+        <link refid="audiorenderbackend_8h"/>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="67" relation="include">
+        </childnode>
+      </node>
+      <node id="64">
+        <label>node/graph.h</label>
+        <link refid="graph_8h"/>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="61" relation="include">
+        </childnode>
+      </node>
+      <node id="83">
+        <label>project/item/item.h</label>
+        <link refid="item_8h"/>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="84" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="75" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="85" relation="include">
+        </childnode>
+        <childnode refid="86" relation="include">
+        </childnode>
+        <childnode refid="87" relation="include">
+        </childnode>
+        <childnode refid="92" relation="include">
+        </childnode>
+        <childnode refid="90" relation="include">
+        </childnode>
+      </node>
+      <node id="107">
+        <label>dependency.h</label>
+        <link refid="dependency_8h"/>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>QLineEdit</label>
+      </node>
+      <node id="81">
+        <label>project/item/footage/footage.h</label>
+        <link refid="footage_8h"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="82" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="83" relation="include">
+        </childnode>
+        <childnode refid="95" relation="include">
+        </childnode>
+        <childnode refid="96" relation="include">
+        </childnode>
+        <childnode refid="97" relation="include">
+        </childnode>
+        <childnode refid="98" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>QString</label>
+      </node>
+      <node id="10">
+        <label>exportcodec.h</label>
+        <link refid="exportcodec_8h"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="147">
+        <label>QOpenGLFunctions</label>
+      </node>
+      <node id="175">
+        <label>project/item/sequence/sequence.h</label>
+        <link refid="project_2item_2sequence_2sequence_8h"/>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="64" relation="include">
+        </childnode>
+        <childnode refid="57" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="90" relation="include">
+        </childnode>
+        <childnode refid="83" relation="include">
+        </childnode>
+        <childnode refid="98" relation="include">
+        </childnode>
+      </node>
+      <node id="168">
+        <label>QDragLeaveEvent</label>
+      </node>
+      <node id="49">
+        <label>render/colortransform.h</label>
+        <link refid="colortransform_8h"/>
+        <childnode refid="50" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="146">
+        <label>opengltexture.h</label>
+        <link refid="opengltexture_8h"/>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="147" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+      </node>
+      <node id="29">
+        <label>render/color.h</label>
+        <link refid="color_8h"/>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+      </node>
+      <node id="124">
+        <label>widget/timeruler/seekablewidget.h</label>
+        <link refid="seekablewidget_8h"/>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="98" relation="include">
+        </childnode>
+        <childnode refid="125" relation="include">
+        </childnode>
+        <childnode refid="126" relation="include">
+        </childnode>
+      </node>
+      <node id="80">
+        <label>QFile</label>
+      </node>
+      <node id="30">
+        <label>QColor</label>
+      </node>
+      <node id="98">
+        <label>timeline/timelinepoints.h</label>
+        <link refid="timelinepoints_8h"/>
+        <childnode refid="89" relation="include">
+        </childnode>
+        <childnode refid="85" relation="include">
+        </childnode>
+        <childnode refid="99" relation="include">
+        </childnode>
+        <childnode refid="100" relation="include">
+        </childnode>
+      </node>
+      <node id="133">
+        <label>QWaitCondition</label>
+      </node>
+      <node id="119">
+        <label>QPushButton</label>
+      </node>
+      <node id="182">
+        <label>task/task.h</label>
+        <link refid="task_2task_8h"/>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="105" relation="include">
+        </childnode>
+      </node>
+      <node id="120">
+        <label>QScrollBar</label>
+      </node>
+      <node id="44">
+        <label>QLabel</label>
+      </node>
+      <node id="39">
+        <label>audio/sampleformat.h</label>
+        <link refid="sampleformat_8h"/>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+      </node>
+      <node id="77">
+        <label>codec/samplebuffer.h</label>
+        <link refid="samplebuffer_8h"/>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+      </node>
+      <node id="101">
+        <label>rendercache.h</label>
+        <link refid="rendercache_8h"/>
+        <childnode refid="102" relation="include">
+        </childnode>
+        <childnode refid="75" relation="include">
+        </childnode>
+      </node>
+      <node id="179">
+        <label>QAbstractItemModel</label>
+      </node>
+      <node id="131">
+        <label>widget/scope/histogram/histogram.h</label>
+        <link refid="histogram_8h"/>
+        <childnode refid="75" relation="include">
+        </childnode>
+        <childnode refid="132" relation="include">
+        </childnode>
+        <childnode refid="133" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="48" relation="include">
+        </childnode>
+        <childnode refid="134" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>QComboBox</label>
+      </node>
+      <node id="17">
+        <label>iostream</label>
+      </node>
+      <node id="60">
+        <label>node/block/block.h</label>
+        <link refid="block_8h"/>
+        <childnode refid="61" relation="include">
+        </childnode>
+      </node>
+      <node id="59">
+        <label>common/timelinecommon.h</label>
+        <link refid="timelinecommon_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="139">
+        <label>widget/menu/menu.h</label>
+        <link refid="menu_8h"/>
+        <childnode refid="140" relation="include">
+        </childnode>
+        <childnode refid="141" relation="include">
+        </childnode>
+        <childnode refid="142" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="85">
+        <label>QXmlStreamWriter</label>
+      </node>
+      <node id="195">
+        <label>timelineviewghostitem.h</label>
+        <link refid="timelineviewghostitem_8h"/>
+        <childnode refid="93" relation="include">
+        </childnode>
+        <childnode refid="59" relation="include">
+        </childnode>
+        <childnode refid="81" relation="include">
+        </childnode>
+        <childnode refid="188" relation="include">
+        </childnode>
+        <childnode refid="189" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>export.h</label>
+        <link refid="export_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="54" relation="include">
+        </childnode>
+        <childnode refid="118" relation="include">
+        </childnode>
+      </node>
+      <node id="46">
+        <label>dialog/export/codec/imagesection.h</label>
+        <link refid="imagesection_8h"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+      </node>
+      <node id="189">
+        <label>timelineviewrect.h</label>
+        <link refid="timelineviewrect_8h"/>
+        <childnode refid="190" relation="include">
+        </childnode>
+        <childnode refid="191" relation="include">
+        </childnode>
+        <childnode refid="126" relation="include">
+        </childnode>
+      </node>
+      <node id="45">
+        <label>widget/focusablelineedit/focusablelineedit.h</label>
+        <link refid="focusablelineedit_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="172">
+        <label>core.h</label>
+        <link refid="core_8h"/>
+        <childnode refid="173" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="56" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="174" relation="include">
+        </childnode>
+        <childnode refid="81" relation="include">
+        </childnode>
+        <childnode refid="175" relation="include">
+        </childnode>
+        <childnode refid="176" relation="include">
+        </childnode>
+        <childnode refid="178" relation="include">
+        </childnode>
+        <childnode refid="182" relation="include">
+        </childnode>
+        <childnode refid="183" relation="include">
+        </childnode>
+        <childnode refid="184" relation="include">
+        </childnode>
+      </node>
+      <node id="142">
+        <label>QMetaMethod</label>
+      </node>
+      <node id="108">
+        <label>value.h</label>
+        <link refid="value_8h"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="109" relation="include">
+        </childnode>
+      </node>
+      <node id="35">
+        <label>render/videoparams.h</label>
+        <link refid="videoparams_8h"/>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+      </node>
+      <node id="123">
+        <label>QFloat16</label>
+      </node>
+      <node id="47">
+        <label>render/colormanager.h</label>
+        <link refid="colormanager_8h"/>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="48" relation="include">
+        </childnode>
+      </node>
+      <node id="145">
+        <label>QOpenGLContext</label>
+      </node>
+      <node id="50">
+        <label>OpenColorIO/OpenColorIO.h</label>
+      </node>
+      <node id="105">
+        <label>common/cancelableobject.h</label>
+        <link refid="cancelableobject_8h"/>
+        <childnode refid="106" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="169">
+        <label>QDropEvent</label>
+      </node>
+      <node id="90">
+        <label>project/item/footage/stream.h</label>
+        <link refid="stream_8h"/>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="91" relation="include">
+        </childnode>
+        <childnode refid="75" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="85" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>exportaudiotab.h</label>
+        <link refid="exportaudiotab_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="57">
+        <label>node/output/viewer/viewer.h</label>
+        <link refid="node_2output_2viewer_2viewer_8h"/>
+        <childnode refid="58" relation="include">
+        </childnode>
+        <childnode refid="59" relation="include">
+        </childnode>
+        <childnode refid="60" relation="include">
+        </childnode>
+        <childnode refid="62" relation="include">
+        </childnode>
+        <childnode refid="63" relation="include">
+        </childnode>
+        <childnode refid="61" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="65" relation="include">
+        </childnode>
+      </node>
+      <node id="55">
+        <label>QMatrix4x4</label>
+      </node>
+      <node id="97">
+        <label>project/item/footage/videostream.h</label>
+        <link refid="videostream_8h"/>
+        <childnode refid="96" relation="include">
+        </childnode>
+      </node>
+      <node id="109">
+        <label>input.h</label>
+        <link refid="input_8h"/>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="110" relation="include">
+        </childnode>
+        <childnode refid="92" relation="include">
+        </childnode>
+      </node>
+      <node id="144">
+        <label>render/backend/opengl/openglframebuffer.h</label>
+        <link refid="openglframebuffer_8h"/>
+        <childnode refid="145" relation="include">
+        </childnode>
+        <childnode refid="146" relation="include">
+        </childnode>
+      </node>
+      <node id="193">
+        <label>QMimeData</label>
+      </node>
+      <node id="188">
+        <label>timelineviewblockitem.h</label>
+        <link refid="timelineviewblockitem_8h"/>
+        <childnode refid="189" relation="include">
+        </childnode>
+        <childnode refid="170" relation="include">
+        </childnode>
+      </node>
+      <node id="87">
+        <label>common/xmlutils.h</label>
+        <link refid="xmlutils_8h"/>
+        <childnode refid="88" relation="include">
+        </childnode>
+        <childnode refid="89" relation="include">
+        </childnode>
+        <childnode refid="90" relation="include">
+        </childnode>
+      </node>
+      <node id="93">
+        <label>QVariant</label>
+      </node>
+      <node id="27">
+        <label>codec/frame.h</label>
+        <link refid="frame_8h"/>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+      </node>
+      <node id="32">
+        <label>OpenImageIO/imageio.h</label>
+      </node>
+      <node id="148">
+        <label>render/backend/opengl/openglbackend.h</label>
+        <link refid="openglbackend_8h"/>
+        <childnode refid="113" relation="include">
+        </childnode>
+        <childnode refid="144" relation="include">
+        </childnode>
+        <childnode refid="149" relation="include">
+        </childnode>
+        <childnode refid="137" relation="include">
+        </childnode>
+        <childnode refid="146" relation="include">
+        </childnode>
+        <childnode refid="153" relation="include">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>exportvideotab.h</label>
+        <link refid="exportvideotab_8h"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="46" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+        <childnode refid="51" relation="include">
+        </childnode>
+        <childnode refid="53" relation="include">
+        </childnode>
+      </node>
+      <node id="37">
+        <label>render/audioparams.h</label>
+        <link refid="audioparams_8h"/>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="61">
+        <label>node/node.h</label>
+      </node>
+      <node id="65">
+        <label>timeline/trackreference.h</label>
+        <link refid="trackreference_8h"/>
+        <childnode refid="59" relation="include">
+        </childnode>
+      </node>
+      <node id="63">
+        <label>node/output/track/tracklist.h</label>
+        <link refid="tracklist_8h"/>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="59" relation="include">
+        </childnode>
+        <childnode refid="64" relation="include">
+        </childnode>
+        <childnode refid="62" relation="include">
+        </childnode>
+      </node>
+      <node id="152">
+        <label>opengltexturecache.h</label>
+        <link refid="opengltexturecache_8h"/>
+        <childnode refid="75" relation="include">
+        </childnode>
+        <childnode refid="144" relation="include">
+        </childnode>
+        <childnode refid="146" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+      </node>
+      <node id="106">
+        <label>QAtomicInt</label>
+      </node>
+      <node id="26">
+        <label>memory</label>
+      </node>
+      <node id="25">
+        <label>codec/encoder.h</label>
+        <link refid="encoder_8h"/>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+      </node>
+      <node id="117">
+        <label>QCryptographicHash</label>
+      </node>
+      <node id="86">
+        <label>common/threadedobject.h</label>
+        <link refid="threadedobject_8h"/>
+        <childnode refid="75" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="28">
+        <label>QVector</label>
+      </node>
+      <node id="42">
+        <label>sliderbase.h</label>
+        <link refid="sliderbase_8h"/>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+      </node>
+      <node id="91">
+        <label>QCoreApplication</label>
+      </node>
+    </incdepgraph>
+    <innerclass refid="class_export_dialog" prot="public">ExportDialog</innerclass>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/***</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"></highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/><sp/>Olive<sp/>-<sp/>Non-Linear<sp/>Video<sp/>Editor</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/><sp/>Copyright<sp/>(C)<sp/>2019<sp/>Olive<sp/>Team</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"></highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/><sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/><sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/><sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"></highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/><sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/><sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/><sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"></highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/><sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/><sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"></highlight></codeline>
+<codeline lineno="19"><highlight class="comment">***/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>EXPORTDIALOG_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>EXPORTDIALOG_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QComboBox&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QDialog&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QDialogButtonBox&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QLineEdit&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QProgressBar&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="exportaudiotab_8h" kindref="compound">exportaudiotab.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="exportcodec_8h" kindref="compound">exportcodec.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="exportformat_8h" kindref="compound">exportformat.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="exportvideotab_8h" kindref="compound">exportvideotab.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="exporter_8h" kindref="compound">render/backend/exporter.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="widget_2viewer_2viewer_8h" kindref="compound">widget/viewer/viewer.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><ref refid="define_8h_1a0472692dd1f22472ad63da20da919e8c" kindref="member">OLIVE_NAMESPACE_ENTER</ref></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39" refid="class_export_dialog" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_export_dialog" kindref="compound">ExportDialog</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>QDialog</highlight></codeline>
+<codeline lineno="40"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/>Q_OBJECT</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><ref refid="class_export_dialog_1af90759dcc4ae7a64bf515c1cd32b48b5" kindref="member">ExportDialog</ref>(<ref refid="class_viewer_output" kindref="compound">ViewerOutput</ref>*<sp/>viewer_node,<sp/>QWidget*<sp/>parent<sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>slots:</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_export_dialog_1a1946a7628a731b69b66bfd8d57f24ae5" kindref="member">accept</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_export_dialog_1a903b1ad5c3ea6133a0026294361ec1a2" kindref="member">closeEvent</ref>(QCloseEvent<sp/>*e)<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_export_dialog_1a50b3698a9020a03d67534e1042812d14" kindref="member">SetUpFormats</ref>();</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_export_dialog_1ad909a8f1fa975e6e59807ff2944a9657" kindref="member">LoadPresets</ref>();</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_export_dialog_1ac0a0f78f4a261bb5c41a8fffd4ba50e5" kindref="member">SetDefaultFilename</ref>();</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_export_dialog_1ab28688ceaccd72e48243999dc45f5052" kindref="member">SetUIElementsEnabled</ref>(</highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>enabled);</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="class_export_dialog_1a20e0aa0aad0d3c4b1c2f9518db9820d7" kindref="member">AlignEvenNumber</ref>(</highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>d);</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><ref refid="class_export_params" kindref="compound">ExportParams</ref><sp/><ref refid="class_export_dialog_1a83f86eaa438a36d5ac895676e98afe46" kindref="member">GenerateParams</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="61" refid="class_export_dialog_1af90759dcc4ae7a64bf515c1cd32b48b5" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>QString<sp/><ref refid="class_export_dialog_1abff2e42a00bdb03db3f6c12ca4608c04" kindref="member">TimeToString</ref>(int64_t<sp/>ms);</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64" refid="class_export_dialog_1a1946a7628a731b69b66bfd8d57f24ae5" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_viewer_output" kindref="compound">ViewerOutput</ref>*<sp/><ref refid="class_export_dialog_1a6911ae629ea45ea6485c28e5eed962ee" kindref="member">viewer_node_</ref>;</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/>QList&lt;ExportFormat&gt;<sp/><ref refid="class_export_dialog_1a4916366326371aa36dcd4460bad26273" kindref="member">formats_</ref>;</highlight></codeline>
+<codeline lineno="67" refid="class_export_dialog_1a903b1ad5c3ea6133a0026294361ec1a2" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="class_export_dialog_1a47fd27728c2e47169daf4d814dd8b29b" kindref="member">previously_selected_format_</ref>;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/>QCheckBox*<sp/><ref refid="class_export_dialog_1a426c86fd46bc50d45230fd49ede2dac4" kindref="member">video_enabled_</ref>;</highlight></codeline>
+<codeline lineno="70" refid="class_export_dialog_1a50b3698a9020a03d67534e1042812d14" refkind="member"><highlight class="normal"><sp/><sp/>QCheckBox*<sp/><ref refid="class_export_dialog_1ac1eb01ff3692c19375e126024072717d" kindref="member">audio_enabled_</ref>;</highlight></codeline>
+<codeline lineno="71" refid="class_export_dialog_1ad909a8f1fa975e6e59807ff2944a9657" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72" refid="class_export_dialog_1ac0a0f78f4a261bb5c41a8fffd4ba50e5" refkind="member"><highlight class="normal"><sp/><sp/>QList&lt;ExportCodec&gt;<sp/><ref refid="class_export_dialog_1a5e9ee04bad628588f52796c98c44786a" kindref="member">codecs_</ref>;</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74" refid="class_export_dialog_1ab28688ceaccd72e48243999dc45f5052" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_viewer_widget" kindref="compound">ViewerWidget</ref>*<sp/><ref refid="class_export_dialog_1ac1f72f209ac202c87d73010914dbe25e" kindref="member">preview_viewer_</ref>;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/>QLineEdit*<sp/><ref refid="class_export_dialog_1a1044bbf68541281fa4efa7c3841a2a0d" kindref="member">filename_edit_</ref>;</highlight></codeline>
+<codeline lineno="76" refid="class_export_dialog_1a20e0aa0aad0d3c4b1c2f9518db9820d7" refkind="member"><highlight class="normal"><sp/><sp/>QComboBox*<sp/><ref refid="class_export_dialog_1a3cd7910372fbbf44de2f3712f3390f5a" kindref="member">format_combobox_</ref>;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78" refid="class_export_dialog_1a83f86eaa438a36d5ac895676e98afe46" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_exporter" kindref="compound">Exporter</ref>*<sp/><ref refid="class_export_dialog_1a160b7e0e4876c7545760c3eacf495f3a" kindref="member">exporter_</ref>;</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80" refid="class_export_dialog_1abff2e42a00bdb03db3f6c12ca4608c04" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_export_video_tab" kindref="compound">ExportVideoTab</ref>*<sp/><ref refid="class_export_dialog_1a7413568246e82496fe92b631c7bddf5c" kindref="member">video_tab_</ref>;</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><ref refid="class_export_audio_tab" kindref="compound">ExportAudioTab</ref>*<sp/><ref refid="class_export_dialog_1ac6ae4538d5b6f74c8b080daa967ff291" kindref="member">audio_tab_</ref>;</highlight></codeline>
+<codeline lineno="82" refid="class_export_dialog_1a6911ae629ea45ea6485c28e5eed962ee" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="class_export_dialog_1aad175909828f7216730b2df11a7084ad" kindref="member">video_aspect_ratio_</ref>;</highlight></codeline>
+<codeline lineno="84" refid="class_export_dialog_1a4916366326371aa36dcd4460bad26273" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85" refid="class_export_dialog_1a47fd27728c2e47169daf4d814dd8b29b" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_color_manager" kindref="compound">ColorManager</ref>*<sp/><ref refid="class_export_dialog_1ae3bf1426733014a263043dbd09433e94" kindref="member">color_manager_</ref>;</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87" refid="class_export_dialog_1a426c86fd46bc50d45230fd49ede2dac4" refkind="member"><highlight class="normal"><sp/><sp/>QProgressBar*<sp/><ref refid="class_export_dialog_1ac313a7ef6e0489022e351f3fd25801e1" kindref="member">progress_bar_</ref>;</highlight></codeline>
+<codeline lineno="88" refid="class_export_dialog_1ac1eb01ff3692c19375e126024072717d" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/>QTimer<sp/><ref refid="class_export_dialog_1a82514cb6a170a73b7fb5402bbd7eed7c" kindref="member">progress_timer_</ref>;</highlight></codeline>
+<codeline lineno="90" refid="class_export_dialog_1a5e9ee04bad628588f52796c98c44786a" refkind="member"><highlight class="normal"><sp/><sp/>QLabel*<sp/><ref refid="class_export_dialog_1adbd49771374436d2ac4b85e4e83d1989" kindref="member">elapsed_label_</ref>;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/>QLabel*<sp/><ref refid="class_export_dialog_1ab94224c4de517d7a7f42b739808a83ed" kindref="member">remaining_label_</ref>;</highlight></codeline>
+<codeline lineno="92" refid="class_export_dialog_1ac1f72f209ac202c87d73010914dbe25e" refkind="member"><highlight class="normal"><sp/><sp/>qint64<sp/><ref refid="class_export_dialog_1a72a154148544a93a1fb23a0c5bd2cd07" kindref="member">export_start_</ref>;</highlight></codeline>
+<codeline lineno="93" refid="class_export_dialog_1a1044bbf68541281fa4efa7c3841a2a0d" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="class_export_dialog_1a0742b71b552eb1ba10e599d8fabef53d" kindref="member">flt_progress_</ref>;</highlight></codeline>
+<codeline lineno="94" refid="class_export_dialog_1a3cd7910372fbbf44de2f3712f3390f5a" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/>QWidget*<sp/><ref refid="class_export_dialog_1a6bbc8916370de1d288dbb2a6f300a154" kindref="member">preferences_area_</ref>;</highlight></codeline>
+<codeline lineno="96" refid="class_export_dialog_1a160b7e0e4876c7545760c3eacf495f3a" refkind="member"><highlight class="normal"><sp/><sp/>QDialogButtonBox*<sp/><ref refid="class_export_dialog_1a36a4ea3755cda156dd7c62dc0bec577d" kindref="member">buttons_</ref>;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/>QPushButton*<sp/><ref refid="class_export_dialog_1ae656083e56f4264bed7c5e0731df2205" kindref="member">export_cancel_btn_</ref>;</highlight></codeline>
+<codeline lineno="98" refid="class_export_dialog_1a7413568246e82496fe92b631c7bddf5c" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99" refid="class_export_dialog_1ac6ae4538d5b6f74c8b080daa967ff291" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_export_dialog_1a22ebfed3deb9efc6c9ae641e291edbd3" kindref="member">cancelled_</ref>;</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight></codeline>
+<codeline lineno="101" refid="class_export_dialog_1aad175909828f7216730b2df11a7084ad" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/><ref refid="class_export_dialog_1aa45b0cb9e87567cb6be0e3fb2f709742" kindref="member">Format</ref><sp/>{</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_export_dialog_1aa45b0cb9e87567cb6be0e3fb2f709742aba99545923260529b08481a2f3cea36a" kindref="member">kFormatDNxHD</ref>,</highlight></codeline>
+<codeline lineno="103" refid="class_export_dialog_1ae3bf1426733014a263043dbd09433e94" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_export_dialog_1aa45b0cb9e87567cb6be0e3fb2f709742a6527aef4c0d40c890ffb52384bdc22c6" kindref="member">kFormatMatroska</ref>,</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_export_dialog_1aa45b0cb9e87567cb6be0e3fb2f709742aa05ac1731dc92b220be391534570ff41" kindref="member">kFormatMPEG4</ref>,</highlight></codeline>
+<codeline lineno="105" refid="class_export_dialog_1ac313a7ef6e0489022e351f3fd25801e1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_export_dialog_1aa45b0cb9e87567cb6be0e3fb2f709742a815444a9e92f44248e3152a09b15a569" kindref="member">kFormatOpenEXR</ref>,</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_export_dialog_1aa45b0cb9e87567cb6be0e3fb2f709742ad862c876bd17a3c9d4b1b5c03a968a6b" kindref="member">kFormatQuickTime</ref>,</highlight></codeline>
+<codeline lineno="107" refid="class_export_dialog_1a82514cb6a170a73b7fb5402bbd7eed7c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_export_dialog_1aa45b0cb9e87567cb6be0e3fb2f709742a69574b89a7c228b6303b5839664fefdb" kindref="member">kFormatPNG</ref>,</highlight></codeline>
+<codeline lineno="108" refid="class_export_dialog_1adbd49771374436d2ac4b85e4e83d1989" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_export_dialog_1aa45b0cb9e87567cb6be0e3fb2f709742a7db9a044bd954a779b72cf58be5e12de" kindref="member">kFormatTIFF</ref>,</highlight></codeline>
+<codeline lineno="109" refid="class_export_dialog_1ab94224c4de517d7a7f42b739808a83ed" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="110" refid="class_export_dialog_1a72a154148544a93a1fb23a0c5bd2cd07" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_export_dialog_1aa45b0cb9e87567cb6be0e3fb2f709742aed32f3c6b4bc1760c87af4a3fa7d1859" kindref="member">kFormatCount</ref></highlight></codeline>
+<codeline lineno="111" refid="class_export_dialog_1a0742b71b552eb1ba10e599d8fabef53d" refkind="member"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113" refid="class_export_dialog_1a6bbc8916370de1d288dbb2a6f300a154" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/><ref refid="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9" kindref="member">Codec</ref><sp/>{</highlight></codeline>
+<codeline lineno="114" refid="class_export_dialog_1a36a4ea3755cda156dd7c62dc0bec577d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9aa2f75798de2bba386bdad504675b423c" kindref="member">kCodecDNxHD</ref>,</highlight></codeline>
+<codeline lineno="115" refid="class_export_dialog_1ae656083e56f4264bed7c5e0731df2205" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9acd136ef9c9e0e944c6e0cbe12e3a6f0c" kindref="member">kCodecH264</ref>,</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9a7e18933428a93fad4592426215ec66a4" kindref="member">kCodecH265</ref>,</highlight></codeline>
+<codeline lineno="117" refid="class_export_dialog_1a22ebfed3deb9efc6c9ae641e291edbd3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9ac750f4b914c8b1096da50b369de3b475" kindref="member">kCodecOpenEXR</ref>,</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9a2b6727d0305bc9ca72b6532b5b05869b" kindref="member">kCodecPNG</ref>,</highlight></codeline>
+<codeline lineno="119" refid="class_export_dialog_1aa45b0cb9e87567cb6be0e3fb2f709742" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9aab6fed5cec87b706fad6607c40842d39" kindref="member">kCodecProRes</ref>,</highlight></codeline>
+<codeline lineno="120" refid="class_export_dialog_1aa45b0cb9e87567cb6be0e3fb2f709742aba99545923260529b08481a2f3cea36a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9a0f6df63e290f1bd546fae63fb9d125b9" kindref="member">kCodecTIFF</ref>,</highlight></codeline>
+<codeline lineno="121" refid="class_export_dialog_1aa45b0cb9e87567cb6be0e3fb2f709742a6527aef4c0d40c890ffb52384bdc22c6" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="122" refid="class_export_dialog_1aa45b0cb9e87567cb6be0e3fb2f709742aa05ac1731dc92b220be391534570ff41" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9aebc758335242e2aef5e3fb2dd666d525" kindref="member">kCodecMP2</ref>,</highlight></codeline>
+<codeline lineno="123" refid="class_export_dialog_1aa45b0cb9e87567cb6be0e3fb2f709742a815444a9e92f44248e3152a09b15a569" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9aec5a81b093ec9b2950e9b1027bde1819" kindref="member">kCodecMP3</ref>,</highlight></codeline>
+<codeline lineno="124" refid="class_export_dialog_1aa45b0cb9e87567cb6be0e3fb2f709742ad862c876bd17a3c9d4b1b5c03a968a6b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9a6f04a48512bdb8b3cdb67fd4eb83c823" kindref="member">kCodecAAC</ref>,</highlight></codeline>
+<codeline lineno="125" refid="class_export_dialog_1aa45b0cb9e87567cb6be0e3fb2f709742a69574b89a7c228b6303b5839664fefdb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9a9151b9a1525ad0b0b20454e53c30107e" kindref="member">kCodecPCM</ref>,</highlight></codeline>
+<codeline lineno="126" refid="class_export_dialog_1aa45b0cb9e87567cb6be0e3fb2f709742a7db9a044bd954a779b72cf58be5e12de" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9a098b77f6eda302ae87d9167ef04f6ad1" kindref="member">kCodecCount</ref></highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="129" refid="class_export_dialog_1aa45b0cb9e87567cb6be0e3fb2f709742aed32f3c6b4bc1760c87af4a3fa7d1859" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal"><sp/>slots:</highlight></codeline>
+<codeline lineno="131" refid="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_export_dialog_1afaeb4468d24d8d01fe9415b15770185a" kindref="member">BrowseFilename</ref>();</highlight></codeline>
+<codeline lineno="132" refid="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9aa2f75798de2bba386bdad504675b423c" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="133" refid="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9acd136ef9c9e0e944c6e0cbe12e3a6f0c" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_export_dialog_1a1c72e7b312a5caa4c915fcc67fabb058" kindref="member">FormatChanged</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>index);</highlight></codeline>
+<codeline lineno="134" refid="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9a7e18933428a93fad4592426215ec66a4" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="135" refid="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9ac750f4b914c8b1096da50b369de3b475" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_export_dialog_1a44e30d5d396f72ad64109f32b5bddbdd" kindref="member">ResolutionChanged</ref>();</highlight></codeline>
+<codeline lineno="136" refid="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9a2b6727d0305bc9ca72b6532b5b05869b" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="137" refid="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9aab6fed5cec87b706fad6607c40842d39" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_export_dialog_1a00c993634bea97d8ee7d3ec9370ff3b0" kindref="member">VideoCodecChanged</ref>();</highlight></codeline>
+<codeline lineno="138" refid="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9a0f6df63e290f1bd546fae63fb9d125b9" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_export_dialog_1a9acde7bae13aeff17131ddda635a87f1" kindref="member">UpdateViewerDimensions</ref>();</highlight></codeline>
+<codeline lineno="140" refid="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9aebc758335242e2aef5e3fb2dd666d525" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="141" refid="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9aec5a81b093ec9b2950e9b1027bde1819" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_export_dialog_1a5249d588a351f2a43de295e0d5c84dc2" kindref="member">ExporterIsDone</ref>();</highlight></codeline>
+<codeline lineno="142" refid="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9a6f04a48512bdb8b3cdb67fd4eb83c823" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="143" refid="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9a9151b9a1525ad0b0b20454e53c30107e" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_export_dialog_1ad1bedaf53921c9ce7c79f8e6de6364d8" kindref="member">CancelExport</ref>();</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_export_dialog_1a7400a5e27b74e95a7e4588e858ee33df" kindref="member">UpdateTimeLabels</ref>();</highlight></codeline>
+<codeline lineno="146" refid="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9a098b77f6eda302ae87d9167ef04f6ad1" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_export_dialog_1a4c6eeee7a7395f0409a3afea0939f303" kindref="member">ProgressUpdated</ref>(</highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>p);</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149" refid="class_export_dialog_1afaeb4468d24d8d01fe9415b15770185a" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>Q_OS_WINDOWS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>UpdateTaskbarProgress(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>progress);</highlight></codeline>
+<codeline lineno="151" refid="class_export_dialog_1a1c72e7b312a5caa4c915fcc67fabb058" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight></codeline>
+<codeline lineno="153" refid="class_export_dialog_1a44e30d5d396f72ad64109f32b5bddbdd" refkind="member"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"></highlight></codeline>
+<codeline lineno="155" refid="class_export_dialog_1a00c993634bea97d8ee7d3ec9370ff3b0" refkind="member"><highlight class="normal"><ref refid="define_8h_1abe3de0634d907ca0f5d1acf732c49dac" kindref="member">OLIVE_NAMESPACE_EXIT</ref></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight></codeline>
+<codeline lineno="157" refid="class_export_dialog_1a9acde7bae13aeff17131ddda635a87f1" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//<sp/>EXPORTDIALOG_H</highlight></codeline>
+    </programlisting>
+    <location file="C:/Daten/Olive/olive/app/dialog/export/export.h"/>
+  </compounddef>
+</doxygen>

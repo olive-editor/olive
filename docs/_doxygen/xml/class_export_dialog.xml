@@ -1,0 +1,1447 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_export_dialog" kind="class" language="C++" prot="public">
+    <compoundname>ExportDialog</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QDialog</basecompoundref>
+    <includes refid="export_8h" local="no">export.h</includes>
+      <sectiondef kind="private-type">
+      <memberdef kind="enum" id="class_export_dialog_1aa45b0cb9e87567cb6be0e3fb2f709742" prot="private" static="no" strong="no">
+        <type></type>
+        <name>Format</name>
+        <enumvalue id="class_export_dialog_1aa45b0cb9e87567cb6be0e3fb2f709742aba99545923260529b08481a2f3cea36a" prot="private">
+          <name>kFormatDNxHD</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_export_dialog_1aa45b0cb9e87567cb6be0e3fb2f709742a6527aef4c0d40c890ffb52384bdc22c6" prot="private">
+          <name>kFormatMatroska</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_export_dialog_1aa45b0cb9e87567cb6be0e3fb2f709742aa05ac1731dc92b220be391534570ff41" prot="private">
+          <name>kFormatMPEG4</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_export_dialog_1aa45b0cb9e87567cb6be0e3fb2f709742a815444a9e92f44248e3152a09b15a569" prot="private">
+          <name>kFormatOpenEXR</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_export_dialog_1aa45b0cb9e87567cb6be0e3fb2f709742ad862c876bd17a3c9d4b1b5c03a968a6b" prot="private">
+          <name>kFormatQuickTime</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_export_dialog_1aa45b0cb9e87567cb6be0e3fb2f709742a69574b89a7c228b6303b5839664fefdb" prot="private">
+          <name>kFormatPNG</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_export_dialog_1aa45b0cb9e87567cb6be0e3fb2f709742a7db9a044bd954a779b72cf58be5e12de" prot="private">
+          <name>kFormatTIFF</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_export_dialog_1aa45b0cb9e87567cb6be0e3fb2f709742aed32f3c6b4bc1760c87af4a3fa7d1859" prot="private">
+          <name>kFormatCount</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/export.h" line="119" column="3" bodyfile="C:/Daten/Olive/olive/app/dialog/export/export.h" bodystart="119" bodyend="129"/>
+      </memberdef>
+      <memberdef kind="enum" id="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9" prot="private" static="no" strong="no">
+        <type></type>
+        <name>Codec</name>
+        <enumvalue id="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9aa2f75798de2bba386bdad504675b423c" prot="private">
+          <name>kCodecDNxHD</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9acd136ef9c9e0e944c6e0cbe12e3a6f0c" prot="private">
+          <name>kCodecH264</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9a7e18933428a93fad4592426215ec66a4" prot="private">
+          <name>kCodecH265</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9ac750f4b914c8b1096da50b369de3b475" prot="private">
+          <name>kCodecOpenEXR</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9a2b6727d0305bc9ca72b6532b5b05869b" prot="private">
+          <name>kCodecPNG</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9aab6fed5cec87b706fad6607c40842d39" prot="private">
+          <name>kCodecProRes</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9a0f6df63e290f1bd546fae63fb9d125b9" prot="private">
+          <name>kCodecTIFF</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9aebc758335242e2aef5e3fb2dd666d525" prot="private">
+          <name>kCodecMP2</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9aec5a81b093ec9b2950e9b1027bde1819" prot="private">
+          <name>kCodecMP3</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9a6f04a48512bdb8b3cdb67fd4eb83c823" prot="private">
+          <name>kCodecAAC</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9a9151b9a1525ad0b0b20454e53c30107e" prot="private">
+          <name>kCodecPCM</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9a098b77f6eda302ae87d9167ef04f6ad1" prot="private">
+          <name>kCodecCount</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/export.h" line="131" column="3" bodyfile="C:/Daten/Olive/olive/app/dialog/export/export.h" bodystart="131" bodyend="146"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_export_dialog_1a6911ae629ea45ea6485c28e5eed962ee" prot="private" static="no" mutable="no">
+        <type><ref refid="class_viewer_output" kindref="compound">ViewerOutput</ref> *</type>
+        <definition>ViewerOutput* ExportDialog::viewer_node_</definition>
+        <argsstring></argsstring>
+        <name>viewer_node_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/export.h" line="82" column="16" bodyfile="C:/Daten/Olive/olive/app/dialog/export/export.h" bodystart="82" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_export_dialog_1a4916366326371aa36dcd4460bad26273" prot="private" static="no" mutable="no">
+        <type>QList&lt; <ref refid="class_export_format" kindref="compound">ExportFormat</ref> &gt;</type>
+        <definition>QList&lt;ExportFormat&gt; ExportDialog::formats_</definition>
+        <argsstring></argsstring>
+        <name>formats_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/export.h" line="84" column="9" bodyfile="C:/Daten/Olive/olive/app/dialog/export/export.h" bodystart="84" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_export_dialog_1a47fd27728c2e47169daf4d814dd8b29b" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int ExportDialog::previously_selected_format_</definition>
+        <argsstring></argsstring>
+        <name>previously_selected_format_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/export.h" line="85" column="7" bodyfile="C:/Daten/Olive/olive/app/dialog/export/export.h" bodystart="85" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_export_dialog_1a426c86fd46bc50d45230fd49ede2dac4" prot="private" static="no" mutable="no">
+        <type>QCheckBox *</type>
+        <definition>QCheckBox* ExportDialog::video_enabled_</definition>
+        <argsstring></argsstring>
+        <name>video_enabled_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/export.h" line="87" column="13" bodyfile="C:/Daten/Olive/olive/app/dialog/export/export.h" bodystart="87" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_export_dialog_1ac1eb01ff3692c19375e126024072717d" prot="private" static="no" mutable="no">
+        <type>QCheckBox *</type>
+        <definition>QCheckBox* ExportDialog::audio_enabled_</definition>
+        <argsstring></argsstring>
+        <name>audio_enabled_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/export.h" line="88" column="13" bodyfile="C:/Daten/Olive/olive/app/dialog/export/export.h" bodystart="88" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_export_dialog_1a5e9ee04bad628588f52796c98c44786a" prot="private" static="no" mutable="no">
+        <type>QList&lt; <ref refid="class_export_codec" kindref="compound">ExportCodec</ref> &gt;</type>
+        <definition>QList&lt;ExportCodec&gt; ExportDialog::codecs_</definition>
+        <argsstring></argsstring>
+        <name>codecs_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/export.h" line="90" column="9" bodyfile="C:/Daten/Olive/olive/app/dialog/export/export.h" bodystart="90" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_export_dialog_1ac1f72f209ac202c87d73010914dbe25e" prot="private" static="no" mutable="no">
+        <type><ref refid="class_viewer_widget" kindref="compound">ViewerWidget</ref> *</type>
+        <definition>ViewerWidget* ExportDialog::preview_viewer_</definition>
+        <argsstring></argsstring>
+        <name>preview_viewer_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/export.h" line="92" column="16" bodyfile="C:/Daten/Olive/olive/app/dialog/export/export.h" bodystart="92" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_export_dialog_1a1044bbf68541281fa4efa7c3841a2a0d" prot="private" static="no" mutable="no">
+        <type>QLineEdit *</type>
+        <definition>QLineEdit* ExportDialog::filename_edit_</definition>
+        <argsstring></argsstring>
+        <name>filename_edit_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/export.h" line="93" column="13" bodyfile="C:/Daten/Olive/olive/app/dialog/export/export.h" bodystart="93" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_export_dialog_1a3cd7910372fbbf44de2f3712f3390f5a" prot="private" static="no" mutable="no">
+        <type>QComboBox *</type>
+        <definition>QComboBox* ExportDialog::format_combobox_</definition>
+        <argsstring></argsstring>
+        <name>format_combobox_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/export.h" line="94" column="13" bodyfile="C:/Daten/Olive/olive/app/dialog/export/export.h" bodystart="94" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_export_dialog_1a160b7e0e4876c7545760c3eacf495f3a" prot="private" static="no" mutable="no">
+        <type><ref refid="class_exporter" kindref="compound">Exporter</ref> *</type>
+        <definition>Exporter* ExportDialog::exporter_</definition>
+        <argsstring></argsstring>
+        <name>exporter_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/export.h" line="96" column="12" bodyfile="C:/Daten/Olive/olive/app/dialog/export/export.h" bodystart="96" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_export_dialog_1a7413568246e82496fe92b631c7bddf5c" prot="private" static="no" mutable="no">
+        <type><ref refid="class_export_video_tab" kindref="compound">ExportVideoTab</ref> *</type>
+        <definition>ExportVideoTab* ExportDialog::video_tab_</definition>
+        <argsstring></argsstring>
+        <name>video_tab_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/export.h" line="98" column="18" bodyfile="C:/Daten/Olive/olive/app/dialog/export/export.h" bodystart="98" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_export_dialog_1ac6ae4538d5b6f74c8b080daa967ff291" prot="private" static="no" mutable="no">
+        <type><ref refid="class_export_audio_tab" kindref="compound">ExportAudioTab</ref> *</type>
+        <definition>ExportAudioTab* ExportDialog::audio_tab_</definition>
+        <argsstring></argsstring>
+        <name>audio_tab_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/export.h" line="99" column="18" bodyfile="C:/Daten/Olive/olive/app/dialog/export/export.h" bodystart="99" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_export_dialog_1aad175909828f7216730b2df11a7084ad" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double ExportDialog::video_aspect_ratio_</definition>
+        <argsstring></argsstring>
+        <name>video_aspect_ratio_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/export.h" line="101" column="10" bodyfile="C:/Daten/Olive/olive/app/dialog/export/export.h" bodystart="101" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_export_dialog_1ae3bf1426733014a263043dbd09433e94" prot="private" static="no" mutable="no">
+        <type><ref refid="class_color_manager" kindref="compound">ColorManager</ref> *</type>
+        <definition>ColorManager* ExportDialog::color_manager_</definition>
+        <argsstring></argsstring>
+        <name>color_manager_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/export.h" line="103" column="16" bodyfile="C:/Daten/Olive/olive/app/dialog/export/export.h" bodystart="103" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_export_dialog_1ac313a7ef6e0489022e351f3fd25801e1" prot="private" static="no" mutable="no">
+        <type>QProgressBar *</type>
+        <definition>QProgressBar* ExportDialog::progress_bar_</definition>
+        <argsstring></argsstring>
+        <name>progress_bar_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/export.h" line="105" column="16" bodyfile="C:/Daten/Olive/olive/app/dialog/export/export.h" bodystart="105" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_export_dialog_1a82514cb6a170a73b7fb5402bbd7eed7c" prot="private" static="no" mutable="no">
+        <type>QTimer</type>
+        <definition>QTimer ExportDialog::progress_timer_</definition>
+        <argsstring></argsstring>
+        <name>progress_timer_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/export.h" line="107" column="10" bodyfile="C:/Daten/Olive/olive/app/dialog/export/export.h" bodystart="107" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_export_dialog_1adbd49771374436d2ac4b85e4e83d1989" prot="private" static="no" mutable="no">
+        <type>QLabel *</type>
+        <definition>QLabel* ExportDialog::elapsed_label_</definition>
+        <argsstring></argsstring>
+        <name>elapsed_label_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/export.h" line="108" column="10" bodyfile="C:/Daten/Olive/olive/app/dialog/export/export.h" bodystart="108" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_export_dialog_1ab94224c4de517d7a7f42b739808a83ed" prot="private" static="no" mutable="no">
+        <type>QLabel *</type>
+        <definition>QLabel* ExportDialog::remaining_label_</definition>
+        <argsstring></argsstring>
+        <name>remaining_label_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/export.h" line="109" column="10" bodyfile="C:/Daten/Olive/olive/app/dialog/export/export.h" bodystart="109" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_export_dialog_1a72a154148544a93a1fb23a0c5bd2cd07" prot="private" static="no" mutable="no">
+        <type>qint64</type>
+        <definition>qint64 ExportDialog::export_start_</definition>
+        <argsstring></argsstring>
+        <name>export_start_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/export.h" line="110" column="10" bodyfile="C:/Daten/Olive/olive/app/dialog/export/export.h" bodystart="110" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_export_dialog_1a0742b71b552eb1ba10e599d8fabef53d" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double ExportDialog::flt_progress_</definition>
+        <argsstring></argsstring>
+        <name>flt_progress_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/export.h" line="111" column="10" bodyfile="C:/Daten/Olive/olive/app/dialog/export/export.h" bodystart="111" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_export_dialog_1a6bbc8916370de1d288dbb2a6f300a154" prot="private" static="no" mutable="no">
+        <type>QWidget *</type>
+        <definition>QWidget* ExportDialog::preferences_area_</definition>
+        <argsstring></argsstring>
+        <name>preferences_area_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/export.h" line="113" column="11" bodyfile="C:/Daten/Olive/olive/app/dialog/export/export.h" bodystart="113" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_export_dialog_1a36a4ea3755cda156dd7c62dc0bec577d" prot="private" static="no" mutable="no">
+        <type>QDialogButtonBox *</type>
+        <definition>QDialogButtonBox* ExportDialog::buttons_</definition>
+        <argsstring></argsstring>
+        <name>buttons_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/export.h" line="114" column="20" bodyfile="C:/Daten/Olive/olive/app/dialog/export/export.h" bodystart="114" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_export_dialog_1ae656083e56f4264bed7c5e0731df2205" prot="private" static="no" mutable="no">
+        <type>QPushButton *</type>
+        <definition>QPushButton* ExportDialog::export_cancel_btn_</definition>
+        <argsstring></argsstring>
+        <name>export_cancel_btn_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/export.h" line="115" column="15" bodyfile="C:/Daten/Olive/olive/app/dialog/export/export.h" bodystart="115" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_export_dialog_1a22ebfed3deb9efc6c9ae641e291edbd3" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool ExportDialog::cancelled_</definition>
+        <argsstring></argsstring>
+        <name>cancelled_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/export.h" line="117" column="8" bodyfile="C:/Daten/Olive/olive/app/dialog/export/export.h" bodystart="117" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_export_dialog_1af90759dcc4ae7a64bf515c1cd32b48b5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>ExportDialog::ExportDialog</definition>
+        <argsstring>(ViewerOutput *viewer_node, QWidget *parent=nullptr)</argsstring>
+        <name>ExportDialog</name>
+        <param>
+          <type><ref refid="class_viewer_output" kindref="compound">ViewerOutput</ref> *</type>
+          <declname>viewer_node</declname>
+        </param>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/export.h" line="61" column="3"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-slot">
+      <memberdef kind="slot" id="class_export_dialog_1a1946a7628a731b69b66bfd8d57f24ae5" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void ExportDialog::accept</definition>
+        <argsstring>() override</argsstring>
+        <name>accept</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/export.h" line="64" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_export_dialog_1a903b1ad5c3ea6133a0026294361ec1a2" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void ExportDialog::closeEvent</definition>
+        <argsstring>(QCloseEvent *e) override</argsstring>
+        <name>closeEvent</name>
+        <param>
+          <type>QCloseEvent *</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/export.h" line="67" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_export_dialog_1a50b3698a9020a03d67534e1042812d14" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ExportDialog::SetUpFormats</definition>
+        <argsstring>()</argsstring>
+        <name>SetUpFormats</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/export.h" line="70" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_export_dialog_1ad909a8f1fa975e6e59807ff2944a9657" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ExportDialog::LoadPresets</definition>
+        <argsstring>()</argsstring>
+        <name>LoadPresets</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/export.h" line="71" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_export_dialog_1ac0a0f78f4a261bb5c41a8fffd4ba50e5" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ExportDialog::SetDefaultFilename</definition>
+        <argsstring>()</argsstring>
+        <name>SetDefaultFilename</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/export.h" line="72" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_export_dialog_1ab28688ceaccd72e48243999dc45f5052" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ExportDialog::SetUIElementsEnabled</definition>
+        <argsstring>(bool enabled)</argsstring>
+        <name>SetUIElementsEnabled</name>
+        <param>
+          <type>bool</type>
+          <declname>enabled</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/export.h" line="74" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_export_dialog_1a83f86eaa438a36d5ac895676e98afe46" prot="private" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_export_params" kindref="compound">ExportParams</ref></type>
+        <definition>ExportParams ExportDialog::GenerateParams</definition>
+        <argsstring>() const</argsstring>
+        <name>GenerateParams</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/export.h" line="78" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-func">
+      <memberdef kind="function" id="class_export_dialog_1a20e0aa0aad0d3c4b1c2f9518db9820d7" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>static int ExportDialog::AlignEvenNumber</definition>
+        <argsstring>(double d)</argsstring>
+        <name>AlignEvenNumber</name>
+        <param>
+          <type>double</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/export.h" line="76" column="14"/>
+      </memberdef>
+      <memberdef kind="function" id="class_export_dialog_1abff2e42a00bdb03db3f6c12ca4608c04" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>static QString ExportDialog::TimeToString</definition>
+        <argsstring>(int64_t ms)</argsstring>
+        <name>TimeToString</name>
+        <param>
+          <type>int64_t</type>
+          <declname>ms</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/export.h" line="80" column="18"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_export_dialog_1afaeb4468d24d8d01fe9415b15770185a" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ExportDialog::BrowseFilename</definition>
+        <argsstring>()</argsstring>
+        <name>BrowseFilename</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/export.h" line="149" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_export_dialog_1a1c72e7b312a5caa4c915fcc67fabb058" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ExportDialog::FormatChanged</definition>
+        <argsstring>(int index)</argsstring>
+        <name>FormatChanged</name>
+        <param>
+          <type>int</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/export.h" line="151" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_export_dialog_1a44e30d5d396f72ad64109f32b5bddbdd" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ExportDialog::ResolutionChanged</definition>
+        <argsstring>()</argsstring>
+        <name>ResolutionChanged</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/export.h" line="153" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_export_dialog_1a00c993634bea97d8ee7d3ec9370ff3b0" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ExportDialog::VideoCodecChanged</definition>
+        <argsstring>()</argsstring>
+        <name>VideoCodecChanged</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/export.h" line="155" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_export_dialog_1a9acde7bae13aeff17131ddda635a87f1" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ExportDialog::UpdateViewerDimensions</definition>
+        <argsstring>()</argsstring>
+        <name>UpdateViewerDimensions</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/export.h" line="157" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_export_dialog_1a5249d588a351f2a43de295e0d5c84dc2" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ExportDialog::ExporterIsDone</definition>
+        <argsstring>()</argsstring>
+        <name>ExporterIsDone</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/export.h" line="159" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_export_dialog_1ad1bedaf53921c9ce7c79f8e6de6364d8" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ExportDialog::CancelExport</definition>
+        <argsstring>()</argsstring>
+        <name>CancelExport</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/export.h" line="161" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_export_dialog_1a7400a5e27b74e95a7e4588e858ee33df" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ExportDialog::UpdateTimeLabels</definition>
+        <argsstring>()</argsstring>
+        <name>UpdateTimeLabels</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/export.h" line="163" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_export_dialog_1a4c6eeee7a7395f0409a3afea0939f303" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ExportDialog::ProgressUpdated</definition>
+        <argsstring>(double p)</argsstring>
+        <name>ProgressUpdated</name>
+        <param>
+          <type>double</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/export.h" line="165" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="17">
+        <label>NodeOutput</label>
+        <link refid="class_node_output"/>
+        <childnode refid="18" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="40">
+        <label>ExportAudioTab</label>
+        <link refid="class_export_audio_tab"/>
+      </node>
+      <node id="49">
+        <label>TimelinePoints</label>
+        <link refid="class_timeline_points"/>
+        <childnode refid="50" relation="usage">
+          <edgelabel>markers_</edgelabel>
+        </childnode>
+        <childnode refid="51" relation="usage">
+          <edgelabel>workarea_</edgelabel>
+        </childnode>
+      </node>
+      <node id="36">
+        <label>FloatSlider</label>
+        <link refid="class_float_slider"/>
+        <childnode refid="30" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="57">
+        <label>OpenGLBackend</label>
+        <link refid="class_open_g_l_backend"/>
+        <childnode refid="10" relation="public-inheritance">
+        </childnode>
+        <childnode refid="58" relation="usage">
+          <edgelabel>proxy_</edgelabel>
+        </childnode>
+      </node>
+      <node id="14">
+        <label>NodeGraph</label>
+        <link refid="class_node_graph"/>
+      </node>
+      <node id="53">
+        <label>ManagedDisplayWidget</label>
+        <link refid="class_managed_display_widget"/>
+        <childnode refid="28" relation="usage">
+          <edgelabel>color_manager_</edgelabel>
+        </childnode>
+        <childnode refid="24" relation="usage">
+          <edgelabel>color_transform_</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>Encoder</label>
+        <link refid="class_encoder"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>params_</edgelabel>
+        </childnode>
+      </node>
+      <node id="28">
+        <label>ColorManager</label>
+        <link refid="class_color_manager"/>
+      </node>
+      <node id="12">
+        <label>RenderCancelDialog</label>
+        <link refid="class_render_cancel_dialog"/>
+        <childnode refid="13" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>VideoRenderBackend</label>
+        <link refid="class_video_render_backend"/>
+        <childnode refid="11" relation="public-inheritance">
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>params_</edgelabel>
+        </childnode>
+        <childnode refid="20" relation="usage">
+          <edgelabel>invalidated_</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>last_time_requested_</edgelabel>
+        </childnode>
+        <childnode refid="21" relation="usage">
+          <edgelabel>frame_cache_</edgelabel>
+        </childnode>
+      </node>
+      <node id="61">
+        <label>OpenGLTextureCache</label>
+        <link refid="class_open_g_l_texture_cache"/>
+      </node>
+      <node id="9">
+        <label>AudioParams</label>
+        <link refid="class_audio_params"/>
+      </node>
+      <node id="33">
+        <label>H264Section</label>
+        <link refid="class_h264_section"/>
+        <childnode refid="34" relation="public-inheritance">
+        </childnode>
+        <childnode refid="35" relation="usage">
+          <edgelabel>filesize_section_</edgelabel>
+        </childnode>
+        <childnode refid="37" relation="usage">
+          <edgelabel>bitrate_section_</edgelabel>
+        </childnode>
+        <childnode refid="38" relation="usage">
+          <edgelabel>crf_section_</edgelabel>
+        </childnode>
+      </node>
+      <node id="58">
+        <label>OpenGLProxy</label>
+        <link refid="class_open_g_l_proxy"/>
+        <childnode refid="59" relation="usage">
+          <edgelabel>color_cache_</edgelabel>
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>video_params_</edgelabel>
+        </childnode>
+        <childnode refid="60" relation="usage">
+          <edgelabel>shader_cache_</edgelabel>
+        </childnode>
+        <childnode refid="61" relation="usage">
+          <edgelabel>texture_cache_</edgelabel>
+        </childnode>
+        <childnode refid="62" relation="usage">
+          <edgelabel>still_image_cache_</edgelabel>
+        </childnode>
+        <childnode refid="63" relation="usage">
+          <edgelabel>buffer_</edgelabel>
+        </childnode>
+      </node>
+      <node id="62">
+        <label>RenderCache&lt; Stream *, OpenGLProxy::CachedStill &gt;</label>
+        <link refid="class_render_cache"/>
+      </node>
+      <node id="15">
+        <label>ViewerOutput</label>
+        <link refid="class_viewer_output"/>
+        <childnode refid="16" relation="public-inheritance">
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>video_params_</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>timeline_length_</edgelabel>
+        </childnode>
+        <childnode refid="9" relation="usage">
+          <edgelabel>audio_params_</edgelabel>
+        </childnode>
+        <childnode refid="19" relation="usage">
+          <edgelabel>texture_input_</edgelabel>
+          <edgelabel>samples_input_</edgelabel>
+        </childnode>
+      </node>
+      <node id="48">
+        <label>TimelinePlayhead</label>
+        <link refid="class_timeline_playhead"/>
+      </node>
+      <node id="52">
+        <label>ViewerDisplayWidget</label>
+        <link refid="class_viewer_display_widget"/>
+        <childnode refid="53" relation="public-inheritance">
+        </childnode>
+        <childnode refid="54" relation="usage">
+          <edgelabel>safe_margin_</edgelabel>
+        </childnode>
+        <childnode refid="55" relation="usage">
+          <edgelabel>texture_</edgelabel>
+        </childnode>
+        <childnode refid="56" relation="usage">
+          <edgelabel>load_buffer_</edgelabel>
+        </childnode>
+      </node>
+      <node id="7">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="37">
+        <label>H264BitRateSection</label>
+        <link refid="class_h264_bit_rate_section"/>
+        <childnode refid="36" relation="usage">
+          <edgelabel>target_rate_</edgelabel>
+          <edgelabel>max_rate_</edgelabel>
+        </childnode>
+      </node>
+      <node id="34">
+        <label>CodecSection</label>
+        <link refid="class_codec_section"/>
+      </node>
+      <node id="13">
+        <label>ProgressDialog</label>
+        <link refid="class_progress_dialog"/>
+      </node>
+      <node id="8">
+        <label>AudioRenderingParams</label>
+        <link refid="class_audio_rendering_params"/>
+        <childnode refid="9" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="32">
+        <label>SliderLabel</label>
+        <link refid="class_slider_label"/>
+      </node>
+      <node id="64">
+        <label>PlaybackControls</label>
+        <link refid="class_playback_controls"/>
+        <childnode refid="65" relation="usage">
+          <edgelabel>cur_tc_lbl_</edgelabel>
+        </childnode>
+        <childnode refid="66" relation="usage">
+          <edgelabel>video_drag_btn_</edgelabel>
+          <edgelabel>audio_drag_btn_</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>time_base_</edgelabel>
+        </childnode>
+      </node>
+      <node id="44">
+        <label>TimelineScaledObject</label>
+        <link refid="class_timeline_scaled_object"/>
+        <childnode refid="7" relation="usage">
+          <edgelabel>timebase_</edgelabel>
+        </childnode>
+      </node>
+      <node id="16">
+        <label>Node</label>
+        <link refid="class_node"/>
+        <childnode refid="17" relation="usage">
+          <edgelabel>output_</edgelabel>
+        </childnode>
+      </node>
+      <node id="31">
+        <label>FocusableLineEdit</label>
+        <link refid="class_focusable_line_edit"/>
+      </node>
+      <node id="5">
+        <label>VideoRenderingParams</label>
+        <link refid="class_video_rendering_params"/>
+        <childnode refid="6" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="19">
+        <label>NodeInput</label>
+        <link refid="class_node_input"/>
+        <childnode refid="18" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="42">
+        <label>TimeBasedWidget</label>
+        <link refid="class_time_based_widget"/>
+        <childnode refid="43" relation="public-inheritance">
+        </childnode>
+        <childnode refid="45" relation="usage">
+          <edgelabel>scrollbar_</edgelabel>
+        </childnode>
+        <childnode refid="46" relation="usage">
+          <edgelabel>ruler_</edgelabel>
+        </childnode>
+        <childnode refid="15" relation="usage">
+          <edgelabel>viewer_node_</edgelabel>
+        </childnode>
+        <childnode refid="49" relation="usage">
+          <edgelabel>points_</edgelabel>
+        </childnode>
+      </node>
+      <node id="11">
+        <label>RenderBackend</label>
+        <link refid="class_render_backend"/>
+        <childnode refid="12" relation="usage">
+          <edgelabel>cancel_dialog_</edgelabel>
+        </childnode>
+        <childnode refid="14" relation="usage">
+          <edgelabel>copied_graph_</edgelabel>
+        </childnode>
+        <childnode refid="15" relation="usage">
+          <edgelabel>copied_viewer_node_</edgelabel>
+          <edgelabel>viewer_node_</edgelabel>
+        </childnode>
+        <childnode refid="20" relation="usage">
+          <edgelabel>cache_queue_</edgelabel>
+        </childnode>
+      </node>
+      <node id="29">
+        <label>IntegerSlider</label>
+        <link refid="class_integer_slider"/>
+        <childnode refid="30" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="65">
+        <label>TimeSlider</label>
+        <link refid="class_time_slider"/>
+        <childnode refid="29" relation="public-inheritance">
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>timebase_</edgelabel>
+        </childnode>
+      </node>
+      <node id="20">
+        <label>TimeRangeList</label>
+        <link refid="class_time_range_list"/>
+      </node>
+      <node id="60">
+        <label>RenderCache&lt; QString, OpenGLShaderPtr &gt;</label>
+        <link refid="class_render_cache"/>
+      </node>
+      <node id="35">
+        <label>H264FileSizeSection</label>
+        <link refid="class_h264_file_size_section"/>
+        <childnode refid="36" relation="usage">
+          <edgelabel>file_size_</edgelabel>
+        </childnode>
+      </node>
+      <node id="39">
+        <label>ImageSection</label>
+        <link refid="class_image_section"/>
+        <childnode refid="34" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="55">
+        <label>OpenGLTexture</label>
+        <link refid="class_open_g_l_texture"/>
+      </node>
+      <node id="43">
+        <label>TimelineScaledWidget</label>
+        <link refid="class_timeline_scaled_widget"/>
+        <childnode refid="44" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="66">
+        <label>DragButton</label>
+        <link refid="class_drag_button"/>
+      </node>
+      <node id="1">
+        <label>ExportDialog</label>
+        <link refid="class_export_dialog"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>exporter_</edgelabel>
+        </childnode>
+        <childnode refid="15" relation="usage">
+          <edgelabel>viewer_node_</edgelabel>
+        </childnode>
+        <childnode refid="26" relation="usage">
+          <edgelabel>video_tab_</edgelabel>
+        </childnode>
+        <childnode refid="28" relation="usage">
+          <edgelabel>color_manager_</edgelabel>
+        </childnode>
+        <childnode refid="40" relation="usage">
+          <edgelabel>audio_tab_</edgelabel>
+        </childnode>
+        <childnode refid="41" relation="usage">
+          <edgelabel>preview_viewer_</edgelabel>
+        </childnode>
+      </node>
+      <node id="51">
+        <label>TimelineWorkArea</label>
+        <link refid="class_timeline_work_area"/>
+        <childnode refid="23" relation="usage">
+          <edgelabel>workarea_range_</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>kResetOut</edgelabel>
+          <edgelabel>kResetIn</edgelabel>
+        </childnode>
+      </node>
+      <node id="54">
+        <label>ViewerSafeMarginInfo</label>
+        <link refid="class_viewer_safe_margin_info"/>
+      </node>
+      <node id="41">
+        <label>ViewerWidget</label>
+        <link refid="class_viewer_widget"/>
+        <childnode refid="42" relation="public-inheritance">
+        </childnode>
+        <childnode refid="52" relation="usage">
+          <edgelabel>context_menu_widget_</edgelabel>
+        </childnode>
+        <childnode refid="28" relation="usage">
+          <edgelabel>override_color_manager_</edgelabel>
+        </childnode>
+        <childnode refid="57" relation="usage">
+          <edgelabel>video_renderer_</edgelabel>
+        </childnode>
+        <childnode refid="64" relation="usage">
+          <edgelabel>controls_</edgelabel>
+        </childnode>
+        <childnode refid="67" relation="usage">
+          <edgelabel>waveform_view_</edgelabel>
+        </childnode>
+        <childnode refid="68" relation="usage">
+          <edgelabel>sizer_</edgelabel>
+        </childnode>
+        <childnode refid="69" relation="usage">
+          <edgelabel>audio_renderer_</edgelabel>
+        </childnode>
+      </node>
+      <node id="25">
+        <label>AudioRenderBackend</label>
+        <link refid="class_audio_render_backend"/>
+        <childnode refid="11" relation="public-inheritance">
+        </childnode>
+        <childnode refid="8" relation="usage">
+          <edgelabel>params_</edgelabel>
+        </childnode>
+      </node>
+      <node id="18">
+        <label>NodeParam</label>
+        <link refid="class_node_param"/>
+      </node>
+      <node id="23">
+        <label>TimeRange</label>
+        <link refid="class_time_range"/>
+        <childnode refid="7" relation="usage">
+          <edgelabel>out_</edgelabel>
+          <edgelabel>in_</edgelabel>
+          <edgelabel>length_</edgelabel>
+        </childnode>
+      </node>
+      <node id="47">
+        <label>SeekableWidget</label>
+        <link refid="class_seekable_widget"/>
+        <childnode refid="43" relation="public-inheritance">
+        </childnode>
+        <childnode refid="48" relation="usage">
+          <edgelabel>style_</edgelabel>
+        </childnode>
+        <childnode refid="49" relation="usage">
+          <edgelabel>timeline_points_</edgelabel>
+        </childnode>
+      </node>
+      <node id="45">
+        <label>ResizableScrollBar</label>
+        <link refid="class_resizable_scroll_bar"/>
+      </node>
+      <node id="69">
+        <label>AudioBackend</label>
+        <link refid="class_audio_backend"/>
+        <childnode refid="25" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="56">
+        <label>Frame</label>
+        <link refid="class_frame"/>
+        <childnode refid="5" relation="usage">
+          <edgelabel>params_</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>sample_aspect_ratio_</edgelabel>
+          <edgelabel>timestamp_</edgelabel>
+        </childnode>
+      </node>
+      <node id="6">
+        <label>VideoParams</label>
+        <link refid="class_video_params"/>
+        <childnode refid="7" relation="usage">
+          <edgelabel>time_base_</edgelabel>
+        </childnode>
+      </node>
+      <node id="46">
+        <label>TimeRuler</label>
+        <link refid="class_time_ruler"/>
+        <childnode refid="47" relation="public-inheritance">
+        </childnode>
+        <childnode refid="20" relation="usage">
+          <edgelabel>dirty_cache_ranges_</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>cache_length_</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>Exporter</label>
+        <link refid="class_exporter"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>encoder_</edgelabel>
+        </childnode>
+        <childnode refid="10" relation="usage">
+          <edgelabel>video_backend_</edgelabel>
+        </childnode>
+        <childnode refid="22" relation="usage">
+          <edgelabel>params_</edgelabel>
+        </childnode>
+        <childnode refid="15" relation="usage">
+          <edgelabel>viewer_node_</edgelabel>
+        </childnode>
+        <childnode refid="23" relation="usage">
+          <edgelabel>export_range_</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>waiting_for_frame_</edgelabel>
+        </childnode>
+        <childnode refid="25" relation="usage">
+          <edgelabel>audio_backend_</edgelabel>
+        </childnode>
+      </node>
+      <node id="26">
+        <label>ExportVideoTab</label>
+        <link refid="class_export_video_tab"/>
+        <childnode refid="27" relation="usage">
+          <edgelabel>color_space_chooser_</edgelabel>
+        </childnode>
+        <childnode refid="29" relation="usage">
+          <edgelabel>width_slider_</edgelabel>
+          <edgelabel>height_slider_</edgelabel>
+        </childnode>
+        <childnode refid="33" relation="usage">
+          <edgelabel>h264_section_</edgelabel>
+        </childnode>
+        <childnode refid="28" relation="usage">
+          <edgelabel>color_manager_</edgelabel>
+        </childnode>
+        <childnode refid="39" relation="usage">
+          <edgelabel>image_section_</edgelabel>
+        </childnode>
+      </node>
+      <node id="22">
+        <label>ExportParams</label>
+        <link refid="class_export_params"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+        <childnode refid="23" relation="usage">
+          <edgelabel>custom_range_</edgelabel>
+        </childnode>
+        <childnode refid="24" relation="usage">
+          <edgelabel>color_transform_</edgelabel>
+        </childnode>
+      </node>
+      <node id="24">
+        <label>ColorTransform</label>
+        <link refid="class_color_transform"/>
+      </node>
+      <node id="27">
+        <label>ColorSpaceChooser</label>
+        <link refid="class_color_space_chooser"/>
+        <childnode refid="28" relation="usage">
+          <edgelabel>color_manager_</edgelabel>
+        </childnode>
+      </node>
+      <node id="38">
+        <label>H264CRFSection</label>
+        <link refid="class_h264_c_r_f_section"/>
+      </node>
+      <node id="21">
+        <label>VideoRenderFrameCache</label>
+        <link refid="class_video_render_frame_cache"/>
+      </node>
+      <node id="50">
+        <label>TimelineMarkerList</label>
+        <link refid="class_timeline_marker_list"/>
+      </node>
+      <node id="4">
+        <label>EncodingParams</label>
+        <link refid="class_encoding_params"/>
+        <childnode refid="5" relation="usage">
+          <edgelabel>video_params_</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>export_length_</edgelabel>
+        </childnode>
+        <childnode refid="8" relation="usage">
+          <edgelabel>audio_params_</edgelabel>
+        </childnode>
+      </node>
+      <node id="30">
+        <label>SliderBase</label>
+        <link refid="class_slider_base"/>
+        <childnode refid="31" relation="usage">
+          <edgelabel>editor_</edgelabel>
+        </childnode>
+        <childnode refid="32" relation="usage">
+          <edgelabel>label_</edgelabel>
+        </childnode>
+      </node>
+      <node id="67">
+        <label>AudioWaveformView</label>
+        <link refid="class_audio_waveform_view"/>
+        <childnode refid="47" relation="public-inheritance">
+        </childnode>
+        <childnode refid="25" relation="usage">
+          <edgelabel>backend_</edgelabel>
+        </childnode>
+      </node>
+      <node id="63">
+        <label>OpenGLFramebuffer</label>
+        <link refid="class_open_g_l_framebuffer"/>
+        <childnode refid="55" relation="usage">
+          <edgelabel>texture_</edgelabel>
+        </childnode>
+      </node>
+      <node id="68">
+        <label>ViewerSizer</label>
+        <link refid="class_viewer_sizer"/>
+      </node>
+      <node id="59">
+        <label>RenderCache&lt; QString, ColorProcessorPtr &gt;</label>
+        <link refid="class_render_cache"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/dialog/export/export.h" line="39" column="1" bodyfile="C:/Daten/Olive/olive/app/dialog/export/export.h" bodystart="40" bodyend="153"/>
+    <listofallmembers>
+      <member refid="class_export_dialog_1a1946a7628a731b69b66bfd8d57f24ae5" prot="public" virt="virtual"><scope>ExportDialog</scope><name>accept</name></member>
+      <member refid="class_export_dialog_1a20e0aa0aad0d3c4b1c2f9518db9820d7" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>AlignEvenNumber</name></member>
+      <member refid="class_export_dialog_1ac1eb01ff3692c19375e126024072717d" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>audio_enabled_</name></member>
+      <member refid="class_export_dialog_1ac6ae4538d5b6f74c8b080daa967ff291" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>audio_tab_</name></member>
+      <member refid="class_export_dialog_1afaeb4468d24d8d01fe9415b15770185a" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>BrowseFilename</name></member>
+      <member refid="class_export_dialog_1a36a4ea3755cda156dd7c62dc0bec577d" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>buttons_</name></member>
+      <member refid="class_export_dialog_1ad1bedaf53921c9ce7c79f8e6de6364d8" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>CancelExport</name></member>
+      <member refid="class_export_dialog_1a22ebfed3deb9efc6c9ae641e291edbd3" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>cancelled_</name></member>
+      <member refid="class_export_dialog_1a903b1ad5c3ea6133a0026294361ec1a2" prot="protected" virt="virtual"><scope>ExportDialog</scope><name>closeEvent</name></member>
+      <member refid="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>Codec</name></member>
+      <member refid="class_export_dialog_1a5e9ee04bad628588f52796c98c44786a" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>codecs_</name></member>
+      <member refid="class_export_dialog_1ae3bf1426733014a263043dbd09433e94" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>color_manager_</name></member>
+      <member refid="class_export_dialog_1adbd49771374436d2ac4b85e4e83d1989" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>elapsed_label_</name></member>
+      <member refid="class_export_dialog_1ae656083e56f4264bed7c5e0731df2205" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>export_cancel_btn_</name></member>
+      <member refid="class_export_dialog_1a72a154148544a93a1fb23a0c5bd2cd07" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>export_start_</name></member>
+      <member refid="class_export_dialog_1af90759dcc4ae7a64bf515c1cd32b48b5" prot="public" virt="non-virtual"><scope>ExportDialog</scope><name>ExportDialog</name></member>
+      <member refid="class_export_dialog_1a160b7e0e4876c7545760c3eacf495f3a" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>exporter_</name></member>
+      <member refid="class_export_dialog_1a5249d588a351f2a43de295e0d5c84dc2" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>ExporterIsDone</name></member>
+      <member refid="class_export_dialog_1a1044bbf68541281fa4efa7c3841a2a0d" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>filename_edit_</name></member>
+      <member refid="class_export_dialog_1a0742b71b552eb1ba10e599d8fabef53d" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>flt_progress_</name></member>
+      <member refid="class_export_dialog_1aa45b0cb9e87567cb6be0e3fb2f709742" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>Format</name></member>
+      <member refid="class_export_dialog_1a3cd7910372fbbf44de2f3712f3390f5a" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>format_combobox_</name></member>
+      <member refid="class_export_dialog_1a1c72e7b312a5caa4c915fcc67fabb058" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>FormatChanged</name></member>
+      <member refid="class_export_dialog_1a4916366326371aa36dcd4460bad26273" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>formats_</name></member>
+      <member refid="class_export_dialog_1a83f86eaa438a36d5ac895676e98afe46" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>GenerateParams</name></member>
+      <member refid="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9a6f04a48512bdb8b3cdb67fd4eb83c823" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>kCodecAAC</name></member>
+      <member refid="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9a098b77f6eda302ae87d9167ef04f6ad1" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>kCodecCount</name></member>
+      <member refid="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9aa2f75798de2bba386bdad504675b423c" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>kCodecDNxHD</name></member>
+      <member refid="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9acd136ef9c9e0e944c6e0cbe12e3a6f0c" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>kCodecH264</name></member>
+      <member refid="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9a7e18933428a93fad4592426215ec66a4" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>kCodecH265</name></member>
+      <member refid="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9aebc758335242e2aef5e3fb2dd666d525" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>kCodecMP2</name></member>
+      <member refid="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9aec5a81b093ec9b2950e9b1027bde1819" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>kCodecMP3</name></member>
+      <member refid="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9ac750f4b914c8b1096da50b369de3b475" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>kCodecOpenEXR</name></member>
+      <member refid="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9a9151b9a1525ad0b0b20454e53c30107e" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>kCodecPCM</name></member>
+      <member refid="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9a2b6727d0305bc9ca72b6532b5b05869b" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>kCodecPNG</name></member>
+      <member refid="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9aab6fed5cec87b706fad6607c40842d39" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>kCodecProRes</name></member>
+      <member refid="class_export_dialog_1a6f80fc2cfcce617872fd907903f461a9a0f6df63e290f1bd546fae63fb9d125b9" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>kCodecTIFF</name></member>
+      <member refid="class_export_dialog_1aa45b0cb9e87567cb6be0e3fb2f709742aed32f3c6b4bc1760c87af4a3fa7d1859" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>kFormatCount</name></member>
+      <member refid="class_export_dialog_1aa45b0cb9e87567cb6be0e3fb2f709742aba99545923260529b08481a2f3cea36a" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>kFormatDNxHD</name></member>
+      <member refid="class_export_dialog_1aa45b0cb9e87567cb6be0e3fb2f709742a6527aef4c0d40c890ffb52384bdc22c6" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>kFormatMatroska</name></member>
+      <member refid="class_export_dialog_1aa45b0cb9e87567cb6be0e3fb2f709742aa05ac1731dc92b220be391534570ff41" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>kFormatMPEG4</name></member>
+      <member refid="class_export_dialog_1aa45b0cb9e87567cb6be0e3fb2f709742a815444a9e92f44248e3152a09b15a569" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>kFormatOpenEXR</name></member>
+      <member refid="class_export_dialog_1aa45b0cb9e87567cb6be0e3fb2f709742a69574b89a7c228b6303b5839664fefdb" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>kFormatPNG</name></member>
+      <member refid="class_export_dialog_1aa45b0cb9e87567cb6be0e3fb2f709742ad862c876bd17a3c9d4b1b5c03a968a6b" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>kFormatQuickTime</name></member>
+      <member refid="class_export_dialog_1aa45b0cb9e87567cb6be0e3fb2f709742a7db9a044bd954a779b72cf58be5e12de" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>kFormatTIFF</name></member>
+      <member refid="class_export_dialog_1ad909a8f1fa975e6e59807ff2944a9657" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>LoadPresets</name></member>
+      <member refid="class_export_dialog_1a6bbc8916370de1d288dbb2a6f300a154" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>preferences_area_</name></member>
+      <member refid="class_export_dialog_1ac1f72f209ac202c87d73010914dbe25e" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>preview_viewer_</name></member>
+      <member refid="class_export_dialog_1a47fd27728c2e47169daf4d814dd8b29b" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>previously_selected_format_</name></member>
+      <member refid="class_export_dialog_1ac313a7ef6e0489022e351f3fd25801e1" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>progress_bar_</name></member>
+      <member refid="class_export_dialog_1a82514cb6a170a73b7fb5402bbd7eed7c" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>progress_timer_</name></member>
+      <member refid="class_export_dialog_1a4c6eeee7a7395f0409a3afea0939f303" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>ProgressUpdated</name></member>
+      <member refid="class_export_dialog_1ab94224c4de517d7a7f42b739808a83ed" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>remaining_label_</name></member>
+      <member refid="class_export_dialog_1a44e30d5d396f72ad64109f32b5bddbdd" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>ResolutionChanged</name></member>
+      <member refid="class_export_dialog_1ac0a0f78f4a261bb5c41a8fffd4ba50e5" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>SetDefaultFilename</name></member>
+      <member refid="class_export_dialog_1ab28688ceaccd72e48243999dc45f5052" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>SetUIElementsEnabled</name></member>
+      <member refid="class_export_dialog_1a50b3698a9020a03d67534e1042812d14" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>SetUpFormats</name></member>
+      <member refid="class_export_dialog_1abff2e42a00bdb03db3f6c12ca4608c04" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>TimeToString</name></member>
+      <member refid="class_export_dialog_1a7400a5e27b74e95a7e4588e858ee33df" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>UpdateTimeLabels</name></member>
+      <member refid="class_export_dialog_1a9acde7bae13aeff17131ddda635a87f1" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>UpdateViewerDimensions</name></member>
+      <member refid="class_export_dialog_1aad175909828f7216730b2df11a7084ad" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>video_aspect_ratio_</name></member>
+      <member refid="class_export_dialog_1a426c86fd46bc50d45230fd49ede2dac4" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>video_enabled_</name></member>
+      <member refid="class_export_dialog_1a7413568246e82496fe92b631c7bddf5c" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>video_tab_</name></member>
+      <member refid="class_export_dialog_1a00c993634bea97d8ee7d3ec9370ff3b0" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>VideoCodecChanged</name></member>
+      <member refid="class_export_dialog_1a6911ae629ea45ea6485c28e5eed962ee" prot="private" virt="non-virtual"><scope>ExportDialog</scope><name>viewer_node_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_1e8daa9850aa28c9e0dc5b9049aa07b3" kind="dir">
+    <compoundname>undo</compoundname>
+    <innerfile refid="undocommand_8h">undocommand.h</innerfile>
+    <innerfile refid="undostack_8h">undostack.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/undo/"/>
+  </compounddef>
+</doxygen>

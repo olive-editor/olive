@@ -1,0 +1,298 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="nodeviewundo_8h" kind="file" language="C++">
+    <compoundname>nodeviewundo.h</compoundname>
+    <includes local="no">QUndoCommand</includes>
+    <includes refid="graph_8h" local="yes">node/graph.h</includes>
+    <includes local="yes">node/node.h</includes>
+    <includes refid="nodeviewitem_8h" local="yes">nodeviewitem.h</includes>
+    <includes refid="undocommand_8h" local="yes">undo/undocommand.h</includes>
+    <incdepgraph>
+      <node id="20">
+        <label>undo/undocommand.h</label>
+        <link refid="undocommand_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>QObject</label>
+      </node>
+      <node id="1">
+        <label>nodeviewundo.h</label>
+        <link refid="nodeviewundo_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="19">
+        <label>nodeviewitemwidgetproxy.h</label>
+        <link refid="nodeviewitemwidgetproxy_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>QUndoCommand</label>
+      </node>
+      <node id="12">
+        <label>QtGlobal</label>
+      </node>
+      <node id="8">
+        <label>QGraphicsRectItem</label>
+      </node>
+      <node id="9">
+        <label>QLinearGradient</label>
+      </node>
+      <node id="21">
+        <label>project/project.h</label>
+      </node>
+      <node id="7">
+        <label>QFontMetrics</label>
+      </node>
+      <node id="13">
+        <label>common/define.h</label>
+        <link refid="define_8h"/>
+      </node>
+      <node id="16">
+        <label>QPalette</label>
+      </node>
+      <node id="14">
+        <label>nodeviewedge.h</label>
+        <link refid="nodeviewedge_8h"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>node/edge.h</label>
+        <link refid="edge_8h"/>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>QWidget</label>
+      </node>
+      <node id="3">
+        <label>node/graph.h</label>
+        <link refid="graph_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>nodeviewitem.h</label>
+        <link refid="nodeviewitem_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>QGraphicsPathItem</label>
+      </node>
+      <node id="11">
+        <label>nodeviewcommon.h</label>
+        <link refid="nodeviewcommon_8h"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>node/node.h</label>
+      </node>
+      <node id="18">
+        <label>memory</label>
+      </node>
+    </incdepgraph>
+    <innerclass refid="class_node_edge_add_command" prot="public">NodeEdgeAddCommand</innerclass>
+    <innerclass refid="class_node_edge_remove_command" prot="public">NodeEdgeRemoveCommand</innerclass>
+    <innerclass refid="class_node_add_command" prot="public">NodeAddCommand</innerclass>
+    <innerclass refid="class_node_remove_command" prot="public">NodeRemoveCommand</innerclass>
+    <innerclass refid="class_node_remove_with_exclusive_deps" prot="public">NodeRemoveWithExclusiveDeps</innerclass>
+    <innerclass refid="class_node_copy_inputs_command" prot="public">NodeCopyInputsCommand</innerclass>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/***</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"></highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/><sp/>Olive<sp/>-<sp/>Non-Linear<sp/>Video<sp/>Editor</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/><sp/>Copyright<sp/>(C)<sp/>2019<sp/>Olive<sp/>Team</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"></highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/><sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/><sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/><sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"></highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/><sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/><sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/><sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"></highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/><sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/><sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"></highlight></codeline>
+<codeline lineno="19"><highlight class="comment">***/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>NODEVIEWUNDO_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>NODEVIEWUNDO_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QUndoCommand&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="graph_8h" kindref="compound">node/graph.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;node/node.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="nodeviewitem_8h" kindref="compound">nodeviewitem.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="undocommand_8h" kindref="compound">undo/undocommand.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><ref refid="define_8h_1a0472692dd1f22472ad63da20da919e8c" kindref="member">OLIVE_NAMESPACE_ENTER</ref></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38" refid="class_node_edge_add_command" refkind="compound"><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_node_edge_add_command" kindref="compound">NodeEdgeAddCommand</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="class_undo_command" kindref="compound">UndoCommand</ref><sp/>{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><ref refid="class_node_edge_add_command_1afdf14ed608e3b228e683b22bd8607ed5" kindref="member">NodeEdgeAddCommand</ref>(<ref refid="class_node_output" kindref="compound">NodeOutput</ref>*<sp/>output,<sp/><ref refid="class_node_input" kindref="compound">NodeInput</ref>*<sp/>input,<sp/>QUndoCommand*<sp/>parent<sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="class_project" kindref="compound">Project</ref>*<sp/><ref refid="class_node_edge_add_command_1ab772dde38a3ed5af7f7cc3b44d843f01" kindref="member">GetRelevantProject</ref>()<sp/></highlight><highlight class="keyword">const<sp/>override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_edge_add_command_1a918b9af405e871fd5092d27aecdb104b" kindref="member">redo_internal</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_edge_add_command_1a21ab43596dc0292023ff64eeededfa31" kindref="member">undo_internal</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><ref refid="class_node_output" kindref="compound">NodeOutput</ref>*<sp/><ref refid="class_node_edge_add_command_1ac49241a442d2cc8401d9dae24763c264" kindref="member">output_</ref>;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><ref refid="class_node_input" kindref="compound">NodeInput</ref>*<sp/><ref refid="class_node_edge_add_command_1ada348b71139e872df48f85d331d26eb1" kindref="member">input_</ref>;</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><ref refid="edge_8h_1a9eb6ae7d2b608077e13ab3571ea6b101" kindref="member">NodeEdgePtr</ref><sp/><ref refid="class_node_edge_add_command_1af329badf62e279a7a2c910c7a454d1b3" kindref="member">old_edge_</ref>;</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_node_edge_add_command_1ac7001238d7f31e90c50d53b049435584" kindref="member">done_</ref>;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62" refid="class_node_edge_remove_command" refkind="compound"><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_node_edge_remove_command" kindref="compound">NodeEdgeRemoveCommand</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="class_undo_command" kindref="compound">UndoCommand</ref><sp/>{</highlight></codeline>
+<codeline lineno="63" refid="class_node_edge_add_command_1a918b9af405e871fd5092d27aecdb104b" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="64" refid="class_node_edge_add_command_1a21ab43596dc0292023ff64eeededfa31" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_node_edge_remove_command_1a094bf992a35a374694902f3adb219bb1" kindref="member">NodeEdgeRemoveCommand</ref>(<ref refid="class_node_output" kindref="compound">NodeOutput</ref>*<sp/>output,<sp/><ref refid="class_node_input" kindref="compound">NodeInput</ref>*<sp/>input,<sp/>QUndoCommand*<sp/>parent<sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="65" refid="class_node_edge_remove_command_1a6029e8ba00d8276048051a60972cac5f" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_node_edge_remove_command_1a6029e8ba00d8276048051a60972cac5f" kindref="member">NodeEdgeRemoveCommand</ref>(<ref refid="edge_8h_1a9eb6ae7d2b608077e13ab3571ea6b101" kindref="member">NodeEdgePtr</ref><sp/>edge,<sp/>QUndoCommand*<sp/>parent<sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67" refid="class_node_edge_add_command_1ac49241a442d2cc8401d9dae24763c264" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="class_project" kindref="compound">Project</ref>*<sp/><ref refid="class_node_edge_remove_command_1a40d39a56423aebd768e1bf1059b8d64b" kindref="member">GetRelevantProject</ref>()<sp/></highlight><highlight class="keyword">const<sp/>override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="68" refid="class_node_edge_add_command_1ada348b71139e872df48f85d331d26eb1" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="70" refid="class_node_edge_remove_command_1a6a4dc53918609b2fc04c63b2ec0024e7" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_edge_remove_command_1a6a4dc53918609b2fc04c63b2ec0024e7" kindref="member">redo_internal</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="71" refid="class_node_edge_remove_command_1a83e3ffa871a35ff281c3b48663cb9a9a" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_edge_remove_command_1a83e3ffa871a35ff281c3b48663cb9a9a" kindref="member">undo_internal</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="72" refid="class_node_edge_add_command_1ac7001238d7f31e90c50d53b049435584" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="74" refid="class_node_edge_remove_command_1a46d0a14e4008c51d4f7c56a868452301" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_node_output" kindref="compound">NodeOutput</ref>*<sp/><ref refid="class_node_edge_remove_command_1a46d0a14e4008c51d4f7c56a868452301" kindref="member">output_</ref>;</highlight></codeline>
+<codeline lineno="75" refid="class_node_edge_remove_command_1a8dde33a27d3e6bd45fbf3396c4a736b5" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_node_input" kindref="compound">NodeInput</ref>*<sp/><ref refid="class_node_edge_remove_command_1a8dde33a27d3e6bd45fbf3396c4a736b5" kindref="member">input_</ref>;</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77" refid="class_node_edge_remove_command_1a044fe47cc17b670bfcfc49eb3cc80431" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_node_edge_remove_command_1a044fe47cc17b670bfcfc49eb3cc80431" kindref="member">done_</ref>;</highlight></codeline>
+<codeline lineno="78"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80" refid="class_node_add_command" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_node_add_command" kindref="compound">NodeAddCommand</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="class_undo_command" kindref="compound">UndoCommand</ref><sp/>{</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="82" refid="class_node_add_command_1aadbbc8a0f71d72c5c6b62207e534b0f4" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_node_add_command_1aadbbc8a0f71d72c5c6b62207e534b0f4" kindref="member">NodeAddCommand</ref>(<ref refid="class_node_graph" kindref="compound">NodeGraph</ref>*<sp/>graph,<sp/><ref refid="class_node" kindref="compound">Node</ref>*<sp/>node,<sp/>QUndoCommand*<sp/>parent<sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84" refid="class_node_add_command_1a0f25283273337e0c609ade526709e290" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="class_project" kindref="compound">Project</ref>*<sp/><ref refid="class_node_add_command_1a0f25283273337e0c609ade526709e290" kindref="member">GetRelevantProject</ref>()<sp/></highlight><highlight class="keyword">const<sp/>override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="87" refid="class_node_add_command_1a138b88f9c5c8c8ef0767b49bbd05df12" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_add_command_1a138b88f9c5c8c8ef0767b49bbd05df12" kindref="member">redo_internal</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="88" refid="class_node_add_command_1ad31fba3a4edf7acd1170b5951dedede7" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_add_command_1ad31fba3a4edf7acd1170b5951dedede7" kindref="member">undo_internal</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="91" refid="class_node_add_command_1a8dc362ae1f0694f4cf026e5ca1287a3a" refkind="member"><highlight class="normal"><sp/><sp/>QObject<sp/><ref refid="class_node_add_command_1a8dc362ae1f0694f4cf026e5ca1287a3a" kindref="member">memory_manager_</ref>;</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93" refid="class_node_add_command_1ae4d2bbbe4d6ce4e6371be79541d2f18b" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_node_graph" kindref="compound">NodeGraph</ref>*<sp/><ref refid="class_node_add_command_1ae4d2bbbe4d6ce4e6371be79541d2f18b" kindref="member">graph_</ref>;</highlight></codeline>
+<codeline lineno="94" refid="class_node_add_command_1a9c52e572aee2d6c568a9ba01801cd801" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_node" kindref="compound">Node</ref>*<sp/><ref refid="class_node_add_command_1a9c52e572aee2d6c568a9ba01801cd801" kindref="member">node_</ref>;</highlight></codeline>
+<codeline lineno="95"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight></codeline>
+<codeline lineno="97" refid="class_node_remove_command" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_node_remove_command" kindref="compound">NodeRemoveCommand</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="class_undo_command" kindref="compound">UndoCommand</ref><sp/>{</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="99" refid="class_node_remove_command_1a9879105b735c9564a99070998d9039c0" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_node_remove_command_1a9879105b735c9564a99070998d9039c0" kindref="member">NodeRemoveCommand</ref>(<ref refid="class_node_graph" kindref="compound">NodeGraph</ref>*<sp/>graph,</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QList&lt;Node*&gt;&amp;<sp/>nodes,</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>QUndoCommand*<sp/>parent<sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103" refid="class_node_remove_command_1a00111193e35cd8d2339003364657172d" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="class_project" kindref="compound">Project</ref>*<sp/><ref refid="class_node_remove_command_1a00111193e35cd8d2339003364657172d" kindref="member">GetRelevantProject</ref>()<sp/></highlight><highlight class="keyword">const<sp/>override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="106" refid="class_node_remove_command_1a50bdb61979cf0f6a7d51f026b299d004" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_remove_command_1a50bdb61979cf0f6a7d51f026b299d004" kindref="member">redo_internal</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="107" refid="class_node_remove_command_1a792bc2cc41189fab68ca4d0d9d3fa46d" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_remove_command_1a792bc2cc41189fab68ca4d0d9d3fa46d" kindref="member">undo_internal</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="110" refid="class_node_remove_command_1a4171a891a47fc3bfbaae77991c81da31" refkind="member"><highlight class="normal"><sp/><sp/>QObject<sp/><ref refid="class_node_remove_command_1a4171a891a47fc3bfbaae77991c81da31" kindref="member">memory_manager_</ref>;</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="112" refid="class_node_remove_command_1a470a7499d6480baf64c1a6c58681cc94" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_node_graph" kindref="compound">NodeGraph</ref>*<sp/><ref refid="class_node_remove_command_1a470a7499d6480baf64c1a6c58681cc94" kindref="member">graph_</ref>;</highlight></codeline>
+<codeline lineno="113" refid="class_node_remove_command_1a978ecc55bc0026a9cbd44a524b3c47e8" refkind="member"><highlight class="normal"><sp/><sp/>QList&lt;Node*&gt;<sp/><ref refid="class_node_remove_command_1a978ecc55bc0026a9cbd44a524b3c47e8" kindref="member">nodes_</ref>;</highlight></codeline>
+<codeline lineno="114" refid="class_node_remove_command_1aa58a28d0645cb68ca7d56299a419e15e" refkind="member"><highlight class="normal"><sp/><sp/>QList&lt;NodeEdgePtr&gt;<sp/><ref refid="class_node_remove_command_1aa58a28d0645cb68ca7d56299a419e15e" kindref="member">edges_</ref>;</highlight></codeline>
+<codeline lineno="115"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117" refid="class_node_remove_with_exclusive_deps" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_node_remove_with_exclusive_deps" kindref="compound">NodeRemoveWithExclusiveDeps</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="class_undo_command" kindref="compound">UndoCommand</ref><sp/>{</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="119" refid="class_node_remove_with_exclusive_deps_1a8662b9552ee6c7d8ee806a3e5ee0d875" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_node_remove_with_exclusive_deps_1a8662b9552ee6c7d8ee806a3e5ee0d875" kindref="member">NodeRemoveWithExclusiveDeps</ref>(<ref refid="class_node_graph" kindref="compound">NodeGraph</ref>*<sp/>graph,</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="class_node" kindref="compound">Node</ref>*<sp/>node,</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>QUndoCommand*<sp/>parent<sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123" refid="class_node_remove_with_exclusive_deps_1ab46729ca128e291e2c53c5727e66a2d9" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="class_project" kindref="compound">Project</ref>*<sp/><ref refid="class_node_remove_with_exclusive_deps_1ab46729ca128e291e2c53c5727e66a2d9" kindref="member">GetRelevantProject</ref>()<sp/></highlight><highlight class="keyword">const<sp/>override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="126" refid="class_node_remove_with_exclusive_deps_1a9dfc7a57c0ebd279498d80888a9a3245" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_node_remove_command" kindref="compound">NodeRemoveCommand</ref>*<sp/><ref refid="class_node_remove_with_exclusive_deps_1a9dfc7a57c0ebd279498d80888a9a3245" kindref="member">remove_command_</ref>;</highlight></codeline>
+<codeline lineno="127"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight></codeline>
+<codeline lineno="129" refid="class_node_copy_inputs_command" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_node_copy_inputs_command" kindref="compound">NodeCopyInputsCommand</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>QUndoCommand<sp/>{</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="131" refid="class_node_copy_inputs_command_1ac85c1b456c61adadba2f4e275b96c0a8" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_node_copy_inputs_command_1ac85c1b456c61adadba2f4e275b96c0a8" kindref="member">NodeCopyInputsCommand</ref>(<ref refid="class_node" kindref="compound">Node</ref>*<sp/>src,</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="class_node" kindref="compound">Node</ref>*<sp/>dest,</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>include_connections<sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>QUndoCommand*<sp/>parent<sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight></codeline>
+<codeline lineno="136" refid="class_node_copy_inputs_command_1a941437fcd2ee80c27174e2e458c6227a" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_node_copy_inputs_command_1a941437fcd2ee80c27174e2e458c6227a" kindref="member">NodeCopyInputsCommand</ref>(<ref refid="class_node" kindref="compound">Node</ref>*<sp/>src,</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="class_node" kindref="compound">Node</ref>*<sp/>dest,</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>QUndoCommand*<sp/>parent<sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight></codeline>
+<codeline lineno="140"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="141" refid="class_node_copy_inputs_command_1a367e5ec25ba3df6790e646c4ef606971" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_copy_inputs_command_1a367e5ec25ba3df6790e646c4ef606971" kindref="member">redo</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="144" refid="class_node_copy_inputs_command_1a4b497b7a8cbe8e6af7955bab4778f29f" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_node" kindref="compound">Node</ref>*<sp/><ref refid="class_node_copy_inputs_command_1a4b497b7a8cbe8e6af7955bab4778f29f" kindref="member">src_</ref>;</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"></highlight></codeline>
+<codeline lineno="146" refid="class_node_copy_inputs_command_1ab435dfd0f45629013a5a337cef23db22" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_node" kindref="compound">Node</ref>*<sp/><ref refid="class_node_copy_inputs_command_1ab435dfd0f45629013a5a337cef23db22" kindref="member">dest_</ref>;</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"></highlight></codeline>
+<codeline lineno="148" refid="class_node_copy_inputs_command_1acd4ed8b76f2790edf71a9490a421475a" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_node_copy_inputs_command_1acd4ed8b76f2790edf71a9490a421475a" kindref="member">include_connections_</ref>;</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"></highlight></codeline>
+<codeline lineno="150"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><ref refid="define_8h_1abe3de0634d907ca0f5d1acf732c49dac" kindref="member">OLIVE_NAMESPACE_EXIT</ref></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//<sp/>NODEVIEWUNDO_H</highlight></codeline>
+    </programlisting>
+    <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewundo.h"/>
+  </compounddef>
+</doxygen>

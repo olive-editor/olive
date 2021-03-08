@@ -1,0 +1,71 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="struct_disk_manager_1_1_hash_time" kind="struct" language="C++" prot="private">
+    <compoundname>DiskManager::HashTime</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="struct_disk_manager_1_1_hash_time_1a9ae3024befb779bf3705849a5660d469" prot="public" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString DiskManager::HashTime::file_name</definition>
+        <argsstring></argsstring>
+        <name>file_name</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/diskmanager.h" line="84" column="13" bodyfile="C:/Daten/Olive/olive/app/render/diskmanager.h" bodystart="84" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_disk_manager_1_1_hash_time_1a609b827c6936498e14c8ec8be92896cd" prot="public" static="no" mutable="no">
+        <type>QByteArray</type>
+        <definition>QByteArray DiskManager::HashTime::hash</definition>
+        <argsstring></argsstring>
+        <name>hash</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/diskmanager.h" line="85" column="16" bodyfile="C:/Daten/Olive/olive/app/render/diskmanager.h" bodystart="85" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_disk_manager_1_1_hash_time_1ae22c7c0e5e691887b456465a635e0350" prot="public" static="no" mutable="no">
+        <type>qint64</type>
+        <definition>qint64 DiskManager::HashTime::access_time</definition>
+        <argsstring></argsstring>
+        <name>access_time</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/diskmanager.h" line="86" column="12" bodyfile="C:/Daten/Olive/olive/app/render/diskmanager.h" bodystart="86" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_disk_manager_1_1_hash_time_1a9eb27e1982222e09dc0efb2e738b5634" prot="public" static="no" mutable="no">
+        <type>qint64</type>
+        <definition>qint64 DiskManager::HashTime::file_size</definition>
+        <argsstring></argsstring>
+        <name>file_size</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/diskmanager.h" line="87" column="12" bodyfile="C:/Daten/Olive/olive/app/render/diskmanager.h" bodystart="87" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/render/diskmanager.h" line="83" column="3" bodyfile="C:/Daten/Olive/olive/app/render/diskmanager.h" bodystart="83" bodyend="88"/>
+    <listofallmembers>
+      <member refid="struct_disk_manager_1_1_hash_time_1ae22c7c0e5e691887b456465a635e0350" prot="public" virt="non-virtual"><scope>DiskManager::HashTime</scope><name>access_time</name></member>
+      <member refid="struct_disk_manager_1_1_hash_time_1a9ae3024befb779bf3705849a5660d469" prot="public" virt="non-virtual"><scope>DiskManager::HashTime</scope><name>file_name</name></member>
+      <member refid="struct_disk_manager_1_1_hash_time_1a9eb27e1982222e09dc0efb2e738b5634" prot="public" virt="non-virtual"><scope>DiskManager::HashTime</scope><name>file_size</name></member>
+      <member refid="struct_disk_manager_1_1_hash_time_1a609b827c6936498e14c8ec8be92896cd" prot="public" virt="non-virtual"><scope>DiskManager::HashTime</scope><name>hash</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

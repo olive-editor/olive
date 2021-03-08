@@ -1,0 +1,240 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_tool" kind="class" language="C++" prot="public">
+    <compoundname>Tool</compoundname>
+    <includes refid="tool_2tool_8h" local="no">tool.h</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="enum" id="class_tool_1aa5b3343d5a8a21b7473dfe74af2976cb" prot="public" static="no" strong="no">
+        <type></type>
+        <name>Item</name>
+        <enumvalue id="class_tool_1aa5b3343d5a8a21b7473dfe74af2976cba32107302e7ee578a0366f651ceeed48f" prot="public">
+          <name>kNone</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>No tool. This should never be set as the application tool, its only real purpose is to indicate the lack of a tool somewhere similar to nullptr. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_tool_1aa5b3343d5a8a21b7473dfe74af2976cbaf261f2b04a474bc5584583b05649940c" prot="public">
+          <name>kPointer</name>
+          <briefdescription>
+<para>Pointer tool. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_tool_1aa5b3343d5a8a21b7473dfe74af2976cba18ec5bd8b51007b313695a10ce4aa008" prot="public">
+          <name>kEdit</name>
+          <briefdescription>
+<para>Edit tool. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_tool_1aa5b3343d5a8a21b7473dfe74af2976cbabcef8f9cc93b4eba86aad8712165eb33" prot="public">
+          <name>kRipple</name>
+          <briefdescription>
+<para>Ripple tool. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_tool_1aa5b3343d5a8a21b7473dfe74af2976cbab3cf80a905cb2c7bfaa36f6f310739bc" prot="public">
+          <name>kRolling</name>
+          <briefdescription>
+<para>Rolling tool. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_tool_1aa5b3343d5a8a21b7473dfe74af2976cba7c1e3d43e4f82ed2b996a6bde8d64543" prot="public">
+          <name>kRazor</name>
+          <briefdescription>
+<para>Razor tool. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_tool_1aa5b3343d5a8a21b7473dfe74af2976cba967b7ef72f2c6322e9e671d50daf769a" prot="public">
+          <name>kSlip</name>
+          <briefdescription>
+<para>Slip tool. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_tool_1aa5b3343d5a8a21b7473dfe74af2976cba06d79ffac1eaac50f06a40dea55f3f58" prot="public">
+          <name>kSlide</name>
+          <briefdescription>
+<para>Slide tool. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_tool_1aa5b3343d5a8a21b7473dfe74af2976cbaa8b46a00b9c0ea7b8600de3947352124" prot="public">
+          <name>kHand</name>
+          <briefdescription>
+<para>Hand tool. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_tool_1aa5b3343d5a8a21b7473dfe74af2976cbac752a0182515ab5f9139c7916be57df7" prot="public">
+          <name>kZoom</name>
+          <briefdescription>
+<para>Zoom tool. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_tool_1aa5b3343d5a8a21b7473dfe74af2976cba0fc703c9ae1a793b8942a890c4d23158" prot="public">
+          <name>kTransition</name>
+          <briefdescription>
+<para>Transition tool. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_tool_1aa5b3343d5a8a21b7473dfe74af2976cbafd1b94c503d3d5a4b4174bf49ac2e461" prot="public">
+          <name>kRecord</name>
+          <briefdescription>
+<para>Record tool. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_tool_1aa5b3343d5a8a21b7473dfe74af2976cbaee8f51e8247349b8b1594ac447a3146d" prot="public">
+          <name>kAdd</name>
+          <briefdescription>
+<para>Add tool. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_tool_1aa5b3343d5a8a21b7473dfe74af2976cba9a027f2e7ceea831a2ab8ea5b5de5ba7" prot="public">
+          <name>kCount</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>A list of tools that can be used throughout the application. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/tool/tool.h" line="54" column="3" bodyfile="C:/Daten/Olive/olive/app/tool/tool.h" bodystart="54" bodyend="96"/>
+      </memberdef>
+      <memberdef kind="enum" id="class_tool_1a0e3e529d5e6fb843a0866537a6e4b7d7" prot="public" static="no" strong="no">
+        <type></type>
+        <name>AddableObject</name>
+        <enumvalue id="class_tool_1a0e3e529d5e6fb843a0866537a6e4b7d7a4163592cb86fe3a90b1a926bb94b0d18" prot="public">
+          <name>kAddableEmpty</name>
+          <briefdescription>
+<para>An empty clip. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_tool_1a0e3e529d5e6fb843a0866537a6e4b7d7a1a6e535220e503c4a7fce591a3cfe07b" prot="public">
+          <name>kAddableBars</name>
+          <briefdescription>
+<para>A video clip showing a generic video placeholder. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_tool_1a0e3e529d5e6fb843a0866537a6e4b7d7a94c7d38ebb798db06307094cdf871e8e" prot="public">
+          <name>kAddableSolid</name>
+          <briefdescription>
+<para>A video clip with a solid connected. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_tool_1a0e3e529d5e6fb843a0866537a6e4b7d7a67371ce47352a07c047133de64e5d3d2" prot="public">
+          <name>kAddableTitle</name>
+          <briefdescription>
+<para>A video clip with a title connected. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_tool_1a0e3e529d5e6fb843a0866537a6e4b7d7a6c3a12486fce1b74b9ba01dbcb8d9e59" prot="public">
+          <name>kAddableTone</name>
+          <briefdescription>
+<para>An audio clip with a sine connected to it. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_tool_1a0e3e529d5e6fb843a0866537a6e4b7d7ad8c55c72db1a64b8f02939c1197e793c" prot="public">
+          <name>kAddableCount</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Tools that can be added using the kAdd tool. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/tool/tool.h" line="101" column="3" bodyfile="C:/Daten/Olive/olive/app/tool/tool.h" bodystart="101" bodyend="118"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="class_tool_1afb650c70c9a9553ed9d475c9afc2f9dd" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>QString</type>
+        <definition>static QString Tool::GetAddableObjectName</definition>
+        <argsstring>(const AddableObject &amp;a)</argsstring>
+        <name>GetAddableObjectName</name>
+        <param>
+          <type>const <ref refid="class_tool_1a0e3e529d5e6fb843a0866537a6e4b7d7" kindref="member">AddableObject</ref> &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/tool/tool.h" line="120" column="18" bodyfile="C:/Daten/Olive/olive/app/tool/tool.h" bodystart="120" bodyend="138"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/tool/tool.h" line="31" column="1" bodyfile="C:/Daten/Olive/olive/app/tool/tool.h" bodystart="31" bodyend="122"/>
+    <listofallmembers>
+      <member refid="class_tool_1a0e3e529d5e6fb843a0866537a6e4b7d7" prot="public" virt="non-virtual"><scope>Tool</scope><name>AddableObject</name></member>
+      <member refid="class_tool_1afb650c70c9a9553ed9d475c9afc2f9dd" prot="public" virt="non-virtual"><scope>Tool</scope><name>GetAddableObjectName</name></member>
+      <member refid="class_tool_1aa5b3343d5a8a21b7473dfe74af2976cb" prot="public" virt="non-virtual"><scope>Tool</scope><name>Item</name></member>
+      <member refid="class_tool_1aa5b3343d5a8a21b7473dfe74af2976cbaee8f51e8247349b8b1594ac447a3146d" prot="public" virt="non-virtual"><scope>Tool</scope><name>kAdd</name></member>
+      <member refid="class_tool_1a0e3e529d5e6fb843a0866537a6e4b7d7a1a6e535220e503c4a7fce591a3cfe07b" prot="public" virt="non-virtual"><scope>Tool</scope><name>kAddableBars</name></member>
+      <member refid="class_tool_1a0e3e529d5e6fb843a0866537a6e4b7d7ad8c55c72db1a64b8f02939c1197e793c" prot="public" virt="non-virtual"><scope>Tool</scope><name>kAddableCount</name></member>
+      <member refid="class_tool_1a0e3e529d5e6fb843a0866537a6e4b7d7a4163592cb86fe3a90b1a926bb94b0d18" prot="public" virt="non-virtual"><scope>Tool</scope><name>kAddableEmpty</name></member>
+      <member refid="class_tool_1a0e3e529d5e6fb843a0866537a6e4b7d7a94c7d38ebb798db06307094cdf871e8e" prot="public" virt="non-virtual"><scope>Tool</scope><name>kAddableSolid</name></member>
+      <member refid="class_tool_1a0e3e529d5e6fb843a0866537a6e4b7d7a67371ce47352a07c047133de64e5d3d2" prot="public" virt="non-virtual"><scope>Tool</scope><name>kAddableTitle</name></member>
+      <member refid="class_tool_1a0e3e529d5e6fb843a0866537a6e4b7d7a6c3a12486fce1b74b9ba01dbcb8d9e59" prot="public" virt="non-virtual"><scope>Tool</scope><name>kAddableTone</name></member>
+      <member refid="class_tool_1aa5b3343d5a8a21b7473dfe74af2976cba9a027f2e7ceea831a2ab8ea5b5de5ba7" prot="public" virt="non-virtual"><scope>Tool</scope><name>kCount</name></member>
+      <member refid="class_tool_1aa5b3343d5a8a21b7473dfe74af2976cba18ec5bd8b51007b313695a10ce4aa008" prot="public" virt="non-virtual"><scope>Tool</scope><name>kEdit</name></member>
+      <member refid="class_tool_1aa5b3343d5a8a21b7473dfe74af2976cbaa8b46a00b9c0ea7b8600de3947352124" prot="public" virt="non-virtual"><scope>Tool</scope><name>kHand</name></member>
+      <member refid="class_tool_1aa5b3343d5a8a21b7473dfe74af2976cba32107302e7ee578a0366f651ceeed48f" prot="public" virt="non-virtual"><scope>Tool</scope><name>kNone</name></member>
+      <member refid="class_tool_1aa5b3343d5a8a21b7473dfe74af2976cbaf261f2b04a474bc5584583b05649940c" prot="public" virt="non-virtual"><scope>Tool</scope><name>kPointer</name></member>
+      <member refid="class_tool_1aa5b3343d5a8a21b7473dfe74af2976cba7c1e3d43e4f82ed2b996a6bde8d64543" prot="public" virt="non-virtual"><scope>Tool</scope><name>kRazor</name></member>
+      <member refid="class_tool_1aa5b3343d5a8a21b7473dfe74af2976cbafd1b94c503d3d5a4b4174bf49ac2e461" prot="public" virt="non-virtual"><scope>Tool</scope><name>kRecord</name></member>
+      <member refid="class_tool_1aa5b3343d5a8a21b7473dfe74af2976cbabcef8f9cc93b4eba86aad8712165eb33" prot="public" virt="non-virtual"><scope>Tool</scope><name>kRipple</name></member>
+      <member refid="class_tool_1aa5b3343d5a8a21b7473dfe74af2976cbab3cf80a905cb2c7bfaa36f6f310739bc" prot="public" virt="non-virtual"><scope>Tool</scope><name>kRolling</name></member>
+      <member refid="class_tool_1aa5b3343d5a8a21b7473dfe74af2976cba06d79ffac1eaac50f06a40dea55f3f58" prot="public" virt="non-virtual"><scope>Tool</scope><name>kSlide</name></member>
+      <member refid="class_tool_1aa5b3343d5a8a21b7473dfe74af2976cba967b7ef72f2c6322e9e671d50daf769a" prot="public" virt="non-virtual"><scope>Tool</scope><name>kSlip</name></member>
+      <member refid="class_tool_1aa5b3343d5a8a21b7473dfe74af2976cba0fc703c9ae1a793b8942a890c4d23158" prot="public" virt="non-virtual"><scope>Tool</scope><name>kTransition</name></member>
+      <member refid="class_tool_1aa5b3343d5a8a21b7473dfe74af2976cbac752a0182515ab5f9139c7916be57df7" prot="public" virt="non-virtual"><scope>Tool</scope><name>kZoom</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

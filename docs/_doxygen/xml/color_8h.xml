@@ -1,0 +1,956 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="color_8h" kind="file" language="C++">
+    <compoundname>color.h</compoundname>
+    <includes local="no">QColor</includes>
+    <includes local="no">QDebug</includes>
+    <includes refid="define_8h" local="yes">common/define.h</includes>
+    <includes refid="pixelformat_8h" local="yes">render/pixelformat.h</includes>
+    <includedby refid="frame_8h" local="yes">frame.h</includedby>
+    <includedby refid="colordialog_8h" local="yes">colordialog.h</includedby>
+    <includedby refid="colorprocessor_8h" local="yes">colorprocessor.h</includedby>
+    <includedby refid="managedcolor_8h" local="yes">managedcolor.h</includedby>
+    <includedby refid="colorswatchwidget_8h" local="yes">colorswatchwidget.h</includedby>
+    <includedby refid="colorgradientwidget_8h" local="yes">colorgradientwidget.h</includedby>
+    <includedby refid="colorpreviewbox_8h" local="yes">colorpreviewbox.h</includedby>
+    <includedby refid="colorvalueswidget_8h" local="yes">colorvalueswidget.h</includedby>
+    <includedby refid="colorwheelwidget_8h" local="yes">colorwheelwidget.h</includedby>
+    <includedby refid="viewerdisplay_8h" local="yes">viewerdisplay.h</includedby>
+    <includedby refid="pixelsamplerwidget_8h" local="yes">pixelsamplerwidget.h</includedby>
+    <incdepgraph>
+      <node id="5">
+        <label>render/pixelformat.h</label>
+        <link refid="pixelformat_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>render/rendermodes.h</label>
+        <link refid="rendermodes_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>common/define.h</label>
+        <link refid="define_8h"/>
+      </node>
+      <node id="8">
+        <label>QOpenGLExtraFunctions</label>
+      </node>
+      <node id="3">
+        <label>QDebug</label>
+      </node>
+      <node id="9">
+        <label>QString</label>
+      </node>
+      <node id="1">
+        <label>color.h</label>
+        <link refid="color_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>QColor</label>
+      </node>
+      <node id="7">
+        <label>OpenImageIO/imageio.h</label>
+      </node>
+      <node id="6">
+        <label>memory</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="71">
+        <label>undocommand.h</label>
+        <link refid="undocommand_8h"/>
+        <childnode refid="64" relation="include">
+        </childnode>
+        <childnode refid="72" relation="include">
+        </childnode>
+        <childnode refid="73" relation="include">
+        </childnode>
+        <childnode refid="74" relation="include">
+        </childnode>
+        <childnode refid="75" relation="include">
+        </childnode>
+        <childnode refid="76" relation="include">
+        </childnode>
+        <childnode refid="77" relation="include">
+        </childnode>
+        <childnode refid="78" relation="include">
+        </childnode>
+        <childnode refid="79" relation="include">
+        </childnode>
+      </node>
+      <node id="46">
+        <label>viewerwindow.h</label>
+        <link refid="viewerwindow_8h"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="72">
+        <label>footageproperties.h</label>
+        <link refid="footageproperties_8h"/>
+      </node>
+      <node id="79">
+        <label>undo.h</label>
+        <link refid="undo_8h"/>
+        <childnode refid="58" relation="include">
+        </childnode>
+      </node>
+      <node id="23">
+        <label>audiowaveformview.h</label>
+        <link refid="audiowaveformview_8h"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="77">
+        <label>nodeparamviewundo.h</label>
+        <link refid="nodeparamviewundo_8h"/>
+      </node>
+      <node id="56">
+        <label>param.h</label>
+        <link refid="panel_2param_2param_8h"/>
+        <childnode refid="19" relation="include">
+        </childnode>
+      </node>
+      <node id="55">
+        <label>curve.h</label>
+        <link refid="curve_8h"/>
+        <childnode refid="56" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+      </node>
+      <node id="44">
+        <label>scope.h</label>
+        <link refid="scope_8h"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+      </node>
+      <node id="38">
+        <label>exportparams.h</label>
+        <link refid="exportparams_8h"/>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+      </node>
+      <node id="19">
+        <label>mainwindow.h</label>
+        <link refid="mainwindow_8h"/>
+      </node>
+      <node id="10">
+        <label>traverser.h</label>
+        <link refid="traverser_8h"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="52">
+        <label>keyframeview.h</label>
+        <link refid="keyframeview_8h"/>
+        <childnode refid="53" relation="include">
+        </childnode>
+        <childnode refid="57" relation="include">
+        </childnode>
+      </node>
+      <node id="70">
+        <label>projectsavemanager.h</label>
+        <link refid="projectsavemanager_8h"/>
+      </node>
+      <node id="43">
+        <label>waveform.h</label>
+        <link refid="waveform_8h"/>
+        <childnode refid="44" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>exporter.h</label>
+        <link refid="exporter_8h"/>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="74">
+        <label>sequence.h</label>
+        <link refid="dialog_2sequence_2sequence_8h"/>
+      </node>
+      <node id="15">
+        <label>viewer.h</label>
+        <link refid="widget_2viewer_2viewer_8h"/>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="45">
+        <label>viewerdisplay.h</label>
+        <link refid="viewerdisplay_8h"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="46" relation="include">
+        </childnode>
+      </node>
+      <node id="24">
+        <label>videorenderbackend.h</label>
+        <link refid="videorenderbackend_8h"/>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+      </node>
+      <node id="68">
+        <label>projectproperties.h</label>
+        <link refid="projectproperties_8h"/>
+      </node>
+      <node id="78">
+        <label>nodeviewundo.h</label>
+        <link refid="nodeviewundo_8h"/>
+      </node>
+      <node id="34">
+        <label>codecsection.h</label>
+        <link refid="codecsection_8h"/>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+      </node>
+      <node id="58">
+        <label>timelineview.h</label>
+        <link refid="timelineview_8h"/>
+        <childnode refid="59" relation="include">
+        </childnode>
+        <childnode refid="63" relation="include">
+        </childnode>
+      </node>
+      <node id="89">
+        <label>openglcolorprocessor.h</label>
+        <link refid="openglcolorprocessor_8h"/>
+        <childnode refid="85" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+      </node>
+      <node id="85">
+        <label>manageddisplay.h</label>
+        <link refid="manageddisplay_8h"/>
+        <childnode refid="86" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+      </node>
+      <node id="35">
+        <label>h264section.h</label>
+        <link refid="h264section_8h"/>
+        <childnode refid="36" relation="include">
+        </childnode>
+      </node>
+      <node id="73">
+        <label>videostreamproperties.h</label>
+        <link refid="videostreamproperties_8h"/>
+      </node>
+      <node id="17">
+        <label>viewerbase.h</label>
+        <link refid="viewerbase_8h"/>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="30">
+        <label>openglworker.h</label>
+        <link refid="openglworker_8h"/>
+        <childnode refid="25" relation="include">
+        </childnode>
+      </node>
+      <node id="88">
+        <label>colorprocessorcache.h</label>
+        <link refid="colorprocessorcache_8h"/>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+      </node>
+      <node id="39">
+        <label>exportadvancedvideodialog.h</label>
+        <link refid="exportadvancedvideodialog_8h"/>
+      </node>
+      <node id="50">
+        <label>timelineviewbase.h</label>
+        <link refid="timelineviewbase_8h"/>
+        <childnode refid="51" relation="include">
+        </childnode>
+        <childnode refid="58" relation="include">
+        </childnode>
+      </node>
+      <node id="75">
+        <label>speedduration.h</label>
+        <link refid="speedduration_8h"/>
+      </node>
+      <node id="67">
+        <label>project.h</label>
+        <link refid="panel_2project_2project_8h"/>
+        <childnode refid="19" relation="include">
+        </childnode>
+      </node>
+      <node id="93">
+        <label>colorpreviewbox.h</label>
+        <link refid="colorpreviewbox_8h"/>
+        <childnode refid="84" relation="include">
+        </childnode>
+      </node>
+      <node id="91">
+        <label>colorgradientwidget.h</label>
+        <link refid="colorgradientwidget_8h"/>
+        <childnode refid="81" relation="include">
+        </childnode>
+      </node>
+      <node id="64">
+        <label>projectviewmodel.h</label>
+        <link refid="projectviewmodel_8h"/>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="65" relation="include">
+        </childnode>
+        <childnode refid="66" relation="include">
+        </childnode>
+      </node>
+      <node id="60">
+        <label>timebased.h</label>
+        <link refid="panel_2timebased_2timebased_8h"/>
+        <childnode refid="55" relation="include">
+        </childnode>
+        <childnode refid="56" relation="include">
+        </childnode>
+        <childnode refid="61" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>audiobackend.h</label>
+        <link refid="audiobackend_8h"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="27">
+        <label>audioworker.h</label>
+        <link refid="audioworker_8h"/>
+      </node>
+      <node id="62">
+        <label>timelinewidget.h</label>
+        <link refid="timelinewidget_8h"/>
+        <childnode refid="61" relation="include">
+        </childnode>
+      </node>
+      <node id="31">
+        <label>decodercache.h</label>
+        <link refid="decodercache_8h"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>renderworker.h</label>
+        <link refid="renderworker_8h"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+      </node>
+      <node id="84">
+        <label>colorvalueswidget.h</label>
+        <link refid="colorvalueswidget_8h"/>
+        <childnode refid="81" relation="include">
+        </childnode>
+      </node>
+      <node id="87">
+        <label>colorprocessor.h</label>
+        <link refid="colorprocessor_8h"/>
+        <childnode refid="88" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="89" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+        <childnode refid="90" relation="include">
+        </childnode>
+        <childnode refid="93" relation="include">
+        </childnode>
+        <childnode refid="86" relation="include">
+        </childnode>
+      </node>
+      <node id="94">
+        <label>managedcolor.h</label>
+        <link refid="managedcolor_8h"/>
+        <childnode refid="81" relation="include">
+        </childnode>
+        <childnode refid="82" relation="include">
+        </childnode>
+      </node>
+      <node id="66">
+        <label>projectexplorer.h</label>
+        <link refid="projectexplorer_8h"/>
+        <childnode refid="67" relation="include">
+        </childnode>
+      </node>
+      <node id="65">
+        <label>projectimportmanager.h</label>
+        <link refid="projectimportmanager_8h"/>
+      </node>
+      <node id="81">
+        <label>colordialog.h</label>
+        <link refid="colordialog_8h"/>
+      </node>
+      <node id="12">
+        <label>renderbackend.h</label>
+        <link refid="renderbackend_8h"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>footageviewer.h</label>
+        <link refid="widget_2viewer_2footageviewer_8h"/>
+      </node>
+      <node id="3">
+        <label>decoder.h</label>
+        <link refid="decoder_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+      </node>
+      <node id="54">
+        <label>curvewidget.h</label>
+        <link refid="curvewidget_8h"/>
+        <childnode refid="55" relation="include">
+        </childnode>
+      </node>
+      <node id="59">
+        <label>timebased.h</label>
+        <link refid="widget_2timebased_2timebased_8h"/>
+        <childnode refid="60" relation="include">
+        </childnode>
+        <childnode refid="54" relation="include">
+        </childnode>
+        <childnode refid="57" relation="include">
+        </childnode>
+        <childnode refid="62" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="83">
+        <label>colorspacechooser.h</label>
+        <link refid="colorspacechooser_8h"/>
+        <childnode refid="81" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+      </node>
+      <node id="53">
+        <label>curveview.h</label>
+        <link refid="curveview_8h"/>
+        <childnode refid="54" relation="include">
+        </childnode>
+      </node>
+      <node id="29">
+        <label>openglproxy.h</label>
+        <link refid="openglproxy_8h"/>
+        <childnode refid="25" relation="include">
+        </childnode>
+      </node>
+      <node id="28">
+        <label>videorenderworker.h</label>
+        <link refid="videorenderworker_8h"/>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="48">
+        <label>project.h</label>
+        <link refid="project_2project_8h"/>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="64" relation="include">
+        </childnode>
+        <childnode refid="68" relation="include">
+        </childnode>
+        <childnode refid="67" relation="include">
+        </childnode>
+        <childnode refid="69" relation="include">
+        </childnode>
+        <childnode refid="70" relation="include">
+        </childnode>
+        <childnode refid="71" relation="include">
+        </childnode>
+        <childnode refid="80" relation="include">
+        </childnode>
+        <childnode refid="66" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+      </node>
+      <node id="51">
+        <label>keyframeviewbase.h</label>
+        <link refid="keyframeviewbase_8h"/>
+        <childnode refid="52" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>audiorenderbackend.h</label>
+        <link refid="audiorenderbackend_8h"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="80">
+        <label>footagecombobox.h</label>
+        <link refid="footagecombobox_8h"/>
+      </node>
+      <node id="40">
+        <label>opengltexture.h</label>
+        <link refid="opengltexture_8h"/>
+        <childnode refid="41" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>color.h</label>
+        <link refid="color_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="81" relation="include">
+        </childnode>
+        <childnode refid="87" relation="include">
+        </childnode>
+        <childnode refid="94" relation="include">
+        </childnode>
+        <childnode refid="90" relation="include">
+        </childnode>
+        <childnode refid="91" relation="include">
+        </childnode>
+        <childnode refid="93" relation="include">
+        </childnode>
+        <childnode refid="84" relation="include">
+        </childnode>
+        <childnode refid="92" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="95" relation="include">
+        </childnode>
+      </node>
+      <node id="76">
+        <label>keyframeviewundo.h</label>
+        <link refid="keyframeviewundo_8h"/>
+      </node>
+      <node id="21">
+        <label>sequenceviewer.h</label>
+        <link refid="sequenceviewer_8h"/>
+        <childnode refid="19" relation="include">
+        </childnode>
+      </node>
+      <node id="90">
+        <label>colorswatchwidget.h</label>
+        <link refid="colorswatchwidget_8h"/>
+        <childnode refid="91" relation="include">
+        </childnode>
+        <childnode refid="92" relation="include">
+        </childnode>
+      </node>
+      <node id="86">
+        <label>histogram.h</label>
+        <link refid="histogram_8h"/>
+        <childnode refid="44" relation="include">
+        </childnode>
+      </node>
+      <node id="57">
+        <label>nodeparamview.h</label>
+        <link refid="nodeparamview_8h"/>
+        <childnode refid="56" relation="include">
+        </childnode>
+      </node>
+      <node id="61">
+        <label>timeline.h</label>
+        <link refid="timeline_8h"/>
+        <childnode refid="19" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>export.h</label>
+        <link refid="export_8h"/>
+      </node>
+      <node id="37">
+        <label>imagesection.h</label>
+        <link refid="imagesection_8h"/>
+        <childnode refid="36" relation="include">
+        </childnode>
+      </node>
+      <node id="49">
+        <label>core.h</label>
+        <link refid="core_8h"/>
+        <childnode refid="50" relation="include">
+        </childnode>
+        <childnode refid="62" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>oiiodecoder.h</label>
+        <link refid="oiiodecoder_8h"/>
+      </node>
+      <node id="4">
+        <label>ffmpegdecoder.h</label>
+        <link refid="ffmpegdecoder_8h"/>
+      </node>
+      <node id="47">
+        <label>colormanager.h</label>
+        <link refid="colormanager_8h"/>
+        <childnode refid="48" relation="include">
+        </childnode>
+        <childnode refid="81" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="82" relation="include">
+        </childnode>
+        <childnode refid="83" relation="include">
+        </childnode>
+        <childnode refid="84" relation="include">
+        </childnode>
+        <childnode refid="85" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>viewer.h</label>
+        <link refid="panel_2viewer_2viewer_8h"/>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>media.h</label>
+        <link refid="media_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>video.h</label>
+        <link refid="video_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>audio.h</label>
+        <link refid="audio_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="18">
+        <label>footageviewer.h</label>
+        <link refid="panel_2footageviewer_2footageviewer_8h"/>
+        <childnode refid="19" relation="include">
+        </childnode>
+      </node>
+      <node id="69">
+        <label>projectloadmanager.h</label>
+        <link refid="projectloadmanager_8h"/>
+      </node>
+      <node id="41">
+        <label>openglframebuffer.h</label>
+        <link refid="openglframebuffer_8h"/>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+      </node>
+      <node id="96">
+        <label>pixelsamplerpanel.h</label>
+        <link refid="pixelsamplerpanel_8h"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+      </node>
+      <node id="92">
+        <label>colorwheelwidget.h</label>
+        <link refid="colorwheelwidget_8h"/>
+        <childnode refid="81" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>frame.h</label>
+        <link refid="frame_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+        <childnode refid="87" relation="include">
+        </childnode>
+        <childnode refid="86" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+      </node>
+      <node id="63">
+        <label>timelineandtrackview.h</label>
+        <link refid="timelineandtrackview_8h"/>
+        <childnode refid="62" relation="include">
+        </childnode>
+      </node>
+      <node id="25">
+        <label>openglbackend.h</label>
+        <link refid="openglbackend_8h"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="36">
+        <label>exportvideotab.h</label>
+        <link refid="exportvideotab_8h"/>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>audiorenderworker.h</label>
+        <link refid="audiorenderworker_8h"/>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+      <node id="95">
+        <label>pixelsamplerwidget.h</label>
+        <link refid="pixelsamplerwidget_8h"/>
+        <childnode refid="96" relation="include">
+        </childnode>
+      </node>
+      <node id="42">
+        <label>opengltexturecache.h</label>
+        <link refid="opengltexturecache_8h"/>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="33">
+        <label>ffmpegencoder.h</label>
+        <link refid="ffmpegencoder_8h"/>
+      </node>
+      <node id="32">
+        <label>encoder.h</label>
+        <link refid="encoder_8h"/>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+      </node>
+      <node id="82">
+        <label>colorbutton.h</label>
+        <link refid="colorbutton_8h"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="class_color" prot="public">Color</innerclass>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="color_8h_1a28a2ddedb7b2980ee9df6eaa7cfeb2e9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QDebug</type>
+        <definition>QDebug operator&lt;&lt;</definition>
+        <argsstring>(QDebug debug, const OLIVE_NAMESPACE::Color &amp;r)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>QDebug</type>
+          <declname>debug</declname>
+        </param>
+        <param>
+          <type>const OLIVE_NAMESPACE::Color &amp;</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/color.h" line="108" column="1" declfile="C:/Daten/Olive/olive/app/render/color.h" declline="108" declcolumn="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/***</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"></highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/><sp/>Olive<sp/>-<sp/>Non-Linear<sp/>Video<sp/>Editor</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/><sp/>Copyright<sp/>(C)<sp/>2019<sp/>Olive<sp/>Team</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"></highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/><sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/><sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/><sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"></highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/><sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/><sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/><sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"></highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/><sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/><sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"></highlight></codeline>
+<codeline lineno="19"><highlight class="comment">***/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>COLOR_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>COLOR_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QColor&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QDebug&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="define_8h" kindref="compound">common/define.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="pixelformat_8h" kindref="compound">render/pixelformat.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><ref refid="define_8h_1a0472692dd1f22472ad63da20da919e8c" kindref="member">OLIVE_NAMESPACE_ENTER</ref></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35" refid="class_color" refkind="compound"><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_color" kindref="compound">Color</ref></highlight></codeline>
+<codeline lineno="36"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><ref refid="class_color_1a9a742cbe9f9f4037f5d9f4e81a9b2428" kindref="member">Color</ref>()</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/>{</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i=0;i&lt;<ref refid="define_8h_1ada2d66271ec18eb5dce88e18a7577ad8" kindref="member">kRGBAChannels</ref>;i++)<sp/>{</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="class_color_1a8b5ef475c57dac0628f87e2b8e361361" kindref="member">data_</ref>[i]<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><ref refid="class_color_1a9a742cbe9f9f4037f5d9f4e81a9b2428" kindref="member">Color</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal">&amp;<sp/>r,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal">&amp;<sp/>g,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal">&amp;<sp/>b,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal">&amp;<sp/>a<sp/>=<sp/>1.0f)</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/>{</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_color_1a8b5ef475c57dac0628f87e2b8e361361" kindref="member">data_</ref>[0]<sp/>=<sp/>r;</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_color_1a8b5ef475c57dac0628f87e2b8e361361" kindref="member">data_</ref>[1]<sp/>=<sp/>g;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_color_1a8b5ef475c57dac0628f87e2b8e361361" kindref="member">data_</ref>[2]<sp/>=<sp/>b;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_color_1a8b5ef475c57dac0628f87e2b8e361361" kindref="member">data_</ref>[3]<sp/>=<sp/>a;</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><ref refid="class_color_1a9a742cbe9f9f4037f5d9f4e81a9b2428" kindref="member">Color</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="class_color_1a40cd03d7f9e5f481f163ddefff8e8cee" kindref="member">data</ref>,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021" kindref="member">PixelFormat::Format</ref><sp/>&amp;format);</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="class_color" kindref="compound">Color</ref><sp/><ref refid="class_color_1a33531ea4c621434e1314593404fd9763" kindref="member">fromHsv</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal">&amp;<sp/>h,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal">&amp;<sp/>s,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>&amp;v);</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal">&amp;<sp/><ref refid="class_color_1acac751cd041f9e60d409199a055ac17b" kindref="member">red</ref>()</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="class_color_1a8b5ef475c57dac0628f87e2b8e361361" kindref="member">data_</ref>[0];}</highlight></codeline>
+<codeline lineno="63" refid="class_color_1af7445f9375881856f7d7e1bb0af3b1af" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal">&amp;<sp/><ref refid="class_color_1a15bb643ef04e06b0c1bb4d9ea8d35d42" kindref="member">green</ref>()</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="class_color_1a8b5ef475c57dac0628f87e2b8e361361" kindref="member">data_</ref>[1];}</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal">&amp;<sp/><ref refid="class_color_1a1e393daa6d7792632c83e027a49110c6" kindref="member">blue</ref>()</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="class_color_1a8b5ef475c57dac0628f87e2b8e361361" kindref="member">data_</ref>[2];}</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal">&amp;<sp/><ref refid="class_color_1a094302c46757e740ef6737ed4c3428b5" kindref="member">alpha</ref>()</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="class_color_1a8b5ef475c57dac0628f87e2b8e361361" kindref="member">data_</ref>[3];}</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_color_1ae5cf72d4df8f3ae57ee38baec6a156bc" kindref="member">toHsv</ref>(</highlight><highlight class="keywordtype">float</highlight><highlight class="normal">*<sp/>hue,<sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal">*<sp/>sat,<sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal">*<sp/>val)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><ref refid="class_color_1a386b8cf9ca4abf9cc19396a645e32152" kindref="member">hsv_hue</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><ref refid="class_color_1a473579cb81879a9ae4950446c3a8b4ab" kindref="member">hsv_saturation</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><ref refid="class_color_1a552c47b21f6856878ab9b3983537580a" kindref="member">value</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="71" refid="class_color_1ad69fe3f29864f888ef0dd0b60ab96a7f" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_color_1a06a887f2dc2339d0317beb3abdb46a45" kindref="member">toHsl</ref>(</highlight><highlight class="keywordtype">float</highlight><highlight class="normal">*<sp/>hue,<sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal">*<sp/>sat,<sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal">*<sp/><ref refid="class_color_1ab86f6f3e65439e4ac8058d653f2b77d6" kindref="member">lightness</ref>)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><ref refid="class_color_1a034f2ce9d7d76a271d9ea8a739c924ec" kindref="member">hsl_hue</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><ref refid="class_color_1ab56782086b9fa9cc7c289a5e074311cd" kindref="member">hsl_saturation</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><ref refid="class_color_1ab86f6f3e65439e4ac8058d653f2b77d6" kindref="member">lightness</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_color_1a7ac87e05605b3d51aabf23882bf2dbdf" kindref="member">set_red</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal">&amp;<sp/><ref refid="class_color_1acac751cd041f9e60d409199a055ac17b" kindref="member">red</ref>)<sp/>{<ref refid="class_color_1a8b5ef475c57dac0628f87e2b8e361361" kindref="member">data_</ref>[0]<sp/>=<sp/><ref refid="class_color_1acac751cd041f9e60d409199a055ac17b" kindref="member">red</ref>;}</highlight></codeline>
+<codeline lineno="78" refid="class_color_1a33531ea4c621434e1314593404fd9763" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_color_1a31e778230365815bc76362517b2a22f1" kindref="member">set_green</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal">&amp;<sp/><ref refid="class_color_1a15bb643ef04e06b0c1bb4d9ea8d35d42" kindref="member">green</ref>)<sp/>{<ref refid="class_color_1a8b5ef475c57dac0628f87e2b8e361361" kindref="member">data_</ref>[1]<sp/>=<sp/><ref refid="class_color_1a15bb643ef04e06b0c1bb4d9ea8d35d42" kindref="member">green</ref>;}</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_color_1add598f4858498ebae0cba5b0cc4bcc38" kindref="member">set_blue</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal">&amp;<sp/><ref refid="class_color_1a1e393daa6d7792632c83e027a49110c6" kindref="member">blue</ref>)<sp/>{<ref refid="class_color_1a8b5ef475c57dac0628f87e2b8e361361" kindref="member">data_</ref>[2]<sp/>=<sp/><ref refid="class_color_1a1e393daa6d7792632c83e027a49110c6" kindref="member">blue</ref>;}</highlight></codeline>
+<codeline lineno="80" refid="class_color_1acac751cd041f9e60d409199a055ac17b" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_color_1aa8f4eaaf2f52325b5791c7500d55703c" kindref="member">set_alpha</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal">&amp;<sp/><ref refid="class_color_1a094302c46757e740ef6737ed4c3428b5" kindref="member">alpha</ref>)<sp/>{<ref refid="class_color_1a8b5ef475c57dac0628f87e2b8e361361" kindref="member">data_</ref>[3]<sp/>=<sp/><ref refid="class_color_1a094302c46757e740ef6737ed4c3428b5" kindref="member">alpha</ref>;}</highlight></codeline>
+<codeline lineno="81" refid="class_color_1a15bb643ef04e06b0c1bb4d9ea8d35d42" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82" refid="class_color_1a1e393daa6d7792632c83e027a49110c6" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal">*<sp/><ref refid="class_color_1a40cd03d7f9e5f481f163ddefff8e8cee" kindref="member">data</ref>()<sp/>{</highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="class_color_1a8b5ef475c57dac0628f87e2b8e361361" kindref="member">data_</ref>;}</highlight></codeline>
+<codeline lineno="83" refid="class_color_1a094302c46757e740ef6737ed4c3428b5" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal">*<sp/><ref refid="class_color_1a40cd03d7f9e5f481f163ddefff8e8cee" kindref="member">data</ref>()</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="class_color_1a8b5ef475c57dac0628f87e2b8e361361" kindref="member">data_</ref>;}</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85" refid="class_color_1ae5cf72d4df8f3ae57ee38baec6a156bc" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="class_color" kindref="compound">Color</ref><sp/><ref refid="class_color_1a2128596e1c7dd44bbb32b1ab20a43244" kindref="member">fromData</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/><ref refid="class_color_1a40cd03d7f9e5f481f163ddefff8e8cee" kindref="member">data</ref>,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021" kindref="member">PixelFormat::Format</ref>&amp;<sp/>format);</highlight></codeline>
+<codeline lineno="86" refid="class_color_1a386b8cf9ca4abf9cc19396a645e32152" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87" refid="class_color_1a473579cb81879a9ae4950446c3a8b4ab" refkind="member"><highlight class="normal"><sp/><sp/>QColor<sp/><ref refid="class_color_1a5e673078938b1fab16860a9417c6809c" kindref="member">toQColor</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="88" refid="class_color_1a552c47b21f6856878ab9b3983537580a" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>Assignment<sp/>math<sp/>operators</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="90" refid="class_color_1a06a887f2dc2339d0317beb3abdb46a45" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_color" kindref="compound">Color</ref>&amp;<sp/><ref refid="class_color_1af34a35bf5cfe84d8b7c1a0d3fde47fb4" kindref="member">operator+=</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_color" kindref="compound">Color</ref>&amp;<sp/>rhs);</highlight></codeline>
+<codeline lineno="91" refid="class_color_1a034f2ce9d7d76a271d9ea8a739c924ec" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_color" kindref="compound">Color</ref>&amp;<sp/><ref refid="class_color_1a541123864ea2e5950b794e1b63ed7132" kindref="member">operator-=</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_color" kindref="compound">Color</ref>&amp;<sp/>rhs);</highlight></codeline>
+<codeline lineno="92" refid="class_color_1ab56782086b9fa9cc7c289a5e074311cd" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_color" kindref="compound">Color</ref>&amp;<sp/><ref refid="class_color_1ac2aa9adb8781c37f5d1e11c089cb6cc2" kindref="member">operator*=</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal">&amp;<sp/>rhs);</highlight></codeline>
+<codeline lineno="93" refid="class_color_1ab86f6f3e65439e4ac8058d653f2b77d6" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_color" kindref="compound">Color</ref>&amp;<sp/><ref refid="class_color_1a9236f043eb7f26fb5d426191e1e82a76" kindref="member">operator/=</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal">&amp;<sp/>rhs);</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95" refid="class_color_1a7ac87e05605b3d51aabf23882bf2dbdf" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>Binary<sp/>math<sp/>operators</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="96" refid="class_color_1a31e778230365815bc76362517b2a22f1" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_color" kindref="compound">Color</ref><sp/><ref refid="class_color_1ad83a37f4124bc55373d0935e92ccef59" kindref="member">operator+</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_color" kindref="compound">Color</ref>&amp;<sp/>rhs)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="97" refid="class_color_1add598f4858498ebae0cba5b0cc4bcc38" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_color" kindref="compound">Color</ref><sp/><ref refid="class_color_1ab700d53855b9ce78bedefe3afb7abaf7" kindref="member">operator-</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_color" kindref="compound">Color</ref>&amp;<sp/>rhs)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="98" refid="class_color_1aa8f4eaaf2f52325b5791c7500d55703c" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_color" kindref="compound">Color</ref><sp/><ref refid="class_color_1a596845bf0aee45f38287ef303877cee1" kindref="member">operator*</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal">&amp;<sp/>rhs)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><ref refid="class_color" kindref="compound">Color</ref><sp/><ref refid="class_color_1a258c01aa43ee74b4682fb5bb007a3037" kindref="member">operator/</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal">&amp;<sp/>rhs)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="100" refid="class_color_1a40cd03d7f9e5f481f163ddefff8e8cee" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="101" refid="class_color_1aeeb34f69ecccf6dd0aaeefc06ce90f55" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><ref refid="class_color_1a8b5ef475c57dac0628f87e2b8e361361" kindref="member">data_</ref>[<ref refid="define_8h_1ada2d66271ec18eb5dce88e18a7577ad8" kindref="member">kRGBAChannels</ref>];</highlight></codeline>
+<codeline lineno="103" refid="class_color_1a2128596e1c7dd44bbb32b1ab20a43244" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="105" refid="class_color_1a5e673078938b1fab16860a9417c6809c" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><ref refid="define_8h_1abe3de0634d907ca0f5d1acf732c49dac" kindref="member">OLIVE_NAMESPACE_EXIT</ref></highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108" refid="color_8h_1a28a2ddedb7b2980ee9df6eaa7cfeb2e9" refkind="member"><highlight class="normal">QDebug<sp/><ref refid="color_8h_1a28a2ddedb7b2980ee9df6eaa7cfeb2e9" kindref="member">operator&lt;&lt;</ref>(QDebug<sp/>debug,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>OLIVE_NAMESPACE::Color&amp;<sp/>r);</highlight></codeline>
+<codeline lineno="109" refid="class_color_1a541123864ea2e5950b794e1b63ed7132" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="110" refid="class_color_1ac2aa9adb8781c37f5d1e11c089cb6cc2" refkind="member"><highlight class="normal">Q_DECLARE_METATYPE(OLIVE_NAMESPACE::Color)</highlight></codeline>
+<codeline lineno="111" refid="class_color_1a9236f043eb7f26fb5d426191e1e82a76" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//<sp/>COLOR_H</highlight></codeline>
+    </programlisting>
+    <location file="C:/Daten/Olive/olive/app/render/color.h"/>
+  </compounddef>
+</doxygen>

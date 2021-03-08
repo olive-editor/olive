@@ -1,0 +1,63 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="struct_x_m_l_node_data_1_1_footage_connection" kind="struct" language="C++" prot="public">
+    <compoundname>XMLNodeData::FootageConnection</compoundname>
+    <includes refid="xmlutils_8h" local="no">xmlutils.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="struct_x_m_l_node_data_1_1_footage_connection_1a256d2b210b6e8ecd69440fa23ec0f17a" prot="public" static="no" mutable="no">
+        <type><ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+        <definition>NodeInput* XMLNodeData::FootageConnection::input</definition>
+        <argsstring></argsstring>
+        <name>input</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/xmlutils.h" line="51" column="15" bodyfile="C:/Daten/Olive/olive/app/common/xmlutils.h" bodystart="51" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_x_m_l_node_data_1_1_footage_connection_1a46f08ca1455a184e958b29ae15c78fae" prot="public" static="no" mutable="no">
+        <type>quintptr</type>
+        <definition>quintptr XMLNodeData::FootageConnection::footage</definition>
+        <argsstring></argsstring>
+        <name>footage</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/xmlutils.h" line="52" column="14" bodyfile="C:/Daten/Olive/olive/app/common/xmlutils.h" bodystart="52" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>XMLNodeData::FootageConnection</label>
+        <link refid="struct_x_m_l_node_data_1_1_footage_connection"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>input</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>NodeInput</label>
+        <link refid="class_node_input"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>NodeParam</label>
+        <link refid="class_node_param"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/common/xmlutils.h" line="50" column="3" bodyfile="C:/Daten/Olive/olive/app/common/xmlutils.h" bodystart="50" bodyend="53"/>
+    <listofallmembers>
+      <member refid="struct_x_m_l_node_data_1_1_footage_connection_1a46f08ca1455a184e958b29ae15c78fae" prot="public" virt="non-virtual"><scope>XMLNodeData::FootageConnection</scope><name>footage</name></member>
+      <member refid="struct_x_m_l_node_data_1_1_footage_connection_1a256d2b210b6e8ecd69440fa23ec0f17a" prot="public" virt="non-virtual"><scope>XMLNodeData::FootageConnection</scope><name>input</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

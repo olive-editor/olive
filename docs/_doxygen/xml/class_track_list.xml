@@ -1,0 +1,494 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_track_list" kind="class" language="C++" prot="public">
+    <compoundname>TrackList</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QObject</basecompoundref>
+    <includes refid="tracklist_8h" local="no">tracklist.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_track_list_1ab47f313b655d1ec104cc7ad21d2285c6" prot="private" static="no" mutable="no">
+        <type>QVector&lt; <ref refid="class_track_output" kindref="compound">TrackOutput</ref> * &gt;</type>
+        <definition>QVector&lt;TrackOutput*&gt; TrackList::track_cache_</definition>
+        <argsstring></argsstring>
+        <name>track_cache_</name>
+        <briefdescription>
+<para>A cache of connected Tracks. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/output/track/tracklist.h" line="74" column="11" bodyfile="C:/Daten/Olive/olive/app/node/output/track/tracklist.h" bodystart="74" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_track_list_1a30890bf8c0e30e6fda6c33b36bc460b0" prot="private" static="no" mutable="no">
+        <type><ref refid="class_node_input_array" kindref="compound">NodeInputArray</ref> *</type>
+        <definition>NodeInputArray* TrackList::track_input_</definition>
+        <argsstring></argsstring>
+        <name>track_input_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/output/track/tracklist.h" line="76" column="18" bodyfile="C:/Daten/Olive/olive/app/node/output/track/tracklist.h" bodystart="76" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_track_list_1ae584aabd404416064edebf9f803cc1ac" prot="private" static="no" mutable="no">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational TrackList::total_length_</definition>
+        <argsstring></argsstring>
+        <name>total_length_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/output/track/tracklist.h" line="78" column="12" bodyfile="C:/Daten/Olive/olive/app/node/output/track/tracklist.h" bodystart="78" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_track_list_1a292f82c2074fe29d241ade34dd77cea1" prot="private" static="no" mutable="no">
+        <type>enum <ref refid="class_timeline_1ac18e2f98ba3b99570e714506df77ba51" kindref="member">Timeline::TrackType</ref></type>
+        <definition>enum Timeline::TrackType TrackList::type_</definition>
+        <argsstring></argsstring>
+        <name>type_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/output/track/tracklist.h" line="78" column="12" bodyfile="C:/Daten/Olive/olive/app/node/output/track/tracklist.h" bodystart="80" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_track_list_1a7dfcefa4da6176737503271bcc839754" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>TrackList::TrackList</definition>
+        <argsstring>(ViewerOutput *parent, const Timeline::TrackType &amp;type, NodeInputArray *track_input)</argsstring>
+        <name>TrackList</name>
+        <param>
+          <type><ref refid="class_viewer_output" kindref="compound">ViewerOutput</ref> *</type>
+          <declname>parent</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_timeline_1ac18e2f98ba3b99570e714506df77ba51" kindref="member">Timeline::TrackType</ref> &amp;</type>
+          <declname>type</declname>
+        </param>
+        <param>
+          <type><ref refid="class_node_input_array" kindref="compound">NodeInputArray</ref> *</type>
+          <declname>track_input</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/output/track/tracklist.h" line="37" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_track_list_1a313549404d34dc025a2e7e0cc228fdc0" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="class_timeline_1ac18e2f98ba3b99570e714506df77ba51" kindref="member">Timeline::TrackType</ref> &amp;</type>
+        <definition>const Timeline::TrackType&amp; TrackList::type</definition>
+        <argsstring>() const</argsstring>
+        <name>type</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/output/track/tracklist.h" line="39" column="29"/>
+      </memberdef>
+      <memberdef kind="function" id="class_track_list_1a312b8deede19690bdc44c5b528f2ef16" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const QVector&lt; <ref refid="class_track_output" kindref="compound">TrackOutput</ref> * &gt; &amp;</type>
+        <definition>const QVector&lt;TrackOutput*&gt;&amp; TrackList::GetTracks</definition>
+        <argsstring>() const</argsstring>
+        <name>GetTracks</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/output/track/tracklist.h" line="41" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_track_list_1a2573a63b3d580d50b216f26c205ff823" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_track_output" kindref="compound">TrackOutput</ref> *</type>
+        <definition>TrackOutput* TrackList::GetTrackAt</definition>
+        <argsstring>(int index) const</argsstring>
+        <name>GetTrackAt</name>
+        <param>
+          <type>int</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/output/track/tracklist.h" line="43" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_track_list_1a455ce330f9341b75841fa547f3ff594f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_track_output" kindref="compound">TrackOutput</ref> *</type>
+        <definition>TrackOutput* TrackList::AddTrack</definition>
+        <argsstring>()</argsstring>
+        <name>AddTrack</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/output/track/tracklist.h" line="45" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_track_list_1a139cc242a944c7579668e1414f73a7af" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TrackList::RemoveTrack</definition>
+        <argsstring>()</argsstring>
+        <name>RemoveTrack</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/output/track/tracklist.h" line="47" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_track_list_1a7fc8f86b4cc61248d2edc055673d6d2e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+        <definition>const rational&amp; TrackList::GetTotalLength</definition>
+        <argsstring>() const</argsstring>
+        <name>GetTotalLength</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/output/track/tracklist.h" line="49" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_track_list_1a17bf3ea6a0278a2d36238d71d69289b4" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int TrackList::GetTrackCount</definition>
+        <argsstring>() const</argsstring>
+        <name>GetTrackCount</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/output/track/tracklist.h" line="51" column="7"/>
+      </memberdef>
+      <memberdef kind="function" id="class_track_list_1a90c18579b89fbd86187eaeaa01334e2f" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_node_graph" kindref="compound">NodeGraph</ref> *</type>
+        <definition>NodeGraph* TrackList::GetParentGraph</definition>
+        <argsstring>() const</argsstring>
+        <name>GetParentGraph</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/output/track/tracklist.h" line="53" column="13"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_track_list_1aa673da1838930e6ff9f0b7d10d6e0fee" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TrackList::BlockAdded</definition>
+        <argsstring>(Block *block, int index)</argsstring>
+        <name>BlockAdded</name>
+        <param>
+          <type><ref refid="class_block" kindref="compound">Block</ref> *</type>
+          <declname>block</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/output/track/tracklist.h" line="56" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_track_list_1a8cbf0a1b229325d9c48631e5f025ae64" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TrackList::BlockRemoved</definition>
+        <argsstring>(Block *block)</argsstring>
+        <name>BlockRemoved</name>
+        <param>
+          <type><ref refid="class_block" kindref="compound">Block</ref> *</type>
+          <declname>block</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/output/track/tracklist.h" line="58" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_track_list_1a9e49b7fa89cfa0b7e9a7b5d712b926a2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TrackList::TrackAdded</definition>
+        <argsstring>(TrackOutput *track)</argsstring>
+        <name>TrackAdded</name>
+        <param>
+          <type><ref refid="class_track_output" kindref="compound">TrackOutput</ref> *</type>
+          <declname>track</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/output/track/tracklist.h" line="60" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_track_list_1a8d38380052cf3e147ef6273123b2464e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TrackList::TrackRemoved</definition>
+        <argsstring>(TrackOutput *track)</argsstring>
+        <name>TrackRemoved</name>
+        <param>
+          <type><ref refid="class_track_output" kindref="compound">TrackOutput</ref> *</type>
+          <declname>track</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/output/track/tracklist.h" line="62" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_track_list_1aa3caeb58ed686e3680307fe5c6f23b91" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TrackList::TrackListChanged</definition>
+        <argsstring>()</argsstring>
+        <name>TrackListChanged</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/output/track/tracklist.h" line="64" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_track_list_1a6a14ff4de26c4defcb9405a6e0bea027" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TrackList::LengthChanged</definition>
+        <argsstring>(const rational &amp;length)</argsstring>
+        <name>LengthChanged</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>length</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/output/track/tracklist.h" line="66" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_track_list_1aa44daa313b9eeb62346cc13f7fd8630e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TrackList::TrackHeightChanged</definition>
+        <argsstring>(int index, int height)</argsstring>
+        <name>TrackHeightChanged</name>
+        <param>
+          <type>int</type>
+          <declname>index</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>height</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/output/track/tracklist.h" line="68" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_track_list_1aa0e61db849fa94af556690a222a0fc65" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TrackList::TrackConnected</definition>
+        <argsstring>(NodeEdgePtr edge)</argsstring>
+        <name>TrackConnected</name>
+        <param>
+          <type><ref refid="edge_8h_1a9eb6ae7d2b608077e13ab3571ea6b101" kindref="member">NodeEdgePtr</ref></type>
+          <declname>edge</declname>
+        </param>
+        <briefdescription>
+<para>Slot for when the track connection is added. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/output/track/tracklist.h" line="86" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_track_list_1a27f9ee0f31aa10b676966634071913d0" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TrackList::TrackDisconnected</definition>
+        <argsstring>(NodeEdgePtr edge)</argsstring>
+        <name>TrackDisconnected</name>
+        <param>
+          <type><ref refid="edge_8h_1a9eb6ae7d2b608077e13ab3571ea6b101" kindref="member">NodeEdgePtr</ref></type>
+          <declname>edge</declname>
+        </param>
+        <briefdescription>
+<para>Slot for when the track connection is removed. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/output/track/tracklist.h" line="91" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_track_list_1af0b940dee599d48f0e88667023606304" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TrackList::TrackAddedBlock</definition>
+        <argsstring>(Block *block)</argsstring>
+        <name>TrackAddedBlock</name>
+        <param>
+          <type><ref refid="class_block" kindref="compound">Block</ref> *</type>
+          <declname>block</declname>
+        </param>
+        <briefdescription>
+<para>Slot for when a connected Track has added a <ref refid="class_block" kindref="compound">Block</ref> so we can update the UI. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/output/track/tracklist.h" line="96" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_track_list_1a8e093ebccead018769444ae5e8a902a0" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TrackList::TrackRemovedBlock</definition>
+        <argsstring>(Block *block)</argsstring>
+        <name>TrackRemovedBlock</name>
+        <param>
+          <type><ref refid="class_block" kindref="compound">Block</ref> *</type>
+          <declname>block</declname>
+        </param>
+        <briefdescription>
+<para>Slot for when a connected Track has added a <ref refid="class_block" kindref="compound">Block</ref> so we can update the UI. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/output/track/tracklist.h" line="101" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_track_list_1ac8913d40138c0941f478373f50c0119e" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TrackList::UpdateTotalLength</definition>
+        <argsstring>()</argsstring>
+        <name>UpdateTotalLength</name>
+        <briefdescription>
+<para>Slot for when any of the track&apos;s length changes so we can update the length of the tracklist. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/output/track/tracklist.h" line="106" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_track_list_1a5f09bc59287834dba425f8acab035255" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TrackList::TrackHeightChangedSlot</definition>
+        <argsstring>(int height)</argsstring>
+        <name>TrackHeightChangedSlot</name>
+        <param>
+          <type>int</type>
+          <declname>height</declname>
+        </param>
+        <briefdescription>
+<para>Slot when a track height changes, transforms to the TrackHeightChanged signal which includes a track index. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/output/track/tracklist.h" line="111" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="2">
+        <label>NodeInputArray</label>
+        <link refid="class_node_input_array"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="1">
+        <label>TrackList</label>
+        <link refid="class_track_list"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>track_input_</edgelabel>
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>total_length_</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>NodeInput</label>
+        <link refid="class_node_input"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>NodeParam</label>
+        <link refid="class_node_param"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/node/output/track/tracklist.h" line="34" column="1" bodyfile="C:/Daten/Olive/olive/app/node/output/track/tracklist.h" bodystart="34" bodyend="113"/>
+    <listofallmembers>
+      <member refid="class_track_list_1a455ce330f9341b75841fa547f3ff594f" prot="public" virt="non-virtual"><scope>TrackList</scope><name>AddTrack</name></member>
+      <member refid="class_track_list_1aa673da1838930e6ff9f0b7d10d6e0fee" prot="public" virt="non-virtual"><scope>TrackList</scope><name>BlockAdded</name></member>
+      <member refid="class_track_list_1a8cbf0a1b229325d9c48631e5f025ae64" prot="public" virt="non-virtual"><scope>TrackList</scope><name>BlockRemoved</name></member>
+      <member refid="class_track_list_1a90c18579b89fbd86187eaeaa01334e2f" prot="public" virt="non-virtual"><scope>TrackList</scope><name>GetParentGraph</name></member>
+      <member refid="class_track_list_1a7fc8f86b4cc61248d2edc055673d6d2e" prot="public" virt="non-virtual"><scope>TrackList</scope><name>GetTotalLength</name></member>
+      <member refid="class_track_list_1a2573a63b3d580d50b216f26c205ff823" prot="public" virt="non-virtual"><scope>TrackList</scope><name>GetTrackAt</name></member>
+      <member refid="class_track_list_1a17bf3ea6a0278a2d36238d71d69289b4" prot="public" virt="non-virtual"><scope>TrackList</scope><name>GetTrackCount</name></member>
+      <member refid="class_track_list_1a312b8deede19690bdc44c5b528f2ef16" prot="public" virt="non-virtual"><scope>TrackList</scope><name>GetTracks</name></member>
+      <member refid="class_track_list_1a6a14ff4de26c4defcb9405a6e0bea027" prot="public" virt="non-virtual"><scope>TrackList</scope><name>LengthChanged</name></member>
+      <member refid="class_track_list_1a139cc242a944c7579668e1414f73a7af" prot="public" virt="non-virtual"><scope>TrackList</scope><name>RemoveTrack</name></member>
+      <member refid="class_track_list_1ae584aabd404416064edebf9f803cc1ac" prot="private" virt="non-virtual"><scope>TrackList</scope><name>total_length_</name></member>
+      <member refid="class_track_list_1ab47f313b655d1ec104cc7ad21d2285c6" prot="private" virt="non-virtual"><scope>TrackList</scope><name>track_cache_</name></member>
+      <member refid="class_track_list_1a30890bf8c0e30e6fda6c33b36bc460b0" prot="private" virt="non-virtual"><scope>TrackList</scope><name>track_input_</name></member>
+      <member refid="class_track_list_1a9e49b7fa89cfa0b7e9a7b5d712b926a2" prot="public" virt="non-virtual"><scope>TrackList</scope><name>TrackAdded</name></member>
+      <member refid="class_track_list_1af0b940dee599d48f0e88667023606304" prot="private" virt="non-virtual"><scope>TrackList</scope><name>TrackAddedBlock</name></member>
+      <member refid="class_track_list_1aa0e61db849fa94af556690a222a0fc65" prot="private" virt="non-virtual"><scope>TrackList</scope><name>TrackConnected</name></member>
+      <member refid="class_track_list_1a27f9ee0f31aa10b676966634071913d0" prot="private" virt="non-virtual"><scope>TrackList</scope><name>TrackDisconnected</name></member>
+      <member refid="class_track_list_1aa44daa313b9eeb62346cc13f7fd8630e" prot="public" virt="non-virtual"><scope>TrackList</scope><name>TrackHeightChanged</name></member>
+      <member refid="class_track_list_1a5f09bc59287834dba425f8acab035255" prot="private" virt="non-virtual"><scope>TrackList</scope><name>TrackHeightChangedSlot</name></member>
+      <member refid="class_track_list_1a7dfcefa4da6176737503271bcc839754" prot="public" virt="non-virtual"><scope>TrackList</scope><name>TrackList</name></member>
+      <member refid="class_track_list_1aa3caeb58ed686e3680307fe5c6f23b91" prot="public" virt="non-virtual"><scope>TrackList</scope><name>TrackListChanged</name></member>
+      <member refid="class_track_list_1a8d38380052cf3e147ef6273123b2464e" prot="public" virt="non-virtual"><scope>TrackList</scope><name>TrackRemoved</name></member>
+      <member refid="class_track_list_1a8e093ebccead018769444ae5e8a902a0" prot="private" virt="non-virtual"><scope>TrackList</scope><name>TrackRemovedBlock</name></member>
+      <member refid="class_track_list_1a313549404d34dc025a2e7e0cc228fdc0" prot="public" virt="non-virtual"><scope>TrackList</scope><name>type</name></member>
+      <member refid="class_track_list_1a292f82c2074fe29d241ade34dd77cea1" prot="private" virt="non-virtual"><scope>TrackList</scope><name>type_</name></member>
+      <member refid="class_track_list_1ac8913d40138c0941f478373f50c0119e" prot="private" virt="non-virtual"><scope>TrackList</scope><name>UpdateTotalLength</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,91 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="trigonometry_8h" kind="file" language="C++">
+    <compoundname>trigonometry.h</compoundname>
+    <includes local="yes">node/node.h</includes>
+    <incdepgraph>
+      <node id="1">
+        <label>trigonometry.h</label>
+        <link refid="trigonometry_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>node/node.h</label>
+      </node>
+    </incdepgraph>
+    <innerclass refid="class_trigonometry_node" prot="public">TrigonometryNode</innerclass>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/***</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"></highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/><sp/>Olive<sp/>-<sp/>Non-Linear<sp/>Video<sp/>Editor</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/><sp/>Copyright<sp/>(C)<sp/>2019<sp/>Olive<sp/>Team</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"></highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/><sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/><sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/><sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"></highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/><sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/><sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/><sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"></highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/><sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/><sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"></highlight></codeline>
+<codeline lineno="19"><highlight class="comment">***/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>TRIGNODE_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TRIGNODE_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;node/node.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><ref refid="define_8h_1a0472692dd1f22472ad63da20da919e8c" kindref="member">OLIVE_NAMESPACE_ENTER</ref></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28" refid="class_trigonometry_node" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_trigonometry_node" kindref="compound">TrigonometryNode</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="class_node" kindref="compound">Node</ref></highlight></codeline>
+<codeline lineno="29"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><ref refid="class_trigonometry_node_1ac8bf242524f9b95a609cd600a1f8a04e" kindref="member">TrigonometryNode</ref>();</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="class_node" kindref="compound">Node</ref>*<sp/><ref refid="class_trigonometry_node_1a95ff435852824bfef6d98109b4a30477" kindref="member">copy</ref>()<sp/></highlight><highlight class="keyword">const<sp/>override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>QString<sp/><ref refid="class_trigonometry_node_1ac47c47790138dc181b82900b07c5dac8" kindref="member">Name</ref>()<sp/></highlight><highlight class="keyword">const<sp/>override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>QString<sp/><ref refid="class_trigonometry_node_1a9b70bc3feaec68d7b7e3876dcaed9095" kindref="member">id</ref>()<sp/></highlight><highlight class="keyword">const<sp/>override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>QString<sp/><ref refid="class_trigonometry_node_1aedd2715a64fa0906b3b95e63144aaaed" kindref="member">Category</ref>()<sp/></highlight><highlight class="keyword">const<sp/>override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>QString<sp/><ref refid="class_trigonometry_node_1a9f0b3c163ba2ef24871b0a3b1a54eb0c" kindref="member">Description</ref>()<sp/></highlight><highlight class="keyword">const<sp/>override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_trigonometry_node_1a09e5efa39cb7fedb26c3275fdc1d0ed7" kindref="member">Retranslate</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="class_node_value_table" kindref="compound">NodeValueTable</ref><sp/><ref refid="class_trigonometry_node_1ab4d38c3b1875373789acbb721308233c" kindref="member">Value</ref>(<ref refid="class_node_value_database" kindref="compound">NodeValueDatabase</ref><sp/>&amp;value)<sp/></highlight><highlight class="keyword">const<sp/>override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/><ref refid="class_trigonometry_node_1aa9322bec835c2e09300d3a8e3727a239" kindref="member">Operation</ref><sp/>{</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_trigonometry_node_1aa9322bec835c2e09300d3a8e3727a239aa5ca04b5dfc7ebe9774a9b6ac24ee460" kindref="member">kOpSine</ref>,</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_trigonometry_node_1aa9322bec835c2e09300d3a8e3727a239a48a20bb00a045d61595c3eac5ead701c" kindref="member">kOpCosine</ref>,</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_trigonometry_node_1aa9322bec835c2e09300d3a8e3727a239a97fc46d452ccc6c2491d1e88c1eda099" kindref="member">kOpTangent</ref>,</highlight></codeline>
+<codeline lineno="49" refid="class_trigonometry_node_1ac8bf242524f9b95a609cd600a1f8a04e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_trigonometry_node_1aa9322bec835c2e09300d3a8e3727a239ab88332ea2813f2387de1980a7cc70b21" kindref="member">kOpArcSine</ref>,</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_trigonometry_node_1aa9322bec835c2e09300d3a8e3727a239a83e4d77e967dc45c9186b446485c586f" kindref="member">kOpArcCosine</ref>,</highlight></codeline>
+<codeline lineno="51" refid="class_trigonometry_node_1a95ff435852824bfef6d98109b4a30477" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_trigonometry_node_1aa9322bec835c2e09300d3a8e3727a239a9e626b04341e18b6d0f919320d0e5649" kindref="member">kOpArcTangent</ref>,</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_trigonometry_node_1aa9322bec835c2e09300d3a8e3727a239a19b3f8fa2f94ea7dc16781a6619e8794" kindref="member">kOpHypSine</ref>,</highlight></codeline>
+<codeline lineno="53" refid="class_trigonometry_node_1ac47c47790138dc181b82900b07c5dac8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_trigonometry_node_1aa9322bec835c2e09300d3a8e3727a239accb116a673ee172882f121f1e0fe9d48" kindref="member">kOpHypCosine</ref>,</highlight></codeline>
+<codeline lineno="54" refid="class_trigonometry_node_1a9b70bc3feaec68d7b7e3876dcaed9095" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_trigonometry_node_1aa9322bec835c2e09300d3a8e3727a239a008c6aef51579a1790e0cb1aae555f8d" kindref="member">kOpHypTangent</ref></highlight></codeline>
+<codeline lineno="55" refid="class_trigonometry_node_1aedd2715a64fa0906b3b95e63144aaaed" refkind="member"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="56" refid="class_trigonometry_node_1a9f0b3c163ba2ef24871b0a3b1a54eb0c" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><ref refid="class_node_input" kindref="compound">NodeInput</ref>*<sp/><ref refid="class_trigonometry_node_1acef594d41d4ad731dd41262cdcf2f0a8" kindref="member">method_in_</ref>;</highlight></codeline>
+<codeline lineno="58" refid="class_trigonometry_node_1a09e5efa39cb7fedb26c3275fdc1d0ed7" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><ref refid="class_node_input" kindref="compound">NodeInput</ref>*<sp/><ref refid="class_trigonometry_node_1a46159652cf426207af58999820bb76ee" kindref="member">x_in_</ref>;</highlight></codeline>
+<codeline lineno="60" refid="class_trigonometry_node_1ab4d38c3b1875373789acbb721308233c" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63" refid="class_trigonometry_node_1aa9322bec835c2e09300d3a8e3727a239" refkind="member"><highlight class="normal"><ref refid="define_8h_1abe3de0634d907ca0f5d1acf732c49dac" kindref="member">OLIVE_NAMESPACE_EXIT</ref></highlight></codeline>
+<codeline lineno="64" refid="class_trigonometry_node_1aa9322bec835c2e09300d3a8e3727a239aa5ca04b5dfc7ebe9774a9b6ac24ee460" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65" refid="class_trigonometry_node_1aa9322bec835c2e09300d3a8e3727a239a48a20bb00a045d61595c3eac5ead701c" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//<sp/>TRIGNODE_H</highlight></codeline>
+    </programlisting>
+    <location file="C:/Daten/Olive/olive/app/node/math/trigonometry/trigonometry.h"/>
+  </compounddef>
+</doxygen>

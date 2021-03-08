@@ -1,0 +1,343 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_preferences_general_tab" kind="class" language="C++" prot="public">
+    <compoundname>PreferencesGeneralTab</compoundname>
+    <basecompoundref refid="class_preferences_tab" prot="public" virt="non-virtual">PreferencesTab</basecompoundref>
+    <includes refid="preferencesgeneraltab_8h" local="no">preferencesgeneraltab.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_preferences_general_tab_1aef4acc83ef514ceae7b66da828d66f65" prot="private" static="no" mutable="no">
+        <type>QComboBox *</type>
+        <definition>QComboBox* PreferencesGeneralTab::language_combobox_</definition>
+        <argsstring></argsstring>
+        <name>language_combobox_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesgeneraltab.h" line="67" column="13" bodyfile="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesgeneraltab.h" bodystart="67" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_preferences_general_tab_1a9d4b9e21761ab182ef1af6e9f1470920" prot="private" static="no" mutable="no">
+        <type>QComboBox *</type>
+        <definition>QComboBox* PreferencesGeneralTab::autoscroll_method_</definition>
+        <argsstring></argsstring>
+        <name>autoscroll_method_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesgeneraltab.h" line="69" column="13" bodyfile="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesgeneraltab.h" bodystart="69" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_preferences_general_tab_1aef8b662c7156bd7cd9f4ae2d20c49fd6" prot="private" static="no" mutable="no">
+        <type>QCheckBox *</type>
+        <definition>QCheckBox* PreferencesGeneralTab::rectified_waveforms_</definition>
+        <argsstring></argsstring>
+        <name>rectified_waveforms_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesgeneraltab.h" line="71" column="13" bodyfile="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesgeneraltab.h" bodystart="71" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_preferences_general_tab_1a3d5d1a016168c38be8975f0dbc3270a6" prot="private" static="no" mutable="no">
+        <type><ref refid="class_float_slider" kindref="compound">FloatSlider</ref> *</type>
+        <definition>FloatSlider* PreferencesGeneralTab::default_still_length_</definition>
+        <argsstring></argsstring>
+        <name>default_still_length_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesgeneraltab.h" line="73" column="15" bodyfile="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesgeneraltab.h" bodystart="73" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_preferences_general_tab_1a8d2828f5f405c9ea5f65d6664b63da66" prot="private" static="no" mutable="no">
+        <type><ref refid="class_sequence" kindref="compound">Sequence</ref></type>
+        <definition>Sequence PreferencesGeneralTab::default_sequence_</definition>
+        <argsstring></argsstring>
+        <name>default_sequence_</name>
+        <briefdescription>
+<para>A sequence we can feed to a <ref refid="class_sequence_dialog" kindref="compound">SequenceDialog</ref> to change the defaults. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesgeneraltab.h" line="78" column="12" bodyfile="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesgeneraltab.h" bodystart="78" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_preferences_general_tab_1afc1645ecd798306fa7a1c3c68e6a266d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>PreferencesGeneralTab::PreferencesGeneralTab</definition>
+        <argsstring>()</argsstring>
+        <name>PreferencesGeneralTab</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesgeneraltab.h" line="56" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_preferences_general_tab_1a3962847a8269a66f3b6c5b26e1295a6a" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PreferencesGeneralTab::Accept</definition>
+        <argsstring>() override</argsstring>
+        <name>Accept</name>
+        <reimplements refid="class_preferences_tab_1ac68d2c1754ce85450eed3fb0920163f2">Accept</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesgeneraltab.h" line="58" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_preferences_tab_1aefad5e89125f7a19d26a18ab3931ddfb" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>bool</type>
+        <definition>virtual bool PreferencesTab::Validate</definition>
+        <argsstring>()</argsstring>
+        <name>Validate</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencestab.h" line="53" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_preferences_general_tab_1a7c330c1d171e475cdc8b117772946082" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PreferencesGeneralTab::edit_default_sequence_settings</definition>
+        <argsstring>()</argsstring>
+        <name>edit_default_sequence_settings</name>
+        <briefdescription>
+<para>Shows a NewSequenceDialog attached to default_sequence. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesgeneraltab.h" line="64" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>PreferencesTab</label>
+        <link refid="class_preferences_tab"/>
+      </node>
+      <node id="1">
+        <label>PreferencesGeneralTab</label>
+        <link refid="class_preferences_general_tab"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="16">
+        <label>NodeOutput</label>
+        <link refid="class_node_output"/>
+        <childnode refid="17" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>TimelinePoints</label>
+        <link refid="class_timeline_points"/>
+        <childnode refid="10" relation="usage">
+          <edgelabel>markers_</edgelabel>
+        </childnode>
+        <childnode refid="11" relation="usage">
+          <edgelabel>workarea_</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>Sequence</label>
+        <link refid="class_sequence"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+        <childnode refid="8" relation="public-inheritance">
+        </childnode>
+        <childnode refid="9" relation="public-inheritance">
+        </childnode>
+        <childnode refid="14" relation="usage">
+          <edgelabel>viewer_output_</edgelabel>
+        </childnode>
+      </node>
+      <node id="21">
+        <label>FloatSlider</label>
+        <link refid="class_float_slider"/>
+        <childnode refid="22" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>NodeGraph</label>
+        <link refid="class_node_graph"/>
+      </node>
+      <node id="6">
+        <label>ColorManager</label>
+        <link refid="class_color_manager"/>
+      </node>
+      <node id="19">
+        <label>AudioParams</label>
+        <link refid="class_audio_params"/>
+      </node>
+      <node id="14">
+        <label>ViewerOutput</label>
+        <link refid="class_viewer_output"/>
+        <childnode refid="15" relation="public-inheritance">
+        </childnode>
+        <childnode refid="18" relation="usage">
+          <edgelabel>video_params_</edgelabel>
+        </childnode>
+        <childnode refid="13" relation="usage">
+          <edgelabel>timeline_length_</edgelabel>
+        </childnode>
+        <childnode refid="19" relation="usage">
+          <edgelabel>audio_params_</edgelabel>
+        </childnode>
+        <childnode refid="20" relation="usage">
+          <edgelabel>texture_input_</edgelabel>
+          <edgelabel>samples_input_</edgelabel>
+        </childnode>
+      </node>
+      <node id="13">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="24">
+        <label>SliderLabel</label>
+        <link refid="class_slider_label"/>
+      </node>
+      <node id="2">
+        <label>PreferencesTab</label>
+        <link refid="class_preferences_tab"/>
+      </node>
+      <node id="4">
+        <label>Item</label>
+        <link refid="class_item"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>parent_</edgelabel>
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>project_</edgelabel>
+        </childnode>
+      </node>
+      <node id="15">
+        <label>Node</label>
+        <link refid="class_node"/>
+        <childnode refid="16" relation="usage">
+          <edgelabel>output_</edgelabel>
+        </childnode>
+      </node>
+      <node id="23">
+        <label>FocusableLineEdit</label>
+        <link refid="class_focusable_line_edit"/>
+      </node>
+      <node id="20">
+        <label>NodeInput</label>
+        <link refid="class_node_input"/>
+        <childnode refid="17" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>PreferencesGeneralTab</label>
+        <link refid="class_preferences_general_tab"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>default_sequence_</edgelabel>
+        </childnode>
+        <childnode refid="21" relation="usage">
+          <edgelabel>default_still_length_</edgelabel>
+        </childnode>
+      </node>
+      <node id="11">
+        <label>TimelineWorkArea</label>
+        <link refid="class_timeline_work_area"/>
+        <childnode refid="12" relation="usage">
+          <edgelabel>workarea_range_</edgelabel>
+        </childnode>
+        <childnode refid="13" relation="usage">
+          <edgelabel>kResetOut</edgelabel>
+          <edgelabel>kResetIn</edgelabel>
+        </childnode>
+      </node>
+      <node id="5">
+        <label>Project</label>
+        <link refid="class_project"/>
+        <childnode refid="6" relation="usage">
+          <edgelabel>color_manager_</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>root_</edgelabel>
+        </childnode>
+      </node>
+      <node id="7">
+        <label>Folder</label>
+        <link refid="class_folder"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>NodeParam</label>
+        <link refid="class_node_param"/>
+      </node>
+      <node id="12">
+        <label>TimeRange</label>
+        <link refid="class_time_range"/>
+        <childnode refid="13" relation="usage">
+          <edgelabel>out_</edgelabel>
+          <edgelabel>in_</edgelabel>
+          <edgelabel>length_</edgelabel>
+        </childnode>
+      </node>
+      <node id="18">
+        <label>VideoParams</label>
+        <link refid="class_video_params"/>
+        <childnode refid="13" relation="usage">
+          <edgelabel>time_base_</edgelabel>
+        </childnode>
+      </node>
+      <node id="10">
+        <label>TimelineMarkerList</label>
+        <link refid="class_timeline_marker_list"/>
+      </node>
+      <node id="22">
+        <label>SliderBase</label>
+        <link refid="class_slider_base"/>
+        <childnode refid="23" relation="usage">
+          <edgelabel>editor_</edgelabel>
+        </childnode>
+        <childnode refid="24" relation="usage">
+          <edgelabel>label_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesgeneraltab.h" line="34" column="1" bodyfile="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesgeneraltab.h" bodystart="35" bodyend="62"/>
+    <listofallmembers>
+      <member refid="class_preferences_general_tab_1a3962847a8269a66f3b6c5b26e1295a6a" prot="public" virt="virtual"><scope>PreferencesGeneralTab</scope><name>Accept</name></member>
+      <member refid="class_preferences_general_tab_1a9d4b9e21761ab182ef1af6e9f1470920" prot="private" virt="non-virtual"><scope>PreferencesGeneralTab</scope><name>autoscroll_method_</name></member>
+      <member refid="class_preferences_general_tab_1a8d2828f5f405c9ea5f65d6664b63da66" prot="private" virt="non-virtual"><scope>PreferencesGeneralTab</scope><name>default_sequence_</name></member>
+      <member refid="class_preferences_general_tab_1a3d5d1a016168c38be8975f0dbc3270a6" prot="private" virt="non-virtual"><scope>PreferencesGeneralTab</scope><name>default_still_length_</name></member>
+      <member refid="class_preferences_general_tab_1a7c330c1d171e475cdc8b117772946082" prot="private" virt="non-virtual"><scope>PreferencesGeneralTab</scope><name>edit_default_sequence_settings</name></member>
+      <member refid="class_preferences_general_tab_1aef4acc83ef514ceae7b66da828d66f65" prot="private" virt="non-virtual"><scope>PreferencesGeneralTab</scope><name>language_combobox_</name></member>
+      <member refid="class_preferences_general_tab_1afc1645ecd798306fa7a1c3c68e6a266d" prot="public" virt="non-virtual"><scope>PreferencesGeneralTab</scope><name>PreferencesGeneralTab</name></member>
+      <member refid="class_preferences_tab_1a5330b203f9973201f677b0daf642f30e" prot="public" virt="non-virtual"><scope>PreferencesGeneralTab</scope><name>PreferencesTab</name></member>
+      <member refid="class_preferences_general_tab_1aef8b662c7156bd7cd9f4ae2d20c49fd6" prot="private" virt="non-virtual"><scope>PreferencesGeneralTab</scope><name>rectified_waveforms_</name></member>
+      <member refid="class_preferences_tab_1aefad5e89125f7a19d26a18ab3931ddfb" prot="public" virt="virtual"><scope>PreferencesGeneralTab</scope><name>Validate</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

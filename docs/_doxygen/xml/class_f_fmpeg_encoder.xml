@@ -1,0 +1,692 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_f_fmpeg_encoder" kind="class" language="C++" prot="public">
+    <compoundname>FFmpegEncoder</compoundname>
+    <basecompoundref refid="class_encoder" prot="public" virt="non-virtual">Encoder</basecompoundref>
+    <includes refid="ffmpegencoder_8h" local="no">ffmpegencoder.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_f_fmpeg_encoder_1a36a50c3846f259d082bc9c7ee81d7394" prot="private" static="no" mutable="no">
+        <type>AVFormatContext *</type>
+        <definition>AVFormatContext* FFmpegEncoder::fmt_ctx_</definition>
+        <argsstring></argsstring>
+        <name>fmt_ctx_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegencoder.h" line="96" column="19" bodyfile="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegencoder.h" bodystart="96" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_f_fmpeg_encoder_1abd0f511cb02c843527ac3d4d49c3636a" prot="private" static="no" mutable="no">
+        <type>AVStream *</type>
+        <definition>AVStream* FFmpegEncoder::video_stream_</definition>
+        <argsstring></argsstring>
+        <name>video_stream_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegencoder.h" line="98" column="12" bodyfile="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegencoder.h" bodystart="98" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_f_fmpeg_encoder_1afd0665393f49d2439ba299783ba185a5" prot="private" static="no" mutable="no">
+        <type>AVCodecContext *</type>
+        <definition>AVCodecContext* FFmpegEncoder::video_codec_ctx_</definition>
+        <argsstring></argsstring>
+        <name>video_codec_ctx_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegencoder.h" line="99" column="18" bodyfile="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegencoder.h" bodystart="99" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_f_fmpeg_encoder_1afa977c43362a2fbb74c22655dd2decdf" prot="private" static="no" mutable="no">
+        <type>SwsContext *</type>
+        <definition>SwsContext* FFmpegEncoder::video_scale_ctx_</definition>
+        <argsstring></argsstring>
+        <name>video_scale_ctx_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegencoder.h" line="100" column="14" bodyfile="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegencoder.h" bodystart="100" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_f_fmpeg_encoder_1a68fae25301d513f3c7f5c547f1b6f70d" prot="private" static="no" mutable="no">
+        <type><ref refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021" kindref="member">PixelFormat::Format</ref></type>
+        <definition>PixelFormat::Format FFmpegEncoder::video_conversion_fmt_</definition>
+        <argsstring></argsstring>
+        <name>video_conversion_fmt_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegencoder.h" line="101" column="23" bodyfile="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegencoder.h" bodystart="101" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_f_fmpeg_encoder_1a95f05ae1fc6f2631dc498aa560c9af1f" prot="private" static="no" mutable="no">
+        <type>AVStream *</type>
+        <definition>AVStream* FFmpegEncoder::audio_stream_</definition>
+        <argsstring></argsstring>
+        <name>audio_stream_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegencoder.h" line="103" column="12" bodyfile="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegencoder.h" bodystart="103" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_f_fmpeg_encoder_1a3a0378d40ce11141c19bf82c13aef00a" prot="private" static="no" mutable="no">
+        <type>AVCodecContext *</type>
+        <definition>AVCodecContext* FFmpegEncoder::audio_codec_ctx_</definition>
+        <argsstring></argsstring>
+        <name>audio_codec_ctx_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegencoder.h" line="104" column="18" bodyfile="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegencoder.h" bodystart="104" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_f_fmpeg_encoder_1aa0f7c566d4bcdc93b8473c40fe28ec97" prot="private" static="no" mutable="no">
+        <type>SwrContext *</type>
+        <definition>SwrContext* FFmpegEncoder::audio_resample_ctx_</definition>
+        <argsstring></argsstring>
+        <name>audio_resample_ctx_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegencoder.h" line="105" column="14" bodyfile="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegencoder.h" bodystart="105" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_encoder_1a07fad689f0ed15f301c9e3e347197dfb" prot="private" static="no" mutable="no">
+        <type><ref refid="class_encoding_params" kindref="compound">EncodingParams</ref></type>
+        <definition>EncodingParams Encoder::params_</definition>
+        <argsstring></argsstring>
+        <name>params_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="129" column="18" bodyfile="C:/Daten/Olive/olive/app/codec/encoder.h" bodystart="129" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_encoder_1acd726a10bd1391a7b4d985e864e7e0ad" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool Encoder::open_</definition>
+        <argsstring></argsstring>
+        <name>open_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="131" column="8" bodyfile="C:/Daten/Olive/olive/app/codec/encoder.h" bodystart="131" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_f_fmpeg_encoder_1a8e3c2abfaa2a433927dc889e68239db9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>FFmpegEncoder::FFmpegEncoder</definition>
+        <argsstring>(const EncodingParams &amp;params)</argsstring>
+        <name>FFmpegEncoder</name>
+        <param>
+          <type>const <ref refid="class_encoding_params" kindref="compound">EncodingParams</ref> &amp;</type>
+          <declname>params</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegencoder.h" line="57" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_encoder_1aae58d67791f76a7243097471215bbe69" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="class_encoding_params" kindref="compound">EncodingParams</ref> &amp;</type>
+        <definition>const EncodingParams&amp; Encoder::params</definition>
+        <argsstring>() const</argsstring>
+        <name>params</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="105" column="24"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-slot">
+      <memberdef kind="slot" id="class_f_fmpeg_encoder_1afcc1428db3a199a60f4bd86ea62b45ab" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void FFmpegEncoder::WriteAudio</definition>
+        <argsstring>(OLIVE_NAMESPACE::AudioRenderingParams pcm_info, const QString &amp;pcm_filename, OLIVE_NAMESPACE::TimeRange range) override</argsstring>
+        <name>WriteAudio</name>
+        <param>
+          <type>OLIVE_NAMESPACE::AudioRenderingParams</type>
+          <declname>pcm_info</declname>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>pcm_filename</declname>
+        </param>
+        <param>
+          <type>OLIVE_NAMESPACE::TimeRange</type>
+          <declname>range</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegencoder.h" line="60" column="16"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_encoder_1a74c06332f28148e5cfb772043cc29ad9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Encoder::Open</definition>
+        <argsstring>()</argsstring>
+        <name>Open</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="108" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_encoder_1aeb9344e5b4fd6203bcdf757a5f5050ba" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Encoder::WriteFrame</definition>
+        <argsstring>(OLIVE_NAMESPACE::FramePtr frame, OLIVE_NAMESPACE::rational time)</argsstring>
+        <name>WriteFrame</name>
+        <param>
+          <type><ref refid="pixelformat_8h_1a2ae9a822fc1e331fa3b449797f717db6" kindref="member">OLIVE_NAMESPACE::FramePtr</ref></type>
+          <declname>frame</declname>
+        </param>
+        <param>
+          <type>OLIVE_NAMESPACE::rational</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="109" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_encoder_1a57fb95be15da5e8547fe01f07067b1d4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Encoder::Close</definition>
+        <argsstring>()</argsstring>
+        <name>Close</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="111" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_f_fmpeg_encoder_1a7080d542750a8810780eb961326f887e" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>bool</type>
+        <definition>virtual bool FFmpegEncoder::OpenInternal</definition>
+        <argsstring>() override</argsstring>
+        <name>OpenInternal</name>
+        <reimplements refid="class_encoder_1a34af48df479f808685f7d2b83b87b105">OpenInternal</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegencoder.h" line="63" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_f_fmpeg_encoder_1ac38cc9afe34aafb89d704c3ad59eb656" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void FFmpegEncoder::WriteInternal</definition>
+        <argsstring>(FramePtr frame, rational time) override</argsstring>
+        <name>WriteInternal</name>
+        <reimplements refid="class_encoder_1a6a5b4fe2d5950b0f25b13ae96aa8425d">WriteInternal</reimplements>
+        <param>
+          <type><ref refid="frame_8h_1a2ae9a822fc1e331fa3b449797f717db6" kindref="member">FramePtr</ref></type>
+          <declname>frame</declname>
+        </param>
+        <param>
+          <type><ref refid="classrational" kindref="compound">rational</ref></type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegencoder.h" line="64" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_f_fmpeg_encoder_1ac57f4469a4ae35e3af361c5b25c662ca" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void FFmpegEncoder::CloseInternal</definition>
+        <argsstring>() override</argsstring>
+        <name>CloseInternal</name>
+        <reimplements refid="class_encoder_1adb19fc95ac5892b427a5753ee45c723e">CloseInternal</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegencoder.h" line="65" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_encoder_1a1e62d5081161701966a1ba00b7a6ca63" prot="protected" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Encoder::IsOpen</definition>
+        <argsstring>() const</argsstring>
+        <name>IsOpen</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="126" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_f_fmpeg_encoder_1a7518414897c940a87fd5731ac335f294" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void FFmpegEncoder::Error</definition>
+        <argsstring>(const QString &amp;s)</argsstring>
+        <name>Error</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Handle an error. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Immediately closes the <ref refid="class_decoder" kindref="compound">Decoder</ref> (freeing memory resources) and sends the string provided to the warning stream. As this function closes the <ref refid="class_decoder" kindref="compound">Decoder</ref>, no further <ref refid="class_decoder" kindref="compound">Decoder</ref> functions should be performed after this is called (unless the <ref refid="class_decoder" kindref="compound">Decoder</ref> is opened again first). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegencoder.h" line="75" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_f_fmpeg_encoder_1a4ff5b50aab125304d65a53e8eaaed319" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void FFmpegEncoder::FFmpegError</definition>
+        <argsstring>(const char *context, int error_code)</argsstring>
+        <name>FFmpegError</name>
+        <param>
+          <type>const char *</type>
+          <declname>context</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>error_code</declname>
+        </param>
+        <briefdescription>
+<para>Handle an FFmpeg error code. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Uses the FFmpeg API to retrieve a descriptive string for this error code and sends it to <ref refid="class_f_fmpeg_encoder_1a7518414897c940a87fd5731ac335f294" kindref="member">Error()</ref>. As such, this function also automatically closes the <ref refid="class_decoder" kindref="compound">Decoder</ref>.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>error_code</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegencoder.h" line="85" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_f_fmpeg_encoder_1acb842653d66d8fe37ef507535eb1e559" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool FFmpegEncoder::WriteAVFrame</definition>
+        <argsstring>(AVFrame *frame, AVCodecContext *codec_ctx, AVStream *stream)</argsstring>
+        <name>WriteAVFrame</name>
+        <param>
+          <type>AVFrame *</type>
+          <declname>frame</declname>
+        </param>
+        <param>
+          <type>AVCodecContext *</type>
+          <declname>codec_ctx</declname>
+        </param>
+        <param>
+          <type>AVStream *</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegencoder.h" line="87" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_f_fmpeg_encoder_1a7ab4836c2c220ea2f5d8ea07279c9c8c" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool FFmpegEncoder::InitializeStream</definition>
+        <argsstring>(enum AVMediaType type, AVStream **stream, AVCodecContext **codec_ctx, const QString &amp;codec)</argsstring>
+        <name>InitializeStream</name>
+        <param>
+          <type>enum AVMediaType</type>
+          <declname>type</declname>
+        </param>
+        <param>
+          <type>AVStream **</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type>AVCodecContext **</type>
+          <declname>codec_ctx</declname>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>codec</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegencoder.h" line="89" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_f_fmpeg_encoder_1a79364d6e6313cd931c043ce217a00357" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool FFmpegEncoder::InitializeCodecContext</definition>
+        <argsstring>(AVStream **stream, AVCodecContext **codec_ctx, AVCodec *codec)</argsstring>
+        <name>InitializeCodecContext</name>
+        <param>
+          <type>AVStream **</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type>AVCodecContext **</type>
+          <declname>codec_ctx</declname>
+        </param>
+        <param>
+          <type>AVCodec *</type>
+          <declname>codec</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegencoder.h" line="90" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_f_fmpeg_encoder_1a21e7b8ccd0788274f565c05b7c31315d" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool FFmpegEncoder::SetupCodecContext</definition>
+        <argsstring>(AVStream *stream, AVCodecContext *codec_ctx, AVCodec *codec)</argsstring>
+        <name>SetupCodecContext</name>
+        <param>
+          <type>AVStream *</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type>AVCodecContext *</type>
+          <declname>codec_ctx</declname>
+        </param>
+        <param>
+          <type>AVCodec *</type>
+          <declname>codec</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegencoder.h" line="91" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_f_fmpeg_encoder_1af024927b5ee93d8ed93c87fd8ad8e9b4" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void FFmpegEncoder::FlushEncoders</definition>
+        <argsstring>()</argsstring>
+        <name>FlushEncoders</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegencoder.h" line="93" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_f_fmpeg_encoder_1a6b22aefbbda5c9b73c47d2b6f644832e" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void FFmpegEncoder::FlushCodecCtx</definition>
+        <argsstring>(AVCodecContext *codec_ctx, AVStream *stream)</argsstring>
+        <name>FlushCodecCtx</name>
+        <param>
+          <type>AVCodecContext *</type>
+          <declname>codec_ctx</declname>
+        </param>
+        <param>
+          <type>AVStream *</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegencoder.h" line="94" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="class_encoder_1aab9c0156534b5a6dd2c73f2e856ece4d" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_encoder" kindref="compound">Encoder</ref> *</type>
+        <definition>static Encoder* Encoder::CreateFromID</definition>
+        <argsstring>(const QString &amp;id, const EncodingParams &amp;params)</argsstring>
+        <name>CreateFromID</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>id</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_encoding_params" kindref="compound">EncodingParams</ref> &amp;</type>
+          <declname>params</declname>
+        </param>
+        <briefdescription>
+<para>Create a <ref refid="class_encoder" kindref="compound">Encoder</ref> instance using a <ref refid="class_encoder" kindref="compound">Encoder</ref> ID. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para></para>
+</simplesect>
+A <ref refid="class_encoder" kindref="compound">Encoder</ref> instance or nullptr if a <ref refid="class_decoder" kindref="compound">Decoder</ref> with this ID does not exist </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="103" column="18"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_encoder_1a5fa47f38d1ee12a5800abee7c4c5f4e7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Encoder::OpenSucceeded</definition>
+        <argsstring>()</argsstring>
+        <name>OpenSucceeded</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="114" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_encoder_1a44a8f407d65ce5ff57575bfc2bccaaf6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Encoder::OpenFailed</definition>
+        <argsstring>()</argsstring>
+        <name>OpenFailed</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="115" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_encoder_1aafe1a106b7c249e7fea1337aff522b98" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Encoder::Closed</definition>
+        <argsstring>()</argsstring>
+        <name>Closed</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="117" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_encoder_1adf19c2819613c078569812f2e2b023ea" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Encoder::AudioComplete</definition>
+        <argsstring>()</argsstring>
+        <name>AudioComplete</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="119" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>Encoder</label>
+        <link refid="class_encoder"/>
+      </node>
+      <node id="1">
+        <label>FFmpegEncoder</label>
+        <link refid="class_f_fmpeg_encoder"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>Encoder</label>
+        <link refid="class_encoder"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>params_</edgelabel>
+        </childnode>
+      </node>
+      <node id="8">
+        <label>AudioParams</label>
+        <link refid="class_audio_params"/>
+      </node>
+      <node id="6">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="7">
+        <label>AudioRenderingParams</label>
+        <link refid="class_audio_rendering_params"/>
+        <childnode refid="8" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>VideoRenderingParams</label>
+        <link refid="class_video_rendering_params"/>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>VideoParams</label>
+        <link refid="class_video_params"/>
+        <childnode refid="6" relation="usage">
+          <edgelabel>time_base_</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>EncodingParams</label>
+        <link refid="class_encoding_params"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>video_params_</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>export_length_</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>audio_params_</edgelabel>
+        </childnode>
+      </node>
+      <node id="1">
+        <label>FFmpegEncoder</label>
+        <link refid="class_f_fmpeg_encoder"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegencoder.h" line="35" column="1" bodyfile="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegencoder.h" bodystart="36" bodyend="89"/>
+    <listofallmembers>
+      <member refid="class_f_fmpeg_encoder_1a3a0378d40ce11141c19bf82c13aef00a" prot="private" virt="non-virtual"><scope>FFmpegEncoder</scope><name>audio_codec_ctx_</name></member>
+      <member refid="class_f_fmpeg_encoder_1aa0f7c566d4bcdc93b8473c40fe28ec97" prot="private" virt="non-virtual"><scope>FFmpegEncoder</scope><name>audio_resample_ctx_</name></member>
+      <member refid="class_f_fmpeg_encoder_1a95f05ae1fc6f2631dc498aa560c9af1f" prot="private" virt="non-virtual"><scope>FFmpegEncoder</scope><name>audio_stream_</name></member>
+      <member refid="class_encoder_1adf19c2819613c078569812f2e2b023ea" prot="public" virt="non-virtual"><scope>FFmpegEncoder</scope><name>AudioComplete</name></member>
+      <member refid="class_encoder_1a57fb95be15da5e8547fe01f07067b1d4" prot="public" virt="non-virtual"><scope>FFmpegEncoder</scope><name>Close</name></member>
+      <member refid="class_encoder_1aafe1a106b7c249e7fea1337aff522b98" prot="public" virt="non-virtual"><scope>FFmpegEncoder</scope><name>Closed</name></member>
+      <member refid="class_f_fmpeg_encoder_1ac57f4469a4ae35e3af361c5b25c662ca" prot="protected" virt="virtual"><scope>FFmpegEncoder</scope><name>CloseInternal</name></member>
+      <member refid="class_encoder_1aab9c0156534b5a6dd2c73f2e856ece4d" prot="public" virt="non-virtual"><scope>FFmpegEncoder</scope><name>CreateFromID</name></member>
+      <member refid="class_encoder_1a37230f207a2e38e1edee28ef7302d1e4" prot="public" virt="non-virtual"><scope>FFmpegEncoder</scope><name>Encoder</name></member>
+      <member refid="class_f_fmpeg_encoder_1a7518414897c940a87fd5731ac335f294" prot="private" virt="non-virtual"><scope>FFmpegEncoder</scope><name>Error</name></member>
+      <member refid="class_f_fmpeg_encoder_1a8e3c2abfaa2a433927dc889e68239db9" prot="public" virt="non-virtual"><scope>FFmpegEncoder</scope><name>FFmpegEncoder</name></member>
+      <member refid="class_f_fmpeg_encoder_1a4ff5b50aab125304d65a53e8eaaed319" prot="private" virt="non-virtual"><scope>FFmpegEncoder</scope><name>FFmpegError</name></member>
+      <member refid="class_f_fmpeg_encoder_1a6b22aefbbda5c9b73c47d2b6f644832e" prot="private" virt="non-virtual"><scope>FFmpegEncoder</scope><name>FlushCodecCtx</name></member>
+      <member refid="class_f_fmpeg_encoder_1af024927b5ee93d8ed93c87fd8ad8e9b4" prot="private" virt="non-virtual"><scope>FFmpegEncoder</scope><name>FlushEncoders</name></member>
+      <member refid="class_f_fmpeg_encoder_1a36a50c3846f259d082bc9c7ee81d7394" prot="private" virt="non-virtual"><scope>FFmpegEncoder</scope><name>fmt_ctx_</name></member>
+      <member refid="class_f_fmpeg_encoder_1a79364d6e6313cd931c043ce217a00357" prot="private" virt="non-virtual"><scope>FFmpegEncoder</scope><name>InitializeCodecContext</name></member>
+      <member refid="class_f_fmpeg_encoder_1a7ab4836c2c220ea2f5d8ea07279c9c8c" prot="private" virt="non-virtual"><scope>FFmpegEncoder</scope><name>InitializeStream</name></member>
+      <member refid="class_encoder_1a1e62d5081161701966a1ba00b7a6ca63" prot="protected" virt="non-virtual"><scope>FFmpegEncoder</scope><name>IsOpen</name></member>
+      <member refid="class_encoder_1a74c06332f28148e5cfb772043cc29ad9" prot="public" virt="non-virtual"><scope>FFmpegEncoder</scope><name>Open</name></member>
+      <member refid="class_encoder_1acd726a10bd1391a7b4d985e864e7e0ad" prot="private" virt="non-virtual"><scope>FFmpegEncoder</scope><name>open_</name></member>
+      <member refid="class_encoder_1a44a8f407d65ce5ff57575bfc2bccaaf6" prot="public" virt="non-virtual"><scope>FFmpegEncoder</scope><name>OpenFailed</name></member>
+      <member refid="class_f_fmpeg_encoder_1a7080d542750a8810780eb961326f887e" prot="protected" virt="virtual"><scope>FFmpegEncoder</scope><name>OpenInternal</name></member>
+      <member refid="class_encoder_1a5fa47f38d1ee12a5800abee7c4c5f4e7" prot="public" virt="non-virtual"><scope>FFmpegEncoder</scope><name>OpenSucceeded</name></member>
+      <member refid="class_encoder_1aae58d67791f76a7243097471215bbe69" prot="public" virt="non-virtual"><scope>FFmpegEncoder</scope><name>params</name></member>
+      <member refid="class_encoder_1a07fad689f0ed15f301c9e3e347197dfb" prot="private" virt="non-virtual"><scope>FFmpegEncoder</scope><name>params_</name></member>
+      <member refid="class_f_fmpeg_encoder_1a21e7b8ccd0788274f565c05b7c31315d" prot="private" virt="non-virtual"><scope>FFmpegEncoder</scope><name>SetupCodecContext</name></member>
+      <member refid="class_f_fmpeg_encoder_1afd0665393f49d2439ba299783ba185a5" prot="private" virt="non-virtual"><scope>FFmpegEncoder</scope><name>video_codec_ctx_</name></member>
+      <member refid="class_f_fmpeg_encoder_1a68fae25301d513f3c7f5c547f1b6f70d" prot="private" virt="non-virtual"><scope>FFmpegEncoder</scope><name>video_conversion_fmt_</name></member>
+      <member refid="class_f_fmpeg_encoder_1afa977c43362a2fbb74c22655dd2decdf" prot="private" virt="non-virtual"><scope>FFmpegEncoder</scope><name>video_scale_ctx_</name></member>
+      <member refid="class_f_fmpeg_encoder_1abd0f511cb02c843527ac3d4d49c3636a" prot="private" virt="non-virtual"><scope>FFmpegEncoder</scope><name>video_stream_</name></member>
+      <member refid="class_f_fmpeg_encoder_1afcc1428db3a199a60f4bd86ea62b45ab" prot="public" virt="virtual"><scope>FFmpegEncoder</scope><name>WriteAudio</name></member>
+      <member refid="class_f_fmpeg_encoder_1acb842653d66d8fe37ef507535eb1e559" prot="private" virt="non-virtual"><scope>FFmpegEncoder</scope><name>WriteAVFrame</name></member>
+      <member refid="class_encoder_1aeb9344e5b4fd6203bcdf757a5f5050ba" prot="public" virt="non-virtual"><scope>FFmpegEncoder</scope><name>WriteFrame</name></member>
+      <member refid="class_f_fmpeg_encoder_1ac38cc9afe34aafb89d704c3ad59eb656" prot="protected" virt="virtual"><scope>FFmpegEncoder</scope><name>WriteInternal</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

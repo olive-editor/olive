@@ -1,0 +1,46 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="struct_sample_summer_1_1_info" kind="struct" language="C++" prot="public">
+    <compoundname>SampleSummer::Info</compoundname>
+    <includes refid="sumsamples_8h" local="no">sumsamples.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="struct_sample_summer_1_1_info_1af913c75e7cb004fff749bf60eacc9545" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int SampleSummer::Info::channels</definition>
+        <argsstring></argsstring>
+        <name>channels</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/sumsamples.h" line="70" column="9" bodyfile="C:/Daten/Olive/olive/app/audio/sumsamples.h" bodystart="70" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="struct_sample_summer_1_1_info_1a9213267525ba0efce2e7019b03c0dd78" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>SampleSummer::Info::Info</definition>
+        <argsstring>()</argsstring>
+        <name>Info</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/sumsamples.h" line="68" column="5"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/audio/sumsamples.h" line="67" column="3" bodyfile="C:/Daten/Olive/olive/app/audio/sumsamples.h" bodystart="67" bodyend="71"/>
+    <listofallmembers>
+      <member refid="struct_sample_summer_1_1_info_1af913c75e7cb004fff749bf60eacc9545" prot="public" virt="non-virtual"><scope>SampleSummer::Info</scope><name>channels</name></member>
+      <member refid="struct_sample_summer_1_1_info_1a9213267525ba0efce2e7019b03c0dd78" prot="public" virt="non-virtual"><scope>SampleSummer::Info</scope><name>Info</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,387 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_audio_monitor" kind="class" language="C++" prot="public">
+    <compoundname>AudioMonitor</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QOpenGLWidget</basecompoundref>
+    <includes refid="widget_2audiomonitor_2audiomonitor_8h" local="no">audiomonitor.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_audio_monitor_1a2146b685256a1609de32bbae1ce6d382" prot="private" static="no" mutable="no">
+        <type><ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref></type>
+        <definition>AudioRenderingParams AudioMonitor::params_</definition>
+        <argsstring></argsstring>
+        <name>params_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/audiomonitor/audiomonitor.h" line="85" column="24" bodyfile="C:/Daten/Olive/olive/app/widget/audiomonitor/audiomonitor.h" bodystart="85" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_audio_monitor_1ad11bf295498c070ce6dde62ffd93d6ea" prot="private" static="no" mutable="no">
+        <type>QFile</type>
+        <definition>QFile AudioMonitor::file_</definition>
+        <argsstring></argsstring>
+        <name>file_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/audiomonitor/audiomonitor.h" line="87" column="9" bodyfile="C:/Daten/Olive/olive/app/widget/audiomonitor/audiomonitor.h" bodystart="87" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_audio_monitor_1af3dabd94284eb5d38c3c2c9ff3ec5b3b" prot="private" static="no" mutable="no">
+        <type>qint64</type>
+        <definition>qint64 AudioMonitor::last_time_</definition>
+        <argsstring></argsstring>
+        <name>last_time_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/audiomonitor/audiomonitor.h" line="88" column="10" bodyfile="C:/Daten/Olive/olive/app/widget/audiomonitor/audiomonitor.h" bodystart="88" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_audio_monitor_1a2514661dfca0ed1e54a277407bdef4f3" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int AudioMonitor::playback_speed_</definition>
+        <argsstring></argsstring>
+        <name>playback_speed_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/audiomonitor/audiomonitor.h" line="90" column="7" bodyfile="C:/Daten/Olive/olive/app/widget/audiomonitor/audiomonitor.h" bodystart="90" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_audio_monitor_1a5416a61fc134c6df709644d0daee5a8c" prot="private" static="no" mutable="no">
+        <type>QVector&lt; QVector&lt; double &gt; &gt;</type>
+        <definition>QVector&lt; QVector&lt;double&gt; &gt; AudioMonitor::values_</definition>
+        <argsstring></argsstring>
+        <name>values_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/audiomonitor/audiomonitor.h" line="92" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/audiomonitor/audiomonitor.h" bodystart="92" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_audio_monitor_1a9971a63f1bc47566e96382965c3384bd" prot="private" static="no" mutable="no">
+        <type>QVector&lt; bool &gt;</type>
+        <definition>QVector&lt;bool&gt; AudioMonitor::peaked_</definition>
+        <argsstring></argsstring>
+        <name>peaked_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/audiomonitor/audiomonitor.h" line="93" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/audiomonitor/audiomonitor.h" bodystart="93" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_audio_monitor_1aa4b29820019f39d1aad6a910512eca23" prot="private" static="no" mutable="no">
+        <type>QPixmap</type>
+        <definition>QPixmap AudioMonitor::cached_background_</definition>
+        <argsstring></argsstring>
+        <name>cached_background_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/audiomonitor/audiomonitor.h" line="95" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/audiomonitor/audiomonitor.h" bodystart="95" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_audio_monitor_1a88aee2a1d86b0bdd057cb12c9585de7d" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int AudioMonitor::cached_channels_</definition>
+        <argsstring></argsstring>
+        <name>cached_channels_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/audiomonitor/audiomonitor.h" line="96" column="7" bodyfile="C:/Daten/Olive/olive/app/widget/audiomonitor/audiomonitor.h" bodystart="96" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_audio_monitor_1a25bc75de7adad905a17ac2fc31b42a2c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>AudioMonitor::AudioMonitor</definition>
+        <argsstring>(QWidget *parent=nullptr)</argsstring>
+        <name>AudioMonitor</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/audiomonitor/audiomonitor.h" line="55" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_monitor_1a0132e3d7062ed973dfc2721026bc5f93" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type></type>
+        <definition>virtual AudioMonitor::~AudioMonitor</definition>
+        <argsstring>() override</argsstring>
+        <name>~AudioMonitor</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/audiomonitor/audiomonitor.h" line="57" column="11"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-slot">
+      <memberdef kind="slot" id="class_audio_monitor_1a5a51a8e4a8c8d93e6d388cfdad8d787f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AudioMonitor::SetParams</definition>
+        <argsstring>(const AudioRenderingParams &amp;params)</argsstring>
+        <name>SetParams</name>
+        <param>
+          <type>const <ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref> &amp;</type>
+          <declname>params</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/audiomonitor/audiomonitor.h" line="60" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_audio_monitor_1a418b876d7ead922ad7805f6116efbdf4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AudioMonitor::OutputDeviceSet</definition>
+        <argsstring>(const QString &amp;filename, qint64 offset, int playback_speed)</argsstring>
+        <name>OutputDeviceSet</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>filename</declname>
+        </param>
+        <param>
+          <type>qint64</type>
+          <declname>offset</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>playback_speed</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/audiomonitor/audiomonitor.h" line="62" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_audio_monitor_1a9e2e577bb7018696fa5084a0bc137128" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AudioMonitor::Stop</definition>
+        <argsstring>()</argsstring>
+        <name>Stop</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/audiomonitor/audiomonitor.h" line="64" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_audio_monitor_1a01541bd0cdc744f3d3197e477dc13d27" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AudioMonitor::OutputPushed</definition>
+        <argsstring>(const QByteArray &amp;data)</argsstring>
+        <name>OutputPushed</name>
+        <param>
+          <type>const QByteArray &amp;</type>
+          <declname>data</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/audiomonitor/audiomonitor.h" line="66" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_audio_monitor_1a51089edd57f77f6f655966ab8a6101b6" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void AudioMonitor::paintGL</definition>
+        <argsstring>() override</argsstring>
+        <name>paintGL</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/audiomonitor/audiomonitor.h" line="70" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_monitor_1ac28dff4af77d8ecedf35380c648bf50f" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void AudioMonitor::mousePressEvent</definition>
+        <argsstring>(QMouseEvent *event) override</argsstring>
+        <name>mousePressEvent</name>
+        <param>
+          <type>QMouseEvent *</type>
+          <declname>event</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/audiomonitor/audiomonitor.h" line="72" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_audio_monitor_1ad6d33cf274206b9837432dc68406bca8" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AudioMonitor::SetUpdateLoop</definition>
+        <argsstring>(bool e)</argsstring>
+        <name>SetUpdateLoop</name>
+        <param>
+          <type>bool</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/audiomonitor/audiomonitor.h" line="75" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_monitor_1a6533c794c19b3db39b5b7c06e198f7f4" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AudioMonitor::UpdateValuesFromFile</definition>
+        <argsstring>(QVector&lt; double &gt; &amp;v)</argsstring>
+        <name>UpdateValuesFromFile</name>
+        <param>
+          <type>QVector&lt; double &gt; &amp;</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/audiomonitor/audiomonitor.h" line="77" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_monitor_1a4cb25f4a781a8d9e0c37906c4a03b49e" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AudioMonitor::PushValue</definition>
+        <argsstring>(const QVector&lt; double &gt; &amp;v)</argsstring>
+        <name>PushValue</name>
+        <param>
+          <type>const QVector&lt; double &gt; &amp;</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/audiomonitor/audiomonitor.h" line="79" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_monitor_1a9ae781b5ccaacfe4cbe979c578ff0441" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AudioMonitor::BytesToSampleSummary</definition>
+        <argsstring>(const QByteArray &amp;bytes, QVector&lt; double &gt; &amp;v)</argsstring>
+        <name>BytesToSampleSummary</name>
+        <param>
+          <type>const QByteArray &amp;</type>
+          <declname>bytes</declname>
+        </param>
+        <param>
+          <type>QVector&lt; double &gt; &amp;</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/audiomonitor/audiomonitor.h" line="81" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_monitor_1af094fd45daa06a0ca9fc456d7bc2c577" prot="private" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QVector&lt; double &gt;</type>
+        <definition>QVector&lt;double&gt; AudioMonitor::GetAverages</definition>
+        <argsstring>() const</argsstring>
+        <name>GetAverages</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/audiomonitor/audiomonitor.h" line="83" column="11"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="3">
+        <label>AudioParams</label>
+        <link refid="class_audio_params"/>
+      </node>
+      <node id="1">
+        <label>AudioMonitor</label>
+        <link refid="class_audio_monitor"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>params_</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>AudioRenderingParams</label>
+        <link refid="class_audio_rendering_params"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/audiomonitor/audiomonitor.h" line="33" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/audiomonitor/audiomonitor.h" bodystart="34" bodyend="80"/>
+    <listofallmembers>
+      <member refid="class_audio_monitor_1a25bc75de7adad905a17ac2fc31b42a2c" prot="public" virt="non-virtual"><scope>AudioMonitor</scope><name>AudioMonitor</name></member>
+      <member refid="class_audio_monitor_1a9ae781b5ccaacfe4cbe979c578ff0441" prot="private" virt="non-virtual"><scope>AudioMonitor</scope><name>BytesToSampleSummary</name></member>
+      <member refid="class_audio_monitor_1aa4b29820019f39d1aad6a910512eca23" prot="private" virt="non-virtual"><scope>AudioMonitor</scope><name>cached_background_</name></member>
+      <member refid="class_audio_monitor_1a88aee2a1d86b0bdd057cb12c9585de7d" prot="private" virt="non-virtual"><scope>AudioMonitor</scope><name>cached_channels_</name></member>
+      <member refid="class_audio_monitor_1ad11bf295498c070ce6dde62ffd93d6ea" prot="private" virt="non-virtual"><scope>AudioMonitor</scope><name>file_</name></member>
+      <member refid="class_audio_monitor_1af094fd45daa06a0ca9fc456d7bc2c577" prot="private" virt="non-virtual"><scope>AudioMonitor</scope><name>GetAverages</name></member>
+      <member refid="class_audio_monitor_1af3dabd94284eb5d38c3c2c9ff3ec5b3b" prot="private" virt="non-virtual"><scope>AudioMonitor</scope><name>last_time_</name></member>
+      <member refid="class_audio_monitor_1ac28dff4af77d8ecedf35380c648bf50f" prot="protected" virt="virtual"><scope>AudioMonitor</scope><name>mousePressEvent</name></member>
+      <member refid="class_audio_monitor_1a418b876d7ead922ad7805f6116efbdf4" prot="public" virt="non-virtual"><scope>AudioMonitor</scope><name>OutputDeviceSet</name></member>
+      <member refid="class_audio_monitor_1a01541bd0cdc744f3d3197e477dc13d27" prot="public" virt="non-virtual"><scope>AudioMonitor</scope><name>OutputPushed</name></member>
+      <member refid="class_audio_monitor_1a51089edd57f77f6f655966ab8a6101b6" prot="protected" virt="virtual"><scope>AudioMonitor</scope><name>paintGL</name></member>
+      <member refid="class_audio_monitor_1a2146b685256a1609de32bbae1ce6d382" prot="private" virt="non-virtual"><scope>AudioMonitor</scope><name>params_</name></member>
+      <member refid="class_audio_monitor_1a9971a63f1bc47566e96382965c3384bd" prot="private" virt="non-virtual"><scope>AudioMonitor</scope><name>peaked_</name></member>
+      <member refid="class_audio_monitor_1a2514661dfca0ed1e54a277407bdef4f3" prot="private" virt="non-virtual"><scope>AudioMonitor</scope><name>playback_speed_</name></member>
+      <member refid="class_audio_monitor_1a4cb25f4a781a8d9e0c37906c4a03b49e" prot="private" virt="non-virtual"><scope>AudioMonitor</scope><name>PushValue</name></member>
+      <member refid="class_audio_monitor_1a5a51a8e4a8c8d93e6d388cfdad8d787f" prot="public" virt="non-virtual"><scope>AudioMonitor</scope><name>SetParams</name></member>
+      <member refid="class_audio_monitor_1ad6d33cf274206b9837432dc68406bca8" prot="private" virt="non-virtual"><scope>AudioMonitor</scope><name>SetUpdateLoop</name></member>
+      <member refid="class_audio_monitor_1a9e2e577bb7018696fa5084a0bc137128" prot="public" virt="non-virtual"><scope>AudioMonitor</scope><name>Stop</name></member>
+      <member refid="class_audio_monitor_1a6533c794c19b3db39b5b7c06e198f7f4" prot="private" virt="non-virtual"><scope>AudioMonitor</scope><name>UpdateValuesFromFile</name></member>
+      <member refid="class_audio_monitor_1a5416a61fc134c6df709644d0daee5a8c" prot="private" virt="non-virtual"><scope>AudioMonitor</scope><name>values_</name></member>
+      <member refid="class_audio_monitor_1a0132e3d7062ed973dfc2721026bc5f93" prot="public" virt="virtual"><scope>AudioMonitor</scope><name>~AudioMonitor</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

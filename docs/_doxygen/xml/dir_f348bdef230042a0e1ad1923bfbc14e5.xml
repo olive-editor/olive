@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_f348bdef230042a0e1ad1923bfbc14e5" kind="dir">
+    <compoundname>packaging</compoundname>
+    <innerdir refid="dir_2ee2a6a965b5936dae16c8d89637c210">windows</innerdir>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/packaging/"/>
+  </compounddef>
+</doxygen>

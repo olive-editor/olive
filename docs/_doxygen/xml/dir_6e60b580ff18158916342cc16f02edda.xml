@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_6e60b580ff18158916342cc16f02edda" kind="dir">
+    <compoundname>node</compoundname>
+    <innerdir refid="dir_10b9f3558118eacb7f7e48f08a460dfe">audio</innerdir>
+    <innerdir refid="dir_7e8a924abb7b78ed83e400f1d26a1013">block</innerdir>
+    <innerdir refid="dir_8f751aac96aeaad8fd3034d977d42e4c">generator</innerdir>
+    <innerdir refid="dir_bb37cd40d42d60de90c7aa1dd8338fd2">input</innerdir>
+    <innerdir refid="dir_674cd2a8fca2843455079ecf93ee4b17">math</innerdir>
+    <innerdir refid="dir_69d64db8a3b4d84c04a53586982346ed">output</innerdir>
+    <innerfile refid="dependency_8h">dependency.h</innerfile>
+    <innerfile refid="edge_8h">edge.h</innerfile>
+    <innerfile refid="external_8h">external.h</innerfile>
+    <innerfile refid="factory_8h">factory.h</innerfile>
+    <innerfile refid="graph_8h">graph.h</innerfile>
+    <innerfile refid="input_8h">input.h</innerfile>
+    <innerfile refid="inputarray_8h">inputarray.h</innerfile>
+    <innerfile refid="keyframe_8h">keyframe.h</innerfile>
+    <innerfile refid="metareader_8h">metareader.h</innerfile>
+    <innerfile refid="node_2node_8h">node/node.h</innerfile>
+    <innerfile refid="output_8h">output.h</innerfile>
+    <innerfile refid="node_2param_8h">node/param.h</innerfile>
+    <innerfile refid="traverser_8h">traverser.h</innerfile>
+    <innerfile refid="value_8h">value.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/node/"/>
+  </compounddef>
+</doxygen>

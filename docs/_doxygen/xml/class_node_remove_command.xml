@@ -1,0 +1,223 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_node_remove_command" kind="class" language="C++" prot="public">
+    <compoundname>NodeRemoveCommand</compoundname>
+    <basecompoundref refid="class_undo_command" prot="public" virt="non-virtual">UndoCommand</basecompoundref>
+    <includes refid="nodeviewundo_8h" local="no">nodeviewundo.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_node_remove_command_1a4171a891a47fc3bfbaae77991c81da31" prot="private" static="no" mutable="no">
+        <type>QObject</type>
+        <definition>QObject NodeRemoveCommand::memory_manager_</definition>
+        <argsstring></argsstring>
+        <name>memory_manager_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewundo.h" line="110" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewundo.h" bodystart="110" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_remove_command_1a470a7499d6480baf64c1a6c58681cc94" prot="private" static="no" mutable="no">
+        <type><ref refid="class_node_graph" kindref="compound">NodeGraph</ref> *</type>
+        <definition>NodeGraph* NodeRemoveCommand::graph_</definition>
+        <argsstring></argsstring>
+        <name>graph_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewundo.h" line="112" column="13" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewundo.h" bodystart="112" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_remove_command_1a978ecc55bc0026a9cbd44a524b3c47e8" prot="private" static="no" mutable="no">
+        <type>QList&lt; <ref refid="class_node" kindref="compound">Node</ref> * &gt;</type>
+        <definition>QList&lt;Node*&gt; NodeRemoveCommand::nodes_</definition>
+        <argsstring></argsstring>
+        <name>nodes_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewundo.h" line="113" column="9" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewundo.h" bodystart="113" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_remove_command_1aa58a28d0645cb68ca7d56299a419e15e" prot="private" static="no" mutable="no">
+        <type>QList&lt; <ref refid="edge_8h_1a9eb6ae7d2b608077e13ab3571ea6b101" kindref="member">NodeEdgePtr</ref> &gt;</type>
+        <definition>QList&lt;NodeEdgePtr&gt; NodeRemoveCommand::edges_</definition>
+        <argsstring></argsstring>
+        <name>edges_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewundo.h" line="114" column="9" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewundo.h" bodystart="114" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_undo_command_1a6c06f9c1b7bfeeff3c4724491945992b" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool UndoCommand::modified_</definition>
+        <argsstring></argsstring>
+        <name>modified_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="64" column="8" bodyfile="C:/Daten/Olive/olive/app/undo/undocommand.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_node_remove_command_1a9879105b735c9564a99070998d9039c0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>NodeRemoveCommand::NodeRemoveCommand</definition>
+        <argsstring>(NodeGraph *graph, const QList&lt; Node * &gt; &amp;nodes, QUndoCommand *parent=nullptr)</argsstring>
+        <name>NodeRemoveCommand</name>
+        <param>
+          <type><ref refid="class_node_graph" kindref="compound">NodeGraph</ref> *</type>
+          <declname>graph</declname>
+        </param>
+        <param>
+          <type>const QList&lt; <ref refid="class_node" kindref="compound">Node</ref> * &gt; &amp;</type>
+          <declname>nodes</declname>
+        </param>
+        <param>
+          <type>QUndoCommand *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewundo.h" line="99" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_remove_command_1a00111193e35cd8d2339003364657172d" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="class_project" kindref="compound">Project</ref> *</type>
+        <definition>virtual Project* NodeRemoveCommand::GetRelevantProject</definition>
+        <argsstring>() const override</argsstring>
+        <name>GetRelevantProject</name>
+        <reimplements refid="class_undo_command_1ab5c8967132833ea6be76a63dc5472f4f">GetRelevantProject</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewundo.h" line="103" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_undo_command_1a9907db368d01fb26f5082a36c6d90bd4" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void UndoCommand::redo</definition>
+        <argsstring>() override</argsstring>
+        <name>redo</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="54" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_undo_command_1a09d00f8a2e1c8b3c97d72d9585503030" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void UndoCommand::undo</definition>
+        <argsstring>() override</argsstring>
+        <name>undo</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="55" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_node_remove_command_1a50bdb61979cf0f6a7d51f026b299d004" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void NodeRemoveCommand::redo_internal</definition>
+        <argsstring>() override</argsstring>
+        <name>redo_internal</name>
+        <reimplements refid="class_undo_command_1ac8aa20d444a655cd36fa3c7dc01928b4">redo_internal</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewundo.h" line="106" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_remove_command_1a792bc2cc41189fab68ca4d0d9d3fa46d" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void NodeRemoveCommand::undo_internal</definition>
+        <argsstring>() override</argsstring>
+        <name>undo_internal</name>
+        <reimplements refid="class_undo_command_1a871dbc8a1f95b58e641be13703563faa">undo_internal</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewundo.h" line="107" column="16"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>UndoCommand</label>
+        <link refid="class_undo_command"/>
+      </node>
+      <node id="1">
+        <label>NodeRemoveCommand</label>
+        <link refid="class_node_remove_command"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="3">
+        <label>NodeGraph</label>
+        <link refid="class_node_graph"/>
+      </node>
+      <node id="2">
+        <label>UndoCommand</label>
+        <link refid="class_undo_command"/>
+      </node>
+      <node id="1">
+        <label>NodeRemoveCommand</label>
+        <link refid="class_node_remove_command"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>graph_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewundo.h" line="97" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewundo.h" bodystart="97" bodyend="115"/>
+    <listofallmembers>
+      <member refid="class_node_remove_command_1aa58a28d0645cb68ca7d56299a419e15e" prot="private" virt="non-virtual"><scope>NodeRemoveCommand</scope><name>edges_</name></member>
+      <member refid="class_node_remove_command_1a00111193e35cd8d2339003364657172d" prot="public" virt="virtual"><scope>NodeRemoveCommand</scope><name>GetRelevantProject</name></member>
+      <member refid="class_node_remove_command_1a470a7499d6480baf64c1a6c58681cc94" prot="private" virt="non-virtual"><scope>NodeRemoveCommand</scope><name>graph_</name></member>
+      <member refid="class_node_remove_command_1a4171a891a47fc3bfbaae77991c81da31" prot="private" virt="non-virtual"><scope>NodeRemoveCommand</scope><name>memory_manager_</name></member>
+      <member refid="class_undo_command_1a6c06f9c1b7bfeeff3c4724491945992b" prot="private" virt="non-virtual"><scope>NodeRemoveCommand</scope><name>modified_</name></member>
+      <member refid="class_node_remove_command_1a9879105b735c9564a99070998d9039c0" prot="public" virt="non-virtual"><scope>NodeRemoveCommand</scope><name>NodeRemoveCommand</name></member>
+      <member refid="class_node_remove_command_1a978ecc55bc0026a9cbd44a524b3c47e8" prot="private" virt="non-virtual"><scope>NodeRemoveCommand</scope><name>nodes_</name></member>
+      <member refid="class_undo_command_1a9907db368d01fb26f5082a36c6d90bd4" prot="public" virt="virtual"><scope>NodeRemoveCommand</scope><name>redo</name></member>
+      <member refid="class_node_remove_command_1a50bdb61979cf0f6a7d51f026b299d004" prot="protected" virt="virtual"><scope>NodeRemoveCommand</scope><name>redo_internal</name></member>
+      <member refid="class_undo_command_1a09d00f8a2e1c8b3c97d72d9585503030" prot="public" virt="virtual"><scope>NodeRemoveCommand</scope><name>undo</name></member>
+      <member refid="class_node_remove_command_1a792bc2cc41189fab68ca4d0d9d3fa46d" prot="protected" virt="virtual"><scope>NodeRemoveCommand</scope><name>undo_internal</name></member>
+      <member refid="class_undo_command_1a5a07a6505a207cf7186c7c726ff9c5fa" prot="public" virt="non-virtual"><scope>NodeRemoveCommand</scope><name>UndoCommand</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

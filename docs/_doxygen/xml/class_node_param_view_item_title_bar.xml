@@ -1,0 +1,56 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_node_param_view_item_title_bar" kind="class" language="C++" prot="public">
+    <compoundname>NodeParamViewItemTitleBar</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QWidget</basecompoundref>
+    <includes refid="nodeparamviewitem_8h" local="no">nodeparamviewitem.h</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_node_param_view_item_title_bar_1a12d468a76932d4e2dff27211c0fbf92f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>NodeParamViewItemTitleBar::NodeParamViewItemTitleBar</definition>
+        <argsstring>(QWidget *parent=nullptr)</argsstring>
+        <name>NodeParamViewItemTitleBar</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewitem.h" line="59" column="3"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_node_param_view_item_title_bar_1adae03c0a45cf05747ffcfa5a286d1181" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void NodeParamViewItemTitleBar::paintEvent</definition>
+        <argsstring>(QPaintEvent *event) override</argsstring>
+        <name>paintEvent</name>
+        <param>
+          <type>QPaintEvent *</type>
+          <declname>event</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewitem.h" line="62" column="16"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewitem.h" line="39" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewitem.h" bodystart="39" bodyend="45"/>
+    <listofallmembers>
+      <member refid="class_node_param_view_item_title_bar_1a12d468a76932d4e2dff27211c0fbf92f" prot="public" virt="non-virtual"><scope>NodeParamViewItemTitleBar</scope><name>NodeParamViewItemTitleBar</name></member>
+      <member refid="class_node_param_view_item_title_bar_1adae03c0a45cf05747ffcfa5a286d1181" prot="protected" virt="virtual"><scope>NodeParamViewItemTitleBar</scope><name>paintEvent</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

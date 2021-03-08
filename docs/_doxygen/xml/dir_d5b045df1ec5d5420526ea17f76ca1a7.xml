@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_d5b045df1ec5d5420526ea17f76ca1a7" kind="dir">
+    <compoundname>colorwheel</compoundname>
+    <innerfile refid="colorgradientwidget_8h">colorgradientwidget.h</innerfile>
+    <innerfile refid="colorpreviewbox_8h">colorpreviewbox.h</innerfile>
+    <innerfile refid="colorspacechooser_8h">colorspacechooser.h</innerfile>
+    <innerfile refid="colorswatchwidget_8h">colorswatchwidget.h</innerfile>
+    <innerfile refid="colorvalueswidget_8h">colorvalueswidget.h</innerfile>
+    <innerfile refid="colorwheelwidget_8h">colorwheelwidget.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/widget/colorwheel/"/>
+  </compounddef>
+</doxygen>

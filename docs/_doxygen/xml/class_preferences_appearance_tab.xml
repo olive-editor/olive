@@ -1,0 +1,148 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_preferences_appearance_tab" kind="class" language="C++" prot="public">
+    <compoundname>PreferencesAppearanceTab</compoundname>
+    <basecompoundref refid="class_preferences_tab" prot="public" virt="non-virtual">PreferencesTab</basecompoundref>
+    <includes refid="preferencesappearancetab_8h" local="no">preferencesappearancetab.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_preferences_appearance_tab_1a0fd5db0c648f31e09b03d4ae7af93325" prot="private" static="no" mutable="no">
+        <type>QComboBox *</type>
+        <definition>QComboBox* PreferencesAppearanceTab::style_</definition>
+        <argsstring></argsstring>
+        <name>style_</name>
+        <briefdescription>
+<para>UI widget for selecting the current UI style. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesappearancetab.h" line="67" column="13" bodyfile="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesappearancetab.h" bodystart="67" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_preferences_appearance_tab_1a21b7a3e9adee13b96911d59fe54a185a" prot="private" static="no" mutable="no">
+        <type>QList&lt; <ref refid="class_style_descriptor" kindref="compound">StyleDescriptor</ref> &gt;</type>
+        <definition>QList&lt;StyleDescriptor&gt; PreferencesAppearanceTab::style_list_</definition>
+        <argsstring></argsstring>
+        <name>style_list_</name>
+        <briefdescription>
+<para>List of internal styles. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesappearancetab.h" line="72" column="9" bodyfile="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesappearancetab.h" bodystart="72" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_preferences_appearance_tab_1ae56e4b3ae5d43c07bfa9c03820943740" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString PreferencesAppearanceTab::custom_style_path_</definition>
+        <argsstring></argsstring>
+        <name>custom_style_path_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesappearancetab.h" line="74" column="11" bodyfile="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesappearancetab.h" bodystart="74" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_preferences_appearance_tab_1a2f6f6ae3ff5b5ee825cf2e8db2ceb784" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>PreferencesAppearanceTab::PreferencesAppearanceTab</definition>
+        <argsstring>()</argsstring>
+        <name>PreferencesAppearanceTab</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesappearancetab.h" line="54" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_preferences_appearance_tab_1ad28b9c65f9d59dca059808ab526416da" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PreferencesAppearanceTab::Accept</definition>
+        <argsstring>() override</argsstring>
+        <name>Accept</name>
+        <reimplements refid="class_preferences_tab_1ac68d2c1754ce85450eed3fb0920163f2">Accept</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesappearancetab.h" line="56" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_preferences_tab_1aefad5e89125f7a19d26a18ab3931ddfb" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>bool</type>
+        <definition>virtual bool PreferencesTab::Validate</definition>
+        <argsstring>()</argsstring>
+        <name>Validate</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencestab.h" line="53" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_preferences_appearance_tab_1a64cda1ca0f85a339fc20296344603956" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PreferencesAppearanceTab::BrowseForCSS</definition>
+        <argsstring>()</argsstring>
+        <name>BrowseForCSS</name>
+        <briefdescription>
+<para>Show a file dialog to browse for an external CSS file to load for styling the application. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesappearancetab.h" line="62" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>PreferencesAppearanceTab</label>
+        <link refid="class_preferences_appearance_tab"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>PreferencesTab</label>
+        <link refid="class_preferences_tab"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>PreferencesAppearanceTab</label>
+        <link refid="class_preferences_appearance_tab"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>PreferencesTab</label>
+        <link refid="class_preferences_tab"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesappearancetab.h" line="32" column="1" bodyfile="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesappearancetab.h" bodystart="33" bodyend="57"/>
+    <listofallmembers>
+      <member refid="class_preferences_appearance_tab_1ad28b9c65f9d59dca059808ab526416da" prot="public" virt="virtual"><scope>PreferencesAppearanceTab</scope><name>Accept</name></member>
+      <member refid="class_preferences_appearance_tab_1a64cda1ca0f85a339fc20296344603956" prot="private" virt="non-virtual"><scope>PreferencesAppearanceTab</scope><name>BrowseForCSS</name></member>
+      <member refid="class_preferences_appearance_tab_1ae56e4b3ae5d43c07bfa9c03820943740" prot="private" virt="non-virtual"><scope>PreferencesAppearanceTab</scope><name>custom_style_path_</name></member>
+      <member refid="class_preferences_appearance_tab_1a2f6f6ae3ff5b5ee825cf2e8db2ceb784" prot="public" virt="non-virtual"><scope>PreferencesAppearanceTab</scope><name>PreferencesAppearanceTab</name></member>
+      <member refid="class_preferences_tab_1a5330b203f9973201f677b0daf642f30e" prot="public" virt="non-virtual"><scope>PreferencesAppearanceTab</scope><name>PreferencesTab</name></member>
+      <member refid="class_preferences_appearance_tab_1a0fd5db0c648f31e09b03d4ae7af93325" prot="private" virt="non-virtual"><scope>PreferencesAppearanceTab</scope><name>style_</name></member>
+      <member refid="class_preferences_appearance_tab_1a21b7a3e9adee13b96911d59fe54a185a" prot="private" virt="non-virtual"><scope>PreferencesAppearanceTab</scope><name>style_list_</name></member>
+      <member refid="class_preferences_tab_1aefad5e89125f7a19d26a18ab3931ddfb" prot="public" virt="virtual"><scope>PreferencesAppearanceTab</scope><name>Validate</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

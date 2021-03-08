@@ -1,0 +1,179 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="version_8h" kind="file" language="C++">
+    <compoundname>version.h</compoundname>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="version_8h_1ae6ef9058da3d1f2efdc365d6643d1de3" prot="public" static="no">
+        <name>VER_FILEVERSION</name>
+        <initializer>1,0,0,0</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/packaging/windows/version.h" line="4" column="9" bodyfile="C:/Daten/Olive/olive/app/packaging/windows/version.h" bodystart="4" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="version_8h_1a9ab9575a5fdacc8d78fb6a6a982bb060" prot="public" static="no">
+        <name>VER_FILEVERSION_STR</name>
+        <initializer>&quot;1.0.0.0\0&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/packaging/windows/version.h" line="5" column="9" bodyfile="C:/Daten/Olive/olive/app/packaging/windows/version.h" bodystart="5" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="version_8h_1a1f0c72807dfc9de46855bff55bae541c" prot="public" static="no">
+        <name>VER_PRODUCTVERSION</name>
+        <initializer>1,0,0,0</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/packaging/windows/version.h" line="7" column="9" bodyfile="C:/Daten/Olive/olive/app/packaging/windows/version.h" bodystart="7" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="version_8h_1a5084df706ac15e76da275c143313f3d9" prot="public" static="no">
+        <name>VER_PRODUCTVERSION_STR</name>
+        <initializer>&quot;1.0\0&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/packaging/windows/version.h" line="8" column="9" bodyfile="C:/Daten/Olive/olive/app/packaging/windows/version.h" bodystart="8" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="version_8h_1ae5e9111e9af54e6a31e3f8b369cd3e19" prot="public" static="no">
+        <name>VER_COMPANYNAME_STR</name>
+        <initializer>&quot;Olive Team&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/packaging/windows/version.h" line="10" column="9" bodyfile="C:/Daten/Olive/olive/app/packaging/windows/version.h" bodystart="10" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="version_8h_1ad53fc999ea2c9ed67903bcc0bc88f257" prot="public" static="no">
+        <name>VER_FILEDESCRIPTION_STR</name>
+        <initializer>&quot;Olive&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/packaging/windows/version.h" line="11" column="9" bodyfile="C:/Daten/Olive/olive/app/packaging/windows/version.h" bodystart="11" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="version_8h_1a9c575d8650180954b0a0318d0bb30c71" prot="public" static="no">
+        <name>VER_INTERNALNAME_STR</name>
+        <initializer>&quot;Olive&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/packaging/windows/version.h" line="12" column="9" bodyfile="C:/Daten/Olive/olive/app/packaging/windows/version.h" bodystart="12" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="version_8h_1a0592f3cc57ce5994c8339bd057ae130c" prot="public" static="no">
+        <name>VER_LEGALCOPYRIGHT_STR</name>
+        <initializer>&quot;Copyright © 2018 Olive Team&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/packaging/windows/version.h" line="13" column="9" bodyfile="C:/Daten/Olive/olive/app/packaging/windows/version.h" bodystart="13" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="version_8h_1a9532e03b291a013007c17978f72d1a80" prot="public" static="no">
+        <name>VER_LEGALTRADEMARKS1_STR</name>
+        <initializer>&quot;All Rights Reserved&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/packaging/windows/version.h" line="14" column="9" bodyfile="C:/Daten/Olive/olive/app/packaging/windows/version.h" bodystart="14" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="version_8h_1a3788d012ee2bbc1972b1003a16608f31" prot="public" static="no">
+        <name>VER_LEGALTRADEMARKS2_STR</name>
+        <initializer><ref refid="version_8h_1a9532e03b291a013007c17978f72d1a80" kindref="member">VER_LEGALTRADEMARKS1_STR</ref></initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/packaging/windows/version.h" line="15" column="9" bodyfile="C:/Daten/Olive/olive/app/packaging/windows/version.h" bodystart="15" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="version_8h_1abfbc08ce9e78d5afc2d0c129643d9909" prot="public" static="no">
+        <name>VER_ORIGINALFILENAME_STR</name>
+        <initializer>&quot;Olive.exe&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/packaging/windows/version.h" line="16" column="9" bodyfile="C:/Daten/Olive/olive/app/packaging/windows/version.h" bodystart="16" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="version_8h_1a80f0560c57c182d6c4a4aaca02d9b261" prot="public" static="no">
+        <name>VER_PRODUCTNAME_STR</name>
+        <initializer>&quot;Olive&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/packaging/windows/version.h" line="17" column="9" bodyfile="C:/Daten/Olive/olive/app/packaging/windows/version.h" bodystart="17" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="version_8h_1a2a7b2019dfe4e3cf3b89f7f186dc5640" prot="public" static="no">
+        <name>VER_COMPANYDOMAIN_STR</name>
+        <initializer>&quot;www.olivevideoeditor.org&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/packaging/windows/version.h" line="19" column="9" bodyfile="C:/Daten/Olive/olive/app/packaging/windows/version.h" bodystart="19" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>VERSION_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VERSION_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VER_FILEVERSION<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>1,0,0,0</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5" refid="version_8h_1ae6ef9058da3d1f2efdc365d6643d1de3" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VER_FILEVERSION_STR<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&quot;1.0.0.0\0&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6" refid="version_8h_1a9ab9575a5fdacc8d78fb6a6a982bb060" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VER_PRODUCTVERSION<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>1,0,0,0</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8" refid="version_8h_1a1f0c72807dfc9de46855bff55bae541c" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VER_PRODUCTVERSION_STR<sp/><sp/><sp/><sp/><sp/><sp/>&quot;1.0\0&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9" refid="version_8h_1a5084df706ac15e76da275c143313f3d9" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VER_COMPANYNAME_STR<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&quot;Olive<sp/>Team&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11" refid="version_8h_1ae5e9111e9af54e6a31e3f8b369cd3e19" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VER_FILEDESCRIPTION_STR<sp/><sp/><sp/><sp/><sp/>&quot;Olive&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12" refid="version_8h_1ad53fc999ea2c9ed67903bcc0bc88f257" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VER_INTERNALNAME_STR<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&quot;Olive&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13" refid="version_8h_1a9c575d8650180954b0a0318d0bb30c71" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VER_LEGALCOPYRIGHT_STR<sp/><sp/><sp/><sp/><sp/><sp/>&quot;Copyright<sp/>©<sp/>2018<sp/>Olive<sp/>Team&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14" refid="version_8h_1a0592f3cc57ce5994c8339bd057ae130c" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VER_LEGALTRADEMARKS1_STR<sp/><sp/><sp/><sp/>&quot;All<sp/>Rights<sp/>Reserved&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15" refid="version_8h_1a9532e03b291a013007c17978f72d1a80" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VER_LEGALTRADEMARKS2_STR<sp/><sp/><sp/><sp/>VER_LEGALTRADEMARKS1_STR</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16" refid="version_8h_1a3788d012ee2bbc1972b1003a16608f31" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VER_ORIGINALFILENAME_STR<sp/><sp/><sp/><sp/>&quot;Olive.exe&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17" refid="version_8h_1abfbc08ce9e78d5afc2d0c129643d9909" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VER_PRODUCTNAME_STR<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&quot;Olive&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18" refid="version_8h_1a80f0560c57c182d6c4a4aaca02d9b261" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VER_COMPANYDOMAIN_STR<sp/><sp/><sp/><sp/><sp/><sp/><sp/>&quot;www.olivevideoeditor.org&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20" refid="version_8h_1a2a7b2019dfe4e3cf3b89f7f186dc5640" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//<sp/>VERSION_H</highlight></codeline>
+    </programlisting>
+    <location file="C:/Daten/Olive/olive/app/packaging/windows/version.h"/>
+  </compounddef>
+</doxygen>

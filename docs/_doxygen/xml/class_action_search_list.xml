@@ -1,0 +1,85 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_action_search_list" kind="class" language="C++" prot="public">
+    <compoundname>ActionSearchList</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QListWidget</basecompoundref>
+    <includes refid="actionsearch_8h" local="no">actionsearch.h</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_action_search_list_1afb635f9441a75248e0cac042720dacff" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>ActionSearchList::ActionSearchList</definition>
+        <argsstring>(QWidget *parent)</argsstring>
+        <name>ActionSearchList</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="class_action_search_list" kindref="compound">ActionSearchList</ref> Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parent</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Usually <ref refid="class_action_search" kindref="compound">ActionSearch</ref>. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/actionsearch/actionsearch.h" line="138" column="3"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_action_search_list_1a86faf75d8c0897802510a06247f733d4" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ActionSearchList::mouseDoubleClickEvent</definition>
+        <argsstring>(QMouseEvent *)</argsstring>
+        <name>mouseDoubleClickEvent</name>
+        <param>
+          <type>QMouseEvent *</type>
+        </param>
+        <briefdescription>
+<para>Override of QListWidget&apos;s double click event that emits a signal. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/actionsearch/actionsearch.h" line="143" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_action_search_list_1a801958dd1c595f50ff16160969a17c82" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ActionSearchList::dbl_click</definition>
+        <argsstring>()</argsstring>
+        <name>dbl_click</name>
+        <briefdescription>
+<para>Signal emitted when a QListWidget item is double clicked. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/actionsearch/actionsearch.h" line="148" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>The <ref refid="class_action_search_list" kindref="compound">ActionSearchList</ref> class. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Simple wrapper around QListWidget that emits a signal when an item is double clicked that <ref refid="class_action_search" kindref="compound">ActionSearch</ref> connects to a slot that triggers the currently selected action. </para>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/dialog/actionsearch/actionsearch.h" line="129" column="1" bodyfile="C:/Daten/Olive/olive/app/dialog/actionsearch/actionsearch.h" bodystart="129" bodyend="149"/>
+    <listofallmembers>
+      <member refid="class_action_search_list_1afb635f9441a75248e0cac042720dacff" prot="public" virt="non-virtual"><scope>ActionSearchList</scope><name>ActionSearchList</name></member>
+      <member refid="class_action_search_list_1a801958dd1c595f50ff16160969a17c82" prot="public" virt="non-virtual"><scope>ActionSearchList</scope><name>dbl_click</name></member>
+      <member refid="class_action_search_list_1a86faf75d8c0897802510a06247f733d4" prot="protected" virt="non-virtual"><scope>ActionSearchList</scope><name>mouseDoubleClickEvent</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,414 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="histogram_8h" kind="file" language="C++">
+    <compoundname>histogram.h</compoundname>
+    <includes local="no">QMutex</includes>
+    <includes local="no">QThread</includes>
+    <includes local="no">QWaitCondition</includes>
+    <includes refid="frame_8h" local="yes">codec/frame.h</includes>
+    <includes refid="colorprocessor_8h" local="yes">render/colorprocessor.h</includes>
+    <includes refid="manageddisplay_8h" local="yes">widget/manageddisplay/manageddisplay.h</includes>
+    <includedby refid="scope_8h" local="yes">scope.h</includedby>
+    <incdepgraph>
+      <node id="12">
+        <label>libavformat/avformat.h</label>
+      </node>
+      <node id="28">
+        <label>openglshader.h</label>
+        <link refid="openglshader_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="33">
+        <label>QMenu</label>
+      </node>
+      <node id="32">
+        <label>QMenuBar</label>
+      </node>
+      <node id="26">
+        <label>QOpenGLWidget</label>
+      </node>
+      <node id="3">
+        <label>QThread</label>
+      </node>
+      <node id="11">
+        <label>QMetaType</label>
+      </node>
+      <node id="27">
+        <label>render/backend/opengl/openglcolorprocessor.h</label>
+        <link refid="openglcolorprocessor_8h"/>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+      </node>
+      <node id="25">
+        <label>widget/manageddisplay/manageddisplay.h</label>
+        <link refid="manageddisplay_8h"/>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>render/pixelformat.h</label>
+        <link refid="pixelformat_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="29">
+        <label>QOpenGLShaderProgram</label>
+      </node>
+      <node id="8">
+        <label>common/rational.h</label>
+        <link refid="rational_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>render/rendermodes.h</label>
+        <link refid="rendermodes_8h"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>render/colorprocessor.h</label>
+        <link refid="colorprocessor_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>QMutex</label>
+      </node>
+      <node id="13">
+        <label>common/define.h</label>
+        <link refid="define_8h"/>
+      </node>
+      <node id="18">
+        <label>QOpenGLExtraFunctions</label>
+      </node>
+      <node id="10">
+        <label>QDebug</label>
+      </node>
+      <node id="19">
+        <label>QString</label>
+      </node>
+      <node id="23">
+        <label>render/colortransform.h</label>
+        <link refid="colortransform_8h"/>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>render/color.h</label>
+        <link refid="color_8h"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>QColor</label>
+      </node>
+      <node id="4">
+        <label>QWaitCondition</label>
+      </node>
+      <node id="1">
+        <label>histogram.h</label>
+        <link refid="histogram_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>iostream</label>
+      </node>
+      <node id="31">
+        <label>widget/menu/menu.h</label>
+        <link refid="menu_8h"/>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="34">
+        <label>QMetaMethod</label>
+      </node>
+      <node id="21">
+        <label>render/videoparams.h</label>
+        <link refid="videoparams_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="30">
+        <label>render/colormanager.h</label>
+        <link refid="colormanager_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+      </node>
+      <node id="24">
+        <label>OpenColorIO/OpenColorIO.h</label>
+      </node>
+      <node id="5">
+        <label>codec/frame.h</label>
+        <link refid="frame_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>OpenImageIO/imageio.h</label>
+      </node>
+      <node id="6">
+        <label>memory</label>
+      </node>
+      <node id="7">
+        <label>QVector</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>scope.h</label>
+        <link refid="scope_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>mainwindow.h</label>
+        <link refid="mainwindow_8h"/>
+      </node>
+      <node id="3">
+        <label>viewer.h</label>
+        <link refid="widget_2viewer_2viewer_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>viewerbase.h</label>
+        <link refid="viewerbase_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>footageviewer.h</label>
+        <link refid="widget_2viewer_2footageviewer_8h"/>
+      </node>
+      <node id="9">
+        <label>sequenceviewer.h</label>
+        <link refid="sequenceviewer_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>histogram.h</label>
+        <link refid="histogram_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>export.h</label>
+        <link refid="export_8h"/>
+      </node>
+      <node id="8">
+        <label>viewer.h</label>
+        <link refid="panel_2viewer_2viewer_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>footageviewer.h</label>
+        <link refid="panel_2footageviewer_2footageviewer_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="class_histogram_scope_worker" prot="public">HistogramScopeWorker</innerclass>
+    <innerclass refid="class_histogram_scope" prot="public">HistogramScope</innerclass>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/***</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"></highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/><sp/>Olive<sp/>-<sp/>Non-Linear<sp/>Video<sp/>Editor</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/><sp/>Copyright<sp/>(C)<sp/>2019<sp/>Olive<sp/>Team</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"></highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/><sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/><sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/><sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"></highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/><sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/><sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/><sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"></highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/><sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/><sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"></highlight></codeline>
+<codeline lineno="19"><highlight class="comment">***/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>HISTOGRAMSCOPE_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>HISTOGRAMSCOPE_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QMutex&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QThread&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QWaitCondition&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="frame_8h" kindref="compound">codec/frame.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="colorprocessor_8h" kindref="compound">render/colorprocessor.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="manageddisplay_8h" kindref="compound">widget/manageddisplay/manageddisplay.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><ref refid="define_8h_1a0472692dd1f22472ad63da20da919e8c" kindref="member">OLIVE_NAMESPACE_ENTER</ref></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34" refid="class_histogram_scope_worker" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_histogram_scope_worker" kindref="compound">HistogramScopeWorker</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>QThread</highlight></codeline>
+<codeline lineno="35"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/>Q_OBJECT</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><ref refid="class_histogram_scope_worker_1a180e84f14b96223cb71d2cf076cb6f5d" kindref="member">HistogramScopeWorker</ref>();</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>Thread-safe</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_histogram_scope_worker_1abd4c8c1455cdbbb35a236f27ea2bf50f" kindref="member">QueueNext</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_frame" kindref="compound">Frame</ref>&amp;<sp/>f,<sp/><ref refid="colorprocessor_8h_1ae3985029dcc28a9f9f42fc726d1a9471" kindref="member">ColorProcessorPtr</ref><sp/>processor,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>width);</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>Thread-safe</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_histogram_scope_worker_1a19851c496902f4616946c68be5dc3881" kindref="member">Cancel</ref>();</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_histogram_scope_worker_1a714060884f24afd9ef3759aadcfbbc6a" kindref="member">run</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal">signals:</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_histogram_scope_worker_1aca9fcda2bcb9ea4ec6f11d95747931a1" kindref="member">Finished</ref>(QVector&lt;double&gt;<sp/>red,<sp/>QVector&lt;double&gt;<sp/>green,<sp/>QVector&lt;double&gt;<sp/>blue);</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/>QAtomicInt<sp/><ref refid="class_histogram_scope_worker_1ae1ee6efbd09fa90a06b43740f9d67300" kindref="member">cancelled_</ref>;</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/>QMutex<sp/><ref refid="class_histogram_scope_worker_1a272639efe280526c441d48ff59e05908" kindref="member">next_lock_</ref>;</highlight></codeline>
+<codeline lineno="56" refid="class_histogram_scope_worker_1a180e84f14b96223cb71d2cf076cb6f5d" refkind="member"><highlight class="normal"><sp/><sp/>QWaitCondition<sp/><ref refid="class_histogram_scope_worker_1ae0ffda21856a27e06fd1f970f47902d3" kindref="member">next_wait_</ref>;</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><ref refid="class_frame" kindref="compound">Frame</ref><sp/><ref refid="class_histogram_scope_worker_1a2ecaa4f976067527ca0b3a772e8cca5d" kindref="member">next_</ref>;</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="class_histogram_scope_worker_1a4fd552c03939090f805096614b18718b" kindref="member">next_width_</ref>;</highlight></codeline>
+<codeline lineno="59" refid="class_histogram_scope_worker_1abd4c8c1455cdbbb35a236f27ea2bf50f" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="colorprocessor_8h_1ae3985029dcc28a9f9f42fc726d1a9471" kindref="member">ColorProcessorPtr</ref><sp/><ref refid="class_histogram_scope_worker_1ae918e8baf0af24b96e9be712edc76a0a" kindref="member">next_processor_</ref>;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="62" refid="class_histogram_scope_worker_1a19851c496902f4616946c68be5dc3881" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63" refid="class_histogram_scope" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_histogram_scope" kindref="compound">HistogramScope</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="class_managed_display_widget" kindref="compound">ManagedDisplayWidget</ref></highlight></codeline>
+<codeline lineno="64"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="65" refid="class_histogram_scope_worker_1a714060884f24afd9ef3759aadcfbbc6a" refkind="member"><highlight class="normal"><sp/><sp/>Q_OBJECT</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="67" refid="class_histogram_scope_1ad6433f531434c5f9027bdba53510c970" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_histogram_scope_1ad6433f531434c5f9027bdba53510c970" kindref="member">HistogramScope</ref>(QWidget*<sp/>parent<sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="68" refid="class_histogram_scope_worker_1aca9fcda2bcb9ea4ec6f11d95747931a1" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69" refid="class_histogram_scope_1ab574eabe8cdec8e623c0868f5da18900" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="class_histogram_scope_1ab574eabe8cdec8e623c0868f5da18900" kindref="member">~HistogramScope</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71" refid="class_histogram_scope_worker_1ae1ee6efbd09fa90a06b43740f9d67300" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>slots:</highlight></codeline>
+<codeline lineno="72" refid="class_histogram_scope_1ae93e4c45785e66b77d48a459bb96c809" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_histogram_scope_1ae93e4c45785e66b77d48a459bb96c809" kindref="member">SetBuffer</ref>(<ref refid="class_frame" kindref="compound">Frame</ref>*<sp/>frame);</highlight></codeline>
+<codeline lineno="73" refid="class_histogram_scope_worker_1a272639efe280526c441d48ff59e05908" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74" refid="class_histogram_scope_worker_1ae0ffda21856a27e06fd1f970f47902d3" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="75" refid="class_histogram_scope_1a49b40e4a2dd51200aa54ded9fd2149ef" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_histogram_scope_1a49b40e4a2dd51200aa54ded9fd2149ef" kindref="member">paintGL</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="76" refid="class_histogram_scope_worker_1a4fd552c03939090f805096614b18718b" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77" refid="class_histogram_scope_1a3bea761468de6c5f98bd19def9a4f474" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_histogram_scope_1a3bea761468de6c5f98bd19def9a4f474" kindref="member">resizeEvent</ref>(QResizeEvent*<sp/>e)<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight></codeline>
+<codeline lineno="79" refid="class_histogram_scope_1aac6aa37fb101c545e7190336d4fd8ee7" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_histogram_scope_1aac6aa37fb101c545e7190336d4fd8ee7" kindref="member">ColorProcessorChangedEvent</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight></codeline>
+<codeline lineno="81" refid="class_histogram_scope_1aa8e8265b90431a8e1f15eb2c3aa359b5" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_histogram_scope_1aa8e8265b90431a8e1f15eb2c3aa359b5" kindref="member">showEvent</ref>(QShowEvent*<sp/>e)<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="84" refid="class_histogram_scope_1aa5badd185f3105ae16d30a2ceb93b04d" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_histogram_scope_1aa5badd185f3105ae16d30a2ceb93b04d" kindref="member">StartUpdate</ref>();</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86" refid="class_histogram_scope_1a30258aafec57271b2576181c96d7bd4c" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_frame" kindref="compound">Frame</ref>*<sp/><ref refid="class_histogram_scope_1a30258aafec57271b2576181c96d7bd4c" kindref="member">buffer_</ref>;</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88" refid="class_histogram_scope_1a5de64d8e2b9509c52f8eaedba0630c6c" refkind="member"><highlight class="normal"><sp/><sp/>QVector&lt;double&gt;<sp/><ref refid="class_histogram_scope_1a5de64d8e2b9509c52f8eaedba0630c6c" kindref="member">red_val_</ref>;</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90" refid="class_histogram_scope_1a459d088b196a7ab0716322220e761823" refkind="member"><highlight class="normal"><sp/><sp/>QVector&lt;double&gt;<sp/><ref refid="class_histogram_scope_1a459d088b196a7ab0716322220e761823" kindref="member">green_val_</ref>;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92" refid="class_histogram_scope_1a649148fecd9d2eb7932a83193c3092c7" refkind="member"><highlight class="normal"><sp/><sp/>QVector&lt;double&gt;<sp/><ref refid="class_histogram_scope_1a649148fecd9d2eb7932a83193c3092c7" kindref="member">blue_val_</ref>;</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight></codeline>
+<codeline lineno="94" refid="class_histogram_scope_1afddff0d05059c4aa178808c4124358e0" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_histogram_scope_worker" kindref="compound">HistogramScopeWorker</ref><sp/><ref refid="class_histogram_scope_1afddff0d05059c4aa178808c4124358e0" kindref="member">worker_</ref>;</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal"><sp/>slots:</highlight></codeline>
+<codeline lineno="97" refid="class_histogram_scope_1a8406eddf245ed34317a7d3fb51e41f91" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_histogram_scope_1a8406eddf245ed34317a7d3fb51e41f91" kindref="member">FinishedProcessing</ref>(QVector&lt;double&gt;<sp/>red,<sp/>QVector&lt;double&gt;<sp/>green,<sp/>QVector&lt;double&gt;<sp/>blue);</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><ref refid="define_8h_1abe3de0634d907ca0f5d1acf732c49dac" kindref="member">OLIVE_NAMESPACE_EXIT</ref></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//<sp/>HISTOGRAMSCOPE_H</highlight></codeline>
+    </programlisting>
+    <location file="C:/Daten/Olive/olive/app/widget/scope/histogram/histogram.h"/>
+  </compounddef>
+</doxygen>

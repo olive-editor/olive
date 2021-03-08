@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_157c42d9747516ed7682753994a60f78" kind="dir">
+    <compoundname>streamproperties</compoundname>
+    <innerfile refid="audiostreamproperties_8h">audiostreamproperties.h</innerfile>
+    <innerfile refid="streamproperties_8h">streamproperties.h</innerfile>
+    <innerfile refid="videostreamproperties_8h">videostreamproperties.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/"/>
+  </compounddef>
+</doxygen>

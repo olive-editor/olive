@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_4cbaa119d9e65714446ea2df659b8b18" kind="dir">
+    <compoundname>timelinewidget</compoundname>
+    <innerdir refid="dir_cf6be0fe557e58a1d93fd104cb64a4fc">trackview</innerdir>
+    <innerdir refid="dir_bdf2d673b489682a8f2b814636d61d50">undo</innerdir>
+    <innerdir refid="dir_82f1e9adf76b437861796d37c94580d9">view</innerdir>
+    <innerfile refid="timelineandtrackview_8h">timelineandtrackview.h</innerfile>
+    <innerfile refid="timelinescaledobject_8h">timelinescaledobject.h</innerfile>
+    <innerfile refid="timelinewidget_8h">timelinewidget.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,262 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_bezier_control_point_item" kind="class" language="C++" prot="public">
+    <compoundname>BezierControlPointItem</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QObject</basecompoundref>
+    <basecompoundref prot="public" virt="non-virtual">QGraphicsRectItem</basecompoundref>
+    <includes refid="beziercontrolpointitem_8h" local="no">beziercontrolpointitem.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_bezier_control_point_item_1a7efe43c7297c2dcf708acfcff1eb81f2" prot="private" static="no" mutable="no">
+        <type><ref refid="keyframe_8h_1a741b7edf62813e254aba77dca9f281ea" kindref="member">NodeKeyframePtr</ref></type>
+        <definition>NodeKeyframePtr BezierControlPointItem::key_</definition>
+        <argsstring></argsstring>
+        <name>key_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/curvewidget/beziercontrolpointitem.h" line="71" column="19" bodyfile="C:/Daten/Olive/olive/app/widget/curvewidget/beziercontrolpointitem.h" bodystart="71" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_bezier_control_point_item_1a5f66ab2c9ac3a651b7b754355de46fa2" prot="private" static="no" mutable="no">
+        <type><ref refid="class_node_keyframe_1a12932f441bcfa7ec65f3fb7563a5da45" kindref="member">NodeKeyframe::BezierType</ref></type>
+        <definition>NodeKeyframe::BezierType BezierControlPointItem::mode_</definition>
+        <argsstring></argsstring>
+        <name>mode_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/curvewidget/beziercontrolpointitem.h" line="73" column="28" bodyfile="C:/Daten/Olive/olive/app/widget/curvewidget/beziercontrolpointitem.h" bodystart="73" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_bezier_control_point_item_1a25fef4dff9b4ba9d27b7edb0ebeb2bbb" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double BezierControlPointItem::x_scale_</definition>
+        <argsstring></argsstring>
+        <name>x_scale_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/curvewidget/beziercontrolpointitem.h" line="75" column="10" bodyfile="C:/Daten/Olive/olive/app/widget/curvewidget/beziercontrolpointitem.h" bodystart="75" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_bezier_control_point_item_1a12dceb1f005d082e471863c9dcdc7f23" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double BezierControlPointItem::y_scale_</definition>
+        <argsstring></argsstring>
+        <name>y_scale_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/curvewidget/beziercontrolpointitem.h" line="77" column="10" bodyfile="C:/Daten/Olive/olive/app/widget/curvewidget/beziercontrolpointitem.h" bodystart="77" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_bezier_control_point_item_1aee75d19ce961b1c5dd60e4312e31ddab" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>BezierControlPointItem::BezierControlPointItem</definition>
+        <argsstring>(NodeKeyframePtr key, NodeKeyframe::BezierType mode, QGraphicsItem *parent=nullptr)</argsstring>
+        <name>BezierControlPointItem</name>
+        <param>
+          <type><ref refid="keyframe_8h_1a741b7edf62813e254aba77dca9f281ea" kindref="member">NodeKeyframePtr</ref></type>
+          <declname>key</declname>
+        </param>
+        <param>
+          <type><ref refid="class_node_keyframe_1a12932f441bcfa7ec65f3fb7563a5da45" kindref="member">NodeKeyframe::BezierType</ref></type>
+          <declname>mode</declname>
+        </param>
+        <param>
+          <type>QGraphicsItem *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/curvewidget/beziercontrolpointitem.h" line="51" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_bezier_control_point_item_1a02f36b6b091790464a66aa908ebde950" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void BezierControlPointItem::SetXScale</definition>
+        <argsstring>(double scale)</argsstring>
+        <name>SetXScale</name>
+        <param>
+          <type>double</type>
+          <declname>scale</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/curvewidget/beziercontrolpointitem.h" line="53" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_bezier_control_point_item_1a226e0117f12b8b00cc928d31b1f1553b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void BezierControlPointItem::SetYScale</definition>
+        <argsstring>(double scale)</argsstring>
+        <name>SetYScale</name>
+        <param>
+          <type>double</type>
+          <declname>scale</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/curvewidget/beziercontrolpointitem.h" line="55" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_bezier_control_point_item_1a3dadcb7fced5e48765b34f277814dd07" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="keyframe_8h_1a741b7edf62813e254aba77dca9f281ea" kindref="member">NodeKeyframePtr</ref></type>
+        <definition>NodeKeyframePtr BezierControlPointItem::key</definition>
+        <argsstring>() const</argsstring>
+        <name>key</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/curvewidget/beziercontrolpointitem.h" line="57" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_bezier_control_point_item_1a51f7a589200880eda67fd1aed0880882" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="class_node_keyframe_1a12932f441bcfa7ec65f3fb7563a5da45" kindref="member">NodeKeyframe::BezierType</ref> &amp;</type>
+        <definition>const NodeKeyframe::BezierType&amp; BezierControlPointItem::mode</definition>
+        <argsstring>() const</argsstring>
+        <name>mode</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/curvewidget/beziercontrolpointitem.h" line="59" column="34"/>
+      </memberdef>
+      <memberdef kind="function" id="class_bezier_control_point_item_1a5b378e09830ad8c6ae621d39fec37587" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QPointF</type>
+        <definition>QPointF BezierControlPointItem::GetCorrespondingKeyframeHandle</definition>
+        <argsstring>() const</argsstring>
+        <name>GetCorrespondingKeyframeHandle</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/curvewidget/beziercontrolpointitem.h" line="61" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_bezier_control_point_item_1afb568c7cb29f5758f03de1d3a5aba39d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void BezierControlPointItem::SetCorrespondingKeyframeHandle</definition>
+        <argsstring>(const QPointF &amp;handle)</argsstring>
+        <name>SetCorrespondingKeyframeHandle</name>
+        <param>
+          <type>const QPointF &amp;</type>
+          <declname>handle</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/curvewidget/beziercontrolpointitem.h" line="63" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_bezier_control_point_item_1aaf9d307a8a7e27e9c15bf1f25564e1f1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void BezierControlPointItem::SetOpposingKeyframeHandle</definition>
+        <argsstring>(const QPointF &amp;handle)</argsstring>
+        <name>SetOpposingKeyframeHandle</name>
+        <param>
+          <type>const QPointF &amp;</type>
+          <declname>handle</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/curvewidget/beziercontrolpointitem.h" line="65" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_bezier_control_point_item_1a9063423a093a1a6f9416f8d6cbe41f94" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void BezierControlPointItem::paint</definition>
+        <argsstring>(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget=nullptr) override</argsstring>
+        <name>paint</name>
+        <param>
+          <type>QPainter *</type>
+          <declname>painter</declname>
+        </param>
+        <param>
+          <type>const QStyleOptionGraphicsItem *</type>
+          <declname>option</declname>
+        </param>
+        <param>
+          <type>QWidget *</type>
+          <declname>widget</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/curvewidget/beziercontrolpointitem.h" line="68" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_bezier_control_point_item_1a3f782d9050d4b2ca944069ffe4b99fb0" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void BezierControlPointItem::UpdatePos</definition>
+        <argsstring>()</argsstring>
+        <name>UpdatePos</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/curvewidget/beziercontrolpointitem.h" line="80" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/widget/curvewidget/beziercontrolpointitem.h" line="30" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/curvewidget/beziercontrolpointitem.h" bodystart="31" bodyend="64"/>
+    <listofallmembers>
+      <member refid="class_bezier_control_point_item_1aee75d19ce961b1c5dd60e4312e31ddab" prot="public" virt="non-virtual"><scope>BezierControlPointItem</scope><name>BezierControlPointItem</name></member>
+      <member refid="class_bezier_control_point_item_1a5b378e09830ad8c6ae621d39fec37587" prot="public" virt="non-virtual"><scope>BezierControlPointItem</scope><name>GetCorrespondingKeyframeHandle</name></member>
+      <member refid="class_bezier_control_point_item_1a3dadcb7fced5e48765b34f277814dd07" prot="public" virt="non-virtual"><scope>BezierControlPointItem</scope><name>key</name></member>
+      <member refid="class_bezier_control_point_item_1a7efe43c7297c2dcf708acfcff1eb81f2" prot="private" virt="non-virtual"><scope>BezierControlPointItem</scope><name>key_</name></member>
+      <member refid="class_bezier_control_point_item_1a51f7a589200880eda67fd1aed0880882" prot="public" virt="non-virtual"><scope>BezierControlPointItem</scope><name>mode</name></member>
+      <member refid="class_bezier_control_point_item_1a5f66ab2c9ac3a651b7b754355de46fa2" prot="private" virt="non-virtual"><scope>BezierControlPointItem</scope><name>mode_</name></member>
+      <member refid="class_bezier_control_point_item_1a9063423a093a1a6f9416f8d6cbe41f94" prot="protected" virt="virtual"><scope>BezierControlPointItem</scope><name>paint</name></member>
+      <member refid="class_bezier_control_point_item_1afb568c7cb29f5758f03de1d3a5aba39d" prot="public" virt="non-virtual"><scope>BezierControlPointItem</scope><name>SetCorrespondingKeyframeHandle</name></member>
+      <member refid="class_bezier_control_point_item_1aaf9d307a8a7e27e9c15bf1f25564e1f1" prot="public" virt="non-virtual"><scope>BezierControlPointItem</scope><name>SetOpposingKeyframeHandle</name></member>
+      <member refid="class_bezier_control_point_item_1a02f36b6b091790464a66aa908ebde950" prot="public" virt="non-virtual"><scope>BezierControlPointItem</scope><name>SetXScale</name></member>
+      <member refid="class_bezier_control_point_item_1a226e0117f12b8b00cc928d31b1f1553b" prot="public" virt="non-virtual"><scope>BezierControlPointItem</scope><name>SetYScale</name></member>
+      <member refid="class_bezier_control_point_item_1a3f782d9050d4b2ca944069ffe4b99fb0" prot="private" virt="non-virtual"><scope>BezierControlPointItem</scope><name>UpdatePos</name></member>
+      <member refid="class_bezier_control_point_item_1a25fef4dff9b4ba9d27b7edb0ebeb2bbb" prot="private" virt="non-virtual"><scope>BezierControlPointItem</scope><name>x_scale_</name></member>
+      <member refid="class_bezier_control_point_item_1a12dceb1f005d082e471863c9dcdc7f23" prot="private" virt="non-virtual"><scope>BezierControlPointItem</scope><name>y_scale_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

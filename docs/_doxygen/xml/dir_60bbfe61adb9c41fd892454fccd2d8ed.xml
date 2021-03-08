@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_60bbfe61adb9c41fd892454fccd2d8ed" kind="dir">
+    <compoundname>task</compoundname>
+    <innerdir refid="dir_69416c1e87ab9c45c8142e721d1f1756">conform</innerdir>
+    <innerdir refid="dir_11d5d74744940b52de234c9caa0553d7">index</innerdir>
+    <innerfile refid="task_2task_8h">task/task.h</innerfile>
+    <innerfile refid="task_2taskmanager_8h">task/taskmanager.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/task/"/>
+  </compounddef>
+</doxygen>

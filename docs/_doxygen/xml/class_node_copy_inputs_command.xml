@@ -1,0 +1,163 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_node_copy_inputs_command" kind="class" language="C++" prot="public">
+    <compoundname>NodeCopyInputsCommand</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QUndoCommand</basecompoundref>
+    <includes refid="nodeviewundo_8h" local="no">nodeviewundo.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_node_copy_inputs_command_1a4b497b7a8cbe8e6af7955bab4778f29f" prot="private" static="no" mutable="no">
+        <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+        <definition>Node* NodeCopyInputsCommand::src_</definition>
+        <argsstring></argsstring>
+        <name>src_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewundo.h" line="144" column="8" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewundo.h" bodystart="144" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_copy_inputs_command_1ab435dfd0f45629013a5a337cef23db22" prot="private" static="no" mutable="no">
+        <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+        <definition>Node* NodeCopyInputsCommand::dest_</definition>
+        <argsstring></argsstring>
+        <name>dest_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewundo.h" line="146" column="8" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewundo.h" bodystart="146" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_copy_inputs_command_1acd4ed8b76f2790edf71a9490a421475a" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool NodeCopyInputsCommand::include_connections_</definition>
+        <argsstring></argsstring>
+        <name>include_connections_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewundo.h" line="148" column="8" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewundo.h" bodystart="148" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_node_copy_inputs_command_1ac85c1b456c61adadba2f4e275b96c0a8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>NodeCopyInputsCommand::NodeCopyInputsCommand</definition>
+        <argsstring>(Node *src, Node *dest, bool include_connections=true, QUndoCommand *parent=nullptr)</argsstring>
+        <name>NodeCopyInputsCommand</name>
+        <param>
+          <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+          <declname>dest</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>include_connections</declname>
+          <defval>true</defval>
+        </param>
+        <param>
+          <type>QUndoCommand *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewundo.h" line="131" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_copy_inputs_command_1a941437fcd2ee80c27174e2e458c6227a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>NodeCopyInputsCommand::NodeCopyInputsCommand</definition>
+        <argsstring>(Node *src, Node *dest, QUndoCommand *parent=nullptr)</argsstring>
+        <name>NodeCopyInputsCommand</name>
+        <param>
+          <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+          <declname>dest</declname>
+        </param>
+        <param>
+          <type>QUndoCommand *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewundo.h" line="136" column="3"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_node_copy_inputs_command_1a367e5ec25ba3df6790e646c4ef606971" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void NodeCopyInputsCommand::redo</definition>
+        <argsstring>() override</argsstring>
+        <name>redo</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewundo.h" line="141" column="16"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="3">
+        <label>NodeOutput</label>
+        <link refid="class_node_output"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>Node</label>
+        <link refid="class_node"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>output_</edgelabel>
+        </childnode>
+      </node>
+      <node id="4">
+        <label>NodeParam</label>
+        <link refid="class_node_param"/>
+      </node>
+      <node id="1">
+        <label>NodeCopyInputsCommand</label>
+        <link refid="class_node_copy_inputs_command"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>dest_</edgelabel>
+          <edgelabel>src_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewundo.h" line="129" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewundo.h" bodystart="129" bodyend="150"/>
+    <listofallmembers>
+      <member refid="class_node_copy_inputs_command_1ab435dfd0f45629013a5a337cef23db22" prot="private" virt="non-virtual"><scope>NodeCopyInputsCommand</scope><name>dest_</name></member>
+      <member refid="class_node_copy_inputs_command_1acd4ed8b76f2790edf71a9490a421475a" prot="private" virt="non-virtual"><scope>NodeCopyInputsCommand</scope><name>include_connections_</name></member>
+      <member refid="class_node_copy_inputs_command_1ac85c1b456c61adadba2f4e275b96c0a8" prot="public" virt="non-virtual"><scope>NodeCopyInputsCommand</scope><name>NodeCopyInputsCommand</name></member>
+      <member refid="class_node_copy_inputs_command_1a941437fcd2ee80c27174e2e458c6227a" prot="public" virt="non-virtual"><scope>NodeCopyInputsCommand</scope><name>NodeCopyInputsCommand</name></member>
+      <member refid="class_node_copy_inputs_command_1a367e5ec25ba3df6790e646c4ef606971" prot="protected" virt="virtual"><scope>NodeCopyInputsCommand</scope><name>redo</name></member>
+      <member refid="class_node_copy_inputs_command_1a4b497b7a8cbe8e6af7955bab4778f29f" prot="private" virt="non-virtual"><scope>NodeCopyInputsCommand</scope><name>src_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

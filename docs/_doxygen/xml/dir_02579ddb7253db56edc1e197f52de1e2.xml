@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_02579ddb7253db56edc1e197f52de1e2" kind="dir">
+    <compoundname>histogram</compoundname>
+    <innerfile refid="histogram_8h">histogram.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/widget/scope/histogram/"/>
+  </compounddef>
+</doxygen>

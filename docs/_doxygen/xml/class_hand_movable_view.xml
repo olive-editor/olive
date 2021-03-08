@@ -1,0 +1,251 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_hand_movable_view" kind="class" language="C++" prot="public">
+    <compoundname>HandMovableView</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QGraphicsView</basecompoundref>
+    <derivedcompoundref refid="class_node_view" prot="public" virt="non-virtual">NodeView</derivedcompoundref>
+    <derivedcompoundref refid="class_timeline_view_base" prot="public" virt="non-virtual">TimelineViewBase</derivedcompoundref>
+    <includes refid="handmovableview_8h" local="no">handmovableview.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_hand_movable_view_1a57ab135558b97e82be7a1fdede588b19" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool HandMovableView::dragging_hand_</definition>
+        <argsstring></argsstring>
+        <name>dragging_hand_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/handmovableview.h" line="65" column="8" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/view/handmovableview.h" bodystart="65" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_hand_movable_view_1af7f264c04e784f974cf02e55c14426fb" prot="private" static="no" mutable="no">
+        <type>DragMode</type>
+        <definition>DragMode HandMovableView::pre_hand_drag_mode_</definition>
+        <argsstring></argsstring>
+        <name>pre_hand_drag_mode_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/handmovableview.h" line="66" column="12" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/view/handmovableview.h" bodystart="66" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_hand_movable_view_1a36465aab11a16995d4cbeb6c39bddd15" prot="private" static="no" mutable="no">
+        <type>DragMode</type>
+        <definition>DragMode HandMovableView::default_drag_mode_</definition>
+        <argsstring></argsstring>
+        <name>default_drag_mode_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/handmovableview.h" line="68" column="12" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/view/handmovableview.h" bodystart="68" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_hand_movable_view_1adca61866434b532f32aabbbba4b1a52c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>HandMovableView::HandMovableView</definition>
+        <argsstring>(QWidget *parent=nullptr)</argsstring>
+        <name>HandMovableView</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/handmovableview.h" line="52" column="3"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_hand_movable_view_1ae92a64487e0e64091b9c6c23b7e66f29" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void HandMovableView::ToolChangedEvent</definition>
+        <argsstring>(Tool::Item tool)</argsstring>
+        <name>ToolChangedEvent</name>
+        <reimplementedby refid="class_timeline_view_1a12449348dc0868c1754d11e2872618ea">ToolChangedEvent</reimplementedby>
+        <param>
+          <type><ref refid="class_tool_1aa5b3343d5a8a21b7473dfe74af2976cb" kindref="member">Tool::Item</ref></type>
+          <declname>tool</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/handmovableview.h" line="55" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/view/handmovableview.h" bodystart="55" bodyend="55"/>
+      </memberdef>
+      <memberdef kind="function" id="class_hand_movable_view_1ad24f053a456b4595043d72541ab95faf" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool HandMovableView::HandPress</definition>
+        <argsstring>(QMouseEvent *event)</argsstring>
+        <name>HandPress</name>
+        <param>
+          <type>QMouseEvent *</type>
+          <declname>event</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/handmovableview.h" line="57" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_hand_movable_view_1af57578595a987391723c3a00861567a0" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool HandMovableView::HandMove</definition>
+        <argsstring>(QMouseEvent *event)</argsstring>
+        <name>HandMove</name>
+        <param>
+          <type>QMouseEvent *</type>
+          <declname>event</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/handmovableview.h" line="58" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_hand_movable_view_1a864ee621b2b4c313eab85fa972788afb" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool HandMovableView::HandRelease</definition>
+        <argsstring>(QMouseEvent *event)</argsstring>
+        <name>HandRelease</name>
+        <param>
+          <type>QMouseEvent *</type>
+          <declname>event</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/handmovableview.h" line="59" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_hand_movable_view_1a721eef96cb313a1415587d07018a0dfb" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void HandMovableView::SetDefaultDragMode</definition>
+        <argsstring>(DragMode mode)</argsstring>
+        <name>SetDefaultDragMode</name>
+        <param>
+          <type>DragMode</type>
+          <declname>mode</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/handmovableview.h" line="61" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_hand_movable_view_1ae6f99b43055cf68dc36849f4727cf187" prot="protected" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const DragMode &amp;</type>
+        <definition>const DragMode&amp; HandMovableView::GetDefaultDragMode</definition>
+        <argsstring>() const</argsstring>
+        <name>GetDefaultDragMode</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/handmovableview.h" line="62" column="18"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_hand_movable_view_1a557ff72bd7cce7054c7cdda5eed6a43c" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void HandMovableView::ApplicationToolChanged</definition>
+        <argsstring>(Tool::Item tool)</argsstring>
+        <name>ApplicationToolChanged</name>
+        <param>
+          <type><ref refid="class_tool_1aa5b3343d5a8a21b7473dfe74af2976cb" kindref="member">Tool::Item</ref></type>
+          <declname>tool</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/handmovableview.h" line="71" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="5">
+        <label>CurveView</label>
+        <link refid="class_curve_view"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>HandMovableView</label>
+        <link refid="class_hand_movable_view"/>
+      </node>
+      <node id="6">
+        <label>KeyframeView</label>
+        <link refid="class_keyframe_view"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>TimelineViewBase</label>
+        <link refid="class_timeline_view_base"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>KeyframeViewBase</label>
+        <link refid="class_keyframe_view_base"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>NodeView</label>
+        <link refid="class_node_view"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>TimelineView</label>
+        <link refid="class_timeline_view"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/handmovableview.h" line="30" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/view/handmovableview.h" bodystart="31" bodyend="55"/>
+    <listofallmembers>
+      <member refid="class_hand_movable_view_1a557ff72bd7cce7054c7cdda5eed6a43c" prot="private" virt="non-virtual"><scope>HandMovableView</scope><name>ApplicationToolChanged</name></member>
+      <member refid="class_hand_movable_view_1a36465aab11a16995d4cbeb6c39bddd15" prot="private" virt="non-virtual"><scope>HandMovableView</scope><name>default_drag_mode_</name></member>
+      <member refid="class_hand_movable_view_1a57ab135558b97e82be7a1fdede588b19" prot="private" virt="non-virtual"><scope>HandMovableView</scope><name>dragging_hand_</name></member>
+      <member refid="class_hand_movable_view_1ae6f99b43055cf68dc36849f4727cf187" prot="protected" virt="non-virtual"><scope>HandMovableView</scope><name>GetDefaultDragMode</name></member>
+      <member refid="class_hand_movable_view_1adca61866434b532f32aabbbba4b1a52c" prot="public" virt="non-virtual"><scope>HandMovableView</scope><name>HandMovableView</name></member>
+      <member refid="class_hand_movable_view_1af57578595a987391723c3a00861567a0" prot="protected" virt="non-virtual"><scope>HandMovableView</scope><name>HandMove</name></member>
+      <member refid="class_hand_movable_view_1ad24f053a456b4595043d72541ab95faf" prot="protected" virt="non-virtual"><scope>HandMovableView</scope><name>HandPress</name></member>
+      <member refid="class_hand_movable_view_1a864ee621b2b4c313eab85fa972788afb" prot="protected" virt="non-virtual"><scope>HandMovableView</scope><name>HandRelease</name></member>
+      <member refid="class_hand_movable_view_1af7f264c04e784f974cf02e55c14426fb" prot="private" virt="non-virtual"><scope>HandMovableView</scope><name>pre_hand_drag_mode_</name></member>
+      <member refid="class_hand_movable_view_1a721eef96cb313a1415587d07018a0dfb" prot="protected" virt="non-virtual"><scope>HandMovableView</scope><name>SetDefaultDragMode</name></member>
+      <member refid="class_hand_movable_view_1ae92a64487e0e64091b9c6c23b7e66f29" prot="protected" virt="virtual"><scope>HandMovableView</scope><name>ToolChangedEvent</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

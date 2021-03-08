@@ -1,0 +1,615 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_color" kind="class" language="C++" prot="public">
+    <compoundname>Color</compoundname>
+    <derivedcompoundref refid="class_managed_color" prot="public" virt="non-virtual">ManagedColor</derivedcompoundref>
+    <includes refid="color_8h" local="no">color.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_color_1a8b5ef475c57dac0628f87e2b8e361361" prot="private" static="no" mutable="no">
+        <type>float</type>
+        <definition>float Color::data_[kRGBAChannels]</definition>
+        <argsstring>[kRGBAChannels]</argsstring>
+        <name>data_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/color.h" line="120" column="9" bodyfile="C:/Daten/Olive/olive/app/render/color.h" bodystart="120" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_color_1a9a742cbe9f9f4037f5d9f4e81a9b2428" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Color::Color</definition>
+        <argsstring>()</argsstring>
+        <name>Color</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/color.h" line="56" column="3" bodyfile="C:/Daten/Olive/olive/app/render/color.h" bodystart="56" bodyend="61"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_1af7445f9375881856f7d7e1bb0af3b1af" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Color::Color</definition>
+        <argsstring>(const float &amp;r, const float &amp;g, const float &amp;b, const float &amp;a=1.0f)</argsstring>
+        <name>Color</name>
+        <param>
+          <type>const float &amp;</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type>const float &amp;</type>
+          <declname>g</declname>
+        </param>
+        <param>
+          <type>const float &amp;</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>const float &amp;</type>
+          <declname>a</declname>
+          <defval>1.0f</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/color.h" line="63" column="3" bodyfile="C:/Daten/Olive/olive/app/render/color.h" bodystart="63" bodyend="69"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_1ad69fe3f29864f888ef0dd0b60ab96a7f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Color::Color</definition>
+        <argsstring>(const char *data, const PixelFormat::Format &amp;format)</argsstring>
+        <name>Color</name>
+        <param>
+          <type>const char *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021" kindref="member">PixelFormat::Format</ref> &amp;</type>
+          <declname>format</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/color.h" line="71" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_1acac751cd041f9e60d409199a055ac17b" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>const float &amp;</type>
+        <definition>const float&amp; Color::red</definition>
+        <argsstring>() const</argsstring>
+        <name>red</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/color.h" line="80" column="15" bodyfile="C:/Daten/Olive/olive/app/render/color.h" bodystart="80" bodyend="80"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_1a15bb643ef04e06b0c1bb4d9ea8d35d42" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>const float &amp;</type>
+        <definition>const float&amp; Color::green</definition>
+        <argsstring>() const</argsstring>
+        <name>green</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/color.h" line="81" column="15" bodyfile="C:/Daten/Olive/olive/app/render/color.h" bodystart="81" bodyend="81"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_1a1e393daa6d7792632c83e027a49110c6" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>const float &amp;</type>
+        <definition>const float&amp; Color::blue</definition>
+        <argsstring>() const</argsstring>
+        <name>blue</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/color.h" line="82" column="15" bodyfile="C:/Daten/Olive/olive/app/render/color.h" bodystart="82" bodyend="82"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_1a094302c46757e740ef6737ed4c3428b5" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>const float &amp;</type>
+        <definition>const float&amp; Color::alpha</definition>
+        <argsstring>() const</argsstring>
+        <name>alpha</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/color.h" line="83" column="15" bodyfile="C:/Daten/Olive/olive/app/render/color.h" bodystart="83" bodyend="83"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_1ae5cf72d4df8f3ae57ee38baec6a156bc" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Color::toHsv</definition>
+        <argsstring>(float *hue, float *sat, float *val) const</argsstring>
+        <name>toHsv</name>
+        <param>
+          <type>float *</type>
+          <declname>hue</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>sat</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>val</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/color.h" line="85" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_1a386b8cf9ca4abf9cc19396a645e32152" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>float</type>
+        <definition>float Color::hsv_hue</definition>
+        <argsstring>() const</argsstring>
+        <name>hsv_hue</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/color.h" line="86" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_1a473579cb81879a9ae4950446c3a8b4ab" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>float</type>
+        <definition>float Color::hsv_saturation</definition>
+        <argsstring>() const</argsstring>
+        <name>hsv_saturation</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/color.h" line="87" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_1a552c47b21f6856878ab9b3983537580a" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>float</type>
+        <definition>float Color::value</definition>
+        <argsstring>() const</argsstring>
+        <name>value</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/color.h" line="88" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_1a06a887f2dc2339d0317beb3abdb46a45" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Color::toHsl</definition>
+        <argsstring>(float *hue, float *sat, float *lightness) const</argsstring>
+        <name>toHsl</name>
+        <param>
+          <type>float *</type>
+          <declname>hue</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>sat</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>lightness</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/color.h" line="90" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_1a034f2ce9d7d76a271d9ea8a739c924ec" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>float</type>
+        <definition>float Color::hsl_hue</definition>
+        <argsstring>() const</argsstring>
+        <name>hsl_hue</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/color.h" line="91" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_1ab56782086b9fa9cc7c289a5e074311cd" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>float</type>
+        <definition>float Color::hsl_saturation</definition>
+        <argsstring>() const</argsstring>
+        <name>hsl_saturation</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/color.h" line="92" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_1ab86f6f3e65439e4ac8058d653f2b77d6" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>float</type>
+        <definition>float Color::lightness</definition>
+        <argsstring>() const</argsstring>
+        <name>lightness</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/color.h" line="93" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_1a7ac87e05605b3d51aabf23882bf2dbdf" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Color::set_red</definition>
+        <argsstring>(const float &amp;red)</argsstring>
+        <name>set_red</name>
+        <param>
+          <type>const float &amp;</type>
+          <declname>red</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/color.h" line="95" column="8" bodyfile="C:/Daten/Olive/olive/app/render/color.h" bodystart="95" bodyend="95"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_1a31e778230365815bc76362517b2a22f1" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Color::set_green</definition>
+        <argsstring>(const float &amp;green)</argsstring>
+        <name>set_green</name>
+        <param>
+          <type>const float &amp;</type>
+          <declname>green</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/color.h" line="96" column="8" bodyfile="C:/Daten/Olive/olive/app/render/color.h" bodystart="96" bodyend="96"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_1add598f4858498ebae0cba5b0cc4bcc38" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Color::set_blue</definition>
+        <argsstring>(const float &amp;blue)</argsstring>
+        <name>set_blue</name>
+        <param>
+          <type>const float &amp;</type>
+          <declname>blue</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/color.h" line="97" column="8" bodyfile="C:/Daten/Olive/olive/app/render/color.h" bodystart="97" bodyend="97"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_1aa8f4eaaf2f52325b5791c7500d55703c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Color::set_alpha</definition>
+        <argsstring>(const float &amp;alpha)</argsstring>
+        <name>set_alpha</name>
+        <param>
+          <type>const float &amp;</type>
+          <declname>alpha</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/color.h" line="98" column="8" bodyfile="C:/Daten/Olive/olive/app/render/color.h" bodystart="98" bodyend="98"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_1a40cd03d7f9e5f481f163ddefff8e8cee" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>float *</type>
+        <definition>float* Color::data</definition>
+        <argsstring>()</argsstring>
+        <name>data</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/color.h" line="100" column="9" bodyfile="C:/Daten/Olive/olive/app/render/color.h" bodystart="100" bodyend="100"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_1aeeb34f69ecccf6dd0aaeefc06ce90f55" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>const float *</type>
+        <definition>const float* Color::data</definition>
+        <argsstring>() const</argsstring>
+        <name>data</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/color.h" line="101" column="15" bodyfile="C:/Daten/Olive/olive/app/render/color.h" bodystart="101" bodyend="101"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_1a5e673078938b1fab16860a9417c6809c" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QColor</type>
+        <definition>QColor Color::toQColor</definition>
+        <argsstring>() const</argsstring>
+        <name>toQColor</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/color.h" line="105" column="10"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_1af34a35bf5cfe84d8b7c1a0d3fde47fb4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="class_color" kindref="compound">Color</ref> &amp;</type>
+        <definition>const Color&amp; Color::operator+=</definition>
+        <argsstring>(const Color &amp;rhs)</argsstring>
+        <name>operator+=</name>
+        <param>
+          <type>const <ref refid="class_color" kindref="compound">Color</ref> &amp;</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/color.h" line="108" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_1a541123864ea2e5950b794e1b63ed7132" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="class_color" kindref="compound">Color</ref> &amp;</type>
+        <definition>const Color&amp; Color::operator-=</definition>
+        <argsstring>(const Color &amp;rhs)</argsstring>
+        <name>operator-=</name>
+        <param>
+          <type>const <ref refid="class_color" kindref="compound">Color</ref> &amp;</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/color.h" line="109" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_1ac2aa9adb8781c37f5d1e11c089cb6cc2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="class_color" kindref="compound">Color</ref> &amp;</type>
+        <definition>const Color&amp; Color::operator*=</definition>
+        <argsstring>(const float &amp;rhs)</argsstring>
+        <name>operator*=</name>
+        <param>
+          <type>const float &amp;</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/color.h" line="110" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_1a9236f043eb7f26fb5d426191e1e82a76" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="class_color" kindref="compound">Color</ref> &amp;</type>
+        <definition>const Color&amp; Color::operator/=</definition>
+        <argsstring>(const float &amp;rhs)</argsstring>
+        <name>operator/=</name>
+        <param>
+          <type>const float &amp;</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/color.h" line="111" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_1ad83a37f4124bc55373d0935e92ccef59" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_color" kindref="compound">Color</ref></type>
+        <definition>Color Color::operator+</definition>
+        <argsstring>(const Color &amp;rhs) const</argsstring>
+        <name>operator+</name>
+        <param>
+          <type>const <ref refid="class_color" kindref="compound">Color</ref> &amp;</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/color.h" line="114" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_1ab700d53855b9ce78bedefe3afb7abaf7" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_color" kindref="compound">Color</ref></type>
+        <definition>Color Color::operator-</definition>
+        <argsstring>(const Color &amp;rhs) const</argsstring>
+        <name>operator-</name>
+        <param>
+          <type>const <ref refid="class_color" kindref="compound">Color</ref> &amp;</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/color.h" line="115" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_1a596845bf0aee45f38287ef303877cee1" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_color" kindref="compound">Color</ref></type>
+        <definition>Color Color::operator*</definition>
+        <argsstring>(const float &amp;rhs) const</argsstring>
+        <name>operator*</name>
+        <param>
+          <type>const float &amp;</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/color.h" line="116" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_1a258c01aa43ee74b4682fb5bb007a3037" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_color" kindref="compound">Color</ref></type>
+        <definition>Color Color::operator/</definition>
+        <argsstring>(const float &amp;rhs) const</argsstring>
+        <name>operator/</name>
+        <param>
+          <type>const float &amp;</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/color.h" line="117" column="9"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="class_color_1a33531ea4c621434e1314593404fd9763" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_color" kindref="compound">Color</ref></type>
+        <definition>static Color Color::fromHsv</definition>
+        <argsstring>(const float &amp;h, const float &amp;s, const float &amp;v)</argsstring>
+        <name>fromHsv</name>
+        <param>
+          <type>const float &amp;</type>
+          <declname>h</declname>
+        </param>
+        <param>
+          <type>const float &amp;</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>const float &amp;</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+<para>Creates a <ref refid="class_color" kindref="compound">Color</ref> struct from hue/saturation/value. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Hue expects a value between 0.0 and 360.0. Saturation and Value expect a value between 0.0 and 1.0. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/color.h" line="78" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_1a2128596e1c7dd44bbb32b1ab20a43244" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_color" kindref="compound">Color</ref></type>
+        <definition>static Color Color::fromData</definition>
+        <argsstring>(const char *data, const PixelFormat::Format &amp;format)</argsstring>
+        <name>fromData</name>
+        <param>
+          <type>const char *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021" kindref="member">PixelFormat::Format</ref> &amp;</type>
+          <declname>format</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/color.h" line="103" column="16"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>High precision 32-bit float based RGBA color value. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>ManagedColor</label>
+        <link refid="class_managed_color"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>Color</label>
+        <link refid="class_color"/>
+      </node>
+    </inheritancegraph>
+    <location file="C:/Daten/Olive/olive/app/render/color.h" line="35" column="1" bodyfile="C:/Daten/Olive/olive/app/render/color.h" bodystart="36" bodyend="104"/>
+    <listofallmembers>
+      <member refid="class_color_1a094302c46757e740ef6737ed4c3428b5" prot="public" virt="non-virtual"><scope>Color</scope><name>alpha</name></member>
+      <member refid="class_color_1a1e393daa6d7792632c83e027a49110c6" prot="public" virt="non-virtual"><scope>Color</scope><name>blue</name></member>
+      <member refid="class_color_1a9a742cbe9f9f4037f5d9f4e81a9b2428" prot="public" virt="non-virtual"><scope>Color</scope><name>Color</name></member>
+      <member refid="class_color_1af7445f9375881856f7d7e1bb0af3b1af" prot="public" virt="non-virtual"><scope>Color</scope><name>Color</name></member>
+      <member refid="class_color_1ad69fe3f29864f888ef0dd0b60ab96a7f" prot="public" virt="non-virtual"><scope>Color</scope><name>Color</name></member>
+      <member refid="class_color_1a40cd03d7f9e5f481f163ddefff8e8cee" prot="public" virt="non-virtual"><scope>Color</scope><name>data</name></member>
+      <member refid="class_color_1aeeb34f69ecccf6dd0aaeefc06ce90f55" prot="public" virt="non-virtual"><scope>Color</scope><name>data</name></member>
+      <member refid="class_color_1a8b5ef475c57dac0628f87e2b8e361361" prot="private" virt="non-virtual"><scope>Color</scope><name>data_</name></member>
+      <member refid="class_color_1a2128596e1c7dd44bbb32b1ab20a43244" prot="public" virt="non-virtual"><scope>Color</scope><name>fromData</name></member>
+      <member refid="class_color_1a33531ea4c621434e1314593404fd9763" prot="public" virt="non-virtual"><scope>Color</scope><name>fromHsv</name></member>
+      <member refid="class_color_1a15bb643ef04e06b0c1bb4d9ea8d35d42" prot="public" virt="non-virtual"><scope>Color</scope><name>green</name></member>
+      <member refid="class_color_1a034f2ce9d7d76a271d9ea8a739c924ec" prot="public" virt="non-virtual"><scope>Color</scope><name>hsl_hue</name></member>
+      <member refid="class_color_1ab56782086b9fa9cc7c289a5e074311cd" prot="public" virt="non-virtual"><scope>Color</scope><name>hsl_saturation</name></member>
+      <member refid="class_color_1a386b8cf9ca4abf9cc19396a645e32152" prot="public" virt="non-virtual"><scope>Color</scope><name>hsv_hue</name></member>
+      <member refid="class_color_1a473579cb81879a9ae4950446c3a8b4ab" prot="public" virt="non-virtual"><scope>Color</scope><name>hsv_saturation</name></member>
+      <member refid="class_color_1ab86f6f3e65439e4ac8058d653f2b77d6" prot="public" virt="non-virtual"><scope>Color</scope><name>lightness</name></member>
+      <member refid="class_color_1a596845bf0aee45f38287ef303877cee1" prot="public" virt="non-virtual"><scope>Color</scope><name>operator*</name></member>
+      <member refid="class_color_1ac2aa9adb8781c37f5d1e11c089cb6cc2" prot="public" virt="non-virtual"><scope>Color</scope><name>operator*=</name></member>
+      <member refid="class_color_1ad83a37f4124bc55373d0935e92ccef59" prot="public" virt="non-virtual"><scope>Color</scope><name>operator+</name></member>
+      <member refid="class_color_1af34a35bf5cfe84d8b7c1a0d3fde47fb4" prot="public" virt="non-virtual"><scope>Color</scope><name>operator+=</name></member>
+      <member refid="class_color_1ab700d53855b9ce78bedefe3afb7abaf7" prot="public" virt="non-virtual"><scope>Color</scope><name>operator-</name></member>
+      <member refid="class_color_1a541123864ea2e5950b794e1b63ed7132" prot="public" virt="non-virtual"><scope>Color</scope><name>operator-=</name></member>
+      <member refid="class_color_1a258c01aa43ee74b4682fb5bb007a3037" prot="public" virt="non-virtual"><scope>Color</scope><name>operator/</name></member>
+      <member refid="class_color_1a9236f043eb7f26fb5d426191e1e82a76" prot="public" virt="non-virtual"><scope>Color</scope><name>operator/=</name></member>
+      <member refid="class_color_1acac751cd041f9e60d409199a055ac17b" prot="public" virt="non-virtual"><scope>Color</scope><name>red</name></member>
+      <member refid="class_color_1aa8f4eaaf2f52325b5791c7500d55703c" prot="public" virt="non-virtual"><scope>Color</scope><name>set_alpha</name></member>
+      <member refid="class_color_1add598f4858498ebae0cba5b0cc4bcc38" prot="public" virt="non-virtual"><scope>Color</scope><name>set_blue</name></member>
+      <member refid="class_color_1a31e778230365815bc76362517b2a22f1" prot="public" virt="non-virtual"><scope>Color</scope><name>set_green</name></member>
+      <member refid="class_color_1a7ac87e05605b3d51aabf23882bf2dbdf" prot="public" virt="non-virtual"><scope>Color</scope><name>set_red</name></member>
+      <member refid="class_color_1a06a887f2dc2339d0317beb3abdb46a45" prot="public" virt="non-virtual"><scope>Color</scope><name>toHsl</name></member>
+      <member refid="class_color_1ae5cf72d4df8f3ae57ee38baec6a156bc" prot="public" virt="non-virtual"><scope>Color</scope><name>toHsv</name></member>
+      <member refid="class_color_1a5e673078938b1fab16860a9417c6809c" prot="public" virt="non-virtual"><scope>Color</scope><name>toQColor</name></member>
+      <member refid="class_color_1a552c47b21f6856878ab9b3983537580a" prot="public" virt="non-virtual"><scope>Color</scope><name>value</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

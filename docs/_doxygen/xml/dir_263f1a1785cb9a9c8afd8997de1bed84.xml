@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_263f1a1785cb9a9c8afd8997de1bed84" kind="dir">
+    <compoundname>ffmpeg</compoundname>
+    <innerfile refid="avframeptr_8h">avframeptr.h</innerfile>
+    <innerfile refid="ffmpegcommon_8h">ffmpegcommon.h</innerfile>
+    <innerfile refid="ffmpegdecoder_8h">ffmpegdecoder.h</innerfile>
+    <innerfile refid="ffmpegencoder_8h">ffmpegencoder.h</innerfile>
+    <innerfile refid="ffmpegframepool_8h">ffmpegframepool.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/"/>
+  </compounddef>
+</doxygen>

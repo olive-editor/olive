@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_17f52554ed877014fa4e4b16e7ac2c68" kind="dir">
+    <compoundname>sequenceviewer</compoundname>
+    <innerfile refid="sequenceviewer_8h">sequenceviewer.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/panel/sequenceviewer/"/>
+  </compounddef>
+</doxygen>

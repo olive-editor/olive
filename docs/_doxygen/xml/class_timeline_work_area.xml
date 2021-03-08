@@ -1,0 +1,302 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_timeline_work_area" kind="class" language="C++" prot="public">
+    <compoundname>TimelineWorkArea</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QObject</basecompoundref>
+    <includes refid="timelineworkarea_8h" local="no">timelineworkarea.h</includes>
+      <sectiondef kind="public-static-attrib">
+      <memberdef kind="variable" id="class_timeline_work_area_1a93c12d0cb199f17ff5a163eae3d2b525" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>const rational TimelineWorkArea::kResetIn</definition>
+        <argsstring></argsstring>
+        <name>kResetIn</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelineworkarea.h" line="68" column="25" bodyfile="C:/Daten/Olive/olive/app/timeline/timelineworkarea.h" bodystart="68" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_timeline_work_area_1ae98a1e92bd3d67fdfcaf8c728b94dffa" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>const rational TimelineWorkArea::kResetOut</definition>
+        <argsstring></argsstring>
+        <name>kResetOut</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelineworkarea.h" line="69" column="25" bodyfile="C:/Daten/Olive/olive/app/timeline/timelineworkarea.h" bodystart="69" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_timeline_work_area_1a8634d347c114283eabcadbe488389374" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool TimelineWorkArea::workarea_enabled_</definition>
+        <argsstring></argsstring>
+        <name>workarea_enabled_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelineworkarea.h" line="77" column="8" bodyfile="C:/Daten/Olive/olive/app/timeline/timelineworkarea.h" bodystart="77" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_timeline_work_area_1a8c7868c9bf6cc66929d7890cf3c30670" prot="private" static="no" mutable="no">
+        <type><ref refid="class_time_range" kindref="compound">TimeRange</ref></type>
+        <definition>TimeRange TimelineWorkArea::workarea_range_</definition>
+        <argsstring></argsstring>
+        <name>workarea_range_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelineworkarea.h" line="79" column="13" bodyfile="C:/Daten/Olive/olive/app/timeline/timelineworkarea.h" bodystart="79" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_timeline_work_area_1a0038c789594dd1df3649ab69ca069cc1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>TimelineWorkArea::TimelineWorkArea</definition>
+        <argsstring>(QObject *parent=nullptr)</argsstring>
+        <name>TimelineWorkArea</name>
+        <param>
+          <type>QObject *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelineworkarea.h" line="54" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_work_area_1a0dae5f3c55ab438ce79db997ff9ac608" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool TimelineWorkArea::enabled</definition>
+        <argsstring>() const</argsstring>
+        <name>enabled</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelineworkarea.h" line="56" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_work_area_1ad69553b8310f0b065fa05ae89b55c90a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimelineWorkArea::set_enabled</definition>
+        <argsstring>(bool e)</argsstring>
+        <name>set_enabled</name>
+        <param>
+          <type>bool</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelineworkarea.h" line="57" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_work_area_1a3c041384b708831f5a439895ad858b3f" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+        <definition>const rational&amp; TimelineWorkArea::in</definition>
+        <argsstring>() const</argsstring>
+        <name>in</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelineworkarea.h" line="59" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_work_area_1a9523776793aac41dc220a5e2358f13c2" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+        <definition>const rational&amp; TimelineWorkArea::out</definition>
+        <argsstring>() const</argsstring>
+        <name>out</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelineworkarea.h" line="60" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_work_area_1a5203f45983482ba52bb7be0a5c2c0f08" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+        <definition>const rational&amp; TimelineWorkArea::length</definition>
+        <argsstring>() const</argsstring>
+        <name>length</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelineworkarea.h" line="61" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_work_area_1a50f95070fdd39b9de80cd60fe882fafa" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="class_time_range" kindref="compound">TimeRange</ref> &amp;</type>
+        <definition>const TimeRange&amp; TimelineWorkArea::range</definition>
+        <argsstring>() const</argsstring>
+        <name>range</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelineworkarea.h" line="62" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_work_area_1a1d20fee8ac8bf362e807465fb193858a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimelineWorkArea::set_range</definition>
+        <argsstring>(const TimeRange &amp;range)</argsstring>
+        <name>set_range</name>
+        <param>
+          <type>const <ref refid="class_time_range" kindref="compound">TimeRange</ref> &amp;</type>
+          <declname>range</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelineworkarea.h" line="63" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_work_area_1a8accab0d42314948afbfcb30d4588732" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimelineWorkArea::Load</definition>
+        <argsstring>(QXmlStreamReader *reader)</argsstring>
+        <name>Load</name>
+        <param>
+          <type>QXmlStreamReader *</type>
+          <declname>reader</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelineworkarea.h" line="65" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_work_area_1ac06048c0860483350452071a47c30f94" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimelineWorkArea::Save</definition>
+        <argsstring>(QXmlStreamWriter *writer) const</argsstring>
+        <name>Save</name>
+        <param>
+          <type>QXmlStreamWriter *</type>
+          <declname>writer</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelineworkarea.h" line="66" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_timeline_work_area_1aa09c9e8fa65e07f7af5e9c64a72f74f7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimelineWorkArea::EnabledChanged</definition>
+        <argsstring>(bool e)</argsstring>
+        <name>EnabledChanged</name>
+        <param>
+          <type>bool</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelineworkarea.h" line="72" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_timeline_work_area_1a06b9135d8c7c47c6091039743a226093" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimelineWorkArea::RangeChanged</definition>
+        <argsstring>(const TimeRange &amp;r)</argsstring>
+        <name>RangeChanged</name>
+        <param>
+          <type>const <ref refid="class_time_range" kindref="compound">TimeRange</ref> &amp;</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelineworkarea.h" line="74" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="3">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="1">
+        <label>TimelineWorkArea</label>
+        <link refid="class_timeline_work_area"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>workarea_range_</edgelabel>
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>kResetOut</edgelabel>
+          <edgelabel>kResetIn</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>TimeRange</label>
+        <link refid="class_time_range"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>out_</edgelabel>
+          <edgelabel>in_</edgelabel>
+          <edgelabel>length_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/timeline/timelineworkarea.h" line="32" column="1" bodyfile="C:/Daten/Olive/olive/app/timeline/timelineworkarea.h" bodystart="33" bodyend="63"/>
+    <listofallmembers>
+      <member refid="class_timeline_work_area_1a0dae5f3c55ab438ce79db997ff9ac608" prot="public" virt="non-virtual"><scope>TimelineWorkArea</scope><name>enabled</name></member>
+      <member refid="class_timeline_work_area_1aa09c9e8fa65e07f7af5e9c64a72f74f7" prot="public" virt="non-virtual"><scope>TimelineWorkArea</scope><name>EnabledChanged</name></member>
+      <member refid="class_timeline_work_area_1a3c041384b708831f5a439895ad858b3f" prot="public" virt="non-virtual"><scope>TimelineWorkArea</scope><name>in</name></member>
+      <member refid="class_timeline_work_area_1a93c12d0cb199f17ff5a163eae3d2b525" prot="public" virt="non-virtual"><scope>TimelineWorkArea</scope><name>kResetIn</name></member>
+      <member refid="class_timeline_work_area_1ae98a1e92bd3d67fdfcaf8c728b94dffa" prot="public" virt="non-virtual"><scope>TimelineWorkArea</scope><name>kResetOut</name></member>
+      <member refid="class_timeline_work_area_1a5203f45983482ba52bb7be0a5c2c0f08" prot="public" virt="non-virtual"><scope>TimelineWorkArea</scope><name>length</name></member>
+      <member refid="class_timeline_work_area_1a8accab0d42314948afbfcb30d4588732" prot="public" virt="non-virtual"><scope>TimelineWorkArea</scope><name>Load</name></member>
+      <member refid="class_timeline_work_area_1a9523776793aac41dc220a5e2358f13c2" prot="public" virt="non-virtual"><scope>TimelineWorkArea</scope><name>out</name></member>
+      <member refid="class_timeline_work_area_1a50f95070fdd39b9de80cd60fe882fafa" prot="public" virt="non-virtual"><scope>TimelineWorkArea</scope><name>range</name></member>
+      <member refid="class_timeline_work_area_1a06b9135d8c7c47c6091039743a226093" prot="public" virt="non-virtual"><scope>TimelineWorkArea</scope><name>RangeChanged</name></member>
+      <member refid="class_timeline_work_area_1ac06048c0860483350452071a47c30f94" prot="public" virt="non-virtual"><scope>TimelineWorkArea</scope><name>Save</name></member>
+      <member refid="class_timeline_work_area_1ad69553b8310f0b065fa05ae89b55c90a" prot="public" virt="non-virtual"><scope>TimelineWorkArea</scope><name>set_enabled</name></member>
+      <member refid="class_timeline_work_area_1a1d20fee8ac8bf362e807465fb193858a" prot="public" virt="non-virtual"><scope>TimelineWorkArea</scope><name>set_range</name></member>
+      <member refid="class_timeline_work_area_1a0038c789594dd1df3649ab69ca069cc1" prot="public" virt="non-virtual"><scope>TimelineWorkArea</scope><name>TimelineWorkArea</name></member>
+      <member refid="class_timeline_work_area_1a8634d347c114283eabcadbe488389374" prot="private" virt="non-virtual"><scope>TimelineWorkArea</scope><name>workarea_enabled_</name></member>
+      <member refid="class_timeline_work_area_1a8c7868c9bf6cc66929d7890cf3c30670" prot="private" virt="non-virtual"><scope>TimelineWorkArea</scope><name>workarea_range_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,192 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_timeline_coordinate" kind="class" language="C++" prot="public">
+    <compoundname>TimelineCoordinate</compoundname>
+    <includes refid="timelinecoordinate_8h" local="no">timelinecoordinate.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_timeline_coordinate_1a3a7874cd8aacf141e71c9a42fe0ab491" prot="private" static="no" mutable="no">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational TimelineCoordinate::frame_</definition>
+        <argsstring></argsstring>
+        <name>frame_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelinecoordinate.h" line="61" column="12" bodyfile="C:/Daten/Olive/olive/app/timeline/timelinecoordinate.h" bodystart="61" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_timeline_coordinate_1ae4e0c86058542cb6a26bdfa33cfdcc39" prot="private" static="no" mutable="no">
+        <type><ref refid="class_track_reference" kindref="compound">TrackReference</ref></type>
+        <definition>TrackReference TimelineCoordinate::track_</definition>
+        <argsstring></argsstring>
+        <name>track_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelinecoordinate.h" line="63" column="18" bodyfile="C:/Daten/Olive/olive/app/timeline/timelinecoordinate.h" bodystart="63" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_timeline_coordinate_1ac72c8009ede70b047107174abe834341" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>TimelineCoordinate::TimelineCoordinate</definition>
+        <argsstring>()</argsstring>
+        <name>TimelineCoordinate</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelinecoordinate.h" line="50" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_coordinate_1a76442522554b5b1ee20abfb3d787743a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>TimelineCoordinate::TimelineCoordinate</definition>
+        <argsstring>(const rational &amp;frame, const TrackReference &amp;track)</argsstring>
+        <name>TimelineCoordinate</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>frame</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_track_reference" kindref="compound">TrackReference</ref> &amp;</type>
+          <declname>track</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelinecoordinate.h" line="51" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_coordinate_1a97f8e97b64cc87264400de7eedeaf4a1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>TimelineCoordinate::TimelineCoordinate</definition>
+        <argsstring>(const rational &amp;frame, const Timeline::TrackType &amp;track_type, const int &amp;track_index)</argsstring>
+        <name>TimelineCoordinate</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>frame</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_timeline_1ac18e2f98ba3b99570e714506df77ba51" kindref="member">Timeline::TrackType</ref> &amp;</type>
+          <declname>track_type</declname>
+        </param>
+        <param>
+          <type>const int &amp;</type>
+          <declname>track_index</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelinecoordinate.h" line="52" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_coordinate_1a5ed2d1c2c92388401e6ee0f49db95468" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+        <definition>const rational&amp; TimelineCoordinate::GetFrame</definition>
+        <argsstring>() const</argsstring>
+        <name>GetFrame</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelinecoordinate.h" line="54" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_coordinate_1ae81fe6f022d6a0c1a713b5f9238386e2" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="class_track_reference" kindref="compound">TrackReference</ref> &amp;</type>
+        <definition>const TrackReference&amp; TimelineCoordinate::GetTrack</definition>
+        <argsstring>() const</argsstring>
+        <name>GetTrack</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelinecoordinate.h" line="55" column="24"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_coordinate_1a7d5ecb52ceb87757164d829ca7f90af6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimelineCoordinate::SetFrame</definition>
+        <argsstring>(const rational &amp;frame)</argsstring>
+        <name>SetFrame</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>frame</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelinecoordinate.h" line="57" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_coordinate_1a9e391f06091f635800aec74717739667" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimelineCoordinate::SetTrack</definition>
+        <argsstring>(const TrackReference &amp;track)</argsstring>
+        <name>SetTrack</name>
+        <param>
+          <type>const <ref refid="class_track_reference" kindref="compound">TrackReference</ref> &amp;</type>
+          <declname>track</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/timeline/timelinecoordinate.h" line="58" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>TimelineCoordinate</label>
+        <link refid="class_timeline_coordinate"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>track_</edgelabel>
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>frame_</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="2">
+        <label>TrackReference</label>
+        <link refid="class_track_reference"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/timeline/timelinecoordinate.h" line="29" column="1" bodyfile="C:/Daten/Olive/olive/app/timeline/timelinecoordinate.h" bodystart="30" bodyend="47"/>
+    <listofallmembers>
+      <member refid="class_timeline_coordinate_1a3a7874cd8aacf141e71c9a42fe0ab491" prot="private" virt="non-virtual"><scope>TimelineCoordinate</scope><name>frame_</name></member>
+      <member refid="class_timeline_coordinate_1a5ed2d1c2c92388401e6ee0f49db95468" prot="public" virt="non-virtual"><scope>TimelineCoordinate</scope><name>GetFrame</name></member>
+      <member refid="class_timeline_coordinate_1ae81fe6f022d6a0c1a713b5f9238386e2" prot="public" virt="non-virtual"><scope>TimelineCoordinate</scope><name>GetTrack</name></member>
+      <member refid="class_timeline_coordinate_1a7d5ecb52ceb87757164d829ca7f90af6" prot="public" virt="non-virtual"><scope>TimelineCoordinate</scope><name>SetFrame</name></member>
+      <member refid="class_timeline_coordinate_1a9e391f06091f635800aec74717739667" prot="public" virt="non-virtual"><scope>TimelineCoordinate</scope><name>SetTrack</name></member>
+      <member refid="class_timeline_coordinate_1ac72c8009ede70b047107174abe834341" prot="public" virt="non-virtual"><scope>TimelineCoordinate</scope><name>TimelineCoordinate</name></member>
+      <member refid="class_timeline_coordinate_1a76442522554b5b1ee20abfb3d787743a" prot="public" virt="non-virtual"><scope>TimelineCoordinate</scope><name>TimelineCoordinate</name></member>
+      <member refid="class_timeline_coordinate_1a97f8e97b64cc87264400de7eedeaf4a1" prot="public" virt="non-virtual"><scope>TimelineCoordinate</scope><name>TimelineCoordinate</name></member>
+      <member refid="class_timeline_coordinate_1ae4e0c86058542cb6a26bdfa33cfdcc39" prot="private" virt="non-virtual"><scope>TimelineCoordinate</scope><name>track_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

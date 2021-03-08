@@ -1,0 +1,332 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_video_render_frame_cache" kind="class" language="C++" prot="public">
+    <compoundname>VideoRenderFrameCache</compoundname>
+    <includes refid="videorenderframecache_8h" local="no">videorenderframecache.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_video_render_frame_cache_1a4d3a9b5e92093c5c79910d2eb4b06b6b" prot="private" static="no" mutable="no">
+        <type>QMap&lt; <ref refid="classrational" kindref="compound">rational</ref>, QByteArray &gt;</type>
+        <definition>QMap&lt;rational, QByteArray&gt; VideoRenderFrameCache::time_hash_map_</definition>
+        <argsstring></argsstring>
+        <name>time_hash_map_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderframecache.h" line="99" column="8" bodyfile="C:/Daten/Olive/olive/app/render/backend/videorenderframecache.h" bodystart="99" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_video_render_frame_cache_1a436b464234ecdfdc74e0bb6a538925ac" prot="private" static="no" mutable="no">
+        <type>QMutex</type>
+        <definition>QMutex VideoRenderFrameCache::currently_caching_lock_</definition>
+        <argsstring></argsstring>
+        <name>currently_caching_lock_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderframecache.h" line="101" column="10" bodyfile="C:/Daten/Olive/olive/app/render/backend/videorenderframecache.h" bodystart="101" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_video_render_frame_cache_1ac8303b979e08c23dc40c727f68c7b21f" prot="private" static="no" mutable="no">
+        <type>QVector&lt; QByteArray &gt;</type>
+        <definition>QVector&lt;QByteArray&gt; VideoRenderFrameCache::currently_caching_list_</definition>
+        <argsstring></argsstring>
+        <name>currently_caching_list_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderframecache.h" line="102" column="11" bodyfile="C:/Daten/Olive/olive/app/render/backend/videorenderframecache.h" bodystart="102" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_video_render_frame_cache_1a51a533a60c9f5426d64f1b4806b7ccc4" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString VideoRenderFrameCache::cache_id_</definition>
+        <argsstring></argsstring>
+        <name>cache_id_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderframecache.h" line="104" column="11" bodyfile="C:/Daten/Olive/olive/app/render/backend/videorenderframecache.h" bodystart="104" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_video_render_frame_cache_1a5af01f67b957da5ed5aa43ee422d9707" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>VideoRenderFrameCache::VideoRenderFrameCache</definition>
+        <argsstring>()=default</argsstring>
+        <name>VideoRenderFrameCache</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderframecache.h" line="52" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_render_frame_cache_1a7134557d0ad89afbc075a24d71f074a4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void VideoRenderFrameCache::Clear</definition>
+        <argsstring>()</argsstring>
+        <name>Clear</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderframecache.h" line="54" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_render_frame_cache_1abfa58faaa8c6c0c1eb78e932d7c2eb67" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool VideoRenderFrameCache::HasHash</definition>
+        <argsstring>(const QByteArray &amp;hash, const PixelFormat::Format &amp;format)</argsstring>
+        <name>HasHash</name>
+        <param>
+          <type>const QByteArray &amp;</type>
+          <declname>hash</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021" kindref="member">PixelFormat::Format</ref> &amp;</type>
+          <declname>format</declname>
+        </param>
+        <briefdescription>
+<para>Return whether a frame with this hash already exists. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderframecache.h" line="59" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_render_frame_cache_1a44a37add159e4f9d7ee04c11822ceebe" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool VideoRenderFrameCache::IsCaching</definition>
+        <argsstring>(const QByteArray &amp;hash)</argsstring>
+        <name>IsCaching</name>
+        <param>
+          <type>const QByteArray &amp;</type>
+          <declname>hash</declname>
+        </param>
+        <briefdescription>
+<para>Return whether a frame is currently being cached. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderframecache.h" line="64" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_render_frame_cache_1a65beab78e967ba7974278b32de7aea29" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool VideoRenderFrameCache::TryCache</definition>
+        <argsstring>(const QByteArray &amp;hash)</argsstring>
+        <name>TryCache</name>
+        <param>
+          <type>const QByteArray &amp;</type>
+          <declname>hash</declname>
+        </param>
+        <briefdescription>
+<para>Check if a frame is currently being cached, and if not reserve it. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderframecache.h" line="69" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_render_frame_cache_1a2e4c34c85bae5c63c8f806411c3906c3" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>QString VideoRenderFrameCache::CachePathName</definition>
+        <argsstring>(const QByteArray &amp;hash, const PixelFormat::Format &amp;pix_fmt) const</argsstring>
+        <name>CachePathName</name>
+        <param>
+          <type>const QByteArray &amp;</type>
+          <declname>hash</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021" kindref="member">PixelFormat::Format</ref> &amp;</type>
+          <declname>pix_fmt</declname>
+        </param>
+        <briefdescription>
+<para>Return the path of the cached image at this time. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderframecache.h" line="74" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_render_frame_cache_1a955cdc65cfc0a83e6a5d3cb8bfa16a15" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void VideoRenderFrameCache::SetCacheID</definition>
+        <argsstring>(const QString &amp;id)</argsstring>
+        <name>SetCacheID</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>id</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderframecache.h" line="76" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_render_frame_cache_1aaabb9b70b3059ee764fbe7e5e6336b9c" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QByteArray</type>
+        <definition>QByteArray VideoRenderFrameCache::TimeToHash</definition>
+        <argsstring>(const rational &amp;time) const</argsstring>
+        <name>TimeToHash</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderframecache.h" line="78" column="14"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_render_frame_cache_1a59ee4e8e9d895b7bfc1468185cc43242" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void VideoRenderFrameCache::SetHash</definition>
+        <argsstring>(const rational &amp;time, const QByteArray &amp;hash)</argsstring>
+        <name>SetHash</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>time</declname>
+        </param>
+        <param>
+          <type>const QByteArray &amp;</type>
+          <declname>hash</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderframecache.h" line="80" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_render_frame_cache_1ad2cc8fe1fb99b576e68149f71ac933bc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void VideoRenderFrameCache::Truncate</definition>
+        <argsstring>(const rational &amp;time)</argsstring>
+        <name>Truncate</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderframecache.h" line="82" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_render_frame_cache_1aeb87598b04ec98eb240a618fa403506c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void VideoRenderFrameCache::RemoveHashFromCurrentlyCaching</definition>
+        <argsstring>(const QByteArray &amp;hash)</argsstring>
+        <name>RemoveHashFromCurrentlyCaching</name>
+        <param>
+          <type>const QByteArray &amp;</type>
+          <declname>hash</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderframecache.h" line="84" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_render_frame_cache_1a860c5eaa49e78f18d628ced32df36f90" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QList&lt; <ref refid="classrational" kindref="compound">rational</ref> &gt;</type>
+        <definition>QList&lt;rational&gt; VideoRenderFrameCache::FramesWithHash</definition>
+        <argsstring>(const QByteArray &amp;hash) const</argsstring>
+        <name>FramesWithHash</name>
+        <param>
+          <type>const QByteArray &amp;</type>
+          <declname>hash</declname>
+        </param>
+        <briefdescription>
+<para>Returns a list of frames that use a particular hash. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderframecache.h" line="89" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_render_frame_cache_1aefcddb3823b9c509c8e6ddb9cc579d80" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QList&lt; <ref refid="classrational" kindref="compound">rational</ref> &gt;</type>
+        <definition>QList&lt;rational&gt; VideoRenderFrameCache::TakeFramesWithHash</definition>
+        <argsstring>(const QByteArray &amp;hash)</argsstring>
+        <name>TakeFramesWithHash</name>
+        <param>
+          <type>const QByteArray &amp;</type>
+          <declname>hash</declname>
+        </param>
+        <briefdescription>
+<para>Same as <ref refid="class_video_render_frame_cache_1a860c5eaa49e78f18d628ced32df36f90" kindref="member">FramesWithHash()</ref> but also removes these frames from the map. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderframecache.h" line="94" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_render_frame_cache_1a5e90e69eea7b50646306dd61b0eda7c0" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const QMap&lt; <ref refid="classrational" kindref="compound">rational</ref>, QByteArray &gt; &amp;</type>
+        <definition>const QMap&lt;rational, QByteArray&gt;&amp; VideoRenderFrameCache::time_hash_map</definition>
+        <argsstring>() const</argsstring>
+        <name>time_hash_map</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderframecache.h" line="96" column="14"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/render/backend/videorenderframecache.h" line="31" column="1" bodyfile="C:/Daten/Olive/olive/app/render/backend/videorenderframecache.h" bodystart="32" bodyend="87"/>
+    <listofallmembers>
+      <member refid="class_video_render_frame_cache_1a51a533a60c9f5426d64f1b4806b7ccc4" prot="private" virt="non-virtual"><scope>VideoRenderFrameCache</scope><name>cache_id_</name></member>
+      <member refid="class_video_render_frame_cache_1a2e4c34c85bae5c63c8f806411c3906c3" prot="public" virt="non-virtual"><scope>VideoRenderFrameCache</scope><name>CachePathName</name></member>
+      <member refid="class_video_render_frame_cache_1a7134557d0ad89afbc075a24d71f074a4" prot="public" virt="non-virtual"><scope>VideoRenderFrameCache</scope><name>Clear</name></member>
+      <member refid="class_video_render_frame_cache_1ac8303b979e08c23dc40c727f68c7b21f" prot="private" virt="non-virtual"><scope>VideoRenderFrameCache</scope><name>currently_caching_list_</name></member>
+      <member refid="class_video_render_frame_cache_1a436b464234ecdfdc74e0bb6a538925ac" prot="private" virt="non-virtual"><scope>VideoRenderFrameCache</scope><name>currently_caching_lock_</name></member>
+      <member refid="class_video_render_frame_cache_1a860c5eaa49e78f18d628ced32df36f90" prot="public" virt="non-virtual"><scope>VideoRenderFrameCache</scope><name>FramesWithHash</name></member>
+      <member refid="class_video_render_frame_cache_1abfa58faaa8c6c0c1eb78e932d7c2eb67" prot="public" virt="non-virtual"><scope>VideoRenderFrameCache</scope><name>HasHash</name></member>
+      <member refid="class_video_render_frame_cache_1a44a37add159e4f9d7ee04c11822ceebe" prot="public" virt="non-virtual"><scope>VideoRenderFrameCache</scope><name>IsCaching</name></member>
+      <member refid="class_video_render_frame_cache_1aeb87598b04ec98eb240a618fa403506c" prot="public" virt="non-virtual"><scope>VideoRenderFrameCache</scope><name>RemoveHashFromCurrentlyCaching</name></member>
+      <member refid="class_video_render_frame_cache_1a955cdc65cfc0a83e6a5d3cb8bfa16a15" prot="public" virt="non-virtual"><scope>VideoRenderFrameCache</scope><name>SetCacheID</name></member>
+      <member refid="class_video_render_frame_cache_1a59ee4e8e9d895b7bfc1468185cc43242" prot="public" virt="non-virtual"><scope>VideoRenderFrameCache</scope><name>SetHash</name></member>
+      <member refid="class_video_render_frame_cache_1aefcddb3823b9c509c8e6ddb9cc579d80" prot="public" virt="non-virtual"><scope>VideoRenderFrameCache</scope><name>TakeFramesWithHash</name></member>
+      <member refid="class_video_render_frame_cache_1a5e90e69eea7b50646306dd61b0eda7c0" prot="public" virt="non-virtual"><scope>VideoRenderFrameCache</scope><name>time_hash_map</name></member>
+      <member refid="class_video_render_frame_cache_1a4d3a9b5e92093c5c79910d2eb4b06b6b" prot="private" virt="non-virtual"><scope>VideoRenderFrameCache</scope><name>time_hash_map_</name></member>
+      <member refid="class_video_render_frame_cache_1aaabb9b70b3059ee764fbe7e5e6336b9c" prot="public" virt="non-virtual"><scope>VideoRenderFrameCache</scope><name>TimeToHash</name></member>
+      <member refid="class_video_render_frame_cache_1ad2cc8fe1fb99b576e68149f71ac933bc" prot="public" virt="non-virtual"><scope>VideoRenderFrameCache</scope><name>Truncate</name></member>
+      <member refid="class_video_render_frame_cache_1a65beab78e967ba7974278b32de7aea29" prot="public" virt="non-virtual"><scope>VideoRenderFrameCache</scope><name>TryCache</name></member>
+      <member refid="class_video_render_frame_cache_1a5af01f67b957da5ed5aa43ee422d9707" prot="public" virt="non-virtual"><scope>VideoRenderFrameCache</scope><name>VideoRenderFrameCache</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

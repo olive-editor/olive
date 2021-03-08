@@ -1,0 +1,259 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_timeline_and_track_view" kind="class" language="C++" prot="public">
+    <compoundname>TimelineAndTrackView</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QWidget</basecompoundref>
+    <includes refid="timelineandtrackview_8h" local="no">timelineandtrackview.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_timeline_and_track_view_1ab170fb71231664dca24afc83cab97909" prot="private" static="no" mutable="no">
+        <type>QSplitter *</type>
+        <definition>QSplitter* TimelineAndTrackView::splitter_</definition>
+        <argsstring></argsstring>
+        <name>splitter_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelineandtrackview.h" line="63" column="13" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/timelineandtrackview.h" bodystart="63" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_timeline_and_track_view_1a441b1a27c4d88146bf332defb14e9c9e" prot="private" static="no" mutable="no">
+        <type><ref refid="class_timeline_view" kindref="compound">TimelineView</ref> *</type>
+        <definition>TimelineView* TimelineAndTrackView::view_</definition>
+        <argsstring></argsstring>
+        <name>view_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelineandtrackview.h" line="65" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/timelineandtrackview.h" bodystart="65" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_timeline_and_track_view_1a780877f900bbae93d757d7b675517dfa" prot="private" static="no" mutable="no">
+        <type><ref refid="class_track_view" kindref="compound">TrackView</ref> *</type>
+        <definition>TrackView* TimelineAndTrackView::track_view_</definition>
+        <argsstring></argsstring>
+        <name>track_view_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelineandtrackview.h" line="67" column="13" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/timelineandtrackview.h" bodystart="67" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_timeline_and_track_view_1ae48a8c84b52a1e94ce52ffe580f6ffeb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>TimelineAndTrackView::TimelineAndTrackView</definition>
+        <argsstring>(Qt::Alignment vertical_alignment=Qt::AlignTop, QWidget *parent=nullptr)</argsstring>
+        <name>TimelineAndTrackView</name>
+        <param>
+          <type>Qt::Alignment</type>
+          <declname>vertical_alignment</declname>
+          <defval>Qt::AlignTop</defval>
+        </param>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelineandtrackview.h" line="53" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_and_track_view_1a38584f8b4a9d0c136ffed357bb4a6699" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QSplitter *</type>
+        <definition>QSplitter* TimelineAndTrackView::splitter</definition>
+        <argsstring>() const</argsstring>
+        <name>splitter</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelineandtrackview.h" line="56" column="13"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_and_track_view_1a63bfa043ef3836ed2bc60bf5d8427b65" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_timeline_view" kindref="compound">TimelineView</ref> *</type>
+        <definition>TimelineView* TimelineAndTrackView::view</definition>
+        <argsstring>() const</argsstring>
+        <name>view</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelineandtrackview.h" line="58" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_and_track_view_1a4c2b9f06fe1e5e8e83ceb335c3ed6877" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_track_view" kindref="compound">TrackView</ref> *</type>
+        <definition>TrackView* TimelineAndTrackView::track_view</definition>
+        <argsstring>() const</argsstring>
+        <name>track_view</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelineandtrackview.h" line="60" column="13"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_timeline_and_track_view_1ab67fc6f3c10c1772c6ed599cdb0ff00f" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimelineAndTrackView::ViewValueChanged</definition>
+        <argsstring>(int v)</argsstring>
+        <name>ViewValueChanged</name>
+        <param>
+          <type>int</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelineandtrackview.h" line="70" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_timeline_and_track_view_1acbf173efb38ffa8db4957066ffe7361f" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimelineAndTrackView::TracksValueChanged</definition>
+        <argsstring>(int v)</argsstring>
+        <name>TracksValueChanged</name>
+        <param>
+          <type>int</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelineandtrackview.h" line="72" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="9">
+        <label>NodeInputArray</label>
+        <link refid="class_node_input_array"/>
+        <childnode refid="10" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>TimelinePlayhead</label>
+        <link refid="class_timeline_playhead"/>
+      </node>
+      <node id="4">
+        <label>HandMovableView</label>
+        <link refid="class_hand_movable_view"/>
+      </node>
+      <node id="6">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="5">
+        <label>TimelineScaledObject</label>
+        <link refid="class_timeline_scaled_object"/>
+        <childnode refid="6" relation="usage">
+          <edgelabel>timebase_</edgelabel>
+        </childnode>
+      </node>
+      <node id="8">
+        <label>TrackList</label>
+        <link refid="class_track_list"/>
+        <childnode refid="9" relation="usage">
+          <edgelabel>track_input_</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>total_length_</edgelabel>
+        </childnode>
+      </node>
+      <node id="10">
+        <label>NodeInput</label>
+        <link refid="class_node_input"/>
+        <childnode refid="11" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>NodeParam</label>
+        <link refid="class_node_param"/>
+      </node>
+      <node id="13">
+        <label>TrackViewSplitter</label>
+        <link refid="class_track_view_splitter"/>
+      </node>
+      <node id="12">
+        <label>TrackView</label>
+        <link refid="class_track_view"/>
+        <childnode refid="8" relation="usage">
+          <edgelabel>list_</edgelabel>
+        </childnode>
+        <childnode refid="13" relation="usage">
+          <edgelabel>splitter_</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>TimelineViewBase</label>
+        <link refid="class_timeline_view_base"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>end_time_</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>playhead_style_</edgelabel>
+        </childnode>
+      </node>
+      <node id="1">
+        <label>TimelineAndTrackView</label>
+        <link refid="class_timeline_and_track_view"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>view_</edgelabel>
+        </childnode>
+        <childnode refid="12" relation="usage">
+          <edgelabel>track_view_</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>TimelineView</label>
+        <link refid="class_timeline_view"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+        <childnode refid="8" relation="usage">
+          <edgelabel>connected_track_list_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelineandtrackview.h" line="32" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/timelineandtrackview.h" bodystart="33" bodyend="56"/>
+    <listofallmembers>
+      <member refid="class_timeline_and_track_view_1a38584f8b4a9d0c136ffed357bb4a6699" prot="public" virt="non-virtual"><scope>TimelineAndTrackView</scope><name>splitter</name></member>
+      <member refid="class_timeline_and_track_view_1ab170fb71231664dca24afc83cab97909" prot="private" virt="non-virtual"><scope>TimelineAndTrackView</scope><name>splitter_</name></member>
+      <member refid="class_timeline_and_track_view_1ae48a8c84b52a1e94ce52ffe580f6ffeb" prot="public" virt="non-virtual"><scope>TimelineAndTrackView</scope><name>TimelineAndTrackView</name></member>
+      <member refid="class_timeline_and_track_view_1a4c2b9f06fe1e5e8e83ceb335c3ed6877" prot="public" virt="non-virtual"><scope>TimelineAndTrackView</scope><name>track_view</name></member>
+      <member refid="class_timeline_and_track_view_1a780877f900bbae93d757d7b675517dfa" prot="private" virt="non-virtual"><scope>TimelineAndTrackView</scope><name>track_view_</name></member>
+      <member refid="class_timeline_and_track_view_1acbf173efb38ffa8db4957066ffe7361f" prot="private" virt="non-virtual"><scope>TimelineAndTrackView</scope><name>TracksValueChanged</name></member>
+      <member refid="class_timeline_and_track_view_1a63bfa043ef3836ed2bc60bf5d8427b65" prot="public" virt="non-virtual"><scope>TimelineAndTrackView</scope><name>view</name></member>
+      <member refid="class_timeline_and_track_view_1a441b1a27c4d88146bf332defb14e9c9e" prot="private" virt="non-virtual"><scope>TimelineAndTrackView</scope><name>view_</name></member>
+      <member refid="class_timeline_and_track_view_1ab67fc6f3c10c1772c6ed599cdb0ff00f" prot="private" virt="non-virtual"><scope>TimelineAndTrackView</scope><name>ViewValueChanged</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

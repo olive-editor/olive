@@ -1,0 +1,198 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_sample_summer" kind="class" language="C++" prot="public">
+    <compoundname>SampleSummer</compoundname>
+    <includes refid="sumsamples_8h" local="no">sumsamples.h</includes>
+    <innerclass refid="struct_sample_summer_1_1_info" prot="public">SampleSummer::Info</innerclass>
+    <innerclass refid="struct_sample_summer_1_1_sum" prot="public">SampleSummer::Sum</innerclass>
+      <sectiondef kind="public-static-attrib">
+      <memberdef kind="variable" id="class_sample_summer_1a9cff1ca19d2a63d40263770b58389563" prot="public" static="yes" mutable="no">
+        <type>const int</type>
+        <definition>const int SampleSummer::kSumSampleRate</definition>
+        <argsstring></argsstring>
+        <name>kSumSampleRate</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/sumsamples.h" line="59" column="20" bodyfile="C:/Daten/Olive/olive/app/audio/sumsamples.h" bodystart="59" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="class_sample_summer_1a46adf6c3d4194ad3c3b14d0a5b0db764" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QVector&lt; <ref refid="struct_sample_summer_1_1_sum" kindref="compound">Sum</ref> &gt;</type>
+        <definition>static QVector&lt;Sum&gt; SampleSummer::SumSamples</definition>
+        <argsstring>(const float *samples, int nb_samples, int nb_channels)</argsstring>
+        <name>SumSamples</name>
+        <param>
+          <type>const float *</type>
+          <declname>samples</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>nb_samples</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>nb_channels</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/sumsamples.h" line="61" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_sample_summer_1a6b2f1decba301511885df4703bb40825" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QVector&lt; <ref refid="struct_sample_summer_1_1_sum" kindref="compound">Sum</ref> &gt;</type>
+        <definition>static QVector&lt;Sum&gt; SampleSummer::SumSamples</definition>
+        <argsstring>(const qfloat16 *samples, int nb_samples, int nb_channels)</argsstring>
+        <name>SumSamples</name>
+        <param>
+          <type>const qfloat16 *</type>
+          <declname>samples</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>nb_samples</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>nb_channels</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/sumsamples.h" line="62" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_sample_summer_1ad0a9bc67deabe27e487f21a18a28363c" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QVector&lt; <ref refid="struct_sample_summer_1_1_sum" kindref="compound">Sum</ref> &gt;</type>
+        <definition>static QVector&lt;Sum&gt; SampleSummer::SumSamples</definition>
+        <argsstring>(SampleBufferPtr samples, int start_index, int length)</argsstring>
+        <name>SumSamples</name>
+        <param>
+          <type><ref refid="samplebuffer_8h_1aa60dc68e3e43775112c8dabb364d0a33" kindref="member">SampleBufferPtr</ref></type>
+          <declname>samples</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>start_index</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>length</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/sumsamples.h" line="63" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_sample_summer_1ab75724023a81c9117b657c9db54d7e51" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QVector&lt; <ref refid="struct_sample_summer_1_1_sum" kindref="compound">Sum</ref> &gt;</type>
+        <definition>static QVector&lt;Sum&gt; SampleSummer::ReSumSamples</definition>
+        <argsstring>(const SampleSummer::Sum *samples, int nb_samples, int nb_channels)</argsstring>
+        <name>ReSumSamples</name>
+        <param>
+          <type>const <ref refid="struct_sample_summer_1_1_sum" kindref="compound">SampleSummer::Sum</ref> *</type>
+          <declname>samples</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>nb_samples</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>nb_channels</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/sumsamples.h" line="65" column="18"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-func">
+      <memberdef kind="function" id="class_sample_summer_1a70c48a3c5861a87be040148a94be2e67" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>QVector&lt; <ref refid="struct_sample_summer_1_1_sum" kindref="compound">Sum</ref> &gt;</type>
+        <definition>static QVector&lt;Sum&gt; SampleSummer::SumSamplesInternal</definition>
+        <argsstring>(const T *samples, int nb_samples, int nb_channels)</argsstring>
+        <name>SumSamplesInternal</name>
+        <param>
+          <type>const T *</type>
+          <declname>samples</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>nb_samples</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>nb_channels</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/sumsamples.h" line="75" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_sample_summer_1a4cf0142720025b782cd28e66a63fb985" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>static void SampleSummer::ClampMinMax</definition>
+        <argsstring>(Sum &amp;sum, T value)</argsstring>
+        <name>ClampMinMax</name>
+        <param>
+          <type><ref refid="struct_sample_summer_1_1_sum" kindref="compound">Sum</ref> &amp;</type>
+          <declname>sum</declname>
+        </param>
+        <param>
+          <type>T</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/sumsamples.h" line="78" column="15"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/audio/sumsamples.h" line="31" column="1" bodyfile="C:/Daten/Olive/olive/app/audio/sumsamples.h" bodystart="31" bodyend="62"/>
+    <listofallmembers>
+      <member refid="class_sample_summer_1a4cf0142720025b782cd28e66a63fb985" prot="private" virt="non-virtual"><scope>SampleSummer</scope><name>ClampMinMax</name></member>
+      <member refid="class_sample_summer_1a9cff1ca19d2a63d40263770b58389563" prot="public" virt="non-virtual"><scope>SampleSummer</scope><name>kSumSampleRate</name></member>
+      <member refid="class_sample_summer_1ab75724023a81c9117b657c9db54d7e51" prot="public" virt="non-virtual"><scope>SampleSummer</scope><name>ReSumSamples</name></member>
+      <member refid="class_sample_summer_1a46adf6c3d4194ad3c3b14d0a5b0db764" prot="public" virt="non-virtual"><scope>SampleSummer</scope><name>SumSamples</name></member>
+      <member refid="class_sample_summer_1a6b2f1decba301511885df4703bb40825" prot="public" virt="non-virtual"><scope>SampleSummer</scope><name>SumSamples</name></member>
+      <member refid="class_sample_summer_1ad0a9bc67deabe27e487f21a18a28363c" prot="public" virt="non-virtual"><scope>SampleSummer</scope><name>SumSamples</name></member>
+      <member refid="class_sample_summer_1a70c48a3c5861a87be040148a94be2e67" prot="private" virt="non-virtual"><scope>SampleSummer</scope><name>SumSamplesInternal</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

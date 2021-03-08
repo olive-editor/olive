@@ -1,0 +1,255 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_keyframe_set_bezier_control_point" kind="class" language="C++" prot="public">
+    <compoundname>KeyframeSetBezierControlPoint</compoundname>
+    <basecompoundref refid="class_undo_command" prot="public" virt="non-virtual">UndoCommand</basecompoundref>
+    <includes refid="keyframeviewundo_8h" local="no">keyframeviewundo.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_keyframe_set_bezier_control_point_1a424b95b704179a5a3c6142e96d8783c5" prot="private" static="no" mutable="no">
+        <type><ref refid="keyframe_8h_1a741b7edf62813e254aba77dca9f281ea" kindref="member">NodeKeyframePtr</ref></type>
+        <definition>NodeKeyframePtr KeyframeSetBezierControlPoint::key_</definition>
+        <argsstring></argsstring>
+        <name>key_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/keyframeviewundo.h" line="60" column="19" bodyfile="C:/Daten/Olive/olive/app/widget/keyframeview/keyframeviewundo.h" bodystart="60" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_keyframe_set_bezier_control_point_1a7d314e0438385e965b522747ac767aff" prot="private" static="no" mutable="no">
+        <type><ref refid="class_node_keyframe_1a12932f441bcfa7ec65f3fb7563a5da45" kindref="member">NodeKeyframe::BezierType</ref></type>
+        <definition>NodeKeyframe::BezierType KeyframeSetBezierControlPoint::mode_</definition>
+        <argsstring></argsstring>
+        <name>mode_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/keyframeviewundo.h" line="62" column="28" bodyfile="C:/Daten/Olive/olive/app/widget/keyframeview/keyframeviewundo.h" bodystart="62" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_keyframe_set_bezier_control_point_1a313e328b35283348372f44fffb3b8138" prot="private" static="no" mutable="no">
+        <type>QPointF</type>
+        <definition>QPointF KeyframeSetBezierControlPoint::old_point_</definition>
+        <argsstring></argsstring>
+        <name>old_point_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/keyframeviewundo.h" line="64" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/keyframeview/keyframeviewundo.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_keyframe_set_bezier_control_point_1ab7020889cf9b924e0b78af5a34d10774" prot="private" static="no" mutable="no">
+        <type>QPointF</type>
+        <definition>QPointF KeyframeSetBezierControlPoint::new_point_</definition>
+        <argsstring></argsstring>
+        <name>new_point_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/keyframeviewundo.h" line="66" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/keyframeview/keyframeviewundo.h" bodystart="66" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_undo_command_1a6c06f9c1b7bfeeff3c4724491945992b" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool UndoCommand::modified_</definition>
+        <argsstring></argsstring>
+        <name>modified_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="64" column="8" bodyfile="C:/Daten/Olive/olive/app/undo/undocommand.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_keyframe_set_bezier_control_point_1ac5e9d3e5983f613dd5b8acba2c606a90" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>KeyframeSetBezierControlPoint::KeyframeSetBezierControlPoint</definition>
+        <argsstring>(NodeKeyframePtr key, NodeKeyframe::BezierType mode, const QPointF &amp;point, QUndoCommand *parent=nullptr)</argsstring>
+        <name>KeyframeSetBezierControlPoint</name>
+        <param>
+          <type><ref refid="keyframe_8h_1a741b7edf62813e254aba77dca9f281ea" kindref="member">NodeKeyframePtr</ref></type>
+          <declname>key</declname>
+        </param>
+        <param>
+          <type><ref refid="class_node_keyframe_1a12932f441bcfa7ec65f3fb7563a5da45" kindref="member">NodeKeyframe::BezierType</ref></type>
+          <declname>mode</declname>
+        </param>
+        <param>
+          <type>const QPointF &amp;</type>
+          <declname>point</declname>
+        </param>
+        <param>
+          <type>QUndoCommand *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/keyframeviewundo.h" line="50" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_keyframe_set_bezier_control_point_1a12bce701cc40cf2bee59e19ae027dfa3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>KeyframeSetBezierControlPoint::KeyframeSetBezierControlPoint</definition>
+        <argsstring>(NodeKeyframePtr key, NodeKeyframe::BezierType mode, const QPointF &amp;new_point, const QPointF &amp;old_point, QUndoCommand *parent=nullptr)</argsstring>
+        <name>KeyframeSetBezierControlPoint</name>
+        <param>
+          <type><ref refid="keyframe_8h_1a741b7edf62813e254aba77dca9f281ea" kindref="member">NodeKeyframePtr</ref></type>
+          <declname>key</declname>
+        </param>
+        <param>
+          <type><ref refid="class_node_keyframe_1a12932f441bcfa7ec65f3fb7563a5da45" kindref="member">NodeKeyframe::BezierType</ref></type>
+          <declname>mode</declname>
+        </param>
+        <param>
+          <type>const QPointF &amp;</type>
+          <declname>new_point</declname>
+        </param>
+        <param>
+          <type>const QPointF &amp;</type>
+          <declname>old_point</declname>
+        </param>
+        <param>
+          <type>QUndoCommand *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/keyframeviewundo.h" line="51" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_keyframe_set_bezier_control_point_1a65d9d20c7d8f2a6d7a21fe01de8eea4d" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="class_project" kindref="compound">Project</ref> *</type>
+        <definition>virtual Project* KeyframeSetBezierControlPoint::GetRelevantProject</definition>
+        <argsstring>() const override</argsstring>
+        <name>GetRelevantProject</name>
+        <reimplements refid="class_undo_command_1ab5c8967132833ea6be76a63dc5472f4f">GetRelevantProject</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/keyframeviewundo.h" line="53" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_undo_command_1a9907db368d01fb26f5082a36c6d90bd4" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void UndoCommand::redo</definition>
+        <argsstring>() override</argsstring>
+        <name>redo</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="54" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_undo_command_1a09d00f8a2e1c8b3c97d72d9585503030" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void UndoCommand::undo</definition>
+        <argsstring>() override</argsstring>
+        <name>undo</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="55" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_keyframe_set_bezier_control_point_1a8cbcdce432b9ef8d1184dbf876e9766a" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void KeyframeSetBezierControlPoint::redo_internal</definition>
+        <argsstring>() override</argsstring>
+        <name>redo_internal</name>
+        <reimplements refid="class_undo_command_1ac8aa20d444a655cd36fa3c7dc01928b4">redo_internal</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/keyframeviewundo.h" line="56" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_keyframe_set_bezier_control_point_1ad90fb0158b3a290dabb6b24f0ad94e51" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void KeyframeSetBezierControlPoint::undo_internal</definition>
+        <argsstring>() override</argsstring>
+        <name>undo_internal</name>
+        <reimplements refid="class_undo_command_1a871dbc8a1f95b58e641be13703563faa">undo_internal</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/keyframeviewundo.h" line="57" column="16"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>UndoCommand</label>
+        <link refid="class_undo_command"/>
+      </node>
+      <node id="1">
+        <label>KeyframeSetBezierControlPoint</label>
+        <link refid="class_keyframe_set_bezier_control_point"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>UndoCommand</label>
+        <link refid="class_undo_command"/>
+      </node>
+      <node id="1">
+        <label>KeyframeSetBezierControlPoint</label>
+        <link refid="class_keyframe_set_bezier_control_point"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/keyframeview/keyframeviewundo.h" line="48" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/keyframeview/keyframeviewundo.h" bodystart="48" bodyend="68"/>
+    <listofallmembers>
+      <member refid="class_keyframe_set_bezier_control_point_1a65d9d20c7d8f2a6d7a21fe01de8eea4d" prot="public" virt="virtual"><scope>KeyframeSetBezierControlPoint</scope><name>GetRelevantProject</name></member>
+      <member refid="class_keyframe_set_bezier_control_point_1a424b95b704179a5a3c6142e96d8783c5" prot="private" virt="non-virtual"><scope>KeyframeSetBezierControlPoint</scope><name>key_</name></member>
+      <member refid="class_keyframe_set_bezier_control_point_1ac5e9d3e5983f613dd5b8acba2c606a90" prot="public" virt="non-virtual"><scope>KeyframeSetBezierControlPoint</scope><name>KeyframeSetBezierControlPoint</name></member>
+      <member refid="class_keyframe_set_bezier_control_point_1a12bce701cc40cf2bee59e19ae027dfa3" prot="public" virt="non-virtual"><scope>KeyframeSetBezierControlPoint</scope><name>KeyframeSetBezierControlPoint</name></member>
+      <member refid="class_keyframe_set_bezier_control_point_1a7d314e0438385e965b522747ac767aff" prot="private" virt="non-virtual"><scope>KeyframeSetBezierControlPoint</scope><name>mode_</name></member>
+      <member refid="class_undo_command_1a6c06f9c1b7bfeeff3c4724491945992b" prot="private" virt="non-virtual"><scope>KeyframeSetBezierControlPoint</scope><name>modified_</name></member>
+      <member refid="class_keyframe_set_bezier_control_point_1ab7020889cf9b924e0b78af5a34d10774" prot="private" virt="non-virtual"><scope>KeyframeSetBezierControlPoint</scope><name>new_point_</name></member>
+      <member refid="class_keyframe_set_bezier_control_point_1a313e328b35283348372f44fffb3b8138" prot="private" virt="non-virtual"><scope>KeyframeSetBezierControlPoint</scope><name>old_point_</name></member>
+      <member refid="class_undo_command_1a9907db368d01fb26f5082a36c6d90bd4" prot="public" virt="virtual"><scope>KeyframeSetBezierControlPoint</scope><name>redo</name></member>
+      <member refid="class_keyframe_set_bezier_control_point_1a8cbcdce432b9ef8d1184dbf876e9766a" prot="protected" virt="virtual"><scope>KeyframeSetBezierControlPoint</scope><name>redo_internal</name></member>
+      <member refid="class_undo_command_1a09d00f8a2e1c8b3c97d72d9585503030" prot="public" virt="virtual"><scope>KeyframeSetBezierControlPoint</scope><name>undo</name></member>
+      <member refid="class_keyframe_set_bezier_control_point_1ad90fb0158b3a290dabb6b24f0ad94e51" prot="protected" virt="virtual"><scope>KeyframeSetBezierControlPoint</scope><name>undo_internal</name></member>
+      <member refid="class_undo_command_1a5a07a6505a207cf7186c7c726ff9c5fa" prot="public" virt="non-virtual"><scope>KeyframeSetBezierControlPoint</scope><name>UndoCommand</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

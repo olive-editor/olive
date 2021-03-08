@@ -1,0 +1,463 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_task_manager" kind="class" language="C++" prot="public">
+    <compoundname>TaskManager</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QObject</basecompoundref>
+    <includes refid="task_2taskmanager_8h" local="no">taskmanager.h</includes>
+    <innerclass refid="struct_task_manager_1_1_task_container" prot="private">TaskManager::TaskContainer</innerclass>
+    <innerclass refid="struct_task_manager_1_1_thread_container" prot="private">TaskManager::ThreadContainer</innerclass>
+      <sectiondef kind="private-type">
+      <memberdef kind="enum" id="class_task_manager_1a160e9e8489362a153974585e637f606f" prot="private" static="no" strong="no">
+        <type></type>
+        <name>TaskStatus</name>
+        <enumvalue id="class_task_manager_1a160e9e8489362a153974585e637f606fabba0b5e82adbdb6f2d93ac85f655478e" prot="private">
+          <name>kWaiting</name>
+          <briefdescription>
+<para>This <ref refid="class_task" kindref="compound">Task</ref> is yet to start. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_task_manager_1a160e9e8489362a153974585e637f606fa1a7637f012c291267fccab3794c34f46" prot="private">
+          <name>kWorking</name>
+          <briefdescription>
+<para>This <ref refid="class_task" kindref="compound">Task</ref> is currently running (see Action()) </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_task_manager_1a160e9e8489362a153974585e637f606fabf619677ab3740dcc2f82262e61169e0" prot="private">
+          <name>kFinished</name>
+          <briefdescription>
+<para>This <ref refid="class_task" kindref="compound">Task</ref> has completed successfully. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_task_manager_1a160e9e8489362a153974585e637f606faa7f3510f6ebc90fdd9728e4853ff77cd" prot="private">
+          <name>kError</name>
+          <briefdescription>
+<para>This <ref refid="class_task" kindref="compound">Task</ref> failed and could not complete. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>The Status enum. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>All states that a <ref refid="class_task" kindref="compound">Task</ref> can be in. When subclassing, you don&apos;t need to set the <ref refid="class_task" kindref="compound">Task</ref>&apos;s status as the base class does that automatically. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/task/taskmanager.h" line="123" column="3" bodyfile="C:/Daten/Olive/olive/app/task/taskmanager.h" bodystart="123" bodyend="135"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_task_manager_1a9bb0afc90d8112b73e5887f7591de245" prot="private" static="no" mutable="no">
+        <type>QVector&lt; <ref refid="struct_task_manager_1_1_task_container" kindref="compound">TaskContainer</ref> &gt;</type>
+        <definition>QVector&lt;TaskContainer&gt; TaskManager::tasks_</definition>
+        <argsstring></argsstring>
+        <name>tasks_</name>
+        <briefdescription>
+<para>Internal task array. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/task/taskmanager.h" line="178" column="11" bodyfile="C:/Daten/Olive/olive/app/task/taskmanager.h" bodystart="178" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_task_manager_1a4fbc1d399993fed9d4e3ba6a0e3c6dfb" prot="private" static="no" mutable="no">
+        <type>QVector&lt; <ref refid="struct_task_manager_1_1_thread_container" kindref="compound">ThreadContainer</ref> &gt;</type>
+        <definition>QVector&lt;ThreadContainer&gt; TaskManager::threads_</definition>
+        <argsstring></argsstring>
+        <name>threads_</name>
+        <briefdescription>
+<para>Background threads to run tasks on. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/task/taskmanager.h" line="183" column="11" bodyfile="C:/Daten/Olive/olive/app/task/taskmanager.h" bodystart="183" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_task_manager_1ad910b2a9e1a82613072f017f5355d7f4" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int TaskManager::active_thread_count_</definition>
+        <argsstring></argsstring>
+        <name>active_thread_count_</name>
+        <briefdescription>
+<para>Value for how many threads are currently active. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/task/taskmanager.h" line="188" column="7" bodyfile="C:/Daten/Olive/olive/app/task/taskmanager.h" bodystart="188" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-attrib">
+      <memberdef kind="variable" id="class_task_manager_1a834571a6b27c79a1ade0302d2857ef1f" prot="private" static="yes" mutable="no">
+        <type><ref refid="class_task_manager" kindref="compound">TaskManager</ref> *</type>
+        <definition>TaskManager* TaskManager::instance_</definition>
+        <argsstring></argsstring>
+        <name>instance_</name>
+        <briefdescription>
+<para><ref refid="class_task_manager" kindref="compound">TaskManager</ref> singleton instance. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/task/taskmanager.h" line="193" column="22" bodyfile="C:/Daten/Olive/olive/app/task/taskmanager.h" bodystart="193" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_task_manager_1a491dc7a77a5381675f614a411755ef64" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>TaskManager::TaskManager</definition>
+        <argsstring>()</argsstring>
+        <name>TaskManager</name>
+        <briefdescription>
+<para><ref refid="class_task_manager" kindref="compound">TaskManager</ref> Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/task/taskmanager.h" line="64" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_task_manager_1ad2e13f5d26fca003305a35df1699f67b" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type></type>
+        <definition>virtual TaskManager::~TaskManager</definition>
+        <argsstring>()</argsstring>
+        <name>~TaskManager</name>
+        <briefdescription>
+<para><ref refid="class_task_manager" kindref="compound">TaskManager</ref> Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Ensures all Tasks are deleted </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/task/taskmanager.h" line="71" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_task_manager_1ac75eea79b38cbeebb91988a3b884ede8" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int TaskManager::GetTaskCount</definition>
+        <argsstring>() const</argsstring>
+        <name>GetTaskCount</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/task/taskmanager.h" line="79" column="7"/>
+      </memberdef>
+      <memberdef kind="function" id="class_task_manager_1aa6ac368ffa6ca13b892a841744164070" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_task" kindref="compound">Task</ref> *</type>
+        <definition>Task* TaskManager::GetFirstTask</definition>
+        <argsstring>() const</argsstring>
+        <name>GetFirstTask</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/task/taskmanager.h" line="81" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="class_task_manager_1a8c2221698638c9abeccb6482e477a4e3" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void TaskManager::CreateInstance</definition>
+        <argsstring>()</argsstring>
+        <name>CreateInstance</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/task/taskmanager.h" line="73" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_task_manager_1a62ab654d676226ce1058e7fc26c893d2" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void TaskManager::DestroyInstance</definition>
+        <argsstring>()</argsstring>
+        <name>DestroyInstance</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/task/taskmanager.h" line="75" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_task_manager_1a045c8c57de09c22ae2aabfd6b4a687a2" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_task_manager" kindref="compound">TaskManager</ref> *</type>
+        <definition>static TaskManager* TaskManager::instance</definition>
+        <argsstring>()</argsstring>
+        <name>instance</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/task/taskmanager.h" line="77" column="22"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-slot">
+      <memberdef kind="slot" id="class_task_manager_1ad5d61900b289b168256457b377ce03f2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TaskManager::AddTask</definition>
+        <argsstring>(Task *t)</argsstring>
+        <name>AddTask</name>
+        <param>
+          <type><ref refid="class_task" kindref="compound">Task</ref> *</type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+<para>Add a new <ref refid="class_task" kindref="compound">Task</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Adds a new <ref refid="class_task" kindref="compound">Task</ref> to the queue. If there are available threads to run it, it&apos;ll also run immediately. Otherwise, it&apos;ll be placed into the queue and run when resources are available.</para>
+<para>NOTE: This function is NOT thread-safe and is currently intended to only be used from the main/GUI thread.</para>
+<para>NOTE: A <ref refid="class_task" kindref="compound">Task</ref> object should only be added once. Adding the same <ref refid="class_task" kindref="compound">Task</ref> object more than once will result in undefined behavior.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>t</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The task to add and run. <ref refid="class_task_manager" kindref="compound">TaskManager</ref> takes ownership of this <ref refid="class_task" kindref="compound">Task</ref> and will be responsible for freeing it. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/task/taskmanager.h" line="99" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_task_manager_1a1c1404d4918479161d6cbd392c627141" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TaskManager::TaskAdded</definition>
+        <argsstring>(Task *t)</argsstring>
+        <name>TaskAdded</name>
+        <param>
+          <type><ref refid="class_task" kindref="compound">Task</ref> *</type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+<para>Signal emitted when a <ref refid="class_task" kindref="compound">Task</ref> is added by <ref refid="class_task_manager_1ad5d61900b289b168256457b377ce03f2" kindref="member">AddTask()</ref> </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>t</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="class_task" kindref="compound">Task</ref> that was added </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/task/taskmanager.h" line="109" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_task_manager_1a86e7f50e80ed36c28c993597ec284cc3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TaskManager::TaskListChanged</definition>
+        <argsstring>()</argsstring>
+        <name>TaskListChanged</name>
+        <briefdescription>
+<para>Signal emitted when any change to the running task list has been made. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/task/taskmanager.h" line="114" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_task_manager_1ad476548530e71aa322fbe2929d395528" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TaskManager::StartNextWaiting</definition>
+        <argsstring>()</argsstring>
+        <name>StartNextWaiting</name>
+        <briefdescription>
+<para>Scan through the task queue and start any Tasks that are able to start. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function is run whenever a <ref refid="class_task" kindref="compound">Task</ref> is added and whenever a <ref refid="class_task" kindref="compound">Task</ref> finishes. It determines how many Tasks are currently running and therefore how many Tasks can be started (if any). It will then start ones that can.</para>
+<para>This function is aware of &quot;dependency Tasks&quot; and if a <ref refid="class_task" kindref="compound">Task</ref> is waiting but has a dependency that hasn&apos;t finished, it will skip to the next one.</para>
+<para>Like AddTask, this function is NOT thread-safe and currently only intended to be run from the main thread. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/task/taskmanager.h" line="158" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_task_manager_1ae1034d5bb2baac7796ed631965ec7454" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TaskManager::DeleteTask</definition>
+        <argsstring>(Task *t)</argsstring>
+        <name>DeleteTask</name>
+        <param>
+          <type><ref refid="class_task" kindref="compound">Task</ref> *</type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+<para>Removes the <ref refid="class_task" kindref="compound">Task</ref> from the queue and deletes it. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Recommended for use after a <ref refid="class_task" kindref="compound">Task</ref> has completed or errorred.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>t</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="class_task" kindref="compound">Task</ref> to delete </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/task/taskmanager.h" line="169" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_task_manager_1aa47c0af2933cfcc856b65317a9547381" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_task_manager_1a160e9e8489362a153974585e637f606f" kindref="member">TaskStatus</ref></type>
+        <definition>TaskStatus TaskManager::GetTaskStatus</definition>
+        <argsstring>(Task *t)</argsstring>
+        <name>GetTaskStatus</name>
+        <param>
+          <type><ref refid="class_task" kindref="compound">Task</ref> *</type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/task/taskmanager.h" line="171" column="14"/>
+      </memberdef>
+      <memberdef kind="function" id="class_task_manager_1aa14b4d7c6990da90062afa04d716584b" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TaskManager::SetTaskStatus</definition>
+        <argsstring>(Task *t, TaskStatus status)</argsstring>
+        <name>SetTaskStatus</name>
+        <param>
+          <type><ref refid="class_task" kindref="compound">Task</ref> *</type>
+          <declname>t</declname>
+        </param>
+        <param>
+          <type><ref refid="class_task_manager_1a160e9e8489362a153974585e637f606f" kindref="member">TaskStatus</ref></type>
+          <declname>status</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/task/taskmanager.h" line="173" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_task_manager_1acb83873563317bd6b1b2b0ac1d261d9d" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TaskManager::TaskSucceeded</definition>
+        <argsstring>()</argsstring>
+        <name>TaskSucceeded</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/task/taskmanager.h" line="196" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_task_manager_1afd63f9d68c66e937ff0ee9b28daa40fd" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TaskManager::TaskFailed</definition>
+        <argsstring>()</argsstring>
+        <name>TaskFailed</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/task/taskmanager.h" line="198" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_task_manager_1abda442a8e6a70f05c36e6f783c7bd435" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TaskManager::TaskFinished</definition>
+        <argsstring>()</argsstring>
+        <name>TaskFinished</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/task/taskmanager.h" line="200" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>An object that manages background <ref refid="class_task" kindref="compound">Task</ref> objects, handling their start and end. </para>
+    </briefdescription>
+    <detaileddescription>
+<para><ref refid="class_task_manager" kindref="compound">TaskManager</ref> handles the life of a <ref refid="class_task" kindref="compound">Task</ref> object. After a new <ref refid="class_task" kindref="compound">Task</ref> is created, it should be sent to <ref refid="class_task_manager" kindref="compound">TaskManager</ref> through <ref refid="class_task_manager_1ad5d61900b289b168256457b377ce03f2" kindref="member">AddTask()</ref>. <ref refid="class_task_manager" kindref="compound">TaskManager</ref> will take ownership of the task and add it to a queue until it system resources are available for it to run. Currently, <ref refid="class_task_manager" kindref="compound">TaskManager</ref> will run no more Tasks than there are threads on the system (one task per thread). As Tasks finished, <ref refid="class_task_manager" kindref="compound">TaskManager</ref> will start the next in the queue. </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>TaskManager</label>
+        <link refid="class_task_manager"/>
+        <childnode refid="1" relation="usage">
+          <edgelabel>instance_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/task/taskmanager.h" line="39" column="1" bodyfile="C:/Daten/Olive/olive/app/task/taskmanager.h" bodystart="40" bodyend="184"/>
+    <listofallmembers>
+      <member refid="class_task_manager_1ad910b2a9e1a82613072f017f5355d7f4" prot="private" virt="non-virtual"><scope>TaskManager</scope><name>active_thread_count_</name></member>
+      <member refid="class_task_manager_1ad5d61900b289b168256457b377ce03f2" prot="public" virt="non-virtual"><scope>TaskManager</scope><name>AddTask</name></member>
+      <member refid="class_task_manager_1a8c2221698638c9abeccb6482e477a4e3" prot="public" virt="non-virtual"><scope>TaskManager</scope><name>CreateInstance</name></member>
+      <member refid="class_task_manager_1ae1034d5bb2baac7796ed631965ec7454" prot="private" virt="non-virtual"><scope>TaskManager</scope><name>DeleteTask</name></member>
+      <member refid="class_task_manager_1a62ab654d676226ce1058e7fc26c893d2" prot="public" virt="non-virtual"><scope>TaskManager</scope><name>DestroyInstance</name></member>
+      <member refid="class_task_manager_1aa6ac368ffa6ca13b892a841744164070" prot="public" virt="non-virtual"><scope>TaskManager</scope><name>GetFirstTask</name></member>
+      <member refid="class_task_manager_1ac75eea79b38cbeebb91988a3b884ede8" prot="public" virt="non-virtual"><scope>TaskManager</scope><name>GetTaskCount</name></member>
+      <member refid="class_task_manager_1aa47c0af2933cfcc856b65317a9547381" prot="private" virt="non-virtual"><scope>TaskManager</scope><name>GetTaskStatus</name></member>
+      <member refid="class_task_manager_1a045c8c57de09c22ae2aabfd6b4a687a2" prot="public" virt="non-virtual"><scope>TaskManager</scope><name>instance</name></member>
+      <member refid="class_task_manager_1a834571a6b27c79a1ade0302d2857ef1f" prot="private" virt="non-virtual"><scope>TaskManager</scope><name>instance_</name></member>
+      <member refid="class_task_manager_1a160e9e8489362a153974585e637f606faa7f3510f6ebc90fdd9728e4853ff77cd" prot="private" virt="non-virtual"><scope>TaskManager</scope><name>kError</name></member>
+      <member refid="class_task_manager_1a160e9e8489362a153974585e637f606fabf619677ab3740dcc2f82262e61169e0" prot="private" virt="non-virtual"><scope>TaskManager</scope><name>kFinished</name></member>
+      <member refid="class_task_manager_1a160e9e8489362a153974585e637f606fabba0b5e82adbdb6f2d93ac85f655478e" prot="private" virt="non-virtual"><scope>TaskManager</scope><name>kWaiting</name></member>
+      <member refid="class_task_manager_1a160e9e8489362a153974585e637f606fa1a7637f012c291267fccab3794c34f46" prot="private" virt="non-virtual"><scope>TaskManager</scope><name>kWorking</name></member>
+      <member refid="class_task_manager_1aa14b4d7c6990da90062afa04d716584b" prot="private" virt="non-virtual"><scope>TaskManager</scope><name>SetTaskStatus</name></member>
+      <member refid="class_task_manager_1ad476548530e71aa322fbe2929d395528" prot="private" virt="non-virtual"><scope>TaskManager</scope><name>StartNextWaiting</name></member>
+      <member refid="class_task_manager_1a1c1404d4918479161d6cbd392c627141" prot="public" virt="non-virtual"><scope>TaskManager</scope><name>TaskAdded</name></member>
+      <member refid="class_task_manager_1afd63f9d68c66e937ff0ee9b28daa40fd" prot="private" virt="non-virtual"><scope>TaskManager</scope><name>TaskFailed</name></member>
+      <member refid="class_task_manager_1abda442a8e6a70f05c36e6f783c7bd435" prot="private" virt="non-virtual"><scope>TaskManager</scope><name>TaskFinished</name></member>
+      <member refid="class_task_manager_1a86e7f50e80ed36c28c993597ec284cc3" prot="public" virt="non-virtual"><scope>TaskManager</scope><name>TaskListChanged</name></member>
+      <member refid="class_task_manager_1a491dc7a77a5381675f614a411755ef64" prot="public" virt="non-virtual"><scope>TaskManager</scope><name>TaskManager</name></member>
+      <member refid="class_task_manager_1a9bb0afc90d8112b73e5887f7591de245" prot="private" virt="non-virtual"><scope>TaskManager</scope><name>tasks_</name></member>
+      <member refid="class_task_manager_1a160e9e8489362a153974585e637f606f" prot="private" virt="non-virtual"><scope>TaskManager</scope><name>TaskStatus</name></member>
+      <member refid="class_task_manager_1acb83873563317bd6b1b2b0ac1d261d9d" prot="private" virt="non-virtual"><scope>TaskManager</scope><name>TaskSucceeded</name></member>
+      <member refid="class_task_manager_1a4fbc1d399993fed9d4e3ba6a0e3c6dfb" prot="private" virt="non-virtual"><scope>TaskManager</scope><name>threads_</name></member>
+      <member refid="class_task_manager_1ad2e13f5d26fca003305a35df1699f67b" prot="public" virt="virtual"><scope>TaskManager</scope><name>~TaskManager</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

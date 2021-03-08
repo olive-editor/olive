@@ -1,0 +1,233 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_video_stream_properties_1_1_image_sequence_change_command" kind="class" language="C++" prot="private">
+    <compoundname>VideoStreamProperties::ImageSequenceChangeCommand</compoundname>
+    <basecompoundref refid="class_undo_command" prot="public" virt="non-virtual">UndoCommand</basecompoundref>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_video_stream_properties_1_1_image_sequence_change_command_1a294dee07e9293316cf461f00afaed908" prot="private" static="no" mutable="no">
+        <type><ref refid="videostream_8h_1a61723119e9a95ef980f20e0e1c5e911b" kindref="member">VideoStreamPtr</ref></type>
+        <definition>VideoStreamPtr VideoStreamProperties::ImageSequenceChangeCommand::video_stream_</definition>
+        <argsstring></argsstring>
+        <name>video_stream_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" line="127" column="20" bodyfile="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" bodystart="127" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_video_stream_properties_1_1_image_sequence_change_command_1a4243fa70f9db405f0988ea24f5cfe0ce" prot="private" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t VideoStreamProperties::ImageSequenceChangeCommand::new_start_index_</definition>
+        <argsstring></argsstring>
+        <name>new_start_index_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" line="129" column="13" bodyfile="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" bodystart="129" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_video_stream_properties_1_1_image_sequence_change_command_1af4e3f84ec722c3edc7e0ab1a02152691" prot="private" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t VideoStreamProperties::ImageSequenceChangeCommand::old_start_index_</definition>
+        <argsstring></argsstring>
+        <name>old_start_index_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" line="130" column="13" bodyfile="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" bodystart="130" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_video_stream_properties_1_1_image_sequence_change_command_1ae04a666ad7ba763437ba0ac570d2a430" prot="private" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t VideoStreamProperties::ImageSequenceChangeCommand::new_duration_</definition>
+        <argsstring></argsstring>
+        <name>new_duration_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" line="132" column="13" bodyfile="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" bodystart="132" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_video_stream_properties_1_1_image_sequence_change_command_1af47475b482f8a3c968f9850a55da05eb" prot="private" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t VideoStreamProperties::ImageSequenceChangeCommand::old_duration_</definition>
+        <argsstring></argsstring>
+        <name>old_duration_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" line="133" column="13" bodyfile="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" bodystart="133" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_undo_command_1a6c06f9c1b7bfeeff3c4724491945992b" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool UndoCommand::modified_</definition>
+        <argsstring></argsstring>
+        <name>modified_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="64" column="8" bodyfile="C:/Daten/Olive/olive/app/undo/undocommand.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_video_stream_properties_1_1_image_sequence_change_command_1a8f3891c5e7430ad0450cd9e2072aa871" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>VideoStreamProperties::ImageSequenceChangeCommand::ImageSequenceChangeCommand</definition>
+        <argsstring>(VideoStreamPtr video_stream, int64_t start_index, int64_t duration, QUndoCommand *parent=nullptr)</argsstring>
+        <name>ImageSequenceChangeCommand</name>
+        <param>
+          <type><ref refid="videostream_8h_1a61723119e9a95ef980f20e0e1c5e911b" kindref="member">VideoStreamPtr</ref></type>
+          <declname>video_stream</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>start_index</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>duration</declname>
+        </param>
+        <param>
+          <type>QUndoCommand *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" line="115" column="5"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_stream_properties_1_1_image_sequence_change_command_1a95092e2e33d3029dcac57d3cfe68f834" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="class_project" kindref="compound">Project</ref> *</type>
+        <definition>virtual Project* VideoStreamProperties::ImageSequenceChangeCommand::GetRelevantProject</definition>
+        <argsstring>() const override</argsstring>
+        <name>GetRelevantProject</name>
+        <reimplements refid="class_undo_command_1ab5c8967132833ea6be76a63dc5472f4f">GetRelevantProject</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" line="120" column="21"/>
+      </memberdef>
+      <memberdef kind="function" id="class_undo_command_1a9907db368d01fb26f5082a36c6d90bd4" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void UndoCommand::redo</definition>
+        <argsstring>() override</argsstring>
+        <name>redo</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="54" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_undo_command_1a09d00f8a2e1c8b3c97d72d9585503030" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void UndoCommand::undo</definition>
+        <argsstring>() override</argsstring>
+        <name>undo</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="55" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_video_stream_properties_1_1_image_sequence_change_command_1af6dedb84d67a42fd295fb8252c86c6b2" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void VideoStreamProperties::ImageSequenceChangeCommand::redo_internal</definition>
+        <argsstring>() override</argsstring>
+        <name>redo_internal</name>
+        <reimplements refid="class_undo_command_1ac8aa20d444a655cd36fa3c7dc01928b4">redo_internal</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" line="123" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_stream_properties_1_1_image_sequence_change_command_1a94de89c4280f992556de8ed1eb19472f" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void VideoStreamProperties::ImageSequenceChangeCommand::undo_internal</definition>
+        <argsstring>() override</argsstring>
+        <name>undo_internal</name>
+        <reimplements refid="class_undo_command_1a871dbc8a1f95b58e641be13703563faa">undo_internal</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" line="124" column="18"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>VideoStreamProperties::ImageSequenceChangeCommand</label>
+        <link refid="class_video_stream_properties_1_1_image_sequence_change_command"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>UndoCommand</label>
+        <link refid="class_undo_command"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>VideoStreamProperties::ImageSequenceChangeCommand</label>
+        <link refid="class_video_stream_properties_1_1_image_sequence_change_command"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>UndoCommand</label>
+        <link refid="class_undo_command"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" line="113" column="3" bodyfile="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" bodystart="113" bodyend="135"/>
+    <listofallmembers>
+      <member refid="class_video_stream_properties_1_1_image_sequence_change_command_1a95092e2e33d3029dcac57d3cfe68f834" prot="public" virt="virtual"><scope>VideoStreamProperties::ImageSequenceChangeCommand</scope><name>GetRelevantProject</name></member>
+      <member refid="class_video_stream_properties_1_1_image_sequence_change_command_1a8f3891c5e7430ad0450cd9e2072aa871" prot="public" virt="non-virtual"><scope>VideoStreamProperties::ImageSequenceChangeCommand</scope><name>ImageSequenceChangeCommand</name></member>
+      <member refid="class_undo_command_1a6c06f9c1b7bfeeff3c4724491945992b" prot="private" virt="non-virtual"><scope>VideoStreamProperties::ImageSequenceChangeCommand</scope><name>modified_</name></member>
+      <member refid="class_video_stream_properties_1_1_image_sequence_change_command_1ae04a666ad7ba763437ba0ac570d2a430" prot="private" virt="non-virtual"><scope>VideoStreamProperties::ImageSequenceChangeCommand</scope><name>new_duration_</name></member>
+      <member refid="class_video_stream_properties_1_1_image_sequence_change_command_1a4243fa70f9db405f0988ea24f5cfe0ce" prot="private" virt="non-virtual"><scope>VideoStreamProperties::ImageSequenceChangeCommand</scope><name>new_start_index_</name></member>
+      <member refid="class_video_stream_properties_1_1_image_sequence_change_command_1af47475b482f8a3c968f9850a55da05eb" prot="private" virt="non-virtual"><scope>VideoStreamProperties::ImageSequenceChangeCommand</scope><name>old_duration_</name></member>
+      <member refid="class_video_stream_properties_1_1_image_sequence_change_command_1af4e3f84ec722c3edc7e0ab1a02152691" prot="private" virt="non-virtual"><scope>VideoStreamProperties::ImageSequenceChangeCommand</scope><name>old_start_index_</name></member>
+      <member refid="class_undo_command_1a9907db368d01fb26f5082a36c6d90bd4" prot="public" virt="virtual"><scope>VideoStreamProperties::ImageSequenceChangeCommand</scope><name>redo</name></member>
+      <member refid="class_video_stream_properties_1_1_image_sequence_change_command_1af6dedb84d67a42fd295fb8252c86c6b2" prot="protected" virt="virtual"><scope>VideoStreamProperties::ImageSequenceChangeCommand</scope><name>redo_internal</name></member>
+      <member refid="class_undo_command_1a09d00f8a2e1c8b3c97d72d9585503030" prot="public" virt="virtual"><scope>VideoStreamProperties::ImageSequenceChangeCommand</scope><name>undo</name></member>
+      <member refid="class_video_stream_properties_1_1_image_sequence_change_command_1a94de89c4280f992556de8ed1eb19472f" prot="protected" virt="virtual"><scope>VideoStreamProperties::ImageSequenceChangeCommand</scope><name>undo_internal</name></member>
+      <member refid="class_undo_command_1a5a07a6505a207cf7186c7c726ff9c5fa" prot="public" virt="non-virtual"><scope>VideoStreamProperties::ImageSequenceChangeCommand</scope><name>UndoCommand</name></member>
+      <member refid="class_video_stream_properties_1_1_image_sequence_change_command_1a294dee07e9293316cf461f00afaed908" prot="private" virt="non-virtual"><scope>VideoStreamProperties::ImageSequenceChangeCommand</scope><name>video_stream_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

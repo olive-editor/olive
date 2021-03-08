@@ -1,0 +1,341 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_tempo_processor" kind="class" language="C++" prot="public">
+    <compoundname>TempoProcessor</compoundname>
+    <includes refid="tempoprocessor_8h" local="no">tempoprocessor.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_tempo_processor_1a83908c4bb1593feb9d7b3506cbceb0b7" prot="private" static="no" mutable="no">
+        <type>AVFilterGraph *</type>
+        <definition>AVFilterGraph* TempoProcessor::filter_graph_</definition>
+        <argsstring></argsstring>
+        <name>filter_graph_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/tempoprocessor.h" line="78" column="17" bodyfile="C:/Daten/Olive/olive/app/audio/tempoprocessor.h" bodystart="78" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_tempo_processor_1ac0dcc8237ebd1b89c02ffcf672d429a7" prot="private" static="no" mutable="no">
+        <type>AVFilterContext *</type>
+        <definition>AVFilterContext* TempoProcessor::buffersrc_ctx_</definition>
+        <argsstring></argsstring>
+        <name>buffersrc_ctx_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/tempoprocessor.h" line="80" column="19" bodyfile="C:/Daten/Olive/olive/app/audio/tempoprocessor.h" bodystart="80" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_tempo_processor_1a8248235a832959363c4bfd6442e64d07" prot="private" static="no" mutable="no">
+        <type>AVFilterContext *</type>
+        <definition>AVFilterContext* TempoProcessor::buffersink_ctx_</definition>
+        <argsstring></argsstring>
+        <name>buffersink_ctx_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/tempoprocessor.h" line="82" column="19" bodyfile="C:/Daten/Olive/olive/app/audio/tempoprocessor.h" bodystart="82" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_tempo_processor_1a0b6e826a12901753e0a3fa70093c05bd" prot="private" static="no" mutable="no">
+        <type>AVFrame *</type>
+        <definition>AVFrame* TempoProcessor::processed_frame_</definition>
+        <argsstring></argsstring>
+        <name>processed_frame_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/tempoprocessor.h" line="84" column="11" bodyfile="C:/Daten/Olive/olive/app/audio/tempoprocessor.h" bodystart="84" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_tempo_processor_1af9b2c2f420bada9f52fa430bf03c562e" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int TempoProcessor::processed_frame_byte_index_</definition>
+        <argsstring></argsstring>
+        <name>processed_frame_byte_index_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/tempoprocessor.h" line="85" column="7" bodyfile="C:/Daten/Olive/olive/app/audio/tempoprocessor.h" bodystart="85" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_tempo_processor_1ad420b3f84e5160b06ab59ee06ff549c5" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int TempoProcessor::processed_frame_max_bytes_</definition>
+        <argsstring></argsstring>
+        <name>processed_frame_max_bytes_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/tempoprocessor.h" line="86" column="7" bodyfile="C:/Daten/Olive/olive/app/audio/tempoprocessor.h" bodystart="86" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_tempo_processor_1ab07ee32ece8d3ce2e79159fecd553aa8" prot="private" static="no" mutable="no">
+        <type><ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref></type>
+        <definition>AudioRenderingParams TempoProcessor::params_</definition>
+        <argsstring></argsstring>
+        <name>params_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/tempoprocessor.h" line="88" column="24" bodyfile="C:/Daten/Olive/olive/app/audio/tempoprocessor.h" bodystart="88" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_tempo_processor_1ada9b4666fe0b4de4108326cf7483850a" prot="private" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t TempoProcessor::timestamp_</definition>
+        <argsstring></argsstring>
+        <name>timestamp_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/tempoprocessor.h" line="90" column="11" bodyfile="C:/Daten/Olive/olive/app/audio/tempoprocessor.h" bodystart="90" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_tempo_processor_1adcd3757534193b7adab2b2b93ce5adcb" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double TempoProcessor::speed_</definition>
+        <argsstring></argsstring>
+        <name>speed_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/tempoprocessor.h" line="92" column="10" bodyfile="C:/Daten/Olive/olive/app/audio/tempoprocessor.h" bodystart="92" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_tempo_processor_1a6227a5769567eb85870f59066bb5da1d" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool TempoProcessor::open_</definition>
+        <argsstring></argsstring>
+        <name>open_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/tempoprocessor.h" line="94" column="8" bodyfile="C:/Daten/Olive/olive/app/audio/tempoprocessor.h" bodystart="94" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_tempo_processor_1aa4e85c8bd6ef370265bae240acf4f7d9" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool TempoProcessor::flushed_</definition>
+        <argsstring></argsstring>
+        <name>flushed_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/tempoprocessor.h" line="96" column="8" bodyfile="C:/Daten/Olive/olive/app/audio/tempoprocessor.h" bodystart="96" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_tempo_processor_1a2ee3127f5c76eff8333e7e8db96b1478" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>TempoProcessor::TempoProcessor</definition>
+        <argsstring>()</argsstring>
+        <name>TempoProcessor</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/tempoprocessor.h" line="61" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_tempo_processor_1a90c63e051231e67a4501f597e5afea7d" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool TempoProcessor::IsOpen</definition>
+        <argsstring>() const</argsstring>
+        <name>IsOpen</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/tempoprocessor.h" line="63" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_tempo_processor_1a21987d0795748ac558ddec2fc2648cf7" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const double &amp;</type>
+        <definition>const double&amp; TempoProcessor::GetSpeed</definition>
+        <argsstring>() const</argsstring>
+        <name>GetSpeed</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/tempoprocessor.h" line="65" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_tempo_processor_1aa22bc58f643df45b079334683119a8e4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool TempoProcessor::Open</definition>
+        <argsstring>(const AudioRenderingParams &amp;params, const double &amp;speed)</argsstring>
+        <name>Open</name>
+        <param>
+          <type>const <ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref> &amp;</type>
+          <declname>params</declname>
+        </param>
+        <param>
+          <type>const double &amp;</type>
+          <declname>speed</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/tempoprocessor.h" line="67" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_tempo_processor_1a69068ba9eeaa7d0e64927ad87346b9a4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TempoProcessor::Push</definition>
+        <argsstring>(const char *data, int length)</argsstring>
+        <name>Push</name>
+        <param>
+          <type>const char *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>length</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/tempoprocessor.h" line="69" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_tempo_processor_1a5b7aee43e23189b32056e947fa3d3f69" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int TempoProcessor::Pull</definition>
+        <argsstring>(char *data, int max_length)</argsstring>
+        <name>Pull</name>
+        <param>
+          <type>char *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>max_length</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/tempoprocessor.h" line="71" column="7"/>
+      </memberdef>
+      <memberdef kind="function" id="class_tempo_processor_1a801ad78dd6add440ddb8747416c77dd8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TempoProcessor::Close</definition>
+        <argsstring>()</argsstring>
+        <name>Close</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/tempoprocessor.h" line="73" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-func">
+      <memberdef kind="function" id="class_tempo_processor_1abfe57dc8b5f31e83951f552345e657f7" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>AVFilterContext *</type>
+        <definition>static AVFilterContext* TempoProcessor::CreateTempoFilter</definition>
+        <argsstring>(AVFilterGraph *graph, AVFilterContext *link, const double &amp;tempo)</argsstring>
+        <name>CreateTempoFilter</name>
+        <param>
+          <type>AVFilterGraph *</type>
+          <declname>graph</declname>
+        </param>
+        <param>
+          <type>AVFilterContext *</type>
+          <declname>link</declname>
+        </param>
+        <param>
+          <type>const double &amp;</type>
+          <declname>tempo</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/tempoprocessor.h" line="76" column="26"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="3">
+        <label>AudioParams</label>
+        <link refid="class_audio_params"/>
+      </node>
+      <node id="2">
+        <label>AudioRenderingParams</label>
+        <link refid="class_audio_rendering_params"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>TempoProcessor</label>
+        <link refid="class_tempo_processor"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>params_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/audio/tempoprocessor.h" line="40" column="1" bodyfile="C:/Daten/Olive/olive/app/audio/tempoprocessor.h" bodystart="41" bodyend="79"/>
+    <listofallmembers>
+      <member refid="class_tempo_processor_1a8248235a832959363c4bfd6442e64d07" prot="private" virt="non-virtual"><scope>TempoProcessor</scope><name>buffersink_ctx_</name></member>
+      <member refid="class_tempo_processor_1ac0dcc8237ebd1b89c02ffcf672d429a7" prot="private" virt="non-virtual"><scope>TempoProcessor</scope><name>buffersrc_ctx_</name></member>
+      <member refid="class_tempo_processor_1a801ad78dd6add440ddb8747416c77dd8" prot="public" virt="non-virtual"><scope>TempoProcessor</scope><name>Close</name></member>
+      <member refid="class_tempo_processor_1abfe57dc8b5f31e83951f552345e657f7" prot="private" virt="non-virtual"><scope>TempoProcessor</scope><name>CreateTempoFilter</name></member>
+      <member refid="class_tempo_processor_1a83908c4bb1593feb9d7b3506cbceb0b7" prot="private" virt="non-virtual"><scope>TempoProcessor</scope><name>filter_graph_</name></member>
+      <member refid="class_tempo_processor_1aa4e85c8bd6ef370265bae240acf4f7d9" prot="private" virt="non-virtual"><scope>TempoProcessor</scope><name>flushed_</name></member>
+      <member refid="class_tempo_processor_1a21987d0795748ac558ddec2fc2648cf7" prot="public" virt="non-virtual"><scope>TempoProcessor</scope><name>GetSpeed</name></member>
+      <member refid="class_tempo_processor_1a90c63e051231e67a4501f597e5afea7d" prot="public" virt="non-virtual"><scope>TempoProcessor</scope><name>IsOpen</name></member>
+      <member refid="class_tempo_processor_1aa22bc58f643df45b079334683119a8e4" prot="public" virt="non-virtual"><scope>TempoProcessor</scope><name>Open</name></member>
+      <member refid="class_tempo_processor_1a6227a5769567eb85870f59066bb5da1d" prot="private" virt="non-virtual"><scope>TempoProcessor</scope><name>open_</name></member>
+      <member refid="class_tempo_processor_1ab07ee32ece8d3ce2e79159fecd553aa8" prot="private" virt="non-virtual"><scope>TempoProcessor</scope><name>params_</name></member>
+      <member refid="class_tempo_processor_1a0b6e826a12901753e0a3fa70093c05bd" prot="private" virt="non-virtual"><scope>TempoProcessor</scope><name>processed_frame_</name></member>
+      <member refid="class_tempo_processor_1af9b2c2f420bada9f52fa430bf03c562e" prot="private" virt="non-virtual"><scope>TempoProcessor</scope><name>processed_frame_byte_index_</name></member>
+      <member refid="class_tempo_processor_1ad420b3f84e5160b06ab59ee06ff549c5" prot="private" virt="non-virtual"><scope>TempoProcessor</scope><name>processed_frame_max_bytes_</name></member>
+      <member refid="class_tempo_processor_1a5b7aee43e23189b32056e947fa3d3f69" prot="public" virt="non-virtual"><scope>TempoProcessor</scope><name>Pull</name></member>
+      <member refid="class_tempo_processor_1a69068ba9eeaa7d0e64927ad87346b9a4" prot="public" virt="non-virtual"><scope>TempoProcessor</scope><name>Push</name></member>
+      <member refid="class_tempo_processor_1adcd3757534193b7adab2b2b93ce5adcb" prot="private" virt="non-virtual"><scope>TempoProcessor</scope><name>speed_</name></member>
+      <member refid="class_tempo_processor_1a2ee3127f5c76eff8333e7e8db96b1478" prot="public" virt="non-virtual"><scope>TempoProcessor</scope><name>TempoProcessor</name></member>
+      <member refid="class_tempo_processor_1ada9b4666fe0b4de4108326cf7483850a" prot="private" virt="non-virtual"><scope>TempoProcessor</scope><name>timestamp_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

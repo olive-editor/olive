@@ -1,0 +1,839 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_string_slider" kind="class" language="C++" prot="public">
+    <compoundname>StringSlider</compoundname>
+    <basecompoundref refid="class_slider_base" prot="public" virt="non-virtual">SliderBase</basecompoundref>
+    <includes refid="stringslider_8h" local="no">stringslider.h</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_string_slider_1a3370ff8087306d4c60cf688429b56ce1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>StringSlider::StringSlider</definition>
+        <argsstring>(QWidget *parent=nullptr)</argsstring>
+        <name>StringSlider</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/stringslider.h" line="50" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_string_slider_1a7d2aedbe3184de55d9cace9714722d46" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void StringSlider::SetDragMultiplier</definition>
+        <argsstring>(const double &amp;d)=delete</argsstring>
+        <name>SetDragMultiplier</name>
+        <param>
+          <type>const double &amp;</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/stringslider.h" line="52" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_string_slider_1a2a3d2d7e8e9ab5c2f04b089e582156e2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>QString StringSlider::GetValue</definition>
+        <argsstring>()</argsstring>
+        <name>GetValue</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/stringslider.h" line="54" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_string_slider_1a5c714896041b5e24d9a3e16bedacbd05" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void StringSlider::SetValue</definition>
+        <argsstring>(const QString &amp;v)</argsstring>
+        <name>SetValue</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/stringslider.h" line="56" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_slider_base_1a4db0de3d14736d4b3a1de2871e62aef1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void SliderBase::SetRequireValidInput</definition>
+        <argsstring>(bool e)</argsstring>
+        <name>SetRequireValidInput</name>
+        <param>
+          <type>bool</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" line="62" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_slider_base_1af90fa956ff0f478b76dc8d24c0e98545" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void SliderBase::SetAlignment</definition>
+        <argsstring>(Qt::Alignment alignment)</argsstring>
+        <name>SetAlignment</name>
+        <param>
+          <type>Qt::Alignment</type>
+          <declname>alignment</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" line="64" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_slider_base_1a59bee61836207658e78d07a0ae2e8b49" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool SliderBase::IsTristate</definition>
+        <argsstring>() const</argsstring>
+        <name>IsTristate</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" line="66" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_slider_base_1aa5fa074d5e429f79ecab69801369e45c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void SliderBase::SetTristate</definition>
+        <argsstring>()</argsstring>
+        <name>SetTristate</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" line="67" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_slider_base_1ae4cdf93412191d36ede4998d23ce82c8" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool SliderBase::IsDragging</definition>
+        <argsstring>() const</argsstring>
+        <name>IsDragging</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" line="69" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_slider_base_1a38050e9dc35dbd344ee7aa8fca474e47" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void SliderBase::SetFormat</definition>
+        <argsstring>(const QString &amp;s)</argsstring>
+        <name>SetFormat</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" line="71" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_slider_base_1a374c809c707bc93a7c800b8b6469753f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void SliderBase::ClearFormat</definition>
+        <argsstring>()</argsstring>
+        <name>ClearFormat</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" line="72" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_string_slider_1a24040454fbb8c4a5bfa12f7df9a92678" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>QString</type>
+        <definition>virtual QString StringSlider::ValueToString</definition>
+        <argsstring>(const QVariant &amp;value) override</argsstring>
+        <name>ValueToString</name>
+        <reimplements refid="class_slider_base_1a8512c75c269b58fccb8817dbd829f439">ValueToString</reimplements>
+        <param>
+          <type>const QVariant &amp;</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/stringslider.h" line="59" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_slider_base_1a9432a148ffa70a4335f9aafcc1169b62" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const QVariant &amp;</type>
+        <definition>const QVariant&amp; SliderBase::Value</definition>
+        <argsstring>()</argsstring>
+        <name>Value</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" line="78" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_slider_base_1ae722df43c348dde3232354ff6eda4ed9" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void SliderBase::SetValue</definition>
+        <argsstring>(const QVariant &amp;v)</argsstring>
+        <name>SetValue</name>
+        <param>
+          <type>const QVariant &amp;</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" line="80" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_slider_base_1a995183b7bd80a5dcaf22569eddf94c0d" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void SliderBase::SetMinimumInternal</definition>
+        <argsstring>(const QVariant &amp;v)</argsstring>
+        <name>SetMinimumInternal</name>
+        <param>
+          <type>const QVariant &amp;</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" line="82" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_slider_base_1a11e82ed0fd0020deb06c0115199395fd" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void SliderBase::SetMaximumInternal</definition>
+        <argsstring>(const QVariant &amp;v)</argsstring>
+        <name>SetMaximumInternal</name>
+        <param>
+          <type>const QVariant &amp;</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" line="84" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_slider_base_1a6743f05e27bbea170ea4b423022a5aba" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void SliderBase::UpdateLabel</definition>
+        <argsstring>(const QVariant &amp;v)</argsstring>
+        <name>UpdateLabel</name>
+        <param>
+          <type>const QVariant &amp;</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" line="86" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_slider_base_1af9bcfa73d67dd29700c5e78ce4196c8c" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>double</type>
+        <definition>virtual double SliderBase::AdjustDragDistanceInternal</definition>
+        <argsstring>(const double &amp;start, const double &amp;drag)</argsstring>
+        <name>AdjustDragDistanceInternal</name>
+        <reimplementedby refid="class_float_slider_1a86cb88c0f001ca329a56b31140e8cba7">AdjustDragDistanceInternal</reimplementedby>
+        <param>
+          <type>const double &amp;</type>
+          <declname>start</declname>
+        </param>
+        <param>
+          <type>const double &amp;</type>
+          <declname>drag</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" line="88" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_slider_base_1a2f540523bb9d802c937251bc25f4778b" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>QVariant</type>
+        <definition>virtual QVariant SliderBase::StringToValue</definition>
+        <argsstring>(const QString &amp;s, bool *ok)</argsstring>
+        <name>StringToValue</name>
+        <reimplementedby refid="class_time_slider_1ae06602ea572f66879688d8ae948526ac">StringToValue</reimplementedby>
+        <reimplementedby refid="class_integer_slider_1ae9991351f8de31a11a2241cd722db0d8">StringToValue</reimplementedby>
+        <reimplementedby refid="class_float_slider_1a9d2d458f4150b0bbc66c7dcb1403c8af">StringToValue</reimplementedby>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>bool *</type>
+          <declname>ok</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" line="92" column="20"/>
+      </memberdef>
+      <memberdef kind="function" id="class_slider_base_1a23bdf2e8ed55c1c48e9d36b4f4179c12" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void SliderBase::changeEvent</definition>
+        <argsstring>(QEvent *e) override</argsstring>
+        <name>changeEvent</name>
+        <param>
+          <type>QEvent *</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" line="94" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_slider_base_1a7f880bfddd5328630ebb6c0ae7617006" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void SliderBase::ForceLabelUpdate</definition>
+        <argsstring>()</argsstring>
+        <name>ForceLabelUpdate</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" line="96" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_string_slider_1a4799c4039ee62002d9b88001da1f9f11" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void StringSlider::ValueChanged</definition>
+        <argsstring>(QString)</argsstring>
+        <name>ValueChanged</name>
+        <param>
+          <type>QString</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/stringslider.h" line="62" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_slider_base_1a13537858eafb976a886860d7c4a34437" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void SliderBase::ValueChanged</definition>
+        <argsstring>(QVariant v)</argsstring>
+        <name>ValueChanged</name>
+        <param>
+          <type>QVariant</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" line="75" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_string_slider_1ac05f2f6ab9489c7b58f73f4818ace853" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void StringSlider::ConvertValue</definition>
+        <argsstring>(QVariant v)</argsstring>
+        <name>ConvertValue</name>
+        <param>
+          <type>QVariant</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/stringslider.h" line="65" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_slider_base_1aae8226d7a58824fc0cb321066b1a11b1" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void SliderBase::LabelPressed</definition>
+        <argsstring>()</argsstring>
+        <name>LabelPressed</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" line="132" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_slider_base_1a4c871674aba230c0e38ff0d863f958f7" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void SliderBase::LabelClicked</definition>
+        <argsstring>()</argsstring>
+        <name>LabelClicked</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" line="134" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_slider_base_1a20d8d751038f84a702bc3fb7a2865a78" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void SliderBase::LabelDragged</definition>
+        <argsstring>(int i)</argsstring>
+        <name>LabelDragged</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" line="136" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_slider_base_1abb5704434ab5065f25e6af8862106966" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void SliderBase::LineEditConfirmed</definition>
+        <argsstring>()</argsstring>
+        <name>LineEditConfirmed</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" line="138" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_slider_base_1a89f8773942f9d8e5f0b1b9c0ffb175e7" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void SliderBase::LineEditCancelled</definition>
+        <argsstring>()</argsstring>
+        <name>LineEditCancelled</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" line="140" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-type">
+      <memberdef kind="enum" id="class_slider_base_1ad50a609062acda2986cc3ac4805b1788" prot="public" static="no" strong="no">
+        <type></type>
+        <name>Mode</name>
+        <enumvalue id="class_slider_base_1ad50a609062acda2986cc3ac4805b1788a7222a28bbf994efda0a2abe36ceea040" prot="public">
+          <name>kString</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_slider_base_1ad50a609062acda2986cc3ac4805b1788a96f918044726b77ae121c16124425c74" prot="public">
+          <name>kInteger</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_slider_base_1ad50a609062acda2986cc3ac4805b1788a222052227f367be98f797eed42b0d431" prot="public">
+          <name>kFloat</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" line="52" column="3" bodyfile="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" bodystart="52" bodyend="56"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="class_slider_base_1aeb6b45d0aeaaf8ae026581e5b9884392" prot="protected" static="no" mutable="no">
+        <type>double</type>
+        <definition>double SliderBase::drag_multiplier_</definition>
+        <argsstring></argsstring>
+        <name>drag_multiplier_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" line="98" column="10" bodyfile="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" bodystart="98" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_slider_base_1a5cf07e83a268e68b19db8552fda9a2f9" prot="private" static="no" mutable="no">
+        <type><ref refid="class_slider_label" kindref="compound">SliderLabel</ref> *</type>
+        <definition>SliderLabel* SliderBase::label_</definition>
+        <argsstring></argsstring>
+        <name>label_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" line="105" column="15" bodyfile="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" bodystart="105" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_slider_base_1a6f73be66ed10df839460e9bc83e45290" prot="private" static="no" mutable="no">
+        <type><ref refid="class_focusable_line_edit" kindref="compound">FocusableLineEdit</ref> *</type>
+        <definition>FocusableLineEdit* SliderBase::editor_</definition>
+        <argsstring></argsstring>
+        <name>editor_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" line="107" column="21" bodyfile="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" bodystart="107" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_slider_base_1ad56b51ded8dbe6a404f6a9560715ea70" prot="private" static="no" mutable="no">
+        <type>QVariant</type>
+        <definition>QVariant SliderBase::value_</definition>
+        <argsstring></argsstring>
+        <name>value_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" line="109" column="12" bodyfile="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" bodystart="109" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_slider_base_1aa97b48c852ac3e654901ee22919f6aaf" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool SliderBase::has_min_</definition>
+        <argsstring></argsstring>
+        <name>has_min_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" line="111" column="8" bodyfile="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" bodystart="111" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_slider_base_1ac62393c46a39aa85c819526e85a42583" prot="private" static="no" mutable="no">
+        <type>QVariant</type>
+        <definition>QVariant SliderBase::min_value_</definition>
+        <argsstring></argsstring>
+        <name>min_value_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" line="112" column="12" bodyfile="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" bodystart="112" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_slider_base_1a51222a5b3a176adb87b162335e048a2c" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool SliderBase::has_max_</definition>
+        <argsstring></argsstring>
+        <name>has_max_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" line="114" column="8" bodyfile="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" bodystart="114" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_slider_base_1ad71e39029a38c7f22855c83a6241f25d" prot="private" static="no" mutable="no">
+        <type>QVariant</type>
+        <definition>QVariant SliderBase::max_value_</definition>
+        <argsstring></argsstring>
+        <name>max_value_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" line="115" column="12" bodyfile="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" bodystart="115" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_slider_base_1ad4f6519a3f49db990512e5861cf7f3fe" prot="private" static="no" mutable="no">
+        <type><ref refid="class_slider_base_1ad50a609062acda2986cc3ac4805b1788" kindref="member">Mode</ref></type>
+        <definition>Mode SliderBase::mode_</definition>
+        <argsstring></argsstring>
+        <name>mode_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" line="117" column="8" bodyfile="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" bodystart="117" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_slider_base_1a9618a16c9df1ff162933934ef0beeac6" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool SliderBase::dragged_</definition>
+        <argsstring></argsstring>
+        <name>dragged_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" line="119" column="8" bodyfile="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" bodystart="119" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_slider_base_1ae09a94cdb788a819913d2c9ce2161efc" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double SliderBase::dragged_diff_</definition>
+        <argsstring></argsstring>
+        <name>dragged_diff_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" line="121" column="10" bodyfile="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" bodystart="121" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_slider_base_1ab3f4f22e5207852e2348a9d86f5ff6d2" prot="private" static="no" mutable="no">
+        <type>QVariant</type>
+        <definition>QVariant SliderBase::temp_dragged_value_</definition>
+        <argsstring></argsstring>
+        <name>temp_dragged_value_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" line="123" column="12" bodyfile="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" bodystart="123" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_slider_base_1a862382ca3b5efc973adba70353ba350d" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool SliderBase::require_valid_input_</definition>
+        <argsstring></argsstring>
+        <name>require_valid_input_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" line="125" column="8" bodyfile="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" bodystart="125" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_slider_base_1a7e1d8fe92b74ab424b455e9278927729" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool SliderBase::tristate_</definition>
+        <argsstring></argsstring>
+        <name>tristate_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" line="127" column="8" bodyfile="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" bodystart="127" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_slider_base_1adcba71784939d252a41ba4ecac6ed208" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString SliderBase::custom_format_</definition>
+        <argsstring></argsstring>
+        <name>custom_format_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" line="129" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" bodystart="129" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_slider_base_1a6ffb2bdda98101eaa66c50ccac3a8f67" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const QVariant &amp;</type>
+        <definition>const QVariant&amp; SliderBase::ClampValue</definition>
+        <argsstring>(const QVariant &amp;v)</argsstring>
+        <name>ClampValue</name>
+        <param>
+          <type>const QVariant &amp;</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" line="101" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_slider_base_1a99618873e9f3f36ea24d7ff889ec1606" prot="private" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>QString SliderBase::GetFormat</definition>
+        <argsstring>() const</argsstring>
+        <name>GetFormat</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h" line="103" column="11"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>StringSlider</label>
+        <link refid="class_string_slider"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>SliderBase</label>
+        <link refid="class_slider_base"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="4">
+        <label>SliderLabel</label>
+        <link refid="class_slider_label"/>
+      </node>
+      <node id="3">
+        <label>FocusableLineEdit</label>
+        <link refid="class_focusable_line_edit"/>
+      </node>
+      <node id="1">
+        <label>StringSlider</label>
+        <link refid="class_string_slider"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>SliderBase</label>
+        <link refid="class_slider_base"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>editor_</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>label_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/slider/stringslider.h" line="28" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/slider/stringslider.h" bodystart="29" bodyend="48"/>
+    <listofallmembers>
+      <member refid="class_slider_base_1af9bcfa73d67dd29700c5e78ce4196c8c" prot="protected" virt="virtual"><scope>StringSlider</scope><name>AdjustDragDistanceInternal</name></member>
+      <member refid="class_slider_base_1a23bdf2e8ed55c1c48e9d36b4f4179c12" prot="protected" virt="virtual"><scope>StringSlider</scope><name>changeEvent</name></member>
+      <member refid="class_slider_base_1a6ffb2bdda98101eaa66c50ccac3a8f67" prot="private" virt="non-virtual"><scope>StringSlider</scope><name>ClampValue</name></member>
+      <member refid="class_slider_base_1a374c809c707bc93a7c800b8b6469753f" prot="public" virt="non-virtual"><scope>StringSlider</scope><name>ClearFormat</name></member>
+      <member refid="class_string_slider_1ac05f2f6ab9489c7b58f73f4818ace853" prot="private" virt="non-virtual"><scope>StringSlider</scope><name>ConvertValue</name></member>
+      <member refid="class_slider_base_1adcba71784939d252a41ba4ecac6ed208" prot="private" virt="non-virtual"><scope>StringSlider</scope><name>custom_format_</name></member>
+      <member refid="class_slider_base_1aeb6b45d0aeaaf8ae026581e5b9884392" prot="protected" virt="non-virtual"><scope>StringSlider</scope><name>drag_multiplier_</name></member>
+      <member refid="class_slider_base_1a9618a16c9df1ff162933934ef0beeac6" prot="private" virt="non-virtual"><scope>StringSlider</scope><name>dragged_</name></member>
+      <member refid="class_slider_base_1ae09a94cdb788a819913d2c9ce2161efc" prot="private" virt="non-virtual"><scope>StringSlider</scope><name>dragged_diff_</name></member>
+      <member refid="class_slider_base_1a6f73be66ed10df839460e9bc83e45290" prot="private" virt="non-virtual"><scope>StringSlider</scope><name>editor_</name></member>
+      <member refid="class_slider_base_1a7f880bfddd5328630ebb6c0ae7617006" prot="protected" virt="non-virtual"><scope>StringSlider</scope><name>ForceLabelUpdate</name></member>
+      <member refid="class_slider_base_1a99618873e9f3f36ea24d7ff889ec1606" prot="private" virt="non-virtual"><scope>StringSlider</scope><name>GetFormat</name></member>
+      <member refid="class_string_slider_1a2a3d2d7e8e9ab5c2f04b089e582156e2" prot="public" virt="non-virtual"><scope>StringSlider</scope><name>GetValue</name></member>
+      <member refid="class_slider_base_1a51222a5b3a176adb87b162335e048a2c" prot="private" virt="non-virtual"><scope>StringSlider</scope><name>has_max_</name></member>
+      <member refid="class_slider_base_1aa97b48c852ac3e654901ee22919f6aaf" prot="private" virt="non-virtual"><scope>StringSlider</scope><name>has_min_</name></member>
+      <member refid="class_slider_base_1ae4cdf93412191d36ede4998d23ce82c8" prot="public" virt="non-virtual"><scope>StringSlider</scope><name>IsDragging</name></member>
+      <member refid="class_slider_base_1a59bee61836207658e78d07a0ae2e8b49" prot="public" virt="non-virtual"><scope>StringSlider</scope><name>IsTristate</name></member>
+      <member refid="class_slider_base_1ad50a609062acda2986cc3ac4805b1788a222052227f367be98f797eed42b0d431" prot="public" virt="non-virtual"><scope>StringSlider</scope><name>kFloat</name></member>
+      <member refid="class_slider_base_1ad50a609062acda2986cc3ac4805b1788a96f918044726b77ae121c16124425c74" prot="public" virt="non-virtual"><scope>StringSlider</scope><name>kInteger</name></member>
+      <member refid="class_slider_base_1ad50a609062acda2986cc3ac4805b1788a7222a28bbf994efda0a2abe36ceea040" prot="public" virt="non-virtual"><scope>StringSlider</scope><name>kString</name></member>
+      <member refid="class_slider_base_1a5cf07e83a268e68b19db8552fda9a2f9" prot="private" virt="non-virtual"><scope>StringSlider</scope><name>label_</name></member>
+      <member refid="class_slider_base_1a4c871674aba230c0e38ff0d863f958f7" prot="private" virt="non-virtual"><scope>StringSlider</scope><name>LabelClicked</name></member>
+      <member refid="class_slider_base_1a20d8d751038f84a702bc3fb7a2865a78" prot="private" virt="non-virtual"><scope>StringSlider</scope><name>LabelDragged</name></member>
+      <member refid="class_slider_base_1aae8226d7a58824fc0cb321066b1a11b1" prot="private" virt="non-virtual"><scope>StringSlider</scope><name>LabelPressed</name></member>
+      <member refid="class_slider_base_1a89f8773942f9d8e5f0b1b9c0ffb175e7" prot="private" virt="non-virtual"><scope>StringSlider</scope><name>LineEditCancelled</name></member>
+      <member refid="class_slider_base_1abb5704434ab5065f25e6af8862106966" prot="private" virt="non-virtual"><scope>StringSlider</scope><name>LineEditConfirmed</name></member>
+      <member refid="class_slider_base_1ad71e39029a38c7f22855c83a6241f25d" prot="private" virt="non-virtual"><scope>StringSlider</scope><name>max_value_</name></member>
+      <member refid="class_slider_base_1ac62393c46a39aa85c819526e85a42583" prot="private" virt="non-virtual"><scope>StringSlider</scope><name>min_value_</name></member>
+      <member refid="class_slider_base_1ad50a609062acda2986cc3ac4805b1788" prot="public" virt="non-virtual"><scope>StringSlider</scope><name>Mode</name></member>
+      <member refid="class_slider_base_1ad4f6519a3f49db990512e5861cf7f3fe" prot="private" virt="non-virtual"><scope>StringSlider</scope><name>mode_</name></member>
+      <member refid="class_slider_base_1a862382ca3b5efc973adba70353ba350d" prot="private" virt="non-virtual"><scope>StringSlider</scope><name>require_valid_input_</name></member>
+      <member refid="class_slider_base_1af90fa956ff0f478b76dc8d24c0e98545" prot="public" virt="non-virtual"><scope>StringSlider</scope><name>SetAlignment</name></member>
+      <member refid="class_string_slider_1a7d2aedbe3184de55d9cace9714722d46" prot="public" virt="non-virtual"><scope>StringSlider</scope><name>SetDragMultiplier</name></member>
+      <member refid="class_slider_base_1a38050e9dc35dbd344ee7aa8fca474e47" prot="public" virt="non-virtual"><scope>StringSlider</scope><name>SetFormat</name></member>
+      <member refid="class_slider_base_1a11e82ed0fd0020deb06c0115199395fd" prot="protected" virt="non-virtual"><scope>StringSlider</scope><name>SetMaximumInternal</name></member>
+      <member refid="class_slider_base_1a995183b7bd80a5dcaf22569eddf94c0d" prot="protected" virt="non-virtual"><scope>StringSlider</scope><name>SetMinimumInternal</name></member>
+      <member refid="class_slider_base_1a4db0de3d14736d4b3a1de2871e62aef1" prot="public" virt="non-virtual"><scope>StringSlider</scope><name>SetRequireValidInput</name></member>
+      <member refid="class_slider_base_1aa5fa074d5e429f79ecab69801369e45c" prot="public" virt="non-virtual"><scope>StringSlider</scope><name>SetTristate</name></member>
+      <member refid="class_string_slider_1a5c714896041b5e24d9a3e16bedacbd05" prot="public" virt="non-virtual"><scope>StringSlider</scope><name>SetValue</name></member>
+      <member refid="class_slider_base_1ae722df43c348dde3232354ff6eda4ed9" prot="protected" virt="non-virtual" ambiguityscope="SliderBase::"><scope>StringSlider</scope><name>SetValue</name></member>
+      <member refid="class_slider_base_1ace79e90a59347237deb26fcbab498283" prot="public" virt="non-virtual"><scope>StringSlider</scope><name>SliderBase</name></member>
+      <member refid="class_string_slider_1a3370ff8087306d4c60cf688429b56ce1" prot="public" virt="non-virtual"><scope>StringSlider</scope><name>StringSlider</name></member>
+      <member refid="class_slider_base_1a2f540523bb9d802c937251bc25f4778b" prot="protected" virt="virtual"><scope>StringSlider</scope><name>StringToValue</name></member>
+      <member refid="class_slider_base_1ab3f4f22e5207852e2348a9d86f5ff6d2" prot="private" virt="non-virtual"><scope>StringSlider</scope><name>temp_dragged_value_</name></member>
+      <member refid="class_slider_base_1a7e1d8fe92b74ab424b455e9278927729" prot="private" virt="non-virtual"><scope>StringSlider</scope><name>tristate_</name></member>
+      <member refid="class_slider_base_1a6743f05e27bbea170ea4b423022a5aba" prot="protected" virt="non-virtual"><scope>StringSlider</scope><name>UpdateLabel</name></member>
+      <member refid="class_slider_base_1a9432a148ffa70a4335f9aafcc1169b62" prot="protected" virt="non-virtual"><scope>StringSlider</scope><name>Value</name></member>
+      <member refid="class_slider_base_1ad56b51ded8dbe6a404f6a9560715ea70" prot="private" virt="non-virtual"><scope>StringSlider</scope><name>value_</name></member>
+      <member refid="class_string_slider_1a4799c4039ee62002d9b88001da1f9f11" prot="public" virt="non-virtual"><scope>StringSlider</scope><name>ValueChanged</name></member>
+      <member refid="class_slider_base_1a13537858eafb976a886860d7c4a34437" prot="public" virt="non-virtual" ambiguityscope="SliderBase::"><scope>StringSlider</scope><name>ValueChanged</name></member>
+      <member refid="class_string_slider_1a24040454fbb8c4a5bfa12f7df9a92678" prot="protected" virt="virtual"><scope>StringSlider</scope><name>ValueToString</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

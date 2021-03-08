@@ -1,0 +1,527 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_sample_buffer" kind="class" language="C++" prot="public">
+    <compoundname>SampleBuffer</compoundname>
+    <includes refid="samplebuffer_8h" local="no">samplebuffer.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_sample_buffer_1aa526d502bdfa6e9573843ba1e1c696f1" prot="private" static="no" mutable="no">
+        <type><ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref></type>
+        <definition>AudioRenderingParams SampleBuffer::audio_params_</definition>
+        <argsstring></argsstring>
+        <name>audio_params_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/samplebuffer.h" line="85" column="24" bodyfile="C:/Daten/Olive/olive/app/codec/samplebuffer.h" bodystart="85" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_sample_buffer_1aa264d733f94bd514299b0198c42f5fb0" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int SampleBuffer::sample_count_per_channel_</definition>
+        <argsstring></argsstring>
+        <name>sample_count_per_channel_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/samplebuffer.h" line="87" column="7" bodyfile="C:/Daten/Olive/olive/app/codec/samplebuffer.h" bodystart="87" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_sample_buffer_1aaaacaf6917e899c8c5111db92b0d133d" prot="private" static="no" mutable="no">
+        <type>float **</type>
+        <definition>float** SampleBuffer::data_</definition>
+        <argsstring></argsstring>
+        <name>data_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/samplebuffer.h" line="89" column="9" bodyfile="C:/Daten/Olive/olive/app/codec/samplebuffer.h" bodystart="89" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_sample_buffer_1aaa20344771841121fbb8996837766187" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>SampleBuffer::SampleBuffer</definition>
+        <argsstring>()</argsstring>
+        <name>SampleBuffer</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/samplebuffer.h" line="44" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_sample_buffer_1aab8dbbf210e82728deb5579ef0464367" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type></type>
+        <definition>virtual SampleBuffer::~SampleBuffer</definition>
+        <argsstring>()</argsstring>
+        <name>~SampleBuffer</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/samplebuffer.h" line="46" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_sample_buffer_1aa47f985d33c4849179ffa126c288e9b5" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref> &amp;</type>
+        <definition>const AudioRenderingParams&amp; SampleBuffer::audio_params</definition>
+        <argsstring>() const</argsstring>
+        <name>audio_params</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/samplebuffer.h" line="54" column="30"/>
+      </memberdef>
+      <memberdef kind="function" id="class_sample_buffer_1a4d3337ce0bb97ceaf975bbd24aeb193b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void SampleBuffer::set_audio_params</definition>
+        <argsstring>(const AudioRenderingParams &amp;params)</argsstring>
+        <name>set_audio_params</name>
+        <param>
+          <type>const <ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref> &amp;</type>
+          <declname>params</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/samplebuffer.h" line="55" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_sample_buffer_1acc15a5d45fa7ebb20efa7524a03f6f2b" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const int &amp;</type>
+        <definition>const int&amp; SampleBuffer::sample_count_per_channel</definition>
+        <argsstring>() const</argsstring>
+        <name>sample_count_per_channel</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/samplebuffer.h" line="57" column="13"/>
+      </memberdef>
+      <memberdef kind="function" id="class_sample_buffer_1aa425cab07f67a53d286a3e21301add5b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void SampleBuffer::set_sample_count_per_channel</definition>
+        <argsstring>(const int &amp;sample_count_per_channel)</argsstring>
+        <name>set_sample_count_per_channel</name>
+        <param>
+          <type>const int &amp;</type>
+          <declname>sample_count_per_channel</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/samplebuffer.h" line="58" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_sample_buffer_1acefa1ad60aeb39d57d8638bb51cb9638" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>float **</type>
+        <definition>float** SampleBuffer::data</definition>
+        <argsstring>()</argsstring>
+        <name>data</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/samplebuffer.h" line="60" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="class_sample_buffer_1a223ccdfcfa630e1f4ac20c240e254791" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const float **</type>
+        <definition>const float** SampleBuffer::const_data</definition>
+        <argsstring>() const</argsstring>
+        <name>const_data</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/samplebuffer.h" line="61" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_sample_buffer_1a51fa8800029000cd7a64f0a51c91ec78" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>float *</type>
+        <definition>float* SampleBuffer::channel_data</definition>
+        <argsstring>(int channel)</argsstring>
+        <name>channel_data</name>
+        <param>
+          <type>int</type>
+          <declname>channel</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/samplebuffer.h" line="62" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="class_sample_buffer_1abbc31962773f7d2597e4d73df5557b2d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>float *</type>
+        <definition>float* SampleBuffer::sample_data</definition>
+        <argsstring>(int index)</argsstring>
+        <name>sample_data</name>
+        <param>
+          <type>int</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/samplebuffer.h" line="63" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="class_sample_buffer_1a7938c63262380bb82722b1d7b7bb916d" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool SampleBuffer::is_allocated</definition>
+        <argsstring>() const</argsstring>
+        <name>is_allocated</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/samplebuffer.h" line="65" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_sample_buffer_1a72071dcd8a9c8a256bcda223c71777c7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void SampleBuffer::allocate</definition>
+        <argsstring>()</argsstring>
+        <name>allocate</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/samplebuffer.h" line="66" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_sample_buffer_1a84ee1bc89ad3a6a31cb3d9e99ec873c4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void SampleBuffer::destroy</definition>
+        <argsstring>()</argsstring>
+        <name>destroy</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/samplebuffer.h" line="67" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_sample_buffer_1a033b6afaabba1259a81bb919d6e48b12" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void SampleBuffer::reverse</definition>
+        <argsstring>()</argsstring>
+        <name>reverse</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/samplebuffer.h" line="69" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_sample_buffer_1a74ad4b1c25f41b2dbba53b1ca33e3686" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void SampleBuffer::speed</definition>
+        <argsstring>(double speed)</argsstring>
+        <name>speed</name>
+        <param>
+          <type>double</type>
+          <declname>speed</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/samplebuffer.h" line="70" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_sample_buffer_1ade3d268af2da76c02910005c448d6888" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void SampleBuffer::fill</definition>
+        <argsstring>(const float &amp;f)</argsstring>
+        <name>fill</name>
+        <param>
+          <type>const float &amp;</type>
+          <declname>f</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/samplebuffer.h" line="72" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_sample_buffer_1acbf57325d00e297c45e98e9dfaabc5d0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void SampleBuffer::fill</definition>
+        <argsstring>(const float &amp;f, int start_sample, int end_sample)</argsstring>
+        <name>fill</name>
+        <param>
+          <type>const float &amp;</type>
+          <declname>f</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>start_sample</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>end_sample</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/samplebuffer.h" line="73" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_sample_buffer_1af2f21fc8f1da17c12e7e9a485624b8e2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void SampleBuffer::set</definition>
+        <argsstring>(const float **data, int sample_offset, int sample_length)</argsstring>
+        <name>set</name>
+        <param>
+          <type>const float **</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>sample_offset</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>sample_length</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/samplebuffer.h" line="75" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_sample_buffer_1af3ebe0ca26bb77ff4072e4bb08abae64" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void SampleBuffer::set</definition>
+        <argsstring>(const float **data, int sample_length)</argsstring>
+        <name>set</name>
+        <param>
+          <type>const float **</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>sample_length</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/samplebuffer.h" line="76" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_sample_buffer_1a226cb29c6cd45c801b9347901f8cb176" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QByteArray</type>
+        <definition>QByteArray SampleBuffer::toPackedData</definition>
+        <argsstring>() const</argsstring>
+        <name>toPackedData</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/samplebuffer.h" line="78" column="14"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="class_sample_buffer_1af1b87f31420196fb62ec652384a1f646" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="samplebuffer_8h_1aa60dc68e3e43775112c8dabb364d0a33" kindref="member">SampleBufferPtr</ref></type>
+        <definition>static SampleBufferPtr SampleBuffer::Create</definition>
+        <argsstring>()</argsstring>
+        <name>Create</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/samplebuffer.h" line="48" column="26"/>
+      </memberdef>
+      <memberdef kind="function" id="class_sample_buffer_1a8ca4e3d7181158ff44498c48e23ed6eb" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="samplebuffer_8h_1aa60dc68e3e43775112c8dabb364d0a33" kindref="member">SampleBufferPtr</ref></type>
+        <definition>static SampleBufferPtr SampleBuffer::CreateAllocated</definition>
+        <argsstring>(const AudioRenderingParams &amp;audio_params, int samples_per_channel)</argsstring>
+        <name>CreateAllocated</name>
+        <param>
+          <type>const <ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref> &amp;</type>
+          <declname>audio_params</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>samples_per_channel</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/samplebuffer.h" line="49" column="26"/>
+      </memberdef>
+      <memberdef kind="function" id="class_sample_buffer_1a0ca5d4c720d35a9a6b0d5dadfa656f46" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="samplebuffer_8h_1aa60dc68e3e43775112c8dabb364d0a33" kindref="member">SampleBufferPtr</ref></type>
+        <definition>static SampleBufferPtr SampleBuffer::CreateFromPackedData</definition>
+        <argsstring>(const AudioRenderingParams &amp;audio_params, const QByteArray &amp;bytes)</argsstring>
+        <name>CreateFromPackedData</name>
+        <param>
+          <type>const <ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref> &amp;</type>
+          <declname>audio_params</declname>
+        </param>
+        <param>
+          <type>const QByteArray &amp;</type>
+          <declname>bytes</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/samplebuffer.h" line="50" column="26"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-func">
+      <memberdef kind="function" id="class_sample_buffer_1aa30583ca826cd3783286462967b45ef7" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void SampleBuffer::allocate_sample_buffer</definition>
+        <argsstring>(float ***data, int nb_channels, int nb_samples)</argsstring>
+        <name>allocate_sample_buffer</name>
+        <param>
+          <type>float ***</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>nb_channels</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>nb_samples</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/samplebuffer.h" line="81" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_sample_buffer_1adc8728c274a78fdc5ffd2dc28a7de99a" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void SampleBuffer::destroy_sample_buffer</definition>
+        <argsstring>(float ***data, int nb_channels)</argsstring>
+        <name>destroy_sample_buffer</name>
+        <param>
+          <type>float ***</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>nb_channels</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/samplebuffer.h" line="83" column="15"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A buffer of audio samples. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Audio samples in this structure are always stored in PLANAR (separated by channel). This is done to simplify audio rendering code. This replaces the old system of using QByteArrays (containing packed audio) and while <ref refid="class_sample_buffer" kindref="compound">SampleBuffer</ref> replaces many of those in the rendering/processing side of things, QByteArrays are currently still in use for playback, including reading to and from the cache. </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>SampleBuffer</label>
+        <link refid="class_sample_buffer"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>audio_params_</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>AudioParams</label>
+        <link refid="class_audio_params"/>
+      </node>
+      <node id="2">
+        <label>AudioRenderingParams</label>
+        <link refid="class_audio_rendering_params"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/codec/samplebuffer.h" line="41" column="1" bodyfile="C:/Daten/Olive/olive/app/codec/samplebuffer.h" bodystart="42" bodyend="91"/>
+    <listofallmembers>
+      <member refid="class_sample_buffer_1a72071dcd8a9c8a256bcda223c71777c7" prot="public" virt="non-virtual"><scope>SampleBuffer</scope><name>allocate</name></member>
+      <member refid="class_sample_buffer_1aa30583ca826cd3783286462967b45ef7" prot="private" virt="non-virtual"><scope>SampleBuffer</scope><name>allocate_sample_buffer</name></member>
+      <member refid="class_sample_buffer_1aa47f985d33c4849179ffa126c288e9b5" prot="public" virt="non-virtual"><scope>SampleBuffer</scope><name>audio_params</name></member>
+      <member refid="class_sample_buffer_1aa526d502bdfa6e9573843ba1e1c696f1" prot="private" virt="non-virtual"><scope>SampleBuffer</scope><name>audio_params_</name></member>
+      <member refid="class_sample_buffer_1a51fa8800029000cd7a64f0a51c91ec78" prot="public" virt="non-virtual"><scope>SampleBuffer</scope><name>channel_data</name></member>
+      <member refid="class_sample_buffer_1a223ccdfcfa630e1f4ac20c240e254791" prot="public" virt="non-virtual"><scope>SampleBuffer</scope><name>const_data</name></member>
+      <member refid="class_sample_buffer_1af1b87f31420196fb62ec652384a1f646" prot="public" virt="non-virtual"><scope>SampleBuffer</scope><name>Create</name></member>
+      <member refid="class_sample_buffer_1a8ca4e3d7181158ff44498c48e23ed6eb" prot="public" virt="non-virtual"><scope>SampleBuffer</scope><name>CreateAllocated</name></member>
+      <member refid="class_sample_buffer_1a0ca5d4c720d35a9a6b0d5dadfa656f46" prot="public" virt="non-virtual"><scope>SampleBuffer</scope><name>CreateFromPackedData</name></member>
+      <member refid="class_sample_buffer_1acefa1ad60aeb39d57d8638bb51cb9638" prot="public" virt="non-virtual"><scope>SampleBuffer</scope><name>data</name></member>
+      <member refid="class_sample_buffer_1aaaacaf6917e899c8c5111db92b0d133d" prot="private" virt="non-virtual"><scope>SampleBuffer</scope><name>data_</name></member>
+      <member refid="class_sample_buffer_1a84ee1bc89ad3a6a31cb3d9e99ec873c4" prot="public" virt="non-virtual"><scope>SampleBuffer</scope><name>destroy</name></member>
+      <member refid="class_sample_buffer_1adc8728c274a78fdc5ffd2dc28a7de99a" prot="private" virt="non-virtual"><scope>SampleBuffer</scope><name>destroy_sample_buffer</name></member>
+      <member refid="class_sample_buffer_1ade3d268af2da76c02910005c448d6888" prot="public" virt="non-virtual"><scope>SampleBuffer</scope><name>fill</name></member>
+      <member refid="class_sample_buffer_1acbf57325d00e297c45e98e9dfaabc5d0" prot="public" virt="non-virtual"><scope>SampleBuffer</scope><name>fill</name></member>
+      <member refid="class_sample_buffer_1a7938c63262380bb82722b1d7b7bb916d" prot="public" virt="non-virtual"><scope>SampleBuffer</scope><name>is_allocated</name></member>
+      <member refid="class_sample_buffer_1a033b6afaabba1259a81bb919d6e48b12" prot="public" virt="non-virtual"><scope>SampleBuffer</scope><name>reverse</name></member>
+      <member refid="class_sample_buffer_1acc15a5d45fa7ebb20efa7524a03f6f2b" prot="public" virt="non-virtual"><scope>SampleBuffer</scope><name>sample_count_per_channel</name></member>
+      <member refid="class_sample_buffer_1aa264d733f94bd514299b0198c42f5fb0" prot="private" virt="non-virtual"><scope>SampleBuffer</scope><name>sample_count_per_channel_</name></member>
+      <member refid="class_sample_buffer_1abbc31962773f7d2597e4d73df5557b2d" prot="public" virt="non-virtual"><scope>SampleBuffer</scope><name>sample_data</name></member>
+      <member refid="class_sample_buffer_1aaa20344771841121fbb8996837766187" prot="public" virt="non-virtual"><scope>SampleBuffer</scope><name>SampleBuffer</name></member>
+      <member refid="class_sample_buffer_1af2f21fc8f1da17c12e7e9a485624b8e2" prot="public" virt="non-virtual"><scope>SampleBuffer</scope><name>set</name></member>
+      <member refid="class_sample_buffer_1af3ebe0ca26bb77ff4072e4bb08abae64" prot="public" virt="non-virtual"><scope>SampleBuffer</scope><name>set</name></member>
+      <member refid="class_sample_buffer_1a4d3337ce0bb97ceaf975bbd24aeb193b" prot="public" virt="non-virtual"><scope>SampleBuffer</scope><name>set_audio_params</name></member>
+      <member refid="class_sample_buffer_1aa425cab07f67a53d286a3e21301add5b" prot="public" virt="non-virtual"><scope>SampleBuffer</scope><name>set_sample_count_per_channel</name></member>
+      <member refid="class_sample_buffer_1a74ad4b1c25f41b2dbba53b1ca33e3686" prot="public" virt="non-virtual"><scope>SampleBuffer</scope><name>speed</name></member>
+      <member refid="class_sample_buffer_1a226cb29c6cd45c801b9347901f8cb176" prot="public" virt="non-virtual"><scope>SampleBuffer</scope><name>toPackedData</name></member>
+      <member refid="class_sample_buffer_1aab8dbbf210e82728deb5579ef0464367" prot="public" virt="virtual"><scope>SampleBuffer</scope><name>~SampleBuffer</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,158 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="task_2taskmanager_8h" kind="file" language="C++">
+    <compoundname>task/taskmanager.h</compoundname>
+    <includes local="no">QVector</includes>
+    <includes local="no">QUndoCommand</includes>
+    <includes local="yes">task/task.h</includes>
+    <includedby refid="mainstatusbar_8h" local="yes">mainstatusbar.h</includedby>
+    <incdepgraph>
+      <node id="3">
+        <label>QUndoCommand</label>
+      </node>
+      <node id="1">
+        <label>taskmanager.h</label>
+        <link refid="task_2taskmanager_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>task/task.h</label>
+      </node>
+      <node id="2">
+        <label>QVector</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="1">
+        <label>taskmanager.h</label>
+        <link refid="task_2taskmanager_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>mainstatusbar.h</label>
+        <link refid="mainstatusbar_8h"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="class_task_manager" prot="public">TaskManager</innerclass>
+    <innerclass refid="struct_task_manager_1_1_task_container" prot="private">TaskManager::TaskContainer</innerclass>
+    <innerclass refid="struct_task_manager_1_1_thread_container" prot="private">TaskManager::ThreadContainer</innerclass>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/***</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"></highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/><sp/>Olive<sp/>-<sp/>Non-Linear<sp/>Video<sp/>Editor</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/><sp/>Copyright<sp/>(C)<sp/>2019<sp/>Olive<sp/>Team</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"></highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/><sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/><sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/><sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"></highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/><sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/><sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/><sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"></highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/><sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/><sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"></highlight></codeline>
+<codeline lineno="19"><highlight class="comment">***/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>TASKMANAGER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TASKMANAGER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QVector&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QUndoCommand&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;task/task.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><ref refid="define_8h_1a0472692dd1f22472ad63da20da919e8c" kindref="member">OLIVE_NAMESPACE_ENTER</ref></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39" refid="class_task_manager" refkind="compound"><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_task_manager" kindref="compound">TaskManager</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>QObject</highlight></codeline>
+<codeline lineno="40"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/>Q_OBJECT</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><ref refid="class_task_manager_1a491dc7a77a5381675f614a411755ef64" kindref="member">TaskManager</ref>();</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="class_task_manager_1ad2e13f5d26fca003305a35df1699f67b" kindref="member">~TaskManager</ref>();</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_task_manager_1a8c2221698638c9abeccb6482e477a4e3" kindref="member">CreateInstance</ref>();</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_task_manager_1a62ab654d676226ce1058e7fc26c893d2" kindref="member">DestroyInstance</ref>();</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="class_task_manager" kindref="compound">TaskManager</ref>*<sp/><ref refid="class_task_manager_1a045c8c57de09c22ae2aabfd6b4a687a2" kindref="member">instance</ref>();</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="class_task_manager_1ac75eea79b38cbeebb91988a3b884ede8" kindref="member">GetTaskCount</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><ref refid="class_task" kindref="compound">Task</ref>*<sp/><ref refid="class_task_manager_1aa6ac368ffa6ca13b892a841744164070" kindref="member">GetFirstTask</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="64" refid="class_task_manager_1a491dc7a77a5381675f614a411755ef64" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>slots:</highlight></codeline>
+<codeline lineno="81" refid="class_task_manager_1aa6ac368ffa6ca13b892a841744164070" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_task_manager_1ad5d61900b289b168256457b377ce03f2" kindref="member">AddTask</ref>(<ref refid="class_task" kindref="compound">Task</ref><sp/>*t);</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal">signals:</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_task_manager_1a1c1404d4918479161d6cbd392c627141" kindref="member">TaskAdded</ref>(<ref refid="class_task" kindref="compound">Task</ref>*<sp/>t);</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_task_manager_1a86e7f50e80ed36c28c993597ec284cc3" kindref="member">TaskListChanged</ref>();</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/><ref refid="class_task_manager_1a160e9e8489362a153974585e637f606f" kindref="member">TaskStatus</ref><sp/>{</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_task_manager_1a160e9e8489362a153974585e637f606fabba0b5e82adbdb6f2d93ac85f655478e" kindref="member">kWaiting</ref>,</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_task_manager_1a160e9e8489362a153974585e637f606fa1a7637f012c291267fccab3794c34f46" kindref="member">kWorking</ref>,</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_task_manager_1a160e9e8489362a153974585e637f606fabf619677ab3740dcc2f82262e61169e0" kindref="member">kFinished</ref>,</highlight></codeline>
+<codeline lineno="114" refid="class_task_manager_1a86e7f50e80ed36c28c993597ec284cc3" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_task_manager_1a160e9e8489362a153974585e637f606faa7f3510f6ebc90fdd9728e4853ff77cd" kindref="member">kError</ref></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">TaskContainer<sp/>{</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_task" kindref="compound">Task</ref>*<sp/><ref refid="struct_task_manager_1_1_task_container_1afbd5a60834a74bc96b21733150b04b86" kindref="member">task</ref>;</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_task_manager_1a160e9e8489362a153974585e637f606f" kindref="member">TaskStatus</ref><sp/><ref refid="struct_task_manager_1_1_task_container_1a52e2d3faad110ffcf3ce31a7d8efd406" kindref="member">status</ref>;</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="123" refid="class_task_manager_1a160e9e8489362a153974585e637f606f" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="struct_task_manager_1_1_thread_container" kindref="compound">ThreadContainer</ref><sp/>{</highlight></codeline>
+<codeline lineno="125" refid="class_task_manager_1a160e9e8489362a153974585e637f606fabba0b5e82adbdb6f2d93ac85f655478e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>QThread*<sp/><ref refid="struct_task_manager_1_1_thread_container_1ae46bff6a9ca36c6736464d4c3946b7ce" kindref="member">thread</ref>;</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="struct_task_manager_1_1_thread_container_1ab604d1d0589544c4c7a802c5b24c8ff5" kindref="member">active</ref>;</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="128" refid="class_task_manager_1a160e9e8489362a153974585e637f606fa1a7637f012c291267fccab3794c34f46" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_task_manager_1ad476548530e71aa322fbe2929d395528" kindref="member">StartNextWaiting</ref>();</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_task_manager_1ae1034d5bb2baac7796ed631965ec7454" kindref="member">DeleteTask</ref>(<ref refid="class_task" kindref="compound">Task</ref>*<sp/>t);</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><ref refid="class_task_manager_1a160e9e8489362a153974585e637f606f" kindref="member">TaskStatus</ref><sp/><ref refid="class_task_manager_1aa47c0af2933cfcc856b65317a9547381" kindref="member">GetTaskStatus</ref>(<ref refid="class_task" kindref="compound">Task</ref>*<sp/>t);</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"></highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_task_manager_1aa14b4d7c6990da90062afa04d716584b" kindref="member">SetTaskStatus</ref>(<ref refid="class_task" kindref="compound">Task</ref>*<sp/>t,<sp/><ref refid="class_task_manager_1a160e9e8489362a153974585e637f606f" kindref="member">TaskStatus</ref><sp/>status);</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/>QVector&lt;TaskContainer&gt;<sp/><ref refid="class_task_manager_1a9bb0afc90d8112b73e5887f7591de245" kindref="member">tasks_</ref>;</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/>QVector&lt;ThreadContainer&gt;<sp/><ref refid="class_task_manager_1a4fbc1d399993fed9d4e3ba6a0e3c6dfb" kindref="member">threads_</ref>;</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"></highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="class_task_manager_1ad910b2a9e1a82613072f017f5355d7f4" kindref="member">active_thread_count_</ref>;</highlight></codeline>
+<codeline lineno="171" refid="class_task_manager_1aa47c0af2933cfcc856b65317a9547381" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="class_task_manager" kindref="compound">TaskManager</ref>*<sp/><ref refid="class_task_manager_1a834571a6b27c79a1ade0302d2857ef1f" kindref="member">instance_</ref>;</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"></highlight></codeline>
+<codeline lineno="177"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal"><sp/>slots:</highlight></codeline>
+<codeline lineno="178" refid="class_task_manager_1a9bb0afc90d8112b73e5887f7591de245" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_task_manager_1acb83873563317bd6b1b2b0ac1d261d9d" kindref="member">TaskSucceeded</ref>();</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"></highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_task_manager_1afd63f9d68c66e937ff0ee9b28daa40fd" kindref="member">TaskFailed</ref>();</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"></highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_task_manager_1abda442a8e6a70f05c36e6f783c7bd435" kindref="member">TaskFinished</ref>();</highlight></codeline>
+<codeline lineno="183" refid="class_task_manager_1a4fbc1d399993fed9d4e3ba6a0e3c6dfb" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="184"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"></highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><ref refid="define_8h_1abe3de0634d907ca0f5d1acf732c49dac" kindref="member">OLIVE_NAMESPACE_EXIT</ref></highlight></codeline>
+<codeline lineno="187"><highlight class="normal"></highlight></codeline>
+<codeline lineno="188" refid="class_task_manager_1ad910b2a9e1a82613072f017f5355d7f4" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//<sp/>TASKMANAGER_H</highlight></codeline>
+    </programlisting>
+    <location file="C:/Daten/Olive/olive/app/task/taskmanager.h"/>
+  </compounddef>
+</doxygen>

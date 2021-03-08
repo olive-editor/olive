@@ -1,0 +1,808 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_node_view_item" kind="class" language="C++" prot="public">
+    <compoundname>NodeViewItem</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QGraphicsRectItem</basecompoundref>
+    <includes refid="nodeviewitem_8h" local="no">nodeviewitem.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_node_view_item_1a45aaa1405cd75c50fe36a268a0c43bc2" prot="private" static="no" mutable="no">
+        <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+        <definition>Node* NodeViewItem::node_</definition>
+        <argsstring></argsstring>
+        <name>node_</name>
+        <briefdescription>
+<para>Reference to attached <ref refid="class_node" kindref="compound">Node</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" line="144" column="8" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" bodystart="144" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_view_item_1ad92c032a393c62f59b03875855b530a2" prot="private" static="no" mutable="no">
+        <type>QList&lt; <ref refid="class_node_input" kindref="compound">NodeInput</ref> * &gt;</type>
+        <definition>QList&lt;NodeInput*&gt; NodeViewItem::node_inputs_</definition>
+        <argsstring></argsstring>
+        <name>node_inputs_</name>
+        <briefdescription>
+<para>Cached list of node inputs. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" line="149" column="9" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" bodystart="149" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_view_item_1a7b3f713147f4388c76470c3d269194ce" prot="private" static="no" mutable="no">
+        <type><ref refid="class_node_view_item_widget" kindref="compound">NodeViewItemWidget</ref></type>
+        <definition>NodeViewItemWidget NodeViewItem::css_proxy_</definition>
+        <argsstring></argsstring>
+        <name>css_proxy_</name>
+        <briefdescription>
+<para>A QWidget that can receive CSS properties that <ref refid="class_node_view_item" kindref="compound">NodeViewItem</ref> can use. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="see"><para><ref refid="class_node_view_item_widget" kindref="compound">NodeViewItemWidget</ref> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" line="156" column="22" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" bodystart="156" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_view_item_1ac51e1c1db383773837aca0155ac17e09" prot="private" static="no" mutable="no">
+        <type>QRectF</type>
+        <definition>QRectF NodeViewItem::title_bar_rect_</definition>
+        <argsstring></argsstring>
+        <name>title_bar_rect_</name>
+        <briefdescription>
+<para>Rectangle of the <ref refid="class_node" kindref="compound">Node</ref>&apos;s title bar (equal to rect() when collapsed) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" line="161" column="10" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" bodystart="161" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_view_item_1af460794d0d124bef4faf210c5a31495f" prot="private" static="no" mutable="no">
+        <type><ref refid="class_node_view_edge" kindref="compound">NodeViewEdge</ref> *</type>
+        <definition>NodeViewEdge* NodeViewItem::dragging_edge_</definition>
+        <argsstring></argsstring>
+        <name>dragging_edge_</name>
+        <briefdescription>
+<para>Edge dragging variables. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" line="164" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" bodystart="164" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_view_item_1aef49c92dd09264b3f4dd005e9f423d99" prot="private" static="no" mutable="no">
+        <type>QPointF</type>
+        <definition>QPointF NodeViewItem::dragging_edge_start_</definition>
+        <argsstring></argsstring>
+        <name>dragging_edge_start_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" line="165" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" bodystart="165" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_view_item_1a6dfe0117d9b833476734e6826ea4175c" prot="private" static="no" mutable="no">
+        <type><ref refid="class_node_param" kindref="compound">NodeParam</ref> *</type>
+        <definition>NodeParam* NodeViewItem::drag_src_param_</definition>
+        <argsstring></argsstring>
+        <name>drag_src_param_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" line="166" column="13" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" bodystart="166" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_view_item_1a4956de913032c42263c17e4a47709f34" prot="private" static="no" mutable="no">
+        <type><ref refid="class_node_param" kindref="compound">NodeParam</ref> *</type>
+        <definition>NodeParam* NodeViewItem::drag_dest_param_</definition>
+        <argsstring></argsstring>
+        <name>drag_dest_param_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" line="167" column="13" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" bodystart="167" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_view_item_1a38a7bfd56ba75c2d52ed10b3476e755c" prot="private" static="no" mutable="no">
+        <type><ref refid="class_node_view_item" kindref="compound">NodeViewItem</ref> *</type>
+        <definition>NodeViewItem* NodeViewItem::drag_source_</definition>
+        <argsstring></argsstring>
+        <name>drag_source_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" line="168" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" bodystart="168" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_view_item_1ac64c09b9e89f65cafe92bcbb4be5fd6d" prot="private" static="no" mutable="no">
+        <type><ref refid="class_node_view_item" kindref="compound">NodeViewItem</ref> *</type>
+        <definition>NodeViewItem* NodeViewItem::cached_drop_item_</definition>
+        <argsstring></argsstring>
+        <name>cached_drop_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" line="170" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" bodystart="170" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_view_item_1ae70968d8ddf03b50b8c730ba14ddeab6" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool NodeViewItem::cached_drop_item_expanded_</definition>
+        <argsstring></argsstring>
+        <name>cached_drop_item_expanded_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" line="171" column="8" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" bodystart="171" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_view_item_1a69240d539809cabbee66c55a6ccadaed" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int NodeViewItem::node_border_width_</definition>
+        <argsstring></argsstring>
+        <name>node_border_width_</name>
+        <briefdescription>
+<para>Sizing variables to use when drawing. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" line="174" column="7" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" bodystart="174" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_view_item_1a35d93144fa01c8ce86cfb4d039294c00" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool NodeViewItem::expanded_</definition>
+        <argsstring></argsstring>
+        <name>expanded_</name>
+        <briefdescription>
+<para>Expanded state. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" line="179" column="8" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" bodystart="179" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_view_item_1a018d9441257359884b31a61426046115" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool NodeViewItem::hide_titlebar_</definition>
+        <argsstring></argsstring>
+        <name>hide_titlebar_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" line="181" column="8" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" bodystart="181" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_view_item_1ac65a5d27247a377644f5412a44dbc481" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool NodeViewItem::standard_click_</definition>
+        <argsstring></argsstring>
+        <name>standard_click_</name>
+        <briefdescription>
+<para>Current click mode. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="see"><para><ref refid="class_node_view_item_1a77b7c08f132d66adf031bc03608b490c" kindref="member">mousePressEvent()</ref> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" line="188" column="8" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" bodystart="188" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_view_item_1a3a45d8e44149a5fea66a0150b362f683" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int NodeViewItem::highlighted_index_</definition>
+        <argsstring></argsstring>
+        <name>highlighted_index_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" line="190" column="7" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" bodystart="190" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_view_item_1ab2df792ed4ae725775707534e670565a" prot="private" static="no" mutable="no">
+        <type>QUndoCommand *</type>
+        <definition>QUndoCommand* NodeViewItem::node_edge_change_command_</definition>
+        <argsstring></argsstring>
+        <name>node_edge_change_command_</name>
+        <briefdescription>
+<para>QUndoCommand for creating and deleting edges by dragging. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="see"><para><ref refid="class_node_view_item_1a77b7c08f132d66adf031bc03608b490c" kindref="member">mousePressEvent()</ref> </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="class_node_view_item_1a848f0ef008ac5a6c297bb8fe59b384db" kindref="member">mouseReleaseEvent()</ref> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" line="198" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" bodystart="198" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_view_item_1a882fb4c0b3dd9c2ef4f00a404e00c0eb" prot="private" static="no" mutable="no">
+        <type><ref refid="class_node_view_common_1a7718854113b8b4f38800f29a448944b2" kindref="member">NodeViewCommon::FlowDirection</ref></type>
+        <definition>NodeViewCommon::FlowDirection NodeViewItem::flow_dir_</definition>
+        <argsstring></argsstring>
+        <name>flow_dir_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" line="200" column="33" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" bodystart="200" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_node_view_item_1a45e4df2e90c75239044c5bacb8a07871" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>NodeViewItem::NodeViewItem</definition>
+        <argsstring>(QGraphicsItem *parent=nullptr)</argsstring>
+        <name>NodeViewItem</name>
+        <param>
+          <type>QGraphicsItem *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" line="65" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_item_1aeef125c2aa92e76baced263121e6e019" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QPointF</type>
+        <definition>QPointF NodeViewItem::GetNodePosition</definition>
+        <argsstring>() const</argsstring>
+        <name>GetNodePosition</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" line="67" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_item_1a6b9133065a0ac9e8fb6fe79a7531eb44" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeViewItem::SetNodePosition</definition>
+        <argsstring>(const QPointF &amp;pos)</argsstring>
+        <name>SetNodePosition</name>
+        <param>
+          <type>const QPointF &amp;</type>
+          <declname>pos</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" line="68" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_item_1a6236429682313a198684c5fc8a86e11c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeViewItem::SetNode</definition>
+        <argsstring>(Node *n)</argsstring>
+        <name>SetNode</name>
+        <param>
+          <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Set the <ref refid="class_node" kindref="compound">Node</ref> to correspond to this widget. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" line="73" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_item_1a7ca6b878ba36cb4bfb3bd83c60ea0da0" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+        <definition>Node* NodeViewItem::GetNode</definition>
+        <argsstring>() const</argsstring>
+        <name>GetNode</name>
+        <briefdescription>
+<para>Get currently attached node. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" line="78" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_item_1a92665dd948954a4f2a5fee5eece0cd29" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool NodeViewItem::IsExpanded</definition>
+        <argsstring>() const</argsstring>
+        <name>IsExpanded</name>
+        <briefdescription>
+<para>Get expanded state. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" line="83" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_item_1a5518c7ec70b9da10c5b88759dc21f864" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeViewItem::SetExpanded</definition>
+        <argsstring>(bool e, bool hide_titlebar=false)</argsstring>
+        <name>SetExpanded</name>
+        <param>
+          <type>bool</type>
+          <declname>e</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>hide_titlebar</declname>
+          <defval>false</defval>
+        </param>
+        <briefdescription>
+<para>Set expanded state. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" line="88" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_item_1a6dd6299f32b54d4e2b00b52057f41802" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeViewItem::ToggleExpanded</definition>
+        <argsstring>()</argsstring>
+        <name>ToggleExpanded</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" line="89" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_item_1a2c1ec63553f95490ddbee441654e59c8" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QPointF</type>
+        <definition>QPointF NodeViewItem::GetParamPoint</definition>
+        <argsstring>(NodeParam *param, const QPointF &amp;source_pos) const</argsstring>
+        <name>GetParamPoint</name>
+        <param>
+          <type><ref refid="class_node_param" kindref="compound">NodeParam</ref> *</type>
+          <declname>param</declname>
+        </param>
+        <param>
+          <type>const QPointF &amp;</type>
+          <declname>source_pos</declname>
+        </param>
+        <briefdescription>
+<para>Returns GLOBAL point that edges should connect to for any <ref refid="class_node_param" kindref="compound">NodeParam</ref> member of this object. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" line="94" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_item_1a7f1a2b1d29c92107e9d8e22fc7a25827" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeViewItem::SetFlowDirection</definition>
+        <argsstring>(NodeViewCommon::FlowDirection dir)</argsstring>
+        <name>SetFlowDirection</name>
+        <param>
+          <type><ref refid="class_node_view_common_1a7718854113b8b4f38800f29a448944b2" kindref="member">NodeViewCommon::FlowDirection</ref></type>
+          <declname>dir</declname>
+        </param>
+        <briefdescription>
+<para>Sets the direction nodes are flowing. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" line="99" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_item_1af85dc6aa8074ce1fcc5b117f7203fc31" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>qreal</type>
+        <definition>qreal NodeViewItem::DefaultItemHorizontalPadding</definition>
+        <argsstring>() const</argsstring>
+        <name>DefaultItemHorizontalPadding</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" line="111" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_item_1aaf399163898dd854368f13126555b6b7" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>qreal</type>
+        <definition>qreal NodeViewItem::DefaultItemVerticalPadding</definition>
+        <argsstring>() const</argsstring>
+        <name>DefaultItemVerticalPadding</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" line="113" column="9"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="class_node_view_item_1a28be407a455d0d03f2c9b1d4ba665f9c" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>static int NodeViewItem::DefaultTextPadding</definition>
+        <argsstring>()</argsstring>
+        <name>DefaultTextPadding</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" line="101" column="14"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_item_1a6295c7ff82ae964087a0a4484773dac8" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>static int NodeViewItem::DefaultItemHeight</definition>
+        <argsstring>()</argsstring>
+        <name>DefaultItemHeight</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" line="103" column="14"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_item_1a832e8f0ea72510423fd23ba20e1d6fe5" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>static int NodeViewItem::DefaultItemWidth</definition>
+        <argsstring>()</argsstring>
+        <name>DefaultItemWidth</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" line="105" column="14"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_item_1a01b6569fd2b33fbf0a7f053d6c5fa02a" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>static int NodeViewItem::DefaultMaximumTextWidth</definition>
+        <argsstring>()</argsstring>
+        <name>DefaultMaximumTextWidth</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" line="107" column="14"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_item_1a229df2e76aea4a726d409b9d4db684f3" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>static int NodeViewItem::DefaultItemBorder</definition>
+        <argsstring>()</argsstring>
+        <name>DefaultItemBorder</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" line="109" column="14"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_node_view_item_1a4c12c41a8b6ca1fde6eea6bce20fc256" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void NodeViewItem::paint</definition>
+        <argsstring>(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget=nullptr) override</argsstring>
+        <name>paint</name>
+        <param>
+          <type>QPainter *</type>
+          <declname>painter</declname>
+        </param>
+        <param>
+          <type>const QStyleOptionGraphicsItem *</type>
+          <declname>option</declname>
+        </param>
+        <param>
+          <type>QWidget *</type>
+          <declname>widget</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" line="116" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_item_1a77b7c08f132d66adf031bc03608b490c" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void NodeViewItem::mousePressEvent</definition>
+        <argsstring>(QGraphicsSceneMouseEvent *event) override</argsstring>
+        <name>mousePressEvent</name>
+        <param>
+          <type>QGraphicsSceneMouseEvent *</type>
+          <declname>event</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" line="118" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_item_1adee0bba9650bebd328d8f135701db3ca" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void NodeViewItem::mouseMoveEvent</definition>
+        <argsstring>(QGraphicsSceneMouseEvent *event) override</argsstring>
+        <name>mouseMoveEvent</name>
+        <param>
+          <type>QGraphicsSceneMouseEvent *</type>
+          <declname>event</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" line="119" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_item_1a848f0ef008ac5a6c297bb8fe59b384db" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void NodeViewItem::mouseReleaseEvent</definition>
+        <argsstring>(QGraphicsSceneMouseEvent *event) override</argsstring>
+        <name>mouseReleaseEvent</name>
+        <param>
+          <type>QGraphicsSceneMouseEvent *</type>
+          <declname>event</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" line="120" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_item_1a7ff3c206d378f72b7fb894450e5b582e" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void NodeViewItem::mouseDoubleClickEvent</definition>
+        <argsstring>(QGraphicsSceneMouseEvent *event) override</argsstring>
+        <name>mouseDoubleClickEvent</name>
+        <param>
+          <type>QGraphicsSceneMouseEvent *</type>
+          <declname>event</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" line="121" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_item_1a0e52a71445d0e81f5fd73c5ebf9cc7fe" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>QVariant</type>
+        <definition>virtual QVariant NodeViewItem::itemChange</definition>
+        <argsstring>(QGraphicsItem::GraphicsItemChange change, const QVariant &amp;value) override</argsstring>
+        <name>itemChange</name>
+        <param>
+          <type>QGraphicsItem::GraphicsItemChange</type>
+          <declname>change</declname>
+        </param>
+        <param>
+          <type>const QVariant &amp;</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" line="123" column="20"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_node_view_item_1a404254d96d507ebc119f80bdcd57f521" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeViewItem::SetHighlightedIndex</definition>
+        <argsstring>(int index)</argsstring>
+        <name>SetHighlightedIndex</name>
+        <param>
+          <type>int</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+<para>Highlight an input (for instance when the user is dragging over it) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" line="129" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_item_1a936da64c7a03f44865d3e934d3bfd0e7" prot="private" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QRectF</type>
+        <definition>QRectF NodeViewItem::GetInputRect</definition>
+        <argsstring>(int index) const</argsstring>
+        <name>GetInputRect</name>
+        <param>
+          <type>int</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+<para>Returns local rect of a <ref refid="class_node_input" kindref="compound">NodeInput</ref> in array node_inputs_[index]. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" line="134" column="10"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_item_1aebccad4d7f6dbc2c40bf20be62865da6" prot="private" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QPointF</type>
+        <definition>QPointF NodeViewItem::GetInputPoint</definition>
+        <argsstring>(int index, const QPointF &amp;source_pos) const</argsstring>
+        <name>GetInputPoint</name>
+        <param>
+          <type>int</type>
+          <declname>index</declname>
+        </param>
+        <param>
+          <type>const QPointF &amp;</type>
+          <declname>source_pos</declname>
+        </param>
+        <briefdescription>
+<para>Returns local point that edges should connect to for a <ref refid="class_node_input" kindref="compound">NodeInput</ref> in array node_inputs_[index]. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" line="139" column="11"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A visual widget representation of a <ref refid="class_node" kindref="compound">Node</ref> object to be used in a <ref refid="class_node_view" kindref="compound">NodeView</ref>. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>This widget can be collapsed or expanded to show/hide the node&apos;s various parameters.</para>
+<para>To retrieve the <ref refid="class_node_view_item" kindref="compound">NodeViewItem</ref> for a certain <ref refid="class_node" kindref="compound">Node</ref>, use NodeView::NodeToUIObject(). </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="5">
+        <label>NodeOutput</label>
+        <link refid="class_node_output"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>NodeViewEdge</label>
+        <link refid="class_node_view_edge"/>
+      </node>
+      <node id="4">
+        <label>Node</label>
+        <link refid="class_node"/>
+        <childnode refid="5" relation="usage">
+          <edgelabel>output_</edgelabel>
+        </childnode>
+      </node>
+      <node id="1">
+        <label>NodeViewItem</label>
+        <link refid="class_node_view_item"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>drag_src_param_</edgelabel>
+          <edgelabel>drag_dest_param_</edgelabel>
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>css_proxy_</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>node_</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>dragging_edge_</edgelabel>
+        </childnode>
+        <childnode refid="1" relation="usage">
+          <edgelabel>cached_drop_item_</edgelabel>
+          <edgelabel>drag_source_</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>NodeParam</label>
+        <link refid="class_node_param"/>
+      </node>
+      <node id="3">
+        <label>NodeViewItemWidget</label>
+        <link refid="class_node_view_item_widget"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" line="44" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitem.h" bodystart="45" bodyend="184"/>
+    <listofallmembers>
+      <member refid="class_node_view_item_1ac64c09b9e89f65cafe92bcbb4be5fd6d" prot="private" virt="non-virtual"><scope>NodeViewItem</scope><name>cached_drop_item_</name></member>
+      <member refid="class_node_view_item_1ae70968d8ddf03b50b8c730ba14ddeab6" prot="private" virt="non-virtual"><scope>NodeViewItem</scope><name>cached_drop_item_expanded_</name></member>
+      <member refid="class_node_view_item_1a7b3f713147f4388c76470c3d269194ce" prot="private" virt="non-virtual"><scope>NodeViewItem</scope><name>css_proxy_</name></member>
+      <member refid="class_node_view_item_1a229df2e76aea4a726d409b9d4db684f3" prot="public" virt="non-virtual"><scope>NodeViewItem</scope><name>DefaultItemBorder</name></member>
+      <member refid="class_node_view_item_1a6295c7ff82ae964087a0a4484773dac8" prot="public" virt="non-virtual"><scope>NodeViewItem</scope><name>DefaultItemHeight</name></member>
+      <member refid="class_node_view_item_1af85dc6aa8074ce1fcc5b117f7203fc31" prot="public" virt="non-virtual"><scope>NodeViewItem</scope><name>DefaultItemHorizontalPadding</name></member>
+      <member refid="class_node_view_item_1aaf399163898dd854368f13126555b6b7" prot="public" virt="non-virtual"><scope>NodeViewItem</scope><name>DefaultItemVerticalPadding</name></member>
+      <member refid="class_node_view_item_1a832e8f0ea72510423fd23ba20e1d6fe5" prot="public" virt="non-virtual"><scope>NodeViewItem</scope><name>DefaultItemWidth</name></member>
+      <member refid="class_node_view_item_1a01b6569fd2b33fbf0a7f053d6c5fa02a" prot="public" virt="non-virtual"><scope>NodeViewItem</scope><name>DefaultMaximumTextWidth</name></member>
+      <member refid="class_node_view_item_1a28be407a455d0d03f2c9b1d4ba665f9c" prot="public" virt="non-virtual"><scope>NodeViewItem</scope><name>DefaultTextPadding</name></member>
+      <member refid="class_node_view_item_1a4956de913032c42263c17e4a47709f34" prot="private" virt="non-virtual"><scope>NodeViewItem</scope><name>drag_dest_param_</name></member>
+      <member refid="class_node_view_item_1a38a7bfd56ba75c2d52ed10b3476e755c" prot="private" virt="non-virtual"><scope>NodeViewItem</scope><name>drag_source_</name></member>
+      <member refid="class_node_view_item_1a6dfe0117d9b833476734e6826ea4175c" prot="private" virt="non-virtual"><scope>NodeViewItem</scope><name>drag_src_param_</name></member>
+      <member refid="class_node_view_item_1af460794d0d124bef4faf210c5a31495f" prot="private" virt="non-virtual"><scope>NodeViewItem</scope><name>dragging_edge_</name></member>
+      <member refid="class_node_view_item_1aef49c92dd09264b3f4dd005e9f423d99" prot="private" virt="non-virtual"><scope>NodeViewItem</scope><name>dragging_edge_start_</name></member>
+      <member refid="class_node_view_item_1a35d93144fa01c8ce86cfb4d039294c00" prot="private" virt="non-virtual"><scope>NodeViewItem</scope><name>expanded_</name></member>
+      <member refid="class_node_view_item_1a882fb4c0b3dd9c2ef4f00a404e00c0eb" prot="private" virt="non-virtual"><scope>NodeViewItem</scope><name>flow_dir_</name></member>
+      <member refid="class_node_view_item_1aebccad4d7f6dbc2c40bf20be62865da6" prot="private" virt="non-virtual"><scope>NodeViewItem</scope><name>GetInputPoint</name></member>
+      <member refid="class_node_view_item_1a936da64c7a03f44865d3e934d3bfd0e7" prot="private" virt="non-virtual"><scope>NodeViewItem</scope><name>GetInputRect</name></member>
+      <member refid="class_node_view_item_1a7ca6b878ba36cb4bfb3bd83c60ea0da0" prot="public" virt="non-virtual"><scope>NodeViewItem</scope><name>GetNode</name></member>
+      <member refid="class_node_view_item_1aeef125c2aa92e76baced263121e6e019" prot="public" virt="non-virtual"><scope>NodeViewItem</scope><name>GetNodePosition</name></member>
+      <member refid="class_node_view_item_1a2c1ec63553f95490ddbee441654e59c8" prot="public" virt="non-virtual"><scope>NodeViewItem</scope><name>GetParamPoint</name></member>
+      <member refid="class_node_view_item_1a018d9441257359884b31a61426046115" prot="private" virt="non-virtual"><scope>NodeViewItem</scope><name>hide_titlebar_</name></member>
+      <member refid="class_node_view_item_1a3a45d8e44149a5fea66a0150b362f683" prot="private" virt="non-virtual"><scope>NodeViewItem</scope><name>highlighted_index_</name></member>
+      <member refid="class_node_view_item_1a92665dd948954a4f2a5fee5eece0cd29" prot="public" virt="non-virtual"><scope>NodeViewItem</scope><name>IsExpanded</name></member>
+      <member refid="class_node_view_item_1a0e52a71445d0e81f5fd73c5ebf9cc7fe" prot="protected" virt="virtual"><scope>NodeViewItem</scope><name>itemChange</name></member>
+      <member refid="class_node_view_item_1a7ff3c206d378f72b7fb894450e5b582e" prot="protected" virt="virtual"><scope>NodeViewItem</scope><name>mouseDoubleClickEvent</name></member>
+      <member refid="class_node_view_item_1adee0bba9650bebd328d8f135701db3ca" prot="protected" virt="virtual"><scope>NodeViewItem</scope><name>mouseMoveEvent</name></member>
+      <member refid="class_node_view_item_1a77b7c08f132d66adf031bc03608b490c" prot="protected" virt="virtual"><scope>NodeViewItem</scope><name>mousePressEvent</name></member>
+      <member refid="class_node_view_item_1a848f0ef008ac5a6c297bb8fe59b384db" prot="protected" virt="virtual"><scope>NodeViewItem</scope><name>mouseReleaseEvent</name></member>
+      <member refid="class_node_view_item_1a45aaa1405cd75c50fe36a268a0c43bc2" prot="private" virt="non-virtual"><scope>NodeViewItem</scope><name>node_</name></member>
+      <member refid="class_node_view_item_1a69240d539809cabbee66c55a6ccadaed" prot="private" virt="non-virtual"><scope>NodeViewItem</scope><name>node_border_width_</name></member>
+      <member refid="class_node_view_item_1ab2df792ed4ae725775707534e670565a" prot="private" virt="non-virtual"><scope>NodeViewItem</scope><name>node_edge_change_command_</name></member>
+      <member refid="class_node_view_item_1ad92c032a393c62f59b03875855b530a2" prot="private" virt="non-virtual"><scope>NodeViewItem</scope><name>node_inputs_</name></member>
+      <member refid="class_node_view_item_1a45e4df2e90c75239044c5bacb8a07871" prot="public" virt="non-virtual"><scope>NodeViewItem</scope><name>NodeViewItem</name></member>
+      <member refid="class_node_view_item_1a4c12c41a8b6ca1fde6eea6bce20fc256" prot="protected" virt="virtual"><scope>NodeViewItem</scope><name>paint</name></member>
+      <member refid="class_node_view_item_1a5518c7ec70b9da10c5b88759dc21f864" prot="public" virt="non-virtual"><scope>NodeViewItem</scope><name>SetExpanded</name></member>
+      <member refid="class_node_view_item_1a7f1a2b1d29c92107e9d8e22fc7a25827" prot="public" virt="non-virtual"><scope>NodeViewItem</scope><name>SetFlowDirection</name></member>
+      <member refid="class_node_view_item_1a404254d96d507ebc119f80bdcd57f521" prot="private" virt="non-virtual"><scope>NodeViewItem</scope><name>SetHighlightedIndex</name></member>
+      <member refid="class_node_view_item_1a6236429682313a198684c5fc8a86e11c" prot="public" virt="non-virtual"><scope>NodeViewItem</scope><name>SetNode</name></member>
+      <member refid="class_node_view_item_1a6b9133065a0ac9e8fb6fe79a7531eb44" prot="public" virt="non-virtual"><scope>NodeViewItem</scope><name>SetNodePosition</name></member>
+      <member refid="class_node_view_item_1ac65a5d27247a377644f5412a44dbc481" prot="private" virt="non-virtual"><scope>NodeViewItem</scope><name>standard_click_</name></member>
+      <member refid="class_node_view_item_1ac51e1c1db383773837aca0155ac17e09" prot="private" virt="non-virtual"><scope>NodeViewItem</scope><name>title_bar_rect_</name></member>
+      <member refid="class_node_view_item_1a6dd6299f32b54d4e2b00b52057f41802" prot="public" virt="non-virtual"><scope>NodeViewItem</scope><name>ToggleExpanded</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

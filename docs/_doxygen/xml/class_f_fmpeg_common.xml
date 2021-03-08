@@ -1,0 +1,111 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_f_fmpeg_common" kind="class" language="C++" prot="public">
+    <compoundname>FFmpegCommon</compoundname>
+    <includes refid="ffmpegcommon_8h" local="no">ffmpegcommon.h</includes>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="class_f_fmpeg_common_1a3555b2c477d6103dcd8bf3d2292393e2" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>AVPixelFormat</type>
+        <definition>static AVPixelFormat FFmpegCommon::GetCompatiblePixelFormat</definition>
+        <argsstring>(const AVPixelFormat &amp;pix_fmt)</argsstring>
+        <name>GetCompatiblePixelFormat</name>
+        <param>
+          <type>const AVPixelFormat &amp;</type>
+          <declname>pix_fmt</declname>
+        </param>
+        <briefdescription>
+<para>Returns an AVPixelFormat that can be used to convert a frame to a data type Olive supports with minimal data loss. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegcommon.h" line="56" column="24"/>
+      </memberdef>
+      <memberdef kind="function" id="class_f_fmpeg_common_1a8ffda33e01560179aa988adefb950f77" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021" kindref="member">PixelFormat::Format</ref></type>
+        <definition>static PixelFormat::Format FFmpegCommon::GetCompatiblePixelFormat</definition>
+        <argsstring>(const PixelFormat::Format &amp;pix_fmt)</argsstring>
+        <name>GetCompatiblePixelFormat</name>
+        <param>
+          <type>const <ref refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021" kindref="member">PixelFormat::Format</ref> &amp;</type>
+          <declname>pix_fmt</declname>
+        </param>
+        <briefdescription>
+<para>Returns a native pixel format that can be used to convert from a native frame to an AVFrame with minimal data loss. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegcommon.h" line="61" column="30"/>
+      </memberdef>
+      <memberdef kind="function" id="class_f_fmpeg_common_1a4e817478ae6df493b96cbc6c6c960e18" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>AVPixelFormat</type>
+        <definition>static AVPixelFormat FFmpegCommon::GetFFmpegPixelFormat</definition>
+        <argsstring>(const PixelFormat::Format &amp;pix_fmt)</argsstring>
+        <name>GetFFmpegPixelFormat</name>
+        <param>
+          <type>const <ref refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021" kindref="member">PixelFormat::Format</ref> &amp;</type>
+          <declname>pix_fmt</declname>
+        </param>
+        <briefdescription>
+<para>Returns an FFmpeg pixel format for a given native pixel format. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegcommon.h" line="66" column="24"/>
+      </memberdef>
+      <memberdef kind="function" id="class_f_fmpeg_common_1a95f72fc477292fcf55139a9ceb641e29" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_sample_format_1a6b19c2d1e62cb3d512c78aec9c1026fc" kindref="member">SampleFormat::Format</ref></type>
+        <definition>static SampleFormat::Format FFmpegCommon::GetNativeSampleFormat</definition>
+        <argsstring>(const AVSampleFormat &amp;smp_fmt)</argsstring>
+        <name>GetNativeSampleFormat</name>
+        <param>
+          <type>const AVSampleFormat &amp;</type>
+          <declname>smp_fmt</declname>
+        </param>
+        <briefdescription>
+<para>Returns a native sample format type for a given AVSampleFormat. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegcommon.h" line="71" column="31"/>
+      </memberdef>
+      <memberdef kind="function" id="class_f_fmpeg_common_1af86c4138b1a993ffcfade818ee31ec2d" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>AVSampleFormat</type>
+        <definition>static AVSampleFormat FFmpegCommon::GetFFmpegSampleFormat</definition>
+        <argsstring>(const SampleFormat::Format &amp;smp_fmt)</argsstring>
+        <name>GetFFmpegSampleFormat</name>
+        <param>
+          <type>const <ref refid="class_sample_format_1a6b19c2d1e62cb3d512c78aec9c1026fc" kindref="member">SampleFormat::Format</ref> &amp;</type>
+          <declname>smp_fmt</declname>
+        </param>
+        <briefdescription>
+<para>Returns an FFmpeg sample format type for a given native type. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegcommon.h" line="76" column="25"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegcommon.h" line="33" column="1" bodyfile="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegcommon.h" bodystart="33" bodyend="59"/>
+    <listofallmembers>
+      <member refid="class_f_fmpeg_common_1a3555b2c477d6103dcd8bf3d2292393e2" prot="public" virt="non-virtual"><scope>FFmpegCommon</scope><name>GetCompatiblePixelFormat</name></member>
+      <member refid="class_f_fmpeg_common_1a8ffda33e01560179aa988adefb950f77" prot="public" virt="non-virtual"><scope>FFmpegCommon</scope><name>GetCompatiblePixelFormat</name></member>
+      <member refid="class_f_fmpeg_common_1a4e817478ae6df493b96cbc6c6c960e18" prot="public" virt="non-virtual"><scope>FFmpegCommon</scope><name>GetFFmpegPixelFormat</name></member>
+      <member refid="class_f_fmpeg_common_1af86c4138b1a993ffcfade818ee31ec2d" prot="public" virt="non-virtual"><scope>FFmpegCommon</scope><name>GetFFmpegSampleFormat</name></member>
+      <member refid="class_f_fmpeg_common_1a95f72fc477292fcf55139a9ceb641e29" prot="public" virt="non-virtual"><scope>FFmpegCommon</scope><name>GetNativeSampleFormat</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

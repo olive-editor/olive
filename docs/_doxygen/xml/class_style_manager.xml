@@ -1,0 +1,201 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_style_manager" kind="class" language="C++" prot="public">
+    <compoundname>StyleManager</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QObject</basecompoundref>
+    <includes refid="style_8h" local="no">style.h</includes>
+      <sectiondef kind="private-static-attrib">
+      <memberdef kind="variable" id="class_style_manager_1ac0bacb0a03b5f56517ae332998056646" prot="private" static="yes" mutable="no">
+        <type>QString</type>
+        <definition>QString StyleManager::current_style_</definition>
+        <argsstring></argsstring>
+        <name>current_style_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/style/style.h" line="68" column="18" bodyfile="C:/Daten/Olive/olive/app/ui/style/style.h" bodystart="68" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="class_style_manager_1a0f097b7ea328fa7b3001cff4fb6b1c0a" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_style_descriptor" kindref="compound">StyleDescriptor</ref></type>
+        <definition>static StyleDescriptor StyleManager::DefaultStyle</definition>
+        <argsstring>()</argsstring>
+        <name>DefaultStyle</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/style/style.h" line="45" column="26"/>
+      </memberdef>
+      <memberdef kind="function" id="class_style_manager_1ab4c33d78958482af69dded0612fa2294" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const QString &amp;</type>
+        <definition>static const QString&amp; StyleManager::GetStyle</definition>
+        <argsstring>()</argsstring>
+        <name>GetStyle</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/style/style.h" line="47" column="24"/>
+      </memberdef>
+      <memberdef kind="function" id="class_style_manager_1a8252fd342a7eb58c77cb26e24952e4d7" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void StyleManager::SetStyleFromConfig</definition>
+        <argsstring>()</argsstring>
+        <name>SetStyleFromConfig</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/style/style.h" line="49" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_style_manager_1a025340813f98858acb036a8d31ddeb38" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void StyleManager::SetStyle</definition>
+        <argsstring>(const StyleDescriptor &amp;style)</argsstring>
+        <name>SetStyle</name>
+        <param>
+          <type>const <ref refid="class_style_descriptor" kindref="compound">StyleDescriptor</ref> &amp;</type>
+          <declname>style</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/style/style.h" line="51" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_style_manager_1a636b6af916c88579d975a9bf65973013" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void StyleManager::SetStyle</definition>
+        <argsstring>(const QString &amp;style_path)</argsstring>
+        <name>SetStyle</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>style_path</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/style/style.h" line="53" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_style_manager_1a12b2b2a98aaed7e70881d94a4e072c0e" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QList&lt; <ref refid="class_style_descriptor" kindref="compound">StyleDescriptor</ref> &gt;</type>
+        <definition>static QList&lt;StyleDescriptor&gt; StyleManager::ListInternal</definition>
+        <argsstring>()</argsstring>
+        <name>ListInternal</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/style/style.h" line="55" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-func">
+      <memberdef kind="function" id="class_style_manager_1a4e990b56550bb734f297964a655ef5e0" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QPalette</type>
+        <definition>static QPalette StyleManager::ParsePalette</definition>
+        <argsstring>(const QString &amp;ini_path)</argsstring>
+        <name>ParsePalette</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>ini_path</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/style/style.h" line="62" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_style_manager_1a86ecdca0fb803a03fe615afc17c97b4b" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void StyleManager::ParsePaletteGroup</definition>
+        <argsstring>(QSettings *ini, QPalette *palette, QPalette::ColorGroup group)</argsstring>
+        <name>ParsePaletteGroup</name>
+        <param>
+          <type>QSettings *</type>
+          <declname>ini</declname>
+        </param>
+        <param>
+          <type>QPalette *</type>
+          <declname>palette</declname>
+        </param>
+        <param>
+          <type>QPalette::ColorGroup</type>
+          <declname>group</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/style/style.h" line="64" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_style_manager_1a92ced2b4f3d4bc6539f2a6398b8588d2" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void StyleManager::ParsePaletteColor</definition>
+        <argsstring>(QSettings *ini, QPalette *palette, QPalette::ColorGroup group, const QString &amp;role_name)</argsstring>
+        <name>ParsePaletteColor</name>
+        <param>
+          <type>QSettings *</type>
+          <declname>ini</declname>
+        </param>
+        <param>
+          <type>QPalette *</type>
+          <declname>palette</declname>
+        </param>
+        <param>
+          <type>QPalette::ColorGroup</type>
+          <declname>group</declname>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>role_name</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/style/style.h" line="66" column="15"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/ui/style/style.h" line="43" column="1" bodyfile="C:/Daten/Olive/olive/app/ui/style/style.h" bodystart="43" bodyend="70"/>
+    <listofallmembers>
+      <member refid="class_style_manager_1ac0bacb0a03b5f56517ae332998056646" prot="private" virt="non-virtual"><scope>StyleManager</scope><name>current_style_</name></member>
+      <member refid="class_style_manager_1a0f097b7ea328fa7b3001cff4fb6b1c0a" prot="public" virt="non-virtual"><scope>StyleManager</scope><name>DefaultStyle</name></member>
+      <member refid="class_style_manager_1ab4c33d78958482af69dded0612fa2294" prot="public" virt="non-virtual"><scope>StyleManager</scope><name>GetStyle</name></member>
+      <member refid="class_style_manager_1a12b2b2a98aaed7e70881d94a4e072c0e" prot="public" virt="non-virtual"><scope>StyleManager</scope><name>ListInternal</name></member>
+      <member refid="class_style_manager_1a4e990b56550bb734f297964a655ef5e0" prot="private" virt="non-virtual"><scope>StyleManager</scope><name>ParsePalette</name></member>
+      <member refid="class_style_manager_1a92ced2b4f3d4bc6539f2a6398b8588d2" prot="private" virt="non-virtual"><scope>StyleManager</scope><name>ParsePaletteColor</name></member>
+      <member refid="class_style_manager_1a86ecdca0fb803a03fe615afc17c97b4b" prot="private" virt="non-virtual"><scope>StyleManager</scope><name>ParsePaletteGroup</name></member>
+      <member refid="class_style_manager_1a025340813f98858acb036a8d31ddeb38" prot="public" virt="non-virtual"><scope>StyleManager</scope><name>SetStyle</name></member>
+      <member refid="class_style_manager_1a636b6af916c88579d975a9bf65973013" prot="public" virt="non-virtual"><scope>StyleManager</scope><name>SetStyle</name></member>
+      <member refid="class_style_manager_1a8252fd342a7eb58c77cb26e24952e4d7" prot="public" virt="non-virtual"><scope>StyleManager</scope><name>SetStyleFromConfig</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,78 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_project_explorer_tree_view" kind="class" language="C++" prot="public">
+    <compoundname>ProjectExplorerTreeView</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QTreeView</basecompoundref>
+    <includes refid="projectexplorertreeview_8h" local="no">projectexplorertreeview.h</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_project_explorer_tree_view_1a9e7847d4d55073fa9bb2f28bf99b9830" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>ProjectExplorerTreeView::ProjectExplorerTreeView</definition>
+        <argsstring>(QWidget *parent)</argsstring>
+        <name>ProjectExplorerTreeView</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorertreeview.h" line="58" column="3"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_project_explorer_tree_view_1ad4d027c76e94fcfe35f279ac1f888542" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void ProjectExplorerTreeView::mouseDoubleClickEvent</definition>
+        <argsstring>(QMouseEvent *event) override</argsstring>
+        <name>mouseDoubleClickEvent</name>
+        <param>
+          <type>QMouseEvent *</type>
+          <declname>event</declname>
+        </param>
+        <briefdescription>
+<para>Double click event override. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function that signals DoubleClickedView().</para>
+<para>FIXME: This code is the same as the code in <ref refid="class_project_explorer_list_view_base" kindref="compound">ProjectExplorerListViewBase</ref>. Is there a way to merge these two through </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorertreeview.h" line="69" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_project_explorer_tree_view_1a73e1a81cce48c15c937cf174b9c96a79" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectExplorerTreeView::DoubleClickedEmptyArea</definition>
+        <argsstring>()</argsstring>
+        <name>DoubleClickedEmptyArea</name>
+        <briefdescription>
+<para>Unconditional double click signal. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Emits a signal when the view is double clicked but not on any particular item </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorertreeview.h" line="77" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>The view widget used when <ref refid="class_project_explorer" kindref="compound">ProjectExplorer</ref> is in Tree View. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>A fairly simple subclass of QTreeView that provides a double clicked signal whether the index is valid or not (QAbstractItemView has a doubleClicked() signal but it&apos;s only emitted with a valid index). </para>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorertreeview.h" line="36" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorertreeview.h" bodystart="37" bodyend="60"/>
+    <listofallmembers>
+      <member refid="class_project_explorer_tree_view_1a73e1a81cce48c15c937cf174b9c96a79" prot="public" virt="non-virtual"><scope>ProjectExplorerTreeView</scope><name>DoubleClickedEmptyArea</name></member>
+      <member refid="class_project_explorer_tree_view_1ad4d027c76e94fcfe35f279ac1f888542" prot="protected" virt="virtual"><scope>ProjectExplorerTreeView</scope><name>mouseDoubleClickEvent</name></member>
+      <member refid="class_project_explorer_tree_view_1a9e7847d4d55073fa9bb2f28bf99b9830" prot="public" virt="non-virtual"><scope>ProjectExplorerTreeView</scope><name>ProjectExplorerTreeView</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

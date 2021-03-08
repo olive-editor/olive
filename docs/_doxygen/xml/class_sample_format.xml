@@ -1,0 +1,146 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_sample_format" kind="class" language="C++" prot="public">
+    <compoundname>SampleFormat</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QObject</basecompoundref>
+    <includes refid="sampleformat_8h" local="no">sampleformat.h</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="enum" id="class_sample_format_1a6b19c2d1e62cb3d512c78aec9c1026fc" prot="public" static="no" strong="no">
+        <type></type>
+        <name>Format</name>
+        <enumvalue id="class_sample_format_1a6b19c2d1e62cb3d512c78aec9c1026fca538c13abaf65b4119dfd60beb850ffbf" prot="public">
+          <name>SAMPLE_FMT_INVALID</name>
+          <initializer>= -1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_sample_format_1a6b19c2d1e62cb3d512c78aec9c1026fca949540a2ebad120144bfa5f415ba4e32" prot="public">
+          <name>SAMPLE_FMT_U8</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_sample_format_1a6b19c2d1e62cb3d512c78aec9c1026fca2dac0eec726c74e963cef3b63e27177f" prot="public">
+          <name>SAMPLE_FMT_S16</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_sample_format_1a6b19c2d1e62cb3d512c78aec9c1026fca91f4e8347f6fd48b4a1fd14593942d8f" prot="public">
+          <name>SAMPLE_FMT_S32</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_sample_format_1a6b19c2d1e62cb3d512c78aec9c1026fca4d6e7cddd61988a12236ae2a7eec6712" prot="public">
+          <name>SAMPLE_FMT_S64</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_sample_format_1a6b19c2d1e62cb3d512c78aec9c1026fca9b0e9edd3553d3532aa37cec2ae01cef" prot="public">
+          <name>SAMPLE_FMT_FLT</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_sample_format_1a6b19c2d1e62cb3d512c78aec9c1026fcaf98fd569eade09df41553a9db4a4bbb7" prot="public">
+          <name>SAMPLE_FMT_DBL</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_sample_format_1a6b19c2d1e62cb3d512c78aec9c1026fcaba1f21b9c3efc004ae88670b905162c0" prot="public">
+          <name>SAMPLE_FMT_COUNT</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/sampleformat.h" line="55" column="3" bodyfile="C:/Daten/Olive/olive/app/audio/sampleformat.h" bodystart="55" bodyend="66"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-attrib">
+      <memberdef kind="variable" id="class_sample_format_1aaccf46faf1f0e61e5c8b928834e6afe7" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="class_sample_format_1a6b19c2d1e62cb3d512c78aec9c1026fc" kindref="member">Format</ref></type>
+        <definition>const Format SampleFormat::kInternalFormat</definition>
+        <argsstring></argsstring>
+        <name>kInternalFormat</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/sampleformat.h" line="68" column="23" bodyfile="C:/Daten/Olive/olive/app/audio/sampleformat.h" bodystart="68" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_sample_format_1a22a6d51f354f866fe8a07d2e8e030f49" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>SampleFormat::SampleFormat</definition>
+        <argsstring>()=default</argsstring>
+        <name>SampleFormat</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/sampleformat.h" line="53" column="3"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="class_sample_format_1acca8069b6df13bf3b0635b80282dcf80" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>static QString SampleFormat::GetSampleFormatName</definition>
+        <argsstring>(const Format &amp;f)</argsstring>
+        <name>GetSampleFormatName</name>
+        <param>
+          <type>const <ref refid="class_sample_format_1a6b19c2d1e62cb3d512c78aec9c1026fc" kindref="member">Format</ref> &amp;</type>
+          <declname>f</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/sampleformat.h" line="70" column="18"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/audio/sampleformat.h" line="31" column="1" bodyfile="C:/Daten/Olive/olive/app/audio/sampleformat.h" bodystart="32" bodyend="54"/>
+    <listofallmembers>
+      <member refid="class_sample_format_1a6b19c2d1e62cb3d512c78aec9c1026fc" prot="public" virt="non-virtual"><scope>SampleFormat</scope><name>Format</name></member>
+      <member refid="class_sample_format_1acca8069b6df13bf3b0635b80282dcf80" prot="public" virt="non-virtual"><scope>SampleFormat</scope><name>GetSampleFormatName</name></member>
+      <member refid="class_sample_format_1aaccf46faf1f0e61e5c8b928834e6afe7" prot="public" virt="non-virtual"><scope>SampleFormat</scope><name>kInternalFormat</name></member>
+      <member refid="class_sample_format_1a6b19c2d1e62cb3d512c78aec9c1026fcaba1f21b9c3efc004ae88670b905162c0" prot="public" virt="non-virtual"><scope>SampleFormat</scope><name>SAMPLE_FMT_COUNT</name></member>
+      <member refid="class_sample_format_1a6b19c2d1e62cb3d512c78aec9c1026fcaf98fd569eade09df41553a9db4a4bbb7" prot="public" virt="non-virtual"><scope>SampleFormat</scope><name>SAMPLE_FMT_DBL</name></member>
+      <member refid="class_sample_format_1a6b19c2d1e62cb3d512c78aec9c1026fca9b0e9edd3553d3532aa37cec2ae01cef" prot="public" virt="non-virtual"><scope>SampleFormat</scope><name>SAMPLE_FMT_FLT</name></member>
+      <member refid="class_sample_format_1a6b19c2d1e62cb3d512c78aec9c1026fca538c13abaf65b4119dfd60beb850ffbf" prot="public" virt="non-virtual"><scope>SampleFormat</scope><name>SAMPLE_FMT_INVALID</name></member>
+      <member refid="class_sample_format_1a6b19c2d1e62cb3d512c78aec9c1026fca2dac0eec726c74e963cef3b63e27177f" prot="public" virt="non-virtual"><scope>SampleFormat</scope><name>SAMPLE_FMT_S16</name></member>
+      <member refid="class_sample_format_1a6b19c2d1e62cb3d512c78aec9c1026fca91f4e8347f6fd48b4a1fd14593942d8f" prot="public" virt="non-virtual"><scope>SampleFormat</scope><name>SAMPLE_FMT_S32</name></member>
+      <member refid="class_sample_format_1a6b19c2d1e62cb3d512c78aec9c1026fca4d6e7cddd61988a12236ae2a7eec6712" prot="public" virt="non-virtual"><scope>SampleFormat</scope><name>SAMPLE_FMT_S64</name></member>
+      <member refid="class_sample_format_1a6b19c2d1e62cb3d512c78aec9c1026fca949540a2ebad120144bfa5f415ba4e32" prot="public" virt="non-virtual"><scope>SampleFormat</scope><name>SAMPLE_FMT_U8</name></member>
+      <member refid="class_sample_format_1a22a6d51f354f866fe8a07d2e8e030f49" prot="public" virt="non-virtual"><scope>SampleFormat</scope><name>SampleFormat</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

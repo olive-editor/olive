@@ -1,0 +1,668 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_f_fmpeg_decoder_instance" kind="class" language="C++" prot="public">
+    <compoundname>FFmpegDecoderInstance</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QObject</basecompoundref>
+    <includes refid="ffmpegdecoder_8h" local="no">ffmpegdecoder.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_f_fmpeg_decoder_instance_1a968a9b84d4570d23bfac0b390fb3ec09" prot="private" static="no" mutable="no">
+        <type>AVFormatContext *</type>
+        <definition>AVFormatContext* FFmpegDecoderInstance::fmt_ctx_</definition>
+        <argsstring></argsstring>
+        <name>fmt_ctx_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" line="112" column="19" bodyfile="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" bodystart="112" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_f_fmpeg_decoder_instance_1a8d612210aa018cb27940f37f51454b9d" prot="private" static="no" mutable="no">
+        <type>AVCodecContext *</type>
+        <definition>AVCodecContext* FFmpegDecoderInstance::codec_ctx_</definition>
+        <argsstring></argsstring>
+        <name>codec_ctx_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" line="113" column="18" bodyfile="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" bodystart="113" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_f_fmpeg_decoder_instance_1a0179214bd1157c84b584653ebaad22a4" prot="private" static="no" mutable="no">
+        <type>AVStream *</type>
+        <definition>AVStream* FFmpegDecoderInstance::avstream_</definition>
+        <argsstring></argsstring>
+        <name>avstream_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" line="114" column="12" bodyfile="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" bodystart="114" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_f_fmpeg_decoder_instance_1aff23b84324df267ec61b7fee6863bb3a" prot="private" static="no" mutable="no">
+        <type>AVDictionary *</type>
+        <definition>AVDictionary* FFmpegDecoderInstance::opts_</definition>
+        <argsstring></argsstring>
+        <name>opts_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" line="115" column="16" bodyfile="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" bodystart="115" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_f_fmpeg_decoder_instance_1a272e69e556e0aa1691a085713af03873" prot="private" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t FFmpegDecoderInstance::second_ts_</definition>
+        <argsstring></argsstring>
+        <name>second_ts_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" line="117" column="11" bodyfile="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" bodystart="117" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_f_fmpeg_decoder_instance_1a695e3b254738e7520ab017990bb2408f" prot="private" static="no" mutable="no">
+        <type>QWaitCondition</type>
+        <definition>QWaitCondition FFmpegDecoderInstance::cache_wait_cond_</definition>
+        <argsstring></argsstring>
+        <name>cache_wait_cond_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" line="119" column="18" bodyfile="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" bodystart="119" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_f_fmpeg_decoder_instance_1ab30ef02ac1fcc4026aadaf20b4faa4a0" prot="private" static="no" mutable="no">
+        <type>QMutex</type>
+        <definition>QMutex FFmpegDecoderInstance::cache_lock_</definition>
+        <argsstring></argsstring>
+        <name>cache_lock_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" line="120" column="10" bodyfile="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" bodystart="120" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_f_fmpeg_decoder_instance_1a9f3aa914dbc4deff27b6a1f859903e83" prot="private" static="no" mutable="no">
+        <type>QList&lt; <ref refid="class_memory_pool_1a3d5e5aa5207579a4316cd1e601ff079a" kindref="member">FFmpegFramePool::ElementPtr</ref> &gt;</type>
+        <definition>QList&lt;FFmpegFramePool::ElementPtr&gt; FFmpegDecoderInstance::cached_frames_</definition>
+        <argsstring></argsstring>
+        <name>cached_frames_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" line="121" column="9" bodyfile="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" bodystart="121" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_f_fmpeg_decoder_instance_1a66c8f715b56c2ac35e345c9c5e3b3a59" prot="private" static="no" mutable="no">
+        <type><ref refid="class_f_fmpeg_frame_pool" kindref="compound">FFmpegFramePool</ref> *</type>
+        <definition>FFmpegFramePool* FFmpegDecoderInstance::frame_pool_</definition>
+        <argsstring></argsstring>
+        <name>frame_pool_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" line="122" column="19" bodyfile="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" bodystart="122" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_f_fmpeg_decoder_instance_1a1c633292e3e28948f246f9836ed70872" prot="private" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t FFmpegDecoderInstance::cache_target_time_</definition>
+        <argsstring></argsstring>
+        <name>cache_target_time_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" line="124" column="11" bodyfile="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" bodystart="124" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_f_fmpeg_decoder_instance_1ab4340c9251f331ad57c5b58519300f13" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool FFmpegDecoderInstance::is_working_</definition>
+        <argsstring></argsstring>
+        <name>is_working_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" line="126" column="8" bodyfile="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" bodystart="126" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_f_fmpeg_decoder_instance_1a626b31ff7c0e3148252c90c668469d4d" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool FFmpegDecoderInstance::cache_at_zero_</definition>
+        <argsstring></argsstring>
+        <name>cache_at_zero_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" line="128" column="8" bodyfile="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" bodystart="128" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_f_fmpeg_decoder_instance_1a66ebddb3ba2a86b1ea9ee1bfa14106eb" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool FFmpegDecoderInstance::cache_at_eof_</definition>
+        <argsstring></argsstring>
+        <name>cache_at_eof_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" line="129" column="8" bodyfile="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" bodystart="129" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_f_fmpeg_decoder_instance_1a5823af31216ee5df926721c9e6064083" prot="private" static="no" mutable="no">
+        <type>QTimer *</type>
+        <definition>QTimer* FFmpegDecoderInstance::clear_timer_</definition>
+        <argsstring></argsstring>
+        <name>clear_timer_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" line="131" column="10" bodyfile="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" bodystart="131" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-attrib">
+      <memberdef kind="variable" id="class_f_fmpeg_decoder_instance_1a25f41911941b44ed0060212ce0c384f8" prot="private" static="yes" mutable="no">
+        <type>const int</type>
+        <definition>const int FFmpegDecoderInstance::kMaxFrameLife</definition>
+        <argsstring></argsstring>
+        <name>kMaxFrameLife</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" line="132" column="20" bodyfile="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" bodystart="132" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_f_fmpeg_decoder_instance_1aebb243217e895681a1bb49c0b4196c1d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>FFmpegDecoderInstance::FFmpegDecoderInstance</definition>
+        <argsstring>(const char *filename, int stream_index)</argsstring>
+        <name>FFmpegDecoderInstance</name>
+        <param>
+          <type>const char *</type>
+          <declname>filename</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>stream_index</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" line="65" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_f_fmpeg_decoder_instance_1a7162d7b8f1f3401080a16c2ad73511e5" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type></type>
+        <definition>virtual FFmpegDecoderInstance::~FFmpegDecoderInstance</definition>
+        <argsstring>()</argsstring>
+        <name>~FFmpegDecoderInstance</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" line="66" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_f_fmpeg_decoder_instance_1a0704166d9aca0af9f4adbb6aa4f07ab1" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool FFmpegDecoderInstance::IsValid</definition>
+        <argsstring>() const</argsstring>
+        <name>IsValid</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" line="70" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_f_fmpeg_decoder_instance_1a4884fde2c804c43f2b9d2000e5697ff7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void FFmpegDecoderInstance::SetFramePool</definition>
+        <argsstring>(FFmpegFramePool *frame_pool)</argsstring>
+        <name>SetFramePool</name>
+        <param>
+          <type><ref refid="class_f_fmpeg_frame_pool" kindref="compound">FFmpegFramePool</ref> *</type>
+          <declname>frame_pool</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" line="72" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_f_fmpeg_decoder_instance_1a41a7d2c24800e52028f3b8f6673dca2d" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int64_t</type>
+        <definition>int64_t FFmpegDecoderInstance::RangeStart</definition>
+        <argsstring>() const</argsstring>
+        <name>RangeStart</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" line="74" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_f_fmpeg_decoder_instance_1ae5bf3593d8c5d8cef25ddb702eee23ed" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int64_t</type>
+        <definition>int64_t FFmpegDecoderInstance::RangeEnd</definition>
+        <argsstring>() const</argsstring>
+        <name>RangeEnd</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" line="75" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_f_fmpeg_decoder_instance_1a9cc7c64b5d3c25540292f776bc3908b7" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool FFmpegDecoderInstance::CacheContainsTime</definition>
+        <argsstring>(const int64_t &amp;t) const</argsstring>
+        <name>CacheContainsTime</name>
+        <param>
+          <type>const int64_t &amp;</type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" line="76" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_f_fmpeg_decoder_instance_1ac66d367270ccc2dd6e8b4f051744fdac" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool FFmpegDecoderInstance::CacheWillContainTime</definition>
+        <argsstring>(const int64_t &amp;t) const</argsstring>
+        <name>CacheWillContainTime</name>
+        <param>
+          <type>const int64_t &amp;</type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" line="77" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_f_fmpeg_decoder_instance_1ac2e8ce0c3c9a347039e54d0425a45033" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool FFmpegDecoderInstance::CacheCouldContainTime</definition>
+        <argsstring>(const int64_t &amp;t) const</argsstring>
+        <name>CacheCouldContainTime</name>
+        <param>
+          <type>const int64_t &amp;</type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" line="78" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_f_fmpeg_decoder_instance_1af97618a31ed81e188968053c360ef30c" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool FFmpegDecoderInstance::CacheIsEmpty</definition>
+        <argsstring>() const</argsstring>
+        <name>CacheIsEmpty</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" line="79" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_f_fmpeg_decoder_instance_1adde26bf6989ebf995d051a9087bed36e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_memory_pool_1a3d5e5aa5207579a4316cd1e601ff079a" kindref="member">FFmpegFramePool::ElementPtr</ref></type>
+        <definition>FFmpegFramePool::ElementPtr FFmpegDecoderInstance::GetFrameFromCache</definition>
+        <argsstring>(const int64_t &amp;t) const</argsstring>
+        <name>GetFrameFromCache</name>
+        <param>
+          <type>const int64_t &amp;</type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" line="80" column="31"/>
+      </memberdef>
+      <memberdef kind="function" id="class_f_fmpeg_decoder_instance_1a9adfa71b78904031c925e4efe5cc30cf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void FFmpegDecoderInstance::RemoveFramesBefore</definition>
+        <argsstring>(const qint64 &amp;t)</argsstring>
+        <name>RemoveFramesBefore</name>
+        <param>
+          <type>const qint64 &amp;</type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" line="82" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_f_fmpeg_decoder_instance_1a1c934e07ba89c527fcc423ad1aea894f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void FFmpegDecoderInstance::TruncateCacheRangeTo</definition>
+        <argsstring>(const qint64 &amp;t)</argsstring>
+        <name>TruncateCacheRangeTo</name>
+        <param>
+          <type>const qint64 &amp;</type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" line="83" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_f_fmpeg_decoder_instance_1a38233c5449eaf5c69e93c2d4b0f3a2f8" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational FFmpegDecoderInstance::sample_aspect_ratio</definition>
+        <argsstring>() const</argsstring>
+        <name>sample_aspect_ratio</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" line="85" column="12"/>
+      </memberdef>
+      <memberdef kind="function" id="class_f_fmpeg_decoder_instance_1a5a0312d35743f7ea4d9209afef61b9fd" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>AVStream *</type>
+        <definition>AVStream* FFmpegDecoderInstance::stream</definition>
+        <argsstring>() const</argsstring>
+        <name>stream</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" line="86" column="12"/>
+      </memberdef>
+      <memberdef kind="function" id="class_f_fmpeg_decoder_instance_1afde57acea8fd7bece6a8bca7fd9dd8c4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void FFmpegDecoderInstance::ClearFrameCache</definition>
+        <argsstring>()</argsstring>
+        <name>ClearFrameCache</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" line="88" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_f_fmpeg_decoder_instance_1aaaa971f2606d12cf1597a0278cc07213" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_memory_pool_1a3d5e5aa5207579a4316cd1e601ff079a" kindref="member">FFmpegFramePool::ElementPtr</ref></type>
+        <definition>FFmpegFramePool::ElementPtr FFmpegDecoderInstance::RetrieveFrame</definition>
+        <argsstring>(const int64_t &amp;target_ts, bool cache_is_locked)</argsstring>
+        <name>RetrieveFrame</name>
+        <param>
+          <type>const int64_t &amp;</type>
+          <declname>target_ts</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>cache_is_locked</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" line="90" column="31"/>
+      </memberdef>
+      <memberdef kind="function" id="class_f_fmpeg_decoder_instance_1a5dd076e947efe5338007205e68a2d6fb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int FFmpegDecoderInstance::GetFrame</definition>
+        <argsstring>(AVPacket *pkt, AVFrame *frame)</argsstring>
+        <name>GetFrame</name>
+        <param>
+          <type>AVPacket *</type>
+          <declname>pkt</declname>
+        </param>
+        <param>
+          <type>AVFrame *</type>
+          <declname>frame</declname>
+        </param>
+        <briefdescription>
+<para>Uses the FFmpeg API to retrieve a packet (stored in pkt_) and decode it (stored in frame_) </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para></para>
+</simplesect>
+An FFmpeg error code, or &gt;= 0 on success </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" line="99" column="7"/>
+      </memberdef>
+      <memberdef kind="function" id="class_f_fmpeg_decoder_instance_1abbd79334a70535b18f565104e7035055" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QMutex *</type>
+        <definition>QMutex* FFmpegDecoderInstance::cache_lock</definition>
+        <argsstring>()</argsstring>
+        <name>cache_lock</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" line="101" column="10"/>
+      </memberdef>
+      <memberdef kind="function" id="class_f_fmpeg_decoder_instance_1a8e8c46642e0bd958f348b34ff7177023" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QWaitCondition *</type>
+        <definition>QWaitCondition* FFmpegDecoderInstance::cache_wait_cond</definition>
+        <argsstring>()</argsstring>
+        <name>cache_wait_cond</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" line="102" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_f_fmpeg_decoder_instance_1a7dbae1cbf67649deed8684eedd3a1afa" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool FFmpegDecoderInstance::IsWorking</definition>
+        <argsstring>() const</argsstring>
+        <name>IsWorking</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" line="104" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_f_fmpeg_decoder_instance_1a937dec207932d70d85b6dd2d7eb5efa7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void FFmpegDecoderInstance::SetWorking</definition>
+        <argsstring>(bool working)</argsstring>
+        <name>SetWorking</name>
+        <param>
+          <type>bool</type>
+          <declname>working</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" line="105" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_f_fmpeg_decoder_instance_1ad40daf62d144e23f68ddbd84db7738b2" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void FFmpegDecoderInstance::ClearResources</definition>
+        <argsstring>()</argsstring>
+        <name>ClearResources</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" line="108" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_f_fmpeg_decoder_instance_1abf6bc05a13d8f9188f931e016945dd89" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void FFmpegDecoderInstance::Seek</definition>
+        <argsstring>(int64_t timestamp)</argsstring>
+        <name>Seek</name>
+        <param>
+          <type>int64_t</type>
+          <declname>timestamp</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" line="110" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_f_fmpeg_decoder_instance_1abe5c39e16b5949a1a57a2100bb0b8c0d" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void FFmpegDecoderInstance::ClearTimerEvent</definition>
+        <argsstring>()</argsstring>
+        <name>ClearTimerEvent</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" line="135" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="3">
+        <label>MemoryPool&lt; uint8_t &gt;</label>
+        <link refid="class_memory_pool"/>
+      </node>
+      <node id="1">
+        <label>FFmpegDecoderInstance</label>
+        <link refid="class_f_fmpeg_decoder_instance"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>frame_pool_</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>FFmpegFramePool</label>
+        <link refid="class_f_fmpeg_frame_pool"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" line="44" column="1" bodyfile="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegdecoder.h" bodystart="44" bodyend="119"/>
+    <listofallmembers>
+      <member refid="class_f_fmpeg_decoder_instance_1a0179214bd1157c84b584653ebaad22a4" prot="private" virt="non-virtual"><scope>FFmpegDecoderInstance</scope><name>avstream_</name></member>
+      <member refid="class_f_fmpeg_decoder_instance_1a66ebddb3ba2a86b1ea9ee1bfa14106eb" prot="private" virt="non-virtual"><scope>FFmpegDecoderInstance</scope><name>cache_at_eof_</name></member>
+      <member refid="class_f_fmpeg_decoder_instance_1a626b31ff7c0e3148252c90c668469d4d" prot="private" virt="non-virtual"><scope>FFmpegDecoderInstance</scope><name>cache_at_zero_</name></member>
+      <member refid="class_f_fmpeg_decoder_instance_1abbd79334a70535b18f565104e7035055" prot="public" virt="non-virtual"><scope>FFmpegDecoderInstance</scope><name>cache_lock</name></member>
+      <member refid="class_f_fmpeg_decoder_instance_1ab30ef02ac1fcc4026aadaf20b4faa4a0" prot="private" virt="non-virtual"><scope>FFmpegDecoderInstance</scope><name>cache_lock_</name></member>
+      <member refid="class_f_fmpeg_decoder_instance_1a1c633292e3e28948f246f9836ed70872" prot="private" virt="non-virtual"><scope>FFmpegDecoderInstance</scope><name>cache_target_time_</name></member>
+      <member refid="class_f_fmpeg_decoder_instance_1a8e8c46642e0bd958f348b34ff7177023" prot="public" virt="non-virtual"><scope>FFmpegDecoderInstance</scope><name>cache_wait_cond</name></member>
+      <member refid="class_f_fmpeg_decoder_instance_1a695e3b254738e7520ab017990bb2408f" prot="private" virt="non-virtual"><scope>FFmpegDecoderInstance</scope><name>cache_wait_cond_</name></member>
+      <member refid="class_f_fmpeg_decoder_instance_1a9cc7c64b5d3c25540292f776bc3908b7" prot="public" virt="non-virtual"><scope>FFmpegDecoderInstance</scope><name>CacheContainsTime</name></member>
+      <member refid="class_f_fmpeg_decoder_instance_1ac2e8ce0c3c9a347039e54d0425a45033" prot="public" virt="non-virtual"><scope>FFmpegDecoderInstance</scope><name>CacheCouldContainTime</name></member>
+      <member refid="class_f_fmpeg_decoder_instance_1a9f3aa914dbc4deff27b6a1f859903e83" prot="private" virt="non-virtual"><scope>FFmpegDecoderInstance</scope><name>cached_frames_</name></member>
+      <member refid="class_f_fmpeg_decoder_instance_1af97618a31ed81e188968053c360ef30c" prot="public" virt="non-virtual"><scope>FFmpegDecoderInstance</scope><name>CacheIsEmpty</name></member>
+      <member refid="class_f_fmpeg_decoder_instance_1ac66d367270ccc2dd6e8b4f051744fdac" prot="public" virt="non-virtual"><scope>FFmpegDecoderInstance</scope><name>CacheWillContainTime</name></member>
+      <member refid="class_f_fmpeg_decoder_instance_1a5823af31216ee5df926721c9e6064083" prot="private" virt="non-virtual"><scope>FFmpegDecoderInstance</scope><name>clear_timer_</name></member>
+      <member refid="class_f_fmpeg_decoder_instance_1afde57acea8fd7bece6a8bca7fd9dd8c4" prot="public" virt="non-virtual"><scope>FFmpegDecoderInstance</scope><name>ClearFrameCache</name></member>
+      <member refid="class_f_fmpeg_decoder_instance_1ad40daf62d144e23f68ddbd84db7738b2" prot="private" virt="non-virtual"><scope>FFmpegDecoderInstance</scope><name>ClearResources</name></member>
+      <member refid="class_f_fmpeg_decoder_instance_1abe5c39e16b5949a1a57a2100bb0b8c0d" prot="private" virt="non-virtual"><scope>FFmpegDecoderInstance</scope><name>ClearTimerEvent</name></member>
+      <member refid="class_f_fmpeg_decoder_instance_1a8d612210aa018cb27940f37f51454b9d" prot="private" virt="non-virtual"><scope>FFmpegDecoderInstance</scope><name>codec_ctx_</name></member>
+      <member refid="class_f_fmpeg_decoder_instance_1aebb243217e895681a1bb49c0b4196c1d" prot="public" virt="non-virtual"><scope>FFmpegDecoderInstance</scope><name>FFmpegDecoderInstance</name></member>
+      <member refid="class_f_fmpeg_decoder_instance_1a968a9b84d4570d23bfac0b390fb3ec09" prot="private" virt="non-virtual"><scope>FFmpegDecoderInstance</scope><name>fmt_ctx_</name></member>
+      <member refid="class_f_fmpeg_decoder_instance_1a66c8f715b56c2ac35e345c9c5e3b3a59" prot="private" virt="non-virtual"><scope>FFmpegDecoderInstance</scope><name>frame_pool_</name></member>
+      <member refid="class_f_fmpeg_decoder_instance_1a5dd076e947efe5338007205e68a2d6fb" prot="public" virt="non-virtual"><scope>FFmpegDecoderInstance</scope><name>GetFrame</name></member>
+      <member refid="class_f_fmpeg_decoder_instance_1adde26bf6989ebf995d051a9087bed36e" prot="public" virt="non-virtual"><scope>FFmpegDecoderInstance</scope><name>GetFrameFromCache</name></member>
+      <member refid="class_f_fmpeg_decoder_instance_1ab4340c9251f331ad57c5b58519300f13" prot="private" virt="non-virtual"><scope>FFmpegDecoderInstance</scope><name>is_working_</name></member>
+      <member refid="class_f_fmpeg_decoder_instance_1a0704166d9aca0af9f4adbb6aa4f07ab1" prot="public" virt="non-virtual"><scope>FFmpegDecoderInstance</scope><name>IsValid</name></member>
+      <member refid="class_f_fmpeg_decoder_instance_1a7dbae1cbf67649deed8684eedd3a1afa" prot="public" virt="non-virtual"><scope>FFmpegDecoderInstance</scope><name>IsWorking</name></member>
+      <member refid="class_f_fmpeg_decoder_instance_1a25f41911941b44ed0060212ce0c384f8" prot="private" virt="non-virtual"><scope>FFmpegDecoderInstance</scope><name>kMaxFrameLife</name></member>
+      <member refid="class_f_fmpeg_decoder_instance_1aff23b84324df267ec61b7fee6863bb3a" prot="private" virt="non-virtual"><scope>FFmpegDecoderInstance</scope><name>opts_</name></member>
+      <member refid="class_f_fmpeg_decoder_instance_1ae5bf3593d8c5d8cef25ddb702eee23ed" prot="public" virt="non-virtual"><scope>FFmpegDecoderInstance</scope><name>RangeEnd</name></member>
+      <member refid="class_f_fmpeg_decoder_instance_1a41a7d2c24800e52028f3b8f6673dca2d" prot="public" virt="non-virtual"><scope>FFmpegDecoderInstance</scope><name>RangeStart</name></member>
+      <member refid="class_f_fmpeg_decoder_instance_1a9adfa71b78904031c925e4efe5cc30cf" prot="public" virt="non-virtual"><scope>FFmpegDecoderInstance</scope><name>RemoveFramesBefore</name></member>
+      <member refid="class_f_fmpeg_decoder_instance_1aaaa971f2606d12cf1597a0278cc07213" prot="public" virt="non-virtual"><scope>FFmpegDecoderInstance</scope><name>RetrieveFrame</name></member>
+      <member refid="class_f_fmpeg_decoder_instance_1a38233c5449eaf5c69e93c2d4b0f3a2f8" prot="public" virt="non-virtual"><scope>FFmpegDecoderInstance</scope><name>sample_aspect_ratio</name></member>
+      <member refid="class_f_fmpeg_decoder_instance_1a272e69e556e0aa1691a085713af03873" prot="private" virt="non-virtual"><scope>FFmpegDecoderInstance</scope><name>second_ts_</name></member>
+      <member refid="class_f_fmpeg_decoder_instance_1abf6bc05a13d8f9188f931e016945dd89" prot="private" virt="non-virtual"><scope>FFmpegDecoderInstance</scope><name>Seek</name></member>
+      <member refid="class_f_fmpeg_decoder_instance_1a4884fde2c804c43f2b9d2000e5697ff7" prot="public" virt="non-virtual"><scope>FFmpegDecoderInstance</scope><name>SetFramePool</name></member>
+      <member refid="class_f_fmpeg_decoder_instance_1a937dec207932d70d85b6dd2d7eb5efa7" prot="public" virt="non-virtual"><scope>FFmpegDecoderInstance</scope><name>SetWorking</name></member>
+      <member refid="class_f_fmpeg_decoder_instance_1a5a0312d35743f7ea4d9209afef61b9fd" prot="public" virt="non-virtual"><scope>FFmpegDecoderInstance</scope><name>stream</name></member>
+      <member refid="class_f_fmpeg_decoder_instance_1a1c934e07ba89c527fcc423ad1aea894f" prot="public" virt="non-virtual"><scope>FFmpegDecoderInstance</scope><name>TruncateCacheRangeTo</name></member>
+      <member refid="class_f_fmpeg_decoder_instance_1a7162d7b8f1f3401080a16c2ad73511e5" prot="public" virt="virtual"><scope>FFmpegDecoderInstance</scope><name>~FFmpegDecoderInstance</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

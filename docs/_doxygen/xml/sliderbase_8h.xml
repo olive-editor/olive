@@ -1,0 +1,399 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="sliderbase_8h" kind="file" language="C++">
+    <compoundname>sliderbase.h</compoundname>
+    <includes local="no">QStackedWidget</includes>
+    <includes refid="sliderlabel_8h" local="yes">sliderlabel.h</includes>
+    <includes refid="focusablelineedit_8h" local="yes">widget/focusablelineedit/focusablelineedit.h</includes>
+    <includedby refid="nodeparamviewwidgetbridge_8h" local="yes">nodeparamviewwidgetbridge.h</includedby>
+    <includedby refid="floatslider_8h" local="yes">floatslider.h</includedby>
+    <includedby refid="integerslider_8h" local="yes">integerslider.h</includedby>
+    <includedby refid="stringslider_8h" local="yes">stringslider.h</includedby>
+    <incdepgraph>
+      <node id="3">
+        <label>sliderlabel.h</label>
+        <link refid="sliderlabel_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>QStackedWidget</label>
+      </node>
+      <node id="5">
+        <label>common/define.h</label>
+        <link refid="define_8h"/>
+      </node>
+      <node id="7">
+        <label>QLineEdit</label>
+      </node>
+      <node id="4">
+        <label>QLabel</label>
+      </node>
+      <node id="6">
+        <label>widget/focusablelineedit/focusablelineedit.h</label>
+        <link refid="focusablelineedit_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>sliderbase.h</label>
+        <link refid="sliderbase_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="5">
+        <label>param.h</label>
+        <link refid="panel_2param_2param_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>curve.h</label>
+        <link refid="curve_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>mainwindow.h</label>
+        <link refid="mainwindow_8h"/>
+      </node>
+      <node id="22">
+        <label>timeslider.h</label>
+        <link refid="timeslider_8h"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>nodeparamviewwidgetbridge.h</label>
+        <link refid="nodeparamviewwidgetbridge_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>floatslider.h</label>
+        <link refid="floatslider_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="24">
+        <label>viewer.h</label>
+        <link refid="widget_2viewer_2viewer_8h"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>h264section.h</label>
+        <link refid="h264section_8h"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="25">
+        <label>viewerbase.h</label>
+        <link refid="viewerbase_8h"/>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>videostreamproperties.h</label>
+        <link refid="videostreamproperties_8h"/>
+      </node>
+      <node id="20">
+        <label>exportadvancedvideodialog.h</label>
+        <link refid="exportadvancedvideodialog_8h"/>
+      </node>
+      <node id="15">
+        <label>preferencesgeneraltab.h</label>
+        <link refid="preferencesgeneraltab_8h"/>
+      </node>
+      <node id="16">
+        <label>speedduration.h</label>
+        <link refid="speedduration_8h"/>
+      </node>
+      <node id="23">
+        <label>playbackcontrols.h</label>
+        <link refid="playbackcontrols_8h"/>
+        <childnode refid="24" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>nodeparamviewitem.h</label>
+        <link refid="nodeparamviewitem_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>keyframeproperties.h</label>
+        <link refid="keyframeproperties_8h"/>
+      </node>
+      <node id="30">
+        <label>timelinewidget.h</label>
+        <link refid="timelinewidget_8h"/>
+        <childnode refid="31" relation="include">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>colorvalueswidget.h</label>
+        <link refid="colorvalueswidget_8h"/>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="18">
+        <label>colordialog.h</label>
+        <link refid="colordialog_8h"/>
+      </node>
+      <node id="29">
+        <label>footageviewer.h</label>
+        <link refid="widget_2viewer_2footageviewer_8h"/>
+      </node>
+      <node id="3">
+        <label>curvewidget.h</label>
+        <link refid="curvewidget_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>preferencesdisktab.h</label>
+        <link refid="preferencesdisktab_8h"/>
+      </node>
+      <node id="19">
+        <label>integerslider.h</label>
+        <link refid="integerslider_8h"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+      </node>
+      <node id="32">
+        <label>stringslider.h</label>
+        <link refid="stringslider_8h"/>
+      </node>
+      <node id="28">
+        <label>sequenceviewer.h</label>
+        <link refid="sequenceviewer_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>nodeparamview.h</label>
+        <link refid="nodeparamview_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="31">
+        <label>timeline.h</label>
+        <link refid="timeline_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>export.h</label>
+        <link refid="export_8h"/>
+      </node>
+      <node id="27">
+        <label>viewer.h</label>
+        <link refid="panel_2viewer_2viewer_8h"/>
+        <childnode refid="28" relation="include">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>footageviewer.h</label>
+        <link refid="panel_2footageviewer_2footageviewer_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>exportvideotab.h</label>
+        <link refid="exportvideotab_8h"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>sliderbase.h</label>
+        <link refid="sliderbase_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="class_slider_base" prot="public">SliderBase</innerclass>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/***</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"></highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/><sp/>Olive<sp/>-<sp/>Non-Linear<sp/>Video<sp/>Editor</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/><sp/>Copyright<sp/>(C)<sp/>2019<sp/>Olive<sp/>Team</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"></highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/><sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/><sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/><sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"></highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/><sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/><sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/><sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"></highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/><sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/><sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"></highlight></codeline>
+<codeline lineno="19"><highlight class="comment">***/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SLIDERBASE_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SLIDERBASE_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QStackedWidget&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="sliderlabel_8h" kindref="compound">sliderlabel.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="focusablelineedit_8h" kindref="compound">widget/focusablelineedit/focusablelineedit.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><ref refid="define_8h_1a0472692dd1f22472ad63da20da919e8c" kindref="member">OLIVE_NAMESPACE_ENTER</ref></highlight></codeline>
+<codeline lineno="30" refid="class_slider_base" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_slider_base" kindref="compound">SliderBase</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>QStackedWidget</highlight></codeline>
+<codeline lineno="31"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/>Q_OBJECT</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/><ref refid="class_slider_base_1ad50a609062acda2986cc3ac4805b1788" kindref="member">Mode</ref><sp/>{</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_slider_base_1ad50a609062acda2986cc3ac4805b1788a7222a28bbf994efda0a2abe36ceea040" kindref="member">kString</ref>,</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_slider_base_1ad50a609062acda2986cc3ac4805b1788a96f918044726b77ae121c16124425c74" kindref="member">kInteger</ref>,</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_slider_base_1ad50a609062acda2986cc3ac4805b1788a222052227f367be98f797eed42b0d431" kindref="member">kFloat</ref></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><ref refid="class_slider_base_1ace79e90a59347237deb26fcbab498283" kindref="member">SliderBase</ref>(<ref refid="class_slider_base_1ad50a609062acda2986cc3ac4805b1788" kindref="member">Mode</ref><sp/>mode,<sp/>QWidget*<sp/>parent<sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_slider_base_1a00f7ccde6f0604ed99d436c7ff3889b8" kindref="member">SetDragMultiplier</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">&amp;<sp/>d);</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_slider_base_1a4db0de3d14736d4b3a1de2871e62aef1" kindref="member">SetRequireValidInput</ref>(</highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>e);</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_slider_base_1af90fa956ff0f478b76dc8d24c0e98545" kindref="member">SetAlignment</ref>(Qt::Alignment<sp/>alignment);</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_slider_base_1a59bee61836207658e78d07a0ae2e8b49" kindref="member">IsTristate</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_slider_base_1aa5fa074d5e429f79ecab69801369e45c" kindref="member">SetTristate</ref>();</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_slider_base_1ae4cdf93412191d36ede4998d23ce82c8" kindref="member">IsDragging</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="52" refid="class_slider_base_1ad50a609062acda2986cc3ac4805b1788" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_slider_base_1a38050e9dc35dbd344ee7aa8fca474e47" kindref="member">SetFormat</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/>s);</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_slider_base_1a374c809c707bc93a7c800b8b6469753f" kindref="member">ClearFormat</ref>();</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal">signals:</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_slider_base_1a13537858eafb976a886860d7c4a34437" kindref="member">ValueChanged</ref>(QVariant<sp/>v);</highlight></codeline>
+<codeline lineno="58" refid="class_slider_base_1ace79e90a59347237deb26fcbab498283" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="60" refid="class_slider_base_1a00f7ccde6f0604ed99d436c7ff3889b8" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QVariant&amp;<sp/><ref refid="class_slider_base_1a9432a148ffa70a4335f9aafcc1169b62" kindref="member">Value</ref>();</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62" refid="class_slider_base_1a4db0de3d14736d4b3a1de2871e62aef1" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_slider_base_1ae722df43c348dde3232354ff6eda4ed9" kindref="member">SetValue</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QVariant&amp;<sp/>v);</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64" refid="class_slider_base_1af90fa956ff0f478b76dc8d24c0e98545" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_slider_base_1a995183b7bd80a5dcaf22569eddf94c0d" kindref="member">SetMinimumInternal</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QVariant&amp;<sp/>v);</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66" refid="class_slider_base_1a59bee61836207658e78d07a0ae2e8b49" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_slider_base_1a11e82ed0fd0020deb06c0115199395fd" kindref="member">SetMaximumInternal</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QVariant&amp;<sp/>v);</highlight></codeline>
+<codeline lineno="67" refid="class_slider_base_1aa5fa074d5e429f79ecab69801369e45c" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_slider_base_1a6743f05e27bbea170ea4b423022a5aba" kindref="member">UpdateLabel</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QVariant&amp;<sp/>v);</highlight></codeline>
+<codeline lineno="69" refid="class_slider_base_1ae4cdf93412191d36ede4998d23ce82c8" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="class_slider_base_1af9bcfa73d67dd29700c5e78ce4196c8c" kindref="member">AdjustDragDistanceInternal</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">&amp;<sp/>start,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">&amp;<sp/>drag);</highlight></codeline>
+<codeline lineno="71" refid="class_slider_base_1a38050e9dc35dbd344ee7aa8fca474e47" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72" refid="class_slider_base_1ad50a609062acda2986cc3ac4805b1788a96f918044726b77ae121c16124425c74" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>QString<sp/><ref refid="class_slider_base_1a8512c75c269b58fccb8817dbd829f439" kindref="member">ValueToString</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QVariant<sp/>&amp;v);</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74" refid="class_slider_base_1ad50a609062acda2986cc3ac4805b1788a222052227f367be98f797eed42b0d431" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>QVariant<sp/><ref refid="class_slider_base_1a2f540523bb9d802c937251bc25f4778b" kindref="member">StringToValue</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/>s,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal">*<sp/>ok);</highlight></codeline>
+<codeline lineno="75" refid="class_slider_base_1a13537858eafb976a886860d7c4a34437" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_slider_base_1a23bdf2e8ed55c1c48e9d36b4f4179c12" kindref="member">changeEvent</ref>(QEvent*<sp/>e)<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78" refid="class_slider_base_1a9432a148ffa70a4335f9aafcc1169b62" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_slider_base_1a7f880bfddd5328630ebb6c0ae7617006" kindref="member">ForceLabelUpdate</ref>();</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80" refid="class_slider_base_1ae722df43c348dde3232354ff6eda4ed9" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="class_slider_base_1aeb6b45d0aeaaf8ae026581e5b9884392" kindref="member">drag_multiplier_</ref>;</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82" refid="class_slider_base_1a995183b7bd80a5dcaf22569eddf94c0d" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QVariant&amp;<sp/><ref refid="class_slider_base_1a6ffb2bdda98101eaa66c50ccac3a8f67" kindref="member">ClampValue</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QVariant&amp;<sp/>v);</highlight></codeline>
+<codeline lineno="84" refid="class_slider_base_1a11e82ed0fd0020deb06c0115199395fd" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/>QString<sp/><ref refid="class_slider_base_1a99618873e9f3f36ea24d7ff889ec1606" kindref="member">GetFormat</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="86" refid="class_slider_base_1a6743f05e27bbea170ea4b423022a5aba" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><ref refid="class_slider_label" kindref="compound">SliderLabel</ref>*<sp/><ref refid="class_slider_base_1a5cf07e83a268e68b19db8552fda9a2f9" kindref="member">label_</ref>;</highlight></codeline>
+<codeline lineno="88" refid="class_slider_base_1af9bcfa73d67dd29700c5e78ce4196c8c" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><ref refid="class_focusable_line_edit" kindref="compound">FocusableLineEdit</ref>*<sp/><ref refid="class_slider_base_1a6f73be66ed10df839460e9bc83e45290" kindref="member">editor_</ref>;</highlight></codeline>
+<codeline lineno="90" refid="class_slider_base_1a8512c75c269b58fccb8817dbd829f439" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/>QVariant<sp/><ref refid="class_slider_base_1ad56b51ded8dbe6a404f6a9560715ea70" kindref="member">value_</ref>;</highlight></codeline>
+<codeline lineno="92" refid="class_slider_base_1a2f540523bb9d802c937251bc25f4778b" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_slider_base_1aa97b48c852ac3e654901ee22919f6aaf" kindref="member">has_min_</ref>;</highlight></codeline>
+<codeline lineno="94" refid="class_slider_base_1a23bdf2e8ed55c1c48e9d36b4f4179c12" refkind="member"><highlight class="normal"><sp/><sp/>QVariant<sp/><ref refid="class_slider_base_1ac62393c46a39aa85c819526e85a42583" kindref="member">min_value_</ref>;</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight></codeline>
+<codeline lineno="96" refid="class_slider_base_1a7f880bfddd5328630ebb6c0ae7617006" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_slider_base_1a51222a5b3a176adb87b162335e048a2c" kindref="member">has_max_</ref>;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/>QVariant<sp/><ref refid="class_slider_base_1ad71e39029a38c7f22855c83a6241f25d" kindref="member">max_value_</ref>;</highlight></codeline>
+<codeline lineno="98" refid="class_slider_base_1aeb6b45d0aeaaf8ae026581e5b9884392" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><ref refid="class_slider_base_1ad50a609062acda2986cc3ac4805b1788" kindref="member">Mode</ref><sp/><ref refid="class_slider_base_1ad4f6519a3f49db990512e5861cf7f3fe" kindref="member">mode_</ref>;</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight></codeline>
+<codeline lineno="101" refid="class_slider_base_1a6ffb2bdda98101eaa66c50ccac3a8f67" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_slider_base_1a9618a16c9df1ff162933934ef0beeac6" kindref="member">dragged_</ref>;</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103" refid="class_slider_base_1a99618873e9f3f36ea24d7ff889ec1606" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="class_slider_base_1ae09a94cdb788a819913d2c9ce2161efc" kindref="member">dragged_diff_</ref>;</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105" refid="class_slider_base_1a5cf07e83a268e68b19db8552fda9a2f9" refkind="member"><highlight class="normal"><sp/><sp/>QVariant<sp/><ref refid="class_slider_base_1ab3f4f22e5207852e2348a9d86f5ff6d2" kindref="member">temp_dragged_value_</ref>;</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight></codeline>
+<codeline lineno="107" refid="class_slider_base_1a6f73be66ed10df839460e9bc83e45290" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_slider_base_1a862382ca3b5efc973adba70353ba350d" kindref="member">require_valid_input_</ref>;</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109" refid="class_slider_base_1ad56b51ded8dbe6a404f6a9560715ea70" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_slider_base_1a7e1d8fe92b74ab424b455e9278927729" kindref="member">tristate_</ref>;</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111" refid="class_slider_base_1aa97b48c852ac3e654901ee22919f6aaf" refkind="member"><highlight class="normal"><sp/><sp/>QString<sp/><ref refid="class_slider_base_1adcba71784939d252a41ba4ecac6ed208" kindref="member">custom_format_</ref>;</highlight></codeline>
+<codeline lineno="112" refid="class_slider_base_1ac62393c46a39aa85c819526e85a42583" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal"><sp/>slots:</highlight></codeline>
+<codeline lineno="114" refid="class_slider_base_1a51222a5b3a176adb87b162335e048a2c" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_slider_base_1aae8226d7a58824fc0cb321066b1a11b1" kindref="member">LabelPressed</ref>();</highlight></codeline>
+<codeline lineno="115" refid="class_slider_base_1ad71e39029a38c7f22855c83a6241f25d" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_slider_base_1a4c871674aba230c0e38ff0d863f958f7" kindref="member">LabelClicked</ref>();</highlight></codeline>
+<codeline lineno="117" refid="class_slider_base_1ad4f6519a3f49db990512e5861cf7f3fe" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_slider_base_1a20d8d751038f84a702bc3fb7a2865a78" kindref="member">LabelDragged</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i);</highlight></codeline>
+<codeline lineno="119" refid="class_slider_base_1a9618a16c9df1ff162933934ef0beeac6" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_slider_base_1abb5704434ab5065f25e6af8862106966" kindref="member">LineEditConfirmed</ref>();</highlight></codeline>
+<codeline lineno="121" refid="class_slider_base_1ae09a94cdb788a819913d2c9ce2161efc" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_slider_base_1a89f8773942f9d8e5f0b1b9c0ffb175e7" kindref="member">LineEditCancelled</ref>();</highlight></codeline>
+<codeline lineno="123" refid="class_slider_base_1ab3f4f22e5207852e2348a9d86f5ff6d2" refkind="member"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight></codeline>
+<codeline lineno="125" refid="class_slider_base_1a862382ca3b5efc973adba70353ba350d" refkind="member"><highlight class="normal"><ref refid="define_8h_1abe3de0634d907ca0f5d1acf732c49dac" kindref="member">OLIVE_NAMESPACE_EXIT</ref></highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight></codeline>
+<codeline lineno="127" refid="class_slider_base_1a7e1d8fe92b74ab424b455e9278927729" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//<sp/>SLIDERBASE_H</highlight></codeline>
+    </programlisting>
+    <location file="C:/Daten/Olive/olive/app/widget/slider/sliderbase.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,220 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_action_search" kind="class" language="C++" prot="public">
+    <compoundname>ActionSearch</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QDialog</basecompoundref>
+    <includes refid="actionsearch_8h" local="no">actionsearch.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_action_search_1a82f2b7a667a9095ecd97c2a4c241d4f3" prot="private" static="no" mutable="no">
+        <type><ref refid="class_action_search_list" kindref="compound">ActionSearchList</ref> *</type>
+        <definition>ActionSearchList* ActionSearch::list_widget</definition>
+        <argsstring></argsstring>
+        <name>list_widget</name>
+        <briefdescription>
+<para>Main widget that shows the list of commands. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/actionsearch/actionsearch.h" line="115" column="20" bodyfile="C:/Daten/Olive/olive/app/dialog/actionsearch/actionsearch.h" bodystart="115" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_action_search_1af00c80f7a6db7005d9b17b9539425da7" prot="private" static="no" mutable="no">
+        <type>QMenuBar *</type>
+        <definition>QMenuBar* ActionSearch::menu_bar_</definition>
+        <argsstring></argsstring>
+        <name>menu_bar_</name>
+        <briefdescription>
+<para>Attached menu bar object. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/actionsearch/actionsearch.h" line="120" column="12" bodyfile="C:/Daten/Olive/olive/app/dialog/actionsearch/actionsearch.h" bodystart="120" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_action_search_1a13e16c469646104a7c4a4b927c579c34" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>ActionSearch::ActionSearch</definition>
+        <argsstring>(QWidget *parent)</argsstring>
+        <name>ActionSearch</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="class_action_search" kindref="compound">ActionSearch</ref> Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Create <ref refid="class_action_search" kindref="compound">ActionSearch</ref> popup.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parent</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>QWidget parent. Usually <ref refid="class_main_window" kindref="compound">MainWindow</ref>. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/actionsearch/actionsearch.h" line="55" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_action_search_1a852eda78aefb7ff92e743fb1bab90fa0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ActionSearch::SetMenuBar</definition>
+        <argsstring>(QMenuBar *menu_bar)</argsstring>
+        <name>SetMenuBar</name>
+        <param>
+          <type>QMenuBar *</type>
+          <declname>menu_bar</declname>
+        </param>
+        <briefdescription>
+<para>Set the menu bar to use in this action search. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/actionsearch/actionsearch.h" line="60" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_action_search_1ad9ce9f5a257569b695f30c0cc5304b7b" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ActionSearch::search_update</definition>
+        <argsstring>(const QString &amp;s, const QString &amp;p=nullptr, QMenu *parent=nullptr)</argsstring>
+        <name>search_update</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>p</declname>
+          <defval>nullptr</defval>
+        </param>
+        <param>
+          <type>QMenu *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+<para>Update the list of actions according to a search query. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function adds/removes actions in the action list according to a given search query entered by the user.</para>
+<para>To loop over the menubar and all of its menus and submenus, this function will call itself recursively. As such some of its parameters do not need to be set externally, as these will be set by the function itself as it calls itself.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The search text. This is the only parameter that should be set externally.</para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>p</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The current parent hierarchy. In most cases, this should be left as nullptr when called externally. <ref refid="class_action_search_1ad9ce9f5a257569b695f30c0cc5304b7b" kindref="member">search_update()</ref> will fill this automatically as it needs while calling itself recursively.</para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>parent</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The current menu to loop over. In most cases, this should be left as nullptr when called externally. <ref refid="class_action_search_1ad9ce9f5a257569b695f30c0cc5304b7b" kindref="member">search_update()</ref> will fill this automatically as it needs while calling itself recursively. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/actionsearch/actionsearch.h" line="85" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_action_search_1a650a09918b8818e224b3698b59e364cc" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ActionSearch::perform_action</definition>
+        <argsstring>()</argsstring>
+        <name>perform_action</name>
+        <briefdescription>
+<para>Perform the currently selected action. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Usually triggered by pressing Enter on the <ref refid="class_action_search_entry" kindref="compound">ActionSearchEntry</ref> field, this will trigger whatever action is currently highlighted and then close this popup. If no entries are highlighted (i.e. the list is empty), no action is triggered and the popup closes anyway. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/actionsearch/actionsearch.h" line="94" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_action_search_1a9039df81c2eaf1be6eb6fb89e10bc6e1" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ActionSearch::move_selection_up</definition>
+        <argsstring>()</argsstring>
+        <name>move_selection_up</name>
+        <briefdescription>
+<para>Move selection up. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>A slot for pressing up on the <ref refid="class_action_search_entry" kindref="compound">ActionSearchEntry</ref> field. Moves the selection in the list up once. If the selection is already at the top of the list, this is a no-op. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/actionsearch/actionsearch.h" line="102" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_action_search_1ad7c2f76affbf5b707523194ef9960b95" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ActionSearch::move_selection_down</definition>
+        <argsstring>()</argsstring>
+        <name>move_selection_down</name>
+        <briefdescription>
+<para>Move selection down. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>A slot for pressing down on the <ref refid="class_action_search_entry" kindref="compound">ActionSearchEntry</ref> field. Moves the selection in the list down once. If the selection is already at the bottom of the list, this is a no-op. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/actionsearch/actionsearch.h" line="110" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>The <ref refid="class_action_search" kindref="compound">ActionSearch</ref> class. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>A popup window (accessible through Help &gt; Action Search) that allows users to search for a menu command by typing rather than browsing through the menu bar. This can be created from anywhere provided olive::MainWindow is valid. </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="2">
+        <label>ActionSearchList</label>
+        <link refid="class_action_search_list"/>
+      </node>
+      <node id="1">
+        <label>ActionSearch</label>
+        <link refid="class_action_search"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>list_widget</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/dialog/actionsearch/actionsearch.h" line="42" column="1" bodyfile="C:/Daten/Olive/olive/app/dialog/actionsearch/actionsearch.h" bodystart="43" bodyend="121"/>
+    <listofallmembers>
+      <member refid="class_action_search_1a13e16c469646104a7c4a4b927c579c34" prot="public" virt="non-virtual"><scope>ActionSearch</scope><name>ActionSearch</name></member>
+      <member refid="class_action_search_1a82f2b7a667a9095ecd97c2a4c241d4f3" prot="private" virt="non-virtual"><scope>ActionSearch</scope><name>list_widget</name></member>
+      <member refid="class_action_search_1af00c80f7a6db7005d9b17b9539425da7" prot="private" virt="non-virtual"><scope>ActionSearch</scope><name>menu_bar_</name></member>
+      <member refid="class_action_search_1ad7c2f76affbf5b707523194ef9960b95" prot="private" virt="non-virtual"><scope>ActionSearch</scope><name>move_selection_down</name></member>
+      <member refid="class_action_search_1a9039df81c2eaf1be6eb6fb89e10bc6e1" prot="private" virt="non-virtual"><scope>ActionSearch</scope><name>move_selection_up</name></member>
+      <member refid="class_action_search_1a650a09918b8818e224b3698b59e364cc" prot="private" virt="non-virtual"><scope>ActionSearch</scope><name>perform_action</name></member>
+      <member refid="class_action_search_1ad9ce9f5a257569b695f30c0cc5304b7b" prot="private" virt="non-virtual"><scope>ActionSearch</scope><name>search_update</name></member>
+      <member refid="class_action_search_1a852eda78aefb7ff92e743fb1bab90fa0" prot="public" virt="non-virtual"><scope>ActionSearch</scope><name>SetMenuBar</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

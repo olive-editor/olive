@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_e8e3986c424dc3dd7978962e3e73ff2a" kind="dir">
+    <compoundname>cliprogress</compoundname>
+    <innerfile refid="cliprogressdialog_8h">cliprogressdialog.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/cli/cliprogress/"/>
+  </compounddef>
+</doxygen>

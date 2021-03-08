@@ -1,0 +1,775 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_project_explorer" kind="class" language="C++" prot="public">
+    <compoundname>ProjectExplorer</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QWidget</basecompoundref>
+    <includes refid="projectexplorer_8h" local="no">projectexplorer.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_project_explorer_1aea5509d24e537289c6f86e10bcca63a6" prot="private" static="no" mutable="no">
+        <type>QStackedWidget *</type>
+        <definition>QStackedWidget* ProjectExplorer::stacked_widget_</definition>
+        <argsstring></argsstring>
+        <name>stacked_widget_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" line="149" column="18" bodyfile="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" bodystart="149" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_project_explorer_1a864afd3628cbca3ad06ceadbffb9afed" prot="private" static="no" mutable="no">
+        <type><ref refid="class_project_explorer_navigation" kindref="compound">ProjectExplorerNavigation</ref> *</type>
+        <definition>ProjectExplorerNavigation* ProjectExplorer::nav_bar_</definition>
+        <argsstring></argsstring>
+        <name>nav_bar_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" line="151" column="29" bodyfile="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" bodystart="151" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_project_explorer_1a62704dda3cba6345ee801db9fb814a19" prot="private" static="no" mutable="no">
+        <type><ref refid="class_project_explorer_icon_view" kindref="compound">ProjectExplorerIconView</ref> *</type>
+        <definition>ProjectExplorerIconView* ProjectExplorer::icon_view_</definition>
+        <argsstring></argsstring>
+        <name>icon_view_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" line="153" column="27" bodyfile="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" bodystart="153" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_project_explorer_1a2f36fcce51cabd1880dc43f8463d925c" prot="private" static="no" mutable="no">
+        <type><ref refid="class_project_explorer_list_view" kindref="compound">ProjectExplorerListView</ref> *</type>
+        <definition>ProjectExplorerListView* ProjectExplorer::list_view_</definition>
+        <argsstring></argsstring>
+        <name>list_view_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" line="154" column="27" bodyfile="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" bodystart="154" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_project_explorer_1af3a7e06edfa383d3e97d119db970b2b4" prot="private" static="no" mutable="no">
+        <type><ref refid="class_project_explorer_tree_view" kindref="compound">ProjectExplorerTreeView</ref> *</type>
+        <definition>ProjectExplorerTreeView* ProjectExplorer::tree_view_</definition>
+        <argsstring></argsstring>
+        <name>tree_view_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" line="155" column="27" bodyfile="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" bodystart="155" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_project_explorer_1a70437137c40cfba31b59550e24922917" prot="private" static="no" mutable="no">
+        <type><ref refid="class_project_toolbar_1adbc3fb60d3a7ee54280945c2c76ad2a5" kindref="member">ProjectToolbar::ViewType</ref></type>
+        <definition>ProjectToolbar::ViewType ProjectExplorer::view_type_</definition>
+        <argsstring></argsstring>
+        <name>view_type_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" line="157" column="28" bodyfile="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" bodystart="157" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_project_explorer_1a7ef8695e327f24663d1b78f2c57c2b97" prot="private" static="no" mutable="no">
+        <type><ref refid="class_project_view_model" kindref="compound">ProjectViewModel</ref></type>
+        <definition>ProjectViewModel ProjectExplorer::model_</definition>
+        <argsstring></argsstring>
+        <name>model_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" line="159" column="20" bodyfile="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" bodystart="159" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_project_explorer_1a6701a582596c9128ae2badaabc9cacaf" prot="private" static="no" mutable="no">
+        <type>QModelIndex</type>
+        <definition>QModelIndex ProjectExplorer::clicked_index_</definition>
+        <argsstring></argsstring>
+        <name>clicked_index_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" line="161" column="15" bodyfile="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" bodystart="161" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_project_explorer_1afc7d7a87833271abd6384055d2dc625c" prot="private" static="no" mutable="no">
+        <type>QTimer</type>
+        <definition>QTimer ProjectExplorer::rename_timer_</definition>
+        <argsstring></argsstring>
+        <name>rename_timer_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" line="163" column="10" bodyfile="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" bodystart="163" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_project_explorer_1abf3ee56055bd3eb641c93f19e8ebe8f4" prot="private" static="no" mutable="no">
+        <type><ref refid="class_item" kindref="compound">Item</ref> *</type>
+        <definition>Item* ProjectExplorer::context_menu_item_</definition>
+        <argsstring></argsstring>
+        <name>context_menu_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" line="165" column="8" bodyfile="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" bodystart="165" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_project_explorer_1a799d68007562e4fd52cac31635240242" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>ProjectExplorer::ProjectExplorer</definition>
+        <argsstring>(QWidget *parent)</argsstring>
+        <name>ProjectExplorer</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" line="68" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_explorer_1ad1a6879f20daeb6b8628247fd8f82c38" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="class_project_toolbar_1adbc3fb60d3a7ee54280945c2c76ad2a5" kindref="member">ProjectToolbar::ViewType</ref> &amp;</type>
+        <definition>const ProjectToolbar::ViewType&amp; ProjectExplorer::view_type</definition>
+        <argsstring>() const</argsstring>
+        <name>view_type</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" line="70" column="34"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_explorer_1a91e3c0ec86ab01bdbbcfb107178f4d3c" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_project" kindref="compound">Project</ref> *</type>
+        <definition>Project* ProjectExplorer::project</definition>
+        <argsstring>() const</argsstring>
+        <name>project</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" line="72" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_explorer_1a0500992acdd6fcd4c1616f14af7e7a9b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectExplorer::set_project</definition>
+        <argsstring>(Project *p)</argsstring>
+        <name>set_project</name>
+        <param>
+          <type><ref refid="class_project" kindref="compound">Project</ref> *</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" line="73" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_explorer_1aed9135b15d643f3a6900f692587fd416" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QModelIndex</type>
+        <definition>QModelIndex ProjectExplorer::get_root_index</definition>
+        <argsstring>() const</argsstring>
+        <name>get_root_index</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" line="75" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_explorer_1aa57b2126c70589600220e78292b4013d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectExplorer::set_root</definition>
+        <argsstring>(Item *item)</argsstring>
+        <name>set_root</name>
+        <param>
+          <type><ref refid="class_item" kindref="compound">Item</ref> *</type>
+          <declname>item</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" line="77" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_explorer_1a3ca3b78ca8f5e87cdd402ed34c692291" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QList&lt; <ref refid="class_item" kindref="compound">Item</ref> * &gt;</type>
+        <definition>QList&lt;Item*&gt; ProjectExplorer::SelectedItems</definition>
+        <argsstring>() const</argsstring>
+        <name>SelectedItems</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" line="79" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_explorer_1ab326d4b6f42c49e3c00d58cbee1fdf4c" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_folder" kindref="compound">Folder</ref> *</type>
+        <definition>Folder* ProjectExplorer::GetSelectedFolder</definition>
+        <argsstring>() const</argsstring>
+        <name>GetSelectedFolder</name>
+        <briefdescription>
+<para>Use a heuristic to determine which (if any) folder is selected. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Generally for some import/adding processes, we assume that if a folder is selected, the user probably wants to create the new object in it rather than in the root. If, however, more than one folder is selected, we can&apos;t truly determine any folder from this and just return the root instead.</para>
+<para><simplesect kind="return"><para></para>
+</simplesect>
+A folder that&apos;s heuristically been determined as &quot;selected&quot;, or the root directory if none, or nullptr if no project is open. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" line="93" column="10"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_explorer_1a35edac1e5015d99013ffd9b9addf6b2f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_project_view_model" kindref="compound">ProjectViewModel</ref> *</type>
+        <definition>ProjectViewModel* ProjectExplorer::model</definition>
+        <argsstring>()</argsstring>
+        <name>model</name>
+        <briefdescription>
+<para>Access the ViewModel model of the project. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" line="98" column="20"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_explorer_1a201bf6db7e9657ce1463a4ca53f30072" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectExplorer::SelectAll</definition>
+        <argsstring>()</argsstring>
+        <name>SelectAll</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" line="100" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_explorer_1a3bfa64a1945f725ceaf6368193fdfdf3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectExplorer::DeselectAll</definition>
+        <argsstring>()</argsstring>
+        <name>DeselectAll</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" line="102" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_explorer_1a3b395d95610fee597835bcbea277600b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectExplorer::DeleteSelected</definition>
+        <argsstring>()</argsstring>
+        <name>DeleteSelected</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" line="104" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-slot">
+      <memberdef kind="slot" id="class_project_explorer_1a458564b668a60f957202d4b3f6d0b19a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectExplorer::set_view_type</definition>
+        <argsstring>(ProjectToolbar::ViewType type)</argsstring>
+        <name>set_view_type</name>
+        <param>
+          <type><ref refid="class_project_toolbar_1adbc3fb60d3a7ee54280945c2c76ad2a5" kindref="member">ProjectToolbar::ViewType</ref></type>
+          <declname>type</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" line="107" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_project_explorer_1acba919c21a7ad0668fbc2f144e0b670b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectExplorer::Edit</definition>
+        <argsstring>(Item *item)</argsstring>
+        <name>Edit</name>
+        <param>
+          <type><ref refid="class_item" kindref="compound">Item</ref> *</type>
+          <declname>item</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" line="109" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_project_explorer_1a5d0f7f98d86bc40188dacdf188f94e38" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectExplorer::DoubleClickedItem</definition>
+        <argsstring>(Item *item)</argsstring>
+        <name>DoubleClickedItem</name>
+        <param>
+          <type><ref refid="class_item" kindref="compound">Item</ref> *</type>
+          <declname>item</declname>
+        </param>
+        <briefdescription>
+<para>Emitted when an <ref refid="class_item" kindref="compound">Item</ref> is double clicked. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>item</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The <ref refid="class_item" kindref="compound">Item</ref> that was double clicked, or nullptr if empty area was double clicked </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" line="119" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_project_explorer_1a835b38c1118d4752868f0d9806c15bcc" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectExplorer::AddView</definition>
+        <argsstring>(QAbstractItemView *view)</argsstring>
+        <name>AddView</name>
+        <param>
+          <type>QAbstractItemView *</type>
+          <declname>view</declname>
+        </param>
+        <briefdescription>
+<para>Simple convenience function for adding a view to this stacked widget. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Mainly for use in the constructor. Adds the view, connects its signals/slots, and sets the model.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>view</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>View to add to the stack </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" line="131" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_explorer_1a97813cfaf8a8e55c7a103fd923abb40b" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectExplorer::BrowseToFolder</definition>
+        <argsstring>(const QModelIndex &amp;index)</argsstring>
+        <name>BrowseToFolder</name>
+        <param>
+          <type>const QModelIndex &amp;</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+<para>Browse to a specific folder index in the model. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Only affects list_view_ and icon_view_.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Either an invalid index to return to the project root, or an index to a valid <ref refid="class_folder" kindref="compound">Folder</ref> object. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" line="142" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_explorer_1a9ca34f254e10e0bf538c3dc294d0d103" prot="private" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QAbstractItemView *</type>
+        <definition>QAbstractItemView* ProjectExplorer::CurrentView</definition>
+        <argsstring>() const</argsstring>
+        <name>CurrentView</name>
+        <briefdescription>
+<para>Get the currently active QAbstractItemView. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" line="147" column="21"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_project_explorer_1adf92ae436441dcc3ddc3026fff7c8fa3" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectExplorer::ItemClickedSlot</definition>
+        <argsstring>(const QModelIndex &amp;index)</argsstring>
+        <name>ItemClickedSlot</name>
+        <param>
+          <type>const QModelIndex &amp;</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" line="168" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_project_explorer_1a1aae8ef920bdc5f58c6a607f900b1ded" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectExplorer::ViewEmptyAreaDoubleClickedSlot</definition>
+        <argsstring>()</argsstring>
+        <name>ViewEmptyAreaDoubleClickedSlot</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" line="170" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_project_explorer_1af70941d26cafa36d818ad76d25f8974e" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectExplorer::ItemDoubleClickedSlot</definition>
+        <argsstring>(const QModelIndex &amp;index)</argsstring>
+        <name>ItemDoubleClickedSlot</name>
+        <param>
+          <type>const QModelIndex &amp;</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" line="172" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_project_explorer_1ab3780b574718cfa515b466fa4deade13" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectExplorer::SizeChangedSlot</definition>
+        <argsstring>(int s)</argsstring>
+        <name>SizeChangedSlot</name>
+        <param>
+          <type>int</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" line="174" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_project_explorer_1a2fde92b2e53ba2d24a90a0e533f29982" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectExplorer::DirUpSlot</definition>
+        <argsstring>()</argsstring>
+        <name>DirUpSlot</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" line="176" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_project_explorer_1a67a82dbafc860d14d96787f830dccdb9" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectExplorer::RenameTimerSlot</definition>
+        <argsstring>()</argsstring>
+        <name>RenameTimerSlot</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" line="178" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_project_explorer_1af5e9a7275d632c2ec65d4683c6f60599" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectExplorer::ShowContextMenu</definition>
+        <argsstring>()</argsstring>
+        <name>ShowContextMenu</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" line="180" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_project_explorer_1a72351c7c493240ab4431347fc6220d38" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectExplorer::ShowFootagePropertiesDialog</definition>
+        <argsstring>()</argsstring>
+        <name>ShowFootagePropertiesDialog</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" line="182" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_project_explorer_1ade0169f7f12f914aef5b4224111b0b80" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectExplorer::ShowSequencePropertiesDialog</definition>
+        <argsstring>()</argsstring>
+        <name>ShowSequencePropertiesDialog</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" line="184" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_project_explorer_1a5e6a1f5023e554e13b3899c0ef2b1043" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectExplorer::RevealSelectedFootage</definition>
+        <argsstring>()</argsstring>
+        <name>RevealSelectedFootage</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" line="186" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_project_explorer_1a3a94bf28d5ad14c14875e41d813dd904" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectExplorer::OpenContextMenuItemInNewTab</definition>
+        <argsstring>()</argsstring>
+        <name>OpenContextMenuItemInNewTab</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" line="188" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_project_explorer_1a1f46767aa0b9aa54444a8df032f3497b" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectExplorer::OpenContextMenuItemInNewWindow</definition>
+        <argsstring>()</argsstring>
+        <name>OpenContextMenuItemInNewWindow</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" line="190" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A widget for browsing through a <ref refid="class_project" kindref="compound">Project</ref> structure. </para>
+    </briefdescription>
+    <detaileddescription>
+<para><ref refid="class_project_explorer" kindref="compound">ProjectExplorer</ref> automatically handles the view&lt;-&gt;model system using a <ref refid="class_project_view_model" kindref="compound">ProjectViewModel</ref>. Therefore, all that needs to be provided is the <ref refid="class_project" kindref="compound">Project</ref> structure itself.</para>
+<para>This widget contains three views, tree view, list view, and icon view. These can be switched at any time. </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="9">
+        <label>ProjectExplorerListViewItemDelegate</label>
+        <link refid="class_project_explorer_list_view_item_delegate"/>
+      </node>
+      <node id="8">
+        <label>ProjectExplorerListViewBase</label>
+        <link refid="class_project_explorer_list_view_base"/>
+      </node>
+      <node id="4">
+        <label>ColorManager</label>
+        <link refid="class_color_manager"/>
+      </node>
+      <node id="10">
+        <label>ProjectExplorerIconView</label>
+        <link refid="class_project_explorer_icon_view"/>
+        <childnode refid="8" relation="public-inheritance">
+        </childnode>
+        <childnode refid="11" relation="usage">
+          <edgelabel>delegate_</edgelabel>
+        </childnode>
+      </node>
+      <node id="11">
+        <label>ProjectExplorerIconViewItemDelegate</label>
+        <link refid="class_project_explorer_icon_view_item_delegate"/>
+      </node>
+      <node id="2">
+        <label>Item</label>
+        <link refid="class_item"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>parent_</edgelabel>
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>project_</edgelabel>
+        </childnode>
+      </node>
+      <node id="13">
+        <label>ProjectExplorerTreeView</label>
+        <link refid="class_project_explorer_tree_view"/>
+      </node>
+      <node id="1">
+        <label>ProjectExplorer</label>
+        <link refid="class_project_explorer"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>context_menu_item_</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>model_</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>list_view_</edgelabel>
+        </childnode>
+        <childnode refid="10" relation="usage">
+          <edgelabel>icon_view_</edgelabel>
+        </childnode>
+        <childnode refid="12" relation="usage">
+          <edgelabel>nav_bar_</edgelabel>
+        </childnode>
+        <childnode refid="13" relation="usage">
+          <edgelabel>tree_view_</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>Project</label>
+        <link refid="class_project"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>color_manager_</edgelabel>
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>root_</edgelabel>
+        </childnode>
+      </node>
+      <node id="5">
+        <label>Folder</label>
+        <link refid="class_folder"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>ProjectExplorerNavigation</label>
+        <link refid="class_project_explorer_navigation"/>
+      </node>
+      <node id="6">
+        <label>ProjectViewModel</label>
+        <link refid="class_project_view_model"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>project_</edgelabel>
+        </childnode>
+      </node>
+      <node id="7">
+        <label>ProjectExplorerListView</label>
+        <link refid="class_project_explorer_list_view"/>
+        <childnode refid="8" relation="public-inheritance">
+        </childnode>
+        <childnode refid="9" relation="usage">
+          <edgelabel>delegate_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" line="46" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorer.h" bodystart="47" bodyend="174"/>
+    <listofallmembers>
+      <member refid="class_project_explorer_1a835b38c1118d4752868f0d9806c15bcc" prot="private" virt="non-virtual"><scope>ProjectExplorer</scope><name>AddView</name></member>
+      <member refid="class_project_explorer_1a97813cfaf8a8e55c7a103fd923abb40b" prot="private" virt="non-virtual"><scope>ProjectExplorer</scope><name>BrowseToFolder</name></member>
+      <member refid="class_project_explorer_1a6701a582596c9128ae2badaabc9cacaf" prot="private" virt="non-virtual"><scope>ProjectExplorer</scope><name>clicked_index_</name></member>
+      <member refid="class_project_explorer_1abf3ee56055bd3eb641c93f19e8ebe8f4" prot="private" virt="non-virtual"><scope>ProjectExplorer</scope><name>context_menu_item_</name></member>
+      <member refid="class_project_explorer_1a9ca34f254e10e0bf538c3dc294d0d103" prot="private" virt="non-virtual"><scope>ProjectExplorer</scope><name>CurrentView</name></member>
+      <member refid="class_project_explorer_1a3b395d95610fee597835bcbea277600b" prot="public" virt="non-virtual"><scope>ProjectExplorer</scope><name>DeleteSelected</name></member>
+      <member refid="class_project_explorer_1a3bfa64a1945f725ceaf6368193fdfdf3" prot="public" virt="non-virtual"><scope>ProjectExplorer</scope><name>DeselectAll</name></member>
+      <member refid="class_project_explorer_1a2fde92b2e53ba2d24a90a0e533f29982" prot="private" virt="non-virtual"><scope>ProjectExplorer</scope><name>DirUpSlot</name></member>
+      <member refid="class_project_explorer_1a5d0f7f98d86bc40188dacdf188f94e38" prot="public" virt="non-virtual"><scope>ProjectExplorer</scope><name>DoubleClickedItem</name></member>
+      <member refid="class_project_explorer_1acba919c21a7ad0668fbc2f144e0b670b" prot="public" virt="non-virtual"><scope>ProjectExplorer</scope><name>Edit</name></member>
+      <member refid="class_project_explorer_1aed9135b15d643f3a6900f692587fd416" prot="public" virt="non-virtual"><scope>ProjectExplorer</scope><name>get_root_index</name></member>
+      <member refid="class_project_explorer_1ab326d4b6f42c49e3c00d58cbee1fdf4c" prot="public" virt="non-virtual"><scope>ProjectExplorer</scope><name>GetSelectedFolder</name></member>
+      <member refid="class_project_explorer_1a62704dda3cba6345ee801db9fb814a19" prot="private" virt="non-virtual"><scope>ProjectExplorer</scope><name>icon_view_</name></member>
+      <member refid="class_project_explorer_1adf92ae436441dcc3ddc3026fff7c8fa3" prot="private" virt="non-virtual"><scope>ProjectExplorer</scope><name>ItemClickedSlot</name></member>
+      <member refid="class_project_explorer_1af70941d26cafa36d818ad76d25f8974e" prot="private" virt="non-virtual"><scope>ProjectExplorer</scope><name>ItemDoubleClickedSlot</name></member>
+      <member refid="class_project_explorer_1a2f36fcce51cabd1880dc43f8463d925c" prot="private" virt="non-virtual"><scope>ProjectExplorer</scope><name>list_view_</name></member>
+      <member refid="class_project_explorer_1a35edac1e5015d99013ffd9b9addf6b2f" prot="public" virt="non-virtual"><scope>ProjectExplorer</scope><name>model</name></member>
+      <member refid="class_project_explorer_1a7ef8695e327f24663d1b78f2c57c2b97" prot="private" virt="non-virtual"><scope>ProjectExplorer</scope><name>model_</name></member>
+      <member refid="class_project_explorer_1a864afd3628cbca3ad06ceadbffb9afed" prot="private" virt="non-virtual"><scope>ProjectExplorer</scope><name>nav_bar_</name></member>
+      <member refid="class_project_explorer_1a3a94bf28d5ad14c14875e41d813dd904" prot="private" virt="non-virtual"><scope>ProjectExplorer</scope><name>OpenContextMenuItemInNewTab</name></member>
+      <member refid="class_project_explorer_1a1f46767aa0b9aa54444a8df032f3497b" prot="private" virt="non-virtual"><scope>ProjectExplorer</scope><name>OpenContextMenuItemInNewWindow</name></member>
+      <member refid="class_project_explorer_1a91e3c0ec86ab01bdbbcfb107178f4d3c" prot="public" virt="non-virtual"><scope>ProjectExplorer</scope><name>project</name></member>
+      <member refid="class_project_explorer_1a799d68007562e4fd52cac31635240242" prot="public" virt="non-virtual"><scope>ProjectExplorer</scope><name>ProjectExplorer</name></member>
+      <member refid="class_project_explorer_1afc7d7a87833271abd6384055d2dc625c" prot="private" virt="non-virtual"><scope>ProjectExplorer</scope><name>rename_timer_</name></member>
+      <member refid="class_project_explorer_1a67a82dbafc860d14d96787f830dccdb9" prot="private" virt="non-virtual"><scope>ProjectExplorer</scope><name>RenameTimerSlot</name></member>
+      <member refid="class_project_explorer_1a5e6a1f5023e554e13b3899c0ef2b1043" prot="private" virt="non-virtual"><scope>ProjectExplorer</scope><name>RevealSelectedFootage</name></member>
+      <member refid="class_project_explorer_1a201bf6db7e9657ce1463a4ca53f30072" prot="public" virt="non-virtual"><scope>ProjectExplorer</scope><name>SelectAll</name></member>
+      <member refid="class_project_explorer_1a3ca3b78ca8f5e87cdd402ed34c692291" prot="public" virt="non-virtual"><scope>ProjectExplorer</scope><name>SelectedItems</name></member>
+      <member refid="class_project_explorer_1a0500992acdd6fcd4c1616f14af7e7a9b" prot="public" virt="non-virtual"><scope>ProjectExplorer</scope><name>set_project</name></member>
+      <member refid="class_project_explorer_1aa57b2126c70589600220e78292b4013d" prot="public" virt="non-virtual"><scope>ProjectExplorer</scope><name>set_root</name></member>
+      <member refid="class_project_explorer_1a458564b668a60f957202d4b3f6d0b19a" prot="public" virt="non-virtual"><scope>ProjectExplorer</scope><name>set_view_type</name></member>
+      <member refid="class_project_explorer_1af5e9a7275d632c2ec65d4683c6f60599" prot="private" virt="non-virtual"><scope>ProjectExplorer</scope><name>ShowContextMenu</name></member>
+      <member refid="class_project_explorer_1a72351c7c493240ab4431347fc6220d38" prot="private" virt="non-virtual"><scope>ProjectExplorer</scope><name>ShowFootagePropertiesDialog</name></member>
+      <member refid="class_project_explorer_1ade0169f7f12f914aef5b4224111b0b80" prot="private" virt="non-virtual"><scope>ProjectExplorer</scope><name>ShowSequencePropertiesDialog</name></member>
+      <member refid="class_project_explorer_1ab3780b574718cfa515b466fa4deade13" prot="private" virt="non-virtual"><scope>ProjectExplorer</scope><name>SizeChangedSlot</name></member>
+      <member refid="class_project_explorer_1aea5509d24e537289c6f86e10bcca63a6" prot="private" virt="non-virtual"><scope>ProjectExplorer</scope><name>stacked_widget_</name></member>
+      <member refid="class_project_explorer_1af3a7e06edfa383d3e97d119db970b2b4" prot="private" virt="non-virtual"><scope>ProjectExplorer</scope><name>tree_view_</name></member>
+      <member refid="class_project_explorer_1ad1a6879f20daeb6b8628247fd8f82c38" prot="public" virt="non-virtual"><scope>ProjectExplorer</scope><name>view_type</name></member>
+      <member refid="class_project_explorer_1a70437137c40cfba31b59550e24922917" prot="private" virt="non-virtual"><scope>ProjectExplorer</scope><name>view_type_</name></member>
+      <member refid="class_project_explorer_1a1aae8ef920bdc5f58c6a607f900b1ded" prot="private" virt="non-virtual"><scope>ProjectExplorer</scope><name>ViewEmptyAreaDoubleClickedSlot</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

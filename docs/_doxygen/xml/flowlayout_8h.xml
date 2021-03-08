@@ -1,0 +1,138 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="flowlayout_8h" kind="file" language="C++">
+    <compoundname>flowlayout.h</compoundname>
+    <includes local="no">QLayout</includes>
+    <includes local="no">QRect</includes>
+    <includes local="no">QStyle</includes>
+    <includedby refid="toolbar_8h" local="yes">toolbar.h</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>QLayout</label>
+      </node>
+      <node id="3">
+        <label>QRect</label>
+      </node>
+      <node id="1">
+        <label>flowlayout.h</label>
+        <link refid="flowlayout_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>QStyle</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>toolbar.h</label>
+        <link refid="toolbar_8h"/>
+      </node>
+      <node id="1">
+        <label>flowlayout.h</label>
+        <link refid="flowlayout_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="class_flow_layout" prot="public">FlowLayout</innerclass>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/****************************************************************************</highlight></codeline>
+<codeline lineno="2"><highlight class="comment">**</highlight></codeline>
+<codeline lineno="3"><highlight class="comment">**<sp/>Copyright<sp/>(C)<sp/>2016<sp/>The<sp/>Qt<sp/>Company<sp/>Ltd.</highlight></codeline>
+<codeline lineno="4"><highlight class="comment">**<sp/>Contact:<sp/>https://www.qt.io/licensing/</highlight></codeline>
+<codeline lineno="5"><highlight class="comment">**</highlight></codeline>
+<codeline lineno="6"><highlight class="comment">**<sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>the<sp/>examples<sp/>of<sp/>the<sp/>Qt<sp/>Toolkit.</highlight></codeline>
+<codeline lineno="7"><highlight class="comment">**</highlight></codeline>
+<codeline lineno="8"><highlight class="comment">**<sp/>$QT_BEGIN_LICENSE:BSD$</highlight></codeline>
+<codeline lineno="9"><highlight class="comment">**<sp/>Commercial<sp/>License<sp/>Usage</highlight></codeline>
+<codeline lineno="10"><highlight class="comment">**<sp/>Licensees<sp/>holding<sp/>valid<sp/>commercial<sp/>Qt<sp/>licenses<sp/>may<sp/>use<sp/>this<sp/>file<sp/>in</highlight></codeline>
+<codeline lineno="11"><highlight class="comment">**<sp/>accordance<sp/>with<sp/>the<sp/>commercial<sp/>license<sp/>agreement<sp/>provided<sp/>with<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment">**<sp/>Software<sp/>or,<sp/>alternatively,<sp/>in<sp/>accordance<sp/>with<sp/>the<sp/>terms<sp/>contained<sp/>in</highlight></codeline>
+<codeline lineno="13"><highlight class="comment">**<sp/>a<sp/>written<sp/>agreement<sp/>between<sp/>you<sp/>and<sp/>The<sp/>Qt<sp/>Company.<sp/>For<sp/>licensing<sp/>terms</highlight></codeline>
+<codeline lineno="14"><highlight class="comment">**<sp/>and<sp/>conditions<sp/>see<sp/>https://www.qt.io/terms-conditions.<sp/>For<sp/>further</highlight></codeline>
+<codeline lineno="15"><highlight class="comment">**<sp/>information<sp/>use<sp/>the<sp/>contact<sp/>form<sp/>at<sp/>https://www.qt.io/contact-us.</highlight></codeline>
+<codeline lineno="16"><highlight class="comment">**</highlight></codeline>
+<codeline lineno="17"><highlight class="comment">**<sp/>BSD<sp/>License<sp/>Usage</highlight></codeline>
+<codeline lineno="18"><highlight class="comment">**<sp/>Alternatively,<sp/>you<sp/>may<sp/>use<sp/>this<sp/>file<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>BSD<sp/>license</highlight></codeline>
+<codeline lineno="19"><highlight class="comment">**<sp/>as<sp/>follows:</highlight></codeline>
+<codeline lineno="20"><highlight class="comment">**</highlight></codeline>
+<codeline lineno="21"><highlight class="comment">**<sp/>&quot;Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or<sp/>without</highlight></codeline>
+<codeline lineno="22"><highlight class="comment">**<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following<sp/>conditions<sp/>are</highlight></codeline>
+<codeline lineno="23"><highlight class="comment">**<sp/>met:</highlight></codeline>
+<codeline lineno="24"><highlight class="comment">**<sp/><sp/><sp/>*<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above<sp/>copyright</highlight></codeline>
+<codeline lineno="25"><highlight class="comment">**<sp/><sp/><sp/><sp/><sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="26"><highlight class="comment">**<sp/><sp/><sp/>*<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above<sp/>copyright</highlight></codeline>
+<codeline lineno="27"><highlight class="comment">**<sp/><sp/><sp/><sp/><sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer<sp/>in</highlight></codeline>
+<codeline lineno="28"><highlight class="comment">**<sp/><sp/><sp/><sp/><sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials<sp/>provided<sp/>with<sp/>the</highlight></codeline>
+<codeline lineno="29"><highlight class="comment">**<sp/><sp/><sp/><sp/><sp/>distribution.</highlight></codeline>
+<codeline lineno="30"><highlight class="comment">**<sp/><sp/><sp/>*<sp/>Neither<sp/>the<sp/>name<sp/>of<sp/>The<sp/>Qt<sp/>Company<sp/>Ltd<sp/>nor<sp/>the<sp/>names<sp/>of<sp/>its</highlight></codeline>
+<codeline lineno="31"><highlight class="comment">**<sp/><sp/><sp/><sp/><sp/>contributors<sp/>may<sp/>be<sp/>used<sp/>to<sp/>endorse<sp/>or<sp/>promote<sp/>products<sp/>derived</highlight></codeline>
+<codeline lineno="32"><highlight class="comment">**<sp/><sp/><sp/><sp/><sp/>from<sp/>this<sp/>software<sp/>without<sp/>specific<sp/>prior<sp/>written<sp/>permission.</highlight></codeline>
+<codeline lineno="33"><highlight class="comment">**</highlight></codeline>
+<codeline lineno="34"><highlight class="comment">**</highlight></codeline>
+<codeline lineno="35"><highlight class="comment">**<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>THE<sp/>COPYRIGHT<sp/>HOLDERS<sp/>AND<sp/>CONTRIBUTORS</highlight></codeline>
+<codeline lineno="36"><highlight class="comment">**<sp/>&quot;AS<sp/>IS&quot;<sp/>AND<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT</highlight></codeline>
+<codeline lineno="37"><highlight class="comment">**<sp/>LIMITED<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="38"><highlight class="comment">**<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL<sp/>THE<sp/>COPYRIGHT</highlight></codeline>
+<codeline lineno="39"><highlight class="comment">**<sp/>OWNER<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,<sp/>INDIRECT,<sp/>INCIDENTAL,</highlight></codeline>
+<codeline lineno="40"><highlight class="comment">**<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT</highlight></codeline>
+<codeline lineno="41"><highlight class="comment">**<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,</highlight></codeline>
+<codeline lineno="42"><highlight class="comment">**<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY</highlight></codeline>
+<codeline lineno="43"><highlight class="comment">**<sp/>THEORY<sp/>OF<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="44"><highlight class="comment">**<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF<sp/>THE<sp/>USE</highlight></codeline>
+<codeline lineno="45"><highlight class="comment">**<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF<sp/>SUCH<sp/>DAMAGE.&quot;</highlight></codeline>
+<codeline lineno="46"><highlight class="comment">**</highlight></codeline>
+<codeline lineno="47"><highlight class="comment">**<sp/>$QT_END_LICENSE$</highlight></codeline>
+<codeline lineno="48"><highlight class="comment">**</highlight></codeline>
+<codeline lineno="49"><highlight class="comment">****************************************************************************/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>FLOWLAYOUT_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>FLOWLAYOUT_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QLayout&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QRect&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QStyle&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58" refid="class_flow_layout" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_flow_layout" kindref="compound">FlowLayout</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>QLayout</highlight></codeline>
+<codeline lineno="59"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">explicit</highlight><highlight class="normal"><sp/><ref refid="class_flow_layout_1afd3623cad3b02592123eb8a4dd01546f" kindref="member">FlowLayout</ref>(QWidget<sp/>*parent,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>margin<sp/>=<sp/>-1,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>hSpacing<sp/>=<sp/>-1,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>vSpacing<sp/>=<sp/>-1);</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">explicit</highlight><highlight class="normal"><sp/><ref refid="class_flow_layout_1afd3623cad3b02592123eb8a4dd01546f" kindref="member">FlowLayout</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>margin<sp/>=<sp/>-1,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>hSpacing<sp/>=<sp/>-1,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>vSpacing<sp/>=<sp/>-1);</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_flow_layout_1abcbfd03a4758b98bcf13d44f5e673551" kindref="member">~FlowLayout</ref>();</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_flow_layout_1ab60fb7d4cfa8f5d2122e7db6c850ae8e" kindref="member">addItem</ref>(QLayoutItem<sp/>*item)<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="class_flow_layout_1a05a9929bf2d7749c8d45afe1fc15b27e" kindref="member">horizontalSpacing</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="class_flow_layout_1a06210851533f6e9d0d09477968aa0eb5" kindref="member">verticalSpacing</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/>Qt::Orientations<sp/><ref refid="class_flow_layout_1a8eb4762f57ec8bea9eca6f9a535b1d50" kindref="member">expandingDirections</ref>()<sp/></highlight><highlight class="keyword">const<sp/>override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_flow_layout_1a224599955b4bc40e73b615236d9803ee" kindref="member">hasHeightForWidth</ref>()<sp/></highlight><highlight class="keyword">const<sp/>override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="class_flow_layout_1a119d89f83aa3f8ccb6e66ed1a125452e" kindref="member">heightForWidth</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal">)<sp/></highlight><highlight class="keyword">const<sp/>override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="class_flow_layout_1a35bdf8dac35631d59767d0c0fedc7248" kindref="member">count</ref>()<sp/></highlight><highlight class="keyword">const<sp/>override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/>QLayoutItem<sp/>*<ref refid="class_flow_layout_1a6693ec51b34bec0af739e27582ca2d0c" kindref="member">itemAt</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>index)<sp/></highlight><highlight class="keyword">const<sp/>override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/>QSize<sp/><ref refid="class_flow_layout_1a18816b6e9008a0731af92749975ce63f" kindref="member">minimumSize</ref>()<sp/></highlight><highlight class="keyword">const<sp/>override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_flow_layout_1a64fb2f42cfdb3bcabf4d511092d032af" kindref="member">setGeometry</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QRect<sp/>&amp;rect)<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/>QSize<sp/><ref refid="class_flow_layout_1a44acc6a84aaeee36b9d119096f6aa30c" kindref="member">sizeHint</ref>()<sp/></highlight><highlight class="keyword">const<sp/>override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/>QLayoutItem<sp/>*<ref refid="class_flow_layout_1a14b488645ce6d0153bfb89b8a07346d2" kindref="member">takeAt</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>index)<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="class_flow_layout_1af0e17c24ac7b5f82511658507ac9a2ac" kindref="member">doLayout</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QRect<sp/>&amp;rect,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>testOnly)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="class_flow_layout_1aa8c99ccccc834c47f125040205f1aac8" kindref="member">smartSpacing</ref>(QStyle::PixelMetric<sp/>pm)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/>QList&lt;QLayoutItem<sp/>*&gt;<sp/><ref refid="class_flow_layout_1ac0439e82402e53445451edfece8a499d" kindref="member">itemList</ref>;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="class_flow_layout_1a4ca5e85c50060f2cf19d88d1e3bf9cd5" kindref="member">m_hSpace</ref>;</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="class_flow_layout_1ab24b23dbcc261472940b3755ba63a4c0" kindref="member">m_vSpace</ref>;</highlight></codeline>
+<codeline lineno="85"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//<sp/>FLOWLAYOUT_H</highlight></codeline>
+    </programlisting>
+    <location file="C:/Daten/Olive/olive/app/widget/flowlayout/flowlayout.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,304 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="playbackcontrols_8h" kind="file" language="C++">
+    <compoundname>playbackcontrols.h</compoundname>
+    <includes local="no">QWidget</includes>
+    <includes local="no">QLabel</includes>
+    <includes local="no">QPushButton</includes>
+    <includes local="no">QStackedWidget</includes>
+    <includes refid="rational_8h" local="yes">common/rational.h</includes>
+    <includes refid="dragbutton_8h" local="yes">dragbutton.h</includes>
+    <includes refid="timeslider_8h" local="yes">widget/slider/timeslider.h</includes>
+    <includedby refid="widget_2viewer_2viewer_8h" local="yes">viewer.h</includedby>
+    <incdepgraph>
+      <node id="10">
+        <label>libavformat/avformat.h</label>
+      </node>
+      <node id="13">
+        <label>widget/slider/timeslider.h</label>
+        <link refid="timeslider_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>sliderlabel.h</label>
+        <link refid="sliderlabel_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>QStackedWidget</label>
+      </node>
+      <node id="9">
+        <label>QMetaType</label>
+      </node>
+      <node id="1">
+        <label>playbackcontrols.h</label>
+        <link refid="playbackcontrols_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>common/rational.h</label>
+        <link refid="rational_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>dragbutton.h</label>
+        <link refid="dragbutton_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>common/define.h</label>
+        <link refid="define_8h"/>
+      </node>
+      <node id="8">
+        <label>QDebug</label>
+      </node>
+      <node id="14">
+        <label>integerslider.h</label>
+        <link refid="integerslider_8h"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>QWidget</label>
+      </node>
+      <node id="18">
+        <label>QLineEdit</label>
+      </node>
+      <node id="4">
+        <label>QPushButton</label>
+      </node>
+      <node id="3">
+        <label>QLabel</label>
+      </node>
+      <node id="7">
+        <label>iostream</label>
+      </node>
+      <node id="17">
+        <label>widget/focusablelineedit/focusablelineedit.h</label>
+        <link refid="focusablelineedit_8h"/>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>sliderbase.h</label>
+        <link refid="sliderbase_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="6">
+        <label>mainwindow.h</label>
+        <link refid="mainwindow_8h"/>
+      </node>
+      <node id="2">
+        <label>viewer.h</label>
+        <link refid="widget_2viewer_2viewer_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>viewerbase.h</label>
+        <link refid="viewerbase_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>playbackcontrols.h</label>
+        <link refid="playbackcontrols_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>footageviewer.h</label>
+        <link refid="widget_2viewer_2footageviewer_8h"/>
+      </node>
+      <node id="8">
+        <label>sequenceviewer.h</label>
+        <link refid="sequenceviewer_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>export.h</label>
+        <link refid="export_8h"/>
+      </node>
+      <node id="7">
+        <label>viewer.h</label>
+        <link refid="panel_2viewer_2viewer_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>footageviewer.h</label>
+        <link refid="panel_2footageviewer_2footageviewer_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="class_playback_controls" prot="public">PlaybackControls</innerclass>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/***</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"></highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/><sp/>Olive<sp/>-<sp/>Non-Linear<sp/>Video<sp/>Editor</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/><sp/>Copyright<sp/>(C)<sp/>2019<sp/>Olive<sp/>Team</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"></highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/><sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/><sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/><sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"></highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/><sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/><sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/><sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"></highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/><sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/><sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"></highlight></codeline>
+<codeline lineno="19"><highlight class="comment">***/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>PLAYBACKCONTROLS_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>PLAYBACKCONTROLS_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QWidget&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QLabel&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QPushButton&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QStackedWidget&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="rational_8h" kindref="compound">common/rational.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="dragbutton_8h" kindref="compound">dragbutton.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="timeslider_8h" kindref="compound">widget/slider/timeslider.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><ref refid="define_8h_1a0472692dd1f22472ad63da20da919e8c" kindref="member">OLIVE_NAMESPACE_ENTER</ref></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40" refid="class_playback_controls" refkind="compound"><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_playback_controls" kindref="compound">PlaybackControls</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>QWidget</highlight></codeline>
+<codeline lineno="41"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/>Q_OBJECT</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><ref refid="class_playback_controls_1a7d27f828f2f1c02d87692ef60ab69b93" kindref="member">PlaybackControls</ref>(QWidget*<sp/>parent<sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_playback_controls_1a1f8aa5f77a43213f3b1a009036e537c9" kindref="member">SetTimecodeEnabled</ref>(</highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>enabled);</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_playback_controls_1a9784bab473e5bab58ae6d4944b35a767" kindref="member">SetTimebase</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classrational" kindref="compound">rational</ref>&amp;<sp/>r);</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_playback_controls_1af03d9184662289ed944eb58fd562c08d" kindref="member">SetAudioVideoDragButtonsVisible</ref>(</highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>e);</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>slots:</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_playback_controls_1a05a04eefdbef48f709444c5c8bd098ab" kindref="member">SetTime</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int64_t<sp/>&amp;r);</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_playback_controls_1abeaced7c1fa63624181bf9b6bc63e179" kindref="member">SetEndTime</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int64_t<sp/>&amp;r);</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_playback_controls_1acd83e28b4f7d5710f8bb732f234e1b71" kindref="member">ShowPauseButton</ref>();</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62" refid="class_playback_controls_1a7d27f828f2f1c02d87692ef60ab69b93" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_playback_controls_1aa4da089f0ac629d88e64b6985d738fd2" kindref="member">ShowPlayButton</ref>();</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal">signals:</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_playback_controls_1a47707f7aeb3b574d1ea17fd3febe5dc0" kindref="member">BeginClicked</ref>();</highlight></codeline>
+<codeline lineno="69" refid="class_playback_controls_1a9784bab473e5bab58ae6d4944b35a767" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_playback_controls_1ab153fb155b4523f78a9cce4a8411f14c" kindref="member">PrevFrameClicked</ref>();</highlight></codeline>
+<codeline lineno="74" refid="class_playback_controls_1a05a04eefdbef48f709444c5c8bd098ab" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78" refid="class_playback_controls_1acd83e28b4f7d5710f8bb732f234e1b71" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_playback_controls_1ae30b7eb25e4943a1bc2b55c28455f51b" kindref="member">PlayClicked</ref>();</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_playback_controls_1a86208271d8e40e5ee8f0cabee2f2e563" kindref="member">PauseClicked</ref>();</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_playback_controls_1ad0d12ef477d43d0234a2240078d657fa" kindref="member">NextFrameClicked</ref>();</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_playback_controls_1aa9a6c12032e89772f1dfffc580a85da4" kindref="member">EndClicked</ref>();</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_playback_controls_1a7f68e685ac166e20a41941191b2f0513" kindref="member">AudioClicked</ref>();</highlight></codeline>
+<codeline lineno="96" refid="class_playback_controls_1ae30b7eb25e4943a1bc2b55c28455f51b" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_playback_controls_1a36f7a89bf882f4ef735a62864a4b927e" kindref="member">VideoClicked</ref>();</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_playback_controls_1a9e36b8a7c006603dbc60f98aa260cfaa" kindref="member">AudioPressed</ref>();</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight></codeline>
+<codeline lineno="101" refid="class_playback_controls_1a86208271d8e40e5ee8f0cabee2f2e563" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_playback_controls_1ada7a8d0bb5b78328d86caf778aff1555" kindref="member">VideoPressed</ref>();</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_playback_controls_1ac5d05f1861a813933d505e336fbfe8e3" kindref="member">TimeChanged</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int64_t&amp;<sp/>t);</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="106" refid="class_playback_controls_1ad0d12ef477d43d0234a2240078d657fa" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_playback_controls_1a3dd8fb88a445b9edbb93431af22ced5f" kindref="member">changeEvent</ref>(QEvent<sp/>*)<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_playback_controls_1a7c89c03e655368331a9bef0b9c4cd888" kindref="member">UpdateIcons</ref>();</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111" refid="class_playback_controls_1aa9a6c12032e89772f1dfffc580a85da4" refkind="member"><highlight class="normal"><sp/><sp/>QWidget*<sp/><ref refid="class_playback_controls_1aa461b2ff004b918e8f40b27cf5c9e094" kindref="member">lower_left_container_</ref>;</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/>QWidget*<sp/><ref refid="class_playback_controls_1ad39074193ef5cdc768f6482d334a73a2" kindref="member">lower_right_container_</ref>;</highlight></codeline>
+<codeline lineno="113" refid="class_playback_controls_1a7f68e685ac166e20a41941191b2f0513" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><ref refid="class_time_slider" kindref="compound">TimeSlider</ref>*<sp/><ref refid="class_playback_controls_1a226e7bc6a5344d3f34ed4bda65fcf699" kindref="member">cur_tc_lbl_</ref>;</highlight></codeline>
+<codeline lineno="115" refid="class_playback_controls_1a36f7a89bf882f4ef735a62864a4b927e" refkind="member"><highlight class="normal"><sp/><sp/>QLabel*<sp/><ref refid="class_playback_controls_1a20baf15c88961fbb3605e1e563fbd138" kindref="member">end_tc_lbl_</ref>;</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117" refid="class_playback_controls_1a9e36b8a7c006603dbc60f98aa260cfaa" refkind="member"><highlight class="normal"><sp/><sp/>int64_t<sp/><ref refid="class_playback_controls_1af5a6f0f6d91455fb953952f7cf47cfdf" kindref="member">end_time_</ref>;</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119" refid="class_playback_controls_1ada7a8d0bb5b78328d86caf778aff1555" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classrational" kindref="compound">rational</ref><sp/><ref refid="class_playback_controls_1ac958cbaca9f020daa8e81d64ba7cc3a5" kindref="member">time_base_</ref>;</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight></codeline>
+<codeline lineno="121" refid="class_playback_controls_1ac5d05f1861a813933d505e336fbfe8e3" refkind="member"><highlight class="normal"><sp/><sp/>QPushButton*<sp/><ref refid="class_playback_controls_1acf6454fa4bf19eb86e0a9ef5270a63f4" kindref="member">go_to_start_btn_</ref>;</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/>QPushButton*<sp/><ref refid="class_playback_controls_1af5c38ee51e1f35eaee72d9298ef22479" kindref="member">prev_frame_btn_</ref>;</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/>QPushButton*<sp/><ref refid="class_playback_controls_1aa4b80ec7620b53b1906e7115805079df" kindref="member">play_btn_</ref>;</highlight></codeline>
+<codeline lineno="124" refid="class_playback_controls_1a3dd8fb88a445b9edbb93431af22ced5f" refkind="member"><highlight class="normal"><sp/><sp/>QPushButton*<sp/><ref refid="class_playback_controls_1ad934ad50e26331f3a8b13ce9994a3310" kindref="member">pause_btn_</ref>;</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/>QPushButton*<sp/><ref refid="class_playback_controls_1a74fceebf594c38be9d3a40e4d841669e" kindref="member">next_frame_btn_</ref>;</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/>QPushButton*<sp/><ref refid="class_playback_controls_1a7d51a8be9be7e958bd2a942377c5ad6a" kindref="member">go_to_end_btn_</ref>;</highlight></codeline>
+<codeline lineno="127" refid="class_playback_controls_1a7c89c03e655368331a9bef0b9c4cd888" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_drag_button" kindref="compound">DragButton</ref>*<sp/><ref refid="class_playback_controls_1a7a3c1c71eaad1fc621f06e2bb3405534" kindref="member">video_drag_btn_</ref>;</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><ref refid="class_drag_button" kindref="compound">DragButton</ref>*<sp/><ref refid="class_playback_controls_1aa9ab1dcf1fb3d9dc0f9f9ca651c253b5" kindref="member">audio_drag_btn_</ref>;</highlight></codeline>
+<codeline lineno="129" refid="class_playback_controls_1aa461b2ff004b918e8f40b27cf5c9e094" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="130" refid="class_playback_controls_1ad39074193ef5cdc768f6482d334a73a2" refkind="member"><highlight class="normal"><sp/><sp/>QStackedWidget*<sp/><ref refid="class_playback_controls_1a6bb20f589d500c31217a966eb771482a" kindref="member">playpause_stack_</ref>;</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight></codeline>
+<codeline lineno="132" refid="class_playback_controls_1a226e7bc6a5344d3f34ed4bda65fcf699" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal"><sp/>slots:</highlight></codeline>
+<codeline lineno="133" refid="class_playback_controls_1a20baf15c88961fbb3605e1e563fbd138" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_playback_controls_1a63205f5ee7448145ea35705e866e8f5b" kindref="member">TimecodeChanged</ref>();</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight></codeline>
+<codeline lineno="135" refid="class_playback_controls_1af5a6f0f6d91455fb953952f7cf47cfdf" refkind="member"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight></codeline>
+<codeline lineno="137" refid="class_playback_controls_1ac958cbaca9f020daa8e81d64ba7cc3a5" refkind="member"><highlight class="normal"><ref refid="define_8h_1abe3de0634d907ca0f5d1acf732c49dac" kindref="member">OLIVE_NAMESPACE_EXIT</ref></highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight></codeline>
+<codeline lineno="139" refid="class_playback_controls_1acf6454fa4bf19eb86e0a9ef5270a63f4" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//<sp/>PLAYBACKCONTROLS_H</highlight></codeline>
+    </programlisting>
+    <location file="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h"/>
+  </compounddef>
+</doxygen>

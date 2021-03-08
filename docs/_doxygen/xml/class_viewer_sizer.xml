@@ -1,0 +1,238 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_viewer_sizer" kind="class" language="C++" prot="public">
+    <compoundname>ViewerSizer</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QWidget</basecompoundref>
+    <includes refid="viewersizer_8h" local="no">viewersizer.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_viewer_sizer_1add9180059040fca5bf03c57ea6ca5f09" prot="private" static="no" mutable="no">
+        <type>QWidget *</type>
+        <definition>QWidget* ViewerSizer::widget_</definition>
+        <argsstring></argsstring>
+        <name>widget_</name>
+        <briefdescription>
+<para>Reference to widget. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If this is nullptr, all sizing operations are no-ops </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewersizer.h" line="104" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/viewersizer.h" bodystart="104" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_viewer_sizer_1a3b5b5d2d5fcdabd04e6bca2a8a0806fe" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int ViewerSizer::width_</definition>
+        <argsstring></argsstring>
+        <name>width_</name>
+        <briefdescription>
+<para>Internal resolution values. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewersizer.h" line="109" column="7" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/viewersizer.h" bodystart="109" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_viewer_sizer_1a6105246f4993bca7c35dd613b8e58f36" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int ViewerSizer::height_</definition>
+        <argsstring></argsstring>
+        <name>height_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewersizer.h" line="110" column="7" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/viewersizer.h" bodystart="110" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_viewer_sizer_1a5cc32f201e194c554a6b6f97935bda7f" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double ViewerSizer::aspect_ratio_</definition>
+        <argsstring></argsstring>
+        <name>aspect_ratio_</name>
+        <briefdescription>
+<para>Aspect ratio calculated from the size provided by <ref refid="class_viewer_sizer_1a3d47f56368a9a8838f4035c1f9dbf82c" kindref="member">SetChildSize()</ref> </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewersizer.h" line="115" column="10" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/viewersizer.h" bodystart="115" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_viewer_sizer_1a08a70d028f2c372efe7197a26331a745" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int ViewerSizer::zoom_</definition>
+        <argsstring></argsstring>
+        <name>zoom_</name>
+        <briefdescription>
+<para>Internal zoom value. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewersizer.h" line="120" column="7" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/viewersizer.h" bodystart="120" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_viewer_sizer_1a8b5966d1a9b355c37d39653db39567c0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>ViewerSizer::ViewerSizer</definition>
+        <argsstring>(QWidget *parent=nullptr)</argsstring>
+        <name>ViewerSizer</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewersizer.h" line="61" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_viewer_sizer_1a1b7696461cc521b184a2c10bb12db853" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerSizer::SetWidget</definition>
+        <argsstring>(QWidget *widget)</argsstring>
+        <name>SetWidget</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>widget</declname>
+        </param>
+        <briefdescription>
+<para>Set the widget to be adjusted by this widget. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><ref refid="class_viewer_sizer" kindref="compound">ViewerSizer</ref> takes ownership of this widget. If a widget was previously set, it is destroyed. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewersizer.h" line="68" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_viewer_sizer_1a3d47f56368a9a8838f4035c1f9dbf82c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerSizer::SetChildSize</definition>
+        <argsstring>(int width, int height)</argsstring>
+        <name>SetChildSize</name>
+        <param>
+          <type>int</type>
+          <declname>width</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>height</declname>
+        </param>
+        <briefdescription>
+<para>Set resolution to use. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This is not the actual resolution of the viewer, it&apos;s used to calculate the aspect ratio </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewersizer.h" line="75" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_viewer_sizer_1aa3281c42ce21e93b0d97061101aee140" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerSizer::SetZoom</definition>
+        <argsstring>(int percent)</argsstring>
+        <name>SetZoom</name>
+        <param>
+          <type>int</type>
+          <declname>percent</declname>
+        </param>
+        <briefdescription>
+<para>Set the zoom value of the child widget. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The number is an integer percentage (100 = 100%). Set to 0 to auto-fit. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewersizer.h" line="82" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_viewer_sizer_1a58cecbf8e21c9f654ea46284327816b3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerSizer::RequestMatrix</definition>
+        <argsstring>(const QMatrix4x4 &amp;matrix)</argsstring>
+        <name>RequestMatrix</name>
+        <param>
+          <type>const QMatrix4x4 &amp;</type>
+          <declname>matrix</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewersizer.h" line="85" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_viewer_sizer_1a2dd17d61a9bb9da34e0e857c264f756a" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void ViewerSizer::resizeEvent</definition>
+        <argsstring>(QResizeEvent *event) override</argsstring>
+        <name>resizeEvent</name>
+        <param>
+          <type>QResizeEvent *</type>
+          <declname>event</declname>
+        </param>
+        <briefdescription>
+<para>Listen for resize events to ensure the child widget remains correctly sized. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewersizer.h" line="91" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_viewer_sizer_1a74a64ca47f47c4ff55dcc98018f71258" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerSizer::UpdateSize</definition>
+        <argsstring>()</argsstring>
+        <name>UpdateSize</name>
+        <briefdescription>
+<para>Main sizing function, resizes widget_ to fit aspect_ratio_ (or hides if aspect ratio is 0) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewersizer.h" line="97" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A container widget that enforces the aspect ratio of a child widget. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Using a provided width and height, this widget calculates the aspect ratio and forces the child widget to stay confined to that aspect ratio and centered within the widget.</para>
+<para>The aspect ratio is calculated width divided by height. If the aspect ratio is zero (either width or height == 0), the widget is hidden until a valid size is provided. </para>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/widget/viewer/viewersizer.h" line="39" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/viewersizer.h" bodystart="40" bodyend="104"/>
+    <listofallmembers>
+      <member refid="class_viewer_sizer_1a5cc32f201e194c554a6b6f97935bda7f" prot="private" virt="non-virtual"><scope>ViewerSizer</scope><name>aspect_ratio_</name></member>
+      <member refid="class_viewer_sizer_1a6105246f4993bca7c35dd613b8e58f36" prot="private" virt="non-virtual"><scope>ViewerSizer</scope><name>height_</name></member>
+      <member refid="class_viewer_sizer_1a58cecbf8e21c9f654ea46284327816b3" prot="public" virt="non-virtual"><scope>ViewerSizer</scope><name>RequestMatrix</name></member>
+      <member refid="class_viewer_sizer_1a2dd17d61a9bb9da34e0e857c264f756a" prot="protected" virt="virtual"><scope>ViewerSizer</scope><name>resizeEvent</name></member>
+      <member refid="class_viewer_sizer_1a3d47f56368a9a8838f4035c1f9dbf82c" prot="public" virt="non-virtual"><scope>ViewerSizer</scope><name>SetChildSize</name></member>
+      <member refid="class_viewer_sizer_1a1b7696461cc521b184a2c10bb12db853" prot="public" virt="non-virtual"><scope>ViewerSizer</scope><name>SetWidget</name></member>
+      <member refid="class_viewer_sizer_1aa3281c42ce21e93b0d97061101aee140" prot="public" virt="non-virtual"><scope>ViewerSizer</scope><name>SetZoom</name></member>
+      <member refid="class_viewer_sizer_1a74a64ca47f47c4ff55dcc98018f71258" prot="private" virt="non-virtual"><scope>ViewerSizer</scope><name>UpdateSize</name></member>
+      <member refid="class_viewer_sizer_1a8b5966d1a9b355c37d39653db39567c0" prot="public" virt="non-virtual"><scope>ViewerSizer</scope><name>ViewerSizer</name></member>
+      <member refid="class_viewer_sizer_1add9180059040fca5bf03c57ea6ca5f09" prot="private" virt="non-virtual"><scope>ViewerSizer</scope><name>widget_</name></member>
+      <member refid="class_viewer_sizer_1a3b5b5d2d5fcdabd04e6bca2a8a0806fe" prot="private" virt="non-virtual"><scope>ViewerSizer</scope><name>width_</name></member>
+      <member refid="class_viewer_sizer_1a08a70d028f2c372efe7197a26331a745" prot="private" virt="non-virtual"><scope>ViewerSizer</scope><name>zoom_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

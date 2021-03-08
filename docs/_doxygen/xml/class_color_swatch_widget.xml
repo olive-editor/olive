@@ -1,0 +1,327 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_color_swatch_widget" kind="class" language="C++" prot="public" abstract="yes">
+    <compoundname>ColorSwatchWidget</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QWidget</basecompoundref>
+    <derivedcompoundref refid="class_color_gradient_widget" prot="public" virt="non-virtual">ColorGradientWidget</derivedcompoundref>
+    <derivedcompoundref refid="class_color_wheel_widget" prot="public" virt="non-virtual">ColorWheelWidget</derivedcompoundref>
+    <includes refid="colorswatchwidget_8h" local="no">colorswatchwidget.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_color_swatch_widget_1a1afc256070e42903bbf889805c9cfa3b" prot="private" static="no" mutable="no">
+        <type><ref refid="class_color" kindref="compound">Color</ref></type>
+        <definition>Color ColorSwatchWidget::selected_color_</definition>
+        <argsstring></argsstring>
+        <name>selected_color_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorswatchwidget.h" line="82" column="9" bodyfile="C:/Daten/Olive/olive/app/widget/colorwheel/colorswatchwidget.h" bodystart="82" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_color_swatch_widget_1a8e781706bc100796574c82a4ccf17077" prot="private" static="no" mutable="no">
+        <type><ref refid="colorprocessor_8h_1ae3985029dcc28a9f9f42fc726d1a9471" kindref="member">ColorProcessorPtr</ref></type>
+        <definition>ColorProcessorPtr ColorSwatchWidget::to_linear_processor_</definition>
+        <argsstring></argsstring>
+        <name>to_linear_processor_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorswatchwidget.h" line="84" column="21" bodyfile="C:/Daten/Olive/olive/app/widget/colorwheel/colorswatchwidget.h" bodystart="84" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_color_swatch_widget_1a5621b41f0f3f97f2abc3065dccb1bf13" prot="private" static="no" mutable="no">
+        <type><ref refid="colorprocessor_8h_1ae3985029dcc28a9f9f42fc726d1a9471" kindref="member">ColorProcessorPtr</ref></type>
+        <definition>ColorProcessorPtr ColorSwatchWidget::to_display_processor_</definition>
+        <argsstring></argsstring>
+        <name>to_display_processor_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorswatchwidget.h" line="86" column="21" bodyfile="C:/Daten/Olive/olive/app/widget/colorwheel/colorswatchwidget.h" bodystart="86" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_color_swatch_widget_1a8b803119afa2dc3adbe609256adfe1ff" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>ColorSwatchWidget::ColorSwatchWidget</definition>
+        <argsstring>(QWidget *parent=nullptr)</argsstring>
+        <name>ColorSwatchWidget</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorswatchwidget.h" line="54" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_swatch_widget_1a6965a7c87fbd83d47eaa6c00cce715b6" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="class_color" kindref="compound">Color</ref> &amp;</type>
+        <definition>const Color&amp; ColorSwatchWidget::GetSelectedColor</definition>
+        <argsstring>() const</argsstring>
+        <name>GetSelectedColor</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorswatchwidget.h" line="56" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_swatch_widget_1a5220ac7b4d2e1a2e25f81bbe9c0dc9fc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ColorSwatchWidget::SetColorProcessor</definition>
+        <argsstring>(ColorProcessorPtr to_linear, ColorProcessorPtr to_display)</argsstring>
+        <name>SetColorProcessor</name>
+        <param>
+          <type><ref refid="colorprocessor_8h_1ae3985029dcc28a9f9f42fc726d1a9471" kindref="member">ColorProcessorPtr</ref></type>
+          <declname>to_linear</declname>
+        </param>
+        <param>
+          <type><ref refid="colorprocessor_8h_1ae3985029dcc28a9f9f42fc726d1a9471" kindref="member">ColorProcessorPtr</ref></type>
+          <declname>to_display</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorswatchwidget.h" line="58" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-slot">
+      <memberdef kind="slot" id="class_color_swatch_widget_1adc4030f88a2321d700beb30763e860ff" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ColorSwatchWidget::SetSelectedColor</definition>
+        <argsstring>(const Color &amp;c)</argsstring>
+        <name>SetSelectedColor</name>
+        <param>
+          <type>const <ref refid="class_color" kindref="compound">Color</ref> &amp;</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorswatchwidget.h" line="61" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_color_swatch_widget_1a46d850656313ee7fd4047b30ed960fd2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ColorSwatchWidget::SelectedColorChanged</definition>
+        <argsstring>(const Color &amp;c)</argsstring>
+        <name>SelectedColorChanged</name>
+        <param>
+          <type>const <ref refid="class_color" kindref="compound">Color</ref> &amp;</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorswatchwidget.h" line="64" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_color_swatch_widget_1ad79ce267c10bbce2b8846c5750dc4c54" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void ColorSwatchWidget::mousePressEvent</definition>
+        <argsstring>(QMouseEvent *e) override</argsstring>
+        <name>mousePressEvent</name>
+        <param>
+          <type>QMouseEvent *</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorswatchwidget.h" line="67" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_swatch_widget_1a4073cdf0c6c8a7970f144a0d3f336391" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void ColorSwatchWidget::mouseMoveEvent</definition>
+        <argsstring>(QMouseEvent *e) override</argsstring>
+        <name>mouseMoveEvent</name>
+        <param>
+          <type>QMouseEvent *</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorswatchwidget.h" line="69" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_swatch_widget_1aef7e9cc0b5661fb373cb1a38e8b2eec6" prot="protected" static="no" const="yes" explicit="no" inline="no" virt="pure-virtual">
+        <type><ref refid="class_color" kindref="compound">Color</ref></type>
+        <definition>virtual Color ColorSwatchWidget::GetColorFromScreenPos</definition>
+        <argsstring>(const QPoint &amp;p) const =0</argsstring>
+        <name>GetColorFromScreenPos</name>
+        <reimplementedby refid="class_color_gradient_widget_1ae317ab9f062b490dfc1970f04d276747">GetColorFromScreenPos</reimplementedby>
+        <reimplementedby refid="class_color_wheel_widget_1a128856fc38724787c2e8f15aaae015f5">GetColorFromScreenPos</reimplementedby>
+        <param>
+          <type>const QPoint &amp;</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorswatchwidget.h" line="71" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_swatch_widget_1a39c9caef8df68d700a3b3d1327a6c300" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void ColorSwatchWidget::SelectedColorChangedEvent</definition>
+        <argsstring>(const Color &amp;c, bool external)</argsstring>
+        <name>SelectedColorChangedEvent</name>
+        <reimplementedby refid="class_color_gradient_widget_1ab03ed2ab5e733f1f1a9898be35014c26">SelectedColorChangedEvent</reimplementedby>
+        <reimplementedby refid="class_color_wheel_widget_1a3167b89fb3c43876c9a04877198927b4">SelectedColorChangedEvent</reimplementedby>
+        <param>
+          <type>const <ref refid="class_color" kindref="compound">Color</ref> &amp;</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>external</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorswatchwidget.h" line="73" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_swatch_widget_1a97e9808055144e042a8f61f144ae826c" prot="protected" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>Qt::GlobalColor</type>
+        <definition>Qt::GlobalColor ColorSwatchWidget::GetUISelectorColor</definition>
+        <argsstring>() const</argsstring>
+        <name>GetUISelectorColor</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorswatchwidget.h" line="75" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_swatch_widget_1a019e819af3fe5091c75b410e3dc898fa" prot="protected" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_color" kindref="compound">Color</ref></type>
+        <definition>Color ColorSwatchWidget::GetManagedColor</definition>
+        <argsstring>(const Color &amp;input) const</argsstring>
+        <name>GetManagedColor</name>
+        <param>
+          <type>const <ref refid="class_color" kindref="compound">Color</ref> &amp;</type>
+          <declname>input</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorswatchwidget.h" line="77" column="9"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_color_swatch_widget_1a354ab01e822678ec3cd7e77b62873c84" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ColorSwatchWidget::SetSelectedColorInternal</definition>
+        <argsstring>(const Color &amp;c, bool external)</argsstring>
+        <name>SetSelectedColorInternal</name>
+        <param>
+          <type>const <ref refid="class_color" kindref="compound">Color</ref> &amp;</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>external</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorswatchwidget.h" line="80" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>ColorSwatchWidget</label>
+        <link refid="class_color_swatch_widget"/>
+      </node>
+      <node id="2">
+        <label>ColorGradientWidget</label>
+        <link refid="class_color_gradient_widget"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>ColorWheelWidget</label>
+        <link refid="class_color_wheel_widget"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>ColorSwatchWidget</label>
+        <link refid="class_color_swatch_widget"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>selected_color_</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>Color</label>
+        <link refid="class_color"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorswatchwidget.h" line="32" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/colorwheel/colorswatchwidget.h" bodystart="33" bodyend="70"/>
+    <listofallmembers>
+      <member refid="class_color_swatch_widget_1a8b803119afa2dc3adbe609256adfe1ff" prot="public" virt="non-virtual"><scope>ColorSwatchWidget</scope><name>ColorSwatchWidget</name></member>
+      <member refid="class_color_swatch_widget_1aef7e9cc0b5661fb373cb1a38e8b2eec6" prot="protected" virt="pure-virtual"><scope>ColorSwatchWidget</scope><name>GetColorFromScreenPos</name></member>
+      <member refid="class_color_swatch_widget_1a019e819af3fe5091c75b410e3dc898fa" prot="protected" virt="non-virtual"><scope>ColorSwatchWidget</scope><name>GetManagedColor</name></member>
+      <member refid="class_color_swatch_widget_1a6965a7c87fbd83d47eaa6c00cce715b6" prot="public" virt="non-virtual"><scope>ColorSwatchWidget</scope><name>GetSelectedColor</name></member>
+      <member refid="class_color_swatch_widget_1a97e9808055144e042a8f61f144ae826c" prot="protected" virt="non-virtual"><scope>ColorSwatchWidget</scope><name>GetUISelectorColor</name></member>
+      <member refid="class_color_swatch_widget_1a4073cdf0c6c8a7970f144a0d3f336391" prot="protected" virt="virtual"><scope>ColorSwatchWidget</scope><name>mouseMoveEvent</name></member>
+      <member refid="class_color_swatch_widget_1ad79ce267c10bbce2b8846c5750dc4c54" prot="protected" virt="virtual"><scope>ColorSwatchWidget</scope><name>mousePressEvent</name></member>
+      <member refid="class_color_swatch_widget_1a1afc256070e42903bbf889805c9cfa3b" prot="private" virt="non-virtual"><scope>ColorSwatchWidget</scope><name>selected_color_</name></member>
+      <member refid="class_color_swatch_widget_1a46d850656313ee7fd4047b30ed960fd2" prot="public" virt="non-virtual"><scope>ColorSwatchWidget</scope><name>SelectedColorChanged</name></member>
+      <member refid="class_color_swatch_widget_1a39c9caef8df68d700a3b3d1327a6c300" prot="protected" virt="virtual"><scope>ColorSwatchWidget</scope><name>SelectedColorChangedEvent</name></member>
+      <member refid="class_color_swatch_widget_1a5220ac7b4d2e1a2e25f81bbe9c0dc9fc" prot="public" virt="non-virtual"><scope>ColorSwatchWidget</scope><name>SetColorProcessor</name></member>
+      <member refid="class_color_swatch_widget_1adc4030f88a2321d700beb30763e860ff" prot="public" virt="non-virtual"><scope>ColorSwatchWidget</scope><name>SetSelectedColor</name></member>
+      <member refid="class_color_swatch_widget_1a354ab01e822678ec3cd7e77b62873c84" prot="private" virt="non-virtual"><scope>ColorSwatchWidget</scope><name>SetSelectedColorInternal</name></member>
+      <member refid="class_color_swatch_widget_1a5621b41f0f3f97f2abc3065dccb1bf13" prot="private" virt="non-virtual"><scope>ColorSwatchWidget</scope><name>to_display_processor_</name></member>
+      <member refid="class_color_swatch_widget_1a8e781706bc100796574c82a4ccf17077" prot="private" virt="non-virtual"><scope>ColorSwatchWidget</scope><name>to_linear_processor_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

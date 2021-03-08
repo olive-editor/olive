@@ -1,0 +1,1005 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_audio_stream" kind="class" language="C++" prot="public">
+    <compoundname>AudioStream</compoundname>
+    <basecompoundref refid="class_stream" prot="public" virt="non-virtual">Stream</basecompoundref>
+    <includes refid="audiostream_8h" local="no">audiostream.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_audio_stream_1a42cf13616b0941493162a719e9c70305" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int AudioStream::channels_</definition>
+        <argsstring></argsstring>
+        <name>channels_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/audiostream.h" line="85" column="7" bodyfile="C:/Daten/Olive/olive/app/project/item/footage/audiostream.h" bodystart="85" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_audio_stream_1a43809102cbae1131ab2b4d49cad487cb" prot="private" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t AudioStream::layout_</definition>
+        <argsstring></argsstring>
+        <name>layout_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/audiostream.h" line="86" column="12" bodyfile="C:/Daten/Olive/olive/app/project/item/footage/audiostream.h" bodystart="86" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_audio_stream_1abc5aa1c24ec53f3a94fc7ab5be03fdbb" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int AudioStream::sample_rate_</definition>
+        <argsstring></argsstring>
+        <name>sample_rate_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/audiostream.h" line="87" column="7" bodyfile="C:/Daten/Olive/olive/app/project/item/footage/audiostream.h" bodystart="87" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_audio_stream_1acbe3dc449dcc1aeb5eeeb0358bb9f448" prot="private" static="no" mutable="no">
+        <type>QMutex</type>
+        <definition>QMutex AudioStream::index_access_lock_</definition>
+        <argsstring></argsstring>
+        <name>index_access_lock_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/audiostream.h" line="89" column="10" bodyfile="C:/Daten/Olive/olive/app/project/item/footage/audiostream.h" bodystart="89" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_audio_stream_1a89468a6c7b303b7b8718ba7161bf8cfb" prot="private" static="no" mutable="no">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational AudioStream::index_length_</definition>
+        <argsstring></argsstring>
+        <name>index_length_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/audiostream.h" line="90" column="12" bodyfile="C:/Daten/Olive/olive/app/project/item/footage/audiostream.h" bodystart="90" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_audio_stream_1a3bb2d2b007eb68bf6911a5a9dd046105" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool AudioStream::index_done_</definition>
+        <argsstring></argsstring>
+        <name>index_done_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/audiostream.h" line="91" column="8" bodyfile="C:/Daten/Olive/olive/app/project/item/footage/audiostream.h" bodystart="91" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_audio_stream_1a70da692b5c4d31045f2b6a668f5bd28d" prot="private" static="no" mutable="no">
+        <type>QVector&lt; <ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref> &gt;</type>
+        <definition>QVector&lt;AudioRenderingParams&gt; AudioStream::conformed_</definition>
+        <argsstring></argsstring>
+        <name>conformed_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/audiostream.h" line="93" column="11" bodyfile="C:/Daten/Olive/olive/app/project/item/footage/audiostream.h" bodystart="93" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_stream_1a367d8bdb961f11802554bb8b866b451c" prot="private" static="no" mutable="no">
+        <type><ref refid="class_footage" kindref="compound">Footage</ref> *</type>
+        <definition>Footage* Stream::footage_</definition>
+        <argsstring></argsstring>
+        <name>footage_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/stream.h" line="123" column="11" bodyfile="C:/Daten/Olive/olive/app/project/item/footage/stream.h" bodystart="123" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_stream_1a25c10bbf6630453c874a522c7ea2f80b" prot="private" static="no" mutable="no">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational Stream::timebase_</definition>
+        <argsstring></argsstring>
+        <name>timebase_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/stream.h" line="125" column="12" bodyfile="C:/Daten/Olive/olive/app/project/item/footage/stream.h" bodystart="125" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_stream_1a47ae52a9c0017d0d5a0c1c068a00f298" prot="private" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t Stream::duration_</definition>
+        <argsstring></argsstring>
+        <name>duration_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/stream.h" line="127" column="11" bodyfile="C:/Daten/Olive/olive/app/project/item/footage/stream.h" bodystart="127" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_stream_1a68cb8ba75aaf5534cb33ccc199412585" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Stream::index_</definition>
+        <argsstring></argsstring>
+        <name>index_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/stream.h" line="129" column="7" bodyfile="C:/Daten/Olive/olive/app/project/item/footage/stream.h" bodystart="129" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_stream_1a307a188724302147de3d36cfef9d15e3" prot="private" static="no" mutable="no">
+        <type><ref refid="class_stream_1a40862b0df5aaa3db98471ce0f04241a1" kindref="member">Type</ref></type>
+        <definition>Type Stream::type_</definition>
+        <argsstring></argsstring>
+        <name>type_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/stream.h" line="131" column="8" bodyfile="C:/Daten/Olive/olive/app/project/item/footage/stream.h" bodystart="131" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_stream_1a4876b00825394385578b6c38cc74f434" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool Stream::enabled_</definition>
+        <argsstring></argsstring>
+        <name>enabled_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/stream.h" line="133" column="8" bodyfile="C:/Daten/Olive/olive/app/project/item/footage/stream.h" bodystart="133" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_stream_1a4f2db09cf6b20357398ac42900e492d3" prot="private" static="no" mutable="no">
+        <type>QMutex</type>
+        <definition>QMutex Stream::index_process_lock_</definition>
+        <argsstring></argsstring>
+        <name>index_process_lock_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/stream.h" line="135" column="10" bodyfile="C:/Daten/Olive/olive/app/project/item/footage/stream.h" bodystart="135" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_audio_stream_1ab2e106f7e2f70f0cfb1d7b171da71f16" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>AudioStream::AudioStream</definition>
+        <argsstring>()</argsstring>
+        <name>AudioStream</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/audiostream.h" line="57" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_stream_1a90706f99084afcc52d0cc3c911900ba3" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type>QString</type>
+        <definition>virtual QString AudioStream::description</definition>
+        <argsstring>() const override</argsstring>
+        <name>description</name>
+        <reimplements refid="class_stream_1a367d2fdbb2de7d17f0eed9bd648eaee3">description</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/audiostream.h" line="59" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_stream_1a5410477522e37c1d84308aa0ef4bfacc" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const int &amp;</type>
+        <definition>const int&amp; AudioStream::channels</definition>
+        <argsstring>() const</argsstring>
+        <name>channels</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/audiostream.h" line="61" column="13"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_stream_1a7db318f4433f510eff16cca0f7e10df8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AudioStream::set_channels</definition>
+        <argsstring>(const int &amp;channels)</argsstring>
+        <name>set_channels</name>
+        <param>
+          <type>const int &amp;</type>
+          <declname>channels</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/audiostream.h" line="62" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_stream_1a6e30bff20ffaeae1056dd6f7095ba350" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const uint64_t &amp;</type>
+        <definition>const uint64_t&amp; AudioStream::channel_layout</definition>
+        <argsstring>() const</argsstring>
+        <name>channel_layout</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/audiostream.h" line="64" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_stream_1a7c5115780bb1d61acbedbae0a4b8bc69" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AudioStream::set_channel_layout</definition>
+        <argsstring>(const uint64_t &amp;channel_layout)</argsstring>
+        <name>set_channel_layout</name>
+        <param>
+          <type>const uint64_t &amp;</type>
+          <declname>channel_layout</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/audiostream.h" line="65" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_stream_1a6a00ecae69bdd789505e6fe716bf0f82" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const int &amp;</type>
+        <definition>const int&amp; AudioStream::sample_rate</definition>
+        <argsstring>() const</argsstring>
+        <name>sample_rate</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/audiostream.h" line="67" column="13"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_stream_1a894d12426565c76014e18adcae6d99ca" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AudioStream::set_sample_rate</definition>
+        <argsstring>(const int &amp;sample_rate)</argsstring>
+        <name>set_sample_rate</name>
+        <param>
+          <type>const int &amp;</type>
+          <declname>sample_rate</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/audiostream.h" line="68" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_stream_1aa6fa6c31df80af35c4d83d6e2a8e7f16" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+        <definition>const rational&amp; AudioStream::index_length</definition>
+        <argsstring>()</argsstring>
+        <name>index_length</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/audiostream.h" line="70" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_stream_1a97118bd77a245f43e389a22cbe679c79" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AudioStream::set_index_length</definition>
+        <argsstring>(const rational &amp;index_length)</argsstring>
+        <name>set_index_length</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>index_length</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/audiostream.h" line="71" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_stream_1aff25a3589d8dc376f73cfa166594f627" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const bool &amp;</type>
+        <definition>const bool&amp; AudioStream::index_done</definition>
+        <argsstring>()</argsstring>
+        <name>index_done</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/audiostream.h" line="73" column="14"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_stream_1adede182d5825f45ce1634dafde335895" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AudioStream::set_index_done</definition>
+        <argsstring>(const bool &amp;index_done)</argsstring>
+        <name>set_index_done</name>
+        <param>
+          <type>const bool &amp;</type>
+          <declname>index_done</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/audiostream.h" line="74" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_stream_1a6ec9f94ab82dd36861d7b1e20e9aba63" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AudioStream::clear_index</definition>
+        <argsstring>()</argsstring>
+        <name>clear_index</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/audiostream.h" line="76" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_stream_1a7441fd4a0f9d6b7a9dedf8dd1151c7d9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool AudioStream::has_conformed_version</definition>
+        <argsstring>(const AudioRenderingParams &amp;params)</argsstring>
+        <name>has_conformed_version</name>
+        <param>
+          <type>const <ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref> &amp;</type>
+          <declname>params</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/audiostream.h" line="78" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_stream_1aaedaf8809ed481badf7ee98f4d2b7844" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AudioStream::append_conformed_version</definition>
+        <argsstring>(const AudioRenderingParams &amp;params)</argsstring>
+        <name>append_conformed_version</name>
+        <param>
+          <type>const <ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref> &amp;</type>
+          <declname>params</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/audiostream.h" line="79" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_stream_1a8632775bd2c227df77beeeda8deee0b8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Stream::Load</definition>
+        <argsstring>(QXmlStreamReader *reader)</argsstring>
+        <name>Load</name>
+        <param>
+          <type>QXmlStreamReader *</type>
+          <declname>reader</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/stream.h" line="80" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_stream_1a3266456f4ebf678b84f96c161ec55c59" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Stream::Save</definition>
+        <argsstring>(QXmlStreamWriter *writer) const</argsstring>
+        <name>Save</name>
+        <param>
+          <type>QXmlStreamWriter *</type>
+          <declname>writer</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/stream.h" line="82" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_stream_1a24b69dbb27d5e54191b5fa98cd9f5475" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="class_stream_1a40862b0df5aaa3db98471ce0f04241a1" kindref="member">Type</ref> &amp;</type>
+        <definition>const Type&amp; Stream::type</definition>
+        <argsstring>() const</argsstring>
+        <name>type</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/stream.h" line="86" column="14"/>
+      </memberdef>
+      <memberdef kind="function" id="class_stream_1abafbab73571831dce50ac83b379cc492" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Stream::set_type</definition>
+        <argsstring>(const Type &amp;type)</argsstring>
+        <name>set_type</name>
+        <param>
+          <type>const <ref refid="class_stream_1a40862b0df5aaa3db98471ce0f04241a1" kindref="member">Type</ref> &amp;</type>
+          <declname>type</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/stream.h" line="87" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_stream_1ab92701868707af8c7e6f311f9a99ad1e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_footage" kindref="compound">Footage</ref> *</type>
+        <definition>Footage* Stream::footage</definition>
+        <argsstring>() const</argsstring>
+        <name>footage</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/stream.h" line="89" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_stream_1ac5d0c7fa9f20c895896ada1b9a14021a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Stream::set_footage</definition>
+        <argsstring>(Footage *f)</argsstring>
+        <name>set_footage</name>
+        <param>
+          <type><ref refid="class_footage" kindref="compound">Footage</ref> *</type>
+          <declname>f</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/stream.h" line="90" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_stream_1a24d82f5537a3040fe2385400a99f0cc8" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+        <definition>const rational&amp; Stream::timebase</definition>
+        <argsstring>() const</argsstring>
+        <name>timebase</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/stream.h" line="92" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_stream_1ab9bcb1e9e24b765f385ccabbd67c3eab" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Stream::set_timebase</definition>
+        <argsstring>(const rational &amp;timebase)</argsstring>
+        <name>set_timebase</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>timebase</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/stream.h" line="93" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_stream_1ac17f95889d365a42c89a847910d394fa" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const int &amp;</type>
+        <definition>const int&amp; Stream::index</definition>
+        <argsstring>() const</argsstring>
+        <name>index</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/stream.h" line="95" column="13"/>
+      </memberdef>
+      <memberdef kind="function" id="class_stream_1ab18ba6f3d1fbf5d98a74290f52072987" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Stream::set_index</definition>
+        <argsstring>(const int &amp;index)</argsstring>
+        <name>set_index</name>
+        <param>
+          <type>const int &amp;</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/stream.h" line="96" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_stream_1ac180c4e5cef2f9562e3cfc6815f169d1" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const int64_t &amp;</type>
+        <definition>const int64_t&amp; Stream::duration</definition>
+        <argsstring>() const</argsstring>
+        <name>duration</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/stream.h" line="98" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_stream_1ad60479fec8865e75814e9a0632f93378" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Stream::set_duration</definition>
+        <argsstring>(const int64_t &amp;duration)</argsstring>
+        <name>set_duration</name>
+        <param>
+          <type>const int64_t &amp;</type>
+          <declname>duration</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/stream.h" line="99" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_stream_1a18a532d9fa6553eae95dae33e05bf07e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Stream::enabled</definition>
+        <argsstring>() const</argsstring>
+        <name>enabled</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/stream.h" line="101" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_stream_1a3f51ba74fe2377f1458115972c497952" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Stream::set_enabled</definition>
+        <argsstring>(bool e)</argsstring>
+        <name>set_enabled</name>
+        <param>
+          <type>bool</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/stream.h" line="102" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_stream_1a5f56e581d9e1cc6d2b5ef543d1eb5749" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QMutex *</type>
+        <definition>QMutex* Stream::index_process_lock</definition>
+        <argsstring>()</argsstring>
+        <name>index_process_lock</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/stream.h" line="108" column="10"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_audio_stream_1a4f3af1a5cb8dfd47a79c135e4f2edabc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AudioStream::ConformAppended</definition>
+        <argsstring>(const AudioRenderingParams &amp;params)</argsstring>
+        <name>ConformAppended</name>
+        <param>
+          <type>const <ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref> &amp;</type>
+          <declname>params</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/audiostream.h" line="82" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_stream_1a67f15fcd5e25579f4c4667aa599e304e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Stream::IndexChanged</definition>
+        <argsstring>()</argsstring>
+        <name>IndexChanged</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/stream.h" line="118" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_stream_1a3dc8311ab6d69c721ca02ef14ae48f59" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Stream::ParametersChanged</definition>
+        <argsstring>()</argsstring>
+        <name>ParametersChanged</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/stream.h" line="120" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-type">
+      <memberdef kind="enum" id="class_stream_1a40862b0df5aaa3db98471ce0f04241a1" prot="public" static="no" strong="no">
+        <type></type>
+        <name>Type</name>
+        <enumvalue id="class_stream_1a40862b0df5aaa3db98471ce0f04241a1a40f8431a5ed4f62b013ee5c4ec15a0d1" prot="public">
+          <name>kUnknown</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_stream_1a40862b0df5aaa3db98471ce0f04241a1a697050e3d097a96ae4d75af673e5df18" prot="public">
+          <name>kVideo</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_stream_1a40862b0df5aaa3db98471ce0f04241a1a7767a206628efadb2fc759e9d6eed0d1" prot="public">
+          <name>kAudio</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_stream_1a40862b0df5aaa3db98471ce0f04241a1a4cd79a0af20e46c76c84f6353ac8690f" prot="public">
+          <name>kData</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_stream_1a40862b0df5aaa3db98471ce0f04241a1a3238f06eae729e2c4195a00639468560" prot="public">
+          <name>kSubtitle</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_stream_1a40862b0df5aaa3db98471ce0f04241a1a24c086a4206d43c7a43249f9e36a9e8e" prot="public">
+          <name>kAttachment</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_stream_1a40862b0df5aaa3db98471ce0f04241a1abbed4642337e86db30b1e1f5fe182241" prot="public">
+          <name>kImage</name>
+          <initializer>= 100</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/stream.h" line="60" column="3" bodyfile="C:/Daten/Olive/olive/app/project/item/footage/stream.h" bodystart="60" bodyend="68"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="class_stream_1ade9d29ae6a054b9b3213366e7d484a20" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QIcon</type>
+        <definition>static QIcon Stream::IconFromType</definition>
+        <argsstring>(const Type &amp;type)</argsstring>
+        <name>IconFromType</name>
+        <param>
+          <type>const <ref refid="class_stream_1a40862b0df5aaa3db98471ce0f04241a1" kindref="member">Type</ref> &amp;</type>
+          <declname>type</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/stream.h" line="104" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_stream_1aa0afcb8f59b1e906b95c903c08902de9" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void Stream::FootageSetEvent</definition>
+        <argsstring>(Footage *)</argsstring>
+        <name>FootageSetEvent</name>
+        <reimplementedby refid="class_image_stream_1aa5af1a49b43667dc84767b1c96405efb">FootageSetEvent</reimplementedby>
+        <param>
+          <type><ref refid="class_footage" kindref="compound">Footage</ref> *</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/stream.h" line="111" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_stream_1a8fd48cdcccdf2c6885359db361adb31c" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void Stream::LoadCustomParameters</definition>
+        <argsstring>(QXmlStreamReader *reader)</argsstring>
+        <name>LoadCustomParameters</name>
+        <reimplementedby refid="class_image_stream_1ae1a9be71c544ef0a1ed6c574db52b60e">LoadCustomParameters</reimplementedby>
+        <param>
+          <type>QXmlStreamReader *</type>
+          <declname>reader</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/stream.h" line="113" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_stream_1a0cccd7f35932c7537fdd767de887d15e" prot="protected" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void Stream::SaveCustomParameters</definition>
+        <argsstring>(QXmlStreamWriter *writer) const</argsstring>
+        <name>SaveCustomParameters</name>
+        <reimplementedby refid="class_image_stream_1aef9c7a98d816be9d23329e03642ebdb9">SaveCustomParameters</reimplementedby>
+        <param>
+          <type>QXmlStreamWriter *</type>
+          <declname>writer</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/footage/stream.h" line="115" column="16"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A <ref refid="class_stream" kindref="compound">Stream</ref> derivative containing audio-specific information. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>AudioStream</label>
+        <link refid="class_audio_stream"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>Stream</label>
+        <link refid="class_stream"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="8">
+        <label>TimelinePoints</label>
+        <link refid="class_timeline_points"/>
+        <childnode refid="9" relation="usage">
+          <edgelabel>markers_</edgelabel>
+        </childnode>
+        <childnode refid="10" relation="usage">
+          <edgelabel>workarea_</edgelabel>
+        </childnode>
+      </node>
+      <node id="6">
+        <label>ColorManager</label>
+        <link refid="class_color_manager"/>
+      </node>
+      <node id="12">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="4">
+        <label>Item</label>
+        <link refid="class_item"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>parent_</edgelabel>
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>project_</edgelabel>
+        </childnode>
+      </node>
+      <node id="1">
+        <label>AudioStream</label>
+        <link refid="class_audio_stream"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="12" relation="usage">
+          <edgelabel>index_length_</edgelabel>
+        </childnode>
+      </node>
+      <node id="10">
+        <label>TimelineWorkArea</label>
+        <link refid="class_timeline_work_area"/>
+        <childnode refid="11" relation="usage">
+          <edgelabel>workarea_range_</edgelabel>
+        </childnode>
+        <childnode refid="12" relation="usage">
+          <edgelabel>kResetOut</edgelabel>
+          <edgelabel>kResetIn</edgelabel>
+        </childnode>
+      </node>
+      <node id="5">
+        <label>Project</label>
+        <link refid="class_project"/>
+        <childnode refid="6" relation="usage">
+          <edgelabel>color_manager_</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>root_</edgelabel>
+        </childnode>
+      </node>
+      <node id="7">
+        <label>Folder</label>
+        <link refid="class_folder"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>TimeRange</label>
+        <link refid="class_time_range"/>
+        <childnode refid="12" relation="usage">
+          <edgelabel>out_</edgelabel>
+          <edgelabel>in_</edgelabel>
+          <edgelabel>length_</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>Stream</label>
+        <link refid="class_stream"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>footage_</edgelabel>
+        </childnode>
+        <childnode refid="12" relation="usage">
+          <edgelabel>timebase_</edgelabel>
+        </childnode>
+      </node>
+      <node id="9">
+        <label>TimelineMarkerList</label>
+        <link refid="class_timeline_marker_list"/>
+      </node>
+      <node id="3">
+        <label>Footage</label>
+        <link refid="class_footage"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+        <childnode refid="8" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/project/item/footage/audiostream.h" line="35" column="1" bodyfile="C:/Daten/Olive/olive/app/project/item/footage/audiostream.h" bodystart="36" bodyend="77"/>
+    <listofallmembers>
+      <member refid="class_audio_stream_1aaedaf8809ed481badf7ee98f4d2b7844" prot="public" virt="non-virtual"><scope>AudioStream</scope><name>append_conformed_version</name></member>
+      <member refid="class_audio_stream_1ab2e106f7e2f70f0cfb1d7b171da71f16" prot="public" virt="non-virtual"><scope>AudioStream</scope><name>AudioStream</name></member>
+      <member refid="class_audio_stream_1a6e30bff20ffaeae1056dd6f7095ba350" prot="public" virt="non-virtual"><scope>AudioStream</scope><name>channel_layout</name></member>
+      <member refid="class_audio_stream_1a5410477522e37c1d84308aa0ef4bfacc" prot="public" virt="non-virtual"><scope>AudioStream</scope><name>channels</name></member>
+      <member refid="class_audio_stream_1a42cf13616b0941493162a719e9c70305" prot="private" virt="non-virtual"><scope>AudioStream</scope><name>channels_</name></member>
+      <member refid="class_audio_stream_1a6ec9f94ab82dd36861d7b1e20e9aba63" prot="public" virt="non-virtual"><scope>AudioStream</scope><name>clear_index</name></member>
+      <member refid="class_audio_stream_1a4f3af1a5cb8dfd47a79c135e4f2edabc" prot="public" virt="non-virtual"><scope>AudioStream</scope><name>ConformAppended</name></member>
+      <member refid="class_audio_stream_1a70da692b5c4d31045f2b6a668f5bd28d" prot="private" virt="non-virtual"><scope>AudioStream</scope><name>conformed_</name></member>
+      <member refid="class_audio_stream_1a90706f99084afcc52d0cc3c911900ba3" prot="public" virt="virtual"><scope>AudioStream</scope><name>description</name></member>
+      <member refid="class_stream_1ac180c4e5cef2f9562e3cfc6815f169d1" prot="public" virt="non-virtual"><scope>AudioStream</scope><name>duration</name></member>
+      <member refid="class_stream_1a47ae52a9c0017d0d5a0c1c068a00f298" prot="private" virt="non-virtual"><scope>AudioStream</scope><name>duration_</name></member>
+      <member refid="class_stream_1a18a532d9fa6553eae95dae33e05bf07e" prot="public" virt="non-virtual"><scope>AudioStream</scope><name>enabled</name></member>
+      <member refid="class_stream_1a4876b00825394385578b6c38cc74f434" prot="private" virt="non-virtual"><scope>AudioStream</scope><name>enabled_</name></member>
+      <member refid="class_stream_1ab92701868707af8c7e6f311f9a99ad1e" prot="public" virt="non-virtual"><scope>AudioStream</scope><name>footage</name></member>
+      <member refid="class_stream_1a367d8bdb961f11802554bb8b866b451c" prot="private" virt="non-virtual"><scope>AudioStream</scope><name>footage_</name></member>
+      <member refid="class_stream_1aa0afcb8f59b1e906b95c903c08902de9" prot="protected" virt="virtual"><scope>AudioStream</scope><name>FootageSetEvent</name></member>
+      <member refid="class_audio_stream_1a7441fd4a0f9d6b7a9dedf8dd1151c7d9" prot="public" virt="non-virtual"><scope>AudioStream</scope><name>has_conformed_version</name></member>
+      <member refid="class_stream_1ade9d29ae6a054b9b3213366e7d484a20" prot="public" virt="non-virtual"><scope>AudioStream</scope><name>IconFromType</name></member>
+      <member refid="class_stream_1ac17f95889d365a42c89a847910d394fa" prot="public" virt="non-virtual"><scope>AudioStream</scope><name>index</name></member>
+      <member refid="class_stream_1a68cb8ba75aaf5534cb33ccc199412585" prot="private" virt="non-virtual"><scope>AudioStream</scope><name>index_</name></member>
+      <member refid="class_audio_stream_1acbe3dc449dcc1aeb5eeeb0358bb9f448" prot="private" virt="non-virtual"><scope>AudioStream</scope><name>index_access_lock_</name></member>
+      <member refid="class_audio_stream_1aff25a3589d8dc376f73cfa166594f627" prot="public" virt="non-virtual"><scope>AudioStream</scope><name>index_done</name></member>
+      <member refid="class_audio_stream_1a3bb2d2b007eb68bf6911a5a9dd046105" prot="private" virt="non-virtual"><scope>AudioStream</scope><name>index_done_</name></member>
+      <member refid="class_audio_stream_1aa6fa6c31df80af35c4d83d6e2a8e7f16" prot="public" virt="non-virtual"><scope>AudioStream</scope><name>index_length</name></member>
+      <member refid="class_audio_stream_1a89468a6c7b303b7b8718ba7161bf8cfb" prot="private" virt="non-virtual"><scope>AudioStream</scope><name>index_length_</name></member>
+      <member refid="class_stream_1a5f56e581d9e1cc6d2b5ef543d1eb5749" prot="public" virt="non-virtual"><scope>AudioStream</scope><name>index_process_lock</name></member>
+      <member refid="class_stream_1a4f2db09cf6b20357398ac42900e492d3" prot="private" virt="non-virtual"><scope>AudioStream</scope><name>index_process_lock_</name></member>
+      <member refid="class_stream_1a67f15fcd5e25579f4c4667aa599e304e" prot="public" virt="non-virtual"><scope>AudioStream</scope><name>IndexChanged</name></member>
+      <member refid="class_stream_1a40862b0df5aaa3db98471ce0f04241a1a24c086a4206d43c7a43249f9e36a9e8e" prot="public" virt="non-virtual"><scope>AudioStream</scope><name>kAttachment</name></member>
+      <member refid="class_stream_1a40862b0df5aaa3db98471ce0f04241a1a7767a206628efadb2fc759e9d6eed0d1" prot="public" virt="non-virtual"><scope>AudioStream</scope><name>kAudio</name></member>
+      <member refid="class_stream_1a40862b0df5aaa3db98471ce0f04241a1a4cd79a0af20e46c76c84f6353ac8690f" prot="public" virt="non-virtual"><scope>AudioStream</scope><name>kData</name></member>
+      <member refid="class_stream_1a40862b0df5aaa3db98471ce0f04241a1abbed4642337e86db30b1e1f5fe182241" prot="public" virt="non-virtual"><scope>AudioStream</scope><name>kImage</name></member>
+      <member refid="class_stream_1a40862b0df5aaa3db98471ce0f04241a1a3238f06eae729e2c4195a00639468560" prot="public" virt="non-virtual"><scope>AudioStream</scope><name>kSubtitle</name></member>
+      <member refid="class_stream_1a40862b0df5aaa3db98471ce0f04241a1a40f8431a5ed4f62b013ee5c4ec15a0d1" prot="public" virt="non-virtual"><scope>AudioStream</scope><name>kUnknown</name></member>
+      <member refid="class_stream_1a40862b0df5aaa3db98471ce0f04241a1a697050e3d097a96ae4d75af673e5df18" prot="public" virt="non-virtual"><scope>AudioStream</scope><name>kVideo</name></member>
+      <member refid="class_audio_stream_1a43809102cbae1131ab2b4d49cad487cb" prot="private" virt="non-virtual"><scope>AudioStream</scope><name>layout_</name></member>
+      <member refid="class_stream_1a8632775bd2c227df77beeeda8deee0b8" prot="public" virt="non-virtual"><scope>AudioStream</scope><name>Load</name></member>
+      <member refid="class_stream_1a8fd48cdcccdf2c6885359db361adb31c" prot="protected" virt="virtual"><scope>AudioStream</scope><name>LoadCustomParameters</name></member>
+      <member refid="class_stream_1a3dc8311ab6d69c721ca02ef14ae48f59" prot="public" virt="non-virtual"><scope>AudioStream</scope><name>ParametersChanged</name></member>
+      <member refid="class_audio_stream_1a6a00ecae69bdd789505e6fe716bf0f82" prot="public" virt="non-virtual"><scope>AudioStream</scope><name>sample_rate</name></member>
+      <member refid="class_audio_stream_1abc5aa1c24ec53f3a94fc7ab5be03fdbb" prot="private" virt="non-virtual"><scope>AudioStream</scope><name>sample_rate_</name></member>
+      <member refid="class_stream_1a3266456f4ebf678b84f96c161ec55c59" prot="public" virt="non-virtual"><scope>AudioStream</scope><name>Save</name></member>
+      <member refid="class_stream_1a0cccd7f35932c7537fdd767de887d15e" prot="protected" virt="virtual"><scope>AudioStream</scope><name>SaveCustomParameters</name></member>
+      <member refid="class_audio_stream_1a7c5115780bb1d61acbedbae0a4b8bc69" prot="public" virt="non-virtual"><scope>AudioStream</scope><name>set_channel_layout</name></member>
+      <member refid="class_audio_stream_1a7db318f4433f510eff16cca0f7e10df8" prot="public" virt="non-virtual"><scope>AudioStream</scope><name>set_channels</name></member>
+      <member refid="class_stream_1ad60479fec8865e75814e9a0632f93378" prot="public" virt="non-virtual"><scope>AudioStream</scope><name>set_duration</name></member>
+      <member refid="class_stream_1a3f51ba74fe2377f1458115972c497952" prot="public" virt="non-virtual"><scope>AudioStream</scope><name>set_enabled</name></member>
+      <member refid="class_stream_1ac5d0c7fa9f20c895896ada1b9a14021a" prot="public" virt="non-virtual"><scope>AudioStream</scope><name>set_footage</name></member>
+      <member refid="class_stream_1ab18ba6f3d1fbf5d98a74290f52072987" prot="public" virt="non-virtual"><scope>AudioStream</scope><name>set_index</name></member>
+      <member refid="class_audio_stream_1adede182d5825f45ce1634dafde335895" prot="public" virt="non-virtual"><scope>AudioStream</scope><name>set_index_done</name></member>
+      <member refid="class_audio_stream_1a97118bd77a245f43e389a22cbe679c79" prot="public" virt="non-virtual"><scope>AudioStream</scope><name>set_index_length</name></member>
+      <member refid="class_audio_stream_1a894d12426565c76014e18adcae6d99ca" prot="public" virt="non-virtual"><scope>AudioStream</scope><name>set_sample_rate</name></member>
+      <member refid="class_stream_1ab9bcb1e9e24b765f385ccabbd67c3eab" prot="public" virt="non-virtual"><scope>AudioStream</scope><name>set_timebase</name></member>
+      <member refid="class_stream_1abafbab73571831dce50ac83b379cc492" prot="public" virt="non-virtual"><scope>AudioStream</scope><name>set_type</name></member>
+      <member refid="class_stream_1a8c3f05bd00361ec92627fa41f330a39b" prot="public" virt="non-virtual"><scope>AudioStream</scope><name>Stream</name></member>
+      <member refid="class_stream_1a24d82f5537a3040fe2385400a99f0cc8" prot="public" virt="non-virtual"><scope>AudioStream</scope><name>timebase</name></member>
+      <member refid="class_stream_1a25c10bbf6630453c874a522c7ea2f80b" prot="private" virt="non-virtual"><scope>AudioStream</scope><name>timebase_</name></member>
+      <member refid="class_stream_1a24b69dbb27d5e54191b5fa98cd9f5475" prot="public" virt="non-virtual"><scope>AudioStream</scope><name>type</name></member>
+      <member refid="class_stream_1a40862b0df5aaa3db98471ce0f04241a1" prot="public" virt="non-virtual"><scope>AudioStream</scope><name>Type</name></member>
+      <member refid="class_stream_1a307a188724302147de3d36cfef9d15e3" prot="private" virt="non-virtual"><scope>AudioStream</scope><name>type_</name></member>
+      <member refid="class_stream_1a0a94c1350d4ab4d1ef2fdd5a8988db7f" prot="public" virt="virtual"><scope>AudioStream</scope><name>~Stream</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

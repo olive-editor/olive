@@ -1,0 +1,453 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_sequence_dialog" kind="class" language="C++" prot="public">
+    <compoundname>SequenceDialog</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QDialog</basecompoundref>
+    <includes refid="dialog_2sequence_2sequence_8h" local="no">sequence.h</includes>
+    <innerclass refid="class_sequence_dialog_1_1_sequence_param_command" prot="private">SequenceDialog::SequenceParamCommand</innerclass>
+      <sectiondef kind="public-type">
+      <memberdef kind="enum" id="class_sequence_dialog_1ac8bfa92fcc5a7428bb9283f9bbe71068" prot="public" static="no" strong="no">
+        <type></type>
+        <name>Type</name>
+        <enumvalue id="class_sequence_dialog_1ac8bfa92fcc5a7428bb9283f9bbe71068a4f4da333f59e5575ad07e5d3412bb5e2" prot="public">
+          <name>kNew</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_sequence_dialog_1ac8bfa92fcc5a7428bb9283f9bbe71068a4f84a72e70d44467ba7280f735e4c590" prot="public">
+          <name>kExisting</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Used to set the dialog mode of operation (see <ref refid="class_sequence_dialog_1abf06c473b9623285413730e08e422ce9" kindref="member">SequenceDialog()</ref>) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/sequence/sequence.h" line="72" column="3" bodyfile="C:/Daten/Olive/olive/app/dialog/sequence/sequence.h" bodystart="72" bodyend="75"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_sequence_dialog_1a4c2ec6306419bfe412d5372103c960e3" prot="private" static="no" mutable="no">
+        <type><ref refid="class_sequence" kindref="compound">Sequence</ref> *</type>
+        <definition>Sequence* SequenceDialog::sequence_</definition>
+        <argsstring></argsstring>
+        <name>sequence_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/sequence/sequence.h" line="112" column="12" bodyfile="C:/Daten/Olive/olive/app/dialog/sequence/sequence.h" bodystart="112" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_sequence_dialog_1a8114f066fb13a6fcca88b7e1a27ca8fb" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool SequenceDialog::make_undoable_</definition>
+        <argsstring></argsstring>
+        <name>make_undoable_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/sequence/sequence.h" line="114" column="8" bodyfile="C:/Daten/Olive/olive/app/dialog/sequence/sequence.h" bodystart="114" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_sequence_dialog_1a0a5387b3b24a4f59d4d74770b8fc1c13" prot="private" static="no" mutable="no">
+        <type>QSpinBox *</type>
+        <definition>QSpinBox* SequenceDialog::video_width_field_</definition>
+        <argsstring></argsstring>
+        <name>video_width_field_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/sequence/sequence.h" line="116" column="12" bodyfile="C:/Daten/Olive/olive/app/dialog/sequence/sequence.h" bodystart="116" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_sequence_dialog_1aa06db3589dd7847c9a911ffa63dc884c" prot="private" static="no" mutable="no">
+        <type>QSpinBox *</type>
+        <definition>QSpinBox* SequenceDialog::video_height_field_</definition>
+        <argsstring></argsstring>
+        <name>video_height_field_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/sequence/sequence.h" line="118" column="12" bodyfile="C:/Daten/Olive/olive/app/dialog/sequence/sequence.h" bodystart="118" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_sequence_dialog_1af7179a6aaa075543806d83444a2bf1e3" prot="private" static="no" mutable="no">
+        <type>QComboBox *</type>
+        <definition>QComboBox* SequenceDialog::video_frame_rate_field_</definition>
+        <argsstring></argsstring>
+        <name>video_frame_rate_field_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/sequence/sequence.h" line="120" column="13" bodyfile="C:/Daten/Olive/olive/app/dialog/sequence/sequence.h" bodystart="120" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_sequence_dialog_1a6afb13b3e6856c7b4ec1ffdb9266b121" prot="private" static="no" mutable="no">
+        <type>QComboBox *</type>
+        <definition>QComboBox* SequenceDialog::audio_sample_rate_field_</definition>
+        <argsstring></argsstring>
+        <name>audio_sample_rate_field_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/sequence/sequence.h" line="122" column="13" bodyfile="C:/Daten/Olive/olive/app/dialog/sequence/sequence.h" bodystart="122" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_sequence_dialog_1af5945c3102932f80d74d8adf8f2ab2c6" prot="private" static="no" mutable="no">
+        <type>QComboBox *</type>
+        <definition>QComboBox* SequenceDialog::audio_channels_field_</definition>
+        <argsstring></argsstring>
+        <name>audio_channels_field_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/sequence/sequence.h" line="124" column="13" bodyfile="C:/Daten/Olive/olive/app/dialog/sequence/sequence.h" bodystart="124" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_sequence_dialog_1a709457a4f0fd5f60904efddf6d350854" prot="private" static="no" mutable="no">
+        <type>QLineEdit *</type>
+        <definition>QLineEdit* SequenceDialog::name_field_</definition>
+        <argsstring></argsstring>
+        <name>name_field_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/sequence/sequence.h" line="126" column="13" bodyfile="C:/Daten/Olive/olive/app/dialog/sequence/sequence.h" bodystart="126" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_sequence_dialog_1ab490bcb821bf11e3768db1f3c7af623c" prot="private" static="no" mutable="no">
+        <type>QList&lt; <ref refid="classrational" kindref="compound">rational</ref> &gt;</type>
+        <definition>QList&lt;rational&gt; SequenceDialog::frame_rate_list_</definition>
+        <argsstring></argsstring>
+        <name>frame_rate_list_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/sequence/sequence.h" line="128" column="9" bodyfile="C:/Daten/Olive/olive/app/dialog/sequence/sequence.h" bodystart="128" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_sequence_dialog_1ae7b0e61c5ab7f640728bc71197806dd7" prot="private" static="no" mutable="no">
+        <type>QList&lt; int &gt;</type>
+        <definition>QList&lt;int&gt; SequenceDialog::sample_rate_list_</definition>
+        <argsstring></argsstring>
+        <name>sample_rate_list_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/sequence/sequence.h" line="130" column="9" bodyfile="C:/Daten/Olive/olive/app/dialog/sequence/sequence.h" bodystart="130" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_sequence_dialog_1abf06c473b9623285413730e08e422ce9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>SequenceDialog::SequenceDialog</definition>
+        <argsstring>(Sequence *s, Type t=kExisting, QWidget *parent=nullptr)</argsstring>
+        <name>SequenceDialog</name>
+        <param>
+          <type><ref refid="class_sequence" kindref="compound">Sequence</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type><ref refid="class_sequence_dialog_1ac8bfa92fcc5a7428bb9283f9bbe71068" kindref="member">Type</ref></type>
+          <declname>t</declname>
+          <defval><ref refid="class_sequence_dialog_1ac8bfa92fcc5a7428bb9283f9bbe71068a4f84a72e70d44467ba7280f735e4c590" kindref="member">kExisting</ref></defval>
+        </param>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+<para><ref refid="class_sequence_dialog" kindref="compound">SequenceDialog</ref> Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="class_sequence" kindref="compound">Sequence</ref> to edit</para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>t</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Mode of operation (changes some UI like the window title to best represent the action being performed)</para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>parent</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>QWidget parent </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/sequence/sequence.h" line="89" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_sequence_dialog_1a6de926b06cfcfd18ff7eaf560144d502" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void SequenceDialog::SetUndoable</definition>
+        <argsstring>(bool u)</argsstring>
+        <name>SetUndoable</name>
+        <param>
+          <type>bool</type>
+          <declname>u</declname>
+        </param>
+        <briefdescription>
+<para>Set whether the parameter changes should be made into an undo command or not. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Defaults to true. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/sequence/sequence.h" line="96" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_sequence_dialog_1a7194478bbff8a4c6a34ab81732b4a7dc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void SequenceDialog::SetNameIsEditable</definition>
+        <argsstring>(bool e)</argsstring>
+        <name>SetNameIsEditable</name>
+        <param>
+          <type>bool</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+<para>Set whether the name of this <ref refid="class_sequence" kindref="compound">Sequence</ref> can be edited with this dialog. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Defaults to true. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/sequence/sequence.h" line="103" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-slot">
+      <memberdef kind="slot" id="class_sequence_dialog_1a6b554aead721193c2add7e87f962d6fe" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void SequenceDialog::accept</definition>
+        <argsstring>() override</argsstring>
+        <name>accept</name>
+        <briefdescription>
+<para>Function called when the user presses OK. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/sequence/sequence.h" line="109" column="16"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A dialog for editing <ref refid="class_sequence" kindref="compound">Sequence</ref> parameters. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>This dialog exposes all the parameters of a <ref refid="class_sequence" kindref="compound">Sequence</ref> to users allowing them to set up a <ref refid="class_sequence" kindref="compound">Sequence</ref> however they wish. A <ref refid="class_sequence" kindref="compound">Sequence</ref> can be sent to this dialog through the constructor. All fields will be filled using that <ref refid="class_sequence" kindref="compound">Sequence</ref>&apos;s parameters, allowing the user to view and edit them. Accepting the dialog will apply them back to that <ref refid="class_sequence" kindref="compound">Sequence</ref>, either directly or using a QUndoCommand (see <ref refid="class_sequence_dialog_1a6de926b06cfcfd18ff7eaf560144d502" kindref="member">SetUndoable()</ref>).</para>
+<para>If creating a new <ref refid="class_sequence" kindref="compound">Sequence</ref>, the <ref refid="class_sequence" kindref="compound">Sequence</ref> must still be constructed first before sending it to <ref refid="class_sequence_dialog" kindref="compound">SequenceDialog</ref>. <ref refid="class_sequence_dialog" kindref="compound">SequenceDialog</ref> does not create any new objects. In most cases when creating a new <ref refid="class_sequence" kindref="compound">Sequence</ref>, editing its parameters with <ref refid="class_sequence_dialog" kindref="compound">SequenceDialog</ref> will be paired with the action of adding the <ref refid="class_sequence" kindref="compound">Sequence</ref> to a project. In this situation, since the latter will be the main undoable action, the parameter editing doesn&apos;t have to be undoable since to the user they&apos;ll be viewed as one single action (see <ref refid="class_sequence_dialog_1a6de926b06cfcfd18ff7eaf560144d502" kindref="member">SetUndoable()</ref>). </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="15">
+        <label>NodeOutput</label>
+        <link refid="class_node_output"/>
+        <childnode refid="16" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>TimelinePoints</label>
+        <link refid="class_timeline_points"/>
+        <childnode refid="9" relation="usage">
+          <edgelabel>markers_</edgelabel>
+        </childnode>
+        <childnode refid="10" relation="usage">
+          <edgelabel>workarea_</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>Sequence</label>
+        <link refid="class_sequence"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+        <childnode refid="7" relation="public-inheritance">
+        </childnode>
+        <childnode refid="8" relation="public-inheritance">
+        </childnode>
+        <childnode refid="13" relation="usage">
+          <edgelabel>viewer_output_</edgelabel>
+        </childnode>
+      </node>
+      <node id="7">
+        <label>NodeGraph</label>
+        <link refid="class_node_graph"/>
+      </node>
+      <node id="5">
+        <label>ColorManager</label>
+        <link refid="class_color_manager"/>
+      </node>
+      <node id="18">
+        <label>AudioParams</label>
+        <link refid="class_audio_params"/>
+      </node>
+      <node id="13">
+        <label>ViewerOutput</label>
+        <link refid="class_viewer_output"/>
+        <childnode refid="14" relation="public-inheritance">
+        </childnode>
+        <childnode refid="17" relation="usage">
+          <edgelabel>video_params_</edgelabel>
+        </childnode>
+        <childnode refid="12" relation="usage">
+          <edgelabel>timeline_length_</edgelabel>
+        </childnode>
+        <childnode refid="18" relation="usage">
+          <edgelabel>audio_params_</edgelabel>
+        </childnode>
+        <childnode refid="19" relation="usage">
+          <edgelabel>texture_input_</edgelabel>
+          <edgelabel>samples_input_</edgelabel>
+        </childnode>
+      </node>
+      <node id="12">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="3">
+        <label>Item</label>
+        <link refid="class_item"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>parent_</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>project_</edgelabel>
+        </childnode>
+      </node>
+      <node id="14">
+        <label>Node</label>
+        <link refid="class_node"/>
+        <childnode refid="15" relation="usage">
+          <edgelabel>output_</edgelabel>
+        </childnode>
+      </node>
+      <node id="19">
+        <label>NodeInput</label>
+        <link refid="class_node_input"/>
+        <childnode refid="16" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>TimelineWorkArea</label>
+        <link refid="class_timeline_work_area"/>
+        <childnode refid="11" relation="usage">
+          <edgelabel>workarea_range_</edgelabel>
+        </childnode>
+        <childnode refid="12" relation="usage">
+          <edgelabel>kResetOut</edgelabel>
+          <edgelabel>kResetIn</edgelabel>
+        </childnode>
+      </node>
+      <node id="4">
+        <label>Project</label>
+        <link refid="class_project"/>
+        <childnode refid="5" relation="usage">
+          <edgelabel>color_manager_</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>root_</edgelabel>
+        </childnode>
+      </node>
+      <node id="6">
+        <label>Folder</label>
+        <link refid="class_folder"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>NodeParam</label>
+        <link refid="class_node_param"/>
+      </node>
+      <node id="11">
+        <label>TimeRange</label>
+        <link refid="class_time_range"/>
+        <childnode refid="12" relation="usage">
+          <edgelabel>out_</edgelabel>
+          <edgelabel>in_</edgelabel>
+          <edgelabel>length_</edgelabel>
+        </childnode>
+      </node>
+      <node id="17">
+        <label>VideoParams</label>
+        <link refid="class_video_params"/>
+        <childnode refid="12" relation="usage">
+          <edgelabel>time_base_</edgelabel>
+        </childnode>
+      </node>
+      <node id="1">
+        <label>SequenceDialog</label>
+        <link refid="class_sequence_dialog"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>sequence_</edgelabel>
+        </childnode>
+      </node>
+      <node id="9">
+        <label>TimelineMarkerList</label>
+        <link refid="class_timeline_marker_list"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/dialog/sequence/sequence.h" line="47" column="1" bodyfile="C:/Daten/Olive/olive/app/dialog/sequence/sequence.h" bodystart="48" bodyend="142"/>
+    <listofallmembers>
+      <member refid="class_sequence_dialog_1a6b554aead721193c2add7e87f962d6fe" prot="public" virt="virtual"><scope>SequenceDialog</scope><name>accept</name></member>
+      <member refid="class_sequence_dialog_1af5945c3102932f80d74d8adf8f2ab2c6" prot="private" virt="non-virtual"><scope>SequenceDialog</scope><name>audio_channels_field_</name></member>
+      <member refid="class_sequence_dialog_1a6afb13b3e6856c7b4ec1ffdb9266b121" prot="private" virt="non-virtual"><scope>SequenceDialog</scope><name>audio_sample_rate_field_</name></member>
+      <member refid="class_sequence_dialog_1ab490bcb821bf11e3768db1f3c7af623c" prot="private" virt="non-virtual"><scope>SequenceDialog</scope><name>frame_rate_list_</name></member>
+      <member refid="class_sequence_dialog_1ac8bfa92fcc5a7428bb9283f9bbe71068a4f84a72e70d44467ba7280f735e4c590" prot="public" virt="non-virtual"><scope>SequenceDialog</scope><name>kExisting</name></member>
+      <member refid="class_sequence_dialog_1ac8bfa92fcc5a7428bb9283f9bbe71068a4f4da333f59e5575ad07e5d3412bb5e2" prot="public" virt="non-virtual"><scope>SequenceDialog</scope><name>kNew</name></member>
+      <member refid="class_sequence_dialog_1a8114f066fb13a6fcca88b7e1a27ca8fb" prot="private" virt="non-virtual"><scope>SequenceDialog</scope><name>make_undoable_</name></member>
+      <member refid="class_sequence_dialog_1a709457a4f0fd5f60904efddf6d350854" prot="private" virt="non-virtual"><scope>SequenceDialog</scope><name>name_field_</name></member>
+      <member refid="class_sequence_dialog_1ae7b0e61c5ab7f640728bc71197806dd7" prot="private" virt="non-virtual"><scope>SequenceDialog</scope><name>sample_rate_list_</name></member>
+      <member refid="class_sequence_dialog_1a4c2ec6306419bfe412d5372103c960e3" prot="private" virt="non-virtual"><scope>SequenceDialog</scope><name>sequence_</name></member>
+      <member refid="class_sequence_dialog_1abf06c473b9623285413730e08e422ce9" prot="public" virt="non-virtual"><scope>SequenceDialog</scope><name>SequenceDialog</name></member>
+      <member refid="class_sequence_dialog_1a7194478bbff8a4c6a34ab81732b4a7dc" prot="public" virt="non-virtual"><scope>SequenceDialog</scope><name>SetNameIsEditable</name></member>
+      <member refid="class_sequence_dialog_1a6de926b06cfcfd18ff7eaf560144d502" prot="public" virt="non-virtual"><scope>SequenceDialog</scope><name>SetUndoable</name></member>
+      <member refid="class_sequence_dialog_1ac8bfa92fcc5a7428bb9283f9bbe71068" prot="public" virt="non-virtual"><scope>SequenceDialog</scope><name>Type</name></member>
+      <member refid="class_sequence_dialog_1af7179a6aaa075543806d83444a2bf1e3" prot="private" virt="non-virtual"><scope>SequenceDialog</scope><name>video_frame_rate_field_</name></member>
+      <member refid="class_sequence_dialog_1aa06db3589dd7847c9a911ffa63dc884c" prot="private" virt="non-virtual"><scope>SequenceDialog</scope><name>video_height_field_</name></member>
+      <member refid="class_sequence_dialog_1a0a5387b3b24a4f59d4d74770b8fc1c13" prot="private" virt="non-virtual"><scope>SequenceDialog</scope><name>video_width_field_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

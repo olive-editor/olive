@@ -1,0 +1,587 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_node_param_view_keyframe_control" kind="class" language="C++" prot="public">
+    <compoundname>NodeParamViewKeyframeControl</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QWidget</basecompoundref>
+    <basecompoundref refid="class_time_target_object" prot="public" virt="non-virtual">TimeTargetObject</basecompoundref>
+    <includes refid="nodeparamviewkeyframecontrol_8h" local="no">nodeparamviewkeyframecontrol.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_node_param_view_keyframe_control_1a6a664f33c1240b1d36d9356792941e62" prot="private" static="no" mutable="no">
+        <type>QPushButton *</type>
+        <definition>QPushButton* NodeParamViewKeyframeControl::prev_key_btn_</definition>
+        <argsstring></argsstring>
+        <name>prev_key_btn_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewkeyframecontrol.h" line="74" column="15" bodyfile="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewkeyframecontrol.h" bodystart="74" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_param_view_keyframe_control_1ae207eb3dec38c42feba3f7fd4971a4b1" prot="private" static="no" mutable="no">
+        <type>QPushButton *</type>
+        <definition>QPushButton* NodeParamViewKeyframeControl::toggle_key_btn_</definition>
+        <argsstring></argsstring>
+        <name>toggle_key_btn_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewkeyframecontrol.h" line="75" column="15" bodyfile="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewkeyframecontrol.h" bodystart="75" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_param_view_keyframe_control_1af8f382383c66b4341da5a509ef51ca68" prot="private" static="no" mutable="no">
+        <type>QPushButton *</type>
+        <definition>QPushButton* NodeParamViewKeyframeControl::next_key_btn_</definition>
+        <argsstring></argsstring>
+        <name>next_key_btn_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewkeyframecontrol.h" line="76" column="15" bodyfile="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewkeyframecontrol.h" bodystart="76" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_param_view_keyframe_control_1a948972c707066d3eb1601edb7d30954b" prot="private" static="no" mutable="no">
+        <type>QPushButton *</type>
+        <definition>QPushButton* NodeParamViewKeyframeControl::enable_key_btn_</definition>
+        <argsstring></argsstring>
+        <name>enable_key_btn_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewkeyframecontrol.h" line="77" column="15" bodyfile="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewkeyframecontrol.h" bodystart="77" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_param_view_keyframe_control_1a47a246b6a9dc913fdb5169facb7a8814" prot="private" static="no" mutable="no">
+        <type><ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+        <definition>NodeInput* NodeParamViewKeyframeControl::input_</definition>
+        <argsstring></argsstring>
+        <name>input_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewkeyframecontrol.h" line="79" column="13" bodyfile="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewkeyframecontrol.h" bodystart="79" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_param_view_keyframe_control_1a6636a2b533abf85d1d18bebade723fe3" prot="private" static="no" mutable="no">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational NodeParamViewKeyframeControl::time_</definition>
+        <argsstring></argsstring>
+        <name>time_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewkeyframecontrol.h" line="81" column="12" bodyfile="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewkeyframecontrol.h" bodystart="81" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_time_target_object_1ae2792431e254b6f0c792689baf81f12c" prot="private" static="no" mutable="no">
+        <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+        <definition>Node* TimeTargetObject::time_target_</definition>
+        <argsstring></argsstring>
+        <name>time_target_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/timetargetobject.h" line="65" column="8" bodyfile="C:/Daten/Olive/olive/app/widget/keyframeview/timetargetobject.h" bodystart="65" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_time_target_object_1a396c17c1ef87220c6ebc479767b0bc32" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int TimeTargetObject::path_index_</definition>
+        <argsstring></argsstring>
+        <name>path_index_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/timetargetobject.h" line="67" column="7" bodyfile="C:/Daten/Olive/olive/app/widget/keyframeview/timetargetobject.h" bodystart="67" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_node_param_view_keyframe_control_1adc4349b1b1f001c6445b68fbd84bb511" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>NodeParamViewKeyframeControl::NodeParamViewKeyframeControl</definition>
+        <argsstring>(bool right_align=true, QWidget *parent=nullptr)</argsstring>
+        <name>NodeParamViewKeyframeControl</name>
+        <param>
+          <type>bool</type>
+          <declname>right_align</declname>
+          <defval>true</defval>
+        </param>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewkeyframecontrol.h" line="54" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_param_view_keyframe_control_1a8fcb6f81e56e7c8cb80ff898cec8895a" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+        <definition>NodeInput* NodeParamViewKeyframeControl::GetConnectedInput</definition>
+        <argsstring>() const</argsstring>
+        <name>GetConnectedInput</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewkeyframecontrol.h" line="56" column="13"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_param_view_keyframe_control_1a1ee35a35cfe0bdb756e8d16436cf58bb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeParamViewKeyframeControl::SetInput</definition>
+        <argsstring>(NodeInput *input)</argsstring>
+        <name>SetInput</name>
+        <param>
+          <type><ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+          <declname>input</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewkeyframecontrol.h" line="58" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_param_view_keyframe_control_1aaea46dcc2e1efadbe510b6057561e723" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeParamViewKeyframeControl::SetTime</definition>
+        <argsstring>(const rational &amp;time)</argsstring>
+        <name>SetTime</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewkeyframecontrol.h" line="60" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_time_target_object_1a4d42f0e790778389027787114c068cde" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+        <definition>Node* TimeTargetObject::GetTimeTarget</definition>
+        <argsstring>() const</argsstring>
+        <name>GetTimeTarget</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/timetargetobject.h" line="51" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_time_target_object_1ad88c63861b9c2abf103668c4edbe1988" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimeTargetObject::SetTimeTarget</definition>
+        <argsstring>(Node *target)</argsstring>
+        <name>SetTimeTarget</name>
+        <param>
+          <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+          <declname>target</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/timetargetobject.h" line="52" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_time_target_object_1a55c145c76abc5aed2a626323df520215" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimeTargetObject::SetPathIndex</definition>
+        <argsstring>(int index)</argsstring>
+        <name>SetPathIndex</name>
+        <param>
+          <type>int</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/timetargetobject.h" line="54" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_time_target_object_1a71547059dd3abb5bef68333d00e5bf24" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational TimeTargetObject::GetAdjustedTime</definition>
+        <argsstring>(Node *from, Node *to, const rational &amp;r, NodeParam::Type direction) const</argsstring>
+        <name>GetAdjustedTime</name>
+        <param>
+          <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+          <declname>from</declname>
+        </param>
+        <param>
+          <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+          <declname>to</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type><ref refid="class_node_param_1a57c2c5ab98ca8fd2c41cd1ebad045a00" kindref="member">NodeParam::Type</ref></type>
+          <declname>direction</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/timetargetobject.h" line="56" column="12"/>
+      </memberdef>
+      <memberdef kind="function" id="class_time_target_object_1a1817932c14f0f7734c49e29c84377819" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_time_range" kindref="compound">TimeRange</ref></type>
+        <definition>TimeRange TimeTargetObject::GetAdjustedTime</definition>
+        <argsstring>(Node *from, Node *to, const TimeRange &amp;r, NodeParam::Type direction) const</argsstring>
+        <name>GetAdjustedTime</name>
+        <param>
+          <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+          <declname>from</declname>
+        </param>
+        <param>
+          <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+          <declname>to</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_time_range" kindref="compound">TimeRange</ref> &amp;</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type><ref refid="class_node_param_1a57c2c5ab98ca8fd2c41cd1ebad045a00" kindref="member">NodeParam::Type</ref></type>
+          <declname>direction</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/timetargetobject.h" line="57" column="13"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_node_param_view_keyframe_control_1a46f6c08e5428c304ed7d4de27ed0aacd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeParamViewKeyframeControl::RequestSetTime</definition>
+        <argsstring>(const rational &amp;time)</argsstring>
+        <name>RequestSetTime</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewkeyframecontrol.h" line="63" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_node_param_view_keyframe_control_1ac581ead543066763b2ffa64f1fd4f0cf" prot="private" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QPushButton *</type>
+        <definition>QPushButton* NodeParamViewKeyframeControl::CreateNewToolButton</definition>
+        <argsstring>(const QIcon &amp;icon) const</argsstring>
+        <name>CreateNewToolButton</name>
+        <param>
+          <type>const QIcon &amp;</type>
+          <declname>icon</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewkeyframecontrol.h" line="66" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_param_view_keyframe_control_1a3a924e2da99a281d148ae35df283d29d" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeParamViewKeyframeControl::SetButtonsEnabled</definition>
+        <argsstring>(bool e)</argsstring>
+        <name>SetButtonsEnabled</name>
+        <param>
+          <type>bool</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewkeyframecontrol.h" line="68" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_param_view_keyframe_control_1a4cc7942543461d6bc9d453060ba5c33e" prot="private" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational NodeParamViewKeyframeControl::GetCurrentTimeAsNodeTime</definition>
+        <argsstring>() const</argsstring>
+        <name>GetCurrentTimeAsNodeTime</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewkeyframecontrol.h" line="70" column="12"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_param_view_keyframe_control_1a942ab2ecdc8b229b71c72cbf8a667d86" prot="private" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational NodeParamViewKeyframeControl::ConvertToViewerTime</definition>
+        <argsstring>(const rational &amp;r) const</argsstring>
+        <name>ConvertToViewerTime</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewkeyframecontrol.h" line="72" column="12"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_node_param_view_keyframe_control_1afd305db7433f0daa8bbb11a9f0dd8768" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeParamViewKeyframeControl::ShowButtonsFromKeyframeEnable</definition>
+        <argsstring>(bool e)</argsstring>
+        <name>ShowButtonsFromKeyframeEnable</name>
+        <param>
+          <type>bool</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewkeyframecontrol.h" line="84" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_node_param_view_keyframe_control_1a0ee4bcbd025bd9ff33c0c2b2d5f8a3b6" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeParamViewKeyframeControl::ToggleKeyframe</definition>
+        <argsstring>(bool e)</argsstring>
+        <name>ToggleKeyframe</name>
+        <param>
+          <type>bool</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewkeyframecontrol.h" line="86" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_node_param_view_keyframe_control_1ac62f5a2ccc1ad2b4e3d2a8a2a2f13a37" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeParamViewKeyframeControl::UpdateState</definition>
+        <argsstring>()</argsstring>
+        <name>UpdateState</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewkeyframecontrol.h" line="88" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_node_param_view_keyframe_control_1a391a99558f8e09338e095407cb57a567" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeParamViewKeyframeControl::GoToPreviousKey</definition>
+        <argsstring>()</argsstring>
+        <name>GoToPreviousKey</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewkeyframecontrol.h" line="90" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_node_param_view_keyframe_control_1a3ce0f0c72e7bbedcbf206a200deeafda" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeParamViewKeyframeControl::GoToNextKey</definition>
+        <argsstring>()</argsstring>
+        <name>GoToNextKey</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewkeyframecontrol.h" line="92" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_node_param_view_keyframe_control_1a73c616e113d0669fbe5e45bb49be1646" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeParamViewKeyframeControl::KeyframeEnableChanged</definition>
+        <argsstring>(bool e)</argsstring>
+        <name>KeyframeEnableChanged</name>
+        <param>
+          <type>bool</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewkeyframecontrol.h" line="94" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_time_target_object_1a970f490a7212c20807684cdf36a4d321" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void TimeTargetObject::TimeTargetChangedEvent</definition>
+        <argsstring>(Node *)</argsstring>
+        <name>TimeTargetChangedEvent</name>
+        <reimplementedby refid="class_keyframe_view_item_1a616746fee2c7ef9dd4b8fa57d8293191">TimeTargetChangedEvent</reimplementedby>
+        <reimplementedby refid="class_keyframe_view_base_1a7dbea774a3b3603ae6907a37b4e1525c">TimeTargetChangedEvent</reimplementedby>
+        <reimplementedby refid="class_curve_widget_1a965b2c68fdcea8fba6eff70e58026ad5">TimeTargetChangedEvent</reimplementedby>
+        <param>
+          <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/timetargetobject.h" line="62" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/keyframeview/timetargetobject.h" bodystart="62" bodyend="62"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>TimeTargetObject</label>
+        <link refid="class_time_target_object"/>
+      </node>
+      <node id="1">
+        <label>NodeParamViewKeyframeControl</label>
+        <link refid="class_node_param_view_keyframe_control"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="4">
+        <label>NodeOutput</label>
+        <link refid="class_node_output"/>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="3">
+        <label>Node</label>
+        <link refid="class_node"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>output_</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>TimeTargetObject</label>
+        <link refid="class_time_target_object"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>time_target_</edgelabel>
+        </childnode>
+      </node>
+      <node id="7">
+        <label>NodeInput</label>
+        <link refid="class_node_input"/>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>NodeParamViewKeyframeControl</label>
+        <link refid="class_node_param_view_keyframe_control"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>time_</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>input_</edgelabel>
+        </childnode>
+      </node>
+      <node id="5">
+        <label>NodeParam</label>
+        <link refid="class_node_param"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewkeyframecontrol.h" line="32" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewkeyframecontrol.h" bodystart="33" bodyend="78"/>
+    <listofallmembers>
+      <member refid="class_node_param_view_keyframe_control_1a942ab2ecdc8b229b71c72cbf8a667d86" prot="private" virt="non-virtual"><scope>NodeParamViewKeyframeControl</scope><name>ConvertToViewerTime</name></member>
+      <member refid="class_node_param_view_keyframe_control_1ac581ead543066763b2ffa64f1fd4f0cf" prot="private" virt="non-virtual"><scope>NodeParamViewKeyframeControl</scope><name>CreateNewToolButton</name></member>
+      <member refid="class_node_param_view_keyframe_control_1a948972c707066d3eb1601edb7d30954b" prot="private" virt="non-virtual"><scope>NodeParamViewKeyframeControl</scope><name>enable_key_btn_</name></member>
+      <member refid="class_time_target_object_1a71547059dd3abb5bef68333d00e5bf24" prot="public" virt="non-virtual"><scope>NodeParamViewKeyframeControl</scope><name>GetAdjustedTime</name></member>
+      <member refid="class_time_target_object_1a1817932c14f0f7734c49e29c84377819" prot="public" virt="non-virtual"><scope>NodeParamViewKeyframeControl</scope><name>GetAdjustedTime</name></member>
+      <member refid="class_node_param_view_keyframe_control_1a8fcb6f81e56e7c8cb80ff898cec8895a" prot="public" virt="non-virtual"><scope>NodeParamViewKeyframeControl</scope><name>GetConnectedInput</name></member>
+      <member refid="class_node_param_view_keyframe_control_1a4cc7942543461d6bc9d453060ba5c33e" prot="private" virt="non-virtual"><scope>NodeParamViewKeyframeControl</scope><name>GetCurrentTimeAsNodeTime</name></member>
+      <member refid="class_time_target_object_1a4d42f0e790778389027787114c068cde" prot="public" virt="non-virtual"><scope>NodeParamViewKeyframeControl</scope><name>GetTimeTarget</name></member>
+      <member refid="class_node_param_view_keyframe_control_1a3ce0f0c72e7bbedcbf206a200deeafda" prot="private" virt="non-virtual"><scope>NodeParamViewKeyframeControl</scope><name>GoToNextKey</name></member>
+      <member refid="class_node_param_view_keyframe_control_1a391a99558f8e09338e095407cb57a567" prot="private" virt="non-virtual"><scope>NodeParamViewKeyframeControl</scope><name>GoToPreviousKey</name></member>
+      <member refid="class_node_param_view_keyframe_control_1a47a246b6a9dc913fdb5169facb7a8814" prot="private" virt="non-virtual"><scope>NodeParamViewKeyframeControl</scope><name>input_</name></member>
+      <member refid="class_node_param_view_keyframe_control_1a73c616e113d0669fbe5e45bb49be1646" prot="private" virt="non-virtual"><scope>NodeParamViewKeyframeControl</scope><name>KeyframeEnableChanged</name></member>
+      <member refid="class_node_param_view_keyframe_control_1af8f382383c66b4341da5a509ef51ca68" prot="private" virt="non-virtual"><scope>NodeParamViewKeyframeControl</scope><name>next_key_btn_</name></member>
+      <member refid="class_node_param_view_keyframe_control_1adc4349b1b1f001c6445b68fbd84bb511" prot="public" virt="non-virtual"><scope>NodeParamViewKeyframeControl</scope><name>NodeParamViewKeyframeControl</name></member>
+      <member refid="class_time_target_object_1a396c17c1ef87220c6ebc479767b0bc32" prot="private" virt="non-virtual"><scope>NodeParamViewKeyframeControl</scope><name>path_index_</name></member>
+      <member refid="class_node_param_view_keyframe_control_1a6a664f33c1240b1d36d9356792941e62" prot="private" virt="non-virtual"><scope>NodeParamViewKeyframeControl</scope><name>prev_key_btn_</name></member>
+      <member refid="class_node_param_view_keyframe_control_1a46f6c08e5428c304ed7d4de27ed0aacd" prot="public" virt="non-virtual"><scope>NodeParamViewKeyframeControl</scope><name>RequestSetTime</name></member>
+      <member refid="class_node_param_view_keyframe_control_1a3a924e2da99a281d148ae35df283d29d" prot="private" virt="non-virtual"><scope>NodeParamViewKeyframeControl</scope><name>SetButtonsEnabled</name></member>
+      <member refid="class_node_param_view_keyframe_control_1a1ee35a35cfe0bdb756e8d16436cf58bb" prot="public" virt="non-virtual"><scope>NodeParamViewKeyframeControl</scope><name>SetInput</name></member>
+      <member refid="class_time_target_object_1a55c145c76abc5aed2a626323df520215" prot="public" virt="non-virtual"><scope>NodeParamViewKeyframeControl</scope><name>SetPathIndex</name></member>
+      <member refid="class_node_param_view_keyframe_control_1aaea46dcc2e1efadbe510b6057561e723" prot="public" virt="non-virtual"><scope>NodeParamViewKeyframeControl</scope><name>SetTime</name></member>
+      <member refid="class_time_target_object_1ad88c63861b9c2abf103668c4edbe1988" prot="public" virt="non-virtual"><scope>NodeParamViewKeyframeControl</scope><name>SetTimeTarget</name></member>
+      <member refid="class_node_param_view_keyframe_control_1afd305db7433f0daa8bbb11a9f0dd8768" prot="private" virt="non-virtual"><scope>NodeParamViewKeyframeControl</scope><name>ShowButtonsFromKeyframeEnable</name></member>
+      <member refid="class_node_param_view_keyframe_control_1a6636a2b533abf85d1d18bebade723fe3" prot="private" virt="non-virtual"><scope>NodeParamViewKeyframeControl</scope><name>time_</name></member>
+      <member refid="class_time_target_object_1ae2792431e254b6f0c792689baf81f12c" prot="private" virt="non-virtual"><scope>NodeParamViewKeyframeControl</scope><name>time_target_</name></member>
+      <member refid="class_time_target_object_1a970f490a7212c20807684cdf36a4d321" prot="protected" virt="virtual"><scope>NodeParamViewKeyframeControl</scope><name>TimeTargetChangedEvent</name></member>
+      <member refid="class_time_target_object_1a9963aaae089e5709e8254521a3922a05" prot="public" virt="non-virtual"><scope>NodeParamViewKeyframeControl</scope><name>TimeTargetObject</name></member>
+      <member refid="class_node_param_view_keyframe_control_1ae207eb3dec38c42feba3f7fd4971a4b1" prot="private" virt="non-virtual"><scope>NodeParamViewKeyframeControl</scope><name>toggle_key_btn_</name></member>
+      <member refid="class_node_param_view_keyframe_control_1a0ee4bcbd025bd9ff33c0c2b2d5f8a3b6" prot="private" virt="non-virtual"><scope>NodeParamViewKeyframeControl</scope><name>ToggleKeyframe</name></member>
+      <member refid="class_node_param_view_keyframe_control_1ac62f5a2ccc1ad2b4e3d2a8a2a2f13a37" prot="private" virt="non-virtual"><scope>NodeParamViewKeyframeControl</scope><name>UpdateState</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

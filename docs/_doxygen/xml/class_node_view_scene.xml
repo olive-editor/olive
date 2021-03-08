@@ -1,0 +1,461 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_node_view_scene" kind="class" language="C++" prot="public">
+    <compoundname>NodeViewScene</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QGraphicsScene</basecompoundref>
+    <includes refid="nodeviewscene_8h" local="no">nodeviewscene.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_node_view_scene_1a2be6a03fab0b67f2f27defc54a80621a" prot="private" static="no" mutable="no">
+        <type>QHash&lt; <ref refid="class_node" kindref="compound">Node</ref> *, <ref refid="class_node_view_item" kindref="compound">NodeViewItem</ref> * &gt;</type>
+        <definition>QHash&lt;Node*, NodeViewItem*&gt; NodeViewScene::item_map_</definition>
+        <argsstring></argsstring>
+        <name>item_map_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewscene.h" line="135" column="9" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewscene.h" bodystart="135" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_view_scene_1a0e1e4ac31e96a51adb02a475e70794e4" prot="private" static="no" mutable="no">
+        <type>QHash&lt; <ref refid="class_node_edge" kindref="compound">NodeEdge</ref> *, <ref refid="class_node_view_edge" kindref="compound">NodeViewEdge</ref> * &gt;</type>
+        <definition>QHash&lt;NodeEdge*, NodeViewEdge*&gt; NodeViewScene::edge_map_</definition>
+        <argsstring></argsstring>
+        <name>edge_map_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewscene.h" line="137" column="9" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewscene.h" bodystart="137" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_view_scene_1a6dec91cf32333e05ed7eea731a471478" prot="private" static="no" mutable="no">
+        <type><ref refid="class_node_graph" kindref="compound">NodeGraph</ref> *</type>
+        <definition>NodeGraph* NodeViewScene::graph_</definition>
+        <argsstring></argsstring>
+        <name>graph_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewscene.h" line="139" column="13" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewscene.h" bodystart="139" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_view_scene_1aee797c0ab4f81997535b40b296db40b0" prot="private" static="no" mutable="no">
+        <type><ref refid="class_node_view_common_1a7718854113b8b4f38800f29a448944b2" kindref="member">NodeViewCommon::FlowDirection</ref></type>
+        <definition>NodeViewCommon::FlowDirection NodeViewScene::direction_</definition>
+        <argsstring></argsstring>
+        <name>direction_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewscene.h" line="141" column="33" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewscene.h" bodystart="141" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_node_view_scene_1a2d9ea13ef0ce3db213d3b920d282a29e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>NodeViewScene::NodeViewScene</definition>
+        <argsstring>(QObject *parent=nullptr)</argsstring>
+        <name>NodeViewScene</name>
+        <param>
+          <type>QObject *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewscene.h" line="55" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_scene_1a7b4077a0c3e605abb93e1117e59fd5a1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeViewScene::clear</definition>
+        <argsstring>()</argsstring>
+        <name>clear</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewscene.h" line="57" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_scene_1acedf07ab686677f8906116265f241ce0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeViewScene::SelectAll</definition>
+        <argsstring>()</argsstring>
+        <name>SelectAll</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewscene.h" line="59" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_scene_1a19107e2a5b053b620f9f48b3ec64a5a7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeViewScene::DeselectAll</definition>
+        <argsstring>()</argsstring>
+        <name>DeselectAll</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewscene.h" line="60" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_scene_1a6407103e174edb5225be8471df30f54d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_node_view_item" kindref="compound">NodeViewItem</ref> *</type>
+        <definition>NodeViewItem* NodeViewScene::NodeToUIObject</definition>
+        <argsstring>(Node *n)</argsstring>
+        <name>NodeToUIObject</name>
+        <param>
+          <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Retrieve the graphical widget corresponding to a specific <ref refid="class_node" kindref="compound">Node</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>In situations where you know what <ref refid="class_node" kindref="compound">Node</ref> you&apos;re working with but need the UI object (e.g. for positioning), this static function will retrieve the <ref refid="class_node_view_item" kindref="compound">NodeViewItem</ref> (<ref refid="class_node" kindref="compound">Node</ref> UI representation) connected to this <ref refid="class_node" kindref="compound">Node</ref> in a certain QGraphicsScene. This can be called from any other UI object, since it&apos;ll have a reference to the QGraphicsScene through QGraphicsItem::scene().</para>
+<para>If the scene does not contain a widget for this node (usually meaning the node&apos;s graph is not the active graph in this view/scene), this function returns nullptr. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewscene.h" line="73" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_scene_1a24a4af6aaee87966aeaef70df8896bb3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_node_view_edge" kindref="compound">NodeViewEdge</ref> *</type>
+        <definition>NodeViewEdge* NodeViewScene::EdgeToUIObject</definition>
+        <argsstring>(NodeEdgePtr n)</argsstring>
+        <name>EdgeToUIObject</name>
+        <param>
+          <type><ref refid="edge_8h_1a9eb6ae7d2b608077e13ab3571ea6b101" kindref="member">NodeEdgePtr</ref></type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Retrieve the graphical widget corresponding to a specific <ref refid="class_node_edge" kindref="compound">NodeEdge</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Same as <ref refid="class_node_view_scene_1a6407103e174edb5225be8471df30f54d" kindref="member">NodeToUIObject()</ref> but returns a <ref refid="class_node_view_edge" kindref="compound">NodeViewEdge</ref> corresponding to a NodeEdgePtr instead. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewscene.h" line="80" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_scene_1af3b7f0d66b9985e304cb59a123d973d8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeViewScene::SetGraph</definition>
+        <argsstring>(NodeGraph *graph)</argsstring>
+        <name>SetGraph</name>
+        <param>
+          <type><ref refid="class_node_graph" kindref="compound">NodeGraph</ref> *</type>
+          <declname>graph</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewscene.h" line="82" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_scene_1a594f799bf9dca2b6a9881c5e3a517f07" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QList&lt; <ref refid="class_node" kindref="compound">Node</ref> * &gt;</type>
+        <definition>QList&lt;Node*&gt; NodeViewScene::GetSelectedNodes</definition>
+        <argsstring>() const</argsstring>
+        <name>GetSelectedNodes</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewscene.h" line="84" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_scene_1acbc34ce2672acd54ce561eeeee3a415d" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QList&lt; <ref refid="class_node_view_item" kindref="compound">NodeViewItem</ref> * &gt;</type>
+        <definition>QList&lt;NodeViewItem*&gt; NodeViewScene::GetSelectedItems</definition>
+        <argsstring>() const</argsstring>
+        <name>GetSelectedItems</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewscene.h" line="85" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_scene_1ae1b618039ac70a67c8fa82e93a0672ae" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QList&lt; <ref refid="class_node_edge" kindref="compound">NodeEdge</ref> * &gt;</type>
+        <definition>QList&lt;NodeEdge *&gt; NodeViewScene::GetSelectedEdges</definition>
+        <argsstring>() const</argsstring>
+        <name>GetSelectedEdges</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewscene.h" line="86" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_scene_1ae8f10f407d3194dfa90db1d3684c4bfa" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const QHash&lt; <ref refid="class_node" kindref="compound">Node</ref> *, <ref refid="class_node_view_item" kindref="compound">NodeViewItem</ref> * &gt; &amp;</type>
+        <definition>const QHash&lt;Node*, NodeViewItem*&gt;&amp; NodeViewScene::item_map</definition>
+        <argsstring>() const</argsstring>
+        <name>item_map</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewscene.h" line="88" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_scene_1a430e7d6612920a2071de62aeec2365a0" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const QHash&lt; <ref refid="class_node_edge" kindref="compound">NodeEdge</ref> *, <ref refid="class_node_view_edge" kindref="compound">NodeViewEdge</ref> * &gt; &amp;</type>
+        <definition>const QHash&lt;NodeEdge*, NodeViewEdge*&gt;&amp; NodeViewScene::edge_map</definition>
+        <argsstring>() const</argsstring>
+        <name>edge_map</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewscene.h" line="89" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_scene_1a7decbe14a7040d42fe2dad59cdb8a5df" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>Qt::Orientation</type>
+        <definition>Qt::Orientation NodeViewScene::GetFlowOrientation</definition>
+        <argsstring>() const</argsstring>
+        <name>GetFlowOrientation</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewscene.h" line="91" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_scene_1a2cd70293c0b6378cac7e63dd75c350f7" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_node_view_common_1a7718854113b8b4f38800f29a448944b2" kindref="member">NodeViewCommon::FlowDirection</ref></type>
+        <definition>NodeViewCommon::FlowDirection NodeViewScene::GetFlowDirection</definition>
+        <argsstring>() const</argsstring>
+        <name>GetFlowDirection</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewscene.h" line="93" column="33"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_scene_1a400821ecdd176772b0b294d3da92a52d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeViewScene::SetFlowDirection</definition>
+        <argsstring>(NodeViewCommon::FlowDirection direction)</argsstring>
+        <name>SetFlowDirection</name>
+        <param>
+          <type><ref refid="class_node_view_common_1a7718854113b8b4f38800f29a448944b2" kindref="member">NodeViewCommon::FlowDirection</ref></type>
+          <declname>direction</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewscene.h" line="94" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_scene_1a148fd0ce249441a93155945d1591c110" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeViewScene::ReorganizeFrom</definition>
+        <argsstring>(Node *n)</argsstring>
+        <name>ReorganizeFrom</name>
+        <param>
+          <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Automatically reposition the nodes based on their connections. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewscene.h" line="99" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-slot">
+      <memberdef kind="slot" id="class_node_view_scene_1afbe0c30ca3368cb038080929a10be50b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeViewScene::AddNode</definition>
+        <argsstring>(Node *node)</argsstring>
+        <name>AddNode</name>
+        <param>
+          <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+          <declname>node</declname>
+        </param>
+        <briefdescription>
+<para>Slot when a <ref refid="class_node" kindref="compound">Node</ref> is added to a graph (<ref refid="class_node_view_scene_1af3b7f0d66b9985e304cb59a123d973d8" kindref="member">SetGraph()</ref> connects this) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This should NEVER be called directly, only connected to a <ref refid="class_node_graph" kindref="compound">NodeGraph</ref>. To add a <ref refid="class_node" kindref="compound">Node</ref> to the <ref refid="class_node_graph" kindref="compound">NodeGraph</ref> use <ref refid="class_node_graph_1af2a3a2346be0e584868095e3c297ec96" kindref="member">NodeGraph::AddNode()</ref>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewscene.h" line="108" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_node_view_scene_1a9e1cd65dbdfa3bd2d9187f93a8804722" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeViewScene::RemoveNode</definition>
+        <argsstring>(Node *node)</argsstring>
+        <name>RemoveNode</name>
+        <param>
+          <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+          <declname>node</declname>
+        </param>
+        <briefdescription>
+<para>Slot when a <ref refid="class_node" kindref="compound">Node</ref> is removed from a graph (<ref refid="class_node_view_scene_1af3b7f0d66b9985e304cb59a123d973d8" kindref="member">SetGraph()</ref> connects this) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This should NEVER be called directly, only connected to a <ref refid="class_node_graph" kindref="compound">NodeGraph</ref>. To remove a <ref refid="class_node" kindref="compound">Node</ref> from the <ref refid="class_node_graph" kindref="compound">NodeGraph</ref> use NodeGraph::RemoveNode(). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewscene.h" line="116" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_node_view_scene_1a02dc4a07bd733b0e530eb018a49d6452" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeViewScene::AddEdge</definition>
+        <argsstring>(NodeEdgePtr edge)</argsstring>
+        <name>AddEdge</name>
+        <param>
+          <type><ref refid="edge_8h_1a9eb6ae7d2b608077e13ab3571ea6b101" kindref="member">NodeEdgePtr</ref></type>
+          <declname>edge</declname>
+        </param>
+        <briefdescription>
+<para>Slot when an edge is added to a graph (<ref refid="class_node_view_scene_1af3b7f0d66b9985e304cb59a123d973d8" kindref="member">SetGraph()</ref> connects this) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This should NEVER be called directly, only connected to a <ref refid="class_node_graph" kindref="compound">NodeGraph</ref>. To add an edge (i.e. connect two node parameters together), use <ref refid="class_node_param_1ae1342ab9aa4847190582aad701674cd8" kindref="member">NodeParam::ConnectEdge()</ref>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewscene.h" line="124" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_node_view_scene_1ab87be08a6ec63eecfa65754dc67eb9f4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeViewScene::RemoveEdge</definition>
+        <argsstring>(NodeEdgePtr edge)</argsstring>
+        <name>RemoveEdge</name>
+        <param>
+          <type><ref refid="edge_8h_1a9eb6ae7d2b608077e13ab3571ea6b101" kindref="member">NodeEdgePtr</ref></type>
+          <declname>edge</declname>
+        </param>
+        <briefdescription>
+<para>Slot when an edge is removed from a graph (<ref refid="class_node_view_scene_1af3b7f0d66b9985e304cb59a123d973d8" kindref="member">SetGraph()</ref> connects this) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This should NEVER be called directly, only connected to a <ref refid="class_node_graph" kindref="compound">NodeGraph</ref>. To remove an edge (i.e. disconnect two node parameters), use <ref refid="class_node_param_1ab21fdca44d0da9490d7caea9a3d7a015" kindref="member">NodeParam::DisconnectEdge()</ref>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewscene.h" line="132" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_node_view_scene_1a978fd1fe7c5aa245a68afade92911adb" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeViewScene::NodePositionChanged</definition>
+        <argsstring>(const QPointF &amp;pos)</argsstring>
+        <name>NodePositionChanged</name>
+        <param>
+          <type>const QPointF &amp;</type>
+          <declname>pos</declname>
+        </param>
+        <briefdescription>
+<para>Receiver for whenever a node position changes. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewscene.h" line="147" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_node_view_scene_1a77d5317dacd7404d0f4e7b8cd801d057" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeViewScene::NodeLabelChanged</definition>
+        <argsstring>()</argsstring>
+        <name>NodeLabelChanged</name>
+        <briefdescription>
+<para>Receiver for when a node&apos;s label has changed. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewscene.h" line="152" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="2">
+        <label>NodeGraph</label>
+        <link refid="class_node_graph"/>
+      </node>
+      <node id="1">
+        <label>NodeViewScene</label>
+        <link refid="class_node_view_scene"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>graph_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewscene.h" line="33" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewscene.h" bodystart="34" bodyend="136"/>
+    <listofallmembers>
+      <member refid="class_node_view_scene_1a02dc4a07bd733b0e530eb018a49d6452" prot="public" virt="non-virtual"><scope>NodeViewScene</scope><name>AddEdge</name></member>
+      <member refid="class_node_view_scene_1afbe0c30ca3368cb038080929a10be50b" prot="public" virt="non-virtual"><scope>NodeViewScene</scope><name>AddNode</name></member>
+      <member refid="class_node_view_scene_1a7b4077a0c3e605abb93e1117e59fd5a1" prot="public" virt="non-virtual"><scope>NodeViewScene</scope><name>clear</name></member>
+      <member refid="class_node_view_scene_1a19107e2a5b053b620f9f48b3ec64a5a7" prot="public" virt="non-virtual"><scope>NodeViewScene</scope><name>DeselectAll</name></member>
+      <member refid="class_node_view_scene_1aee797c0ab4f81997535b40b296db40b0" prot="private" virt="non-virtual"><scope>NodeViewScene</scope><name>direction_</name></member>
+      <member refid="class_node_view_scene_1a430e7d6612920a2071de62aeec2365a0" prot="public" virt="non-virtual"><scope>NodeViewScene</scope><name>edge_map</name></member>
+      <member refid="class_node_view_scene_1a0e1e4ac31e96a51adb02a475e70794e4" prot="private" virt="non-virtual"><scope>NodeViewScene</scope><name>edge_map_</name></member>
+      <member refid="class_node_view_scene_1a24a4af6aaee87966aeaef70df8896bb3" prot="public" virt="non-virtual"><scope>NodeViewScene</scope><name>EdgeToUIObject</name></member>
+      <member refid="class_node_view_scene_1a2cd70293c0b6378cac7e63dd75c350f7" prot="public" virt="non-virtual"><scope>NodeViewScene</scope><name>GetFlowDirection</name></member>
+      <member refid="class_node_view_scene_1a7decbe14a7040d42fe2dad59cdb8a5df" prot="public" virt="non-virtual"><scope>NodeViewScene</scope><name>GetFlowOrientation</name></member>
+      <member refid="class_node_view_scene_1ae1b618039ac70a67c8fa82e93a0672ae" prot="public" virt="non-virtual"><scope>NodeViewScene</scope><name>GetSelectedEdges</name></member>
+      <member refid="class_node_view_scene_1acbc34ce2672acd54ce561eeeee3a415d" prot="public" virt="non-virtual"><scope>NodeViewScene</scope><name>GetSelectedItems</name></member>
+      <member refid="class_node_view_scene_1a594f799bf9dca2b6a9881c5e3a517f07" prot="public" virt="non-virtual"><scope>NodeViewScene</scope><name>GetSelectedNodes</name></member>
+      <member refid="class_node_view_scene_1a6dec91cf32333e05ed7eea731a471478" prot="private" virt="non-virtual"><scope>NodeViewScene</scope><name>graph_</name></member>
+      <member refid="class_node_view_scene_1ae8f10f407d3194dfa90db1d3684c4bfa" prot="public" virt="non-virtual"><scope>NodeViewScene</scope><name>item_map</name></member>
+      <member refid="class_node_view_scene_1a2be6a03fab0b67f2f27defc54a80621a" prot="private" virt="non-virtual"><scope>NodeViewScene</scope><name>item_map_</name></member>
+      <member refid="class_node_view_scene_1a77d5317dacd7404d0f4e7b8cd801d057" prot="private" virt="non-virtual"><scope>NodeViewScene</scope><name>NodeLabelChanged</name></member>
+      <member refid="class_node_view_scene_1a978fd1fe7c5aa245a68afade92911adb" prot="private" virt="non-virtual"><scope>NodeViewScene</scope><name>NodePositionChanged</name></member>
+      <member refid="class_node_view_scene_1a6407103e174edb5225be8471df30f54d" prot="public" virt="non-virtual"><scope>NodeViewScene</scope><name>NodeToUIObject</name></member>
+      <member refid="class_node_view_scene_1a2d9ea13ef0ce3db213d3b920d282a29e" prot="public" virt="non-virtual"><scope>NodeViewScene</scope><name>NodeViewScene</name></member>
+      <member refid="class_node_view_scene_1ab87be08a6ec63eecfa65754dc67eb9f4" prot="public" virt="non-virtual"><scope>NodeViewScene</scope><name>RemoveEdge</name></member>
+      <member refid="class_node_view_scene_1a9e1cd65dbdfa3bd2d9187f93a8804722" prot="public" virt="non-virtual"><scope>NodeViewScene</scope><name>RemoveNode</name></member>
+      <member refid="class_node_view_scene_1a148fd0ce249441a93155945d1591c110" prot="public" virt="non-virtual"><scope>NodeViewScene</scope><name>ReorganizeFrom</name></member>
+      <member refid="class_node_view_scene_1acedf07ab686677f8906116265f241ce0" prot="public" virt="non-virtual"><scope>NodeViewScene</scope><name>SelectAll</name></member>
+      <member refid="class_node_view_scene_1a400821ecdd176772b0b294d3da92a52d" prot="public" virt="non-virtual"><scope>NodeViewScene</scope><name>SetFlowDirection</name></member>
+      <member refid="class_node_view_scene_1af3b7f0d66b9985e304cb59a123d973d8" prot="public" virt="non-virtual"><scope>NodeViewScene</scope><name>SetGraph</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

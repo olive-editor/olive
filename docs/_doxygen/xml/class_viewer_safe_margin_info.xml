@@ -1,0 +1,125 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_viewer_safe_margin_info" kind="class" language="C++" prot="public">
+    <compoundname>ViewerSafeMarginInfo</compoundname>
+    <includes refid="viewersafemargininfo_8h" local="no">viewersafemargininfo.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_viewer_safe_margin_info_1a34609300074d792bb0333ee639e89b89" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool ViewerSafeMarginInfo::enabled_</definition>
+        <argsstring></argsstring>
+        <name>enabled_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewersafemargininfo.h" line="75" column="8" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/viewersafemargininfo.h" bodystart="75" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_viewer_safe_margin_info_1ab9977b911bba9cbf5c9a34066c3132a8" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double ViewerSafeMarginInfo::ratio_</definition>
+        <argsstring></argsstring>
+        <name>ratio_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewersafemargininfo.h" line="77" column="10" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/viewersafemargininfo.h" bodystart="77" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_viewer_safe_margin_info_1a2511f130d4a21eb30f196e4c2413a1ad" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>ViewerSafeMarginInfo::ViewerSafeMarginInfo</definition>
+        <argsstring>()</argsstring>
+        <name>ViewerSafeMarginInfo</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewersafemargininfo.h" line="48" column="3" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/viewersafemargininfo.h" bodystart="48" bodyend="51"/>
+      </memberdef>
+      <memberdef kind="function" id="class_viewer_safe_margin_info_1a304c72dc03dac22751a92534fa5b651f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>ViewerSafeMarginInfo::ViewerSafeMarginInfo</definition>
+        <argsstring>(bool enabled, double ratio=0)</argsstring>
+        <name>ViewerSafeMarginInfo</name>
+        <param>
+          <type>bool</type>
+          <declname>enabled</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>ratio</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewersafemargininfo.h" line="53" column="3" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/viewersafemargininfo.h" bodystart="53" bodyend="57"/>
+      </memberdef>
+      <memberdef kind="function" id="class_viewer_safe_margin_info_1abad24fb57b3802be896dbf75c53930f5" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool ViewerSafeMarginInfo::is_enabled</definition>
+        <argsstring>() const</argsstring>
+        <name>is_enabled</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewersafemargininfo.h" line="59" column="8" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/viewersafemargininfo.h" bodystart="59" bodyend="62"/>
+      </memberdef>
+      <memberdef kind="function" id="class_viewer_safe_margin_info_1a4603c2beaa3d691e239472efa143a594" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool ViewerSafeMarginInfo::custom_ratio</definition>
+        <argsstring>() const</argsstring>
+        <name>custom_ratio</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewersafemargininfo.h" line="64" column="8" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/viewersafemargininfo.h" bodystart="64" bodyend="67"/>
+      </memberdef>
+      <memberdef kind="function" id="class_viewer_safe_margin_info_1a122004161d2a39aab94db5b971d6c0a3" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double ViewerSafeMarginInfo::ratio</definition>
+        <argsstring>() const</argsstring>
+        <name>ratio</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewersafemargininfo.h" line="69" column="10" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/viewersafemargininfo.h" bodystart="69" bodyend="72"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/widget/viewer/viewersafemargininfo.h" line="28" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/viewersafemargininfo.h" bodystart="28" bodyend="61"/>
+    <listofallmembers>
+      <member refid="class_viewer_safe_margin_info_1a4603c2beaa3d691e239472efa143a594" prot="public" virt="non-virtual"><scope>ViewerSafeMarginInfo</scope><name>custom_ratio</name></member>
+      <member refid="class_viewer_safe_margin_info_1a34609300074d792bb0333ee639e89b89" prot="private" virt="non-virtual"><scope>ViewerSafeMarginInfo</scope><name>enabled_</name></member>
+      <member refid="class_viewer_safe_margin_info_1abad24fb57b3802be896dbf75c53930f5" prot="public" virt="non-virtual"><scope>ViewerSafeMarginInfo</scope><name>is_enabled</name></member>
+      <member refid="class_viewer_safe_margin_info_1a122004161d2a39aab94db5b971d6c0a3" prot="public" virt="non-virtual"><scope>ViewerSafeMarginInfo</scope><name>ratio</name></member>
+      <member refid="class_viewer_safe_margin_info_1ab9977b911bba9cbf5c9a34066c3132a8" prot="private" virt="non-virtual"><scope>ViewerSafeMarginInfo</scope><name>ratio_</name></member>
+      <member refid="class_viewer_safe_margin_info_1a2511f130d4a21eb30f196e4c2413a1ad" prot="public" virt="non-virtual"><scope>ViewerSafeMarginInfo</scope><name>ViewerSafeMarginInfo</name></member>
+      <member refid="class_viewer_safe_margin_info_1a304c72dc03dac22751a92534fa5b651f" prot="public" virt="non-virtual"><scope>ViewerSafeMarginInfo</scope><name>ViewerSafeMarginInfo</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

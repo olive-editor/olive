@@ -1,0 +1,116 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_progress_dialog" kind="class" language="C++" prot="public">
+    <compoundname>ProgressDialog</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QDialog</basecompoundref>
+    <derivedcompoundref refid="class_render_cancel_dialog" prot="public" virt="non-virtual">RenderCancelDialog</derivedcompoundref>
+    <derivedcompoundref refid="class_task_dialog" prot="public" virt="non-virtual">TaskDialog</derivedcompoundref>
+    <includes refid="progress_8h" local="no">progress.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_progress_dialog_1a795d20012b58df8a317041a814bfd213" prot="private" static="no" mutable="no">
+        <type>QProgressBar *</type>
+        <definition>QProgressBar* ProgressDialog::bar_</definition>
+        <argsstring></argsstring>
+        <name>bar_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/progress/progress.h" line="62" column="16" bodyfile="C:/Daten/Olive/olive/app/dialog/progress/progress.h" bodystart="62" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_progress_dialog_1a04c65027b56dbac56a87f259c44fef04" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>ProgressDialog::ProgressDialog</definition>
+        <argsstring>(const QString &amp;message, const QString &amp;title, QWidget *parent=nullptr)</argsstring>
+        <name>ProgressDialog</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>message</declname>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>title</declname>
+        </param>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/progress/progress.h" line="53" column="3"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-slot">
+      <memberdef kind="slot" id="class_progress_dialog_1a2d511599a01abb01fbd6cbcbdc656e8d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProgressDialog::SetProgress</definition>
+        <argsstring>(int value)</argsstring>
+        <name>SetProgress</name>
+        <param>
+          <type>int</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/progress/progress.h" line="56" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_progress_dialog_1a3c512acc8f635b192f2194a775bb573a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProgressDialog::Cancelled</definition>
+        <argsstring>()</argsstring>
+        <name>Cancelled</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/progress/progress.h" line="59" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="3">
+        <label>TaskDialog</label>
+        <link refid="class_task_dialog"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>RenderCancelDialog</label>
+        <link refid="class_render_cancel_dialog"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>ProgressDialog</label>
+        <link refid="class_progress_dialog"/>
+      </node>
+    </inheritancegraph>
+    <location file="C:/Daten/Olive/olive/app/dialog/progress/progress.h" line="31" column="1" bodyfile="C:/Daten/Olive/olive/app/dialog/progress/progress.h" bodystart="32" bodyend="46"/>
+    <listofallmembers>
+      <member refid="class_progress_dialog_1a795d20012b58df8a317041a814bfd213" prot="private" virt="non-virtual"><scope>ProgressDialog</scope><name>bar_</name></member>
+      <member refid="class_progress_dialog_1a3c512acc8f635b192f2194a775bb573a" prot="public" virt="non-virtual"><scope>ProgressDialog</scope><name>Cancelled</name></member>
+      <member refid="class_progress_dialog_1a04c65027b56dbac56a87f259c44fef04" prot="public" virt="non-virtual"><scope>ProgressDialog</scope><name>ProgressDialog</name></member>
+      <member refid="class_progress_dialog_1a2d511599a01abb01fbd6cbcbdc656e8d" prot="public" virt="non-virtual"><scope>ProgressDialog</scope><name>SetProgress</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

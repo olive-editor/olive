@@ -1,0 +1,98 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="struct_index_manager_1_1_conform_pair" kind="struct" language="C++" prot="private">
+    <compoundname>IndexManager::ConformPair</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="struct_index_manager_1_1_conform_pair_1aae7918d0a0afadaa2f198e0260988867" prot="public" static="no" mutable="no">
+        <type><ref refid="stream_8h_1a3ca5b414655d064180098adf46c1a2f1" kindref="member">StreamPtr</ref></type>
+        <definition>StreamPtr IndexManager::ConformPair::stream</definition>
+        <argsstring></argsstring>
+        <name>stream</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/indexmanager.h" line="80" column="15" bodyfile="C:/Daten/Olive/olive/app/render/backend/indexmanager.h" bodystart="80" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_index_manager_1_1_conform_pair_1add7f54817754244c618817d3aa6c32fa" prot="public" static="no" mutable="no">
+        <type><ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref></type>
+        <definition>AudioRenderingParams IndexManager::ConformPair::params</definition>
+        <argsstring></argsstring>
+        <name>params</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/indexmanager.h" line="81" column="26" bodyfile="C:/Daten/Olive/olive/app/render/backend/indexmanager.h" bodystart="81" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_index_manager_1_1_conform_pair_1a0824baba460672aeecceb9d4225aa156" prot="public" static="no" mutable="no">
+        <type><ref refid="class_conform_task" kindref="compound">ConformTask</ref> *</type>
+        <definition>ConformTask* IndexManager::ConformPair::task</definition>
+        <argsstring></argsstring>
+        <name>task</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/indexmanager.h" line="82" column="17" bodyfile="C:/Daten/Olive/olive/app/render/backend/indexmanager.h" bodystart="82" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="6">
+        <label>AudioParams</label>
+        <link refid="class_audio_params"/>
+      </node>
+      <node id="5">
+        <label>AudioRenderingParams</label>
+        <link refid="class_audio_rendering_params"/>
+        <childnode refid="6" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>CancelableObject</label>
+        <link refid="class_cancelable_object"/>
+      </node>
+      <node id="3">
+        <label>Task</label>
+        <link refid="class_task"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>IndexManager::ConformPair</label>
+        <link refid="struct_index_manager_1_1_conform_pair"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>task</edgelabel>
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>params</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>ConformTask</label>
+        <link refid="class_conform_task"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>params_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/render/backend/indexmanager.h" line="79" column="3" bodyfile="C:/Daten/Olive/olive/app/render/backend/indexmanager.h" bodystart="79" bodyend="83"/>
+    <listofallmembers>
+      <member refid="struct_index_manager_1_1_conform_pair_1add7f54817754244c618817d3aa6c32fa" prot="public" virt="non-virtual"><scope>IndexManager::ConformPair</scope><name>params</name></member>
+      <member refid="struct_index_manager_1_1_conform_pair_1aae7918d0a0afadaa2f198e0260988867" prot="public" virt="non-virtual"><scope>IndexManager::ConformPair</scope><name>stream</name></member>
+      <member refid="struct_index_manager_1_1_conform_pair_1a0824baba460672aeecceb9d4225aa156" prot="public" virt="non-virtual"><scope>IndexManager::ConformPair</scope><name>task</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

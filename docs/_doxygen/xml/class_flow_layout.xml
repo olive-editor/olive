@@ -1,0 +1,366 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_flow_layout" kind="class" language="C++" prot="public">
+    <compoundname>FlowLayout</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QLayout</basecompoundref>
+    <includes refid="flowlayout_8h" local="no">flowlayout.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_flow_layout_1ac0439e82402e53445451edfece8a499d" prot="private" static="no" mutable="no">
+        <type>QList&lt; QLayoutItem * &gt;</type>
+        <definition>QList&lt;QLayoutItem *&gt; FlowLayout::itemList</definition>
+        <argsstring></argsstring>
+        <name>itemList</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/flowlayout/flowlayout.h" line="130" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/flowlayout/flowlayout.h" bodystart="130" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_flow_layout_1a4ca5e85c50060f2cf19d88d1e3bf9cd5" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int FlowLayout::m_hSpace</definition>
+        <argsstring></argsstring>
+        <name>m_hSpace</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/flowlayout/flowlayout.h" line="131" column="9" bodyfile="C:/Daten/Olive/olive/app/widget/flowlayout/flowlayout.h" bodystart="131" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_flow_layout_1ab24b23dbcc261472940b3755ba63a4c0" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int FlowLayout::m_vSpace</definition>
+        <argsstring></argsstring>
+        <name>m_vSpace</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/flowlayout/flowlayout.h" line="132" column="9" bodyfile="C:/Daten/Olive/olive/app/widget/flowlayout/flowlayout.h" bodystart="132" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_flow_layout_1afd3623cad3b02592123eb8a4dd01546f" prot="public" static="no" const="no" explicit="yes" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>FlowLayout::FlowLayout</definition>
+        <argsstring>(QWidget *parent, int margin=-1, int hSpacing=-1, int vSpacing=-1)</argsstring>
+        <name>FlowLayout</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>margin</declname>
+          <defval>-1</defval>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>hSpacing</declname>
+          <defval>-1</defval>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>vSpacing</declname>
+          <defval>-1</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/flowlayout/flowlayout.h" line="109" column="14"/>
+      </memberdef>
+      <memberdef kind="function" id="class_flow_layout_1a76357c75560d6bcbee7a4782c852ca07" prot="public" static="no" const="no" explicit="yes" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>FlowLayout::FlowLayout</definition>
+        <argsstring>(int margin=-1, int hSpacing=-1, int vSpacing=-1)</argsstring>
+        <name>FlowLayout</name>
+        <param>
+          <type>int</type>
+          <declname>margin</declname>
+          <defval>-1</defval>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>hSpacing</declname>
+          <defval>-1</defval>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>vSpacing</declname>
+          <defval>-1</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/flowlayout/flowlayout.h" line="110" column="14"/>
+      </memberdef>
+      <memberdef kind="function" id="class_flow_layout_1abcbfd03a4758b98bcf13d44f5e673551" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>FlowLayout::~FlowLayout</definition>
+        <argsstring>()</argsstring>
+        <name>~FlowLayout</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/flowlayout/flowlayout.h" line="111" column="5"/>
+      </memberdef>
+      <memberdef kind="function" id="class_flow_layout_1ab60fb7d4cfa8f5d2122e7db6c850ae8e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void FlowLayout::addItem</definition>
+        <argsstring>(QLayoutItem *item) override</argsstring>
+        <name>addItem</name>
+        <param>
+          <type>QLayoutItem *</type>
+          <declname>item</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/flowlayout/flowlayout.h" line="113" column="10"/>
+      </memberdef>
+      <memberdef kind="function" id="class_flow_layout_1a05a9929bf2d7749c8d45afe1fc15b27e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int FlowLayout::horizontalSpacing</definition>
+        <argsstring>() const</argsstring>
+        <name>horizontalSpacing</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/flowlayout/flowlayout.h" line="114" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="class_flow_layout_1a06210851533f6e9d0d09477968aa0eb5" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int FlowLayout::verticalSpacing</definition>
+        <argsstring>() const</argsstring>
+        <name>verticalSpacing</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/flowlayout/flowlayout.h" line="115" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="class_flow_layout_1a8eb4762f57ec8bea9eca6f9a535b1d50" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>Qt::Orientations</type>
+        <definition>Qt::Orientations FlowLayout::expandingDirections</definition>
+        <argsstring>() const override</argsstring>
+        <name>expandingDirections</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/flowlayout/flowlayout.h" line="116" column="22"/>
+      </memberdef>
+      <memberdef kind="function" id="class_flow_layout_1a224599955b4bc40e73b615236d9803ee" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool FlowLayout::hasHeightForWidth</definition>
+        <argsstring>() const override</argsstring>
+        <name>hasHeightForWidth</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/flowlayout/flowlayout.h" line="117" column="10"/>
+      </memberdef>
+      <memberdef kind="function" id="class_flow_layout_1a119d89f83aa3f8ccb6e66ed1a125452e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int FlowLayout::heightForWidth</definition>
+        <argsstring>(int) const override</argsstring>
+        <name>heightForWidth</name>
+        <param>
+          <type>int</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/flowlayout/flowlayout.h" line="118" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="class_flow_layout_1a35bdf8dac35631d59767d0c0fedc7248" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int FlowLayout::count</definition>
+        <argsstring>() const override</argsstring>
+        <name>count</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/flowlayout/flowlayout.h" line="119" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="class_flow_layout_1a6693ec51b34bec0af739e27582ca2d0c" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QLayoutItem *</type>
+        <definition>QLayoutItem* FlowLayout::itemAt</definition>
+        <argsstring>(int index) const override</argsstring>
+        <name>itemAt</name>
+        <param>
+          <type>int</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/flowlayout/flowlayout.h" line="120" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_flow_layout_1a18816b6e9008a0731af92749975ce63f" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QSize</type>
+        <definition>QSize FlowLayout::minimumSize</definition>
+        <argsstring>() const override</argsstring>
+        <name>minimumSize</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/flowlayout/flowlayout.h" line="121" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_flow_layout_1a64fb2f42cfdb3bcabf4d511092d032af" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void FlowLayout::setGeometry</definition>
+        <argsstring>(const QRect &amp;rect) override</argsstring>
+        <name>setGeometry</name>
+        <param>
+          <type>const QRect &amp;</type>
+          <declname>rect</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/flowlayout/flowlayout.h" line="122" column="10"/>
+      </memberdef>
+      <memberdef kind="function" id="class_flow_layout_1a44acc6a84aaeee36b9d119096f6aa30c" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QSize</type>
+        <definition>QSize FlowLayout::sizeHint</definition>
+        <argsstring>() const override</argsstring>
+        <name>sizeHint</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/flowlayout/flowlayout.h" line="123" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_flow_layout_1a14b488645ce6d0153bfb89b8a07346d2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QLayoutItem *</type>
+        <definition>QLayoutItem* FlowLayout::takeAt</definition>
+        <argsstring>(int index) override</argsstring>
+        <name>takeAt</name>
+        <param>
+          <type>int</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/flowlayout/flowlayout.h" line="124" column="17"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_flow_layout_1af0e17c24ac7b5f82511658507ac9a2ac" prot="private" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int FlowLayout::doLayout</definition>
+        <argsstring>(const QRect &amp;rect, bool testOnly) const</argsstring>
+        <name>doLayout</name>
+        <param>
+          <type>const QRect &amp;</type>
+          <declname>rect</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>testOnly</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/flowlayout/flowlayout.h" line="127" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="class_flow_layout_1aa8c99ccccc834c47f125040205f1aac8" prot="private" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int FlowLayout::smartSpacing</definition>
+        <argsstring>(QStyle::PixelMetric pm) const</argsstring>
+        <name>smartSpacing</name>
+        <param>
+          <type>QStyle::PixelMetric</type>
+          <declname>pm</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/flowlayout/flowlayout.h" line="128" column="9"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/widget/flowlayout/flowlayout.h" line="58" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/flowlayout/flowlayout.h" bodystart="59" bodyend="85"/>
+    <listofallmembers>
+      <member refid="class_flow_layout_1ab60fb7d4cfa8f5d2122e7db6c850ae8e" prot="public" virt="non-virtual"><scope>FlowLayout</scope><name>addItem</name></member>
+      <member refid="class_flow_layout_1a35bdf8dac35631d59767d0c0fedc7248" prot="public" virt="non-virtual"><scope>FlowLayout</scope><name>count</name></member>
+      <member refid="class_flow_layout_1af0e17c24ac7b5f82511658507ac9a2ac" prot="private" virt="non-virtual"><scope>FlowLayout</scope><name>doLayout</name></member>
+      <member refid="class_flow_layout_1a8eb4762f57ec8bea9eca6f9a535b1d50" prot="public" virt="non-virtual"><scope>FlowLayout</scope><name>expandingDirections</name></member>
+      <member refid="class_flow_layout_1afd3623cad3b02592123eb8a4dd01546f" prot="public" virt="non-virtual"><scope>FlowLayout</scope><name>FlowLayout</name></member>
+      <member refid="class_flow_layout_1a76357c75560d6bcbee7a4782c852ca07" prot="public" virt="non-virtual"><scope>FlowLayout</scope><name>FlowLayout</name></member>
+      <member refid="class_flow_layout_1a224599955b4bc40e73b615236d9803ee" prot="public" virt="non-virtual"><scope>FlowLayout</scope><name>hasHeightForWidth</name></member>
+      <member refid="class_flow_layout_1a119d89f83aa3f8ccb6e66ed1a125452e" prot="public" virt="non-virtual"><scope>FlowLayout</scope><name>heightForWidth</name></member>
+      <member refid="class_flow_layout_1a05a9929bf2d7749c8d45afe1fc15b27e" prot="public" virt="non-virtual"><scope>FlowLayout</scope><name>horizontalSpacing</name></member>
+      <member refid="class_flow_layout_1a6693ec51b34bec0af739e27582ca2d0c" prot="public" virt="non-virtual"><scope>FlowLayout</scope><name>itemAt</name></member>
+      <member refid="class_flow_layout_1ac0439e82402e53445451edfece8a499d" prot="private" virt="non-virtual"><scope>FlowLayout</scope><name>itemList</name></member>
+      <member refid="class_flow_layout_1a4ca5e85c50060f2cf19d88d1e3bf9cd5" prot="private" virt="non-virtual"><scope>FlowLayout</scope><name>m_hSpace</name></member>
+      <member refid="class_flow_layout_1ab24b23dbcc261472940b3755ba63a4c0" prot="private" virt="non-virtual"><scope>FlowLayout</scope><name>m_vSpace</name></member>
+      <member refid="class_flow_layout_1a18816b6e9008a0731af92749975ce63f" prot="public" virt="non-virtual"><scope>FlowLayout</scope><name>minimumSize</name></member>
+      <member refid="class_flow_layout_1a64fb2f42cfdb3bcabf4d511092d032af" prot="public" virt="non-virtual"><scope>FlowLayout</scope><name>setGeometry</name></member>
+      <member refid="class_flow_layout_1a44acc6a84aaeee36b9d119096f6aa30c" prot="public" virt="non-virtual"><scope>FlowLayout</scope><name>sizeHint</name></member>
+      <member refid="class_flow_layout_1aa8c99ccccc834c47f125040205f1aac8" prot="private" virt="non-virtual"><scope>FlowLayout</scope><name>smartSpacing</name></member>
+      <member refid="class_flow_layout_1a14b488645ce6d0153bfb89b8a07346d2" prot="public" virt="non-virtual"><scope>FlowLayout</scope><name>takeAt</name></member>
+      <member refid="class_flow_layout_1a06210851533f6e9d0d09477968aa0eb5" prot="public" virt="non-virtual"><scope>FlowLayout</scope><name>verticalSpacing</name></member>
+      <member refid="class_flow_layout_1abcbfd03a4758b98bcf13d44f5e673551" prot="public" virt="non-virtual"><scope>FlowLayout</scope><name>~FlowLayout</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

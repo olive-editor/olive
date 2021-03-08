@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_14b0d018d1975c5dcf81c52279c3d72b" kind="dir">
+    <compoundname>project</compoundname>
+    <innerdir refid="dir_aa88a6c3594f8ccabaff0f8287ab5b25">item</innerdir>
+    <innerfile refid="project_2project_8h">project/project.h</innerfile>
+    <innerfile refid="projectimportmanager_8h">projectimportmanager.h</innerfile>
+    <innerfile refid="projectloadmanager_8h">projectloadmanager.h</innerfile>
+    <innerfile refid="projectsavemanager_8h">projectsavemanager.h</innerfile>
+    <innerfile refid="projectviewmodel_8h">projectviewmodel.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/project/"/>
+  </compounddef>
+</doxygen>

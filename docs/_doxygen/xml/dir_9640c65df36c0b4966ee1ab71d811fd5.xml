@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_9640c65df36c0b4966ee1ab71d811fd5" kind="dir">
+    <compoundname>scope</compoundname>
+    <innerfile refid="scope_8h">scope.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/panel/scope/"/>
+  </compounddef>
+</doxygen>

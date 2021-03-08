@@ -1,0 +1,626 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_toolbar" kind="class" language="C++" prot="public">
+    <compoundname>Toolbar</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QWidget</basecompoundref>
+    <includes refid="toolbar_8h" local="no">toolbar.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_toolbar_1a08cc8727a8ce48f50216ff51db765f0c" prot="private" static="no" mutable="no">
+        <type><ref refid="class_flow_layout" kindref="compound">FlowLayout</ref> *</type>
+        <definition>FlowLayout* Toolbar::layout_</definition>
+        <argsstring></argsstring>
+        <name>layout_</name>
+        <briefdescription>
+<para>Internal layout used for buttons. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h" line="176" column="14" bodyfile="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h" bodystart="176" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_toolbar_1a7bb5d98afd2be0442623f5ce00945682" prot="private" static="no" mutable="no">
+        <type>QList&lt; <ref refid="class_toolbar_button" kindref="compound">ToolbarButton</ref> * &gt;</type>
+        <definition>QList&lt;ToolbarButton*&gt; Toolbar::toolbar_btns_</definition>
+        <argsstring></argsstring>
+        <name>toolbar_btns_</name>
+        <briefdescription>
+<para>Array/list of toolbar buttons. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This list is automatically appended by <ref refid="class_toolbar_1a69d2d17cf3c93387033577048956e9c6" kindref="member">CreateToolButton()</ref>. It&apos;s used to iterate through the toolbar buttons quickly with for loops, etc. See <ref refid="class_toolbar_1aa5b9d53e272d1a424d8d6e2e2c220dbe" kindref="member">SetTool()</ref> for example usage. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h" line="184" column="9" bodyfile="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h" bodystart="184" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_toolbar_1a05a576b7fb15c58d7428287881c23827" prot="private" static="no" mutable="no">
+        <type><ref refid="class_toolbar_button" kindref="compound">ToolbarButton</ref> *</type>
+        <definition>ToolbarButton* Toolbar::btn_pointer_tool_</definition>
+        <argsstring></argsstring>
+        <name>btn_pointer_tool_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h" line="186" column="17" bodyfile="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h" bodystart="186" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_toolbar_1a52180b61a17a4e7eb8d37b67a3143da7" prot="private" static="no" mutable="no">
+        <type><ref refid="class_toolbar_button" kindref="compound">ToolbarButton</ref> *</type>
+        <definition>ToolbarButton* Toolbar::btn_edit_tool_</definition>
+        <argsstring></argsstring>
+        <name>btn_edit_tool_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h" line="187" column="17" bodyfile="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h" bodystart="187" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_toolbar_1a599cd4ba001c6d7f37ed198e2f889323" prot="private" static="no" mutable="no">
+        <type><ref refid="class_toolbar_button" kindref="compound">ToolbarButton</ref> *</type>
+        <definition>ToolbarButton* Toolbar::btn_ripple_tool_</definition>
+        <argsstring></argsstring>
+        <name>btn_ripple_tool_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h" line="188" column="17" bodyfile="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h" bodystart="188" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_toolbar_1abd08cfcd0badcf92db45861a8f4482aa" prot="private" static="no" mutable="no">
+        <type><ref refid="class_toolbar_button" kindref="compound">ToolbarButton</ref> *</type>
+        <definition>ToolbarButton* Toolbar::btn_rolling_tool_</definition>
+        <argsstring></argsstring>
+        <name>btn_rolling_tool_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h" line="189" column="17" bodyfile="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h" bodystart="189" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_toolbar_1abb35bf189dc49644847d3c2a146cfb50" prot="private" static="no" mutable="no">
+        <type><ref refid="class_toolbar_button" kindref="compound">ToolbarButton</ref> *</type>
+        <definition>ToolbarButton* Toolbar::btn_razor_tool_</definition>
+        <argsstring></argsstring>
+        <name>btn_razor_tool_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h" line="190" column="17" bodyfile="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h" bodystart="190" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_toolbar_1a0879087977cf574e86d95913c284a63a" prot="private" static="no" mutable="no">
+        <type><ref refid="class_toolbar_button" kindref="compound">ToolbarButton</ref> *</type>
+        <definition>ToolbarButton* Toolbar::btn_slip_tool_</definition>
+        <argsstring></argsstring>
+        <name>btn_slip_tool_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h" line="191" column="17" bodyfile="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h" bodystart="191" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_toolbar_1ad38e7706ec6ef883f966d4ebea60b6cc" prot="private" static="no" mutable="no">
+        <type><ref refid="class_toolbar_button" kindref="compound">ToolbarButton</ref> *</type>
+        <definition>ToolbarButton* Toolbar::btn_slide_tool_</definition>
+        <argsstring></argsstring>
+        <name>btn_slide_tool_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h" line="192" column="17" bodyfile="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h" bodystart="192" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_toolbar_1afe5e440cb0a96f76d00a923fddc11dd6" prot="private" static="no" mutable="no">
+        <type><ref refid="class_toolbar_button" kindref="compound">ToolbarButton</ref> *</type>
+        <definition>ToolbarButton* Toolbar::btn_hand_tool_</definition>
+        <argsstring></argsstring>
+        <name>btn_hand_tool_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h" line="193" column="17" bodyfile="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h" bodystart="193" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_toolbar_1a971fcb31d0d6d7328c46bb3ce58b74b5" prot="private" static="no" mutable="no">
+        <type><ref refid="class_toolbar_button" kindref="compound">ToolbarButton</ref> *</type>
+        <definition>ToolbarButton* Toolbar::btn_transition_tool_</definition>
+        <argsstring></argsstring>
+        <name>btn_transition_tool_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h" line="194" column="17" bodyfile="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h" bodystart="194" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_toolbar_1a5736a9082ca44ba3a6445fd2f6d6c75d" prot="private" static="no" mutable="no">
+        <type><ref refid="class_toolbar_button" kindref="compound">ToolbarButton</ref> *</type>
+        <definition>ToolbarButton* Toolbar::btn_zoom_tool_</definition>
+        <argsstring></argsstring>
+        <name>btn_zoom_tool_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h" line="195" column="17" bodyfile="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h" bodystart="195" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_toolbar_1ad0770f18a00a5583819044a72a41e929" prot="private" static="no" mutable="no">
+        <type><ref refid="class_toolbar_button" kindref="compound">ToolbarButton</ref> *</type>
+        <definition>ToolbarButton* Toolbar::btn_record_</definition>
+        <argsstring></argsstring>
+        <name>btn_record_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h" line="196" column="17" bodyfile="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h" bodystart="196" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_toolbar_1a092e7daf9f0aa278ed9187cec454d581" prot="private" static="no" mutable="no">
+        <type><ref refid="class_toolbar_button" kindref="compound">ToolbarButton</ref> *</type>
+        <definition>ToolbarButton* Toolbar::btn_add_</definition>
+        <argsstring></argsstring>
+        <name>btn_add_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h" line="197" column="17" bodyfile="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h" bodystart="197" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_toolbar_1a7f733acc2f3d60959f52cfad27f133ad" prot="private" static="no" mutable="no">
+        <type><ref refid="class_toolbar_button" kindref="compound">ToolbarButton</ref> *</type>
+        <definition>ToolbarButton* Toolbar::btn_snapping_toggle_</definition>
+        <argsstring></argsstring>
+        <name>btn_snapping_toggle_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h" line="199" column="17" bodyfile="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h" bodystart="199" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_toolbar_1adda38df867c466995f94f6920f07266b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Toolbar::Toolbar</definition>
+        <argsstring>(QWidget *parent)</argsstring>
+        <name>Toolbar</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="class_toolbar" kindref="compound">Toolbar</ref> Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Creates and connects all the <ref refid="class_toolbar" kindref="compound">Toolbar</ref> buttons</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parent</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>QWidget parent. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h" line="74" column="3"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-slot">
+      <memberdef kind="slot" id="class_toolbar_1aa5b9d53e272d1a424d8d6e2e2c220dbe" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Toolbar::SetTool</definition>
+        <argsstring>(const Tool::Item &amp;tool)</argsstring>
+        <name>SetTool</name>
+        <param>
+          <type>const <ref refid="class_tool_1aa5b3343d5a8a21b7473dfe74af2976cb" kindref="member">Tool::Item</ref> &amp;</type>
+          <declname>tool</declname>
+        </param>
+        <briefdescription>
+<para>Set the tool to be displayed as &quot;selected&quot;. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function does not set the application-wide tool, it only sets which tool show as selected in this widget. It&apos;s recommended to use this function only as a slot connected to <ref refid="class_core_1a30101bde38bc4f9d9f21692b14a04848" kindref="member">Core::ToolChanged()</ref> so that it automatically updates whenever the application-wide tool is changed.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tool</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="class_tool" kindref="compound">Tool</ref> to show as selected </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h" line="88" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_toolbar_1ac912766449143fc8556689c773bc2ebf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Toolbar::SetSnapping</definition>
+        <argsstring>(const bool &amp;snapping)</argsstring>
+        <name>SetSnapping</name>
+        <param>
+          <type>const bool &amp;</type>
+          <declname>snapping</declname>
+        </param>
+        <briefdescription>
+<para>Set snapping checked value. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Similar to <ref refid="class_toolbar_1aa5b9d53e272d1a424d8d6e2e2c220dbe" kindref="member">SetTool()</ref>, this does not set anything application-wide, it only changes the displayed button appearance. In this case, whether the snapping button should show as snapping enabled or disabled.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>snapping</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h" line="98" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_toolbar_1aa0e50a7f7746f5fefb66b67ecc4c7bf1" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void Toolbar::changeEvent</definition>
+        <argsstring>(QEvent *e) override</argsstring>
+        <name>changeEvent</name>
+        <param>
+          <type>QEvent *</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+<para>Qt changeEvent. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Overridden to catch language change events (see <ref refid="class_toolbar_1a56de767637adb7004c91757712fadff5" kindref="member">Retranslate()</ref>)</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>e</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h" line="108" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_toolbar_1a393534edb38f008cd92316ae402ac786" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Toolbar::ToolChanged</definition>
+        <argsstring>(const Tool::Item &amp;t)</argsstring>
+        <name>ToolChanged</name>
+        <param>
+          <type>const <ref refid="class_tool_1aa5b3343d5a8a21b7473dfe74af2976cb" kindref="member">Tool::Item</ref> &amp;</type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+<para>Emitted whenever a tool is selected using this widget. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>t</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="class_tool" kindref="compound">Tool</ref> that was selected </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h" line="118" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_toolbar_1a3125a69173ce10d97e62e48e2089337a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Toolbar::SnappingChanged</definition>
+        <argsstring>(const bool &amp;b)</argsstring>
+        <name>SnappingChanged</name>
+        <param>
+          <type>const bool &amp;</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para>Emitted whenever the snapping setting is changed. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>b</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New snapping enabled setting </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h" line="127" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_toolbar_1a8f46126fd041ba456a77b71ec45ea060" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Toolbar::AddableObjectChanged</definition>
+        <argsstring>(const Tool::AddableObject &amp;obj)</argsstring>
+        <name>AddableObjectChanged</name>
+        <param>
+          <type>const <ref refid="class_tool_1a0e3e529d5e6fb843a0866537a6e4b7d7" kindref="member">Tool::AddableObject</ref> &amp;</type>
+          <declname>obj</declname>
+        </param>
+        <briefdescription>
+<para>Emitted when the addable object is changed from the add tool menu. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h" line="132" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_toolbar_1a56de767637adb7004c91757712fadff5" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Toolbar::Retranslate</definition>
+        <argsstring>()</argsstring>
+        <name>Retranslate</name>
+        <briefdescription>
+<para>Reset all strings based on the currently selected language. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h" line="138" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_toolbar_1abd676c14bbe090d4e7fae8725aff39aa" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Toolbar::UpdateIcons</definition>
+        <argsstring>()</argsstring>
+        <name>UpdateIcons</name>
+        <briefdescription>
+<para>Update icons after a style change. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h" line="143" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_toolbar_1a69d2d17cf3c93387033577048956e9c6" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_toolbar_button" kindref="compound">ToolbarButton</ref> *</type>
+        <definition>ToolbarButton* Toolbar::CreateToolButton</definition>
+        <argsstring>(const Tool::Item &amp;tool)</argsstring>
+        <name>CreateToolButton</name>
+        <param>
+          <type>const <ref refid="class_tool_1aa5b3343d5a8a21b7473dfe74af2976cb" kindref="member">Tool::Item</ref> &amp;</type>
+          <declname>tool</declname>
+        </param>
+        <briefdescription>
+<para>Internal convenience function for creating tool buttons quickly. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function will create a <ref refid="class_toolbar_button" kindref="compound">ToolbarButton</ref> object, set the icon to <computeroutput>icon</computeroutput>, set its tool value to <computeroutput>tool</computeroutput>, add it to the widget layout, add it to toolbar_btns_ so the buttons can be iterated (done in various functions), and connect the button to <ref refid="class_toolbar_1a16ac34d2c04fcb70a30d4017dd069887" kindref="member">ToolButtonClicked()</ref>.</para>
+<para>If you need a non-tool but similarly styled button, use <ref refid="class_toolbar_1af76fca1c204f67a577bc33c5cdb019a4" kindref="member">CreateNonToolButton()</ref>.</para>
+<para><simplesect kind="return"><para></para>
+</simplesect>
+The created <ref refid="class_toolbar_button" kindref="compound">ToolbarButton</ref>. The button parent is automatically set to <computeroutput>this</computeroutput>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h" line="158" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_toolbar_1af76fca1c204f67a577bc33c5cdb019a4" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_toolbar_button" kindref="compound">ToolbarButton</ref> *</type>
+        <definition>ToolbarButton* Toolbar::CreateNonToolButton</definition>
+        <argsstring>()</argsstring>
+        <name>CreateNonToolButton</name>
+        <briefdescription>
+<para>Internal convenience function for creating buttons quickly. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Similar to <ref refid="class_toolbar_1a69d2d17cf3c93387033577048956e9c6" kindref="member">CreateToolButton()</ref> but doesn&apos;t add the button to toolbar_btns_ and doesn&apos;t connect the button to <ref refid="class_toolbar_1a16ac34d2c04fcb70a30d4017dd069887" kindref="member">ToolButtonClicked()</ref>. This is to create a button that is similarly styled but doesn&apos;t actually represent a tool per se.</para>
+<para><simplesect kind="return"><para></para>
+</simplesect>
+The created <ref refid="class_toolbar_button" kindref="compound">ToolbarButton</ref>. The button parent is automatically set to <computeroutput>this</computeroutput>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h" line="171" column="17"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_toolbar_1a16ac34d2c04fcb70a30d4017dd069887" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Toolbar::ToolButtonClicked</definition>
+        <argsstring>()</argsstring>
+        <name>ToolButtonClicked</name>
+        <briefdescription>
+<para>Slot for a <ref refid="class_toolbar_button" kindref="compound">ToolbarButton</ref> being clicked. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>ToolbarButtons created from <ref refid="class_toolbar_1a69d2d17cf3c93387033577048956e9c6" kindref="member">CreateToolButton()</ref> are automatically connected to this slot. This slot will receive the <ref refid="class_toolbar_button" kindref="compound">ToolbarButton</ref>&apos;s tool value and emit a signal indicating that the tool has changed to the newly selected tool. This function static_casts the sender to <ref refid="class_toolbar_button" kindref="compound">ToolbarButton</ref> so you should not connect any other class type to this slot. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h" line="210" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_toolbar_1a019ab2165b7b335ae1a7a5125e7087a7" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Toolbar::SnappingButtonClicked</definition>
+        <argsstring>(bool b)</argsstring>
+        <name>SnappingButtonClicked</name>
+        <param>
+          <type>bool</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para>Receiver for the snapping toggle button. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function&apos;s primary purpose is to emit <ref refid="class_toolbar_1a3125a69173ce10d97e62e48e2089337a" kindref="member">SnappingChanged()</ref> and should be connected to the <ref refid="class_toolbar_button" kindref="compound">ToolbarButton</ref>&apos;s SIGNAL(clicked(bool)).</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>b</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The new snapping value received from the sender&apos;s clicked signal </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h" line="222" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_toolbar_1a766e328c3714437727417c3ba454e4d5" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Toolbar::AddButtonClicked</definition>
+        <argsstring>()</argsstring>
+        <name>AddButtonClicked</name>
+        <briefdescription>
+<para>Receiver for the add button. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The add button pops up a list for which object to create. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h" line="229" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_toolbar_1a453e4bdf52cbf5d873811990d7423828" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Toolbar::AddMenuItemTriggered</definition>
+        <argsstring>(QAction *a)</argsstring>
+        <name>AddMenuItemTriggered</name>
+        <param>
+          <type>QAction *</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Receiver for the menu created by <ref refid="class_toolbar_1a766e328c3714437727417c3ba454e4d5" kindref="member">AddButtonClicked()</ref> </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h" line="234" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A widget containing buttons for all of Olive&apos;s application-wide tools. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Buttons are displayed in a <ref refid="class_flow_layout" kindref="compound">FlowLayout</ref> that adjusts and wraps (like text) depending on the widget&apos;s size.</para>
+<para>By default, this <ref refid="class_toolbar" kindref="compound">Toolbar</ref> is not connected to anything. It&apos;s recommended to connect SLOT(SetTool()) and SIGNAL(ToolChanged()) to <ref refid="class_core" kindref="compound">Core</ref> (corresponding SIGNAL(ToolChanged()) and SLOT(SetTool()) respectively) so that the <ref refid="class_toolbar" kindref="compound">Toolbar</ref> updates the current tool application-wide, and is also automatically updated when the tool is changed elsewhere. </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="2">
+        <label>FlowLayout</label>
+        <link refid="class_flow_layout"/>
+      </node>
+      <node id="1">
+        <label>Toolbar</label>
+        <link refid="class_toolbar"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>layout_</edgelabel>
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>btn_snapping_toggle_</edgelabel>
+          <edgelabel>btn_slip_tool_</edgelabel>
+          <edgelabel>btn_edit_tool_</edgelabel>
+          <edgelabel>btn_ripple_tool_</edgelabel>
+          <edgelabel>btn_rolling_tool_</edgelabel>
+          <edgelabel>btn_zoom_tool_</edgelabel>
+          <edgelabel>btn_transition_tool_</edgelabel>
+          <edgelabel>btn_record_</edgelabel>
+          <edgelabel>btn_pointer_tool_</edgelabel>
+          <edgelabel>btn_add_</edgelabel>
+          <edgelabel>...</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>ToolbarButton</label>
+        <link refid="class_toolbar_button"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h" line="43" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h" bodystart="44" bodyend="218"/>
+    <listofallmembers>
+      <member refid="class_toolbar_1a8f46126fd041ba456a77b71ec45ea060" prot="public" virt="non-virtual"><scope>Toolbar</scope><name>AddableObjectChanged</name></member>
+      <member refid="class_toolbar_1a766e328c3714437727417c3ba454e4d5" prot="private" virt="non-virtual"><scope>Toolbar</scope><name>AddButtonClicked</name></member>
+      <member refid="class_toolbar_1a453e4bdf52cbf5d873811990d7423828" prot="private" virt="non-virtual"><scope>Toolbar</scope><name>AddMenuItemTriggered</name></member>
+      <member refid="class_toolbar_1a092e7daf9f0aa278ed9187cec454d581" prot="private" virt="non-virtual"><scope>Toolbar</scope><name>btn_add_</name></member>
+      <member refid="class_toolbar_1a52180b61a17a4e7eb8d37b67a3143da7" prot="private" virt="non-virtual"><scope>Toolbar</scope><name>btn_edit_tool_</name></member>
+      <member refid="class_toolbar_1afe5e440cb0a96f76d00a923fddc11dd6" prot="private" virt="non-virtual"><scope>Toolbar</scope><name>btn_hand_tool_</name></member>
+      <member refid="class_toolbar_1a05a576b7fb15c58d7428287881c23827" prot="private" virt="non-virtual"><scope>Toolbar</scope><name>btn_pointer_tool_</name></member>
+      <member refid="class_toolbar_1abb35bf189dc49644847d3c2a146cfb50" prot="private" virt="non-virtual"><scope>Toolbar</scope><name>btn_razor_tool_</name></member>
+      <member refid="class_toolbar_1ad0770f18a00a5583819044a72a41e929" prot="private" virt="non-virtual"><scope>Toolbar</scope><name>btn_record_</name></member>
+      <member refid="class_toolbar_1a599cd4ba001c6d7f37ed198e2f889323" prot="private" virt="non-virtual"><scope>Toolbar</scope><name>btn_ripple_tool_</name></member>
+      <member refid="class_toolbar_1abd08cfcd0badcf92db45861a8f4482aa" prot="private" virt="non-virtual"><scope>Toolbar</scope><name>btn_rolling_tool_</name></member>
+      <member refid="class_toolbar_1ad38e7706ec6ef883f966d4ebea60b6cc" prot="private" virt="non-virtual"><scope>Toolbar</scope><name>btn_slide_tool_</name></member>
+      <member refid="class_toolbar_1a0879087977cf574e86d95913c284a63a" prot="private" virt="non-virtual"><scope>Toolbar</scope><name>btn_slip_tool_</name></member>
+      <member refid="class_toolbar_1a7f733acc2f3d60959f52cfad27f133ad" prot="private" virt="non-virtual"><scope>Toolbar</scope><name>btn_snapping_toggle_</name></member>
+      <member refid="class_toolbar_1a971fcb31d0d6d7328c46bb3ce58b74b5" prot="private" virt="non-virtual"><scope>Toolbar</scope><name>btn_transition_tool_</name></member>
+      <member refid="class_toolbar_1a5736a9082ca44ba3a6445fd2f6d6c75d" prot="private" virt="non-virtual"><scope>Toolbar</scope><name>btn_zoom_tool_</name></member>
+      <member refid="class_toolbar_1aa0e50a7f7746f5fefb66b67ecc4c7bf1" prot="protected" virt="virtual"><scope>Toolbar</scope><name>changeEvent</name></member>
+      <member refid="class_toolbar_1af76fca1c204f67a577bc33c5cdb019a4" prot="private" virt="non-virtual"><scope>Toolbar</scope><name>CreateNonToolButton</name></member>
+      <member refid="class_toolbar_1a69d2d17cf3c93387033577048956e9c6" prot="private" virt="non-virtual"><scope>Toolbar</scope><name>CreateToolButton</name></member>
+      <member refid="class_toolbar_1a08cc8727a8ce48f50216ff51db765f0c" prot="private" virt="non-virtual"><scope>Toolbar</scope><name>layout_</name></member>
+      <member refid="class_toolbar_1a56de767637adb7004c91757712fadff5" prot="private" virt="non-virtual"><scope>Toolbar</scope><name>Retranslate</name></member>
+      <member refid="class_toolbar_1ac912766449143fc8556689c773bc2ebf" prot="public" virt="non-virtual"><scope>Toolbar</scope><name>SetSnapping</name></member>
+      <member refid="class_toolbar_1aa5b9d53e272d1a424d8d6e2e2c220dbe" prot="public" virt="non-virtual"><scope>Toolbar</scope><name>SetTool</name></member>
+      <member refid="class_toolbar_1a019ab2165b7b335ae1a7a5125e7087a7" prot="private" virt="non-virtual"><scope>Toolbar</scope><name>SnappingButtonClicked</name></member>
+      <member refid="class_toolbar_1a3125a69173ce10d97e62e48e2089337a" prot="public" virt="non-virtual"><scope>Toolbar</scope><name>SnappingChanged</name></member>
+      <member refid="class_toolbar_1adda38df867c466995f94f6920f07266b" prot="public" virt="non-virtual"><scope>Toolbar</scope><name>Toolbar</name></member>
+      <member refid="class_toolbar_1a7bb5d98afd2be0442623f5ce00945682" prot="private" virt="non-virtual"><scope>Toolbar</scope><name>toolbar_btns_</name></member>
+      <member refid="class_toolbar_1a16ac34d2c04fcb70a30d4017dd069887" prot="private" virt="non-virtual"><scope>Toolbar</scope><name>ToolButtonClicked</name></member>
+      <member refid="class_toolbar_1a393534edb38f008cd92316ae402ac786" prot="public" virt="non-virtual"><scope>Toolbar</scope><name>ToolChanged</name></member>
+      <member refid="class_toolbar_1abd676c14bbe090d4e7fae8725aff39aa" prot="private" virt="non-virtual"><scope>Toolbar</scope><name>UpdateIcons</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

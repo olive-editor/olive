@@ -1,0 +1,271 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_time_target_object" kind="class" language="C++" prot="public">
+    <compoundname>TimeTargetObject</compoundname>
+    <derivedcompoundref refid="class_curve_widget" prot="public" virt="non-virtual">CurveWidget</derivedcompoundref>
+    <derivedcompoundref refid="class_keyframe_view_base" prot="public" virt="non-virtual">KeyframeViewBase</derivedcompoundref>
+    <derivedcompoundref refid="class_keyframe_view_item" prot="public" virt="non-virtual">KeyframeViewItem</derivedcompoundref>
+    <derivedcompoundref refid="class_node_param_view_keyframe_control" prot="public" virt="non-virtual">NodeParamViewKeyframeControl</derivedcompoundref>
+    <derivedcompoundref refid="class_node_param_view_widget_bridge" prot="public" virt="non-virtual">NodeParamViewWidgetBridge</derivedcompoundref>
+    <includes refid="timetargetobject_8h" local="no">timetargetobject.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_time_target_object_1ae2792431e254b6f0c792689baf81f12c" prot="private" static="no" mutable="no">
+        <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+        <definition>Node* TimeTargetObject::time_target_</definition>
+        <argsstring></argsstring>
+        <name>time_target_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/timetargetobject.h" line="65" column="8" bodyfile="C:/Daten/Olive/olive/app/widget/keyframeview/timetargetobject.h" bodystart="65" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_time_target_object_1a396c17c1ef87220c6ebc479767b0bc32" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int TimeTargetObject::path_index_</definition>
+        <argsstring></argsstring>
+        <name>path_index_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/timetargetobject.h" line="67" column="7" bodyfile="C:/Daten/Olive/olive/app/widget/keyframeview/timetargetobject.h" bodystart="67" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_time_target_object_1a9963aaae089e5709e8254521a3922a05" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>TimeTargetObject::TimeTargetObject</definition>
+        <argsstring>()</argsstring>
+        <name>TimeTargetObject</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/timetargetobject.h" line="49" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_time_target_object_1a4d42f0e790778389027787114c068cde" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+        <definition>Node* TimeTargetObject::GetTimeTarget</definition>
+        <argsstring>() const</argsstring>
+        <name>GetTimeTarget</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/timetargetobject.h" line="51" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_time_target_object_1ad88c63861b9c2abf103668c4edbe1988" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimeTargetObject::SetTimeTarget</definition>
+        <argsstring>(Node *target)</argsstring>
+        <name>SetTimeTarget</name>
+        <param>
+          <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+          <declname>target</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/timetargetobject.h" line="52" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_time_target_object_1a55c145c76abc5aed2a626323df520215" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimeTargetObject::SetPathIndex</definition>
+        <argsstring>(int index)</argsstring>
+        <name>SetPathIndex</name>
+        <param>
+          <type>int</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/timetargetobject.h" line="54" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_time_target_object_1a71547059dd3abb5bef68333d00e5bf24" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational TimeTargetObject::GetAdjustedTime</definition>
+        <argsstring>(Node *from, Node *to, const rational &amp;r, NodeParam::Type direction) const</argsstring>
+        <name>GetAdjustedTime</name>
+        <param>
+          <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+          <declname>from</declname>
+        </param>
+        <param>
+          <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+          <declname>to</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type><ref refid="class_node_param_1a57c2c5ab98ca8fd2c41cd1ebad045a00" kindref="member">NodeParam::Type</ref></type>
+          <declname>direction</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/timetargetobject.h" line="56" column="12"/>
+      </memberdef>
+      <memberdef kind="function" id="class_time_target_object_1a1817932c14f0f7734c49e29c84377819" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_time_range" kindref="compound">TimeRange</ref></type>
+        <definition>TimeRange TimeTargetObject::GetAdjustedTime</definition>
+        <argsstring>(Node *from, Node *to, const TimeRange &amp;r, NodeParam::Type direction) const</argsstring>
+        <name>GetAdjustedTime</name>
+        <param>
+          <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+          <declname>from</declname>
+        </param>
+        <param>
+          <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+          <declname>to</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_time_range" kindref="compound">TimeRange</ref> &amp;</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type><ref refid="class_node_param_1a57c2c5ab98ca8fd2c41cd1ebad045a00" kindref="member">NodeParam::Type</ref></type>
+          <declname>direction</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/timetargetobject.h" line="57" column="13"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_time_target_object_1a970f490a7212c20807684cdf36a4d321" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void TimeTargetObject::TimeTargetChangedEvent</definition>
+        <argsstring>(Node *)</argsstring>
+        <name>TimeTargetChangedEvent</name>
+        <reimplementedby refid="class_keyframe_view_item_1a616746fee2c7ef9dd4b8fa57d8293191">TimeTargetChangedEvent</reimplementedby>
+        <reimplementedby refid="class_keyframe_view_base_1a7dbea774a3b3603ae6907a37b4e1525c">TimeTargetChangedEvent</reimplementedby>
+        <reimplementedby refid="class_curve_widget_1a965b2c68fdcea8fba6eff70e58026ad5">TimeTargetChangedEvent</reimplementedby>
+        <param>
+          <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/timetargetobject.h" line="62" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/keyframeview/timetargetobject.h" bodystart="62" bodyend="62"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="4">
+        <label>CurveView</label>
+        <link refid="class_curve_view"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>TimeTargetObject</label>
+        <link refid="class_time_target_object"/>
+      </node>
+      <node id="5">
+        <label>KeyframeView</label>
+        <link refid="class_keyframe_view"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>NodeParamViewWidgetBridge</label>
+        <link refid="class_node_param_view_widget_bridge"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>NodeParamViewKeyframeControl</label>
+        <link refid="class_node_param_view_keyframe_control"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>CurveWidget</label>
+        <link refid="class_curve_widget"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>KeyframeViewItem</label>
+        <link refid="class_keyframe_view_item"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>KeyframeViewBase</label>
+        <link refid="class_keyframe_view_base"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="3">
+        <label>NodeOutput</label>
+        <link refid="class_node_output"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>Node</label>
+        <link refid="class_node"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>output_</edgelabel>
+        </childnode>
+      </node>
+      <node id="1">
+        <label>TimeTargetObject</label>
+        <link refid="class_time_target_object"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>time_target_</edgelabel>
+        </childnode>
+      </node>
+      <node id="4">
+        <label>NodeParam</label>
+        <link refid="class_node_param"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/keyframeview/timetargetobject.h" line="28" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/keyframeview/timetargetobject.h" bodystart="29" bodyend="51"/>
+    <listofallmembers>
+      <member refid="class_time_target_object_1a71547059dd3abb5bef68333d00e5bf24" prot="public" virt="non-virtual"><scope>TimeTargetObject</scope><name>GetAdjustedTime</name></member>
+      <member refid="class_time_target_object_1a1817932c14f0f7734c49e29c84377819" prot="public" virt="non-virtual"><scope>TimeTargetObject</scope><name>GetAdjustedTime</name></member>
+      <member refid="class_time_target_object_1a4d42f0e790778389027787114c068cde" prot="public" virt="non-virtual"><scope>TimeTargetObject</scope><name>GetTimeTarget</name></member>
+      <member refid="class_time_target_object_1a396c17c1ef87220c6ebc479767b0bc32" prot="private" virt="non-virtual"><scope>TimeTargetObject</scope><name>path_index_</name></member>
+      <member refid="class_time_target_object_1a55c145c76abc5aed2a626323df520215" prot="public" virt="non-virtual"><scope>TimeTargetObject</scope><name>SetPathIndex</name></member>
+      <member refid="class_time_target_object_1ad88c63861b9c2abf103668c4edbe1988" prot="public" virt="non-virtual"><scope>TimeTargetObject</scope><name>SetTimeTarget</name></member>
+      <member refid="class_time_target_object_1ae2792431e254b6f0c792689baf81f12c" prot="private" virt="non-virtual"><scope>TimeTargetObject</scope><name>time_target_</name></member>
+      <member refid="class_time_target_object_1a970f490a7212c20807684cdf36a4d321" prot="protected" virt="virtual"><scope>TimeTargetObject</scope><name>TimeTargetChangedEvent</name></member>
+      <member refid="class_time_target_object_1a9963aaae089e5709e8254521a3922a05" prot="public" virt="non-virtual"><scope>TimeTargetObject</scope><name>TimeTargetObject</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

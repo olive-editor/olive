@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_10b9f3558118eacb7f7e48f08a460dfe" kind="dir">
+    <compoundname>audio</compoundname>
+    <innerdir refid="dir_296efae777dbd713a3edd6882fb40423">pan</innerdir>
+    <innerdir refid="dir_e46845dda3642355d3d97049461ea1d7">volume</innerdir>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/node/audio/"/>
+  </compounddef>
+</doxygen>

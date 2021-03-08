@@ -1,0 +1,713 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_menu_shared" kind="class" language="C++" prot="public">
+    <compoundname>MenuShared</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QObject</basecompoundref>
+    <includes refid="menushared_8h" local="no">menushared.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_menu_shared_1ac10a44d111a8ffdabe144d99ec8567d7" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MenuShared::new_project_item_</definition>
+        <argsstring></argsstring>
+        <name>new_project_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="68" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/menu/menushared.h" bodystart="68" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_menu_shared_1a866feed6b8e26f77eb1b663ccae17b04" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MenuShared::new_sequence_item_</definition>
+        <argsstring></argsstring>
+        <name>new_sequence_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="69" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/menu/menushared.h" bodystart="69" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_menu_shared_1a2092157ff95a8c134dfe383570cb3239" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MenuShared::new_folder_item_</definition>
+        <argsstring></argsstring>
+        <name>new_folder_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="70" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/menu/menushared.h" bodystart="70" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_menu_shared_1a99de6b449fcf4f3a82be41adce67a020" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MenuShared::edit_cut_item_</definition>
+        <argsstring></argsstring>
+        <name>edit_cut_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="73" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/menu/menushared.h" bodystart="73" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_menu_shared_1af99fc7e7becf3793b11e8b22391b3ef2" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MenuShared::edit_copy_item_</definition>
+        <argsstring></argsstring>
+        <name>edit_copy_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="74" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/menu/menushared.h" bodystart="74" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_menu_shared_1af64ad39e7ccc12f6356354f760408e08" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MenuShared::edit_paste_item_</definition>
+        <argsstring></argsstring>
+        <name>edit_paste_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="75" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/menu/menushared.h" bodystart="75" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_menu_shared_1aa606969e2171106ba5f27b3721ab565e" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MenuShared::edit_paste_insert_item_</definition>
+        <argsstring></argsstring>
+        <name>edit_paste_insert_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="76" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/menu/menushared.h" bodystart="76" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_menu_shared_1a23537ab4c452ab53d4d79ebad0bb53c1" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MenuShared::edit_duplicate_item_</definition>
+        <argsstring></argsstring>
+        <name>edit_duplicate_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="77" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/menu/menushared.h" bodystart="77" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_menu_shared_1abfac73ad546d150edce4802836d94dd5" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MenuShared::edit_delete_item_</definition>
+        <argsstring></argsstring>
+        <name>edit_delete_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="78" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/menu/menushared.h" bodystart="78" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_menu_shared_1ae9a7df3543fc91fa70a23b549424d221" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MenuShared::edit_ripple_delete_item_</definition>
+        <argsstring></argsstring>
+        <name>edit_ripple_delete_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="79" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/menu/menushared.h" bodystart="79" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_menu_shared_1a5f62f79d6d90d811e56332fb1a3d2794" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MenuShared::edit_split_item_</definition>
+        <argsstring></argsstring>
+        <name>edit_split_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="80" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/menu/menushared.h" bodystart="80" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_menu_shared_1a36fb7cd61d291f76ab5a8dd3ba408dfc" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MenuShared::inout_set_in_item_</definition>
+        <argsstring></argsstring>
+        <name>inout_set_in_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="83" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/menu/menushared.h" bodystart="83" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_menu_shared_1a86f070c1c50f2fbb21ebf3379c069536" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MenuShared::inout_set_out_item_</definition>
+        <argsstring></argsstring>
+        <name>inout_set_out_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="84" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/menu/menushared.h" bodystart="84" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_menu_shared_1a9f6902787e5448ee9f18eb6135e51128" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MenuShared::inout_reset_in_item_</definition>
+        <argsstring></argsstring>
+        <name>inout_reset_in_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="85" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/menu/menushared.h" bodystart="85" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_menu_shared_1a55259387b833443a89365106d6975c49" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MenuShared::inout_reset_out_item_</definition>
+        <argsstring></argsstring>
+        <name>inout_reset_out_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="86" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/menu/menushared.h" bodystart="86" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_menu_shared_1aa621298b4ed6b9c21ca304e329cc60fb" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MenuShared::inout_clear_inout_item_</definition>
+        <argsstring></argsstring>
+        <name>inout_clear_inout_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="87" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/menu/menushared.h" bodystart="87" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_menu_shared_1aa9e32fcfc95eb32af501d33ce53f0900" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MenuShared::clip_add_default_transition_item_</definition>
+        <argsstring></argsstring>
+        <name>clip_add_default_transition_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="90" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/menu/menushared.h" bodystart="90" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_menu_shared_1aec82655ad74ad3076316fe5851a28d72" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MenuShared::clip_link_unlink_item_</definition>
+        <argsstring></argsstring>
+        <name>clip_link_unlink_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="91" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/menu/menushared.h" bodystart="91" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_menu_shared_1a78909c107384641a2b2c28b3d6a6fc46" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MenuShared::clip_enable_disable_item_</definition>
+        <argsstring></argsstring>
+        <name>clip_enable_disable_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="92" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/menu/menushared.h" bodystart="92" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_menu_shared_1ad3ceafc848fb59038a327687d38fa796" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MenuShared::clip_nest_item_</definition>
+        <argsstring></argsstring>
+        <name>clip_nest_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="93" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/menu/menushared.h" bodystart="93" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-attrib">
+      <memberdef kind="variable" id="class_menu_shared_1a3754beeb12db90c8eeafcb33b8e04d73" prot="private" static="yes" mutable="no">
+        <type><ref refid="class_menu_shared" kindref="compound">MenuShared</ref> *</type>
+        <definition>MenuShared* MenuShared::instance_</definition>
+        <argsstring></argsstring>
+        <name>instance_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="95" column="21" bodyfile="C:/Daten/Olive/olive/app/widget/menu/menushared.h" bodystart="95" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_menu_shared_1a295f19e346ae524dae4e84dc01a1ef1b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>MenuShared::MenuShared</definition>
+        <argsstring>()</argsstring>
+        <name>MenuShared</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="52" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_menu_shared_1a351babdcc4dacb82a50c6c0881a10c85" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MenuShared::Retranslate</definition>
+        <argsstring>()</argsstring>
+        <name>Retranslate</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="57" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_menu_shared_1a0c65465bcedbfeef0863dd95d1f5a01c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MenuShared::AddItemsForNewMenu</definition>
+        <argsstring>(Menu *m)</argsstring>
+        <name>AddItemsForNewMenu</name>
+        <param>
+          <type><ref refid="class_menu" kindref="compound">Menu</ref> *</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="59" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_menu_shared_1ac25400a4ba13cd73e56d9b756694f12b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MenuShared::AddItemsForEditMenu</definition>
+        <argsstring>(Menu *m, bool for_clips)</argsstring>
+        <name>AddItemsForEditMenu</name>
+        <param>
+          <type><ref refid="class_menu" kindref="compound">Menu</ref> *</type>
+          <declname>m</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>for_clips</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="60" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_menu_shared_1a2129e956f1d7b8989fd6150068b24946" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MenuShared::AddItemsForInOutMenu</definition>
+        <argsstring>(Menu *m)</argsstring>
+        <name>AddItemsForInOutMenu</name>
+        <param>
+          <type><ref refid="class_menu" kindref="compound">Menu</ref> *</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="61" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_menu_shared_1aa838ff3733b957ec8176d87f0593719a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MenuShared::AddItemsForClipEditMenu</definition>
+        <argsstring>(Menu *m)</argsstring>
+        <name>AddItemsForClipEditMenu</name>
+        <param>
+          <type><ref refid="class_menu" kindref="compound">Menu</ref> *</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="62" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="class_menu_shared_1a65100ec5f7b33ed5f83260bc294d1bf3" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void MenuShared::CreateInstance</definition>
+        <argsstring>()</argsstring>
+        <name>CreateInstance</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="54" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_menu_shared_1a0edf3d48b635c30f3635c654894df46f" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void MenuShared::DestroyInstance</definition>
+        <argsstring>()</argsstring>
+        <name>DestroyInstance</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="55" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_menu_shared_1a1bf8bb4c9f873cc9018066009c43fa45" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_menu_shared" kindref="compound">MenuShared</ref> *</type>
+        <definition>static MenuShared* MenuShared::instance</definition>
+        <argsstring>()</argsstring>
+        <name>instance</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="64" column="21"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_menu_shared_1a514bc2bf5a0739535edb4d5ceaa1c34e" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MenuShared::SplitAtPlayheadTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>SplitAtPlayheadTriggered</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="98" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_menu_shared_1adea47efb1061c6f943d503c0fcd8ddb5" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MenuShared::DeleteSelectedTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>DeleteSelectedTriggered</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="100" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_menu_shared_1a8a9e829d0f22e22461b9d9b0c17e09c7" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MenuShared::RippleDeleteTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>RippleDeleteTriggered</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="102" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_menu_shared_1ad53c0543bf3e29e97162feafbf252a28" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MenuShared::SetInTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>SetInTriggered</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="104" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_menu_shared_1a1b8159a74e96c777bc66516de6c94782" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MenuShared::SetOutTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>SetOutTriggered</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="106" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_menu_shared_1abdaa92c4cabf341b5fc484c797fc9647" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MenuShared::ResetInTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>ResetInTriggered</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="108" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_menu_shared_1aa992030c0c94446d72332168642af67c" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MenuShared::ResetOutTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>ResetOutTriggered</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="110" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_menu_shared_1a56153efcc3b68a195d214fe5c451f7da" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MenuShared::ClearInOutTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>ClearInOutTriggered</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="112" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_menu_shared_1acd4a84f69691101e3a3ef0404cec551f" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MenuShared::ToggleLinksTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>ToggleLinksTriggered</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="114" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_menu_shared_1af91a30c709887c6162d0f0bbef4b4733" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MenuShared::CutTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>CutTriggered</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="116" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_menu_shared_1a367db9415a4aae23bfc11cb81f3aff8d" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MenuShared::CopyTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>CopyTriggered</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="118" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_menu_shared_1a07a882b8f6afe07e4051704a23c42dcf" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MenuShared::PasteTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>PasteTriggered</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="120" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_menu_shared_1a918ddaca44b380c3ea2c5ff2c33a0ee8" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MenuShared::PasteInsertTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>PasteInsertTriggered</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="122" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_menu_shared_1a0666fec4af23579dd402e607fa9bbb71" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MenuShared::DuplicateTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>DuplicateTriggered</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="124" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_menu_shared_1a67673e4f7b0ff93320d96c155d19579f" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MenuShared::EnableDisableTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>EnableDisableTriggered</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="126" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_menu_shared_1a8625750e908dffda38f8f019a28e7307" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MenuShared::NestTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>NestTriggered</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="128" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_menu_shared_1aea71d65436f00e944133c091b8afdf23" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MenuShared::DefaultTransitionTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>DefaultTransitionTriggered</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="130" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A static object that provides various &quot;stock&quot; menus for use throughout the application. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>MenuShared</label>
+        <link refid="class_menu_shared"/>
+        <childnode refid="1" relation="usage">
+          <edgelabel>instance_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h" line="31" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/menu/menushared.h" bodystart="31" bodyend="114"/>
+    <listofallmembers>
+      <member refid="class_menu_shared_1aa838ff3733b957ec8176d87f0593719a" prot="public" virt="non-virtual"><scope>MenuShared</scope><name>AddItemsForClipEditMenu</name></member>
+      <member refid="class_menu_shared_1ac25400a4ba13cd73e56d9b756694f12b" prot="public" virt="non-virtual"><scope>MenuShared</scope><name>AddItemsForEditMenu</name></member>
+      <member refid="class_menu_shared_1a2129e956f1d7b8989fd6150068b24946" prot="public" virt="non-virtual"><scope>MenuShared</scope><name>AddItemsForInOutMenu</name></member>
+      <member refid="class_menu_shared_1a0c65465bcedbfeef0863dd95d1f5a01c" prot="public" virt="non-virtual"><scope>MenuShared</scope><name>AddItemsForNewMenu</name></member>
+      <member refid="class_menu_shared_1a56153efcc3b68a195d214fe5c451f7da" prot="private" virt="non-virtual"><scope>MenuShared</scope><name>ClearInOutTriggered</name></member>
+      <member refid="class_menu_shared_1aa9e32fcfc95eb32af501d33ce53f0900" prot="private" virt="non-virtual"><scope>MenuShared</scope><name>clip_add_default_transition_item_</name></member>
+      <member refid="class_menu_shared_1a78909c107384641a2b2c28b3d6a6fc46" prot="private" virt="non-virtual"><scope>MenuShared</scope><name>clip_enable_disable_item_</name></member>
+      <member refid="class_menu_shared_1aec82655ad74ad3076316fe5851a28d72" prot="private" virt="non-virtual"><scope>MenuShared</scope><name>clip_link_unlink_item_</name></member>
+      <member refid="class_menu_shared_1ad3ceafc848fb59038a327687d38fa796" prot="private" virt="non-virtual"><scope>MenuShared</scope><name>clip_nest_item_</name></member>
+      <member refid="class_menu_shared_1a367db9415a4aae23bfc11cb81f3aff8d" prot="private" virt="non-virtual"><scope>MenuShared</scope><name>CopyTriggered</name></member>
+      <member refid="class_menu_shared_1a65100ec5f7b33ed5f83260bc294d1bf3" prot="public" virt="non-virtual"><scope>MenuShared</scope><name>CreateInstance</name></member>
+      <member refid="class_menu_shared_1af91a30c709887c6162d0f0bbef4b4733" prot="private" virt="non-virtual"><scope>MenuShared</scope><name>CutTriggered</name></member>
+      <member refid="class_menu_shared_1aea71d65436f00e944133c091b8afdf23" prot="private" virt="non-virtual"><scope>MenuShared</scope><name>DefaultTransitionTriggered</name></member>
+      <member refid="class_menu_shared_1adea47efb1061c6f943d503c0fcd8ddb5" prot="private" virt="non-virtual"><scope>MenuShared</scope><name>DeleteSelectedTriggered</name></member>
+      <member refid="class_menu_shared_1a0edf3d48b635c30f3635c654894df46f" prot="public" virt="non-virtual"><scope>MenuShared</scope><name>DestroyInstance</name></member>
+      <member refid="class_menu_shared_1a0666fec4af23579dd402e607fa9bbb71" prot="private" virt="non-virtual"><scope>MenuShared</scope><name>DuplicateTriggered</name></member>
+      <member refid="class_menu_shared_1af99fc7e7becf3793b11e8b22391b3ef2" prot="private" virt="non-virtual"><scope>MenuShared</scope><name>edit_copy_item_</name></member>
+      <member refid="class_menu_shared_1a99de6b449fcf4f3a82be41adce67a020" prot="private" virt="non-virtual"><scope>MenuShared</scope><name>edit_cut_item_</name></member>
+      <member refid="class_menu_shared_1abfac73ad546d150edce4802836d94dd5" prot="private" virt="non-virtual"><scope>MenuShared</scope><name>edit_delete_item_</name></member>
+      <member refid="class_menu_shared_1a23537ab4c452ab53d4d79ebad0bb53c1" prot="private" virt="non-virtual"><scope>MenuShared</scope><name>edit_duplicate_item_</name></member>
+      <member refid="class_menu_shared_1aa606969e2171106ba5f27b3721ab565e" prot="private" virt="non-virtual"><scope>MenuShared</scope><name>edit_paste_insert_item_</name></member>
+      <member refid="class_menu_shared_1af64ad39e7ccc12f6356354f760408e08" prot="private" virt="non-virtual"><scope>MenuShared</scope><name>edit_paste_item_</name></member>
+      <member refid="class_menu_shared_1ae9a7df3543fc91fa70a23b549424d221" prot="private" virt="non-virtual"><scope>MenuShared</scope><name>edit_ripple_delete_item_</name></member>
+      <member refid="class_menu_shared_1a5f62f79d6d90d811e56332fb1a3d2794" prot="private" virt="non-virtual"><scope>MenuShared</scope><name>edit_split_item_</name></member>
+      <member refid="class_menu_shared_1a67673e4f7b0ff93320d96c155d19579f" prot="private" virt="non-virtual"><scope>MenuShared</scope><name>EnableDisableTriggered</name></member>
+      <member refid="class_menu_shared_1aa621298b4ed6b9c21ca304e329cc60fb" prot="private" virt="non-virtual"><scope>MenuShared</scope><name>inout_clear_inout_item_</name></member>
+      <member refid="class_menu_shared_1a9f6902787e5448ee9f18eb6135e51128" prot="private" virt="non-virtual"><scope>MenuShared</scope><name>inout_reset_in_item_</name></member>
+      <member refid="class_menu_shared_1a55259387b833443a89365106d6975c49" prot="private" virt="non-virtual"><scope>MenuShared</scope><name>inout_reset_out_item_</name></member>
+      <member refid="class_menu_shared_1a36fb7cd61d291f76ab5a8dd3ba408dfc" prot="private" virt="non-virtual"><scope>MenuShared</scope><name>inout_set_in_item_</name></member>
+      <member refid="class_menu_shared_1a86f070c1c50f2fbb21ebf3379c069536" prot="private" virt="non-virtual"><scope>MenuShared</scope><name>inout_set_out_item_</name></member>
+      <member refid="class_menu_shared_1a1bf8bb4c9f873cc9018066009c43fa45" prot="public" virt="non-virtual"><scope>MenuShared</scope><name>instance</name></member>
+      <member refid="class_menu_shared_1a3754beeb12db90c8eeafcb33b8e04d73" prot="private" virt="non-virtual"><scope>MenuShared</scope><name>instance_</name></member>
+      <member refid="class_menu_shared_1a295f19e346ae524dae4e84dc01a1ef1b" prot="public" virt="non-virtual"><scope>MenuShared</scope><name>MenuShared</name></member>
+      <member refid="class_menu_shared_1a8625750e908dffda38f8f019a28e7307" prot="private" virt="non-virtual"><scope>MenuShared</scope><name>NestTriggered</name></member>
+      <member refid="class_menu_shared_1a2092157ff95a8c134dfe383570cb3239" prot="private" virt="non-virtual"><scope>MenuShared</scope><name>new_folder_item_</name></member>
+      <member refid="class_menu_shared_1ac10a44d111a8ffdabe144d99ec8567d7" prot="private" virt="non-virtual"><scope>MenuShared</scope><name>new_project_item_</name></member>
+      <member refid="class_menu_shared_1a866feed6b8e26f77eb1b663ccae17b04" prot="private" virt="non-virtual"><scope>MenuShared</scope><name>new_sequence_item_</name></member>
+      <member refid="class_menu_shared_1a918ddaca44b380c3ea2c5ff2c33a0ee8" prot="private" virt="non-virtual"><scope>MenuShared</scope><name>PasteInsertTriggered</name></member>
+      <member refid="class_menu_shared_1a07a882b8f6afe07e4051704a23c42dcf" prot="private" virt="non-virtual"><scope>MenuShared</scope><name>PasteTriggered</name></member>
+      <member refid="class_menu_shared_1abdaa92c4cabf341b5fc484c797fc9647" prot="private" virt="non-virtual"><scope>MenuShared</scope><name>ResetInTriggered</name></member>
+      <member refid="class_menu_shared_1aa992030c0c94446d72332168642af67c" prot="private" virt="non-virtual"><scope>MenuShared</scope><name>ResetOutTriggered</name></member>
+      <member refid="class_menu_shared_1a351babdcc4dacb82a50c6c0881a10c85" prot="public" virt="non-virtual"><scope>MenuShared</scope><name>Retranslate</name></member>
+      <member refid="class_menu_shared_1a8a9e829d0f22e22461b9d9b0c17e09c7" prot="private" virt="non-virtual"><scope>MenuShared</scope><name>RippleDeleteTriggered</name></member>
+      <member refid="class_menu_shared_1ad53c0543bf3e29e97162feafbf252a28" prot="private" virt="non-virtual"><scope>MenuShared</scope><name>SetInTriggered</name></member>
+      <member refid="class_menu_shared_1a1b8159a74e96c777bc66516de6c94782" prot="private" virt="non-virtual"><scope>MenuShared</scope><name>SetOutTriggered</name></member>
+      <member refid="class_menu_shared_1a514bc2bf5a0739535edb4d5ceaa1c34e" prot="private" virt="non-virtual"><scope>MenuShared</scope><name>SplitAtPlayheadTriggered</name></member>
+      <member refid="class_menu_shared_1acd4a84f69691101e3a3ef0404cec551f" prot="private" virt="non-virtual"><scope>MenuShared</scope><name>ToggleLinksTriggered</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

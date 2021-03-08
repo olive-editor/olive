@@ -1,0 +1,147 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_key_sequence_editor" kind="class" language="C++" prot="public">
+    <compoundname>KeySequenceEditor</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QKeySequenceEdit</basecompoundref>
+    <includes refid="keysequenceeditor_8h" local="no">keysequenceeditor.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_key_sequence_editor_1ac3c458013e80c5d2065af0dbe1b44ab2" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* KeySequenceEditor::action</definition>
+        <argsstring></argsstring>
+        <name>action</name>
+        <briefdescription>
+<para>Internal reference to the linked QAction. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/keysequenceeditor.h" line="119" column="11" bodyfile="C:/Daten/Olive/olive/app/dialog/preferences/keysequenceeditor.h" bodystart="119" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_key_sequence_editor_1a2fbcc0c5879459862087ce3966d218c0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>KeySequenceEditor::KeySequenceEditor</definition>
+        <argsstring>(QWidget *parent, QAction *a)</argsstring>
+        <name>KeySequenceEditor</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+        </param>
+        <param>
+          <type>QAction *</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="class_key_sequence_editor" kindref="compound">KeySequenceEditor</ref> Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parent</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>QWidget parent.</para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>a</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The QAction to link to. This cannot be changed throughout the lifetime of a <ref refid="class_key_sequence_editor" kindref="compound">KeySequenceEditor</ref>. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/keysequenceeditor.h" line="68" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_key_sequence_editor_1a104e8bcece50ba4da53f2de152c1ab44" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void KeySequenceEditor::set_action_shortcut</definition>
+        <argsstring>()</argsstring>
+        <name>set_action_shortcut</name>
+        <briefdescription>
+<para>Sets the attached QAction&apos;s shortcut to the shortcut entered in this field. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This is not done automatically in case the user cancels out of the Preferences dialog, in which case the expectation is that the changes made will not be saved. Therefore, this needs to be triggered manually when <ref refid="class_preferences_dialog" kindref="compound">PreferencesDialog</ref> saves. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/keysequenceeditor.h" line="77" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_key_sequence_editor_1a8b0b3ebca3eeccbd07ee048a4979d106" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void KeySequenceEditor::reset_to_default</definition>
+        <argsstring>()</argsstring>
+        <name>reset_to_default</name>
+        <briefdescription>
+<para>Set this shortcut back to the QAction&apos;s default shortcut. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Each QAction contains the default shortcut in its <computeroutput>property(&quot;default&quot;)</computeroutput> and can be used to restore the default &quot;hard-coded&quot; shortcut with this function.</para>
+<para>This function does not save the default shortcut back into the QAction, it simply loads the default shortcut from the QAction into this edit field. To save it into the QAction, it&apos;s necessary to call <ref refid="class_key_sequence_editor_1a104e8bcece50ba4da53f2de152c1ab44" kindref="member">set_action_shortcut()</ref> after calling this function. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/keysequenceeditor.h" line="89" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_key_sequence_editor_1a8c4fbd539576482e9e9476571e499912" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>QString KeySequenceEditor::action_name</definition>
+        <argsstring>()</argsstring>
+        <name>action_name</name>
+        <briefdescription>
+<para>Return attached QAction&apos;s unique ID. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Each of Olive&apos;s menu actions has a unique string ID (that, unlike the text, is not translated) for matching with an external shortcut configuration file. The ID is stored in the QAction&apos;s <computeroutput>property(&quot;id&quot;)</computeroutput>. This function returns that ID.</para>
+<para><simplesect kind="return"><para></para>
+</simplesect>
+The QAction&apos;s unique ID. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/keysequenceeditor.h" line="102" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_key_sequence_editor_1a59462a1cb3685c22e86092df5b2a5038" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>QString KeySequenceEditor::export_shortcut</definition>
+        <argsstring>()</argsstring>
+        <name>export_shortcut</name>
+        <briefdescription>
+<para>Serialize this shortcut entry into a string that can be saved to a file. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para></para>
+</simplesect>
+A string serialization of this shortcut. The format is &quot;[ID]\t[SEQUENCE]&quot; where [ID] is the attached QAction&apos;s unique identifier and [SEQUENCE] is the current keyboard shortcut in the field (NOT necessarily the shortcut in the QAction). If the entered shortcut is the same as the QAction&apos;s default shortcut, the return value is empty because a default shortcut does not need to be saved to a file. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/keysequenceeditor.h" line="114" column="11"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>The <ref refid="class_key_sequence_editor" kindref="compound">KeySequenceEditor</ref> class. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Simple derived class of QKeySequenceEdit that attaches to a QAction and provides functions for transferring keyboard shortcuts to and from it. </para>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/dialog/preferences/keysequenceeditor.h" line="36" column="1" bodyfile="C:/Daten/Olive/olive/app/dialog/preferences/keysequenceeditor.h" bodystart="36" bodyend="102"/>
+    <listofallmembers>
+      <member refid="class_key_sequence_editor_1ac3c458013e80c5d2065af0dbe1b44ab2" prot="private" virt="non-virtual"><scope>KeySequenceEditor</scope><name>action</name></member>
+      <member refid="class_key_sequence_editor_1a8c4fbd539576482e9e9476571e499912" prot="public" virt="non-virtual"><scope>KeySequenceEditor</scope><name>action_name</name></member>
+      <member refid="class_key_sequence_editor_1a59462a1cb3685c22e86092df5b2a5038" prot="public" virt="non-virtual"><scope>KeySequenceEditor</scope><name>export_shortcut</name></member>
+      <member refid="class_key_sequence_editor_1a2fbcc0c5879459862087ce3966d218c0" prot="public" virt="non-virtual"><scope>KeySequenceEditor</scope><name>KeySequenceEditor</name></member>
+      <member refid="class_key_sequence_editor_1a8b0b3ebca3eeccbd07ee048a4979d106" prot="public" virt="non-virtual"><scope>KeySequenceEditor</scope><name>reset_to_default</name></member>
+      <member refid="class_key_sequence_editor_1a104e8bcece50ba4da53f2de152c1ab44" prot="public" virt="non-virtual"><scope>KeySequenceEditor</scope><name>set_action_shortcut</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

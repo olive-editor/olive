@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_c83ccd4a5c73d92ee82be1e923285e8f" kind="dir">
+    <compoundname>projectexplorer</compoundname>
+    <innerfile refid="projectexplorer_8h">projectexplorer.h</innerfile>
+    <innerfile refid="projectexplorericonview_8h">projectexplorericonview.h</innerfile>
+    <innerfile refid="projectexplorericonviewitemdelegate_8h">projectexplorericonviewitemdelegate.h</innerfile>
+    <innerfile refid="projectexplorerlistview_8h">projectexplorerlistview.h</innerfile>
+    <innerfile refid="projectexplorerlistviewbase_8h">projectexplorerlistviewbase.h</innerfile>
+    <innerfile refid="projectexplorerlistviewitemdelegate_8h">projectexplorerlistviewitemdelegate.h</innerfile>
+    <innerfile refid="projectexplorernavigation_8h">projectexplorernavigation.h</innerfile>
+    <innerfile refid="projectexplorertreeview_8h">projectexplorertreeview.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/"/>
+  </compounddef>
+</doxygen>

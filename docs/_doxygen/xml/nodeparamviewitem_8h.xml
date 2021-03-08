@@ -1,0 +1,481 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="nodeparamviewitem_8h" kind="file" language="C++">
+    <compoundname>nodeparamviewitem.h</compoundname>
+    <includes local="no">QGridLayout</includes>
+    <includes local="no">QLabel</includes>
+    <includes local="no">QPushButton</includes>
+    <includes local="no">QVBoxLayout</includes>
+    <includes local="no">QWidget</includes>
+    <includes local="yes">node/node.h</includes>
+    <includes refid="nodeparamviewconnectedlabel_8h" local="yes">nodeparamviewconnectedlabel.h</includes>
+    <includes refid="nodeparamviewkeyframecontrol_8h" local="yes">nodeparamviewkeyframecontrol.h</includes>
+    <includes refid="nodeparamviewwidgetbridge_8h" local="yes">nodeparamviewwidgetbridge.h</includes>
+    <includes refid="clickablelabel_8h" local="yes">widget/clickablelabel/clickablelabel.h</includes>
+    <includes refid="collapsebutton_8h" local="yes">widget/collapsebutton/collapsebutton.h</includes>
+    <includedby refid="nodeparamview_8h" local="yes">nodeparamview.h</includedby>
+    <incdepgraph>
+      <node id="15">
+        <label>libavformat/avformat.h</label>
+      </node>
+      <node id="21">
+        <label>param.h</label>
+        <link refid="node_2param_8h"/>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+      </node>
+      <node id="36">
+        <label>nodeparamviewwidgetbridge.h</label>
+        <link refid="nodeparamviewwidgetbridge_8h"/>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>QObject</label>
+      </node>
+      <node id="10">
+        <label>common/timerange.h</label>
+        <link refid="timerange_8h"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="27">
+        <label>QXmlStreamReader</label>
+      </node>
+      <node id="19">
+        <label>QPointF</label>
+      </node>
+      <node id="39">
+        <label>sliderlabel.h</label>
+        <link refid="sliderlabel_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="38">
+        <label>QStackedWidget</label>
+      </node>
+      <node id="17">
+        <label>keyframe.h</label>
+        <link refid="keyframe_8h"/>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>QMetaType</label>
+      </node>
+      <node id="26">
+        <label>QUndoCommand</label>
+      </node>
+      <node id="34">
+        <label>nodeparamviewkeyframecontrol.h</label>
+        <link refid="nodeparamviewkeyframecontrol_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>nodeparamviewitem.h</label>
+        <link refid="nodeparamviewitem_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>rational.h</label>
+        <link refid="rational_8h"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="30">
+        <label>QMutex</label>
+      </node>
+      <node id="35">
+        <label>widget/keyframeview/timetargetobject.h</label>
+        <link refid="timetargetobject_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="33">
+        <label>widget/clickablelabel/clickablelabel.h</label>
+        <link refid="clickablelabel_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>nodeparamviewconnectedlabel.h</label>
+        <link refid="nodeparamviewconnectedlabel_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>common/define.h</label>
+        <link refid="define_8h"/>
+      </node>
+      <node id="13">
+        <label>QDebug</label>
+      </node>
+      <node id="5">
+        <label>QVBoxLayout</label>
+      </node>
+      <node id="32">
+        <label>node/edge.h</label>
+        <link refid="edge_8h"/>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>QWidget</label>
+      </node>
+      <node id="41">
+        <label>QLineEdit</label>
+      </node>
+      <node id="42">
+        <label>widget/collapsebutton/collapsebutton.h</label>
+        <link refid="collapsebutton_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="31">
+        <label>QString</label>
+      </node>
+      <node id="4">
+        <label>QPushButton</label>
+      </node>
+      <node id="3">
+        <label>QLabel</label>
+      </node>
+      <node id="12">
+        <label>iostream</label>
+      </node>
+      <node id="2">
+        <label>QGridLayout</label>
+      </node>
+      <node id="24">
+        <label>QXmlStreamWriter</label>
+      </node>
+      <node id="40">
+        <label>widget/focusablelineedit/focusablelineedit.h</label>
+        <link refid="focusablelineedit_8h"/>
+        <childnode refid="41" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="28">
+        <label>project/item/footage/stream.h</label>
+        <link refid="stream_8h"/>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>node/input.h</label>
+        <link refid="input_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="25">
+        <label>common/xmlutils.h</label>
+        <link refid="xmlutils_8h"/>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>QVariant</label>
+      </node>
+      <node id="7">
+        <label>node/node.h</label>
+      </node>
+      <node id="18">
+        <label>memory</label>
+      </node>
+      <node id="23">
+        <label>QVector</label>
+      </node>
+      <node id="37">
+        <label>widget/slider/sliderbase.h</label>
+        <link refid="sliderbase_8h"/>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+      </node>
+      <node id="29">
+        <label>QCoreApplication</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="3">
+        <label>param.h</label>
+        <link refid="panel_2param_2param_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>mainwindow.h</label>
+        <link refid="mainwindow_8h"/>
+      </node>
+      <node id="1">
+        <label>nodeparamviewitem.h</label>
+        <link refid="nodeparamviewitem_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>nodeparamview.h</label>
+        <link refid="nodeparamview_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="class_node_param_view_item_title_bar" prot="public">NodeParamViewItemTitleBar</innerclass>
+    <innerclass refid="class_node_param_view_item_body" prot="public">NodeParamViewItemBody</innerclass>
+    <innerclass refid="struct_node_param_view_item_body_1_1_input_u_i" prot="private">NodeParamViewItemBody::InputUI</innerclass>
+    <innerclass refid="class_node_param_view_item" prot="public">NodeParamViewItem</innerclass>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/***</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"></highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/><sp/>Olive<sp/>-<sp/>Non-Linear<sp/>Video<sp/>Editor</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/><sp/>Copyright<sp/>(C)<sp/>2019<sp/>Olive<sp/>Team</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"></highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/><sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/><sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/><sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"></highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/><sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/><sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/><sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"></highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/><sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/><sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"></highlight></codeline>
+<codeline lineno="19"><highlight class="comment">***/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>NODEPARAMVIEWITEM_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>NODEPARAMVIEWITEM_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QGridLayout&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QLabel&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QPushButton&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QVBoxLayout&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QWidget&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;node/node.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="nodeparamviewconnectedlabel_8h" kindref="compound">nodeparamviewconnectedlabel.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="nodeparamviewkeyframecontrol_8h" kindref="compound">nodeparamviewkeyframecontrol.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="nodeparamviewwidgetbridge_8h" kindref="compound">nodeparamviewwidgetbridge.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="clickablelabel_8h" kindref="compound">widget/clickablelabel/clickablelabel.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="collapsebutton_8h" kindref="compound">widget/collapsebutton/collapsebutton.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><ref refid="define_8h_1a0472692dd1f22472ad63da20da919e8c" kindref="member">OLIVE_NAMESPACE_ENTER</ref></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39" refid="class_node_param_view_item_title_bar" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_node_param_view_item_title_bar" kindref="compound">NodeParamViewItemTitleBar</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>QWidget<sp/>{</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><ref refid="class_node_param_view_item_title_bar_1a12d468a76932d4e2dff27211c0fbf92f" kindref="member">NodeParamViewItemTitleBar</ref>(QWidget*<sp/>parent<sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_param_view_item_title_bar_1adae03c0a45cf05747ffcfa5a286d1181" kindref="member">paintEvent</ref>(QPaintEvent<sp/>*event)<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="45"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47" refid="class_node_param_view_item_body" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_node_param_view_item_body" kindref="compound">NodeParamViewItemBody</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>QWidget<sp/>{</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/>Q_OBJECT</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="50" refid="class_node_param_view_item_body_1a00a83a2612b4fc1f6c636174faa57746" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_node_param_view_item_body_1a00a83a2612b4fc1f6c636174faa57746" kindref="member">NodeParamViewItemBody</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QVector&lt;NodeInput*&gt;&amp;<sp/>inputs,<sp/>QWidget*<sp/>parent<sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52" refid="class_node_param_view_item_body_1ae7fbd26d10e630aaae816c2d438fb99f" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_param_view_item_body_1ae7fbd26d10e630aaae816c2d438fb99f" kindref="member">SetTimeTarget</ref>(<ref refid="class_node" kindref="compound">Node</ref>*<sp/>target);</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54" refid="class_node_param_view_item_body_1ab8b191f407e6cffb4b43686274e94bff" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_param_view_item_body_1ab8b191f407e6cffb4b43686274e94bff" kindref="member">SetTime</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classrational" kindref="compound">rational</ref>&amp;<sp/>time);</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56" refid="class_node_param_view_item_body_1ae8d9cb896a425ae26d3a6fc263a349a0" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_param_view_item_body_1ae8d9cb896a425ae26d3a6fc263a349a0" kindref="member">Retranslate</ref>();</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58" refid="class_node_param_view_item_body_1af2dcf72a45f74bfab798001b6e40ca76" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_param_view_item_body_1af2dcf72a45f74bfab798001b6e40ca76" kindref="member">SignalAllKeyframes</ref>();</highlight></codeline>
+<codeline lineno="59" refid="class_node_param_view_item_title_bar_1a12d468a76932d4e2dff27211c0fbf92f" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal">signals:</highlight></codeline>
+<codeline lineno="61" refid="class_node_param_view_item_body_1aa18639859bebeba487f43c790739a2c6" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_param_view_item_body_1aa18639859bebeba487f43c790739a2c6" kindref="member">KeyframeAdded</ref>(<ref refid="keyframe_8h_1a741b7edf62813e254aba77dca9f281ea" kindref="member">NodeKeyframePtr</ref><sp/>key,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>y);</highlight></codeline>
+<codeline lineno="62" refid="class_node_param_view_item_title_bar_1adae03c0a45cf05747ffcfa5a286d1181" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63" refid="class_node_param_view_item_body_1a2f0ce513f58eff3302b613e88e31012b" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_param_view_item_body_1a2f0ce513f58eff3302b613e88e31012b" kindref="member">KeyframeRemoved</ref>(<ref refid="keyframe_8h_1a741b7edf62813e254aba77dca9f281ea" kindref="member">NodeKeyframePtr</ref><sp/>key);</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65" refid="class_node_param_view_item_body_1ab9049405a4c339c5396acc0a6fb2e498" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_param_view_item_body_1ab9049405a4c339c5396acc0a6fb2e498" kindref="member">RequestSetTime</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classrational" kindref="compound">rational</ref>&amp;<sp/>time);</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67" refid="class_node_param_view_item_body_1adee5b50db1a299f61aaa81d53106c8da" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_param_view_item_body_1adee5b50db1a299f61aaa81d53106c8da" kindref="member">InputDoubleClicked</ref>(<ref refid="class_node_input" kindref="compound">NodeInput</ref>*<sp/>input);</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69" refid="class_node_param_view_item_body_1a675fa25b416336d54c8d6f288fc5467e" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_param_view_item_body_1a675fa25b416336d54c8d6f288fc5467e" kindref="member">RequestSelectNode</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QList&lt;Node*&gt;&amp;<sp/>node);</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="72" refid="class_node_param_view_item_body_1a151c67560baecc9f611e0ab3e9366171" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_param_view_item_body_1a151c67560baecc9f611e0ab3e9366171" kindref="member">UpdateUIForEdgeConnection</ref>(<ref refid="class_node_input" kindref="compound">NodeInput</ref>*<sp/>input);</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74" refid="class_node_param_view_item_body_1a7e5b6c5a804c5ac5194a33f70e8d293e" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_param_view_item_body_1a7e5b6c5a804c5ac5194a33f70e8d293e" kindref="member">InputAddedKeyframeInternal</ref>(<ref refid="class_node_input" kindref="compound">NodeInput</ref>*<sp/>input,<sp/><ref refid="keyframe_8h_1a741b7edf62813e254aba77dca9f281ea" kindref="member">NodeKeyframePtr</ref><sp/>keyframe);</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight></codeline>
+<codeline lineno="76" refid="struct_node_param_view_item_body_1_1_input_u_i" refkind="compound"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="struct_node_param_view_item_body_1_1_input_u_i" kindref="compound">InputUI</ref><sp/>{</highlight></codeline>
+<codeline lineno="77" refid="struct_node_param_view_item_body_1_1_input_u_i_1a3a39cff209f565a07b84ac2b1153eadc" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="struct_node_param_view_item_body_1_1_input_u_i_1a3a39cff209f565a07b84ac2b1153eadc" kindref="member">InputUI</ref>();</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight></codeline>
+<codeline lineno="79" refid="struct_node_param_view_item_body_1_1_input_u_i_1a2eb6b81ab43cbe6192e2add2951b3e7d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_clickable_label" kindref="compound">ClickableLabel</ref>*<sp/><ref refid="struct_node_param_view_item_body_1_1_input_u_i_1a2eb6b81ab43cbe6192e2add2951b3e7d" kindref="member">main_label</ref>;</highlight></codeline>
+<codeline lineno="80" refid="struct_node_param_view_item_body_1_1_input_u_i_1af0685c466acca2cf48f13be37e6c6f37" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_node_param_view_widget_bridge" kindref="compound">NodeParamViewWidgetBridge</ref>*<sp/><ref refid="struct_node_param_view_item_body_1_1_input_u_i_1af0685c466acca2cf48f13be37e6c6f37" kindref="member">widget_bridge</ref>;</highlight></codeline>
+<codeline lineno="81" refid="struct_node_param_view_item_body_1_1_input_u_i_1ad4b336cd417e0dbe9cead0749bcf04c2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_node_param_view_connected_label" kindref="compound">NodeParamViewConnectedLabel</ref>*<sp/><ref refid="struct_node_param_view_item_body_1_1_input_u_i_1ad4b336cd417e0dbe9cead0749bcf04c2" kindref="member">connected_label</ref>;</highlight></codeline>
+<codeline lineno="82" refid="struct_node_param_view_item_body_1_1_input_u_i_1ae8c7139140801c31c12027672544b78f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_node_param_view_keyframe_control" kindref="compound">NodeParamViewKeyframeControl</ref>*<sp/><ref refid="struct_node_param_view_item_body_1_1_input_u_i_1ae8c7139140801c31c12027672544b78f" kindref="member">key_control</ref>;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85" refid="class_node_param_view_item_body_1a65a054b1988f3b78b34d8edc52e2336a" refkind="member"><highlight class="normal"><sp/><sp/>QMap&lt;NodeInput*,<sp/>InputUI&gt;<sp/><ref refid="class_node_param_view_item_body_1a65a054b1988f3b78b34d8edc52e2336a" kindref="member">input_ui_map_</ref>;</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87" refid="class_node_param_view_item_body_1a0e4a5579b4493e0f74701754bb597ceb" refkind="member"><highlight class="normal"><sp/><sp/>QVector&lt;NodeParamViewItemBody*&gt;<sp/><ref refid="class_node_param_view_item_body_1a0e4a5579b4493e0f74701754bb597ceb" kindref="member">sub_bodies_</ref>;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal"><sp/>slots:</highlight></codeline>
+<codeline lineno="90" refid="class_node_param_view_item_body_1a7e5cb81a6862116fbe829e2031ef8a22" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_param_view_item_body_1a7e5cb81a6862116fbe829e2031ef8a22" kindref="member">EdgeChanged</ref>();</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92" refid="class_node_param_view_item_body_1aa5b0c0857d2c2d847d1da37cf02b1003" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_param_view_item_body_1aa5b0c0857d2c2d847d1da37cf02b1003" kindref="member">InputKeyframeEnableChanged</ref>(</highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>e);</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight></codeline>
+<codeline lineno="94" refid="class_node_param_view_item_body_1aa7677f49fc8af549667c3eb251a5d988" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_param_view_item_body_1aa7677f49fc8af549667c3eb251a5d988" kindref="member">InputAddedKeyframe</ref>(<ref refid="keyframe_8h_1a741b7edf62813e254aba77dca9f281ea" kindref="member">NodeKeyframePtr</ref><sp/>key);</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight></codeline>
+<codeline lineno="96" refid="class_node_param_view_item_body_1a1abcb2e22532093f8e83242a1bd5b968" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_param_view_item_body_1a1abcb2e22532093f8e83242a1bd5b968" kindref="member">LabelDoubleClicked</ref>();</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="98" refid="class_node_param_view_item_body_1a7316ebe262c764ac7adeef4195bfdfaf" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_param_view_item_body_1a7316ebe262c764ac7adeef4195bfdfaf" kindref="member">ConnectionClicked</ref>();</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102" refid="class_node_param_view_item" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_node_param_view_item" kindref="compound">NodeParamViewItem</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>QWidget</highlight></codeline>
+<codeline lineno="103"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/>Q_OBJECT</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="106" refid="class_node_param_view_item_1a4f465c9fe25160ca16c2f6236e8a71c8" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_node_param_view_item_1a4f465c9fe25160ca16c2f6236e8a71c8" kindref="member">NodeParamViewItem</ref>(<ref refid="class_node" kindref="compound">Node</ref>*<sp/>node,<sp/>QWidget*<sp/>parent<sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108" refid="class_node_param_view_item_1a8d3dac9dd58c7d78de5b67d30aba00d8" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_param_view_item_1a8d3dac9dd58c7d78de5b67d30aba00d8" kindref="member">SetTimeTarget</ref>(<ref refid="class_node" kindref="compound">Node</ref>*<sp/>target);</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight></codeline>
+<codeline lineno="110" refid="class_node_param_view_item_1abe579b64488f689695cbeba7335ea0e1" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_param_view_item_1abe579b64488f689695cbeba7335ea0e1" kindref="member">SetTime</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classrational" kindref="compound">rational</ref>&amp;<sp/>time);</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="112" refid="class_node_param_view_item_1a1c6953b803ba7b83326a859947c3df09" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_node" kindref="compound">Node</ref>*<sp/><ref refid="class_node_param_view_item_1a1c6953b803ba7b83326a859947c3df09" kindref="member">GetNode</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>slots:</highlight></codeline>
+<codeline lineno="115" refid="class_node_param_view_item_1a75ada0ddfa404a2f5a58fca8734c3c20" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_param_view_item_1a75ada0ddfa404a2f5a58fca8734c3c20" kindref="member">SignalAllKeyframes</ref>();</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal">signals:</highlight></codeline>
+<codeline lineno="118" refid="class_node_param_view_item_1a7a2d4d97eedf584e01979dd16b5cd4b9" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_param_view_item_1a7a2d4d97eedf584e01979dd16b5cd4b9" kindref="member">KeyframeAdded</ref>(<ref refid="keyframe_8h_1a741b7edf62813e254aba77dca9f281ea" kindref="member">NodeKeyframePtr</ref><sp/>key,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>y);</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight></codeline>
+<codeline lineno="120" refid="class_node_param_view_item_1aa718ea624124d95f22782e3244c4ddf8" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_param_view_item_1aa718ea624124d95f22782e3244c4ddf8" kindref="member">KeyframeRemoved</ref>(<ref refid="keyframe_8h_1a741b7edf62813e254aba77dca9f281ea" kindref="member">NodeKeyframePtr</ref><sp/>key);</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight></codeline>
+<codeline lineno="122" refid="class_node_param_view_item_1ae7dcceb819a57fbe20721ffbd122d142" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_param_view_item_1ae7dcceb819a57fbe20721ffbd122d142" kindref="member">RequestSetTime</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classrational" kindref="compound">rational</ref>&amp;<sp/>time);</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight></codeline>
+<codeline lineno="124" refid="class_node_param_view_item_1a7476cb3749eb38b38161fc209731fcef" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_param_view_item_1a7476cb3749eb38b38161fc209731fcef" kindref="member">InputDoubleClicked</ref>(<ref refid="class_node_input" kindref="compound">NodeInput</ref>*<sp/>input);</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight></codeline>
+<codeline lineno="126" refid="class_node_param_view_item_1ae70715c209ae8744c912eeff8b9a0f93" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_param_view_item_1ae70715c209ae8744c912eeff8b9a0f93" kindref="member">RequestSelectNode</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QList&lt;Node*&gt;&amp;<sp/>node);</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="129" refid="class_node_param_view_item_1adad032c1b1e2fe09965bd46091710659" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_param_view_item_1adad032c1b1e2fe09965bd46091710659" kindref="member">changeEvent</ref>(QEvent<sp/>*e)<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="132" refid="class_node_param_view_item_1a57a45c8cbfd4cdb5871f2247b21148b5" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_node_param_view_item_title_bar" kindref="compound">NodeParamViewItemTitleBar</ref>*<sp/><ref refid="class_node_param_view_item_1a57a45c8cbfd4cdb5871f2247b21148b5" kindref="member">title_bar_</ref>;</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight></codeline>
+<codeline lineno="134" refid="class_node_param_view_item_1acf425b407bc6e84b5d401eddfc0a2391" refkind="member"><highlight class="normal"><sp/><sp/>QLabel*<sp/><ref refid="class_node_param_view_item_1acf425b407bc6e84b5d401eddfc0a2391" kindref="member">title_bar_lbl_</ref>;</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight></codeline>
+<codeline lineno="136" refid="class_node_param_view_item_1a251734ae63e6eb051686a7e2f0c99c39" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_collapse_button" kindref="compound">CollapseButton</ref>*<sp/><ref refid="class_node_param_view_item_1a251734ae63e6eb051686a7e2f0c99c39" kindref="member">title_bar_collapse_btn_</ref>;</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight></codeline>
+<codeline lineno="138" refid="class_node_param_view_item_1af781aa3645916c77fd2aaee5220254e2" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_node_param_view_item_body" kindref="compound">NodeParamViewItemBody</ref>*<sp/><ref refid="class_node_param_view_item_1af781aa3645916c77fd2aaee5220254e2" kindref="member">body_</ref>;</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight></codeline>
+<codeline lineno="140" refid="class_node_param_view_item_1afa44354b4f9bd2cb12f7f2702e66eaed" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_node" kindref="compound">Node</ref>*<sp/><ref refid="class_node_param_view_item_1afa44354b4f9bd2cb12f7f2702e66eaed" kindref="member">node_</ref>;</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight></codeline>
+<codeline lineno="142" refid="class_node_param_view_item_1aa42798e9912095d5b80c19d614d51081" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classrational" kindref="compound">rational</ref><sp/><ref refid="class_node_param_view_item_1aa42798e9912095d5b80c19d614d51081" kindref="member">time_</ref>;</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal"><sp/>slots:</highlight></codeline>
+<codeline lineno="145" refid="class_node_param_view_item_1aefa9fe798880781879884a571b57568b" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_param_view_item_1aefa9fe798880781879884a571b57568b" kindref="member">Retranslate</ref>();</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"></highlight></codeline>
+<codeline lineno="147"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><ref refid="define_8h_1abe3de0634d907ca0f5d1acf732c49dac" kindref="member">OLIVE_NAMESPACE_EXIT</ref></highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//<sp/>NODEPARAMVIEWITEM_H</highlight></codeline>
+    </programlisting>
+    <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewitem.h"/>
+  </compounddef>
+</doxygen>

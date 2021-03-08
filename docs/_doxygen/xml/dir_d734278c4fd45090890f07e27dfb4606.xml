@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_d734278c4fd45090890f07e27dfb4606" kind="dir">
+    <compoundname>cli</compoundname>
+    <innerdir refid="dir_e8e3986c424dc3dd7978962e3e73ff2a">cliprogress</innerdir>
+    <innerdir refid="dir_f37af637ba028bd3204974404a23c25f">clitask</innerdir>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/cli/"/>
+  </compounddef>
+</doxygen>

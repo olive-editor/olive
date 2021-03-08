@@ -1,0 +1,264 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_track_clean_gaps_command" kind="class" language="C++" prot="public">
+    <compoundname>TrackCleanGapsCommand</compoundname>
+    <basecompoundref refid="class_undo_command" prot="public" virt="non-virtual">UndoCommand</basecompoundref>
+    <includes refid="undo_8h" local="no">undo.h</includes>
+    <innerclass refid="struct_track_clean_gaps_command_1_1_merged_gap" prot="private">TrackCleanGapsCommand::MergedGap</innerclass>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_track_clean_gaps_command_1a365a500e9a58390a10df6621e5a57215" prot="private" static="no" mutable="no">
+        <type><ref refid="class_track_list" kindref="compound">TrackList</ref> *</type>
+        <definition>TrackList* TrackCleanGapsCommand::track_list_</definition>
+        <argsstring></argsstring>
+        <name>track_list_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="307" column="13" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="307" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_track_clean_gaps_command_1a2cf26cd645b9e8da58befb68d7577dbc" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int TrackCleanGapsCommand::track_index_</definition>
+        <argsstring></argsstring>
+        <name>track_index_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="309" column="7" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="309" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_track_clean_gaps_command_1a8302b0e8d109b08c7f81a037f70bca6b" prot="private" static="no" mutable="no">
+        <type>QObject</type>
+        <definition>QObject TrackCleanGapsCommand::memory_manager_</definition>
+        <argsstring></argsstring>
+        <name>memory_manager_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="311" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="311" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_track_clean_gaps_command_1a4218daf876a235f9d1e2d6a253ac921d" prot="private" static="no" mutable="no">
+        <type>QList&lt; <ref refid="struct_track_clean_gaps_command_1_1_merged_gap" kindref="compound">MergedGap</ref> &gt;</type>
+        <definition>QList&lt;MergedGap&gt; TrackCleanGapsCommand::merged_gaps_</definition>
+        <argsstring></argsstring>
+        <name>merged_gaps_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="313" column="9" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="313" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_track_clean_gaps_command_1a8e72f508480aa07153cc1fe8c1474a3e" prot="private" static="no" mutable="no">
+        <type>QList&lt; <ref refid="class_gap_block" kindref="compound">GapBlock</ref> * &gt;</type>
+        <definition>QList&lt;GapBlock*&gt; TrackCleanGapsCommand::removed_end_gaps_</definition>
+        <argsstring></argsstring>
+        <name>removed_end_gaps_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="315" column="9" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="315" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_undo_command_1a6c06f9c1b7bfeeff3c4724491945992b" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool UndoCommand::modified_</definition>
+        <argsstring></argsstring>
+        <name>modified_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="64" column="8" bodyfile="C:/Daten/Olive/olive/app/undo/undocommand.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_track_clean_gaps_command_1a7a84777ccacc95d0041c9c10ab1b324b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>TrackCleanGapsCommand::TrackCleanGapsCommand</definition>
+        <argsstring>(TrackList *track_list, int index, QUndoCommand *parent=nullptr)</argsstring>
+        <name>TrackCleanGapsCommand</name>
+        <param>
+          <type><ref refid="class_track_list" kindref="compound">TrackList</ref> *</type>
+          <declname>track_list</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>index</declname>
+        </param>
+        <param>
+          <type>QUndoCommand *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="292" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_track_clean_gaps_command_1a182fb55421c92920155bd48d521f2523" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="class_project" kindref="compound">Project</ref> *</type>
+        <definition>virtual Project* TrackCleanGapsCommand::GetRelevantProject</definition>
+        <argsstring>() const override</argsstring>
+        <name>GetRelevantProject</name>
+        <reimplements refid="class_undo_command_1ab5c8967132833ea6be76a63dc5472f4f">GetRelevantProject</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="294" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_undo_command_1a9907db368d01fb26f5082a36c6d90bd4" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void UndoCommand::redo</definition>
+        <argsstring>() override</argsstring>
+        <name>redo</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="54" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_undo_command_1a09d00f8a2e1c8b3c97d72d9585503030" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void UndoCommand::undo</definition>
+        <argsstring>() override</argsstring>
+        <name>undo</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="55" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_track_clean_gaps_command_1a08b39da67be464a9b128eaf6b42a73b2" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void TrackCleanGapsCommand::redo_internal</definition>
+        <argsstring>() override</argsstring>
+        <name>redo_internal</name>
+        <reimplements refid="class_undo_command_1ac8aa20d444a655cd36fa3c7dc01928b4">redo_internal</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="297" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_track_clean_gaps_command_1a4ce15f4696c3ebe971b12f3e597a6c9b" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void TrackCleanGapsCommand::undo_internal</definition>
+        <argsstring>() override</argsstring>
+        <name>undo_internal</name>
+        <reimplements refid="class_undo_command_1a871dbc8a1f95b58e641be13703563faa">undo_internal</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="298" column="16"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>TrackCleanGapsCommand</label>
+        <link refid="class_track_clean_gaps_command"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>UndoCommand</label>
+        <link refid="class_undo_command"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="4">
+        <label>NodeInputArray</label>
+        <link refid="class_node_input_array"/>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>TrackCleanGapsCommand</label>
+        <link refid="class_track_clean_gaps_command"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>track_list_</edgelabel>
+        </childnode>
+      </node>
+      <node id="7">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="3">
+        <label>TrackList</label>
+        <link refid="class_track_list"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>track_input_</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>total_length_</edgelabel>
+        </childnode>
+      </node>
+      <node id="5">
+        <label>NodeInput</label>
+        <link refid="class_node_input"/>
+        <childnode refid="6" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>NodeParam</label>
+        <link refid="class_node_param"/>
+      </node>
+      <node id="2">
+        <label>UndoCommand</label>
+        <link refid="class_undo_command"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="290" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="290" bodyend="317"/>
+    <listofallmembers>
+      <member refid="class_track_clean_gaps_command_1a182fb55421c92920155bd48d521f2523" prot="public" virt="virtual"><scope>TrackCleanGapsCommand</scope><name>GetRelevantProject</name></member>
+      <member refid="class_track_clean_gaps_command_1a8302b0e8d109b08c7f81a037f70bca6b" prot="private" virt="non-virtual"><scope>TrackCleanGapsCommand</scope><name>memory_manager_</name></member>
+      <member refid="class_track_clean_gaps_command_1a4218daf876a235f9d1e2d6a253ac921d" prot="private" virt="non-virtual"><scope>TrackCleanGapsCommand</scope><name>merged_gaps_</name></member>
+      <member refid="class_undo_command_1a6c06f9c1b7bfeeff3c4724491945992b" prot="private" virt="non-virtual"><scope>TrackCleanGapsCommand</scope><name>modified_</name></member>
+      <member refid="class_undo_command_1a9907db368d01fb26f5082a36c6d90bd4" prot="public" virt="virtual"><scope>TrackCleanGapsCommand</scope><name>redo</name></member>
+      <member refid="class_track_clean_gaps_command_1a08b39da67be464a9b128eaf6b42a73b2" prot="protected" virt="virtual"><scope>TrackCleanGapsCommand</scope><name>redo_internal</name></member>
+      <member refid="class_track_clean_gaps_command_1a8e72f508480aa07153cc1fe8c1474a3e" prot="private" virt="non-virtual"><scope>TrackCleanGapsCommand</scope><name>removed_end_gaps_</name></member>
+      <member refid="class_track_clean_gaps_command_1a2cf26cd645b9e8da58befb68d7577dbc" prot="private" virt="non-virtual"><scope>TrackCleanGapsCommand</scope><name>track_index_</name></member>
+      <member refid="class_track_clean_gaps_command_1a365a500e9a58390a10df6621e5a57215" prot="private" virt="non-virtual"><scope>TrackCleanGapsCommand</scope><name>track_list_</name></member>
+      <member refid="class_track_clean_gaps_command_1a7a84777ccacc95d0041c9c10ab1b324b" prot="public" virt="non-virtual"><scope>TrackCleanGapsCommand</scope><name>TrackCleanGapsCommand</name></member>
+      <member refid="class_undo_command_1a09d00f8a2e1c8b3c97d72d9585503030" prot="public" virt="virtual"><scope>TrackCleanGapsCommand</scope><name>undo</name></member>
+      <member refid="class_track_clean_gaps_command_1a4ce15f4696c3ebe971b12f3e597a6c9b" prot="protected" virt="virtual"><scope>TrackCleanGapsCommand</scope><name>undo_internal</name></member>
+      <member refid="class_undo_command_1a5a07a6505a207cf7186c7c726ff9c5fa" prot="public" virt="non-virtual"><scope>TrackCleanGapsCommand</scope><name>UndoCommand</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

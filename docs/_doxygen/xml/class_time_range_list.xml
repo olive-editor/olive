@@ -1,0 +1,129 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_time_range_list" kind="class" language="C++" prot="public">
+    <compoundname>TimeRangeList</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QList&lt; TimeRange &gt;</basecompoundref>
+    <includes refid="timerange_8h" local="no">timerange.h</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_time_range_list_1a9670bf0f9ad033f9acf66e5cbd180055" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>TimeRangeList::TimeRangeList</definition>
+        <argsstring>()=default</argsstring>
+        <name>TimeRangeList</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/timerange.h" line="61" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_time_range_list_1ae4b5dc67da7e28fceb15478b9606a426" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimeRangeList::InsertTimeRange</definition>
+        <argsstring>(const TimeRange &amp;range)</argsstring>
+        <name>InsertTimeRange</name>
+        <param>
+          <type>const <ref refid="class_time_range" kindref="compound">TimeRange</ref> &amp;</type>
+          <declname>range</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/timerange.h" line="63" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_time_range_list_1aee874583b710d564ecd367433f46f8c5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimeRangeList::RemoveTimeRange</definition>
+        <argsstring>(const TimeRange &amp;range)</argsstring>
+        <name>RemoveTimeRange</name>
+        <param>
+          <type>const <ref refid="class_time_range" kindref="compound">TimeRange</ref> &amp;</type>
+          <declname>range</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/timerange.h" line="65" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_time_range_list_1ac7cf28d7412676e74eaf341bbbeb071b" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool TimeRangeList::ContainsTimeRange</definition>
+        <argsstring>(const TimeRange &amp;range, bool in_inclusive=true, bool out_inclusive=true) const</argsstring>
+        <name>ContainsTimeRange</name>
+        <param>
+          <type>const <ref refid="class_time_range" kindref="compound">TimeRange</ref> &amp;</type>
+          <declname>range</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>in_inclusive</declname>
+          <defval>true</defval>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>out_inclusive</declname>
+          <defval>true</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/timerange.h" line="67" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_time_range_list_1a78565d67f226934caf80c59cba9bc36a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_time_range_list" kindref="compound">TimeRangeList</ref></type>
+        <definition>TimeRangeList TimeRangeList::Intersects</definition>
+        <argsstring>(const TimeRange &amp;range)</argsstring>
+        <name>Intersects</name>
+        <param>
+          <type>const <ref refid="class_time_range" kindref="compound">TimeRange</ref> &amp;</type>
+          <declname>range</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/timerange.h" line="69" column="17"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_time_range_list_1ad5e95e525895968b40b48d1d621c5f62" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimeRangeList::PrintTimeList</definition>
+        <argsstring>()</argsstring>
+        <name>PrintTimeList</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/timerange.h" line="72" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/common/timerange.h" line="59" column="1" bodyfile="C:/Daten/Olive/olive/app/common/timerange.h" bodystart="59" bodyend="74"/>
+    <listofallmembers>
+      <member refid="class_time_range_list_1ac7cf28d7412676e74eaf341bbbeb071b" prot="public" virt="non-virtual"><scope>TimeRangeList</scope><name>ContainsTimeRange</name></member>
+      <member refid="class_time_range_list_1ae4b5dc67da7e28fceb15478b9606a426" prot="public" virt="non-virtual"><scope>TimeRangeList</scope><name>InsertTimeRange</name></member>
+      <member refid="class_time_range_list_1a78565d67f226934caf80c59cba9bc36a" prot="public" virt="non-virtual"><scope>TimeRangeList</scope><name>Intersects</name></member>
+      <member refid="class_time_range_list_1ad5e95e525895968b40b48d1d621c5f62" prot="private" virt="non-virtual"><scope>TimeRangeList</scope><name>PrintTimeList</name></member>
+      <member refid="class_time_range_list_1aee874583b710d564ecd367433f46f8c5" prot="public" virt="non-virtual"><scope>TimeRangeList</scope><name>RemoveTimeRange</name></member>
+      <member refid="class_time_range_list_1a9670bf0f9ad033f9acf66e5cbd180055" prot="public" virt="non-virtual"><scope>TimeRangeList</scope><name>TimeRangeList</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

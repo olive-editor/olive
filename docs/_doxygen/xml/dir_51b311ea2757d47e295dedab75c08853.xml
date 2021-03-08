@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_51b311ea2757d47e295dedab75c08853" kind="dir">
+    <compoundname>nodeview</compoundname>
+    <innerfile refid="nodeview_8h">nodeview.h</innerfile>
+    <innerfile refid="nodeviewcommon_8h">nodeviewcommon.h</innerfile>
+    <innerfile refid="nodeviewedge_8h">nodeviewedge.h</innerfile>
+    <innerfile refid="nodeviewitem_8h">nodeviewitem.h</innerfile>
+    <innerfile refid="nodeviewitemwidgetproxy_8h">nodeviewitemwidgetproxy.h</innerfile>
+    <innerfile refid="nodeviewscene_8h">nodeviewscene.h</innerfile>
+    <innerfile refid="nodeviewundo_8h">nodeviewundo.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/widget/nodeview/"/>
+  </compounddef>
+</doxygen>

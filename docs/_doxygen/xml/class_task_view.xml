@@ -1,0 +1,89 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_task_view" kind="class" language="C++" prot="public">
+    <compoundname>TaskView</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QScrollArea</basecompoundref>
+    <includes refid="taskview_8h" local="no">taskview.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_task_view_1a30ebd6a4b17d3fa24038fed9199cdaad" prot="private" static="no" mutable="no">
+        <type>QWidget *</type>
+        <definition>QWidget* TaskView::central_widget_</definition>
+        <argsstring></argsstring>
+        <name>central_widget_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/taskview/taskview.h" line="72" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/taskview/taskview.h" bodystart="72" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_task_view_1abdbaa0797d8b772c723e95156bce09cd" prot="private" static="no" mutable="no">
+        <type>QVBoxLayout *</type>
+        <definition>QVBoxLayout* TaskView::layout_</definition>
+        <argsstring></argsstring>
+        <name>layout_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/taskview/taskview.h" line="73" column="15" bodyfile="C:/Daten/Olive/olive/app/widget/taskview/taskview.h" bodystart="73" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_task_view_1abbecd0545a486751ab419bfbe8026eb7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>TaskView::TaskView</definition>
+        <argsstring>(QWidget *parent)</argsstring>
+        <name>TaskView</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/taskview/taskview.h" line="61" column="3"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-slot">
+      <memberdef kind="slot" id="class_task_view_1afac19902557a5ff46398ad65656e78d8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TaskView::AddTask</definition>
+        <argsstring>(Task *t)</argsstring>
+        <name>AddTask</name>
+        <param>
+          <type><ref refid="class_task" kindref="compound">Task</ref> *</type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+<para>Creates a <ref refid="class_task_view_item" kindref="compound">TaskViewItem</ref>, connects it to a <ref refid="class_task" kindref="compound">Task</ref>, and adds it to this widget. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Connect this to <ref refid="class_task_manager_1a1c1404d4918479161d6cbd392c627141" kindref="member">TaskManager::TaskAdded()</ref>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/taskview/taskview.h" line="69" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A widget that shows a list of Tasks. </para>
+    </briefdescription>
+    <detaileddescription>
+<para><ref refid="class_task_view" kindref="compound">TaskView</ref> is a fairly simple widget for showing <ref refid="class_task_view_item" kindref="compound">TaskViewItem</ref> widgets that each represent a <ref refid="class_task" kindref="compound">Task</ref> object. The main entry point is the slot <ref refid="class_task_view_1afac19902557a5ff46398ad65656e78d8" kindref="member">AddTask()</ref> which should be connected to a <ref refid="class_task_manager" kindref="compound">TaskManager</ref>&apos;s TaskAdded() signal. No more connecting is necessary since <ref refid="class_task_view_item" kindref="compound">TaskViewItem</ref> will automatically delete itself (thus removing itself from the <ref refid="class_task_view" kindref="compound">TaskView</ref>) when the <ref refid="class_task" kindref="compound">Task</ref> finishes. </para>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/widget/taskview/taskview.h" line="39" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/taskview/taskview.h" bodystart="40" bodyend="56"/>
+    <listofallmembers>
+      <member refid="class_task_view_1afac19902557a5ff46398ad65656e78d8" prot="public" virt="non-virtual"><scope>TaskView</scope><name>AddTask</name></member>
+      <member refid="class_task_view_1a30ebd6a4b17d3fa24038fed9199cdaad" prot="private" virt="non-virtual"><scope>TaskView</scope><name>central_widget_</name></member>
+      <member refid="class_task_view_1abdbaa0797d8b772c723e95156bce09cd" prot="private" virt="non-virtual"><scope>TaskView</scope><name>layout_</name></member>
+      <member refid="class_task_view_1abbecd0545a486751ab419bfbe8026eb7" prot="public" virt="non-virtual"><scope>TaskView</scope><name>TaskView</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

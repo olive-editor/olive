@@ -1,0 +1,71 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="struct_open_g_l_proxy_1_1_cached_still" kind="struct" language="C++" prot="private">
+    <compoundname>OpenGLProxy::CachedStill</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="struct_open_g_l_proxy_1_1_cached_still_1aec221a5ec4fa7e6c5b12b60ec79ba34d" prot="public" static="no" mutable="no">
+        <type><ref refid="class_open_g_l_texture_cache_1aeb5a3b0954143a797c21bcce55efd3a5" kindref="member">OpenGLTextureCache::ReferencePtr</ref></type>
+        <definition>OpenGLTextureCache::ReferencePtr OpenGLProxy::CachedStill::texture</definition>
+        <argsstring></argsstring>
+        <name>texture</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglproxy.h" line="111" column="38" bodyfile="C:/Daten/Olive/olive/app/render/backend/opengl/openglproxy.h" bodystart="111" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_open_g_l_proxy_1_1_cached_still_1a4be93316a526278c02b410d4592525fe" prot="public" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString OpenGLProxy::CachedStill::colorspace</definition>
+        <argsstring></argsstring>
+        <name>colorspace</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglproxy.h" line="112" column="13" bodyfile="C:/Daten/Olive/olive/app/render/backend/opengl/openglproxy.h" bodystart="112" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_open_g_l_proxy_1_1_cached_still_1ab327878fc52859cf5e58104a2c16d5e6" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool OpenGLProxy::CachedStill::alpha_is_associated</definition>
+        <argsstring></argsstring>
+        <name>alpha_is_associated</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglproxy.h" line="113" column="10" bodyfile="C:/Daten/Olive/olive/app/render/backend/opengl/openglproxy.h" bodystart="113" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_open_g_l_proxy_1_1_cached_still_1a42fb71d4b0e39a1bf797f1f920a08c6b" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int OpenGLProxy::CachedStill::divider</definition>
+        <argsstring></argsstring>
+        <name>divider</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglproxy.h" line="114" column="9" bodyfile="C:/Daten/Olive/olive/app/render/backend/opengl/openglproxy.h" bodystart="114" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglproxy.h" line="110" column="3" bodyfile="C:/Daten/Olive/olive/app/render/backend/opengl/openglproxy.h" bodystart="110" bodyend="115"/>
+    <listofallmembers>
+      <member refid="struct_open_g_l_proxy_1_1_cached_still_1ab327878fc52859cf5e58104a2c16d5e6" prot="public" virt="non-virtual"><scope>OpenGLProxy::CachedStill</scope><name>alpha_is_associated</name></member>
+      <member refid="struct_open_g_l_proxy_1_1_cached_still_1a4be93316a526278c02b410d4592525fe" prot="public" virt="non-virtual"><scope>OpenGLProxy::CachedStill</scope><name>colorspace</name></member>
+      <member refid="struct_open_g_l_proxy_1_1_cached_still_1a42fb71d4b0e39a1bf797f1f920a08c6b" prot="public" virt="non-virtual"><scope>OpenGLProxy::CachedStill</scope><name>divider</name></member>
+      <member refid="struct_open_g_l_proxy_1_1_cached_still_1aec221a5ec4fa7e6c5b12b60ec79ba34d" prot="public" virt="non-virtual"><scope>OpenGLProxy::CachedStill</scope><name>texture</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

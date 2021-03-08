@@ -1,0 +1,419 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_color_values_widget" kind="class" language="C++" prot="public">
+    <compoundname>ColorValuesWidget</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QWidget</basecompoundref>
+    <includes refid="colorvalueswidget_8h" local="no">colorvalueswidget.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_color_values_widget_1a98f8b6672bac548685a1637fc6dc099f" prot="private" static="no" mutable="no">
+        <type><ref refid="class_color_manager" kindref="compound">ColorManager</ref> *</type>
+        <definition>ColorManager* ColorValuesWidget::manager_</definition>
+        <argsstring></argsstring>
+        <name>manager_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorvalueswidget.h" line="86" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/colorwheel/colorvalueswidget.h" bodystart="86" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_color_values_widget_1a2210fa2e5d93be074a1e853a17b7fa63" prot="private" static="no" mutable="no">
+        <type><ref refid="class_color_preview_box" kindref="compound">ColorPreviewBox</ref> *</type>
+        <definition>ColorPreviewBox* ColorValuesWidget::preview_</definition>
+        <argsstring></argsstring>
+        <name>preview_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorvalueswidget.h" line="88" column="19" bodyfile="C:/Daten/Olive/olive/app/widget/colorwheel/colorvalueswidget.h" bodystart="88" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_color_values_widget_1a6e37a378081b3e9f4c8ac7336466b712" prot="private" static="no" mutable="no">
+        <type><ref refid="class_color_values_tab" kindref="compound">ColorValuesTab</ref> *</type>
+        <definition>ColorValuesTab* ColorValuesWidget::input_tab_</definition>
+        <argsstring></argsstring>
+        <name>input_tab_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorvalueswidget.h" line="90" column="18" bodyfile="C:/Daten/Olive/olive/app/widget/colorwheel/colorvalueswidget.h" bodystart="90" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_color_values_widget_1a71c6919d3fc8db54717a8084cb73d1b9" prot="private" static="no" mutable="no">
+        <type><ref refid="class_color_values_tab" kindref="compound">ColorValuesTab</ref> *</type>
+        <definition>ColorValuesTab* ColorValuesWidget::reference_tab_</definition>
+        <argsstring></argsstring>
+        <name>reference_tab_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorvalueswidget.h" line="92" column="18" bodyfile="C:/Daten/Olive/olive/app/widget/colorwheel/colorvalueswidget.h" bodystart="92" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_color_values_widget_1ae0c59572be4ccdd4298f52b53895f9eb" prot="private" static="no" mutable="no">
+        <type><ref refid="class_color_values_tab" kindref="compound">ColorValuesTab</ref> *</type>
+        <definition>ColorValuesTab* ColorValuesWidget::display_tab_</definition>
+        <argsstring></argsstring>
+        <name>display_tab_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorvalueswidget.h" line="94" column="18" bodyfile="C:/Daten/Olive/olive/app/widget/colorwheel/colorvalueswidget.h" bodystart="94" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_color_values_widget_1a62221115a4791bbe972ac909b0b80925" prot="private" static="no" mutable="no">
+        <type><ref refid="colorprocessor_8h_1ae3985029dcc28a9f9f42fc726d1a9471" kindref="member">ColorProcessorPtr</ref></type>
+        <definition>ColorProcessorPtr ColorValuesWidget::input_to_ref_</definition>
+        <argsstring></argsstring>
+        <name>input_to_ref_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorvalueswidget.h" line="96" column="21" bodyfile="C:/Daten/Olive/olive/app/widget/colorwheel/colorvalueswidget.h" bodystart="96" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_color_values_widget_1a60b2a6477a28e3f2d1dc9ae9022c28ab" prot="private" static="no" mutable="no">
+        <type><ref refid="colorprocessor_8h_1ae3985029dcc28a9f9f42fc726d1a9471" kindref="member">ColorProcessorPtr</ref></type>
+        <definition>ColorProcessorPtr ColorValuesWidget::ref_to_display_</definition>
+        <argsstring></argsstring>
+        <name>ref_to_display_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorvalueswidget.h" line="98" column="21" bodyfile="C:/Daten/Olive/olive/app/widget/colorwheel/colorvalueswidget.h" bodystart="98" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_color_values_widget_1ad7946945341ea24784d2c0d2308062e9" prot="private" static="no" mutable="no">
+        <type><ref refid="colorprocessor_8h_1ae3985029dcc28a9f9f42fc726d1a9471" kindref="member">ColorProcessorPtr</ref></type>
+        <definition>ColorProcessorPtr ColorValuesWidget::display_to_ref_</definition>
+        <argsstring></argsstring>
+        <name>display_to_ref_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorvalueswidget.h" line="100" column="21" bodyfile="C:/Daten/Olive/olive/app/widget/colorwheel/colorvalueswidget.h" bodystart="100" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_color_values_widget_1aac831a6fc8e633512b4b3415f1792cca" prot="private" static="no" mutable="no">
+        <type><ref refid="colorprocessor_8h_1ae3985029dcc28a9f9f42fc726d1a9471" kindref="member">ColorProcessorPtr</ref></type>
+        <definition>ColorProcessorPtr ColorValuesWidget::ref_to_input_</definition>
+        <argsstring></argsstring>
+        <name>ref_to_input_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorvalueswidget.h" line="102" column="21" bodyfile="C:/Daten/Olive/olive/app/widget/colorwheel/colorvalueswidget.h" bodystart="102" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_color_values_widget_1a3502d98fd4f90d06b652266598648d20" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>ColorValuesWidget::ColorValuesWidget</definition>
+        <argsstring>(ColorManager *manager, QWidget *parent=nullptr)</argsstring>
+        <name>ColorValuesWidget</name>
+        <param>
+          <type><ref refid="class_color_manager" kindref="compound">ColorManager</ref> *</type>
+          <declname>manager</declname>
+        </param>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorvalueswidget.h" line="62" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_values_widget_1a1a31bb9d8eafa201fdb937c0dd11865c" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_color" kindref="compound">Color</ref></type>
+        <definition>Color ColorValuesWidget::GetColor</definition>
+        <argsstring>() const</argsstring>
+        <name>GetColor</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorvalueswidget.h" line="64" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_values_widget_1ab9087c90b4e20efe901da41dc77baa1b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ColorValuesWidget::SetColorProcessor</definition>
+        <argsstring>(ColorProcessorPtr input_to_ref, ColorProcessorPtr ref_to_display, ColorProcessorPtr display_to_ref, ColorProcessorPtr ref_to_input)</argsstring>
+        <name>SetColorProcessor</name>
+        <param>
+          <type><ref refid="colorprocessor_8h_1ae3985029dcc28a9f9f42fc726d1a9471" kindref="member">ColorProcessorPtr</ref></type>
+          <declname>input_to_ref</declname>
+        </param>
+        <param>
+          <type><ref refid="colorprocessor_8h_1ae3985029dcc28a9f9f42fc726d1a9471" kindref="member">ColorProcessorPtr</ref></type>
+          <declname>ref_to_display</declname>
+        </param>
+        <param>
+          <type><ref refid="colorprocessor_8h_1ae3985029dcc28a9f9f42fc726d1a9471" kindref="member">ColorProcessorPtr</ref></type>
+          <declname>display_to_ref</declname>
+        </param>
+        <param>
+          <type><ref refid="colorprocessor_8h_1ae3985029dcc28a9f9f42fc726d1a9471" kindref="member">ColorProcessorPtr</ref></type>
+          <declname>ref_to_input</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorvalueswidget.h" line="66" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-slot">
+      <memberdef kind="slot" id="class_color_values_widget_1a9664752d9552c65e1d750f0c63e94ca4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ColorValuesWidget::SetColor</definition>
+        <argsstring>(const Color &amp;c)</argsstring>
+        <name>SetColor</name>
+        <param>
+          <type>const <ref refid="class_color" kindref="compound">Color</ref> &amp;</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorvalueswidget.h" line="72" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_color_values_widget_1a6609271ee78e77584ede1fe9d4a9ef7f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ColorValuesWidget::ColorChanged</definition>
+        <argsstring>(const Color &amp;c)</argsstring>
+        <name>ColorChanged</name>
+        <param>
+          <type>const <ref refid="class_color" kindref="compound">Color</ref> &amp;</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorvalueswidget.h" line="75" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_color_values_widget_1a1a1cb35cee89554721f5bbbc3a777850" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ColorValuesWidget::UpdateInputFromRef</definition>
+        <argsstring>()</argsstring>
+        <name>UpdateInputFromRef</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorvalueswidget.h" line="78" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_values_widget_1ac3a5a9eeae16d2ec9c64465e2c1b46c8" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ColorValuesWidget::UpdateDisplayFromRef</definition>
+        <argsstring>()</argsstring>
+        <name>UpdateDisplayFromRef</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorvalueswidget.h" line="80" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_values_widget_1a4f55be3b21bf717d4af57ef28c08f46c" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ColorValuesWidget::UpdateRefFromInput</definition>
+        <argsstring>()</argsstring>
+        <name>UpdateRefFromInput</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorvalueswidget.h" line="82" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_values_widget_1a60ddde1ae6b4bfcaba621abd9931e95b" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ColorValuesWidget::UpdateRefFromDisplay</definition>
+        <argsstring>()</argsstring>
+        <name>UpdateRefFromDisplay</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorvalueswidget.h" line="84" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_color_values_widget_1a25b61d529beb48c3b5b8e6fd8da825bd" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ColorValuesWidget::UpdateValuesFromInput</definition>
+        <argsstring>()</argsstring>
+        <name>UpdateValuesFromInput</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorvalueswidget.h" line="105" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_color_values_widget_1ac4fd6f0bbb5fecf013a35130aaf527e1" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ColorValuesWidget::UpdateValuesFromRef</definition>
+        <argsstring>()</argsstring>
+        <name>UpdateValuesFromRef</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorvalueswidget.h" line="107" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_color_values_widget_1a62a8319d2a250b423694576c428849ad" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ColorValuesWidget::UpdateValuesFromDisplay</definition>
+        <argsstring>()</argsstring>
+        <name>UpdateValuesFromDisplay</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorvalueswidget.h" line="109" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="3">
+        <label>FloatSlider</label>
+        <link refid="class_float_slider"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>ColorManager</label>
+        <link refid="class_color_manager"/>
+      </node>
+      <node id="6">
+        <label>SliderLabel</label>
+        <link refid="class_slider_label"/>
+      </node>
+      <node id="8">
+        <label>ColorPreviewBox</label>
+        <link refid="class_color_preview_box"/>
+        <childnode refid="9" relation="usage">
+          <edgelabel>color_</edgelabel>
+        </childnode>
+      </node>
+      <node id="5">
+        <label>FocusableLineEdit</label>
+        <link refid="class_focusable_line_edit"/>
+      </node>
+      <node id="9">
+        <label>Color</label>
+        <link refid="class_color"/>
+      </node>
+      <node id="2">
+        <label>ColorValuesTab</label>
+        <link refid="class_color_values_tab"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>blue_slider_</edgelabel>
+          <edgelabel>green_slider_</edgelabel>
+          <edgelabel>red_slider_</edgelabel>
+        </childnode>
+      </node>
+      <node id="1">
+        <label>ColorValuesWidget</label>
+        <link refid="class_color_values_widget"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>reference_tab_</edgelabel>
+          <edgelabel>display_tab_</edgelabel>
+          <edgelabel>input_tab_</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>manager_</edgelabel>
+        </childnode>
+        <childnode refid="8" relation="usage">
+          <edgelabel>preview_</edgelabel>
+        </childnode>
+      </node>
+      <node id="4">
+        <label>SliderBase</label>
+        <link refid="class_slider_base"/>
+        <childnode refid="5" relation="usage">
+          <edgelabel>editor_</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>label_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorvalueswidget.h" line="58" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/colorwheel/colorvalueswidget.h" bodystart="59" bodyend="111"/>
+    <listofallmembers>
+      <member refid="class_color_values_widget_1a6609271ee78e77584ede1fe9d4a9ef7f" prot="public" virt="non-virtual"><scope>ColorValuesWidget</scope><name>ColorChanged</name></member>
+      <member refid="class_color_values_widget_1a3502d98fd4f90d06b652266598648d20" prot="public" virt="non-virtual"><scope>ColorValuesWidget</scope><name>ColorValuesWidget</name></member>
+      <member refid="class_color_values_widget_1ae0c59572be4ccdd4298f52b53895f9eb" prot="private" virt="non-virtual"><scope>ColorValuesWidget</scope><name>display_tab_</name></member>
+      <member refid="class_color_values_widget_1ad7946945341ea24784d2c0d2308062e9" prot="private" virt="non-virtual"><scope>ColorValuesWidget</scope><name>display_to_ref_</name></member>
+      <member refid="class_color_values_widget_1a1a31bb9d8eafa201fdb937c0dd11865c" prot="public" virt="non-virtual"><scope>ColorValuesWidget</scope><name>GetColor</name></member>
+      <member refid="class_color_values_widget_1a6e37a378081b3e9f4c8ac7336466b712" prot="private" virt="non-virtual"><scope>ColorValuesWidget</scope><name>input_tab_</name></member>
+      <member refid="class_color_values_widget_1a62221115a4791bbe972ac909b0b80925" prot="private" virt="non-virtual"><scope>ColorValuesWidget</scope><name>input_to_ref_</name></member>
+      <member refid="class_color_values_widget_1a98f8b6672bac548685a1637fc6dc099f" prot="private" virt="non-virtual"><scope>ColorValuesWidget</scope><name>manager_</name></member>
+      <member refid="class_color_values_widget_1a2210fa2e5d93be074a1e853a17b7fa63" prot="private" virt="non-virtual"><scope>ColorValuesWidget</scope><name>preview_</name></member>
+      <member refid="class_color_values_widget_1a60b2a6477a28e3f2d1dc9ae9022c28ab" prot="private" virt="non-virtual"><scope>ColorValuesWidget</scope><name>ref_to_display_</name></member>
+      <member refid="class_color_values_widget_1aac831a6fc8e633512b4b3415f1792cca" prot="private" virt="non-virtual"><scope>ColorValuesWidget</scope><name>ref_to_input_</name></member>
+      <member refid="class_color_values_widget_1a71c6919d3fc8db54717a8084cb73d1b9" prot="private" virt="non-virtual"><scope>ColorValuesWidget</scope><name>reference_tab_</name></member>
+      <member refid="class_color_values_widget_1a9664752d9552c65e1d750f0c63e94ca4" prot="public" virt="non-virtual"><scope>ColorValuesWidget</scope><name>SetColor</name></member>
+      <member refid="class_color_values_widget_1ab9087c90b4e20efe901da41dc77baa1b" prot="public" virt="non-virtual"><scope>ColorValuesWidget</scope><name>SetColorProcessor</name></member>
+      <member refid="class_color_values_widget_1ac3a5a9eeae16d2ec9c64465e2c1b46c8" prot="private" virt="non-virtual"><scope>ColorValuesWidget</scope><name>UpdateDisplayFromRef</name></member>
+      <member refid="class_color_values_widget_1a1a1cb35cee89554721f5bbbc3a777850" prot="private" virt="non-virtual"><scope>ColorValuesWidget</scope><name>UpdateInputFromRef</name></member>
+      <member refid="class_color_values_widget_1a60ddde1ae6b4bfcaba621abd9931e95b" prot="private" virt="non-virtual"><scope>ColorValuesWidget</scope><name>UpdateRefFromDisplay</name></member>
+      <member refid="class_color_values_widget_1a4f55be3b21bf717d4af57ef28c08f46c" prot="private" virt="non-virtual"><scope>ColorValuesWidget</scope><name>UpdateRefFromInput</name></member>
+      <member refid="class_color_values_widget_1a62a8319d2a250b423694576c428849ad" prot="private" virt="non-virtual"><scope>ColorValuesWidget</scope><name>UpdateValuesFromDisplay</name></member>
+      <member refid="class_color_values_widget_1a25b61d529beb48c3b5b8e6fd8da825bd" prot="private" virt="non-virtual"><scope>ColorValuesWidget</scope><name>UpdateValuesFromInput</name></member>
+      <member refid="class_color_values_widget_1ac4fd6f0bbb5fecf013a35130aaf527e1" prot="private" virt="non-virtual"><scope>ColorValuesWidget</scope><name>UpdateValuesFromRef</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

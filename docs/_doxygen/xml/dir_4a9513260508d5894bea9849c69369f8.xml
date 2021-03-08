@@ -1,0 +1,33 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_4a9513260508d5894bea9849c69369f8" kind="dir">
+    <compoundname>common</compoundname>
+    <innerfile refid="autoscroll_8h">autoscroll.h</innerfile>
+    <innerfile refid="bezier_8h">bezier.h</innerfile>
+    <innerfile refid="cancelableobject_8h">cancelableobject.h</innerfile>
+    <innerfile refid="channellayout_8h">channellayout.h</innerfile>
+    <innerfile refid="clamp_8h">clamp.h</innerfile>
+    <innerfile refid="common_2crashhandler_8h">common/crashhandler.h</innerfile>
+    <innerfile refid="debug_8h">debug.h</innerfile>
+    <innerfile refid="define_8h">define.h</innerfile>
+    <innerfile refid="filefunctions_8h">filefunctions.h</innerfile>
+    <innerfile refid="flipmodifiers_8h">flipmodifiers.h</innerfile>
+    <innerfile refid="functiontimer_8h">functiontimer.h</innerfile>
+    <innerfile refid="lerp_8h">lerp.h</innerfile>
+    <innerfile refid="memorypool_8h">memorypool.h</innerfile>
+    <innerfile refid="qtutils_8h">qtutils.h</innerfile>
+    <innerfile refid="range_8h">range.h</innerfile>
+    <innerfile refid="rational_8h">rational.h</innerfile>
+    <innerfile refid="threadedobject_8h">threadedobject.h</innerfile>
+    <innerfile refid="timecodefunctions_8h">timecodefunctions.h</innerfile>
+    <innerfile refid="timelinecommon_8h">timelinecommon.h</innerfile>
+    <innerfile refid="timerange_8h">timerange.h</innerfile>
+    <innerfile refid="tohex_8h">tohex.h</innerfile>
+    <innerfile refid="xmlutils_8h">xmlutils.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/common/"/>
+  </compounddef>
+</doxygen>

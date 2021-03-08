@@ -1,0 +1,403 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_project" kind="class" language="C++" prot="public">
+    <compoundname>Project</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QObject</basecompoundref>
+    <includes refid="project_2project_8h" local="no">project.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_project_1a247fafdf7d35ff52fb66c6db09fff887" prot="private" static="no" mutable="no">
+        <type><ref refid="class_folder" kindref="compound">Folder</ref></type>
+        <definition>Folder Project::root_</definition>
+        <argsstring></argsstring>
+        <name>root_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/project.h" line="97" column="10" bodyfile="C:/Daten/Olive/olive/app/project/project.h" bodystart="97" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_project_1a583d442dbc3d68b981bf898923fdbbd7" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString Project::filename_</definition>
+        <argsstring></argsstring>
+        <name>filename_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/project.h" line="99" column="11" bodyfile="C:/Daten/Olive/olive/app/project/project.h" bodystart="99" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_project_1afb80b08b7b26980e0877b874c6bde60b" prot="private" static="no" mutable="no">
+        <type><ref refid="class_color_manager" kindref="compound">ColorManager</ref></type>
+        <definition>ColorManager Project::color_manager_</definition>
+        <argsstring></argsstring>
+        <name>color_manager_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/project.h" line="101" column="16" bodyfile="C:/Daten/Olive/olive/app/project/project.h" bodystart="101" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_project_1ab896793fff70a44b995fb5f5ea8954c0" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool Project::is_modified_</definition>
+        <argsstring></argsstring>
+        <name>is_modified_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/project.h" line="103" column="8" bodyfile="C:/Daten/Olive/olive/app/project/project.h" bodystart="103" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_project_1acef301b10b8b27ce6bc6697bfeb4cb2a" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool Project::autorecovery_saved_</definition>
+        <argsstring></argsstring>
+        <name>autorecovery_saved_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/project.h" line="105" column="8" bodyfile="C:/Daten/Olive/olive/app/project/project.h" bodystart="105" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_project_1aa007ecd17d5bc800e7a956cf666eea21" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Project::Project</definition>
+        <argsstring>()</argsstring>
+        <name>Project</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/project.h" line="65" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_1a3b87df0b806c2a0c8bde2f21c7eb5459" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Project::Load</definition>
+        <argsstring>(QXmlStreamReader *reader, const QAtomicInt *cancelled)</argsstring>
+        <name>Load</name>
+        <param>
+          <type>QXmlStreamReader *</type>
+          <declname>reader</declname>
+        </param>
+        <param>
+          <type>const QAtomicInt *</type>
+          <declname>cancelled</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/project.h" line="67" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_1ab74cbc79e58cd950422ec3930b675a6c" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Project::Save</definition>
+        <argsstring>(QXmlStreamWriter *writer) const</argsstring>
+        <name>Save</name>
+        <param>
+          <type>QXmlStreamWriter *</type>
+          <declname>writer</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/project.h" line="69" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_1aa26e64b78638bcf888b2ec6c627dd70c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_folder" kindref="compound">Folder</ref> *</type>
+        <definition>Folder* Project::root</definition>
+        <argsstring>()</argsstring>
+        <name>root</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/project.h" line="71" column="10"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_1a66dbbf03284f4769ab804eab1e934a37" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>QString Project::name</definition>
+        <argsstring>() const</argsstring>
+        <name>name</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/project.h" line="73" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_1aac0cdd6308eb5668c31363b995730f1d" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const QString &amp;</type>
+        <definition>const QString&amp; Project::filename</definition>
+        <argsstring>() const</argsstring>
+        <name>filename</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/project.h" line="75" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_1aed77f3ba5dd7fbf960713100759bc345" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>QString Project::pretty_filename</definition>
+        <argsstring>() const</argsstring>
+        <name>pretty_filename</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/project.h" line="76" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_1a66472eaf22a88943df03483c7a71d9f1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Project::set_filename</definition>
+        <argsstring>(const QString &amp;s)</argsstring>
+        <name>set_filename</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/project.h" line="77" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_1a5dd011c67bf9deb079362be25b9b89eb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_color_manager" kindref="compound">ColorManager</ref> *</type>
+        <definition>ColorManager* Project::color_manager</definition>
+        <argsstring>()</argsstring>
+        <name>color_manager</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/project.h" line="79" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_1a32a281efdfa8f64a79423a91916c4736" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QList&lt; <ref refid="item_8h_1ab17f9c749f423747869d900d2418ffde" kindref="member">ItemPtr</ref> &gt;</type>
+        <definition>QList&lt;ItemPtr&gt; Project::get_items_of_type</definition>
+        <argsstring>(Item::Type type) const</argsstring>
+        <name>get_items_of_type</name>
+        <param>
+          <type><ref refid="class_item_1a6b718f9918eb7a5b2d4572cc1a231005" kindref="member">Item::Type</ref></type>
+          <declname>type</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/project.h" line="81" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_1aed4d7a915eaa127b216224b4b6680434" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Project::is_modified</definition>
+        <argsstring>() const</argsstring>
+        <name>is_modified</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/project.h" line="83" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_1a34ba9d0bcccc4deb83321c2b80f07b27" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Project::set_modified</definition>
+        <argsstring>(bool e)</argsstring>
+        <name>set_modified</name>
+        <param>
+          <type>bool</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/project.h" line="84" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_1aeac37533bbb2e065abc4762a38565baa" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Project::has_autorecovery_been_saved</definition>
+        <argsstring>() const</argsstring>
+        <name>has_autorecovery_been_saved</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/project.h" line="86" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_1ab37287703717debd0485bd66cd0ae3df" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Project::set_autorecovery_saved</definition>
+        <argsstring>(bool e)</argsstring>
+        <name>set_autorecovery_saved</name>
+        <param>
+          <type>bool</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/project.h" line="87" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_1a1dd49d9edd66605db1cf81904a9b5b8d" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Project::is_new</definition>
+        <argsstring>() const</argsstring>
+        <name>is_new</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/project.h" line="89" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_project_1accf0819ecab0dedd80ffbf23680195b9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Project::NameChanged</definition>
+        <argsstring>()</argsstring>
+        <name>NameChanged</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/project.h" line="92" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_project_1ae1ae09411e728e43bb6aa710ed2fedb4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Project::ModifiedChanged</definition>
+        <argsstring>(bool e)</argsstring>
+        <name>ModifiedChanged</name>
+        <param>
+          <type>bool</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/project.h" line="94" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A project instance containing all the data pertaining to the user&apos;s project. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>A project instance uses a parent-child hierarchy of <ref refid="class_item" kindref="compound">Item</ref> objects. Projects will usually contain the following:</para>
+<para><itemizedlist>
+<listitem><para><ref refid="class_footage" kindref="compound">Footage</ref></para>
+</listitem><listitem><para>Sequences</para>
+</listitem><listitem><para>Folders</para>
+</listitem><listitem><para><ref refid="class_project" kindref="compound">Project</ref> Settings</para>
+</listitem><listitem><para>Window Layout </para>
+</listitem></itemizedlist>
+</para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="2">
+        <label>ColorManager</label>
+        <link refid="class_color_manager"/>
+      </node>
+      <node id="4">
+        <label>Item</label>
+        <link refid="class_item"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>parent_</edgelabel>
+        </childnode>
+        <childnode refid="1" relation="usage">
+          <edgelabel>project_</edgelabel>
+        </childnode>
+      </node>
+      <node id="1">
+        <label>Project</label>
+        <link refid="class_project"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>color_manager_</edgelabel>
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>root_</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>Folder</label>
+        <link refid="class_folder"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/project/project.h" line="43" column="1" bodyfile="C:/Daten/Olive/olive/app/project/project.h" bodystart="44" bodyend="89"/>
+    <listofallmembers>
+      <member refid="class_project_1acef301b10b8b27ce6bc6697bfeb4cb2a" prot="private" virt="non-virtual"><scope>Project</scope><name>autorecovery_saved_</name></member>
+      <member refid="class_project_1a5dd011c67bf9deb079362be25b9b89eb" prot="public" virt="non-virtual"><scope>Project</scope><name>color_manager</name></member>
+      <member refid="class_project_1afb80b08b7b26980e0877b874c6bde60b" prot="private" virt="non-virtual"><scope>Project</scope><name>color_manager_</name></member>
+      <member refid="class_project_1aac0cdd6308eb5668c31363b995730f1d" prot="public" virt="non-virtual"><scope>Project</scope><name>filename</name></member>
+      <member refid="class_project_1a583d442dbc3d68b981bf898923fdbbd7" prot="private" virt="non-virtual"><scope>Project</scope><name>filename_</name></member>
+      <member refid="class_project_1a32a281efdfa8f64a79423a91916c4736" prot="public" virt="non-virtual"><scope>Project</scope><name>get_items_of_type</name></member>
+      <member refid="class_project_1aeac37533bbb2e065abc4762a38565baa" prot="public" virt="non-virtual"><scope>Project</scope><name>has_autorecovery_been_saved</name></member>
+      <member refid="class_project_1aed4d7a915eaa127b216224b4b6680434" prot="public" virt="non-virtual"><scope>Project</scope><name>is_modified</name></member>
+      <member refid="class_project_1ab896793fff70a44b995fb5f5ea8954c0" prot="private" virt="non-virtual"><scope>Project</scope><name>is_modified_</name></member>
+      <member refid="class_project_1a1dd49d9edd66605db1cf81904a9b5b8d" prot="public" virt="non-virtual"><scope>Project</scope><name>is_new</name></member>
+      <member refid="class_project_1a3b87df0b806c2a0c8bde2f21c7eb5459" prot="public" virt="non-virtual"><scope>Project</scope><name>Load</name></member>
+      <member refid="class_project_1ae1ae09411e728e43bb6aa710ed2fedb4" prot="public" virt="non-virtual"><scope>Project</scope><name>ModifiedChanged</name></member>
+      <member refid="class_project_1a66dbbf03284f4769ab804eab1e934a37" prot="public" virt="non-virtual"><scope>Project</scope><name>name</name></member>
+      <member refid="class_project_1accf0819ecab0dedd80ffbf23680195b9" prot="public" virt="non-virtual"><scope>Project</scope><name>NameChanged</name></member>
+      <member refid="class_project_1aed77f3ba5dd7fbf960713100759bc345" prot="public" virt="non-virtual"><scope>Project</scope><name>pretty_filename</name></member>
+      <member refid="class_project_1aa007ecd17d5bc800e7a956cf666eea21" prot="public" virt="non-virtual"><scope>Project</scope><name>Project</name></member>
+      <member refid="class_project_1aa26e64b78638bcf888b2ec6c627dd70c" prot="public" virt="non-virtual"><scope>Project</scope><name>root</name></member>
+      <member refid="class_project_1a247fafdf7d35ff52fb66c6db09fff887" prot="private" virt="non-virtual"><scope>Project</scope><name>root_</name></member>
+      <member refid="class_project_1ab74cbc79e58cd950422ec3930b675a6c" prot="public" virt="non-virtual"><scope>Project</scope><name>Save</name></member>
+      <member refid="class_project_1ab37287703717debd0485bd66cd0ae3df" prot="public" virt="non-virtual"><scope>Project</scope><name>set_autorecovery_saved</name></member>
+      <member refid="class_project_1a66472eaf22a88943df03483c7a71d9f1" prot="public" virt="non-virtual"><scope>Project</scope><name>set_filename</name></member>
+      <member refid="class_project_1a34ba9d0bcccc4deb83321c2b80f07b27" prot="public" virt="non-virtual"><scope>Project</scope><name>set_modified</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

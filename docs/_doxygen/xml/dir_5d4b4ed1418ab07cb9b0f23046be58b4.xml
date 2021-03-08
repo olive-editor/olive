@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_5d4b4ed1418ab07cb9b0f23046be58b4" kind="dir">
+    <compoundname>taskview</compoundname>
+    <innerfile refid="taskview_8h">taskview.h</innerfile>
+    <innerfile refid="taskviewitem_8h">taskviewitem.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/widget/taskview/"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,129 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_node_edge" kind="class" language="C++" prot="public">
+    <compoundname>NodeEdge</compoundname>
+    <includes refid="edge_8h" local="no">edge.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_node_edge_1affbd6aba55a32e26cf43ef91c2d8da18" prot="private" static="no" mutable="no">
+        <type><ref refid="class_node_output" kindref="compound">NodeOutput</ref> *</type>
+        <definition>NodeOutput* NodeEdge::output_</definition>
+        <argsstring></argsstring>
+        <name>output_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/edge.h" line="58" column="14" bodyfile="C:/Daten/Olive/olive/app/node/edge.h" bodystart="58" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_edge_1a467c8e9e992c8b1bc25498641beea227" prot="private" static="no" mutable="no">
+        <type><ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+        <definition>NodeInput* NodeEdge::input_</definition>
+        <argsstring></argsstring>
+        <name>input_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/edge.h" line="59" column="13" bodyfile="C:/Daten/Olive/olive/app/node/edge.h" bodystart="59" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_node_edge_1a2db25d05e4fbae5169413fc4df57a477" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>NodeEdge::NodeEdge</definition>
+        <argsstring>(NodeOutput *output, NodeInput *input)</argsstring>
+        <name>NodeEdge</name>
+        <param>
+          <type><ref refid="class_node_output" kindref="compound">NodeOutput</ref> *</type>
+          <declname>output</declname>
+        </param>
+        <param>
+          <type><ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+          <declname>input</declname>
+        </param>
+        <briefdescription>
+<para>Create a node edge connecting an output to an input. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/edge.h" line="45" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_edge_1a25cb4bb67716f52ada6a110c36c766f2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_node_output" kindref="compound">NodeOutput</ref> *</type>
+        <definition>NodeOutput* NodeEdge::output</definition>
+        <argsstring>()</argsstring>
+        <name>output</name>
+        <briefdescription>
+<para>Return the output parameter this edge is connected to. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/edge.h" line="50" column="14"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_edge_1ad48cc2755e9bb2fabe9b62f5fd89f715" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+        <definition>NodeInput* NodeEdge::input</definition>
+        <argsstring>()</argsstring>
+        <name>input</name>
+        <briefdescription>
+<para>Return the input parameter this edge is connected to. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/edge.h" line="55" column="13"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A connection between two node parameters (a <ref refid="class_node_output" kindref="compound">NodeOutput</ref> and a <ref refid="class_node_input" kindref="compound">NodeInput</ref>) </para>
+    </briefdescription>
+    <detaileddescription>
+<para>To simplify memory management, it&apos;s recommended to use NodeEdgePtr instead of raw pointers when working with <ref refid="class_node_edge" kindref="compound">NodeEdge</ref>. </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="4">
+        <label>NodeOutput</label>
+        <link refid="class_node_output"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>NodeEdge</label>
+        <link refid="class_node_edge"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>input_</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>output_</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>NodeInput</label>
+        <link refid="class_node_input"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>NodeParam</label>
+        <link refid="class_node_param"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/node/edge.h" line="39" column="1" bodyfile="C:/Daten/Olive/olive/app/node/edge.h" bodystart="40" bodyend="60"/>
+    <listofallmembers>
+      <member refid="class_node_edge_1ad48cc2755e9bb2fabe9b62f5fd89f715" prot="public" virt="non-virtual"><scope>NodeEdge</scope><name>input</name></member>
+      <member refid="class_node_edge_1a467c8e9e992c8b1bc25498641beea227" prot="private" virt="non-virtual"><scope>NodeEdge</scope><name>input_</name></member>
+      <member refid="class_node_edge_1a2db25d05e4fbae5169413fc4df57a477" prot="public" virt="non-virtual"><scope>NodeEdge</scope><name>NodeEdge</name></member>
+      <member refid="class_node_edge_1a25cb4bb67716f52ada6a110c36c766f2" prot="public" virt="non-virtual"><scope>NodeEdge</scope><name>output</name></member>
+      <member refid="class_node_edge_1affbd6aba55a32e26cf43ef91c2d8da18" prot="private" virt="non-virtual"><scope>NodeEdge</scope><name>output_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,26 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_9a54bea2c918a5ee08f4cd4f9f1b2514" kind="dir">
+    <compoundname>panel</compoundname>
+    <innerdir refid="dir_b0034939a851129485596043f27de521">audiomonitor</innerdir>
+    <innerdir refid="dir_498f6a2e718631e4760f73b49ff369cf">curve</innerdir>
+    <innerdir refid="dir_17f58c0a8d7db2c78d6399fcaa8b4229">footageviewer</innerdir>
+    <innerdir refid="dir_38e2c5db243c0bb5e53a6c0902efad9d">node</innerdir>
+    <innerdir refid="dir_3b8ec43775758ba29c26caa396e96427">param</innerdir>
+    <innerdir refid="dir_9c2088f4c800ed0f2fa5fd72340512e2">pixelsampler</innerdir>
+    <innerdir refid="dir_6db1d12bf3ac672bd6e8115d68482550">project</innerdir>
+    <innerdir refid="dir_9640c65df36c0b4966ee1ab71d811fd5">scope</innerdir>
+    <innerdir refid="dir_17f52554ed877014fa4e4b16e7ac2c68">sequenceviewer</innerdir>
+    <innerdir refid="dir_84dae9c3ce0b10c286818ad9b60bcc6e">taskmanager</innerdir>
+    <innerdir refid="dir_6faccab21dc6c29d77522770d495b737">timebased</innerdir>
+    <innerdir refid="dir_e7286efea84abbf44cf8968ee300bef4">timeline</innerdir>
+    <innerdir refid="dir_364efde9ac2843aa610d94896fccec0d">tool</innerdir>
+    <innerdir refid="dir_b2cba7ccf2004496148df13e27b7a58b">viewer</innerdir>
+    <innerfile refid="panelmanager_8h">panelmanager.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/panel/"/>
+  </compounddef>
+</doxygen>

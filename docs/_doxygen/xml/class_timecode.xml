@@ -1,0 +1,325 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_timecode" kind="class" language="C++" prot="public">
+    <compoundname>Timecode</compoundname>
+    <includes refid="timecodefunctions_8h" local="no">timecodefunctions.h</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="enum" id="class_timecode_1aff560b56df77be3eeec7a93c000ac4e5" prot="public" static="no" strong="no">
+        <type></type>
+        <name>Display</name>
+        <enumvalue id="class_timecode_1aff560b56df77be3eeec7a93c000ac4e5a73c26dfa62b68cd9aff25ba9f1166f4b" prot="public">
+          <name>kTimecodeDropFrame</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_timecode_1aff560b56df77be3eeec7a93c000ac4e5aa910f66e6b18d97ae0f93aacf138191c" prot="public">
+          <name>kTimecodeNonDropFrame</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_timecode_1aff560b56df77be3eeec7a93c000ac4e5a38840169f8af3b1eccbe15d79a927485" prot="public">
+          <name>kTimecodeSeconds</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_timecode_1aff560b56df77be3eeec7a93c000ac4e5a76bd1cf48ef533958b7eb8d97b491492" prot="public">
+          <name>kFrames</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_timecode_1aff560b56df77be3eeec7a93c000ac4e5a50a6b4e3a8fd79948c69690b85721671" prot="public">
+          <name>kMilliseconds</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/timecodefunctions.h" line="60" column="3" bodyfile="C:/Daten/Olive/olive/app/common/timecodefunctions.h" bodystart="60" bodyend="66"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="class_timecode_1a0fbb74b9d9fb4c5afff4bdf9aed4592b" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>static QString Timecode::timestamp_to_timecode</definition>
+        <argsstring>(const int64_t &amp;timestamp, const rational &amp;timebase, const Display &amp;display, bool show_plus_if_positive=false)</argsstring>
+        <name>timestamp_to_timecode</name>
+        <param>
+          <type>const int64_t &amp;</type>
+          <declname>timestamp</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>timebase</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_timecode_1aff560b56df77be3eeec7a93c000ac4e5" kindref="member">Display</ref> &amp;</type>
+          <declname>display</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>show_plus_if_positive</declname>
+          <defval>false</defval>
+        </param>
+        <briefdescription>
+<para>Convert a timestamp (according to a rational timebase) to a user-friendly string representation. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/timecodefunctions.h" line="71" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timecode_1aaa11504c453b49ef4325a5469c3b805b" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int64_t</type>
+        <definition>static int64_t Timecode::timecode_to_timestamp</definition>
+        <argsstring>(const QString &amp;timecode, const rational &amp;timebase, const Display &amp;display, bool *ok=nullptr)</argsstring>
+        <name>timecode_to_timestamp</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>timecode</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>timebase</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_timecode_1aff560b56df77be3eeec7a93c000ac4e5" kindref="member">Display</ref> &amp;</type>
+          <declname>display</declname>
+        </param>
+        <param>
+          <type>bool *</type>
+          <declname>ok</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/timecodefunctions.h" line="73" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timecode_1abf4cd365858225265f327c969f86fea4" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>static rational Timecode::snap_time_to_timebase</definition>
+        <argsstring>(const rational &amp;time, const rational &amp;timebase)</argsstring>
+        <name>snap_time_to_timebase</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>time</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>timebase</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/timecodefunctions.h" line="75" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timecode_1a433156ee81b5c4ea3331f77f6f46c2e2" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int64_t</type>
+        <definition>static int64_t Timecode::time_to_timestamp</definition>
+        <argsstring>(const rational &amp;time, const rational &amp;timebase)</argsstring>
+        <name>time_to_timestamp</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>time</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>timebase</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/timecodefunctions.h" line="77" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timecode_1aa14f14aae24973051d52e085d43a3f9d" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int64_t</type>
+        <definition>static int64_t Timecode::time_to_timestamp</definition>
+        <argsstring>(const double &amp;time, const rational &amp;timebase)</argsstring>
+        <name>time_to_timestamp</name>
+        <param>
+          <type>const double &amp;</type>
+          <declname>time</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>timebase</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/timecodefunctions.h" line="78" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timecode_1a0f55b8f7e6cde2d5b7a2899f436cba0f" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int64_t</type>
+        <definition>static int64_t Timecode::rescale_timestamp</definition>
+        <argsstring>(const int64_t &amp;ts, const rational &amp;source, const rational &amp;dest)</argsstring>
+        <name>rescale_timestamp</name>
+        <param>
+          <type>const int64_t &amp;</type>
+          <declname>ts</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>source</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>dest</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/timecodefunctions.h" line="80" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timecode_1a0aa7df5534ddc98a54b8900defa71c38" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int64_t</type>
+        <definition>static int64_t Timecode::rescale_timestamp_ceil</definition>
+        <argsstring>(const int64_t &amp;ts, const rational &amp;source, const rational &amp;dest)</argsstring>
+        <name>rescale_timestamp_ceil</name>
+        <param>
+          <type>const int64_t &amp;</type>
+          <declname>ts</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>source</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>dest</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/timecodefunctions.h" line="81" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timecode_1a89298f61ce4ed16687139e714cd0bc5a" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>static rational Timecode::timestamp_to_time</definition>
+        <argsstring>(const int64_t &amp;timestamp, const rational &amp;timebase)</argsstring>
+        <name>timestamp_to_time</name>
+        <param>
+          <type>const int64_t &amp;</type>
+          <declname>timestamp</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>timebase</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/timecodefunctions.h" line="83" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timecode_1aacdb8d0635a98b8d9fcbc43db2ba14c0" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>static QString Timecode::time_to_timecode</definition>
+        <argsstring>(const rational &amp;time, const rational &amp;timebase, const Display &amp;display, bool show_plus_if_positive=false)</argsstring>
+        <name>time_to_timecode</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>time</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>timebase</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_timecode_1aff560b56df77be3eeec7a93c000ac4e5" kindref="member">Display</ref> &amp;</type>
+          <declname>display</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>show_plus_if_positive</declname>
+          <defval>false</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/timecodefunctions.h" line="85" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timecode_1a68e555a47156b4cb5da2b0e29f844ce5" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool Timecode::TimebaseIsDropFrame</definition>
+        <argsstring>(const rational &amp;timebase)</argsstring>
+        <name>TimebaseIsDropFrame</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>timebase</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/timecodefunctions.h" line="87" column="15"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Functions for converting times/timecodes/timestamps. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Olive uses the following terminology through its code:</para>
+<para><computeroutput>time</computeroutput> - time in seconds presented in a rational form <computeroutput>timebase</computeroutput> - the base time unit of an audio/video stream in seconds <computeroutput>timestamp</computeroutput> - an integer representation of a time in timebase units (in many cases is used like a frame number) <computeroutput>timecode</computeroutput> a user-friendly string representation of a time according to <ref refid="class_timecode_1aff560b56df77be3eeec7a93c000ac4e5" kindref="member">Timecode::Display</ref> </para>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/common/timecodefunctions.h" line="40" column="1" bodyfile="C:/Daten/Olive/olive/app/common/timecodefunctions.h" bodystart="40" bodyend="71"/>
+    <listofallmembers>
+      <member refid="class_timecode_1aff560b56df77be3eeec7a93c000ac4e5" prot="public" virt="non-virtual"><scope>Timecode</scope><name>Display</name></member>
+      <member refid="class_timecode_1aff560b56df77be3eeec7a93c000ac4e5a76bd1cf48ef533958b7eb8d97b491492" prot="public" virt="non-virtual"><scope>Timecode</scope><name>kFrames</name></member>
+      <member refid="class_timecode_1aff560b56df77be3eeec7a93c000ac4e5a50a6b4e3a8fd79948c69690b85721671" prot="public" virt="non-virtual"><scope>Timecode</scope><name>kMilliseconds</name></member>
+      <member refid="class_timecode_1aff560b56df77be3eeec7a93c000ac4e5a73c26dfa62b68cd9aff25ba9f1166f4b" prot="public" virt="non-virtual"><scope>Timecode</scope><name>kTimecodeDropFrame</name></member>
+      <member refid="class_timecode_1aff560b56df77be3eeec7a93c000ac4e5aa910f66e6b18d97ae0f93aacf138191c" prot="public" virt="non-virtual"><scope>Timecode</scope><name>kTimecodeNonDropFrame</name></member>
+      <member refid="class_timecode_1aff560b56df77be3eeec7a93c000ac4e5a38840169f8af3b1eccbe15d79a927485" prot="public" virt="non-virtual"><scope>Timecode</scope><name>kTimecodeSeconds</name></member>
+      <member refid="class_timecode_1a0f55b8f7e6cde2d5b7a2899f436cba0f" prot="public" virt="non-virtual"><scope>Timecode</scope><name>rescale_timestamp</name></member>
+      <member refid="class_timecode_1a0aa7df5534ddc98a54b8900defa71c38" prot="public" virt="non-virtual"><scope>Timecode</scope><name>rescale_timestamp_ceil</name></member>
+      <member refid="class_timecode_1abf4cd365858225265f327c969f86fea4" prot="public" virt="non-virtual"><scope>Timecode</scope><name>snap_time_to_timebase</name></member>
+      <member refid="class_timecode_1aacdb8d0635a98b8d9fcbc43db2ba14c0" prot="public" virt="non-virtual"><scope>Timecode</scope><name>time_to_timecode</name></member>
+      <member refid="class_timecode_1a433156ee81b5c4ea3331f77f6f46c2e2" prot="public" virt="non-virtual"><scope>Timecode</scope><name>time_to_timestamp</name></member>
+      <member refid="class_timecode_1aa14f14aae24973051d52e085d43a3f9d" prot="public" virt="non-virtual"><scope>Timecode</scope><name>time_to_timestamp</name></member>
+      <member refid="class_timecode_1a68e555a47156b4cb5da2b0e29f844ce5" prot="public" virt="non-virtual"><scope>Timecode</scope><name>TimebaseIsDropFrame</name></member>
+      <member refid="class_timecode_1aaa11504c453b49ef4325a5469c3b805b" prot="public" virt="non-virtual"><scope>Timecode</scope><name>timecode_to_timestamp</name></member>
+      <member refid="class_timecode_1a89298f61ce4ed16687139e714cd0bc5a" prot="public" virt="non-virtual"><scope>Timecode</scope><name>timestamp_to_time</name></member>
+      <member refid="class_timecode_1a0fbb74b9d9fb4c5afff4bdf9aed4592b" prot="public" virt="non-virtual"><scope>Timecode</scope><name>timestamp_to_timecode</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

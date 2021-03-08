@@ -1,0 +1,300 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_track_view_item" kind="class" language="C++" prot="public">
+    <compoundname>TrackViewItem</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QWidget</basecompoundref>
+    <includes refid="trackviewitem_8h" local="no">trackviewitem.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_track_view_item_1a82ffdaa4895073e41bf7d09a6eff2f9a" prot="private" static="no" mutable="no">
+        <type>QStackedWidget *</type>
+        <definition>QStackedWidget* TrackViewItem::stack_</definition>
+        <argsstring></argsstring>
+        <name>stack_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackviewitem.h" line="62" column="18" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackviewitem.h" bodystart="62" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_track_view_item_1a63f9479d0a84dab0ce5d1bd5986d593f" prot="private" static="no" mutable="no">
+        <type><ref refid="class_clickable_label" kindref="compound">ClickableLabel</ref> *</type>
+        <definition>ClickableLabel* TrackViewItem::label_</definition>
+        <argsstring></argsstring>
+        <name>label_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackviewitem.h" line="64" column="18" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackviewitem.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_track_view_item_1af629f506dfa3195f3d0b7fc591f8d10f" prot="private" static="no" mutable="no">
+        <type><ref refid="class_focusable_line_edit" kindref="compound">FocusableLineEdit</ref> *</type>
+        <definition>FocusableLineEdit* TrackViewItem::line_edit_</definition>
+        <argsstring></argsstring>
+        <name>line_edit_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackviewitem.h" line="65" column="21" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackviewitem.h" bodystart="65" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_track_view_item_1a8161388e94542b349af57e991f5b9f4b" prot="private" static="no" mutable="no">
+        <type>QPushButton *</type>
+        <definition>QPushButton* TrackViewItem::mute_button_</definition>
+        <argsstring></argsstring>
+        <name>mute_button_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackviewitem.h" line="67" column="15" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackviewitem.h" bodystart="67" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_track_view_item_1a9131ea6c85f5717f67863fd660369fbd" prot="private" static="no" mutable="no">
+        <type>QPushButton *</type>
+        <definition>QPushButton* TrackViewItem::solo_button_</definition>
+        <argsstring></argsstring>
+        <name>solo_button_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackviewitem.h" line="68" column="15" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackviewitem.h" bodystart="68" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_track_view_item_1a6c64b923dff622ec5e869df7fade3a4d" prot="private" static="no" mutable="no">
+        <type>QPushButton *</type>
+        <definition>QPushButton* TrackViewItem::lock_button_</definition>
+        <argsstring></argsstring>
+        <name>lock_button_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackviewitem.h" line="69" column="15" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackviewitem.h" bodystart="69" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_track_view_item_1ac62bbb800eeee8bc477530aa0cdfab20" prot="private" static="no" mutable="no">
+        <type><ref refid="class_track_output" kindref="compound">TrackOutput</ref> *</type>
+        <definition>TrackOutput* TrackViewItem::track_</definition>
+        <argsstring></argsstring>
+        <name>track_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackviewitem.h" line="71" column="15" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackviewitem.h" bodystart="71" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_track_view_item_1a0d9e799e9475206ae130a7e515d74f90" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>TrackViewItem::TrackViewItem</definition>
+        <argsstring>(TrackOutput *track, QWidget *parent=nullptr)</argsstring>
+        <name>TrackViewItem</name>
+        <param>
+          <type><ref refid="class_track_output" kindref="compound">TrackOutput</ref> *</type>
+          <declname>track</declname>
+        </param>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackviewitem.h" line="56" column="3"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_track_view_item_1af08cffa8d8dd7c249232914b63e42b00" prot="private" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QPushButton *</type>
+        <definition>QPushButton* TrackViewItem::CreateMSLButton</definition>
+        <argsstring>(const QString &amp;text, const QColor &amp;checked_color) const</argsstring>
+        <name>CreateMSLButton</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>text</declname>
+        </param>
+        <param>
+          <type>const QColor &amp;</type>
+          <declname>checked_color</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackviewitem.h" line="60" column="15"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_track_view_item_1ae2122dcf552b56ef0cf7399eeaf8c37e" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TrackViewItem::LabelClicked</definition>
+        <argsstring>()</argsstring>
+        <name>LabelClicked</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackviewitem.h" line="74" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_track_view_item_1ae5a7cb92583622d634afaa626633a6ff" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TrackViewItem::LineEditConfirmed</definition>
+        <argsstring>()</argsstring>
+        <name>LineEditConfirmed</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackviewitem.h" line="76" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_track_view_item_1aa545e269a180c1296ae12e0d5b5f9abd" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TrackViewItem::LineEditCancelled</definition>
+        <argsstring>()</argsstring>
+        <name>LineEditCancelled</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackviewitem.h" line="78" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="7">
+        <label>NodeOutput</label>
+        <link refid="class_node_output"/>
+        <childnode refid="8" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>Block</label>
+        <link refid="class_block"/>
+        <childnode refid="6" relation="public-inheritance">
+        </childnode>
+        <childnode refid="9" relation="usage">
+          <edgelabel>in_point_</edgelabel>
+          <edgelabel>out_point_</edgelabel>
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>next_</edgelabel>
+          <edgelabel>previous_</edgelabel>
+        </childnode>
+        <childnode refid="10" relation="usage">
+          <edgelabel>enabled_input_</edgelabel>
+          <edgelabel>speed_input_</edgelabel>
+          <edgelabel>media_in_input_</edgelabel>
+          <edgelabel>name_input_</edgelabel>
+          <edgelabel>length_input_</edgelabel>
+        </childnode>
+      </node>
+      <node id="11">
+        <label>NodeInputArray</label>
+        <link refid="class_node_input_array"/>
+        <childnode refid="10" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="3">
+        <label>ClickableLabel</label>
+        <link refid="class_clickable_label"/>
+      </node>
+      <node id="6">
+        <label>Node</label>
+        <link refid="class_node"/>
+        <childnode refid="7" relation="usage">
+          <edgelabel>output_</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>FocusableLineEdit</label>
+        <link refid="class_focusable_line_edit"/>
+      </node>
+      <node id="10">
+        <label>NodeInput</label>
+        <link refid="class_node_input"/>
+        <childnode refid="8" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>TrackOutput</label>
+        <link refid="class_track_output"/>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+        <childnode refid="11" relation="usage">
+          <edgelabel>block_input_</edgelabel>
+        </childnode>
+        <childnode refid="9" relation="usage">
+          <edgelabel>track_length_</edgelabel>
+        </childnode>
+        <childnode refid="10" relation="usage">
+          <edgelabel>muted_input_</edgelabel>
+        </childnode>
+      </node>
+      <node id="1">
+        <label>TrackViewItem</label>
+        <link refid="class_track_view_item"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>line_edit_</edgelabel>
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>label_</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>track_</edgelabel>
+        </childnode>
+      </node>
+      <node id="8">
+        <label>NodeParam</label>
+        <link refid="class_node_param"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackviewitem.h" line="34" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackviewitem.h" bodystart="35" bodyend="62"/>
+    <listofallmembers>
+      <member refid="class_track_view_item_1af08cffa8d8dd7c249232914b63e42b00" prot="private" virt="non-virtual"><scope>TrackViewItem</scope><name>CreateMSLButton</name></member>
+      <member refid="class_track_view_item_1a63f9479d0a84dab0ce5d1bd5986d593f" prot="private" virt="non-virtual"><scope>TrackViewItem</scope><name>label_</name></member>
+      <member refid="class_track_view_item_1ae2122dcf552b56ef0cf7399eeaf8c37e" prot="private" virt="non-virtual"><scope>TrackViewItem</scope><name>LabelClicked</name></member>
+      <member refid="class_track_view_item_1af629f506dfa3195f3d0b7fc591f8d10f" prot="private" virt="non-virtual"><scope>TrackViewItem</scope><name>line_edit_</name></member>
+      <member refid="class_track_view_item_1aa545e269a180c1296ae12e0d5b5f9abd" prot="private" virt="non-virtual"><scope>TrackViewItem</scope><name>LineEditCancelled</name></member>
+      <member refid="class_track_view_item_1ae5a7cb92583622d634afaa626633a6ff" prot="private" virt="non-virtual"><scope>TrackViewItem</scope><name>LineEditConfirmed</name></member>
+      <member refid="class_track_view_item_1a6c64b923dff622ec5e869df7fade3a4d" prot="private" virt="non-virtual"><scope>TrackViewItem</scope><name>lock_button_</name></member>
+      <member refid="class_track_view_item_1a8161388e94542b349af57e991f5b9f4b" prot="private" virt="non-virtual"><scope>TrackViewItem</scope><name>mute_button_</name></member>
+      <member refid="class_track_view_item_1a9131ea6c85f5717f67863fd660369fbd" prot="private" virt="non-virtual"><scope>TrackViewItem</scope><name>solo_button_</name></member>
+      <member refid="class_track_view_item_1a82ffdaa4895073e41bf7d09a6eff2f9a" prot="private" virt="non-virtual"><scope>TrackViewItem</scope><name>stack_</name></member>
+      <member refid="class_track_view_item_1ac62bbb800eeee8bc477530aa0cdfab20" prot="private" virt="non-virtual"><scope>TrackViewItem</scope><name>track_</name></member>
+      <member refid="class_track_view_item_1a0d9e799e9475206ae130a7e515d74f90" prot="public" virt="non-virtual"><scope>TrackViewItem</scope><name>TrackViewItem</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

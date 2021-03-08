@@ -1,0 +1,396 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_project_toolbar" kind="class" language="C++" prot="public">
+    <compoundname>ProjectToolbar</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QWidget</basecompoundref>
+    <includes refid="projecttoolbar_8h" local="no">projecttoolbar.h</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="enum" id="class_project_toolbar_1adbc3fb60d3a7ee54280945c2c76ad2a5" prot="public" static="no" strong="no">
+        <type></type>
+        <name>ViewType</name>
+        <enumvalue id="class_project_toolbar_1adbc3fb60d3a7ee54280945c2c76ad2a5a036a8161f76a4e54194cd8f3d7919f15" prot="public">
+          <name>TreeView</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_project_toolbar_1adbc3fb60d3a7ee54280945c2c76ad2a5ac656f8541a8994965ddd7c020b181eb7" prot="public">
+          <name>ListView</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_project_toolbar_1adbc3fb60d3a7ee54280945c2c76ad2a5a8d8fecc567091a6368a1ba12b9067ffc" prot="public">
+          <name>IconView</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projecttoolbar/projecttoolbar.h" line="64" column="3" bodyfile="C:/Daten/Olive/olive/app/widget/projecttoolbar/projecttoolbar.h" bodystart="64" bodyend="68"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_project_toolbar_1a9a28877611a64b491fcebd173b8700e6" prot="private" static="no" mutable="no">
+        <type>QPushButton *</type>
+        <definition>QPushButton* ProjectToolbar::new_button_</definition>
+        <argsstring></argsstring>
+        <name>new_button_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projecttoolbar/projecttoolbar.h" line="92" column="15" bodyfile="C:/Daten/Olive/olive/app/widget/projecttoolbar/projecttoolbar.h" bodystart="92" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_project_toolbar_1a2604b12beca87961278eda2b055279a5" prot="private" static="no" mutable="no">
+        <type>QPushButton *</type>
+        <definition>QPushButton* ProjectToolbar::open_button_</definition>
+        <argsstring></argsstring>
+        <name>open_button_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projecttoolbar/projecttoolbar.h" line="93" column="15" bodyfile="C:/Daten/Olive/olive/app/widget/projecttoolbar/projecttoolbar.h" bodystart="93" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_project_toolbar_1a30cf787e808d29558b2c23300b1a8f4d" prot="private" static="no" mutable="no">
+        <type>QPushButton *</type>
+        <definition>QPushButton* ProjectToolbar::save_button_</definition>
+        <argsstring></argsstring>
+        <name>save_button_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projecttoolbar/projecttoolbar.h" line="94" column="15" bodyfile="C:/Daten/Olive/olive/app/widget/projecttoolbar/projecttoolbar.h" bodystart="94" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_project_toolbar_1a546fa401fb809f4a69b67e1b62879e1c" prot="private" static="no" mutable="no">
+        <type>QPushButton *</type>
+        <definition>QPushButton* ProjectToolbar::undo_button_</definition>
+        <argsstring></argsstring>
+        <name>undo_button_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projecttoolbar/projecttoolbar.h" line="95" column="15" bodyfile="C:/Daten/Olive/olive/app/widget/projecttoolbar/projecttoolbar.h" bodystart="95" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_project_toolbar_1af8a6836e20631e4076a01d79a0f64406" prot="private" static="no" mutable="no">
+        <type>QPushButton *</type>
+        <definition>QPushButton* ProjectToolbar::redo_button_</definition>
+        <argsstring></argsstring>
+        <name>redo_button_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projecttoolbar/projecttoolbar.h" line="96" column="15" bodyfile="C:/Daten/Olive/olive/app/widget/projecttoolbar/projecttoolbar.h" bodystart="96" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_project_toolbar_1ad31afe7a226b5b650d2dc8c9df40a86b" prot="private" static="no" mutable="no">
+        <type>QLineEdit *</type>
+        <definition>QLineEdit* ProjectToolbar::search_field_</definition>
+        <argsstring></argsstring>
+        <name>search_field_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projecttoolbar/projecttoolbar.h" line="98" column="13" bodyfile="C:/Daten/Olive/olive/app/widget/projecttoolbar/projecttoolbar.h" bodystart="98" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_project_toolbar_1aee4ffbd162326f494f27af003c1b29e7" prot="private" static="no" mutable="no">
+        <type>QPushButton *</type>
+        <definition>QPushButton* ProjectToolbar::tree_button_</definition>
+        <argsstring></argsstring>
+        <name>tree_button_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projecttoolbar/projecttoolbar.h" line="100" column="15" bodyfile="C:/Daten/Olive/olive/app/widget/projecttoolbar/projecttoolbar.h" bodystart="100" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_project_toolbar_1a67ca0529a842339c30de64fd60061a30" prot="private" static="no" mutable="no">
+        <type>QPushButton *</type>
+        <definition>QPushButton* ProjectToolbar::list_button_</definition>
+        <argsstring></argsstring>
+        <name>list_button_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projecttoolbar/projecttoolbar.h" line="101" column="15" bodyfile="C:/Daten/Olive/olive/app/widget/projecttoolbar/projecttoolbar.h" bodystart="101" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_project_toolbar_1aadaf2ecf2754c7894d7010534443c626" prot="private" static="no" mutable="no">
+        <type>QPushButton *</type>
+        <definition>QPushButton* ProjectToolbar::icon_button_</definition>
+        <argsstring></argsstring>
+        <name>icon_button_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projecttoolbar/projecttoolbar.h" line="102" column="15" bodyfile="C:/Daten/Olive/olive/app/widget/projecttoolbar/projecttoolbar.h" bodystart="102" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_project_toolbar_1a8f8adca46d4c2598cddf05e700326161" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>ProjectToolbar::ProjectToolbar</definition>
+        <argsstring>(QWidget *parent)</argsstring>
+        <name>ProjectToolbar</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projecttoolbar/projecttoolbar.h" line="62" column="3"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-slot">
+      <memberdef kind="slot" id="class_project_toolbar_1af6087196e948c85d26cacb15a5ad5e89" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectToolbar::SetView</definition>
+        <argsstring>(ViewType type)</argsstring>
+        <name>SetView</name>
+        <param>
+          <type><ref refid="class_project_toolbar_1adbc3fb60d3a7ee54280945c2c76ad2a5" kindref="member">ViewType</ref></type>
+          <declname>type</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projecttoolbar/projecttoolbar.h" line="71" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_project_toolbar_1a9c7921b32b2f2e81588b8f21a93afc75" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectToolbar::changeEvent</definition>
+        <argsstring>(QEvent *) override</argsstring>
+        <name>changeEvent</name>
+        <param>
+          <type>QEvent *</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projecttoolbar/projecttoolbar.h" line="74" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_project_toolbar_1a2323bf81c276f78e0b7c4421062c66a0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectToolbar::NewClicked</definition>
+        <argsstring>()</argsstring>
+        <name>NewClicked</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projecttoolbar/projecttoolbar.h" line="77" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_project_toolbar_1a46ee9b6ba52d451ef855b11b0e68a291" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectToolbar::OpenClicked</definition>
+        <argsstring>()</argsstring>
+        <name>OpenClicked</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projecttoolbar/projecttoolbar.h" line="78" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_project_toolbar_1ad07280e479837aeb749c9a6c9d58e40b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectToolbar::SaveClicked</definition>
+        <argsstring>()</argsstring>
+        <name>SaveClicked</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projecttoolbar/projecttoolbar.h" line="79" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_project_toolbar_1a82b03a721b599dabfe3dcfe05c51bef7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectToolbar::UndoClicked</definition>
+        <argsstring>()</argsstring>
+        <name>UndoClicked</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projecttoolbar/projecttoolbar.h" line="81" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_project_toolbar_1a00a5de314fb55cd05f3ebcca23511985" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectToolbar::RedoClicked</definition>
+        <argsstring>()</argsstring>
+        <name>RedoClicked</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projecttoolbar/projecttoolbar.h" line="82" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_project_toolbar_1a9e44a66b5c7d5a1c68af52b6b40c2783" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectToolbar::SearchChanged</definition>
+        <argsstring>(const QString &amp;)</argsstring>
+        <name>SearchChanged</name>
+        <param>
+          <type>const QString &amp;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projecttoolbar/projecttoolbar.h" line="84" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_project_toolbar_1aa1879a8da2c3e99756e0e83279c1d98d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectToolbar::ViewChanged</definition>
+        <argsstring>(ViewType type)</argsstring>
+        <name>ViewChanged</name>
+        <param>
+          <type><ref refid="class_project_toolbar_1adbc3fb60d3a7ee54280945c2c76ad2a5" kindref="member">ViewType</ref></type>
+          <declname>type</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projecttoolbar/projecttoolbar.h" line="86" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_project_toolbar_1a4a7148edddc8437a3f2703d7e995a521" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectToolbar::Retranslate</definition>
+        <argsstring>()</argsstring>
+        <name>Retranslate</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projecttoolbar/projecttoolbar.h" line="89" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_toolbar_1a0ec9427bb0582c634545bd2a07243a40" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectToolbar::UpdateIcons</definition>
+        <argsstring>()</argsstring>
+        <name>UpdateIcons</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projecttoolbar/projecttoolbar.h" line="90" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_project_toolbar_1a832c8c339a37eeac8e9d2cd1efceb5d9" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectToolbar::ViewButtonClicked</definition>
+        <argsstring>()</argsstring>
+        <name>ViewButtonClicked</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projecttoolbar/projecttoolbar.h" line="105" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>The <ref refid="class_project_toolbar" kindref="compound">ProjectToolbar</ref> class. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>A toolbar consisting of project functions (new/open/save), edit functions (undo/redo), a search field, and a project view selector (tree/icon/list).</para>
+<para>This object&apos;s signals can be connected to various functions in the application for better user experience. </para>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/widget/projecttoolbar/projecttoolbar.h" line="40" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/projecttoolbar/projecttoolbar.h" bodystart="41" bodyend="88"/>
+    <listofallmembers>
+      <member refid="class_project_toolbar_1a9c7921b32b2f2e81588b8f21a93afc75" prot="protected" virt="non-virtual"><scope>ProjectToolbar</scope><name>changeEvent</name></member>
+      <member refid="class_project_toolbar_1aadaf2ecf2754c7894d7010534443c626" prot="private" virt="non-virtual"><scope>ProjectToolbar</scope><name>icon_button_</name></member>
+      <member refid="class_project_toolbar_1adbc3fb60d3a7ee54280945c2c76ad2a5a8d8fecc567091a6368a1ba12b9067ffc" prot="public" virt="non-virtual"><scope>ProjectToolbar</scope><name>IconView</name></member>
+      <member refid="class_project_toolbar_1a67ca0529a842339c30de64fd60061a30" prot="private" virt="non-virtual"><scope>ProjectToolbar</scope><name>list_button_</name></member>
+      <member refid="class_project_toolbar_1adbc3fb60d3a7ee54280945c2c76ad2a5ac656f8541a8994965ddd7c020b181eb7" prot="public" virt="non-virtual"><scope>ProjectToolbar</scope><name>ListView</name></member>
+      <member refid="class_project_toolbar_1a9a28877611a64b491fcebd173b8700e6" prot="private" virt="non-virtual"><scope>ProjectToolbar</scope><name>new_button_</name></member>
+      <member refid="class_project_toolbar_1a2323bf81c276f78e0b7c4421062c66a0" prot="public" virt="non-virtual"><scope>ProjectToolbar</scope><name>NewClicked</name></member>
+      <member refid="class_project_toolbar_1a2604b12beca87961278eda2b055279a5" prot="private" virt="non-virtual"><scope>ProjectToolbar</scope><name>open_button_</name></member>
+      <member refid="class_project_toolbar_1a46ee9b6ba52d451ef855b11b0e68a291" prot="public" virt="non-virtual"><scope>ProjectToolbar</scope><name>OpenClicked</name></member>
+      <member refid="class_project_toolbar_1a8f8adca46d4c2598cddf05e700326161" prot="public" virt="non-virtual"><scope>ProjectToolbar</scope><name>ProjectToolbar</name></member>
+      <member refid="class_project_toolbar_1af8a6836e20631e4076a01d79a0f64406" prot="private" virt="non-virtual"><scope>ProjectToolbar</scope><name>redo_button_</name></member>
+      <member refid="class_project_toolbar_1a00a5de314fb55cd05f3ebcca23511985" prot="public" virt="non-virtual"><scope>ProjectToolbar</scope><name>RedoClicked</name></member>
+      <member refid="class_project_toolbar_1a4a7148edddc8437a3f2703d7e995a521" prot="private" virt="non-virtual"><scope>ProjectToolbar</scope><name>Retranslate</name></member>
+      <member refid="class_project_toolbar_1a30cf787e808d29558b2c23300b1a8f4d" prot="private" virt="non-virtual"><scope>ProjectToolbar</scope><name>save_button_</name></member>
+      <member refid="class_project_toolbar_1ad07280e479837aeb749c9a6c9d58e40b" prot="public" virt="non-virtual"><scope>ProjectToolbar</scope><name>SaveClicked</name></member>
+      <member refid="class_project_toolbar_1ad31afe7a226b5b650d2dc8c9df40a86b" prot="private" virt="non-virtual"><scope>ProjectToolbar</scope><name>search_field_</name></member>
+      <member refid="class_project_toolbar_1a9e44a66b5c7d5a1c68af52b6b40c2783" prot="public" virt="non-virtual"><scope>ProjectToolbar</scope><name>SearchChanged</name></member>
+      <member refid="class_project_toolbar_1af6087196e948c85d26cacb15a5ad5e89" prot="public" virt="non-virtual"><scope>ProjectToolbar</scope><name>SetView</name></member>
+      <member refid="class_project_toolbar_1aee4ffbd162326f494f27af003c1b29e7" prot="private" virt="non-virtual"><scope>ProjectToolbar</scope><name>tree_button_</name></member>
+      <member refid="class_project_toolbar_1adbc3fb60d3a7ee54280945c2c76ad2a5a036a8161f76a4e54194cd8f3d7919f15" prot="public" virt="non-virtual"><scope>ProjectToolbar</scope><name>TreeView</name></member>
+      <member refid="class_project_toolbar_1a546fa401fb809f4a69b67e1b62879e1c" prot="private" virt="non-virtual"><scope>ProjectToolbar</scope><name>undo_button_</name></member>
+      <member refid="class_project_toolbar_1a82b03a721b599dabfe3dcfe05c51bef7" prot="public" virt="non-virtual"><scope>ProjectToolbar</scope><name>UndoClicked</name></member>
+      <member refid="class_project_toolbar_1a0ec9427bb0582c634545bd2a07243a40" prot="private" virt="non-virtual"><scope>ProjectToolbar</scope><name>UpdateIcons</name></member>
+      <member refid="class_project_toolbar_1a832c8c339a37eeac8e9d2cd1efceb5d9" prot="private" virt="non-virtual"><scope>ProjectToolbar</scope><name>ViewButtonClicked</name></member>
+      <member refid="class_project_toolbar_1aa1879a8da2c3e99756e0e83279c1d98d" prot="public" virt="non-virtual"><scope>ProjectToolbar</scope><name>ViewChanged</name></member>
+      <member refid="class_project_toolbar_1adbc3fb60d3a7ee54280945c2c76ad2a5" prot="public" virt="non-virtual"><scope>ProjectToolbar</scope><name>ViewType</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

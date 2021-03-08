@@ -1,0 +1,355 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="memorypool_8h" kind="file" language="C++">
+    <compoundname>memorypool.h</compoundname>
+    <includes local="no">memory</includes>
+    <includes local="no">QDateTime</includes>
+    <includes local="no">QDebug</includes>
+    <includes local="no">QLinkedList</includes>
+    <includes local="no">QMutex</includes>
+    <includes local="no">stdint.h</includes>
+    <includes refid="define_8h" local="yes">common/define.h</includes>
+    <includedby refid="ffmpegframepool_8h" local="yes">ffmpegframepool.h</includedby>
+    <incdepgraph>
+      <node id="3">
+        <label>QDateTime</label>
+      </node>
+      <node id="7">
+        <label>stdint.h</label>
+      </node>
+      <node id="5">
+        <label>QLinkedList</label>
+      </node>
+      <node id="6">
+        <label>QMutex</label>
+      </node>
+      <node id="8">
+        <label>common/define.h</label>
+        <link refid="define_8h"/>
+      </node>
+      <node id="4">
+        <label>QDebug</label>
+      </node>
+      <node id="1">
+        <label>memorypool.h</label>
+        <link refid="memorypool_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>memory</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="1">
+        <label>memorypool.h</label>
+        <link refid="memorypool_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>ffmpegframepool.h</label>
+        <link refid="ffmpegframepool_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>ffmpegdecoder.h</label>
+        <link refid="ffmpegdecoder_8h"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="class_memory_pool" prot="public">MemoryPool</innerclass>
+    <innerclass refid="class_memory_pool_1_1_element" prot="public">MemoryPool::Element</innerclass>
+    <innerclass refid="class_memory_pool_1_1_arena" prot="public">MemoryPool::Arena</innerclass>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/***</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"></highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/><sp/>Olive<sp/>-<sp/>Non-Linear<sp/>Video<sp/>Editor</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/><sp/>Copyright<sp/>(C)<sp/>2019<sp/>Olive<sp/>Team</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"></highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/><sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/><sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/><sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"></highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/><sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/><sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/><sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"></highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/><sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/><sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"></highlight></codeline>
+<codeline lineno="19"><highlight class="comment">***/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>MEMORYPOOL_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>MEMORYPOOL_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;memory&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QDateTime&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QDebug&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QLinkedList&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QMutex&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="define_8h" kindref="compound">common/define.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><ref refid="define_8h_1a0472692dd1f22472ad63da20da919e8c" kindref="member">OLIVE_NAMESPACE_ENTER</ref></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="keyword">template</highlight><highlight class="normal"><sp/>&lt;</highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>T&gt;</highlight></codeline>
+<codeline lineno="49" refid="class_memory_pool" refkind="compound"><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_memory_pool" kindref="compound">MemoryPool</ref></highlight></codeline>
+<codeline lineno="50"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><ref refid="class_memory_pool_1a6ead222f9821e90e6fe7cb6fc83137ac" kindref="member">MemoryPool</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>element_count)<sp/>{</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_memory_pool_1acebf2b6363304377df6c1deb2d96d50d" kindref="member">element_count_</ref><sp/>=<sp/>element_count;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="class_memory_pool_1ac5cd6735238f71e7f201dbe31f7ae5f4" kindref="member">~MemoryPool</ref>()<sp/>{</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/>qDeleteAll(<ref refid="class_memory_pool_1a3230fbcdbd08255b093ce0dde9c880b9" kindref="member">arenas_</ref>);</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><ref refid="define_8h_1a49ad49a490f2b30e39821d11a9cc9769" kindref="member">DISABLE_COPY_MOVE</ref>(<ref refid="class_memory_pool" kindref="compound">MemoryPool</ref>)</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="76" refid="class_memory_pool_1a6ead222f9821e90e6fe7cb6fc83137ac" refkind="member"><highlight class="normal"><sp/><sp/>inline<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_memory_pool_1a346ecbe08ab74076cd54cb93181ce080" kindref="member">IsAllocated</ref>()</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>!<ref refid="class_memory_pool_1a3230fbcdbd08255b093ce0dde9c880b9" kindref="member">arenas_</ref>.isEmpty();</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="class_memory_pool_1aff0d4f986a674543beb42c1bad9d4c5b" kindref="member">GetArenaCount</ref>()</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="class_memory_pool_1a3230fbcdbd08255b093ce0dde9c880b9" kindref="member">arenas_</ref>.size();</highlight></codeline>
+<codeline lineno="85" refid="class_memory_pool_1ac5cd6735238f71e7f201dbe31f7ae5f4" refkind="member"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal">Arena;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal">Element<sp/>{</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_memory_pool_1_1_element_1a8b25f942bdae2a231f3ec5174d311872" kindref="member">Element</ref>(Arena*<sp/>parent,<sp/>T*<sp/><ref refid="class_memory_pool_1_1_element_1af9eae2e5d3c8351ea61017e86a50ec90" kindref="member">data</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="class_memory_pool_1_1_element_1aa1679ba37afaf646222236c33f4d4ea0" kindref="member">parent_</ref><sp/>=<sp/>parent;</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="class_memory_pool_1_1_element_1a63eb9e22210913803ad8e667d7f2f62b" kindref="member">data_</ref><sp/>=<sp/><ref refid="class_memory_pool_1_1_element_1af9eae2e5d3c8351ea61017e86a50ec90" kindref="member">data</ref>;</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="class_memory_pool_1_1_element_1a34cdd215e1dd28c0328d25543bbfb1f8" kindref="member">accessed_</ref><sp/>=<sp/>QDateTime::currentMSecsSinceEpoch();</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="114" refid="class_memory_pool_1_1_element" refkind="compound"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_memory_pool_1_1_element_1aa9b2e0b0d91705962314cd18d2c9483a" kindref="member">~Element</ref>()<sp/>{</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="class_memory_pool_1_1_element_1aa1679ba37afaf646222236c33f4d4ea0" kindref="member">parent_</ref>-&gt;<ref refid="class_memory_pool_1_1_arena_1a2baadc8019883420b87337bedde4f2be" kindref="member">Release</ref>(</highlight><highlight class="keyword">this</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="define_8h_1a49ad49a490f2b30e39821d11a9cc9769" kindref="member">DISABLE_COPY_MOVE</ref>(<ref refid="class_memory_pool_1_1_element" kindref="compound">Element</ref>)</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>T*<sp/><ref refid="class_memory_pool_1_1_element_1af9eae2e5d3c8351ea61017e86a50ec90" kindref="member">data</ref>()</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="class_memory_pool_1_1_element_1a63eb9e22210913803ad8e667d7f2f62b" kindref="member">data_</ref>;</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int64_t&amp;<sp/><ref refid="class_memory_pool_1_1_element_1aeeee75b773fb96c82c49c77e92fb26da" kindref="member">timestamp</ref>()</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="class_memory_pool_1_1_element_1a086abb608886d12452335b818d9ecc2d" kindref="member">timestamp_</ref>;</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_memory_pool_1_1_element_1a99f0457a522b66bc50e0267ee0a8f9d8" kindref="member">set_timestamp</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int64_t&amp;<sp/><ref refid="class_memory_pool_1_1_element_1aeeee75b773fb96c82c49c77e92fb26da" kindref="member">timestamp</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="132" refid="class_memory_pool_1_1_element_1aa9b2e0b0d91705962314cd18d2c9483a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="class_memory_pool_1_1_element_1a086abb608886d12452335b818d9ecc2d" kindref="member">timestamp_</ref><sp/>=<sp/><ref refid="class_memory_pool_1_1_element_1aeeee75b773fb96c82c49c77e92fb26da" kindref="member">timestamp</ref>;</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_memory_pool_1_1_element_1a2d8ab8426a6d16c366398eb59b90d2cd" kindref="member">access</ref>()<sp/>{</highlight></codeline>
+<codeline lineno="141" refid="class_memory_pool_1_1_element_1af9eae2e5d3c8351ea61017e86a50ec90" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="class_memory_pool_1_1_element_1a34cdd215e1dd28c0328d25543bbfb1f8" kindref="member">accessed_</ref><sp/>=<sp/>QDateTime::currentMSecsSinceEpoch();</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int64_t&amp;<sp/><ref refid="class_memory_pool_1_1_element_1a83181850b8ceee135ef1c5d0d4133bc1" kindref="member">last_accessed</ref>()</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="class_memory_pool_1_1_element_1a34cdd215e1dd28c0328d25543bbfb1f8" kindref="member">accessed_</ref>;</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/>Arena*<sp/><ref refid="class_memory_pool_1_1_element_1aa1679ba37afaf646222236c33f4d4ea0" kindref="member">parent_</ref>;</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/>T*<sp/><ref refid="class_memory_pool_1_1_element_1a63eb9e22210913803ad8e667d7f2f62b" kindref="member">data_</ref>;</highlight></codeline>
+<codeline lineno="158" refid="class_memory_pool_1_1_element_1a2d8ab8426a6d16c366398eb59b90d2cd" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/>int64_t<sp/><ref refid="class_memory_pool_1_1_element_1a086abb608886d12452335b818d9ecc2d" kindref="member">timestamp_</ref>;</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/>int64_t<sp/><ref refid="class_memory_pool_1_1_element_1a34cdd215e1dd28c0328d25543bbfb1f8" kindref="member">accessed_</ref>;</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"></highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">using</highlight><highlight class="normal"><sp/><ref refid="class_memory_pool_1a3d5e5aa5207579a4316cd1e601ff079a" kindref="member">ElementPtr</ref><sp/>=<sp/>std::shared_ptr&lt;Element&gt;;</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"></highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_memory_pool_1_1_arena" kindref="compound">Arena</ref><sp/>{</highlight></codeline>
+<codeline lineno="175" refid="class_memory_pool_1_1_element_1a63eb9e22210913803ad8e667d7f2f62b" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_memory_pool_1_1_arena_1a114b076c5b8891c917c1b15c8fa600fd" kindref="member">Arena</ref>(<ref refid="class_memory_pool" kindref="compound">MemoryPool</ref>*<sp/>parent)<sp/>{</highlight></codeline>
+<codeline lineno="177" refid="class_memory_pool_1_1_element_1a086abb608886d12452335b818d9ecc2d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="class_memory_pool_1_1_arena_1a3c28d5f66e19a9a0cec4c98249ed8f1d" kindref="member">parent_</ref><sp/>=<sp/>parent;</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="class_memory_pool_1_1_arena_1a214f438fac7d8116465546723864b1e6" kindref="member">data_</ref><sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="179" refid="class_memory_pool_1_1_element_1a34cdd215e1dd28c0328d25543bbfb1f8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="class_memory_pool_1_1_arena_1ac417d0570b88e356aa8eddd24f2c3c95" kindref="member">use_count_</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"></highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_memory_pool_1_1_arena_1aa04bcbab52d163b9871580174fb4ff84" kindref="member">~Arena</ref>()<sp/>{</highlight></codeline>
+<codeline lineno="183" refid="class_memory_pool_1a3d5e5aa5207579a4316cd1e601ff079a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>FIXME:<sp/>Invalidate<sp/>elements<sp/>that<sp/>have<sp/>been<sp/>lent<sp/>out?</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="184"><highlight class="normal"></highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">delete</highlight><highlight class="normal"><sp/>[]<sp/><ref refid="class_memory_pool_1_1_arena_1a214f438fac7d8116465546723864b1e6" kindref="member">data_</ref>;</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"></highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="define_8h_1a49ad49a490f2b30e39821d11a9cc9769" kindref="member">DISABLE_COPY_MOVE</ref>(<ref refid="class_memory_pool_1_1_arena_1a114b076c5b8891c917c1b15c8fa600fd" kindref="member">Arena</ref>)</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"></highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_memory_pool_1a3d5e5aa5207579a4316cd1e601ff079a" kindref="member">ElementPtr</ref><sp/><ref refid="class_memory_pool_1_1_arena_1a446a0cf361af83adb0ef9442decb6324" kindref="member">Get</ref>()<sp/>{</highlight></codeline>
+<codeline lineno="194" refid="class_memory_pool_1_1_arena_1a114b076c5b8891c917c1b15c8fa600fd" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>QMutexLocker<sp/>locker(&amp;<ref refid="class_memory_pool_1_1_arena_1a2256e113cc934c392e9f3ed5a60f4c94" kindref="member">lock_</ref>);</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"></highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i=0;i&lt;<ref refid="class_memory_pool_1_1_arena_1a4a2d02596a6bc05267782eefa09644c5" kindref="member">available_</ref>.size();i++)<sp/>{</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="class_memory_pool_1_1_arena_1a4a2d02596a6bc05267782eefa09644c5" kindref="member">available_</ref>.at(i))<sp/>{</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>This<sp/>buffer<sp/>is<sp/>available</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="class_memory_pool_1_1_arena_1a4a2d02596a6bc05267782eefa09644c5" kindref="member">available_</ref>.replace(i,<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="200" refid="class_memory_pool_1_1_arena_1aa04bcbab52d163b9871580174fb4ff84" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="class_memory_pool_1_1_arena_1ac417d0570b88e356aa8eddd24f2c3c95" kindref="member">use_count_</ref>++;</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>std::make_shared&lt;Element&gt;(</highlight><highlight class="keyword">this</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">reinterpret_cast&lt;</highlight><highlight class="normal">T*</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(<ref refid="class_memory_pool_1_1_arena_1a214f438fac7d8116465546723864b1e6" kindref="member">data_</ref><sp/>+<sp/>i<sp/>*<sp/><ref refid="class_memory_pool_1_1_arena_1a3c7e43306341ceaefb0b42167f0ae413" kindref="member">element_sz_</ref>));</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"></highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"></highlight></codeline>
+<codeline lineno="211" refid="class_memory_pool_1_1_arena_1a446a0cf361af83adb0ef9442decb6324" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_memory_pool_1_1_arena_1a2baadc8019883420b87337bedde4f2be" kindref="member">Release</ref>(<ref refid="class_memory_pool_1_1_element" kindref="compound">Element</ref>*<sp/>e)<sp/>{</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>QMutexLocker<sp/>locker(&amp;<ref refid="class_memory_pool_1_1_arena_1a2256e113cc934c392e9f3ed5a60f4c94" kindref="member">lock_</ref>);</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>quintptr<sp/>diff<sp/>=<sp/></highlight><highlight class="keyword">reinterpret_cast&lt;</highlight><highlight class="normal">quintptr</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(e-&gt;data())<sp/>-<sp/></highlight><highlight class="keyword">reinterpret_cast&lt;</highlight><highlight class="normal">quintptr</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(<ref refid="class_memory_pool_1_1_arena_1a214f438fac7d8116465546723864b1e6" kindref="member">data_</ref>);</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"></highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>index<sp/>=<sp/>diff<sp/>/<sp/><ref refid="class_memory_pool_1_1_arena_1a3c7e43306341ceaefb0b42167f0ae413" kindref="member">element_sz_</ref>;</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"></highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="class_memory_pool_1_1_arena_1a4a2d02596a6bc05267782eefa09644c5" kindref="member">available_</ref>.replace(index,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="class_memory_pool_1_1_arena_1ac417d0570b88e356aa8eddd24f2c3c95" kindref="member">use_count_</ref>--;</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"></highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!<ref refid="class_memory_pool_1_1_arena_1ac417d0570b88e356aa8eddd24f2c3c95" kindref="member">use_count_</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>locker.unlock();</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="class_memory_pool_1_1_arena_1a3c28d5f66e19a9a0cec4c98249ed8f1d" kindref="member">parent_</ref>-&gt;<ref refid="class_memory_pool_1a29280d855714089b4d4c805a2b8cd4a6" kindref="member">ArenaIsEmpty</ref>(</highlight><highlight class="keyword">this</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"></highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">&amp;<sp/><ref refid="class_memory_pool_1_1_arena_1ad2014840b2b57a58fc8ba7b855526019" kindref="member">GetUsageCount</ref>()<sp/>{</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>QMutexLocker<sp/>locker(&amp;<ref refid="class_memory_pool_1_1_arena_1a2256e113cc934c392e9f3ed5a60f4c94" kindref="member">lock_</ref>);</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="class_memory_pool_1_1_arena_1ac417d0570b88e356aa8eddd24f2c3c95" kindref="member">use_count_</ref>;</highlight></codeline>
+<codeline lineno="229" refid="class_memory_pool_1_1_arena_1a2baadc8019883420b87337bedde4f2be" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"></highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_memory_pool_1_1_arena_1a21a4de85de019d8bfe31a750608450e3" kindref="member">Allocate</ref>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>ele_sz,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>nb_elements)<sp/>{</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="class_memory_pool_1_1_arena_1acaec711ced22c1276d3bf65e7f5c60b5" kindref="member">IsAllocated</ref>())<sp/>{</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"></highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="class_memory_pool_1_1_arena_1a3c7e43306341ceaefb0b42167f0ae413" kindref="member">element_sz_</ref><sp/>=<sp/>ele_sz;</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"></highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((<ref refid="class_memory_pool_1_1_arena_1a214f438fac7d8116465546723864b1e6" kindref="member">data_</ref><sp/>=<sp/></highlight><highlight class="keyword">new</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">[<ref refid="class_memory_pool_1_1_arena_1a3c7e43306341ceaefb0b42167f0ae413" kindref="member">element_sz_</ref><sp/>*<sp/>nb_elements]))<sp/>{</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="class_memory_pool_1_1_arena_1a4a2d02596a6bc05267782eefa09644c5" kindref="member">available_</ref>.resize(nb_elements);</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="class_memory_pool_1_1_arena_1a4a2d02596a6bc05267782eefa09644c5" kindref="member">available_</ref>.fill(</highlight><highlight class="keyword">true</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"></highlight></codeline>
+<codeline lineno="242"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="244" refid="class_memory_pool_1_1_arena_1ad2014840b2b57a58fc8ba7b855526019" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="class_memory_pool_1_1_arena_1a4a2d02596a6bc05267782eefa09644c5" kindref="member">available_</ref>.clear();</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="class_memory_pool_1_1_arena_1a214f438fac7d8116465546723864b1e6" kindref="member">data_</ref><sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"></highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="249" refid="class_memory_pool_1_1_arena_1a21a4de85de019d8bfe31a750608450e3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="250"><highlight class="normal"></highlight></codeline>
+<codeline lineno="251"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="class_memory_pool_1_1_arena_1af953a991bdac59f5b5bb433e4faafd24" kindref="member">GetElementCount</ref>()</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="class_memory_pool_1_1_arena_1a4a2d02596a6bc05267782eefa09644c5" kindref="member">available_</ref>.size();</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"></highlight></codeline>
+<codeline lineno="255"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_memory_pool_1_1_arena_1acaec711ced22c1276d3bf65e7f5c60b5" kindref="member">IsAllocated</ref>()</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="256"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="class_memory_pool_1_1_arena_1a214f438fac7d8116465546723864b1e6" kindref="member">data_</ref>;</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="258"><highlight class="normal"></highlight></codeline>
+<codeline lineno="259"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="260"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_memory_pool" kindref="compound">MemoryPool</ref>*<sp/><ref refid="class_memory_pool_1_1_arena_1a3c28d5f66e19a9a0cec4c98249ed8f1d" kindref="member">parent_</ref>;</highlight></codeline>
+<codeline lineno="261"><highlight class="normal"></highlight></codeline>
+<codeline lineno="262"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/><ref refid="class_memory_pool_1_1_arena_1a214f438fac7d8116465546723864b1e6" kindref="member">data_</ref>;</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"></highlight></codeline>
+<codeline lineno="264"><highlight class="normal"><sp/><sp/><sp/><sp/>QVector&lt;bool&gt;<sp/><ref refid="class_memory_pool_1_1_arena_1a4a2d02596a6bc05267782eefa09644c5" kindref="member">available_</ref>;</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"></highlight></codeline>
+<codeline lineno="266"><highlight class="normal"><sp/><sp/><sp/><sp/>QMutex<sp/><ref refid="class_memory_pool_1_1_arena_1a2256e113cc934c392e9f3ed5a60f4c94" kindref="member">lock_</ref>;</highlight></codeline>
+<codeline lineno="267"><highlight class="normal"></highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="class_memory_pool_1_1_arena_1a3c7e43306341ceaefb0b42167f0ae413" kindref="member">element_sz_</ref>;</highlight></codeline>
+<codeline lineno="269" refid="class_memory_pool_1_1_arena_1af953a991bdac59f5b5bb433e4faafd24" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="class_memory_pool_1_1_arena_1ac417d0570b88e356aa8eddd24f2c3c95" kindref="member">use_count_</ref>;</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"></highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="273" refid="class_memory_pool_1_1_arena_1acaec711ced22c1276d3bf65e7f5c60b5" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="277"><highlight class="normal"><sp/><sp/><ref refid="class_memory_pool_1a3d5e5aa5207579a4316cd1e601ff079a" kindref="member">ElementPtr</ref><sp/><ref refid="class_memory_pool_1a39389a86c5b985e4845069d7a2a835bf" kindref="member">Get</ref>()<sp/>{</highlight></codeline>
+<codeline lineno="278" refid="class_memory_pool_1_1_arena_1a3c28d5f66e19a9a0cec4c98249ed8f1d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>QMutexLocker<sp/>locker(&amp;<ref refid="class_memory_pool_1a32fa09e9cf53cb3e125d0c7da9048de2" kindref="member">lock_</ref>);</highlight></codeline>
+<codeline lineno="279"><highlight class="normal"></highlight></codeline>
+<codeline lineno="280" refid="class_memory_pool_1_1_arena_1a214f438fac7d8116465546723864b1e6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Attempt<sp/>to<sp/>get<sp/>an<sp/>element<sp/>from<sp/>an<sp/>arena</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="281"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">foreach</highlight><highlight class="normal"><sp/>(<ref refid="class_memory_pool_1_1_arena" kindref="compound">Arena</ref>*<sp/>a,<sp/><ref refid="class_memory_pool_1a3230fbcdbd08255b093ce0dde9c880b9" kindref="member">arenas_</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="282" refid="class_memory_pool_1_1_arena_1a4a2d02596a6bc05267782eefa09644c5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="class_memory_pool_1a3d5e5aa5207579a4316cd1e601ff079a" kindref="member">ElementPtr</ref><sp/>e<sp/>=<sp/>a-&gt;<ref refid="class_memory_pool_1_1_arena_1a446a0cf361af83adb0ef9442decb6324" kindref="member">Get</ref>();</highlight></codeline>
+<codeline lineno="283"><highlight class="normal"></highlight></codeline>
+<codeline lineno="284" refid="class_memory_pool_1_1_arena_1a2256e113cc934c392e9f3ed5a60f4c94" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(e)<sp/>{</highlight></codeline>
+<codeline lineno="285"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>e;</highlight></codeline>
+<codeline lineno="286" refid="class_memory_pool_1_1_arena_1a3c7e43306341ceaefb0b42167f0ae413" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="287"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="288" refid="class_memory_pool_1_1_arena_1ac417d0570b88e356aa8eddd24f2c3c95" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="289"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>All<sp/>arenas<sp/>were<sp/>empty,<sp/>we&apos;ll<sp/>need<sp/>to<sp/>create<sp/>a<sp/>new<sp/>one</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="290"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="class_memory_pool_1a3230fbcdbd08255b093ce0dde9c880b9" kindref="member">arenas_</ref>.isEmpty())<sp/>{</highlight></codeline>
+<codeline lineno="291"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>qDebug()<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;No<sp/>arenas,<sp/>creating<sp/>new...&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="292"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="293"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>qDebug()<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;All<sp/>arenas<sp/>are<sp/>full,<sp/>creating<sp/>new...&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="295" refid="class_memory_pool_1a39389a86c5b985e4845069d7a2a835bf" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="296"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>ele_sz<sp/>=<sp/><ref refid="class_memory_pool_1a8a0b954ff1fb3308a10a07e006a16b27" kindref="member">GetElementSize</ref>();</highlight></codeline>
+<codeline lineno="297"><highlight class="normal"></highlight></codeline>
+<codeline lineno="298"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!ele_sz)<sp/>{</highlight></codeline>
+<codeline lineno="299"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>qCritical()<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;Failed<sp/>to<sp/>create<sp/>arena,<sp/>element<sp/>size<sp/>was<sp/>0&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="300"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="301"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="302"><highlight class="normal"></highlight></codeline>
+<codeline lineno="303"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="class_memory_pool_1acebf2b6363304377df6c1deb2d96d50d" kindref="member">element_count_</ref><sp/>&lt;=<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="304"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>qCritical()<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;Failed<sp/>to<sp/>create<sp/>arena,<sp/>element<sp/>count<sp/>was<sp/>invalid:&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/><ref refid="class_memory_pool_1acebf2b6363304377df6c1deb2d96d50d" kindref="member">element_count_</ref>;</highlight></codeline>
+<codeline lineno="305"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="306"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="307"><highlight class="normal"></highlight></codeline>
+<codeline lineno="308"><highlight class="normal"><sp/><sp/><sp/><sp/>Arena*<sp/>a<sp/>=<sp/></highlight><highlight class="keyword">new</highlight><highlight class="normal"><sp/>Arena(</highlight><highlight class="keyword">this</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="309"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!a-&gt;Allocate(ele_sz,<sp/><ref refid="class_memory_pool_1acebf2b6363304377df6c1deb2d96d50d" kindref="member">element_count_</ref>))<sp/>{</highlight></codeline>
+<codeline lineno="310"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>qCritical()<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;Failed<sp/>to<sp/>create<sp/>arena,<sp/>allocation<sp/>failed.<sp/>Out<sp/>of<sp/>memory?&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="311"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">delete</highlight><highlight class="normal"><sp/>a;</highlight></codeline>
+<codeline lineno="312"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="313"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="314"><highlight class="normal"></highlight></codeline>
+<codeline lineno="315"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_memory_pool_1a3230fbcdbd08255b093ce0dde9c880b9" kindref="member">arenas_</ref>.append(a);</highlight></codeline>
+<codeline lineno="316"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>a-&gt;Get();</highlight></codeline>
+<codeline lineno="317"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="318"><highlight class="normal"></highlight></codeline>
+<codeline lineno="319"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_memory_pool_1a29280d855714089b4d4c805a2b8cd4a6" kindref="member">ArenaIsEmpty</ref>(Arena*<sp/>a)<sp/>{</highlight></codeline>
+<codeline lineno="320"><highlight class="normal"><sp/><sp/><sp/><sp/>QMutexLocker<sp/>locker(&amp;<ref refid="class_memory_pool_1a32fa09e9cf53cb3e125d0c7da9048de2" kindref="member">lock_</ref>);</highlight></codeline>
+<codeline lineno="321"><highlight class="normal"></highlight></codeline>
+<codeline lineno="322"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!a-&gt;GetUsageCount())<sp/>{</highlight></codeline>
+<codeline lineno="323"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>qDebug()<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;Removing<sp/>an<sp/>empty<sp/>arena&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="324"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="class_memory_pool_1a3230fbcdbd08255b093ce0dde9c880b9" kindref="member">arenas_</ref>.removeOne(a);</highlight></codeline>
+<codeline lineno="325"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">delete</highlight><highlight class="normal"><sp/>a;</highlight></codeline>
+<codeline lineno="326"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="327"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="328"><highlight class="normal"></highlight></codeline>
+<codeline lineno="329"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="335"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="class_memory_pool_1a8a0b954ff1fb3308a10a07e006a16b27" kindref="member">GetElementSize</ref>()<sp/>{</highlight></codeline>
+<codeline lineno="336"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(T);</highlight></codeline>
+<codeline lineno="337" refid="class_memory_pool_1a29280d855714089b4d4c805a2b8cd4a6" refkind="member"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="338"><highlight class="normal"></highlight></codeline>
+<codeline lineno="339"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="340"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="class_memory_pool_1acebf2b6363304377df6c1deb2d96d50d" kindref="member">element_count_</ref>;</highlight></codeline>
+<codeline lineno="341"><highlight class="normal"></highlight></codeline>
+<codeline lineno="342"><highlight class="normal"><sp/><sp/>QLinkedList&lt;Arena*&gt;<sp/><ref refid="class_memory_pool_1a3230fbcdbd08255b093ce0dde9c880b9" kindref="member">arenas_</ref>;</highlight></codeline>
+<codeline lineno="343"><highlight class="normal"></highlight></codeline>
+<codeline lineno="344"><highlight class="normal"><sp/><sp/>QMutex<sp/><ref refid="class_memory_pool_1a32fa09e9cf53cb3e125d0c7da9048de2" kindref="member">lock_</ref>;</highlight></codeline>
+<codeline lineno="345"><highlight class="normal"></highlight></codeline>
+<codeline lineno="346"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="347"><highlight class="normal"></highlight></codeline>
+<codeline lineno="348"><highlight class="normal"><ref refid="define_8h_1abe3de0634d907ca0f5d1acf732c49dac" kindref="member">OLIVE_NAMESPACE_EXIT</ref></highlight></codeline>
+<codeline lineno="349"><highlight class="normal"></highlight></codeline>
+<codeline lineno="350"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//<sp/>MEMORYPOOL_H</highlight></codeline>
+    </programlisting>
+    <location file="C:/Daten/Olive/olive/app/common/memorypool.h"/>
+  </compounddef>
+</doxygen>

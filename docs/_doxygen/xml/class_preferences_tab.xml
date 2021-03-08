@@ -1,0 +1,121 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_preferences_tab" kind="class" language="C++" prot="public" abstract="yes">
+    <compoundname>PreferencesTab</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QWidget</basecompoundref>
+    <derivedcompoundref refid="class_preferences_appearance_tab" prot="public" virt="non-virtual">PreferencesAppearanceTab</derivedcompoundref>
+    <derivedcompoundref refid="class_preferences_audio_tab" prot="public" virt="non-virtual">PreferencesAudioTab</derivedcompoundref>
+    <derivedcompoundref refid="class_preferences_behavior_tab" prot="public" virt="non-virtual">PreferencesBehaviorTab</derivedcompoundref>
+    <derivedcompoundref refid="class_preferences_disk_tab" prot="public" virt="non-virtual">PreferencesDiskTab</derivedcompoundref>
+    <derivedcompoundref refid="class_preferences_general_tab" prot="public" virt="non-virtual">PreferencesGeneralTab</derivedcompoundref>
+    <derivedcompoundref refid="class_preferences_keyboard_tab" prot="public" virt="non-virtual">PreferencesKeyboardTab</derivedcompoundref>
+    <derivedcompoundref refid="class_preferences_quality_tab" prot="public" virt="non-virtual">PreferencesQualityTab</derivedcompoundref>
+    <includes refid="preferencestab_8h" local="no">preferencestab.h</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_preferences_tab_1a5330b203f9973201f677b0daf642f30e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>PreferencesTab::PreferencesTab</definition>
+        <argsstring>()=default</argsstring>
+        <name>PreferencesTab</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencestab.h" line="51" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_preferences_tab_1aefad5e89125f7a19d26a18ab3931ddfb" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>bool</type>
+        <definition>virtual bool PreferencesTab::Validate</definition>
+        <argsstring>()</argsstring>
+        <name>Validate</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencestab.h" line="53" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_preferences_tab_1ac68d2c1754ce85450eed3fb0920163f2" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>void</type>
+        <definition>virtual void PreferencesTab::Accept</definition>
+        <argsstring>()=0</argsstring>
+        <name>Accept</name>
+        <reimplementedby refid="class_preferences_behavior_tab_1ac88bee0af76d00a43e3205484fa1f7d1">Accept</reimplementedby>
+        <reimplementedby refid="class_preferences_quality_tab_1a6a1c14d623831028cd0de47f5c84a35b">Accept</reimplementedby>
+        <reimplementedby refid="class_preferences_keyboard_tab_1ae1b7b426001c7eda68a588af17081cbb">Accept</reimplementedby>
+        <reimplementedby refid="class_preferences_audio_tab_1ad99bb69516e16420e016e9b39f03ac8a">Accept</reimplementedby>
+        <reimplementedby refid="class_preferences_appearance_tab_1ad28b9c65f9d59dca059808ab526416da">Accept</reimplementedby>
+        <reimplementedby refid="class_preferences_disk_tab_1a70da934e84cc615e647e60c72f5c2073">Accept</reimplementedby>
+        <reimplementedby refid="class_preferences_general_tab_1a3962847a8269a66f3b6c5b26e1295a6a">Accept</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencestab.h" line="55" column="16"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="4">
+        <label>PreferencesBehaviorTab</label>
+        <link refid="class_preferences_behavior_tab"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>PreferencesAppearanceTab</label>
+        <link refid="class_preferences_appearance_tab"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>PreferencesTab</label>
+        <link refid="class_preferences_tab"/>
+      </node>
+      <node id="7">
+        <label>PreferencesKeyboardTab</label>
+        <link refid="class_preferences_keyboard_tab"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>PreferencesAudioTab</label>
+        <link refid="class_preferences_audio_tab"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>PreferencesGeneralTab</label>
+        <link refid="class_preferences_general_tab"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>PreferencesQualityTab</label>
+        <link refid="class_preferences_quality_tab"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>PreferencesDiskTab</label>
+        <link refid="class_preferences_disk_tab"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencestab.h" line="30" column="1" bodyfile="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencestab.h" bodystart="31" bodyend="38"/>
+    <listofallmembers>
+      <member refid="class_preferences_tab_1ac68d2c1754ce85450eed3fb0920163f2" prot="public" virt="pure-virtual"><scope>PreferencesTab</scope><name>Accept</name></member>
+      <member refid="class_preferences_tab_1a5330b203f9973201f677b0daf642f30e" prot="public" virt="non-virtual"><scope>PreferencesTab</scope><name>PreferencesTab</name></member>
+      <member refid="class_preferences_tab_1aefad5e89125f7a19d26a18ab3931ddfb" prot="public" virt="virtual"><scope>PreferencesTab</scope><name>Validate</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

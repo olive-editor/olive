@@ -1,0 +1,176 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_node_value_database" kind="class" language="C++" prot="public">
+    <compoundname>NodeValueDatabase</compoundname>
+    <includes refid="value_8h" local="no">value.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_node_value_database_1ad10015d9f4809049081dc57f42611597" prot="private" static="no" mutable="no">
+        <type>QHash&lt; QString, <ref refid="class_node_value_table" kindref="compound">NodeValueTable</ref> &gt;</type>
+        <definition>QHash&lt;QString, NodeValueTable&gt; NodeValueDatabase::tables_</definition>
+        <argsstring></argsstring>
+        <name>tables_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/value.h" line="96" column="9" bodyfile="C:/Daten/Olive/olive/app/node/value.h" bodystart="96" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_node_value_database_1a16c03e38f9e26e7f35b742410ee85ff9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>NodeValueDatabase::NodeValueDatabase</definition>
+        <argsstring>()=default</argsstring>
+        <name>NodeValueDatabase</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/value.h" line="82" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_value_database_1a8511ca1f420c2c07e02a98d1ab00bf93" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_node_value_table" kindref="compound">NodeValueTable</ref> &amp;</type>
+        <definition>NodeValueTable&amp; NodeValueDatabase::operator[]</definition>
+        <argsstring>(const QString &amp;input_id)</argsstring>
+        <name>operator[]</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>input_id</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/value.h" line="84" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_value_database_1aa86a940c423ad069c50935dc2624e9ae" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_node_value_table" kindref="compound">NodeValueTable</ref> &amp;</type>
+        <definition>NodeValueTable&amp; NodeValueDatabase::operator[]</definition>
+        <argsstring>(const NodeInput *input)</argsstring>
+        <name>operator[]</name>
+        <param>
+          <type>const <ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+          <declname>input</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/value.h" line="85" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_value_database_1a03db6223c8c024eaa64659db353709f4" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="class_node_value_table" kindref="compound">NodeValueTable</ref></type>
+        <definition>const NodeValueTable NodeValueDatabase::operator[]</definition>
+        <argsstring>(const QString &amp;input_id) const</argsstring>
+        <name>operator[]</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>input_id</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/value.h" line="87" column="24"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_value_database_1abc5988bf23530ba2a4db07556dec5a03" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="class_node_value_table" kindref="compound">NodeValueTable</ref></type>
+        <definition>const NodeValueTable NodeValueDatabase::operator[]</definition>
+        <argsstring>(const NodeInput *input) const</argsstring>
+        <name>operator[]</name>
+        <param>
+          <type>const <ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+          <declname>input</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/value.h" line="88" column="24"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_value_database_1ae71dffce2e24de02fb7dc9388293b8d1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeValueDatabase::Insert</definition>
+        <argsstring>(const QString &amp;key, const NodeValueTable &amp;value)</argsstring>
+        <name>Insert</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>key</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_node_value_table" kindref="compound">NodeValueTable</ref> &amp;</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/value.h" line="90" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_value_database_1a0eb1efaadab44dd86be614b5d57c7467" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeValueDatabase::Insert</definition>
+        <argsstring>(const NodeInput *key, const NodeValueTable &amp;value)</argsstring>
+        <name>Insert</name>
+        <param>
+          <type>const <ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+          <declname>key</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_node_value_table" kindref="compound">NodeValueTable</ref> &amp;</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/value.h" line="91" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_value_database_1a364c82f86aaadd3999cf3963541115bd" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_node_value_table" kindref="compound">NodeValueTable</ref></type>
+        <definition>NodeValueTable NodeValueDatabase::Merge</definition>
+        <argsstring>() const</argsstring>
+        <name>Merge</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/value.h" line="93" column="18"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/node/value.h" line="79" column="1" bodyfile="C:/Daten/Olive/olive/app/node/value.h" bodystart="80" bodyend="98"/>
+    <listofallmembers>
+      <member refid="class_node_value_database_1ae71dffce2e24de02fb7dc9388293b8d1" prot="public" virt="non-virtual"><scope>NodeValueDatabase</scope><name>Insert</name></member>
+      <member refid="class_node_value_database_1a0eb1efaadab44dd86be614b5d57c7467" prot="public" virt="non-virtual"><scope>NodeValueDatabase</scope><name>Insert</name></member>
+      <member refid="class_node_value_database_1a364c82f86aaadd3999cf3963541115bd" prot="public" virt="non-virtual"><scope>NodeValueDatabase</scope><name>Merge</name></member>
+      <member refid="class_node_value_database_1a16c03e38f9e26e7f35b742410ee85ff9" prot="public" virt="non-virtual"><scope>NodeValueDatabase</scope><name>NodeValueDatabase</name></member>
+      <member refid="class_node_value_database_1a8511ca1f420c2c07e02a98d1ab00bf93" prot="public" virt="non-virtual"><scope>NodeValueDatabase</scope><name>operator[]</name></member>
+      <member refid="class_node_value_database_1aa86a940c423ad069c50935dc2624e9ae" prot="public" virt="non-virtual"><scope>NodeValueDatabase</scope><name>operator[]</name></member>
+      <member refid="class_node_value_database_1a03db6223c8c024eaa64659db353709f4" prot="public" virt="non-virtual"><scope>NodeValueDatabase</scope><name>operator[]</name></member>
+      <member refid="class_node_value_database_1abc5988bf23530ba2a4db07556dec5a03" prot="public" virt="non-virtual"><scope>NodeValueDatabase</scope><name>operator[]</name></member>
+      <member refid="class_node_value_database_1ad10015d9f4809049081dc57f42611597" prot="private" virt="non-virtual"><scope>NodeValueDatabase</scope><name>tables_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

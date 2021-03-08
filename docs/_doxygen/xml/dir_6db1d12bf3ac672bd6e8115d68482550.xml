@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_6db1d12bf3ac672bd6e8115d68482550" kind="dir">
+    <compoundname>project</compoundname>
+    <innerfile refid="footagemanagementpanel_8h">footagemanagementpanel.h</innerfile>
+    <innerfile refid="panel_2project_2project_8h">panel/project/project.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/panel/project/"/>
+  </compounddef>
+</doxygen>

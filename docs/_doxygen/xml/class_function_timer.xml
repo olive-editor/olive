@@ -1,0 +1,78 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_function_timer" kind="class" language="C++" prot="public">
+    <compoundname>FunctionTimer</compoundname>
+    <includes refid="functiontimer_8h" local="no">functiontimer.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_function_timer_1aeb0e42bd7e3332d2cefca33e1fecddbe" prot="private" static="no" mutable="no">
+        <type>const char *</type>
+        <definition>const char* FunctionTimer::name_</definition>
+        <argsstring></argsstring>
+        <name>name_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/functiontimer.h" line="47" column="14" bodyfile="C:/Daten/Olive/olive/app/common/functiontimer.h" bodystart="47" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_function_timer_1a1e07c1513952260a32243e52468c0f04" prot="private" static="no" mutable="no">
+        <type>qint64</type>
+        <definition>qint64 FunctionTimer::time_</definition>
+        <argsstring></argsstring>
+        <name>time_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/functiontimer.h" line="49" column="10" bodyfile="C:/Daten/Olive/olive/app/common/functiontimer.h" bodystart="49" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_function_timer_1a8fff2705fda268054524aa005beb091f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>FunctionTimer::FunctionTimer</definition>
+        <argsstring>(const char *s)</argsstring>
+        <name>FunctionTimer</name>
+        <param>
+          <type>const char *</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/functiontimer.h" line="31" column="3" bodyfile="C:/Daten/Olive/olive/app/common/functiontimer.h" bodystart="31" bodyend="35"/>
+      </memberdef>
+      <memberdef kind="function" id="class_function_timer_1abe79db5ab647df522ea5ce64ed603f94" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>FunctionTimer::~FunctionTimer</definition>
+        <argsstring>()</argsstring>
+        <name>~FunctionTimer</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/functiontimer.h" line="37" column="3" bodyfile="C:/Daten/Olive/olive/app/common/functiontimer.h" bodystart="37" bodyend="44"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/common/functiontimer.h" line="29" column="1" bodyfile="C:/Daten/Olive/olive/app/common/functiontimer.h" bodystart="29" bodyend="51"/>
+    <listofallmembers>
+      <member refid="class_function_timer_1a8fff2705fda268054524aa005beb091f" prot="public" virt="non-virtual"><scope>FunctionTimer</scope><name>FunctionTimer</name></member>
+      <member refid="class_function_timer_1aeb0e42bd7e3332d2cefca33e1fecddbe" prot="private" virt="non-virtual"><scope>FunctionTimer</scope><name>name_</name></member>
+      <member refid="class_function_timer_1a1e07c1513952260a32243e52468c0f04" prot="private" virt="non-virtual"><scope>FunctionTimer</scope><name>time_</name></member>
+      <member refid="class_function_timer_1abe79db5ab647df522ea5ce64ed603f94" prot="public" virt="non-virtual"><scope>FunctionTimer</scope><name>~FunctionTimer</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

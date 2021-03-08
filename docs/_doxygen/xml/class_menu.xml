@@ -1,0 +1,584 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_menu" kind="class" language="C++" prot="public">
+    <compoundname>Menu</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QMenu</basecompoundref>
+    <includes refid="menu_8h" local="no">menu.h</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_menu_1a251d7678d8c5a4a3120e9aae441b1fa0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Menu::Menu</definition>
+        <argsstring>(QMenuBar *bar)</argsstring>
+        <name>Menu</name>
+        <param>
+          <type>QMenuBar *</type>
+          <declname>bar</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menu.h" line="68" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_menu_1a546dd9e7b599e3be71c6acd2749fdd65" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename Func</type>
+          </param>
+        </templateparamlist>
+        <type></type>
+        <definition>Menu::Menu</definition>
+        <argsstring>(QMenuBar *bar, const typename QtPrivate::FunctionPointer&lt; Func &gt;::Object *receiver, Func member)</argsstring>
+        <name>Menu</name>
+        <param>
+          <type>QMenuBar *</type>
+          <declname>bar</declname>
+        </param>
+        <param>
+          <type>const typename QtPrivate::FunctionPointer&lt; Func &gt;::Object *</type>
+          <declname>receiver</declname>
+        </param>
+        <param>
+          <type>Func</type>
+          <declname>member</declname>
+        </param>
+        <briefdescription>
+<para>Construct a <ref refid="class_menu" kindref="compound">Menu</ref> and add it to a QMenuBar. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This <ref refid="class_menu" kindref="compound">Menu</ref> can be connected to a slot that&apos;s triggered when the <ref refid="class_menu" kindref="compound">Menu</ref> is &quot;about to show&quot;. Use <computeroutput>receiver</computeroutput> and <computeroutput>member</computeroutput> to connect this (same syntax as QObject::connect) or leave as nullptr to not. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menu.h" line="77" column="3" bodyfile="C:/Daten/Olive/olive/app/widget/menu/menu.h" bodystart="77" bodyend="85"/>
+      </memberdef>
+      <memberdef kind="function" id="class_menu_1a9816b090250b26f58df74680d0e3d449" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Menu::Menu</definition>
+        <argsstring>(Menu *menu)</argsstring>
+        <name>Menu</name>
+        <param>
+          <type><ref refid="class_menu" kindref="compound">Menu</ref> *</type>
+          <declname>menu</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menu.h" line="87" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_menu_1af055e813194e93196a8d0a72a80543af" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename Func</type>
+          </param>
+        </templateparamlist>
+        <type></type>
+        <definition>Menu::Menu</definition>
+        <argsstring>(Menu *menu, const typename QtPrivate::FunctionPointer&lt; Func &gt;::Object *receiver, Func member)</argsstring>
+        <name>Menu</name>
+        <param>
+          <type><ref refid="class_menu" kindref="compound">Menu</ref> *</type>
+          <declname>menu</declname>
+        </param>
+        <param>
+          <type>const typename QtPrivate::FunctionPointer&lt; Func &gt;::Object *</type>
+          <declname>receiver</declname>
+        </param>
+        <param>
+          <type>Func</type>
+          <declname>member</declname>
+        </param>
+        <briefdescription>
+<para>Construct a <ref refid="class_menu" kindref="compound">Menu</ref> and add it as a submenu to another <ref refid="class_menu" kindref="compound">Menu</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This <ref refid="class_menu" kindref="compound">Menu</ref> can be connected to a slot that&apos;s triggered when the <ref refid="class_menu" kindref="compound">Menu</ref> is &quot;about to show&quot;. Use <computeroutput>receiver</computeroutput> and <computeroutput>member</computeroutput> to connect this (same syntax as QObject::connect) or leave as nullptr to not. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menu.h" line="96" column="3" bodyfile="C:/Daten/Olive/olive/app/widget/menu/menu.h" bodystart="96" bodyend="104"/>
+      </memberdef>
+      <memberdef kind="function" id="class_menu_1a81e517b62384dc184425757e6dba87d3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Menu::Menu</definition>
+        <argsstring>(QWidget *parent=nullptr)</argsstring>
+        <name>Menu</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+<para>Construct a popup menu. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menu.h" line="109" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_menu_1a35abb7b92f2b651c35972941a0620a98" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Menu::Menu</definition>
+        <argsstring>(const QString &amp;s, QWidget *parent=nullptr)</argsstring>
+        <name>Menu</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+<para>Construct a popup menu. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menu.h" line="114" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_menu_1a5a43c3ee0d924328f9aedf31a530cc11" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename Func</type>
+          </param>
+        </templateparamlist>
+        <type>QAction *</type>
+        <definition>QAction* Menu::AddItem</definition>
+        <argsstring>(const QString &amp;id, const typename QtPrivate::FunctionPointer&lt; Func &gt;::Object *receiver, Func member, const QString &amp;key=QString())</argsstring>
+        <name>AddItem</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>id</declname>
+        </param>
+        <param>
+          <type>const typename QtPrivate::FunctionPointer&lt; Func &gt;::Object *</type>
+          <declname>receiver</declname>
+        </param>
+        <param>
+          <type>Func</type>
+          <declname>member</declname>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>key</declname>
+          <defval>QString()</defval>
+        </param>
+        <briefdescription>
+<para>Create a menu item and add it to this menu. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The action&apos;s unique ID</para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>receiver</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The QObject to receive the signal when this item is triggered</para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>member</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The QObject slot to connect this action&apos;s triggered signal to</para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>key</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Default keyboard sequence</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para></para>
+</simplesect>
+The QAction that was created and added to this <ref refid="class_menu" kindref="compound">Menu</ref> </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menu.h" line="140" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/menu/menu.h" bodystart="140" bodyend="150"/>
+      </memberdef>
+      <memberdef kind="function" id="class_menu_1a47ee3af7e31fa3f4c9f65a553ca2e5d7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QAction *</type>
+        <definition>QAction* Menu::AddActionWithData</definition>
+        <argsstring>(const QString &amp;text, const QVariant &amp;data, const QVariant &amp;compare)</argsstring>
+        <name>AddActionWithData</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>text</declname>
+        </param>
+        <param>
+          <type>const QVariant &amp;</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>const QVariant &amp;</type>
+          <declname>compare</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menu.h" line="152" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_menu_1ab56b1259a1164074b7b7742292c5daab" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QAction *</type>
+        <definition>QAction* Menu::InsertAlphabetically</definition>
+        <argsstring>(const QString &amp;s)</argsstring>
+        <name>InsertAlphabetically</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menu.h" line="156" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_menu_1a11f0d4985bde3a4a491da9cdcb3b7bcb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Menu::InsertAlphabetically</definition>
+        <argsstring>(QAction *entry)</argsstring>
+        <name>InsertAlphabetically</name>
+        <param>
+          <type>QAction *</type>
+          <declname>entry</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menu.h" line="157" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_menu_1ac87a3ebc3a9af1b4e728c75f9ff19f43" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Menu::InsertAlphabetically</definition>
+        <argsstring>(Menu *menu)</argsstring>
+        <name>InsertAlphabetically</name>
+        <param>
+          <type><ref refid="class_menu" kindref="compound">Menu</ref> *</type>
+          <declname>menu</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menu.h" line="158" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="class_menu_1a6f9a97ff6c51e766ec4b77f5bf59896c" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename Func</type>
+          </param>
+        </templateparamlist>
+        <type>QAction *</type>
+        <definition>static QAction* Menu::CreateItem</definition>
+        <argsstring>(QObject *parent, const QString &amp;id, const typename QtPrivate::FunctionPointer&lt; Func &gt;::Object *receiver, Func member, const QString &amp;key=QString())</argsstring>
+        <name>CreateItem</name>
+        <param>
+          <type>QObject *</type>
+          <declname>parent</declname>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>id</declname>
+        </param>
+        <param>
+          <type>const typename QtPrivate::FunctionPointer&lt; Func &gt;::Object *</type>
+          <declname>receiver</declname>
+        </param>
+        <param>
+          <type>Func</type>
+          <declname>member</declname>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>key</declname>
+          <defval>QString()</defval>
+        </param>
+        <briefdescription>
+<para>Create a menu item. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parent</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The QAction&apos;s parent</para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The action&apos;s unique ID</para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>receiver</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The QObject to receive the signal when this item is triggered</para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>member</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The QObject slot to connect this action&apos;s triggered signal to</para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>key</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Default keyboard sequence</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para></para>
+</simplesect>
+The QAction that was created and added to this <ref refid="class_menu" kindref="compound">Menu</ref> </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menu.h" line="188" column="18" bodyfile="C:/Daten/Olive/olive/app/widget/menu/menu.h" bodystart="188" bodyend="203"/>
+      </memberdef>
+      <memberdef kind="function" id="class_menu_1ae2b4f01592ebb877d45bc37cc6096417" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename Func</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>static void Menu::ConformItem</definition>
+        <argsstring>(QAction *a, const QString &amp;id, const typename QtPrivate::FunctionPointer&lt; Func &gt;::Object *receiver, Func member, const QString &amp;key=QString())</argsstring>
+        <name>ConformItem</name>
+        <param>
+          <type>QAction *</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>id</declname>
+        </param>
+        <param>
+          <type>const typename QtPrivate::FunctionPointer&lt; Func &gt;::Object *</type>
+          <declname>receiver</declname>
+        </param>
+        <param>
+          <type>Func</type>
+          <declname>member</declname>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>key</declname>
+          <defval>QString()</defval>
+        </param>
+        <briefdescription>
+<para>Conform a QAction to Olive&apos;s ID/keydefault system. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If a QAction was created elsewhere (e.g. through QUndoStack::createUndoAction()), this function will give it properties conforming it to Olive&apos;s menu item system</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>a</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The QAction&apos;s to conform</para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The action&apos;s unique ID</para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>receiver</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The QObject to receive the signal when this item is triggered</para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>member</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The QObject slot to connect this action&apos;s triggered signal to</para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>key</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Default keyboard sequence </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menu.h" line="232" column="15" bodyfile="C:/Daten/Olive/olive/app/widget/menu/menu.h" bodystart="232" bodyend="241"/>
+      </memberdef>
+      <memberdef kind="function" id="class_menu_1ad9582c414fbd9ad09087f9be69d1970f" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void Menu::ConformItem</definition>
+        <argsstring>(QAction *a, const QString &amp;id, const QString &amp;key=QString())</argsstring>
+        <name>ConformItem</name>
+        <param>
+          <type>QAction *</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>id</declname>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>key</declname>
+          <defval>QString()</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menu.h" line="243" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_menu_1a91312c5bf4527956b935cfc6c5697e09" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void Menu::SetBooleanAction</definition>
+        <argsstring>(QAction *a, bool *boolean)</argsstring>
+        <name>SetBooleanAction</name>
+        <param>
+          <type>QAction *</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type>bool *</type>
+          <declname>boolean</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menu.h" line="247" column="15"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_menu_1a2d4c37774fe4c5efe08ee436b0bb1c76" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Menu::Init</definition>
+        <argsstring>()</argsstring>
+        <name>Init</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menu.h" line="250" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_menu_1a57807e0c314e1e968b0583bb8f839405" prot="private" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename Func</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void Menu::ConnectAboutToShow</definition>
+        <argsstring>(const typename QtPrivate::FunctionPointer&lt; Func &gt;::Object *receiver, Func member)</argsstring>
+        <name>ConnectAboutToShow</name>
+        <param>
+          <type>const typename QtPrivate::FunctionPointer&lt; Func &gt;::Object *</type>
+          <declname>receiver</declname>
+        </param>
+        <param>
+          <type>Func</type>
+          <declname>member</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/menu/menu.h" line="253" column="8" bodyfile="C:/Daten/Olive/olive/app/widget/menu/menu.h" bodystart="253" bodyend="256"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A menu widget for context menus and menu bars. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>A QMenu subclass with functions for creating menus and menu items that conform to Olive&apos;s menu and keyboard shortcut system.</para>
+<para>In Olive, menu items in the menu bar are also responsible for keyboard shortcuts throughout the application. To allow these to be configurable and these configurations saveable, every item needs a unique ID. This ID gets linked to the keyboard shortcuts in config files. The ID doesn&apos;t get translated so it can also persist through language changes.</para>
+<para>The ID gets stored in the QAction&apos;s &quot;id&quot; property. If a keyboard shortcut is provided, it gets stored in the QAction&apos;s &quot;keydefault&quot; property.</para>
+<para>It is always recommended to use this over QMenu in any situation. </para>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/widget/menu/menu.h" line="47" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/menu/menu.h" bodystart="48" bodyend="240"/>
+    <listofallmembers>
+      <member refid="class_menu_1a47ee3af7e31fa3f4c9f65a553ca2e5d7" prot="public" virt="non-virtual"><scope>Menu</scope><name>AddActionWithData</name></member>
+      <member refid="class_menu_1a5a43c3ee0d924328f9aedf31a530cc11" prot="public" virt="non-virtual"><scope>Menu</scope><name>AddItem</name></member>
+      <member refid="class_menu_1ae2b4f01592ebb877d45bc37cc6096417" prot="public" virt="non-virtual"><scope>Menu</scope><name>ConformItem</name></member>
+      <member refid="class_menu_1ad9582c414fbd9ad09087f9be69d1970f" prot="public" virt="non-virtual"><scope>Menu</scope><name>ConformItem</name></member>
+      <member refid="class_menu_1a57807e0c314e1e968b0583bb8f839405" prot="private" virt="non-virtual"><scope>Menu</scope><name>ConnectAboutToShow</name></member>
+      <member refid="class_menu_1a6f9a97ff6c51e766ec4b77f5bf59896c" prot="public" virt="non-virtual"><scope>Menu</scope><name>CreateItem</name></member>
+      <member refid="class_menu_1a2d4c37774fe4c5efe08ee436b0bb1c76" prot="private" virt="non-virtual"><scope>Menu</scope><name>Init</name></member>
+      <member refid="class_menu_1ab56b1259a1164074b7b7742292c5daab" prot="public" virt="non-virtual"><scope>Menu</scope><name>InsertAlphabetically</name></member>
+      <member refid="class_menu_1a11f0d4985bde3a4a491da9cdcb3b7bcb" prot="public" virt="non-virtual"><scope>Menu</scope><name>InsertAlphabetically</name></member>
+      <member refid="class_menu_1ac87a3ebc3a9af1b4e728c75f9ff19f43" prot="public" virt="non-virtual"><scope>Menu</scope><name>InsertAlphabetically</name></member>
+      <member refid="class_menu_1a251d7678d8c5a4a3120e9aae441b1fa0" prot="public" virt="non-virtual"><scope>Menu</scope><name>Menu</name></member>
+      <member refid="class_menu_1a546dd9e7b599e3be71c6acd2749fdd65" prot="public" virt="non-virtual"><scope>Menu</scope><name>Menu</name></member>
+      <member refid="class_menu_1a9816b090250b26f58df74680d0e3d449" prot="public" virt="non-virtual"><scope>Menu</scope><name>Menu</name></member>
+      <member refid="class_menu_1af055e813194e93196a8d0a72a80543af" prot="public" virt="non-virtual"><scope>Menu</scope><name>Menu</name></member>
+      <member refid="class_menu_1a81e517b62384dc184425757e6dba87d3" prot="public" virt="non-virtual"><scope>Menu</scope><name>Menu</name></member>
+      <member refid="class_menu_1a35abb7b92f2b651c35972941a0620a98" prot="public" virt="non-virtual"><scope>Menu</scope><name>Menu</name></member>
+      <member refid="class_menu_1a91312c5bf4527956b935cfc6c5697e09" prot="public" virt="non-virtual"><scope>Menu</scope><name>SetBooleanAction</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

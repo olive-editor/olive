@@ -1,0 +1,268 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_node_param_set_standard_value_command" kind="class" language="C++" prot="public">
+    <compoundname>NodeParamSetStandardValueCommand</compoundname>
+    <basecompoundref refid="class_undo_command" prot="public" virt="non-virtual">UndoCommand</basecompoundref>
+    <includes refid="nodeparamviewundo_8h" local="no">nodeparamviewundo.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_node_param_set_standard_value_command_1a929f2f20d5c524c1d159b97ca8c34fa0" prot="private" static="no" mutable="no">
+        <type><ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+        <definition>NodeInput* NodeParamSetStandardValueCommand::input_</definition>
+        <argsstring></argsstring>
+        <name>input_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewundo.h" line="131" column="13" bodyfile="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewundo.h" bodystart="131" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_param_set_standard_value_command_1a82069894f49e14976deaacb94e0cef6f" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int NodeParamSetStandardValueCommand::track_</definition>
+        <argsstring></argsstring>
+        <name>track_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewundo.h" line="132" column="7" bodyfile="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewundo.h" bodystart="132" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_param_set_standard_value_command_1aef96bf2e297477f7b6d0313f81fea8cb" prot="private" static="no" mutable="no">
+        <type>QVariant</type>
+        <definition>QVariant NodeParamSetStandardValueCommand::old_value_</definition>
+        <argsstring></argsstring>
+        <name>old_value_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewundo.h" line="134" column="12" bodyfile="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewundo.h" bodystart="134" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_param_set_standard_value_command_1af0f82e55e3e9fd4b3f880a5a7ddec880" prot="private" static="no" mutable="no">
+        <type>QVariant</type>
+        <definition>QVariant NodeParamSetStandardValueCommand::new_value_</definition>
+        <argsstring></argsstring>
+        <name>new_value_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewundo.h" line="135" column="12" bodyfile="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewundo.h" bodystart="135" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_undo_command_1a6c06f9c1b7bfeeff3c4724491945992b" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool UndoCommand::modified_</definition>
+        <argsstring></argsstring>
+        <name>modified_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="64" column="8" bodyfile="C:/Daten/Olive/olive/app/undo/undocommand.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_node_param_set_standard_value_command_1ab21925f03315abb81f0ffdb7915c9d0a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>NodeParamSetStandardValueCommand::NodeParamSetStandardValueCommand</definition>
+        <argsstring>(NodeInput *input, int track, const QVariant &amp;value, QUndoCommand *parent=nullptr)</argsstring>
+        <name>NodeParamSetStandardValueCommand</name>
+        <param>
+          <type><ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>track</declname>
+        </param>
+        <param>
+          <type>const QVariant &amp;</type>
+          <declname>value</declname>
+        </param>
+        <param>
+          <type>QUndoCommand *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewundo.h" line="121" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_param_set_standard_value_command_1afd5c24703bb922e3ef004dcd210531cb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>NodeParamSetStandardValueCommand::NodeParamSetStandardValueCommand</definition>
+        <argsstring>(NodeInput *input, int track, const QVariant &amp;new_value, const QVariant &amp;old_value, QUndoCommand *parent=nullptr)</argsstring>
+        <name>NodeParamSetStandardValueCommand</name>
+        <param>
+          <type><ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>track</declname>
+        </param>
+        <param>
+          <type>const QVariant &amp;</type>
+          <declname>new_value</declname>
+        </param>
+        <param>
+          <type>const QVariant &amp;</type>
+          <declname>old_value</declname>
+        </param>
+        <param>
+          <type>QUndoCommand *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewundo.h" line="122" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_param_set_standard_value_command_1a1581e1304559070b096f60cb6e9ff3de" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="class_project" kindref="compound">Project</ref> *</type>
+        <definition>virtual Project* NodeParamSetStandardValueCommand::GetRelevantProject</definition>
+        <argsstring>() const override</argsstring>
+        <name>GetRelevantProject</name>
+        <reimplements refid="class_undo_command_1ab5c8967132833ea6be76a63dc5472f4f">GetRelevantProject</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewundo.h" line="124" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_undo_command_1a9907db368d01fb26f5082a36c6d90bd4" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void UndoCommand::redo</definition>
+        <argsstring>() override</argsstring>
+        <name>redo</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="54" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_undo_command_1a09d00f8a2e1c8b3c97d72d9585503030" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void UndoCommand::undo</definition>
+        <argsstring>() override</argsstring>
+        <name>undo</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="55" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_node_param_set_standard_value_command_1a78db4dda65cb379d23da4ae84ef4d187" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void NodeParamSetStandardValueCommand::redo_internal</definition>
+        <argsstring>() override</argsstring>
+        <name>redo_internal</name>
+        <reimplements refid="class_undo_command_1ac8aa20d444a655cd36fa3c7dc01928b4">redo_internal</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewundo.h" line="127" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_param_set_standard_value_command_1a5e8c55ae49ec329bc875ab592dd666ba" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void NodeParamSetStandardValueCommand::undo_internal</definition>
+        <argsstring>() override</argsstring>
+        <name>undo_internal</name>
+        <reimplements refid="class_undo_command_1a871dbc8a1f95b58e641be13703563faa">undo_internal</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewundo.h" line="128" column="16"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>NodeParamSetStandardValueCommand</label>
+        <link refid="class_node_param_set_standard_value_command"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>UndoCommand</label>
+        <link refid="class_undo_command"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="3">
+        <label>NodeInput</label>
+        <link refid="class_node_input"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>NodeParamSetStandardValueCommand</label>
+        <link refid="class_node_param_set_standard_value_command"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>input_</edgelabel>
+        </childnode>
+      </node>
+      <node id="4">
+        <label>NodeParam</label>
+        <link refid="class_node_param"/>
+      </node>
+      <node id="2">
+        <label>UndoCommand</label>
+        <link refid="class_undo_command"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewundo.h" line="119" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewundo.h" bodystart="119" bodyend="137"/>
+    <listofallmembers>
+      <member refid="class_node_param_set_standard_value_command_1a1581e1304559070b096f60cb6e9ff3de" prot="public" virt="virtual"><scope>NodeParamSetStandardValueCommand</scope><name>GetRelevantProject</name></member>
+      <member refid="class_node_param_set_standard_value_command_1a929f2f20d5c524c1d159b97ca8c34fa0" prot="private" virt="non-virtual"><scope>NodeParamSetStandardValueCommand</scope><name>input_</name></member>
+      <member refid="class_undo_command_1a6c06f9c1b7bfeeff3c4724491945992b" prot="private" virt="non-virtual"><scope>NodeParamSetStandardValueCommand</scope><name>modified_</name></member>
+      <member refid="class_node_param_set_standard_value_command_1af0f82e55e3e9fd4b3f880a5a7ddec880" prot="private" virt="non-virtual"><scope>NodeParamSetStandardValueCommand</scope><name>new_value_</name></member>
+      <member refid="class_node_param_set_standard_value_command_1ab21925f03315abb81f0ffdb7915c9d0a" prot="public" virt="non-virtual"><scope>NodeParamSetStandardValueCommand</scope><name>NodeParamSetStandardValueCommand</name></member>
+      <member refid="class_node_param_set_standard_value_command_1afd5c24703bb922e3ef004dcd210531cb" prot="public" virt="non-virtual"><scope>NodeParamSetStandardValueCommand</scope><name>NodeParamSetStandardValueCommand</name></member>
+      <member refid="class_node_param_set_standard_value_command_1aef96bf2e297477f7b6d0313f81fea8cb" prot="private" virt="non-virtual"><scope>NodeParamSetStandardValueCommand</scope><name>old_value_</name></member>
+      <member refid="class_undo_command_1a9907db368d01fb26f5082a36c6d90bd4" prot="public" virt="virtual"><scope>NodeParamSetStandardValueCommand</scope><name>redo</name></member>
+      <member refid="class_node_param_set_standard_value_command_1a78db4dda65cb379d23da4ae84ef4d187" prot="protected" virt="virtual"><scope>NodeParamSetStandardValueCommand</scope><name>redo_internal</name></member>
+      <member refid="class_node_param_set_standard_value_command_1a82069894f49e14976deaacb94e0cef6f" prot="private" virt="non-virtual"><scope>NodeParamSetStandardValueCommand</scope><name>track_</name></member>
+      <member refid="class_undo_command_1a09d00f8a2e1c8b3c97d72d9585503030" prot="public" virt="virtual"><scope>NodeParamSetStandardValueCommand</scope><name>undo</name></member>
+      <member refid="class_node_param_set_standard_value_command_1a5e8c55ae49ec329bc875ab592dd666ba" prot="protected" virt="virtual"><scope>NodeParamSetStandardValueCommand</scope><name>undo_internal</name></member>
+      <member refid="class_undo_command_1a5a07a6505a207cf7186c7c726ff9c5fa" prot="public" virt="non-virtual"><scope>NodeParamSetStandardValueCommand</scope><name>UndoCommand</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

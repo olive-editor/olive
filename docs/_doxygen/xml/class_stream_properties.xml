@@ -1,0 +1,90 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_stream_properties" kind="class" language="C++" prot="public">
+    <compoundname>StreamProperties</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QWidget</basecompoundref>
+    <derivedcompoundref refid="class_audio_stream_properties" prot="public" virt="non-virtual">AudioStreamProperties</derivedcompoundref>
+    <derivedcompoundref refid="class_video_stream_properties" prot="public" virt="non-virtual">VideoStreamProperties</derivedcompoundref>
+    <includes refid="streamproperties_8h" local="no">streamproperties.h</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_stream_properties_1a1a7eff92dff9f6e2a12d628279a6bb95" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>StreamProperties::StreamProperties</definition>
+        <argsstring>(QWidget *parent=nullptr)</argsstring>
+        <name>StreamProperties</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/streamproperties.h" line="52" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_stream_properties_1a7795d5e4f3af459f1b83aa0f6038f3c6" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void StreamProperties::Accept</definition>
+        <argsstring>(QUndoCommand *)</argsstring>
+        <name>Accept</name>
+        <reimplementedby refid="class_audio_stream_properties_1a1b994024be90d3513689d34a549936f4">Accept</reimplementedby>
+        <reimplementedby refid="class_video_stream_properties_1a6400c7e082e19a09a76617b01488a981">Accept</reimplementedby>
+        <param>
+          <type>QUndoCommand *</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/streamproperties.h" line="54" column="16" bodyfile="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/streamproperties.h" bodystart="54" bodyend="54"/>
+      </memberdef>
+      <memberdef kind="function" id="class_stream_properties_1a0420478789a7a22dfeadbd624101652a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>bool</type>
+        <definition>virtual bool StreamProperties::SanityCheck</definition>
+        <argsstring>()</argsstring>
+        <name>SanityCheck</name>
+        <reimplementedby refid="class_video_stream_properties_1af0649ed6eefdea015630c7d118d01576">SanityCheck</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/streamproperties.h" line="56" column="16" bodyfile="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/streamproperties.h" bodystart="56" bodyend="56"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="3">
+        <label>VideoStreamProperties</label>
+        <link refid="class_video_stream_properties"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>AudioStreamProperties</label>
+        <link refid="class_audio_stream_properties"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>StreamProperties</label>
+        <link refid="class_stream_properties"/>
+      </node>
+    </inheritancegraph>
+    <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/streamproperties.h" line="31" column="1" bodyfile="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/streamproperties.h" bodystart="32" bodyend="40"/>
+    <listofallmembers>
+      <member refid="class_stream_properties_1a7795d5e4f3af459f1b83aa0f6038f3c6" prot="public" virt="virtual"><scope>StreamProperties</scope><name>Accept</name></member>
+      <member refid="class_stream_properties_1a0420478789a7a22dfeadbd624101652a" prot="public" virt="virtual"><scope>StreamProperties</scope><name>SanityCheck</name></member>
+      <member refid="class_stream_properties_1a1a7eff92dff9f6e2a12d628279a6bb95" prot="public" virt="non-virtual"><scope>StreamProperties</scope><name>StreamProperties</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,148 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_node_copy_paste_widget" kind="class" language="C++" prot="public">
+    <compoundname>NodeCopyPasteWidget</compoundname>
+    <derivedcompoundref refid="class_node_view" prot="public" virt="non-virtual">NodeView</derivedcompoundref>
+    <derivedcompoundref refid="class_timeline_widget" prot="public" virt="non-virtual">TimelineWidget</derivedcompoundref>
+    <includes refid="nodecopypaste_8h" local="no">nodecopypaste.h</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_node_copy_paste_widget_1a2195d649bc1854838aa0976105ffff89" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>NodeCopyPasteWidget::NodeCopyPasteWidget</definition>
+        <argsstring>()=default</argsstring>
+        <name>NodeCopyPasteWidget</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodecopypaste/nodecopypaste.h" line="53" column="3"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_node_copy_paste_widget_1a48a03423c96d1f7e6c12cb4422d8f915" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeCopyPasteWidget::CopyNodesToClipboard</definition>
+        <argsstring>(const QList&lt; Node * &gt; &amp;nodes, void *userdata=nullptr)</argsstring>
+        <name>CopyNodesToClipboard</name>
+        <param>
+          <type>const QList&lt; <ref refid="class_node" kindref="compound">Node</ref> * &gt; &amp;</type>
+          <declname>nodes</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>userdata</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodecopypaste/nodecopypaste.h" line="56" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_copy_paste_widget_1a0ce1dabd532e71fed9ca7c6ceb75791f" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QList&lt; <ref refid="class_node" kindref="compound">Node</ref> * &gt;</type>
+        <definition>QList&lt;Node*&gt; NodeCopyPasteWidget::PasteNodesFromClipboard</definition>
+        <argsstring>(Sequence *graph, QUndoCommand *command, void *userdata=nullptr)</argsstring>
+        <name>PasteNodesFromClipboard</name>
+        <param>
+          <type><ref refid="class_sequence" kindref="compound">Sequence</ref> *</type>
+          <declname>graph</declname>
+        </param>
+        <param>
+          <type>QUndoCommand *</type>
+          <declname>command</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>userdata</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodecopypaste/nodecopypaste.h" line="58" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_copy_paste_widget_1aae788faf42f0d0a7bd313080af447cc0" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void NodeCopyPasteWidget::CopyNodesToClipboardInternal</definition>
+        <argsstring>(QXmlStreamWriter *writer, void *userdata)</argsstring>
+        <name>CopyNodesToClipboardInternal</name>
+        <reimplementedby refid="class_timeline_widget_1af5080be664608164a8c6909187da3c17">CopyNodesToClipboardInternal</reimplementedby>
+        <param>
+          <type>QXmlStreamWriter *</type>
+          <declname>writer</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>userdata</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodecopypaste/nodecopypaste.h" line="60" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_copy_paste_widget_1a8495084eb1222b92a38352cdd5a4e3a6" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void NodeCopyPasteWidget::PasteNodesFromClipboardInternal</definition>
+        <argsstring>(QXmlStreamReader *reader, void *userdata)</argsstring>
+        <name>PasteNodesFromClipboardInternal</name>
+        <reimplementedby refid="class_timeline_widget_1a9ea5202a4ef68d8ec94a463abb85f664">PasteNodesFromClipboardInternal</reimplementedby>
+        <param>
+          <type>QXmlStreamReader *</type>
+          <declname>reader</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>userdata</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodecopypaste/nodecopypaste.h" line="62" column="16"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="3">
+        <label>TimelineWidget</label>
+        <link refid="class_timeline_widget"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>NodeCopyPasteWidget</label>
+        <link refid="class_node_copy_paste_widget"/>
+      </node>
+      <node id="2">
+        <label>NodeView</label>
+        <link refid="class_node_view"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <location file="C:/Daten/Olive/olive/app/widget/nodecopypaste/nodecopypaste.h" line="32" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/nodecopypaste/nodecopypaste.h" bodystart="33" bodyend="46"/>
+    <listofallmembers>
+      <member refid="class_node_copy_paste_widget_1a48a03423c96d1f7e6c12cb4422d8f915" prot="protected" virt="non-virtual"><scope>NodeCopyPasteWidget</scope><name>CopyNodesToClipboard</name></member>
+      <member refid="class_node_copy_paste_widget_1aae788faf42f0d0a7bd313080af447cc0" prot="protected" virt="virtual"><scope>NodeCopyPasteWidget</scope><name>CopyNodesToClipboardInternal</name></member>
+      <member refid="class_node_copy_paste_widget_1a2195d649bc1854838aa0976105ffff89" prot="public" virt="non-virtual"><scope>NodeCopyPasteWidget</scope><name>NodeCopyPasteWidget</name></member>
+      <member refid="class_node_copy_paste_widget_1a0ce1dabd532e71fed9ca7c6ceb75791f" prot="protected" virt="non-virtual"><scope>NodeCopyPasteWidget</scope><name>PasteNodesFromClipboard</name></member>
+      <member refid="class_node_copy_paste_widget_1a8495084eb1222b92a38352cdd5a4e3a6" prot="protected" virt="virtual"><scope>NodeCopyPasteWidget</scope><name>PasteNodesFromClipboardInternal</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

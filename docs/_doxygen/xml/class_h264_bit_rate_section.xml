@@ -1,0 +1,130 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_h264_bit_rate_section" kind="class" language="C++" prot="public">
+    <compoundname>H264BitRateSection</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QWidget</basecompoundref>
+    <includes refid="h264section_8h" local="no">h264section.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_h264_bit_rate_section_1ac3824a0c6f3a86e306876fb036640730" prot="private" static="no" mutable="no">
+        <type><ref refid="class_float_slider" kindref="compound">FloatSlider</ref> *</type>
+        <definition>FloatSlider* H264BitRateSection::target_rate_</definition>
+        <argsstring></argsstring>
+        <name>target_rate_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/codec/h264section.h" line="66" column="15" bodyfile="C:/Daten/Olive/olive/app/dialog/export/codec/h264section.h" bodystart="66" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_h264_bit_rate_section_1a77cd2c70f1de07b75d063ccd44450ee2" prot="private" static="no" mutable="no">
+        <type><ref refid="class_float_slider" kindref="compound">FloatSlider</ref> *</type>
+        <definition>FloatSlider* H264BitRateSection::max_rate_</definition>
+        <argsstring></argsstring>
+        <name>max_rate_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/codec/h264section.h" line="68" column="15" bodyfile="C:/Daten/Olive/olive/app/dialog/export/codec/h264section.h" bodystart="68" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_h264_bit_rate_section_1a2014464b0c42a6469c1e5ef2b4b6d930" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>H264BitRateSection::H264BitRateSection</definition>
+        <argsstring>(QWidget *parent=nullptr)</argsstring>
+        <name>H264BitRateSection</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/codec/h264section.h" line="53" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_h264_bit_rate_section_1ac694412692b2a0319d279ffb0f057807" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int64_t</type>
+        <definition>int64_t H264BitRateSection::GetTargetBitRate</definition>
+        <argsstring>() const</argsstring>
+        <name>GetTargetBitRate</name>
+        <briefdescription>
+<para>Get user-selected target bit rate (returns in BITS) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/codec/h264section.h" line="58" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_h264_bit_rate_section_1a1e117931c438bc167bffb50281119b15" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int64_t</type>
+        <definition>int64_t H264BitRateSection::GetMaximumBitRate</definition>
+        <argsstring>() const</argsstring>
+        <name>GetMaximumBitRate</name>
+        <briefdescription>
+<para>Get user-selected maximum bit rate (returns in BITS) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/codec/h264section.h" line="63" column="11"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="2">
+        <label>FloatSlider</label>
+        <link refid="class_float_slider"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>H264BitRateSection</label>
+        <link refid="class_h264_bit_rate_section"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>target_rate_</edgelabel>
+          <edgelabel>max_rate_</edgelabel>
+        </childnode>
+      </node>
+      <node id="5">
+        <label>SliderLabel</label>
+        <link refid="class_slider_label"/>
+      </node>
+      <node id="4">
+        <label>FocusableLineEdit</label>
+        <link refid="class_focusable_line_edit"/>
+      </node>
+      <node id="3">
+        <label>SliderBase</label>
+        <link refid="class_slider_base"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>editor_</edgelabel>
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>label_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/dialog/export/codec/h264section.h" line="50" column="1" bodyfile="C:/Daten/Olive/olive/app/dialog/export/codec/h264section.h" bodystart="51" bodyend="70"/>
+    <listofallmembers>
+      <member refid="class_h264_bit_rate_section_1a1e117931c438bc167bffb50281119b15" prot="public" virt="non-virtual"><scope>H264BitRateSection</scope><name>GetMaximumBitRate</name></member>
+      <member refid="class_h264_bit_rate_section_1ac694412692b2a0319d279ffb0f057807" prot="public" virt="non-virtual"><scope>H264BitRateSection</scope><name>GetTargetBitRate</name></member>
+      <member refid="class_h264_bit_rate_section_1a2014464b0c42a6469c1e5ef2b4b6d930" prot="public" virt="non-virtual"><scope>H264BitRateSection</scope><name>H264BitRateSection</name></member>
+      <member refid="class_h264_bit_rate_section_1a77cd2c70f1de07b75d063ccd44450ee2" prot="private" virt="non-virtual"><scope>H264BitRateSection</scope><name>max_rate_</name></member>
+      <member refid="class_h264_bit_rate_section_1ac3824a0c6f3a86e306876fb036640730" prot="private" virt="non-virtual"><scope>H264BitRateSection</scope><name>target_rate_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

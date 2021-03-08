@@ -1,0 +1,2957 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_footage_viewer_widget" kind="class" language="C++" prot="public">
+    <compoundname>FootageViewerWidget</compoundname>
+    <basecompoundref refid="class_viewer_widget" prot="public" virt="non-virtual">ViewerWidget</basecompoundref>
+    <includes refid="widget_2viewer_2footageviewer_8h" local="no">footageviewer.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_footage_viewer_widget_1abb428a01127765bbde1e07a9fb5f112c" prot="private" static="no" mutable="no">
+        <type><ref refid="class_footage" kindref="compound">Footage</ref> *</type>
+        <definition>Footage* FootageViewerWidget::footage_</definition>
+        <argsstring></argsstring>
+        <name>footage_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/footageviewer.h" line="66" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/footageviewer.h" bodystart="66" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_footage_viewer_widget_1aacd29961226c2243045257a62e646bb3" prot="private" static="no" mutable="no">
+        <type><ref refid="class_video_input" kindref="compound">VideoInput</ref> *</type>
+        <definition>VideoInput* FootageViewerWidget::video_node_</definition>
+        <argsstring></argsstring>
+        <name>video_node_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/footageviewer.h" line="68" column="14" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/footageviewer.h" bodystart="68" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_footage_viewer_widget_1a417ac1f8f6e31e8e542606f2b825e93e" prot="private" static="no" mutable="no">
+        <type><ref refid="class_audio_input" kindref="compound">AudioInput</ref> *</type>
+        <definition>AudioInput* FootageViewerWidget::audio_node_</definition>
+        <argsstring></argsstring>
+        <name>audio_node_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/footageviewer.h" line="70" column="14" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/footageviewer.h" bodystart="70" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_footage_viewer_widget_1a9e2e05a3c64d9b956d8b61e40141a807" prot="private" static="no" mutable="no">
+        <type><ref refid="class_viewer_output" kindref="compound">ViewerOutput</ref> *</type>
+        <definition>ViewerOutput* FootageViewerWidget::viewer_node_</definition>
+        <argsstring></argsstring>
+        <name>viewer_node_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/footageviewer.h" line="72" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/footageviewer.h" bodystart="72" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_viewer_widget_1aa0ddcd2946115f005c4dfa80e3a2e58e" prot="private" static="no" mutable="no">
+        <type>QStackedWidget *</type>
+        <definition>QStackedWidget* ViewerWidget::stack_</definition>
+        <argsstring></argsstring>
+        <name>stack_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="191" column="18" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" bodystart="191" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_viewer_widget_1aa0d91d618fc86b1cc0504d550e2392b3" prot="private" static="no" mutable="no">
+        <type><ref refid="class_viewer_sizer" kindref="compound">ViewerSizer</ref> *</type>
+        <definition>ViewerSizer* ViewerWidget::sizer_</definition>
+        <argsstring></argsstring>
+        <name>sizer_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="193" column="15" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" bodystart="193" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_viewer_widget_1af811064939bd5a18a65f643e090f09b8" prot="private" static="no" mutable="no">
+        <type>qint64</type>
+        <definition>qint64 ViewerWidget::start_msec_</definition>
+        <argsstring></argsstring>
+        <name>start_msec_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="195" column="10" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" bodystart="195" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_viewer_widget_1a3e5ac368799f39ea57fe216f17587510" prot="private" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t ViewerWidget::start_timestamp_</definition>
+        <argsstring></argsstring>
+        <name>start_timestamp_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="196" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" bodystart="196" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_viewer_widget_1afee090399dee5ca3ebdbac3291cc5273" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int ViewerWidget::playback_speed_</definition>
+        <argsstring></argsstring>
+        <name>playback_speed_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="198" column="7" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" bodystart="198" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_viewer_widget_1a2705c8eb5d2fe5e4671849542f3d86aa" prot="private" static="no" mutable="no">
+        <type>qint64</type>
+        <definition>qint64 ViewerWidget::frame_cache_job_time_</definition>
+        <argsstring></argsstring>
+        <name>frame_cache_job_time_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="200" column="10" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" bodystart="200" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_viewer_widget_1ab7c1a88b84b19906aa11967e97cc8cfd" prot="private" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t ViewerWidget::last_time_</definition>
+        <argsstring></argsstring>
+        <name>last_time_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="202" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" bodystart="202" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_viewer_widget_1acfbeb5eb7f4c8112db4dc1d16f930bc6" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool ViewerWidget::color_menu_enabled_</definition>
+        <argsstring></argsstring>
+        <name>color_menu_enabled_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="204" column="8" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" bodystart="204" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_viewer_widget_1adf68580e74537d52b0ebe4d1cc54bfa7" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int ViewerWidget::divider_</definition>
+        <argsstring></argsstring>
+        <name>divider_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="206" column="7" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" bodystart="206" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_viewer_widget_1a8ed80f3725e7e686a63196eff3a14f35" prot="private" static="no" mutable="no">
+        <type><ref refid="class_color_manager" kindref="compound">ColorManager</ref> *</type>
+        <definition>ColorManager* ViewerWidget::override_color_manager_</definition>
+        <argsstring></argsstring>
+        <name>override_color_manager_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="208" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" bodystart="208" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_viewer_widget_1a0d692bf6886e83069c34909c5550e7c0" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool ViewerWidget::time_changed_from_timer_</definition>
+        <argsstring></argsstring>
+        <name>time_changed_from_timer_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="210" column="8" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" bodystart="210" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_viewer_widget_1a1540fa42f7938d3667a421838c3f18f3" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool ViewerWidget::play_in_to_out_only_</definition>
+        <argsstring></argsstring>
+        <name>play_in_to_out_only_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="212" column="8" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" bodystart="212" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_viewer_widget_1aaff7e5e1cd78c548282084e1cf3b6638" prot="private" static="no" mutable="no">
+        <type><ref refid="class_audio_waveform_view" kindref="compound">AudioWaveformView</ref> *</type>
+        <definition>AudioWaveformView* ViewerWidget::waveform_view_</definition>
+        <argsstring></argsstring>
+        <name>waveform_view_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="214" column="21" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" bodystart="214" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_viewer_widget_1aa2304377f62a896b8e6621a1e0fe1399" prot="private" static="no" mutable="no">
+        <type>QList&lt; <ref refid="class_viewer_window" kindref="compound">ViewerWindow</ref> * &gt;</type>
+        <definition>QList&lt;ViewerWindow*&gt; ViewerWidget::windows_</definition>
+        <argsstring></argsstring>
+        <name>windows_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="216" column="9" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" bodystart="216" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_viewer_widget_1aab372ae82865507a6f9008fb7d8f9ee6" prot="private" static="no" mutable="no">
+        <type>QList&lt; <ref refid="class_viewer_display_widget" kindref="compound">ViewerDisplayWidget</ref> * &gt;</type>
+        <definition>QList&lt;ViewerDisplayWidget*&gt; ViewerWidget::gl_widgets_</definition>
+        <argsstring></argsstring>
+        <name>gl_widgets_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="218" column="9" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" bodystart="218" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_viewer_widget_1ac6f132b2001155bb50342e471e14a265" prot="private" static="no" mutable="no">
+        <type><ref refid="class_viewer_display_widget" kindref="compound">ViewerDisplayWidget</ref> *</type>
+        <definition>ViewerDisplayWidget* ViewerWidget::context_menu_widget_</definition>
+        <argsstring></argsstring>
+        <name>context_menu_widget_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="220" column="23" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" bodystart="220" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_time_based_widget_1a523db0cf86b8a9220c05839790825b2f" prot="private" static="no" mutable="no">
+        <type><ref refid="class_time_ruler" kindref="compound">TimeRuler</ref> *</type>
+        <definition>TimeRuler* TimeBasedWidget::ruler_</definition>
+        <argsstring></argsstring>
+        <name>ruler_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" line="176" column="13" bodyfile="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" bodystart="176" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_time_based_widget_1a3222dc1a2ed65ce955b2ce6d474d7fa0" prot="private" static="no" mutable="no">
+        <type><ref refid="class_resizable_scroll_bar" kindref="compound">ResizableScrollBar</ref> *</type>
+        <definition>ResizableScrollBar* TimeBasedWidget::scrollbar_</definition>
+        <argsstring></argsstring>
+        <name>scrollbar_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" line="178" column="22" bodyfile="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" bodystart="178" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_time_based_widget_1a3595671e9c4b15094a0fd195a6aeef44" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool TimeBasedWidget::auto_max_scrollbar_</definition>
+        <argsstring></argsstring>
+        <name>auto_max_scrollbar_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" line="180" column="8" bodyfile="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" bodystart="180" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_time_based_widget_1a88907e0eeae11e47b4dc35eaa6cf36f5" prot="private" static="no" mutable="no">
+        <type><ref refid="class_timeline_points" kindref="compound">TimelinePoints</ref> *</type>
+        <definition>TimelinePoints* TimeBasedWidget::points_</definition>
+        <argsstring></argsstring>
+        <name>points_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" line="182" column="18" bodyfile="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" bodystart="182" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_time_based_widget_1af2859ed222ada7699bd20555b1022e26" prot="private" static="no" mutable="no">
+        <type>QList&lt; <ref refid="class_timeline_view_base" kindref="compound">TimelineViewBase</ref> * &gt;</type>
+        <definition>QList&lt;TimelineViewBase*&gt; TimeBasedWidget::timeline_views_</definition>
+        <argsstring></argsstring>
+        <name>timeline_views_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" line="184" column="9" bodyfile="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" bodystart="184" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_time_based_widget_1a1c1f8125c757e35d6226e6dfc541324c" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool TimeBasedWidget::toggle_show_all_</definition>
+        <argsstring></argsstring>
+        <name>toggle_show_all_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" line="186" column="8" bodyfile="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" bodystart="186" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_time_based_widget_1a983adb16881486cabf90df6883a51705" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double TimeBasedWidget::toggle_show_all_old_scale_</definition>
+        <argsstring></argsstring>
+        <name>toggle_show_all_old_scale_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" line="188" column="10" bodyfile="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" bodystart="188" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_timeline_scaled_object_1a69dd77a3c6b37b62dce172256f6633e0" prot="private" static="no" mutable="no">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational TimelineScaledObject::timebase_</definition>
+        <argsstring></argsstring>
+        <name>timebase_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" line="78" column="12" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" bodystart="78" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_timeline_scaled_object_1ad123e92c9a7373dd7ab41d2a6cf3e74f" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double TimelineScaledObject::timebase_dbl_</definition>
+        <argsstring></argsstring>
+        <name>timebase_dbl_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" line="80" column="10" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" bodystart="80" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_timeline_scaled_object_1afef3a4ce71d522eb775952342ac3a724" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double TimelineScaledObject::scale_</definition>
+        <argsstring></argsstring>
+        <name>scale_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" line="82" column="10" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" bodystart="82" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_timeline_scaled_object_1ae573b4cc9ecb09a0ad49e8bc88f80ae2" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double TimelineScaledObject::min_scale_</definition>
+        <argsstring></argsstring>
+        <name>min_scale_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" line="84" column="10" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" bodystart="84" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_timeline_scaled_object_1afc7c3ff17f1a580fbd248c830b3dd281" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double TimelineScaledObject::max_scale_</definition>
+        <argsstring></argsstring>
+        <name>max_scale_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" line="86" column="10" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" bodystart="86" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_footage_viewer_widget_1ac4b5980aeecc73fdc834cab2c5b76cf0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>FootageViewerWidget::FootageViewerWidget</definition>
+        <argsstring>(QWidget *parent=nullptr)</argsstring>
+        <name>FootageViewerWidget</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/footageviewer.h" line="53" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_footage_viewer_widget_1a6b49fef2408a10c4b511178fbd140c98" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_footage" kindref="compound">Footage</ref> *</type>
+        <definition>Footage* FootageViewerWidget::GetFootage</definition>
+        <argsstring>() const</argsstring>
+        <name>GetFootage</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/footageviewer.h" line="55" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_footage_viewer_widget_1aa94660d191250a873b46bbb3dc552657" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void FootageViewerWidget::SetFootage</definition>
+        <argsstring>(Footage *footage)</argsstring>
+        <name>SetFootage</name>
+        <param>
+          <type><ref refid="class_footage" kindref="compound">Footage</ref> *</type>
+          <declname>footage</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/footageviewer.h" line="56" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_viewer_widget_1a7ecb9c236b728a6c3101bc14321b4fbe" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerWidget::SetPlaybackControlsEnabled</definition>
+        <argsstring>(bool enabled)</argsstring>
+        <name>SetPlaybackControlsEnabled</name>
+        <param>
+          <type>bool</type>
+          <declname>enabled</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="73" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_viewer_widget_1a08d76caa77d9072ce589a2f354cce99c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerWidget::SetTimeRulerEnabled</definition>
+        <argsstring>(bool enabled)</argsstring>
+        <name>SetTimeRulerEnabled</name>
+        <param>
+          <type>bool</type>
+          <declname>enabled</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="75" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_viewer_widget_1a553b5649a7b073a7ed8cfa02874ec941" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerWidget::TogglePlayPause</definition>
+        <argsstring>()</argsstring>
+        <name>TogglePlayPause</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="77" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_viewer_widget_1a6e91f089be06d4472ec897772f92eff7" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool ViewerWidget::IsPlaying</definition>
+        <argsstring>() const</argsstring>
+        <name>IsPlaying</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="79" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_viewer_widget_1ace7bb1caa08c2d92650700822a48915f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerWidget::ConnectViewerNode</definition>
+        <argsstring>(ViewerOutput *node, ColorManager *color_manager=nullptr)</argsstring>
+        <name>ConnectViewerNode</name>
+        <param>
+          <type><ref refid="class_viewer_output" kindref="compound">ViewerOutput</ref> *</type>
+          <declname>node</declname>
+        </param>
+        <param>
+          <type><ref refid="class_color_manager" kindref="compound">ColorManager</ref> *</type>
+          <declname>color_manager</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="81" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_time_based_widget_1a202274e0d9cfd1bf85ecfb09a0920d57" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimeBasedWidget::ConnectViewerNode</definition>
+        <argsstring>(ViewerOutput *node)</argsstring>
+        <name>ConnectViewerNode</name>
+        <param>
+          <type><ref refid="class_viewer_output" kindref="compound">ViewerOutput</ref> *</type>
+          <declname>node</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" line="69" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_viewer_widget_1a0fa263ee16cd484d584ded2936eb3cdf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerWidget::SetColorMenuEnabled</definition>
+        <argsstring>(bool enabled)</argsstring>
+        <name>SetColorMenuEnabled</name>
+        <param>
+          <type>bool</type>
+          <declname>enabled</declname>
+        </param>
+        <briefdescription>
+<para>Enable or disable the color management menu. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>While the Viewer is <emphasis>always</emphasis> color managed, In some contexts, the color management may be controlled from an external UI making the menu unnecessary. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="89" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_viewer_widget_1a00818df86f86ef4cfcd7193ab09fdb68" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerWidget::SetOverrideSize</definition>
+        <argsstring>(int width, int height)</argsstring>
+        <name>SetOverrideSize</name>
+        <param>
+          <type>int</type>
+          <declname>width</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>height</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="91" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_viewer_widget_1a0bd9b2b2b6b6c2326a64994c4468715b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerWidget::SetMatrix</definition>
+        <argsstring>(const QMatrix4x4 &amp;mat)</argsstring>
+        <name>SetMatrix</name>
+        <param>
+          <type>const QMatrix4x4 &amp;</type>
+          <declname>mat</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="93" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_viewer_widget_1a7dd99f57c579f542473259ade7e5012e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerWidget::SetFullScreen</definition>
+        <argsstring>(QScreen *screen=nullptr)</argsstring>
+        <name>SetFullScreen</name>
+        <param>
+          <type>QScreen *</type>
+          <declname>screen</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+<para>Creates a <ref refid="class_viewer_window" kindref="compound">ViewerWindow</ref> widget and places it full screen on another screen. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If <computeroutput>screen</computeroutput> is nullptr, the screen will be automatically selected as whichever one contains the mouse cursor. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="100" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_viewer_widget_1ac789fbf5eb0245b0f72e5ad0ecdba99e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerWidget::ForceUpdate</definition>
+        <argsstring>()</argsstring>
+        <name>ForceUpdate</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="102" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_viewer_widget_1a922cd09d4419d41a7068a9ee7ce4b163" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_video_render_backend" kindref="compound">VideoRenderBackend</ref> *</type>
+        <definition>VideoRenderBackend* ViewerWidget::video_renderer</definition>
+        <argsstring>() const</argsstring>
+        <name>video_renderer</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="104" column="22"/>
+      </memberdef>
+      <memberdef kind="function" id="class_viewer_widget_1a572c608e74a2cc15ee50f532ff19109b" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_color_manager" kindref="compound">ColorManager</ref> *</type>
+        <definition>ColorManager* ViewerWidget::color_manager</definition>
+        <argsstring>() const</argsstring>
+        <name>color_manager</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="106" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_time_based_widget_1a39ec81e1d5734a9eaa7bb95440b4c3f8" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational TimeBasedWidget::GetTime</definition>
+        <argsstring>() const</argsstring>
+        <name>GetTime</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" line="59" column="12"/>
+      </memberdef>
+      <memberdef kind="function" id="class_time_based_widget_1a395c2e84e24bcbfccf5a34940a625df6" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const int64_t &amp;</type>
+        <definition>const int64_t&amp; TimeBasedWidget::GetTimestamp</definition>
+        <argsstring>() const</argsstring>
+        <name>GetTimestamp</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" line="61" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_time_based_widget_1af3d74f2c52ea0b7a31d3b1e10966146b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimeBasedWidget::ZoomIn</definition>
+        <argsstring>()</argsstring>
+        <name>ZoomIn</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" line="63" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_time_based_widget_1a3e61ebce933400840a8604a0c183813d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimeBasedWidget::ZoomOut</definition>
+        <argsstring>()</argsstring>
+        <name>ZoomOut</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" line="65" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_time_based_widget_1a531f80fdbeeaa8d386cb5dd54e2d0a6c" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_viewer_output" kindref="compound">ViewerOutput</ref> *</type>
+        <definition>ViewerOutput* TimeBasedWidget::GetConnectedNode</definition>
+        <argsstring>() const</argsstring>
+        <name>GetConnectedNode</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" line="67" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_time_based_widget_1a3b84e867f953d704a23a9760693cf33b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimeBasedWidget::SetScaleAndCenterOnPlayhead</definition>
+        <argsstring>(const double &amp;scale)</argsstring>
+        <name>SetScaleAndCenterOnPlayhead</name>
+        <param>
+          <type>const double &amp;</type>
+          <declname>scale</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" line="71" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_scaled_object_1a18cc60c718e4521e6b772e4f34adf0c1" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+        <definition>const rational&amp; TimelineScaledObject::timebase</definition>
+        <argsstring>() const</argsstring>
+        <name>timebase</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" line="56" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_scaled_object_1a77d512b8c299bf894a9e2d30db5ab5f8" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const double &amp;</type>
+        <definition>const double&amp; TimelineScaledObject::timebase_dbl</definition>
+        <argsstring>() const</argsstring>
+        <name>timebase_dbl</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" line="57" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_scaled_object_1a1c4d396511a29aff6f103077c475094d" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const double &amp;</type>
+        <definition>const double&amp; TimelineScaledObject::GetScale</definition>
+        <argsstring>() const</argsstring>
+        <name>GetScale</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" line="61" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_footage_viewer_widget_1a5f755d6dfa9c462150ffaddf73ffe68c" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="class_timeline_points" kindref="compound">TimelinePoints</ref> *</type>
+        <definition>virtual TimelinePoints* FootageViewerWidget::ConnectTimelinePoints</definition>
+        <argsstring>() override</argsstring>
+        <name>ConnectTimelinePoints</name>
+        <reimplements refid="class_time_based_widget_1af276a134377c60f2f4e0d1657a137766">ConnectTimelinePoints</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/footageviewer.h" line="59" column="26"/>
+      </memberdef>
+      <memberdef kind="function" id="class_footage_viewer_widget_1a86afcac671f4a3de2077e82a2f3a990d" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="class_project" kindref="compound">Project</ref> *</type>
+        <definition>virtual Project* FootageViewerWidget::GetTimelinePointsProject</definition>
+        <argsstring>() override</argsstring>
+        <name>GetTimelinePointsProject</name>
+        <reimplements refid="class_time_based_widget_1ac685bb264908f0ead50a2a9ac9871f52">GetTimelinePointsProject</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/footageviewer.h" line="61" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_viewer_widget_1a43885e443a8d17cea32dfdccf5617b87" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void ViewerWidget::TimebaseChangedEvent</definition>
+        <argsstring>(const rational &amp;) override</argsstring>
+        <name>TimebaseChangedEvent</name>
+        <reimplements refid="class_time_based_widget_1afbb0c0ed294c73ac274a3ef428f9f360">TimebaseChangedEvent</reimplements>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="157" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_viewer_widget_1a0071ab5ee765677fed393cd8bafc05d2" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void ViewerWidget::TimeChangedEvent</definition>
+        <argsstring>(const int64_t &amp;) override</argsstring>
+        <name>TimeChangedEvent</name>
+        <reimplements refid="class_time_based_widget_1a21e6c1ea6e653484b634e173b142565d">TimeChangedEvent</reimplements>
+        <param>
+          <type>const int64_t &amp;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="158" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_viewer_widget_1a148ba4fbf2099a4e58786305e9b23100" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void ViewerWidget::ConnectNodeInternal</definition>
+        <argsstring>(ViewerOutput *) override</argsstring>
+        <name>ConnectNodeInternal</name>
+        <reimplements refid="class_time_based_widget_1a69db55f5a678e5fdad047646da059500">ConnectNodeInternal</reimplements>
+        <param>
+          <type><ref refid="class_viewer_output" kindref="compound">ViewerOutput</ref> *</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="160" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_viewer_widget_1a0001a7203c0222738afc1b136284da30" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void ViewerWidget::DisconnectNodeInternal</definition>
+        <argsstring>(ViewerOutput *) override</argsstring>
+        <name>DisconnectNodeInternal</name>
+        <reimplements refid="class_time_based_widget_1a2f665d142cb945db74aa93634e0a12b7">DisconnectNodeInternal</reimplements>
+        <param>
+          <type><ref refid="class_viewer_output" kindref="compound">ViewerOutput</ref> *</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="161" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_viewer_widget_1aeb2fc173ba5b3848e92e560554e4d444" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void ViewerWidget::ConnectedNodeChanged</definition>
+        <argsstring>(ViewerOutput *n) override</argsstring>
+        <name>ConnectedNodeChanged</name>
+        <reimplements refid="class_time_based_widget_1afee714a1f0832f2743e6200dee9dc156">ConnectedNodeChanged</reimplements>
+        <param>
+          <type><ref refid="class_viewer_output" kindref="compound">ViewerOutput</ref> *</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="162" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_viewer_widget_1a89a7d46362b90d1f0c5af4e528850a72" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void ViewerWidget::ScaleChangedEvent</definition>
+        <argsstring>(const double &amp;s) override</argsstring>
+        <name>ScaleChangedEvent</name>
+        <reimplements refid="class_time_based_widget_1a8d2b9c4b999bade1b00bda98961a5450">ScaleChangedEvent</reimplements>
+        <param>
+          <type>const double &amp;</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="164" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_viewer_widget_1a79b062d5dc4f96501d5e09751b664712" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void ViewerWidget::resizeEvent</definition>
+        <argsstring>(QResizeEvent *event) override</argsstring>
+        <name>resizeEvent</name>
+        <reimplements refid="class_time_based_widget_1a4efbacf5c503d27396d808c51f574c16">resizeEvent</reimplements>
+        <param>
+          <type>QResizeEvent *</type>
+          <declname>event</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="166" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_viewer_widget_1ae0b4194a824c841c32de47449fe7fa5e" prot="protected" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const QList&lt; <ref refid="class_viewer_display_widget" kindref="compound">ViewerDisplayWidget</ref> * &gt; &amp;</type>
+        <definition>const QList&lt;ViewerDisplayWidget *&gt;&amp; ViewerWidget::gl_widgets</definition>
+        <argsstring>() const</argsstring>
+        <name>gl_widgets</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="173" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_viewer_widget_1a0e9b8d9483e3a59527a58d836441695b" prot="protected" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_viewer_display_widget" kindref="compound">ViewerDisplayWidget</ref> *</type>
+        <definition>ViewerDisplayWidget* ViewerWidget::main_gl_widget</definition>
+        <argsstring>() const</argsstring>
+        <name>main_gl_widget</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="174" column="23"/>
+      </memberdef>
+      <memberdef kind="function" id="class_time_based_widget_1a060777a25459cba415181196da474eb1" prot="protected" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_resizable_scroll_bar" kindref="compound">ResizableScrollBar</ref> *</type>
+        <definition>ResizableScrollBar* TimeBasedWidget::scrollbar</definition>
+        <argsstring>() const</argsstring>
+        <name>scrollbar</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" line="116" column="22"/>
+      </memberdef>
+      <memberdef kind="function" id="class_time_based_widget_1a3954f3432c4ec8a7b1e8a662ae36d932" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimeBasedWidget::SetAutoMaxScrollBar</definition>
+        <argsstring>(bool e)</argsstring>
+        <name>SetAutoMaxScrollBar</name>
+        <param>
+          <type>bool</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" line="130" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_time_based_widget_1a45693a9f4236f6c38b4e0bfb8dbe36e4" prot="protected" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_timeline_points" kindref="compound">TimelinePoints</ref> *</type>
+        <definition>TimelinePoints* TimeBasedWidget::GetConnectedTimelinePoints</definition>
+        <argsstring>() const</argsstring>
+        <name>GetConnectedTimelinePoints</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" line="138" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_time_based_widget_1af6345ea5c521b9decf6d8feed6d35fcd" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimeBasedWidget::ConnectTimelineView</definition>
+        <argsstring>(TimelineViewBase *base)</argsstring>
+        <name>ConnectTimelineView</name>
+        <param>
+          <type><ref refid="class_timeline_view_base" kindref="compound">TimelineViewBase</ref> *</type>
+          <declname>base</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" line="140" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_scaled_object_1a99501640a7a292524fd4846c0c22ea08" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational TimelineScaledObject::SceneToTime</definition>
+        <argsstring>(const double &amp;x, bool round=false)</argsstring>
+        <name>SceneToTime</name>
+        <param>
+          <type>const double &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>round</declname>
+          <defval>false</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" line="67" column="12"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_scaled_object_1a59f6d4022281bc54c185c40b1c4bbc41" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double TimelineScaledObject::TimeToScene</definition>
+        <argsstring>(const rational &amp;time)</argsstring>
+        <name>TimeToScene</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" line="66" column="10"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_scaled_object_1ad5879898bf6e79af848805685393fab7" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimelineScaledObject::SetMaximumScale</definition>
+        <argsstring>(const double &amp;max)</argsstring>
+        <name>SetMaximumScale</name>
+        <param>
+          <type>const double &amp;</type>
+          <declname>max</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" line="73" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_scaled_object_1a9269c75d9cb55cff460c9f34647e1dd1" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimelineScaledObject::SetMinimumScale</definition>
+        <argsstring>(const double &amp;min)</argsstring>
+        <name>SetMinimumScale</name>
+        <param>
+          <type>const double &amp;</type>
+          <declname>min</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" line="75" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_footage_viewer_widget_1a5cfde057025bc7f2e0c6d72cd7e9810f" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void FootageViewerWidget::StartFootageDragInternal</definition>
+        <argsstring>(bool enable_video, bool enable_audio)</argsstring>
+        <name>StartFootageDragInternal</name>
+        <param>
+          <type>bool</type>
+          <declname>enable_video</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>enable_audio</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/footageviewer.h" line="64" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_viewer_widget_1a8a36fdef076e415e6f6f75e3c37e65f3" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerWidget::SetColorTransform</definition>
+        <argsstring>(const ColorTransform &amp;transform, ViewerDisplayWidget *sender)</argsstring>
+        <name>SetColorTransform</name>
+        <param>
+          <type>const <ref refid="class_color_transform" kindref="compound">ColorTransform</ref> &amp;</type>
+          <declname>transform</declname>
+        </param>
+        <param>
+          <type><ref refid="class_viewer_display_widget" kindref="compound">ViewerDisplayWidget</ref> *</type>
+          <declname>sender</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="189" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_viewer_widget_1a52e1fea5acd315abfa9fec050ad6d3bb" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerWidget::UpdateTimeInternal</definition>
+        <argsstring>(int64_t i)</argsstring>
+        <name>UpdateTimeInternal</name>
+        <param>
+          <type>int64_t</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="177" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_viewer_widget_1afc1c902a3229f167addd0bd100aef681" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerWidget::UpdateTextureFromNode</definition>
+        <argsstring>(const rational &amp;time)</argsstring>
+        <name>UpdateTextureFromNode</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="179" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_viewer_widget_1acb5ea2d37b99af45a00564cc9414ff34" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerWidget::PlayInternal</definition>
+        <argsstring>(int speed, bool in_to_out_only)</argsstring>
+        <name>PlayInternal</name>
+        <param>
+          <type>int</type>
+          <declname>speed</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>in_to_out_only</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="181" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_viewer_widget_1aa447c0bd00c9de37334d9fa1675d07ca" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerWidget::PushScrubbedAudio</definition>
+        <argsstring>()</argsstring>
+        <name>PushScrubbedAudio</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="183" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_viewer_widget_1a08b2f959561ad53c1ecaf4ffc16562da" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int ViewerWidget::CalculateDivider</definition>
+        <argsstring>()</argsstring>
+        <name>CalculateDivider</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="185" column="7"/>
+      </memberdef>
+      <memberdef kind="function" id="class_viewer_widget_1aafe6a26906f922cd7e1fb3472ae78b0d" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerWidget::UpdateMinimumScale</definition>
+        <argsstring>()</argsstring>
+        <name>UpdateMinimumScale</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="187" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_time_based_widget_1a4a6a94818484e8f3577c863435f38a4e" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimeBasedWidget::SetPoint</definition>
+        <argsstring>(Timeline::MovementMode m, const rational &amp;time)</argsstring>
+        <name>SetPoint</name>
+        <param>
+          <type><ref refid="class_timeline_1a541f8e285446d35262af274e46ef62ec" kindref="member">Timeline::MovementMode</ref></type>
+          <declname>m</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+<para>Set either in or out point to the current playhead. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>m</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Set to kTrimIn or kTrimOut for setting the in point or out point respectively. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" line="161" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_time_based_widget_1af1edee71e8059a6bcfd00bf15d24ae0a" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimeBasedWidget::ResetPoint</definition>
+        <argsstring>(Timeline::MovementMode m)</argsstring>
+        <name>ResetPoint</name>
+        <param>
+          <type><ref refid="class_timeline_1a541f8e285446d35262af274e46ef62ec" kindref="member">Timeline::MovementMode</ref></type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Reset either the in or out point. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Sets either the in point to 0 or the out point to <computeroutput>RATIONAL_MAX</computeroutput>.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>m</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Set to kTrimIn or kTrimOut for setting the in point or out point respectively. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" line="172" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_footage_viewer_widget_1a93c1ab39ea0dbec3bb718f5388257e4a" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void FootageViewerWidget::StartFootageDrag</definition>
+        <argsstring>()</argsstring>
+        <name>StartFootageDrag</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/footageviewer.h" line="75" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_footage_viewer_widget_1a12d50444a4771f5edb5f2823f3669f07" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void FootageViewerWidget::StartVideoDrag</definition>
+        <argsstring>()</argsstring>
+        <name>StartVideoDrag</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/footageviewer.h" line="77" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_footage_viewer_widget_1a4d2736c9437c5c1bcd6cdb4064e0feec" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void FootageViewerWidget::StartAudioDrag</definition>
+        <argsstring>()</argsstring>
+        <name>StartAudioDrag</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/footageviewer.h" line="79" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_viewer_widget_1a7537044a0ad7992d9182d8748e6f194e" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerWidget::PlaybackTimerUpdate</definition>
+        <argsstring>()</argsstring>
+        <name>PlaybackTimerUpdate</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="223" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_viewer_widget_1ae4ac9df967b0e55ce41cb5c4472679d6" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerWidget::RendererCachedTime</definition>
+        <argsstring>(const rational &amp;time, qint64 job_time)</argsstring>
+        <name>RendererCachedTime</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>time</declname>
+        </param>
+        <param>
+          <type>qint64</type>
+          <declname>job_time</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="225" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_viewer_widget_1a3732c2d0802d39bec7c37a1c1af1fc3f" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerWidget::SizeChangedSlot</definition>
+        <argsstring>(int width, int height)</argsstring>
+        <name>SizeChangedSlot</name>
+        <param>
+          <type>int</type>
+          <declname>width</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>height</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="227" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_viewer_widget_1a985acda54c71e26b3bfa02f22479e0f8" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerWidget::LengthChangedSlot</definition>
+        <argsstring>(const rational &amp;length)</argsstring>
+        <name>LengthChangedSlot</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>length</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="229" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_viewer_widget_1a46944f543b7099a3dc925c9e53673d4f" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerWidget::UpdateRendererParameters</definition>
+        <argsstring>()</argsstring>
+        <name>UpdateRendererParameters</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="231" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_viewer_widget_1a0f88441a07cfeb7bc952593d537ddc91" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerWidget::ShowContextMenu</definition>
+        <argsstring>(const QPoint &amp;pos)</argsstring>
+        <name>ShowContextMenu</name>
+        <param>
+          <type>const QPoint &amp;</type>
+          <declname>pos</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="233" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_viewer_widget_1a65c95894901354fb2b37512247995a4d" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerWidget::SetDividerFromMenu</definition>
+        <argsstring>(QAction *action)</argsstring>
+        <name>SetDividerFromMenu</name>
+        <param>
+          <type>QAction *</type>
+          <declname>action</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="235" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_viewer_widget_1a32dcdc1645200f6062eadb3b26416016" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerWidget::SetZoomFromMenu</definition>
+        <argsstring>(QAction *action)</argsstring>
+        <name>SetZoomFromMenu</name>
+        <param>
+          <type>QAction *</type>
+          <declname>action</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="237" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_viewer_widget_1ab56d2b4580240b140b409b99bb7a1b00" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerWidget::InvalidateVisible</definition>
+        <argsstring>(NodeInput *source)</argsstring>
+        <name>InvalidateVisible</name>
+        <param>
+          <type><ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+          <declname>source</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="239" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_viewer_widget_1acb85e093cde96c620597c6447c56530e" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerWidget::UpdateStack</definition>
+        <argsstring>()</argsstring>
+        <name>UpdateStack</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="241" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_viewer_widget_1a217b9f5dc5c1e2b9f67bf9b04d9b7b05" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerWidget::ContextMenuSetFullScreen</definition>
+        <argsstring>(QAction *action)</argsstring>
+        <name>ContextMenuSetFullScreen</name>
+        <param>
+          <type>QAction *</type>
+          <declname>action</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="243" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_viewer_widget_1ad8484050f1be6ee975c98614cd1f4733" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerWidget::ContextMenuDisableSafeMargins</definition>
+        <argsstring>()</argsstring>
+        <name>ContextMenuDisableSafeMargins</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="245" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_viewer_widget_1a6260415ed5d7842a682ac48c14e12480" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerWidget::ContextMenuSetSafeMargins</definition>
+        <argsstring>()</argsstring>
+        <name>ContextMenuSetSafeMargins</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="247" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_viewer_widget_1a3048f0d0cff5e168e592611199e56ea6" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerWidget::ContextMenuSetCustomSafeMargins</definition>
+        <argsstring>()</argsstring>
+        <name>ContextMenuSetCustomSafeMargins</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="249" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_viewer_widget_1a4212dafe260294c395472cca13c9f3e4" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerWidget::WindowAboutToClose</definition>
+        <argsstring>()</argsstring>
+        <name>WindowAboutToClose</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="251" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_viewer_widget_1a8a35da29b3865a24fe0081d36900fd5a" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerWidget::ContextMenuScopeTriggered</definition>
+        <argsstring>(QAction *action)</argsstring>
+        <name>ContextMenuScopeTriggered</name>
+        <param>
+          <type>QAction *</type>
+          <declname>action</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="253" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_time_based_widget_1af549faa655d83542e1b95ace5a9c76b5" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimeBasedWidget::UpdateMaximumScroll</definition>
+        <argsstring>()</argsstring>
+        <name>UpdateMaximumScroll</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" line="191" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_time_based_widget_1a07246e5507658fc80ad3f855a1c2a6a0" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimeBasedWidget::ScrollBarResized</definition>
+        <argsstring>(const double &amp;multiplier)</argsstring>
+        <name>ScrollBarResized</name>
+        <param>
+          <type>const double &amp;</type>
+          <declname>multiplier</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" line="193" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="class_viewer_widget_1a293c42d0dcb2ce9e6d173569db09ab12" prot="protected" static="no" mutable="no">
+        <type><ref refid="class_open_g_l_backend" kindref="compound">OpenGLBackend</ref> *</type>
+        <definition>OpenGLBackend* ViewerWidget::video_renderer_</definition>
+        <argsstring></argsstring>
+        <name>video_renderer_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="168" column="17" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" bodystart="168" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_viewer_widget_1ae3e463265dbc813a7769ee1a82933c86" prot="protected" static="no" mutable="no">
+        <type><ref refid="class_audio_backend" kindref="compound">AudioBackend</ref> *</type>
+        <definition>AudioBackend* ViewerWidget::audio_renderer_</definition>
+        <argsstring></argsstring>
+        <name>audio_renderer_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="169" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" bodystart="169" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_viewer_widget_1ae0de3f29bef0bdbc6dff0f9a3e965b48" prot="protected" static="no" mutable="no">
+        <type><ref refid="class_playback_controls" kindref="compound">PlaybackControls</ref> *</type>
+        <definition>PlaybackControls* ViewerWidget::controls_</definition>
+        <argsstring></argsstring>
+        <name>controls_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="171" column="20" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" bodystart="171" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-slot">
+      <memberdef kind="slot" id="class_viewer_widget_1acfb80b8e749617e3a398538974576dee" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerWidget::Play</definition>
+        <argsstring>(bool in_to_out_only)</argsstring>
+        <name>Play</name>
+        <param>
+          <type>bool</type>
+          <declname>in_to_out_only</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="109" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_viewer_widget_1af50a5157e2bb45cd8396e26b14463af4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerWidget::Play</definition>
+        <argsstring>()</argsstring>
+        <name>Play</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="111" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_viewer_widget_1acf58b4c0ae70eaa870d623d2ff24c12d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerWidget::Pause</definition>
+        <argsstring>()</argsstring>
+        <name>Pause</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="113" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_viewer_widget_1ae52e0e99804da44513b08ceefa595560" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerWidget::ShuttleLeft</definition>
+        <argsstring>()</argsstring>
+        <name>ShuttleLeft</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="115" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_viewer_widget_1a33d926c37bf4e14816898d6fcc4048c9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerWidget::ShuttleStop</definition>
+        <argsstring>()</argsstring>
+        <name>ShuttleStop</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="117" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_viewer_widget_1ae409cd4b4a2f2a2fb9083f7c4733b360" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerWidget::ShuttleRight</definition>
+        <argsstring>()</argsstring>
+        <name>ShuttleRight</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="119" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_viewer_widget_1a6d06cf0624e565dd28a41a5c280678d3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerWidget::SetColorTransform</definition>
+        <argsstring>(const ColorTransform &amp;transform)</argsstring>
+        <name>SetColorTransform</name>
+        <param>
+          <type>const <ref refid="class_color_transform" kindref="compound">ColorTransform</ref> &amp;</type>
+          <declname>transform</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="121" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_viewer_widget_1ab1926ae7a822ace19de75839c7c99ab4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerWidget::SetSignalCursorColorEnabled</definition>
+        <argsstring>(bool e)</argsstring>
+        <name>SetSignalCursorColorEnabled</name>
+        <param>
+          <type>bool</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+<para>Wrapper for ViewerGLWidget::SetSignalCursorColorEnabled() </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="126" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_time_based_widget_1ab3b1a1a7ef4b07f971a6a54ac8ee1dd6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimeBasedWidget::SetTimestamp</definition>
+        <argsstring>(int64_t timestamp)</argsstring>
+        <name>SetTimestamp</name>
+        <param>
+          <type>int64_t</type>
+          <declname>timestamp</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" line="74" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_time_based_widget_1a99d5650340538ffa416ef956570532a4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimeBasedWidget::SetTimebase</definition>
+        <argsstring>(const rational &amp;timebase)</argsstring>
+        <name>SetTimebase</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>timebase</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" line="76" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_time_based_widget_1a3c01a239570a5291cb48c3804930d179" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimeBasedWidget::SetScale</definition>
+        <argsstring>(const double &amp;scale)</argsstring>
+        <name>SetScale</name>
+        <param>
+          <type>const double &amp;</type>
+          <declname>scale</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" line="78" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_time_based_widget_1a9b76f611947632dd36128cfebc32a8dd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimeBasedWidget::GoToStart</definition>
+        <argsstring>()</argsstring>
+        <name>GoToStart</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" line="80" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_time_based_widget_1a0a7b86914370c22ab3139edcb710d811" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimeBasedWidget::PrevFrame</definition>
+        <argsstring>()</argsstring>
+        <name>PrevFrame</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" line="82" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_time_based_widget_1a7a65a299ebfa86805e7e8ce0464f1334" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimeBasedWidget::NextFrame</definition>
+        <argsstring>()</argsstring>
+        <name>NextFrame</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" line="84" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_time_based_widget_1a6efdd8c52d24096f4e2b0732935c0ce2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimeBasedWidget::GoToEnd</definition>
+        <argsstring>()</argsstring>
+        <name>GoToEnd</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" line="86" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_time_based_widget_1a8c7bf7754d71add36a72d1412b21b017" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimeBasedWidget::GoToPrevCut</definition>
+        <argsstring>()</argsstring>
+        <name>GoToPrevCut</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" line="88" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_time_based_widget_1ad2bea75219483ff9185acf3bc18e278d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimeBasedWidget::GoToNextCut</definition>
+        <argsstring>()</argsstring>
+        <name>GoToNextCut</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" line="90" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_time_based_widget_1a322d383adbce127f0a28ddc734eb9c9d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimeBasedWidget::SetInAtPlayhead</definition>
+        <argsstring>()</argsstring>
+        <name>SetInAtPlayhead</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" line="92" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_time_based_widget_1a0890f9a7c38e3f04ce3d778deeca7052" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimeBasedWidget::SetOutAtPlayhead</definition>
+        <argsstring>()</argsstring>
+        <name>SetOutAtPlayhead</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" line="94" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_time_based_widget_1a6b58a21e9b17ae6543a0e4fdd0cd679e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimeBasedWidget::ResetIn</definition>
+        <argsstring>()</argsstring>
+        <name>ResetIn</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" line="96" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_time_based_widget_1acec02a279aee327d6c382642891aa429" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimeBasedWidget::ResetOut</definition>
+        <argsstring>()</argsstring>
+        <name>ResetOut</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" line="98" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_time_based_widget_1ac32905918bea522d01abbe90f9afcdc7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimeBasedWidget::ClearInOutPoints</definition>
+        <argsstring>()</argsstring>
+        <name>ClearInOutPoints</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" line="100" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_time_based_widget_1a6eb32f2459ebd9158b8f51b077c84ac6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimeBasedWidget::SetMarker</definition>
+        <argsstring>()</argsstring>
+        <name>SetMarker</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" line="102" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_time_based_widget_1a9addba2af43166e899e1b840dc784a2f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimeBasedWidget::ToggleShowAll</definition>
+        <argsstring>()</argsstring>
+        <name>ToggleShowAll</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" line="104" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_time_based_widget_1a7396b6d236086bf6c9161f7ee1d7a3f1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimeBasedWidget::GoToIn</definition>
+        <argsstring>()</argsstring>
+        <name>GoToIn</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" line="106" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_time_based_widget_1a105ad8376d917fe5c47dcd3446caa8bc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimeBasedWidget::GoToOut</definition>
+        <argsstring>()</argsstring>
+        <name>GoToOut</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" line="108" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_time_based_widget_1a544e3ea9221afd81b1965565697eae2c" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_time_ruler" kindref="compound">TimeRuler</ref> *</type>
+        <definition>TimeRuler* TimeBasedWidget::ruler</definition>
+        <argsstring>() const</argsstring>
+        <name>ruler</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" line="110" column="13"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_viewer_widget_1aa705bf60e9fda6770c9f79464ff9d17c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerWidget::CursorColor</definition>
+        <argsstring>(const Color &amp;reference, const Color &amp;display)</argsstring>
+        <name>CursorColor</name>
+        <param>
+          <type>const <ref refid="class_color" kindref="compound">Color</ref> &amp;</type>
+          <declname>reference</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_color" kindref="compound">Color</ref> &amp;</type>
+          <declname>display</declname>
+        </param>
+        <briefdescription>
+<para>Wrapper for ViewerGLWidget::CursorColor() </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="132" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_viewer_widget_1a6a99f8d8e92d6083a940e0a1b02d7996" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerWidget::LoadedBuffer</definition>
+        <argsstring>(Frame *load_buffer)</argsstring>
+        <name>LoadedBuffer</name>
+        <param>
+          <type><ref refid="class_frame" kindref="compound">Frame</ref> *</type>
+          <declname>load_buffer</declname>
+        </param>
+        <briefdescription>
+<para>Wrapper for ViewerGLWidget::LoadedBuffer() </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="137" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_viewer_widget_1ad171251aaf6f5f216727d64bfeeebc53" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerWidget::RequestScopePanel</definition>
+        <argsstring>(ScopePanel::Type type)</argsstring>
+        <name>RequestScopePanel</name>
+        <param>
+          <type><ref refid="class_scope_panel_1a15abea9cc6f00f55ad35b9cc1853051d" kindref="member">ScopePanel::Type</ref></type>
+          <declname>type</declname>
+        </param>
+        <briefdescription>
+<para>Request a scope panel. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>As a widget, we don&apos;t handle panels, but a parent panel may pick this signal up. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="144" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_viewer_widget_1a8f881084ab01fe369f1aa80ffaffa55a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerWidget::ColorProcessorChanged</definition>
+        <argsstring>(ColorProcessorPtr processor)</argsstring>
+        <name>ColorProcessorChanged</name>
+        <param>
+          <type><ref refid="colorprocessor_8h_1ae3985029dcc28a9f9f42fc726d1a9471" kindref="member">ColorProcessorPtr</ref></type>
+          <declname>processor</declname>
+        </param>
+        <briefdescription>
+<para>Wrapper for ViewerGLWidget::ColorProcessorChanged() </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="149" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_viewer_widget_1ac6d05acfd9d07415bb70b8d4cd20edfa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ViewerWidget::ColorManagerChanged</definition>
+        <argsstring>(ColorManager *color_manager)</argsstring>
+        <name>ColorManagerChanged</name>
+        <param>
+          <type><ref refid="class_color_manager" kindref="compound">ColorManager</ref> *</type>
+          <declname>color_manager</declname>
+        </param>
+        <briefdescription>
+<para>Wrapper for ViewerGLWidget::ColorManagerChanged() </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/viewer.h" line="154" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_time_based_widget_1acc8c0d8859432e1d9175e5768cc664e3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimeBasedWidget::TimeChanged</definition>
+        <argsstring>(const int64_t &amp;)</argsstring>
+        <name>TimeChanged</name>
+        <param>
+          <type>const int64_t &amp;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" line="149" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_time_based_widget_1aee9f6ce5478d150839e1a17a073bc5c0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimeBasedWidget::TimebaseChanged</definition>
+        <argsstring>(const rational &amp;)</argsstring>
+        <name>TimebaseChanged</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" line="151" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-slot">
+      <memberdef kind="slot" id="class_time_based_widget_1a6ce47ad2c6842b83d3b8235ebceb5fbe" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimeBasedWidget::SetTimeAndSignal</definition>
+        <argsstring>(const int64_t &amp;t)</argsstring>
+        <name>SetTimeAndSignal</name>
+        <param>
+          <type>const int64_t &amp;</type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" line="113" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_time_based_widget_1a3dc7f8073a16c14e5cc5eab812dcc080" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimeBasedWidget::CenterScrollOnPlayhead</definition>
+        <argsstring>()</argsstring>
+        <name>CenterScrollOnPlayhead</name>
+        <briefdescription>
+<para>Slot to center the horizontal scroll bar on the playhead&apos;s current position. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timebased/timebased.h" line="146" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="class_timeline_scaled_object_1a62c2ffba8b9819e2d4026ae8e3be14c6" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>static rational TimelineScaledObject::SceneToTime</definition>
+        <argsstring>(const double &amp;x, const double &amp;x_scale, const rational &amp;timebase, bool round=false)</argsstring>
+        <name>SceneToTime</name>
+        <param>
+          <type>const double &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const double &amp;</type>
+          <declname>x_scale</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>timebase</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>round</declname>
+          <defval>false</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" line="59" column="19"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="5">
+        <label>TimelineScaledObject</label>
+        <link refid="class_timeline_scaled_object"/>
+      </node>
+      <node id="3">
+        <label>TimeBasedWidget</label>
+        <link refid="class_time_based_widget"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>TimelineScaledWidget</label>
+        <link refid="class_timeline_scaled_widget"/>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>ViewerWidget</label>
+        <link refid="class_viewer_widget"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>FootageViewerWidget</label>
+        <link refid="class_footage_viewer_widget"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="58">
+        <label>AudioInput</label>
+        <link refid="class_audio_input"/>
+        <childnode refid="57" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="18">
+        <label>NodeOutput</label>
+        <link refid="class_node_output"/>
+        <childnode refid="19" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>TimelinePoints</label>
+        <link refid="class_timeline_points"/>
+        <childnode refid="12" relation="usage">
+          <edgelabel>markers_</edgelabel>
+        </childnode>
+        <childnode refid="13" relation="usage">
+          <edgelabel>workarea_</edgelabel>
+        </childnode>
+      </node>
+      <node id="31">
+        <label>OpenGLBackend</label>
+        <link refid="class_open_g_l_backend"/>
+        <childnode refid="32" relation="public-inheritance">
+        </childnode>
+        <childnode refid="38" relation="usage">
+          <edgelabel>proxy_</edgelabel>
+        </childnode>
+      </node>
+      <node id="36">
+        <label>NodeGraph</label>
+        <link refid="class_node_graph"/>
+      </node>
+      <node id="24">
+        <label>ManagedDisplayWidget</label>
+        <link refid="class_managed_display_widget"/>
+        <childnode refid="25" relation="usage">
+          <edgelabel>color_manager_</edgelabel>
+        </childnode>
+        <childnode refid="26" relation="usage">
+          <edgelabel>color_transform_</edgelabel>
+        </childnode>
+      </node>
+      <node id="25">
+        <label>ColorManager</label>
+        <link refid="class_color_manager"/>
+      </node>
+      <node id="34">
+        <label>RenderCancelDialog</label>
+        <link refid="class_render_cancel_dialog"/>
+        <childnode refid="35" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="32">
+        <label>VideoRenderBackend</label>
+        <link refid="class_video_render_backend"/>
+        <childnode refid="33" relation="public-inheritance">
+        </childnode>
+        <childnode refid="30" relation="usage">
+          <edgelabel>params_</edgelabel>
+        </childnode>
+        <childnode refid="15" relation="usage">
+          <edgelabel>invalidated_</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>last_time_requested_</edgelabel>
+        </childnode>
+        <childnode refid="37" relation="usage">
+          <edgelabel>frame_cache_</edgelabel>
+        </childnode>
+      </node>
+      <node id="41">
+        <label>OpenGLTextureCache</label>
+        <link refid="class_open_g_l_texture_cache"/>
+      </node>
+      <node id="21">
+        <label>AudioParams</label>
+        <link refid="class_audio_params"/>
+      </node>
+      <node id="38">
+        <label>OpenGLProxy</label>
+        <link refid="class_open_g_l_proxy"/>
+        <childnode refid="39" relation="usage">
+          <edgelabel>color_cache_</edgelabel>
+        </childnode>
+        <childnode refid="30" relation="usage">
+          <edgelabel>video_params_</edgelabel>
+        </childnode>
+        <childnode refid="40" relation="usage">
+          <edgelabel>shader_cache_</edgelabel>
+        </childnode>
+        <childnode refid="41" relation="usage">
+          <edgelabel>texture_cache_</edgelabel>
+        </childnode>
+        <childnode refid="42" relation="usage">
+          <edgelabel>still_image_cache_</edgelabel>
+        </childnode>
+        <childnode refid="43" relation="usage">
+          <edgelabel>buffer_</edgelabel>
+        </childnode>
+      </node>
+      <node id="42">
+        <label>RenderCache&lt; Stream *, OpenGLProxy::CachedStill &gt;</label>
+        <link refid="class_render_cache"/>
+      </node>
+      <node id="16">
+        <label>ViewerOutput</label>
+        <link refid="class_viewer_output"/>
+        <childnode refid="17" relation="public-inheritance">
+        </childnode>
+        <childnode refid="20" relation="usage">
+          <edgelabel>video_params_</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>timeline_length_</edgelabel>
+        </childnode>
+        <childnode refid="21" relation="usage">
+          <edgelabel>audio_params_</edgelabel>
+        </childnode>
+        <childnode refid="22" relation="usage">
+          <edgelabel>texture_input_</edgelabel>
+          <edgelabel>samples_input_</edgelabel>
+        </childnode>
+      </node>
+      <node id="10">
+        <label>TimelinePlayhead</label>
+        <link refid="class_timeline_playhead"/>
+      </node>
+      <node id="23">
+        <label>ViewerDisplayWidget</label>
+        <link refid="class_viewer_display_widget"/>
+        <childnode refid="24" relation="public-inheritance">
+        </childnode>
+        <childnode refid="27" relation="usage">
+          <edgelabel>safe_margin_</edgelabel>
+        </childnode>
+        <childnode refid="28" relation="usage">
+          <edgelabel>texture_</edgelabel>
+        </childnode>
+        <childnode refid="29" relation="usage">
+          <edgelabel>load_buffer_</edgelabel>
+        </childnode>
+      </node>
+      <node id="6">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="35">
+        <label>ProgressDialog</label>
+        <link refid="class_progress_dialog"/>
+      </node>
+      <node id="53">
+        <label>AudioRenderingParams</label>
+        <link refid="class_audio_rendering_params"/>
+        <childnode refid="21" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="49">
+        <label>SliderLabel</label>
+        <link refid="class_slider_label"/>
+      </node>
+      <node id="44">
+        <label>PlaybackControls</label>
+        <link refid="class_playback_controls"/>
+        <childnode refid="45" relation="usage">
+          <edgelabel>cur_tc_lbl_</edgelabel>
+        </childnode>
+        <childnode refid="50" relation="usage">
+          <edgelabel>video_drag_btn_</edgelabel>
+          <edgelabel>audio_drag_btn_</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>time_base_</edgelabel>
+        </childnode>
+      </node>
+      <node id="5">
+        <label>TimelineScaledObject</label>
+        <link refid="class_timeline_scaled_object"/>
+        <childnode refid="6" relation="usage">
+          <edgelabel>timebase_</edgelabel>
+        </childnode>
+      </node>
+      <node id="60">
+        <label>Item</label>
+        <link refid="class_item"/>
+        <childnode refid="60" relation="usage">
+          <edgelabel>parent_</edgelabel>
+        </childnode>
+        <childnode refid="61" relation="usage">
+          <edgelabel>project_</edgelabel>
+        </childnode>
+      </node>
+      <node id="17">
+        <label>Node</label>
+        <link refid="class_node"/>
+        <childnode refid="18" relation="usage">
+          <edgelabel>output_</edgelabel>
+        </childnode>
+      </node>
+      <node id="48">
+        <label>FocusableLineEdit</label>
+        <link refid="class_focusable_line_edit"/>
+      </node>
+      <node id="30">
+        <label>VideoRenderingParams</label>
+        <link refid="class_video_rendering_params"/>
+        <childnode refid="20" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>NodeInput</label>
+        <link refid="class_node_input"/>
+        <childnode refid="19" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>TimeBasedWidget</label>
+        <link refid="class_time_based_widget"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>scrollbar_</edgelabel>
+        </childnode>
+        <childnode refid="8" relation="usage">
+          <edgelabel>ruler_</edgelabel>
+        </childnode>
+        <childnode refid="16" relation="usage">
+          <edgelabel>viewer_node_</edgelabel>
+        </childnode>
+        <childnode refid="11" relation="usage">
+          <edgelabel>points_</edgelabel>
+        </childnode>
+      </node>
+      <node id="33">
+        <label>RenderBackend</label>
+        <link refid="class_render_backend"/>
+        <childnode refid="34" relation="usage">
+          <edgelabel>cancel_dialog_</edgelabel>
+        </childnode>
+        <childnode refid="36" relation="usage">
+          <edgelabel>copied_graph_</edgelabel>
+        </childnode>
+        <childnode refid="16" relation="usage">
+          <edgelabel>copied_viewer_node_</edgelabel>
+          <edgelabel>viewer_node_</edgelabel>
+        </childnode>
+        <childnode refid="15" relation="usage">
+          <edgelabel>cache_queue_</edgelabel>
+        </childnode>
+      </node>
+      <node id="46">
+        <label>IntegerSlider</label>
+        <link refid="class_integer_slider"/>
+        <childnode refid="47" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="45">
+        <label>TimeSlider</label>
+        <link refid="class_time_slider"/>
+        <childnode refid="46" relation="public-inheritance">
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>timebase_</edgelabel>
+        </childnode>
+      </node>
+      <node id="15">
+        <label>TimeRangeList</label>
+        <link refid="class_time_range_list"/>
+      </node>
+      <node id="57">
+        <label>MediaInput</label>
+        <link refid="class_media_input"/>
+        <childnode refid="17" relation="public-inheritance">
+        </childnode>
+        <childnode refid="22" relation="usage">
+          <edgelabel>footage_input_</edgelabel>
+        </childnode>
+      </node>
+      <node id="40">
+        <label>RenderCache&lt; QString, OpenGLShaderPtr &gt;</label>
+        <link refid="class_render_cache"/>
+      </node>
+      <node id="56">
+        <label>VideoInput</label>
+        <link refid="class_video_input"/>
+        <childnode refid="57" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="28">
+        <label>OpenGLTexture</label>
+        <link refid="class_open_g_l_texture"/>
+      </node>
+      <node id="4">
+        <label>TimelineScaledWidget</label>
+        <link refid="class_timeline_scaled_widget"/>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="50">
+        <label>DragButton</label>
+        <link refid="class_drag_button"/>
+      </node>
+      <node id="13">
+        <label>TimelineWorkArea</label>
+        <link refid="class_timeline_work_area"/>
+        <childnode refid="14" relation="usage">
+          <edgelabel>workarea_range_</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>kResetOut</edgelabel>
+          <edgelabel>kResetIn</edgelabel>
+        </childnode>
+      </node>
+      <node id="27">
+        <label>ViewerSafeMarginInfo</label>
+        <link refid="class_viewer_safe_margin_info"/>
+      </node>
+      <node id="2">
+        <label>ViewerWidget</label>
+        <link refid="class_viewer_widget"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+        <childnode refid="23" relation="usage">
+          <edgelabel>context_menu_widget_</edgelabel>
+        </childnode>
+        <childnode refid="25" relation="usage">
+          <edgelabel>override_color_manager_</edgelabel>
+        </childnode>
+        <childnode refid="31" relation="usage">
+          <edgelabel>video_renderer_</edgelabel>
+        </childnode>
+        <childnode refid="44" relation="usage">
+          <edgelabel>controls_</edgelabel>
+        </childnode>
+        <childnode refid="51" relation="usage">
+          <edgelabel>waveform_view_</edgelabel>
+        </childnode>
+        <childnode refid="54" relation="usage">
+          <edgelabel>sizer_</edgelabel>
+        </childnode>
+        <childnode refid="55" relation="usage">
+          <edgelabel>audio_renderer_</edgelabel>
+        </childnode>
+      </node>
+      <node id="61">
+        <label>Project</label>
+        <link refid="class_project"/>
+        <childnode refid="25" relation="usage">
+          <edgelabel>color_manager_</edgelabel>
+        </childnode>
+        <childnode refid="62" relation="usage">
+          <edgelabel>root_</edgelabel>
+        </childnode>
+      </node>
+      <node id="62">
+        <label>Folder</label>
+        <link refid="class_folder"/>
+        <childnode refid="60" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="52">
+        <label>AudioRenderBackend</label>
+        <link refid="class_audio_render_backend"/>
+        <childnode refid="33" relation="public-inheritance">
+        </childnode>
+        <childnode refid="53" relation="usage">
+          <edgelabel>params_</edgelabel>
+        </childnode>
+      </node>
+      <node id="19">
+        <label>NodeParam</label>
+        <link refid="class_node_param"/>
+      </node>
+      <node id="14">
+        <label>TimeRange</label>
+        <link refid="class_time_range"/>
+        <childnode refid="6" relation="usage">
+          <edgelabel>out_</edgelabel>
+          <edgelabel>in_</edgelabel>
+          <edgelabel>length_</edgelabel>
+        </childnode>
+      </node>
+      <node id="9">
+        <label>SeekableWidget</label>
+        <link refid="class_seekable_widget"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+        <childnode refid="10" relation="usage">
+          <edgelabel>style_</edgelabel>
+        </childnode>
+        <childnode refid="11" relation="usage">
+          <edgelabel>timeline_points_</edgelabel>
+        </childnode>
+      </node>
+      <node id="7">
+        <label>ResizableScrollBar</label>
+        <link refid="class_resizable_scroll_bar"/>
+      </node>
+      <node id="55">
+        <label>AudioBackend</label>
+        <link refid="class_audio_backend"/>
+        <childnode refid="52" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="29">
+        <label>Frame</label>
+        <link refid="class_frame"/>
+        <childnode refid="30" relation="usage">
+          <edgelabel>params_</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>sample_aspect_ratio_</edgelabel>
+          <edgelabel>timestamp_</edgelabel>
+        </childnode>
+      </node>
+      <node id="20">
+        <label>VideoParams</label>
+        <link refid="class_video_params"/>
+        <childnode refid="6" relation="usage">
+          <edgelabel>time_base_</edgelabel>
+        </childnode>
+      </node>
+      <node id="8">
+        <label>TimeRuler</label>
+        <link refid="class_time_ruler"/>
+        <childnode refid="9" relation="public-inheritance">
+        </childnode>
+        <childnode refid="15" relation="usage">
+          <edgelabel>dirty_cache_ranges_</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>cache_length_</edgelabel>
+        </childnode>
+      </node>
+      <node id="1">
+        <label>FootageViewerWidget</label>
+        <link refid="class_footage_viewer_widget"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="56" relation="usage">
+          <edgelabel>video_node_</edgelabel>
+        </childnode>
+        <childnode refid="16" relation="usage">
+          <edgelabel>viewer_node_</edgelabel>
+        </childnode>
+        <childnode refid="58" relation="usage">
+          <edgelabel>audio_node_</edgelabel>
+        </childnode>
+        <childnode refid="59" relation="usage">
+          <edgelabel>footage_</edgelabel>
+        </childnode>
+      </node>
+      <node id="26">
+        <label>ColorTransform</label>
+        <link refid="class_color_transform"/>
+      </node>
+      <node id="37">
+        <label>VideoRenderFrameCache</label>
+        <link refid="class_video_render_frame_cache"/>
+      </node>
+      <node id="12">
+        <label>TimelineMarkerList</label>
+        <link refid="class_timeline_marker_list"/>
+      </node>
+      <node id="59">
+        <label>Footage</label>
+        <link refid="class_footage"/>
+        <childnode refid="60" relation="public-inheritance">
+        </childnode>
+        <childnode refid="11" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="47">
+        <label>SliderBase</label>
+        <link refid="class_slider_base"/>
+        <childnode refid="48" relation="usage">
+          <edgelabel>editor_</edgelabel>
+        </childnode>
+        <childnode refid="49" relation="usage">
+          <edgelabel>label_</edgelabel>
+        </childnode>
+      </node>
+      <node id="51">
+        <label>AudioWaveformView</label>
+        <link refid="class_audio_waveform_view"/>
+        <childnode refid="9" relation="public-inheritance">
+        </childnode>
+        <childnode refid="52" relation="usage">
+          <edgelabel>backend_</edgelabel>
+        </childnode>
+      </node>
+      <node id="43">
+        <label>OpenGLFramebuffer</label>
+        <link refid="class_open_g_l_framebuffer"/>
+        <childnode refid="28" relation="usage">
+          <edgelabel>texture_</edgelabel>
+        </childnode>
+      </node>
+      <node id="54">
+        <label>ViewerSizer</label>
+        <link refid="class_viewer_sizer"/>
+      </node>
+      <node id="39">
+        <label>RenderCache&lt; QString, ColorProcessorPtr &gt;</label>
+        <link refid="class_render_cache"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/viewer/footageviewer.h" line="31" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/footageviewer.h" bodystart="32" bodyend="63"/>
+    <listofallmembers>
+      <member refid="class_footage_viewer_widget_1a417ac1f8f6e31e8e542606f2b825e93e" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>audio_node_</name></member>
+      <member refid="class_viewer_widget_1ae3e463265dbc813a7769ee1a82933c86" prot="protected" virt="non-virtual"><scope>FootageViewerWidget</scope><name>audio_renderer_</name></member>
+      <member refid="class_time_based_widget_1a3595671e9c4b15094a0fd195a6aeef44" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>auto_max_scrollbar_</name></member>
+      <member refid="class_viewer_widget_1a08b2f959561ad53c1ecaf4ffc16562da" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>CalculateDivider</name></member>
+      <member refid="class_time_based_widget_1a3dc7f8073a16c14e5cc5eab812dcc080" prot="protected" virt="non-virtual"><scope>FootageViewerWidget</scope><name>CenterScrollOnPlayhead</name></member>
+      <member refid="class_time_based_widget_1ac32905918bea522d01abbe90f9afcdc7" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>ClearInOutPoints</name></member>
+      <member refid="class_viewer_widget_1a572c608e74a2cc15ee50f532ff19109b" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>color_manager</name></member>
+      <member refid="class_viewer_widget_1acfbeb5eb7f4c8112db4dc1d16f930bc6" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>color_menu_enabled_</name></member>
+      <member refid="class_viewer_widget_1ac6d05acfd9d07415bb70b8d4cd20edfa" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>ColorManagerChanged</name></member>
+      <member refid="class_viewer_widget_1a8f881084ab01fe369f1aa80ffaffa55a" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>ColorProcessorChanged</name></member>
+      <member refid="class_viewer_widget_1aeb2fc173ba5b3848e92e560554e4d444" prot="protected" virt="virtual"><scope>FootageViewerWidget</scope><name>ConnectedNodeChanged</name></member>
+      <member refid="class_viewer_widget_1a148ba4fbf2099a4e58786305e9b23100" prot="protected" virt="virtual"><scope>FootageViewerWidget</scope><name>ConnectNodeInternal</name></member>
+      <member refid="class_footage_viewer_widget_1a5f755d6dfa9c462150ffaddf73ffe68c" prot="protected" virt="virtual"><scope>FootageViewerWidget</scope><name>ConnectTimelinePoints</name></member>
+      <member refid="class_time_based_widget_1af6345ea5c521b9decf6d8feed6d35fcd" prot="protected" virt="non-virtual"><scope>FootageViewerWidget</scope><name>ConnectTimelineView</name></member>
+      <member refid="class_viewer_widget_1ace7bb1caa08c2d92650700822a48915f" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>ConnectViewerNode</name></member>
+      <member refid="class_time_based_widget_1a202274e0d9cfd1bf85ecfb09a0920d57" prot="public" virt="non-virtual" ambiguityscope="TimeBasedWidget::"><scope>FootageViewerWidget</scope><name>ConnectViewerNode</name></member>
+      <member refid="class_viewer_widget_1ac6f132b2001155bb50342e471e14a265" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>context_menu_widget_</name></member>
+      <member refid="class_viewer_widget_1ad8484050f1be6ee975c98614cd1f4733" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>ContextMenuDisableSafeMargins</name></member>
+      <member refid="class_viewer_widget_1a8a35da29b3865a24fe0081d36900fd5a" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>ContextMenuScopeTriggered</name></member>
+      <member refid="class_viewer_widget_1a3048f0d0cff5e168e592611199e56ea6" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>ContextMenuSetCustomSafeMargins</name></member>
+      <member refid="class_viewer_widget_1a217b9f5dc5c1e2b9f67bf9b04d9b7b05" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>ContextMenuSetFullScreen</name></member>
+      <member refid="class_viewer_widget_1a6260415ed5d7842a682ac48c14e12480" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>ContextMenuSetSafeMargins</name></member>
+      <member refid="class_viewer_widget_1ae0de3f29bef0bdbc6dff0f9a3e965b48" prot="protected" virt="non-virtual"><scope>FootageViewerWidget</scope><name>controls_</name></member>
+      <member refid="class_viewer_widget_1aa705bf60e9fda6770c9f79464ff9d17c" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>CursorColor</name></member>
+      <member refid="class_viewer_widget_1a0001a7203c0222738afc1b136284da30" prot="protected" virt="virtual"><scope>FootageViewerWidget</scope><name>DisconnectNodeInternal</name></member>
+      <member refid="class_viewer_widget_1adf68580e74537d52b0ebe4d1cc54bfa7" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>divider_</name></member>
+      <member refid="class_footage_viewer_widget_1abb428a01127765bbde1e07a9fb5f112c" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>footage_</name></member>
+      <member refid="class_footage_viewer_widget_1ac4b5980aeecc73fdc834cab2c5b76cf0" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>FootageViewerWidget</name></member>
+      <member refid="class_viewer_widget_1ac789fbf5eb0245b0f72e5ad0ecdba99e" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>ForceUpdate</name></member>
+      <member refid="class_viewer_widget_1a2705c8eb5d2fe5e4671849542f3d86aa" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>frame_cache_job_time_</name></member>
+      <member refid="class_time_based_widget_1a531f80fdbeeaa8d386cb5dd54e2d0a6c" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>GetConnectedNode</name></member>
+      <member refid="class_time_based_widget_1a45693a9f4236f6c38b4e0bfb8dbe36e4" prot="protected" virt="non-virtual"><scope>FootageViewerWidget</scope><name>GetConnectedTimelinePoints</name></member>
+      <member refid="class_footage_viewer_widget_1a6b49fef2408a10c4b511178fbd140c98" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>GetFootage</name></member>
+      <member refid="class_timeline_scaled_object_1a1c4d396511a29aff6f103077c475094d" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>GetScale</name></member>
+      <member refid="class_time_based_widget_1a39ec81e1d5734a9eaa7bb95440b4c3f8" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>GetTime</name></member>
+      <member refid="class_footage_viewer_widget_1a86afcac671f4a3de2077e82a2f3a990d" prot="protected" virt="virtual"><scope>FootageViewerWidget</scope><name>GetTimelinePointsProject</name></member>
+      <member refid="class_time_based_widget_1a395c2e84e24bcbfccf5a34940a625df6" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>GetTimestamp</name></member>
+      <member refid="class_viewer_widget_1ae0b4194a824c841c32de47449fe7fa5e" prot="protected" virt="non-virtual"><scope>FootageViewerWidget</scope><name>gl_widgets</name></member>
+      <member refid="class_viewer_widget_1aab372ae82865507a6f9008fb7d8f9ee6" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>gl_widgets_</name></member>
+      <member refid="class_time_based_widget_1a6efdd8c52d24096f4e2b0732935c0ce2" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>GoToEnd</name></member>
+      <member refid="class_time_based_widget_1a7396b6d236086bf6c9161f7ee1d7a3f1" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>GoToIn</name></member>
+      <member refid="class_time_based_widget_1ad2bea75219483ff9185acf3bc18e278d" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>GoToNextCut</name></member>
+      <member refid="class_time_based_widget_1a105ad8376d917fe5c47dcd3446caa8bc" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>GoToOut</name></member>
+      <member refid="class_time_based_widget_1a8c7bf7754d71add36a72d1412b21b017" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>GoToPrevCut</name></member>
+      <member refid="class_time_based_widget_1a9b76f611947632dd36128cfebc32a8dd" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>GoToStart</name></member>
+      <member refid="class_viewer_widget_1ab56d2b4580240b140b409b99bb7a1b00" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>InvalidateVisible</name></member>
+      <member refid="class_viewer_widget_1a6e91f089be06d4472ec897772f92eff7" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>IsPlaying</name></member>
+      <member refid="class_viewer_widget_1ab7c1a88b84b19906aa11967e97cc8cfd" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>last_time_</name></member>
+      <member refid="class_viewer_widget_1a985acda54c71e26b3bfa02f22479e0f8" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>LengthChangedSlot</name></member>
+      <member refid="class_viewer_widget_1a6a99f8d8e92d6083a940e0a1b02d7996" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>LoadedBuffer</name></member>
+      <member refid="class_viewer_widget_1a0e9b8d9483e3a59527a58d836441695b" prot="protected" virt="non-virtual"><scope>FootageViewerWidget</scope><name>main_gl_widget</name></member>
+      <member refid="class_timeline_scaled_object_1afc7c3ff17f1a580fbd248c830b3dd281" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>max_scale_</name></member>
+      <member refid="class_timeline_scaled_object_1ae573b4cc9ecb09a0ad49e8bc88f80ae2" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>min_scale_</name></member>
+      <member refid="class_time_based_widget_1a7a65a299ebfa86805e7e8ce0464f1334" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>NextFrame</name></member>
+      <member refid="class_viewer_widget_1a8ed80f3725e7e686a63196eff3a14f35" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>override_color_manager_</name></member>
+      <member refid="class_viewer_widget_1acf58b4c0ae70eaa870d623d2ff24c12d" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>Pause</name></member>
+      <member refid="class_viewer_widget_1acfb80b8e749617e3a398538974576dee" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>Play</name></member>
+      <member refid="class_viewer_widget_1af50a5157e2bb45cd8396e26b14463af4" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>Play</name></member>
+      <member refid="class_viewer_widget_1a1540fa42f7938d3667a421838c3f18f3" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>play_in_to_out_only_</name></member>
+      <member refid="class_viewer_widget_1afee090399dee5ca3ebdbac3291cc5273" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>playback_speed_</name></member>
+      <member refid="class_viewer_widget_1a7537044a0ad7992d9182d8748e6f194e" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>PlaybackTimerUpdate</name></member>
+      <member refid="class_viewer_widget_1acb5ea2d37b99af45a00564cc9414ff34" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>PlayInternal</name></member>
+      <member refid="class_time_based_widget_1a88907e0eeae11e47b4dc35eaa6cf36f5" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>points_</name></member>
+      <member refid="class_time_based_widget_1a0a7b86914370c22ab3139edcb710d811" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>PrevFrame</name></member>
+      <member refid="class_viewer_widget_1aa447c0bd00c9de37334d9fa1675d07ca" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>PushScrubbedAudio</name></member>
+      <member refid="class_viewer_widget_1ae4ac9df967b0e55ce41cb5c4472679d6" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>RendererCachedTime</name></member>
+      <member refid="class_viewer_widget_1ad171251aaf6f5f216727d64bfeeebc53" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>RequestScopePanel</name></member>
+      <member refid="class_time_based_widget_1a6b58a21e9b17ae6543a0e4fdd0cd679e" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>ResetIn</name></member>
+      <member refid="class_time_based_widget_1acec02a279aee327d6c382642891aa429" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>ResetOut</name></member>
+      <member refid="class_time_based_widget_1af1edee71e8059a6bcfd00bf15d24ae0a" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>ResetPoint</name></member>
+      <member refid="class_viewer_widget_1a79b062d5dc4f96501d5e09751b664712" prot="protected" virt="virtual"><scope>FootageViewerWidget</scope><name>resizeEvent</name></member>
+      <member refid="class_time_based_widget_1a544e3ea9221afd81b1965565697eae2c" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>ruler</name></member>
+      <member refid="class_time_based_widget_1a523db0cf86b8a9220c05839790825b2f" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>ruler_</name></member>
+      <member refid="class_timeline_scaled_object_1afef3a4ce71d522eb775952342ac3a724" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>scale_</name></member>
+      <member refid="class_viewer_widget_1a89a7d46362b90d1f0c5af4e528850a72" prot="protected" virt="virtual"><scope>FootageViewerWidget</scope><name>ScaleChangedEvent</name></member>
+      <member refid="class_timeline_scaled_object_1a62c2ffba8b9819e2d4026ae8e3be14c6" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>SceneToTime</name></member>
+      <member refid="class_timeline_scaled_object_1a99501640a7a292524fd4846c0c22ea08" prot="protected" virt="non-virtual"><scope>FootageViewerWidget</scope><name>SceneToTime</name></member>
+      <member refid="class_time_based_widget_1a060777a25459cba415181196da474eb1" prot="protected" virt="non-virtual"><scope>FootageViewerWidget</scope><name>scrollbar</name></member>
+      <member refid="class_time_based_widget_1a3222dc1a2ed65ce955b2ce6d474d7fa0" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>scrollbar_</name></member>
+      <member refid="class_time_based_widget_1a07246e5507658fc80ad3f855a1c2a6a0" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>ScrollBarResized</name></member>
+      <member refid="class_time_based_widget_1a3954f3432c4ec8a7b1e8a662ae36d932" prot="protected" virt="non-virtual"><scope>FootageViewerWidget</scope><name>SetAutoMaxScrollBar</name></member>
+      <member refid="class_viewer_widget_1a0fa263ee16cd484d584ded2936eb3cdf" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>SetColorMenuEnabled</name></member>
+      <member refid="class_viewer_widget_1a6d06cf0624e565dd28a41a5c280678d3" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>SetColorTransform</name></member>
+      <member refid="class_viewer_widget_1a8a36fdef076e415e6f6f75e3c37e65f3" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>SetColorTransform</name></member>
+      <member refid="class_viewer_widget_1a65c95894901354fb2b37512247995a4d" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>SetDividerFromMenu</name></member>
+      <member refid="class_footage_viewer_widget_1aa94660d191250a873b46bbb3dc552657" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>SetFootage</name></member>
+      <member refid="class_viewer_widget_1a7dd99f57c579f542473259ade7e5012e" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>SetFullScreen</name></member>
+      <member refid="class_time_based_widget_1a322d383adbce127f0a28ddc734eb9c9d" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>SetInAtPlayhead</name></member>
+      <member refid="class_time_based_widget_1a6eb32f2459ebd9158b8f51b077c84ac6" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>SetMarker</name></member>
+      <member refid="class_viewer_widget_1a0bd9b2b2b6b6c2326a64994c4468715b" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>SetMatrix</name></member>
+      <member refid="class_timeline_scaled_object_1ad5879898bf6e79af848805685393fab7" prot="protected" virt="non-virtual"><scope>FootageViewerWidget</scope><name>SetMaximumScale</name></member>
+      <member refid="class_timeline_scaled_object_1a9269c75d9cb55cff460c9f34647e1dd1" prot="protected" virt="non-virtual"><scope>FootageViewerWidget</scope><name>SetMinimumScale</name></member>
+      <member refid="class_time_based_widget_1a0890f9a7c38e3f04ce3d778deeca7052" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>SetOutAtPlayhead</name></member>
+      <member refid="class_viewer_widget_1a00818df86f86ef4cfcd7193ab09fdb68" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>SetOverrideSize</name></member>
+      <member refid="class_viewer_widget_1a7ecb9c236b728a6c3101bc14321b4fbe" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>SetPlaybackControlsEnabled</name></member>
+      <member refid="class_time_based_widget_1a4a6a94818484e8f3577c863435f38a4e" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>SetPoint</name></member>
+      <member refid="class_time_based_widget_1a3c01a239570a5291cb48c3804930d179" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>SetScale</name></member>
+      <member refid="class_time_based_widget_1a3b84e867f953d704a23a9760693cf33b" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>SetScaleAndCenterOnPlayhead</name></member>
+      <member refid="class_viewer_widget_1ab1926ae7a822ace19de75839c7c99ab4" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>SetSignalCursorColorEnabled</name></member>
+      <member refid="class_time_based_widget_1a6ce47ad2c6842b83d3b8235ebceb5fbe" prot="protected" virt="non-virtual"><scope>FootageViewerWidget</scope><name>SetTimeAndSignal</name></member>
+      <member refid="class_time_based_widget_1a99d5650340538ffa416ef956570532a4" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>SetTimebase</name></member>
+      <member refid="class_viewer_widget_1a08d76caa77d9072ce589a2f354cce99c" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>SetTimeRulerEnabled</name></member>
+      <member refid="class_time_based_widget_1ab3b1a1a7ef4b07f971a6a54ac8ee1dd6" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>SetTimestamp</name></member>
+      <member refid="class_viewer_widget_1a32dcdc1645200f6062eadb3b26416016" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>SetZoomFromMenu</name></member>
+      <member refid="class_viewer_widget_1a0f88441a07cfeb7bc952593d537ddc91" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>ShowContextMenu</name></member>
+      <member refid="class_viewer_widget_1ae52e0e99804da44513b08ceefa595560" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>ShuttleLeft</name></member>
+      <member refid="class_viewer_widget_1ae409cd4b4a2f2a2fb9083f7c4733b360" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>ShuttleRight</name></member>
+      <member refid="class_viewer_widget_1a33d926c37bf4e14816898d6fcc4048c9" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>ShuttleStop</name></member>
+      <member refid="class_viewer_widget_1a3732c2d0802d39bec7c37a1c1af1fc3f" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>SizeChangedSlot</name></member>
+      <member refid="class_viewer_widget_1aa0d91d618fc86b1cc0504d550e2392b3" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>sizer_</name></member>
+      <member refid="class_viewer_widget_1aa0ddcd2946115f005c4dfa80e3a2e58e" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>stack_</name></member>
+      <member refid="class_viewer_widget_1af811064939bd5a18a65f643e090f09b8" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>start_msec_</name></member>
+      <member refid="class_viewer_widget_1a3e5ac368799f39ea57fe216f17587510" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>start_timestamp_</name></member>
+      <member refid="class_footage_viewer_widget_1a4d2736c9437c5c1bcd6cdb4064e0feec" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>StartAudioDrag</name></member>
+      <member refid="class_footage_viewer_widget_1a93c1ab39ea0dbec3bb718f5388257e4a" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>StartFootageDrag</name></member>
+      <member refid="class_footage_viewer_widget_1a5cfde057025bc7f2e0c6d72cd7e9810f" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>StartFootageDragInternal</name></member>
+      <member refid="class_footage_viewer_widget_1a12d50444a4771f5edb5f2823f3669f07" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>StartVideoDrag</name></member>
+      <member refid="class_viewer_widget_1a0d692bf6886e83069c34909c5550e7c0" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>time_changed_from_timer_</name></member>
+      <member refid="class_timeline_scaled_object_1a18cc60c718e4521e6b772e4f34adf0c1" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>timebase</name></member>
+      <member refid="class_timeline_scaled_object_1a69dd77a3c6b37b62dce172256f6633e0" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>timebase_</name></member>
+      <member refid="class_timeline_scaled_object_1a77d512b8c299bf894a9e2d30db5ab5f8" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>timebase_dbl</name></member>
+      <member refid="class_timeline_scaled_object_1ad123e92c9a7373dd7ab41d2a6cf3e74f" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>timebase_dbl_</name></member>
+      <member refid="class_time_based_widget_1aee9f6ce5478d150839e1a17a073bc5c0" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>TimebaseChanged</name></member>
+      <member refid="class_viewer_widget_1a43885e443a8d17cea32dfdccf5617b87" prot="protected" virt="virtual"><scope>FootageViewerWidget</scope><name>TimebaseChangedEvent</name></member>
+      <member refid="class_time_based_widget_1a6a9894be0648b2ea7b646d97391c0de6" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>TimeBasedWidget</name></member>
+      <member refid="class_time_based_widget_1acc8c0d8859432e1d9175e5768cc664e3" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>TimeChanged</name></member>
+      <member refid="class_viewer_widget_1a0071ab5ee765677fed393cd8bafc05d2" prot="protected" virt="virtual"><scope>FootageViewerWidget</scope><name>TimeChangedEvent</name></member>
+      <member refid="class_time_based_widget_1af2859ed222ada7699bd20555b1022e26" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>timeline_views_</name></member>
+      <member refid="class_timeline_scaled_object_1aa6fbe05a6bd678116b36c9e9418d83c8" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>TimelineScaledObject</name></member>
+      <member refid="class_timeline_scaled_widget_1a8959f035ed05b56d78f602ab059169ba" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>TimelineScaledWidget</name></member>
+      <member refid="class_timeline_scaled_object_1a59f6d4022281bc54c185c40b1c4bbc41" prot="protected" virt="non-virtual"><scope>FootageViewerWidget</scope><name>TimeToScene</name></member>
+      <member refid="class_time_based_widget_1a1c1f8125c757e35d6226e6dfc541324c" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>toggle_show_all_</name></member>
+      <member refid="class_time_based_widget_1a983adb16881486cabf90df6883a51705" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>toggle_show_all_old_scale_</name></member>
+      <member refid="class_viewer_widget_1a553b5649a7b073a7ed8cfa02874ec941" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>TogglePlayPause</name></member>
+      <member refid="class_time_based_widget_1a9addba2af43166e899e1b840dc784a2f" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>ToggleShowAll</name></member>
+      <member refid="class_time_based_widget_1af549faa655d83542e1b95ace5a9c76b5" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>UpdateMaximumScroll</name></member>
+      <member refid="class_viewer_widget_1aafe6a26906f922cd7e1fb3472ae78b0d" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>UpdateMinimumScale</name></member>
+      <member refid="class_viewer_widget_1a46944f543b7099a3dc925c9e53673d4f" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>UpdateRendererParameters</name></member>
+      <member refid="class_viewer_widget_1acb85e093cde96c620597c6447c56530e" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>UpdateStack</name></member>
+      <member refid="class_viewer_widget_1afc1c902a3229f167addd0bd100aef681" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>UpdateTextureFromNode</name></member>
+      <member refid="class_viewer_widget_1a52e1fea5acd315abfa9fec050ad6d3bb" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>UpdateTimeInternal</name></member>
+      <member refid="class_footage_viewer_widget_1aacd29961226c2243045257a62e646bb3" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>video_node_</name></member>
+      <member refid="class_viewer_widget_1a922cd09d4419d41a7068a9ee7ce4b163" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>video_renderer</name></member>
+      <member refid="class_viewer_widget_1a293c42d0dcb2ce9e6d173569db09ab12" prot="protected" virt="non-virtual"><scope>FootageViewerWidget</scope><name>video_renderer_</name></member>
+      <member refid="class_footage_viewer_widget_1a9e2e05a3c64d9b956d8b61e40141a807" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>viewer_node_</name></member>
+      <member refid="class_viewer_widget_1ae13cab658af91b8dffb2e53eb52f93d9" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>ViewerWidget</name></member>
+      <member refid="class_viewer_widget_1aaff7e5e1cd78c548282084e1cf3b6638" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>waveform_view_</name></member>
+      <member refid="class_viewer_widget_1a4212dafe260294c395472cca13c9f3e4" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>WindowAboutToClose</name></member>
+      <member refid="class_viewer_widget_1aa2304377f62a896b8e6621a1e0fe1399" prot="private" virt="non-virtual"><scope>FootageViewerWidget</scope><name>windows_</name></member>
+      <member refid="class_time_based_widget_1af3d74f2c52ea0b7a31d3b1e10966146b" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>ZoomIn</name></member>
+      <member refid="class_time_based_widget_1a3e61ebce933400840a8604a0c183813d" prot="public" virt="non-virtual"><scope>FootageViewerWidget</scope><name>ZoomOut</name></member>
+      <member refid="class_timeline_scaled_object_1a244de99230b465f17d720cbf644f0499" prot="public" virt="virtual"><scope>FootageViewerWidget</scope><name>~TimelineScaledObject</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

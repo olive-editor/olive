@@ -1,0 +1,357 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="colorvalueswidget_8h" kind="file" language="C++">
+    <compoundname>colorvalueswidget.h</compoundname>
+    <includes local="no">QWidget</includes>
+    <includes refid="colorpreviewbox_8h" local="yes">colorpreviewbox.h</includes>
+    <includes refid="color_8h" local="yes">render/color.h</includes>
+    <includes refid="colormanager_8h" local="yes">render/colormanager.h</includes>
+    <includes refid="floatslider_8h" local="yes">widget/slider/floatslider.h</includes>
+    <includedby refid="colordialog_8h" local="yes">colordialog.h</includedby>
+    <incdepgraph>
+      <node id="20">
+        <label>libavformat/avformat.h</label>
+      </node>
+      <node id="28">
+        <label>sliderlabel.h</label>
+        <link refid="sliderlabel_8h"/>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="27">
+        <label>QStackedWidget</label>
+      </node>
+      <node id="25">
+        <label>widget/slider/floatslider.h</label>
+        <link refid="floatslider_8h"/>
+        <childnode refid="26" relation="include">
+        </childnode>
+      </node>
+      <node id="19">
+        <label>QMetaType</label>
+      </node>
+      <node id="8">
+        <label>render/pixelformat.h</label>
+        <link refid="pixelformat_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>colorpreviewbox.h</label>
+        <link refid="colorpreviewbox_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>common/rational.h</label>
+        <link refid="rational_8h"/>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>render/rendermodes.h</label>
+        <link refid="rendermodes_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>colorvalueswidget.h</label>
+        <link refid="colorvalueswidget_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>render/colorprocessor.h</label>
+        <link refid="colorprocessor_8h"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>common/define.h</label>
+        <link refid="define_8h"/>
+      </node>
+      <node id="11">
+        <label>QOpenGLExtraFunctions</label>
+      </node>
+      <node id="6">
+        <label>QDebug</label>
+      </node>
+      <node id="2">
+        <label>QWidget</label>
+      </node>
+      <node id="31">
+        <label>QLineEdit</label>
+      </node>
+      <node id="12">
+        <label>QString</label>
+      </node>
+      <node id="22">
+        <label>render/colortransform.h</label>
+        <link refid="colortransform_8h"/>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>render/color.h</label>
+        <link refid="color_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>QColor</label>
+      </node>
+      <node id="29">
+        <label>QLabel</label>
+      </node>
+      <node id="18">
+        <label>iostream</label>
+      </node>
+      <node id="30">
+        <label>widget/focusablelineedit/focusablelineedit.h</label>
+        <link refid="focusablelineedit_8h"/>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>render/videoparams.h</label>
+        <link refid="videoparams_8h"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="24">
+        <label>render/colormanager.h</label>
+        <link refid="colormanager_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="23">
+        <label>OpenColorIO/OpenColorIO.h</label>
+      </node>
+      <node id="15">
+        <label>codec/frame.h</label>
+        <link refid="frame_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>OpenImageIO/imageio.h</label>
+      </node>
+      <node id="9">
+        <label>memory</label>
+      </node>
+      <node id="16">
+        <label>QVector</label>
+      </node>
+      <node id="26">
+        <label>sliderbase.h</label>
+        <link refid="sliderbase_8h"/>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="1">
+        <label>colorvalueswidget.h</label>
+        <link refid="colorvalueswidget_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>colordialog.h</label>
+        <link refid="colordialog_8h"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="class_color_values_tab" prot="public">ColorValuesTab</innerclass>
+    <innerclass refid="class_color_values_widget" prot="public">ColorValuesWidget</innerclass>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/***</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"></highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/><sp/>Olive<sp/>-<sp/>Non-Linear<sp/>Video<sp/>Editor</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/><sp/>Copyright<sp/>(C)<sp/>2019<sp/>Olive<sp/>Team</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"></highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/><sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/><sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/><sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"></highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/><sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/><sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/><sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"></highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/><sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/><sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"></highlight></codeline>
+<codeline lineno="19"><highlight class="comment">***/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>COLORVALUESWIDGET_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>COLORVALUESWIDGET_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QWidget&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="colorpreviewbox_8h" kindref="compound">colorpreviewbox.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="color_8h" kindref="compound">render/color.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="colormanager_8h" kindref="compound">render/colormanager.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="floatslider_8h" kindref="compound">widget/slider/floatslider.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><ref refid="define_8h_1a0472692dd1f22472ad63da20da919e8c" kindref="member">OLIVE_NAMESPACE_ENTER</ref></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33" refid="class_color_values_tab" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_color_values_tab" kindref="compound">ColorValuesTab</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>QWidget</highlight></codeline>
+<codeline lineno="34"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/>Q_OBJECT</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><ref refid="class_color_values_tab_1a487b32e926228b1e13fdf70bf93dbad6" kindref="member">ColorValuesTab</ref>(QWidget*<sp/>parent<sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><ref refid="class_color" kindref="compound">Color</ref><sp/><ref refid="class_color_values_tab_1ab36f8cec085cde943b448f1186690e18" kindref="member">GetColor</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_color_values_tab_1aeeba53d6aa0e85ffa3daca12ebd3a7b9" kindref="member">SetColor</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_color" kindref="compound">Color</ref>&amp;<sp/>c);</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal">signals:</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_color_values_tab_1a354c9b7026fc517485c33f7d2d6d2871" kindref="member">ColorChanged</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_color" kindref="compound">Color</ref>&amp;<sp/>c);</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><ref refid="class_float_slider" kindref="compound">FloatSlider</ref>*<sp/><ref refid="class_color_values_tab_1a2c7d1dee4d70b0bb3917a07a6761b694" kindref="member">CreateColorSlider</ref>();</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><ref refid="class_float_slider" kindref="compound">FloatSlider</ref>*<sp/><ref refid="class_color_values_tab_1aaf92f4b6d44b11ae7e93a19b268243d9" kindref="member">red_slider_</ref>;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><ref refid="class_float_slider" kindref="compound">FloatSlider</ref>*<sp/><ref refid="class_color_values_tab_1ad0d79cb9ba6a24013eba8a0ede8e8507" kindref="member">green_slider_</ref>;</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><ref refid="class_float_slider" kindref="compound">FloatSlider</ref>*<sp/><ref refid="class_color_values_tab_1a29895673c4cdac674dd5d287c5ba31c1" kindref="member">blue_slider_</ref>;</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal"><sp/>slots:</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_color_values_tab_1a8de47c096520d1c5fbc5c52bc53296e4" kindref="member">SliderChanged</ref>();</highlight></codeline>
+<codeline lineno="55" refid="class_color_values_tab_1a487b32e926228b1e13fdf70bf93dbad6" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="57" refid="class_color_values_tab_1ab36f8cec085cde943b448f1186690e18" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58" refid="class_color_values_widget" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_color_values_widget" kindref="compound">ColorValuesWidget</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>QWidget</highlight></codeline>
+<codeline lineno="59" refid="class_color_values_tab_1aeeba53d6aa0e85ffa3daca12ebd3a7b9" refkind="member"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/>Q_OBJECT</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="62" refid="class_color_values_widget_1a3502d98fd4f90d06b652266598648d20" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_color_values_widget_1a3502d98fd4f90d06b652266598648d20" kindref="member">ColorValuesWidget</ref>(<ref refid="class_color_manager" kindref="compound">ColorManager</ref>*<sp/>manager,<sp/>QWidget*<sp/>parent<sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64" refid="class_color_values_widget_1a1a31bb9d8eafa201fdb937c0dd11865c" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_color" kindref="compound">Color</ref><sp/><ref refid="class_color_values_widget_1a1a31bb9d8eafa201fdb937c0dd11865c" kindref="member">GetColor</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="65" refid="class_color_values_tab_1a2c7d1dee4d70b0bb3917a07a6761b694" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66" refid="class_color_values_widget_1ab9087c90b4e20efe901da41dc77baa1b" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_color_values_widget_1ab9087c90b4e20efe901da41dc77baa1b" kindref="member">SetColorProcessor</ref>(<ref refid="colorprocessor_8h_1ae3985029dcc28a9f9f42fc726d1a9471" kindref="member">ColorProcessorPtr</ref><sp/>input_to_ref,</highlight></codeline>
+<codeline lineno="67" refid="class_color_values_tab_1aaf92f4b6d44b11ae7e93a19b268243d9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="colorprocessor_8h_1ae3985029dcc28a9f9f42fc726d1a9471" kindref="member">ColorProcessorPtr</ref><sp/>ref_to_display,</highlight></codeline>
+<codeline lineno="68" refid="class_color_values_tab_1ad0d79cb9ba6a24013eba8a0ede8e8507" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="colorprocessor_8h_1ae3985029dcc28a9f9f42fc726d1a9471" kindref="member">ColorProcessorPtr</ref><sp/>display_to_ref,</highlight></codeline>
+<codeline lineno="69" refid="class_color_values_tab_1a29895673c4cdac674dd5d287c5ba31c1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="colorprocessor_8h_1ae3985029dcc28a9f9f42fc726d1a9471" kindref="member">ColorProcessorPtr</ref><sp/>ref_to_input);</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>slots:</highlight></codeline>
+<codeline lineno="72" refid="class_color_values_tab_1a8de47c096520d1c5fbc5c52bc53296e4" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_color_values_widget_1a9664752d9552c65e1d750f0c63e94ca4" kindref="member">SetColor</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_color" kindref="compound">Color</ref>&amp;<sp/>c);</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal">signals:</highlight></codeline>
+<codeline lineno="75" refid="class_color_values_widget_1a6609271ee78e77584ede1fe9d4a9ef7f" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_color_values_widget_1a6609271ee78e77584ede1fe9d4a9ef7f" kindref="member">ColorChanged</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_color" kindref="compound">Color</ref>&amp;<sp/>c);</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="78" refid="class_color_values_widget_1a1a1cb35cee89554721f5bbbc3a777850" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_color_values_widget_1a1a1cb35cee89554721f5bbbc3a777850" kindref="member">UpdateInputFromRef</ref>();</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80" refid="class_color_values_widget_1ac3a5a9eeae16d2ec9c64465e2c1b46c8" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_color_values_widget_1ac3a5a9eeae16d2ec9c64465e2c1b46c8" kindref="member">UpdateDisplayFromRef</ref>();</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82" refid="class_color_values_widget_1a4f55be3b21bf717d4af57ef28c08f46c" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_color_values_widget_1a4f55be3b21bf717d4af57ef28c08f46c" kindref="member">UpdateRefFromInput</ref>();</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84" refid="class_color_values_widget_1a60ddde1ae6b4bfcaba621abd9931e95b" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_color_values_widget_1a60ddde1ae6b4bfcaba621abd9931e95b" kindref="member">UpdateRefFromDisplay</ref>();</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86" refid="class_color_values_widget_1a98f8b6672bac548685a1637fc6dc099f" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_color_manager" kindref="compound">ColorManager</ref>*<sp/><ref refid="class_color_values_widget_1a98f8b6672bac548685a1637fc6dc099f" kindref="member">manager_</ref>;</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88" refid="class_color_values_widget_1a2210fa2e5d93be074a1e853a17b7fa63" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_color_preview_box" kindref="compound">ColorPreviewBox</ref>*<sp/><ref refid="class_color_values_widget_1a2210fa2e5d93be074a1e853a17b7fa63" kindref="member">preview_</ref>;</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90" refid="class_color_values_widget_1a6e37a378081b3e9f4c8ac7336466b712" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_color_values_tab" kindref="compound">ColorValuesTab</ref>*<sp/><ref refid="class_color_values_widget_1a6e37a378081b3e9f4c8ac7336466b712" kindref="member">input_tab_</ref>;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92" refid="class_color_values_widget_1a71c6919d3fc8db54717a8084cb73d1b9" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_color_values_tab" kindref="compound">ColorValuesTab</ref>*<sp/><ref refid="class_color_values_widget_1a71c6919d3fc8db54717a8084cb73d1b9" kindref="member">reference_tab_</ref>;</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight></codeline>
+<codeline lineno="94" refid="class_color_values_widget_1ae0c59572be4ccdd4298f52b53895f9eb" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_color_values_tab" kindref="compound">ColorValuesTab</ref>*<sp/><ref refid="class_color_values_widget_1ae0c59572be4ccdd4298f52b53895f9eb" kindref="member">display_tab_</ref>;</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight></codeline>
+<codeline lineno="96" refid="class_color_values_widget_1a62221115a4791bbe972ac909b0b80925" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="colorprocessor_8h_1ae3985029dcc28a9f9f42fc726d1a9471" kindref="member">ColorProcessorPtr</ref><sp/><ref refid="class_color_values_widget_1a62221115a4791bbe972ac909b0b80925" kindref="member">input_to_ref_</ref>;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="98" refid="class_color_values_widget_1a60b2a6477a28e3f2d1dc9ae9022c28ab" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="colorprocessor_8h_1ae3985029dcc28a9f9f42fc726d1a9471" kindref="member">ColorProcessorPtr</ref><sp/><ref refid="class_color_values_widget_1a60b2a6477a28e3f2d1dc9ae9022c28ab" kindref="member">ref_to_display_</ref>;</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100" refid="class_color_values_widget_1ad7946945341ea24784d2c0d2308062e9" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="colorprocessor_8h_1ae3985029dcc28a9f9f42fc726d1a9471" kindref="member">ColorProcessorPtr</ref><sp/><ref refid="class_color_values_widget_1ad7946945341ea24784d2c0d2308062e9" kindref="member">display_to_ref_</ref>;</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102" refid="class_color_values_widget_1aac831a6fc8e633512b4b3415f1792cca" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="colorprocessor_8h_1ae3985029dcc28a9f9f42fc726d1a9471" kindref="member">ColorProcessorPtr</ref><sp/><ref refid="class_color_values_widget_1aac831a6fc8e633512b4b3415f1792cca" kindref="member">ref_to_input_</ref>;</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal"><sp/>slots:</highlight></codeline>
+<codeline lineno="105" refid="class_color_values_widget_1a25b61d529beb48c3b5b8e6fd8da825bd" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_color_values_widget_1a25b61d529beb48c3b5b8e6fd8da825bd" kindref="member">UpdateValuesFromInput</ref>();</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight></codeline>
+<codeline lineno="107" refid="class_color_values_widget_1ac4fd6f0bbb5fecf013a35130aaf527e1" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_color_values_widget_1ac4fd6f0bbb5fecf013a35130aaf527e1" kindref="member">UpdateValuesFromRef</ref>();</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109" refid="class_color_values_widget_1a62a8319d2a250b423694576c428849ad" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_color_values_widget_1a62a8319d2a250b423694576c428849ad" kindref="member">UpdateValuesFromDisplay</ref>();</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><ref refid="define_8h_1abe3de0634d907ca0f5d1acf732c49dac" kindref="member">OLIVE_NAMESPACE_EXIT</ref></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//<sp/>COLORVALUESWIDGET_H</highlight></codeline>
+    </programlisting>
+    <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorvalueswidget.h"/>
+  </compounddef>
+</doxygen>

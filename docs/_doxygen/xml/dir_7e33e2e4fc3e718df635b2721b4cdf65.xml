@@ -1,0 +1,26 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_7e33e2e4fc3e718df635b2721b4cdf65" kind="dir">
+    <compoundname>backend</compoundname>
+    <innerdir refid="dir_61de7d00b94b24ea1c48be577b276ae8">audio</innerdir>
+    <innerdir refid="dir_2c13355c680e2c6baf92feb590ee74fd">opengl</innerdir>
+    <innerfile refid="audiorenderbackend_8h">audiorenderbackend.h</innerfile>
+    <innerfile refid="audiorenderworker_8h">audiorenderworker.h</innerfile>
+    <innerfile refid="colorprocessorcache_8h">colorprocessorcache.h</innerfile>
+    <innerfile refid="decodercache_8h">decodercache.h</innerfile>
+    <innerfile refid="exporter_8h">exporter.h</innerfile>
+    <innerfile refid="exportparams_8h">exportparams.h</innerfile>
+    <innerfile refid="indexmanager_8h">indexmanager.h</innerfile>
+    <innerfile refid="renderbackend_8h">renderbackend.h</innerfile>
+    <innerfile refid="rendercache_8h">rendercache.h</innerfile>
+    <innerfile refid="renderworker_8h">renderworker.h</innerfile>
+    <innerfile refid="videorenderbackend_8h">videorenderbackend.h</innerfile>
+    <innerfile refid="videorenderframecache_8h">videorenderframecache.h</innerfile>
+    <innerfile refid="videorenderworker_8h">videorenderworker.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/render/backend/"/>
+  </compounddef>
+</doxygen>

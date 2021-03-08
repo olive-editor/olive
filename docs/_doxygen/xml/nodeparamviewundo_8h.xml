@@ -1,0 +1,330 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="nodeparamviewundo_8h" kind="file" language="C++">
+    <compoundname>nodeparamviewundo.h</compoundname>
+    <includes refid="input_8h" local="yes">node/input.h</includes>
+    <includes refid="undocommand_8h" local="yes">undo/undocommand.h</includes>
+    <incdepgraph>
+      <node id="26">
+        <label>undo/undocommand.h</label>
+        <link refid="undocommand_8h"/>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>libavformat/avformat.h</label>
+      </node>
+      <node id="14">
+        <label>param.h</label>
+        <link refid="node_2param_8h"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>nodeparamviewundo.h</label>
+        <link refid="nodeparamviewundo_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>QObject</label>
+      </node>
+      <node id="3">
+        <label>common/timerange.h</label>
+        <link refid="timerange_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>QXmlStreamReader</label>
+      </node>
+      <node id="12">
+        <label>QPointF</label>
+      </node>
+      <node id="10">
+        <label>keyframe.h</label>
+        <link refid="keyframe_8h"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>QMetaType</label>
+      </node>
+      <node id="19">
+        <label>QUndoCommand</label>
+      </node>
+      <node id="4">
+        <label>rational.h</label>
+        <link refid="rational_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="23">
+        <label>QMutex</label>
+      </node>
+      <node id="27">
+        <label>project/project.h</label>
+      </node>
+      <node id="9">
+        <label>common/define.h</label>
+        <link refid="define_8h"/>
+      </node>
+      <node id="6">
+        <label>QDebug</label>
+      </node>
+      <node id="25">
+        <label>node/edge.h</label>
+        <link refid="edge_8h"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="24">
+        <label>QString</label>
+      </node>
+      <node id="5">
+        <label>iostream</label>
+      </node>
+      <node id="17">
+        <label>QXmlStreamWriter</label>
+      </node>
+      <node id="21">
+        <label>project/item/footage/stream.h</label>
+        <link refid="stream_8h"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>node/input.h</label>
+        <link refid="input_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="18">
+        <label>common/xmlutils.h</label>
+        <link refid="xmlutils_8h"/>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>QVariant</label>
+      </node>
+      <node id="11">
+        <label>memory</label>
+      </node>
+      <node id="16">
+        <label>QVector</label>
+      </node>
+      <node id="22">
+        <label>QCoreApplication</label>
+      </node>
+    </incdepgraph>
+    <innerclass refid="class_node_param_set_keyframing_command" prot="public">NodeParamSetKeyframingCommand</innerclass>
+    <innerclass refid="class_node_param_insert_keyframe_command" prot="public">NodeParamInsertKeyframeCommand</innerclass>
+    <innerclass refid="class_node_param_remove_keyframe_command" prot="public">NodeParamRemoveKeyframeCommand</innerclass>
+    <innerclass refid="class_node_param_set_keyframe_time_command" prot="public">NodeParamSetKeyframeTimeCommand</innerclass>
+    <innerclass refid="class_node_param_set_keyframe_value_command" prot="public">NodeParamSetKeyframeValueCommand</innerclass>
+    <innerclass refid="class_node_param_set_standard_value_command" prot="public">NodeParamSetStandardValueCommand</innerclass>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/***</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"></highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/><sp/>Olive<sp/>-<sp/>Non-Linear<sp/>Video<sp/>Editor</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/><sp/>Copyright<sp/>(C)<sp/>2019<sp/>Olive<sp/>Team</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"></highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/><sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/><sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/><sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"></highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/><sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/><sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/><sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"></highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/><sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/><sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"></highlight></codeline>
+<codeline lineno="19"><highlight class="comment">***/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>NODEPARAMVIEWUNDO_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>NODEPARAMVIEWUNDO_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="input_8h" kindref="compound">node/input.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="undocommand_8h" kindref="compound">undo/undocommand.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><ref refid="define_8h_1a0472692dd1f22472ad63da20da919e8c" kindref="member">OLIVE_NAMESPACE_ENTER</ref></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29" refid="class_node_param_set_keyframing_command" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_node_param_set_keyframing_command" kindref="compound">NodeParamSetKeyframingCommand</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="class_undo_command" kindref="compound">UndoCommand</ref><sp/>{</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><ref refid="class_node_param_set_keyframing_command_1a025053cfa69373f27a4a1240558e25d8" kindref="member">NodeParamSetKeyframingCommand</ref>(<ref refid="class_node_input" kindref="compound">NodeInput</ref>*<sp/>input,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>setting,<sp/>QUndoCommand*<sp/>parent<sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="class_project" kindref="compound">Project</ref>*<sp/><ref refid="class_node_param_set_keyframing_command_1a39721a1fa35b0ffd6fad1254f65aa43a" kindref="member">GetRelevantProject</ref>()<sp/></highlight><highlight class="keyword">const<sp/>override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_param_set_keyframing_command_1ac1181722ca0342d5360806a4d0df6e5b" kindref="member">redo_internal</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_param_set_keyframing_command_1af3defbaf5a7c2ae0922823dca8c00ee2" kindref="member">undo_internal</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><ref refid="class_node_input" kindref="compound">NodeInput</ref>*<sp/><ref refid="class_node_param_set_keyframing_command_1ab8bf66d2de173f972b235567daae4a54" kindref="member">input_</ref>;</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_node_param_set_keyframing_command_1a2b2155146020e25fbb15a26edf893577" kindref="member">setting_</ref>;</highlight></codeline>
+<codeline lineno="42"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44" refid="class_node_param_insert_keyframe_command" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_node_param_insert_keyframe_command" kindref="compound">NodeParamInsertKeyframeCommand</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="class_undo_command" kindref="compound">UndoCommand</ref><sp/>{</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="46" refid="class_node_param_insert_keyframe_command_1a87908f8dbff6da2f73aac1302c7da801" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_node_param_insert_keyframe_command_1a87908f8dbff6da2f73aac1302c7da801" kindref="member">NodeParamInsertKeyframeCommand</ref>(<ref refid="class_node_input" kindref="compound">NodeInput</ref>*<sp/>input,<sp/><ref refid="keyframe_8h_1a741b7edf62813e254aba77dca9f281ea" kindref="member">NodeKeyframePtr</ref><sp/>keyframe,<sp/>QUndoCommand<sp/>*parent<sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="47" refid="class_node_param_insert_keyframe_command_1ab748eba3bfb0035581734950f7bf9dcf" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_node_param_insert_keyframe_command_1ab748eba3bfb0035581734950f7bf9dcf" kindref="member">NodeParamInsertKeyframeCommand</ref>(<ref refid="class_node_input" kindref="compound">NodeInput</ref>*<sp/>input,<sp/><ref refid="keyframe_8h_1a741b7edf62813e254aba77dca9f281ea" kindref="member">NodeKeyframePtr</ref><sp/>keyframe,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>already_done,<sp/>QUndoCommand<sp/>*parent<sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49" refid="class_node_param_set_keyframing_command_1a025053cfa69373f27a4a1240558e25d8" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="class_project" kindref="compound">Project</ref>*<sp/><ref refid="class_node_param_insert_keyframe_command_1a8d075f101b295fa4df0f25cdc3d2a1bc" kindref="member">GetRelevantProject</ref>()<sp/></highlight><highlight class="keyword">const<sp/>override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51" refid="class_node_param_set_keyframing_command_1a39721a1fa35b0ffd6fad1254f65aa43a" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="52" refid="class_node_param_insert_keyframe_command_1ad20a33073e41df5798c98c60c2872816" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_param_insert_keyframe_command_1ad20a33073e41df5798c98c60c2872816" kindref="member">redo_internal</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="53" refid="class_node_param_insert_keyframe_command_1a7f4e1ccdfe4d77eeb5d3de43b2d08f63" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_param_insert_keyframe_command_1a7f4e1ccdfe4d77eeb5d3de43b2d08f63" kindref="member">undo_internal</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="54" refid="class_node_param_set_keyframing_command_1ac1181722ca0342d5360806a4d0df6e5b" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55" refid="class_node_param_set_keyframing_command_1af3defbaf5a7c2ae0922823dca8c00ee2" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="56" refid="class_node_param_insert_keyframe_command_1ab4ac4e4f3f118e9cbf1228476e57d3f0" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_node_input" kindref="compound">NodeInput</ref>*<sp/><ref refid="class_node_param_insert_keyframe_command_1ab4ac4e4f3f118e9cbf1228476e57d3f0" kindref="member">input_</ref>;</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58" refid="class_node_param_insert_keyframe_command_1a321a2f65cafcf6b08b1ebf34fdeecdb4" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="keyframe_8h_1a741b7edf62813e254aba77dca9f281ea" kindref="member">NodeKeyframePtr</ref><sp/><ref refid="class_node_param_insert_keyframe_command_1a321a2f65cafcf6b08b1ebf34fdeecdb4" kindref="member">keyframe_</ref>;</highlight></codeline>
+<codeline lineno="59" refid="class_node_param_set_keyframing_command_1a2b2155146020e25fbb15a26edf893577" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60" refid="class_node_param_insert_keyframe_command_1af17d59324b4c6c81acadbb06cb0587af" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_node_param_insert_keyframe_command_1af17d59324b4c6c81acadbb06cb0587af" kindref="member">done_</ref>;</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64" refid="class_node_param_remove_keyframe_command" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_node_param_remove_keyframe_command" kindref="compound">NodeParamRemoveKeyframeCommand</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="class_undo_command" kindref="compound">UndoCommand</ref><sp/>{</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="66" refid="class_node_param_remove_keyframe_command_1aae52c7e26e258071e4cab902b3c6d287" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_node_param_remove_keyframe_command_1aae52c7e26e258071e4cab902b3c6d287" kindref="member">NodeParamRemoveKeyframeCommand</ref>(<ref refid="class_node_input" kindref="compound">NodeInput</ref>*<sp/>input,<sp/><ref refid="keyframe_8h_1a741b7edf62813e254aba77dca9f281ea" kindref="member">NodeKeyframePtr</ref><sp/>keyframe,<sp/>QUndoCommand<sp/>*parent<sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight></codeline>
+<codeline lineno="68" refid="class_node_param_remove_keyframe_command_1a6c44364870d7f619b311bbd64b9c7066" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="class_project" kindref="compound">Project</ref>*<sp/><ref refid="class_node_param_remove_keyframe_command_1a6c44364870d7f619b311bbd64b9c7066" kindref="member">GetRelevantProject</ref>()<sp/></highlight><highlight class="keyword">const<sp/>override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="71" refid="class_node_param_remove_keyframe_command_1ac61652ed0b944d17c45c662847522c11" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_param_remove_keyframe_command_1ac61652ed0b944d17c45c662847522c11" kindref="member">redo_internal</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="72" refid="class_node_param_remove_keyframe_command_1a4591fcd368d4de84f8449c5152bfe885" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_param_remove_keyframe_command_1a4591fcd368d4de84f8449c5152bfe885" kindref="member">undo_internal</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="75" refid="class_node_param_remove_keyframe_command_1af20db8cfa0fab8159e834f430b1bec7e" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_node_input" kindref="compound">NodeInput</ref>*<sp/><ref refid="class_node_param_remove_keyframe_command_1af20db8cfa0fab8159e834f430b1bec7e" kindref="member">input_</ref>;</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77" refid="class_node_param_remove_keyframe_command_1abb27be75d9592d9527cd4c58999b06be" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="keyframe_8h_1a741b7edf62813e254aba77dca9f281ea" kindref="member">NodeKeyframePtr</ref><sp/><ref refid="class_node_param_remove_keyframe_command_1abb27be75d9592d9527cd4c58999b06be" kindref="member">keyframe_</ref>;</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight></codeline>
+<codeline lineno="81" refid="class_node_param_set_keyframe_time_command" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_node_param_set_keyframe_time_command" kindref="compound">NodeParamSetKeyframeTimeCommand</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="class_undo_command" kindref="compound">UndoCommand</ref><sp/>{</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="83" refid="class_node_param_set_keyframe_time_command_1a7fc0841c56a27ce4946edf10bc9f1316" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_node_param_set_keyframe_time_command_1a7fc0841c56a27ce4946edf10bc9f1316" kindref="member">NodeParamSetKeyframeTimeCommand</ref>(<ref refid="keyframe_8h_1a741b7edf62813e254aba77dca9f281ea" kindref="member">NodeKeyframePtr</ref><sp/>key,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classrational" kindref="compound">rational</ref>&amp;<sp/>time,<sp/>QUndoCommand*<sp/>parent<sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="84" refid="class_node_param_set_keyframe_time_command_1ab824b2f273f3bdb804d56a2cc539b734" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_node_param_set_keyframe_time_command_1ab824b2f273f3bdb804d56a2cc539b734" kindref="member">NodeParamSetKeyframeTimeCommand</ref>(<ref refid="keyframe_8h_1a741b7edf62813e254aba77dca9f281ea" kindref="member">NodeKeyframePtr</ref><sp/>key,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classrational" kindref="compound">rational</ref>&amp;<sp/>new_time,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classrational" kindref="compound">rational</ref>&amp;<sp/>old_time,<sp/>QUndoCommand*<sp/>parent<sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86" refid="class_node_param_set_keyframe_time_command_1ab3bb0e202cfedc40cc6ac6b72eafa4f4" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="class_project" kindref="compound">Project</ref>*<sp/><ref refid="class_node_param_set_keyframe_time_command_1ab3bb0e202cfedc40cc6ac6b72eafa4f4" kindref="member">GetRelevantProject</ref>()<sp/></highlight><highlight class="keyword">const<sp/>override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="89" refid="class_node_param_set_keyframe_time_command_1a243163b0def2abfe2e01ffd131104937" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_param_set_keyframe_time_command_1a243163b0def2abfe2e01ffd131104937" kindref="member">redo_internal</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="90" refid="class_node_param_set_keyframe_time_command_1a4dbcdcc8f5bd29b7ad791a708805a7d9" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_param_set_keyframe_time_command_1a4dbcdcc8f5bd29b7ad791a708805a7d9" kindref="member">undo_internal</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="93" refid="class_node_param_set_keyframe_time_command_1a1ed4ffa50dc4f4166e533b12d3af8f7f" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="keyframe_8h_1a741b7edf62813e254aba77dca9f281ea" kindref="member">NodeKeyframePtr</ref><sp/><ref refid="class_node_param_set_keyframe_time_command_1a1ed4ffa50dc4f4166e533b12d3af8f7f" kindref="member">key_</ref>;</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95" refid="class_node_param_set_keyframe_time_command_1ac20aa9fcef4ec78bf950e71d9fc35e58" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classrational" kindref="compound">rational</ref><sp/><ref refid="class_node_param_set_keyframe_time_command_1ac20aa9fcef4ec78bf950e71d9fc35e58" kindref="member">old_time_</ref>;</highlight></codeline>
+<codeline lineno="96" refid="class_node_param_set_keyframe_time_command_1a3f626ae171f6f6e5e3bb8ec033ca7198" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classrational" kindref="compound">rational</ref><sp/><ref refid="class_node_param_set_keyframe_time_command_1a3f626ae171f6f6e5e3bb8ec033ca7198" kindref="member">new_time_</ref>;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100" refid="class_node_param_set_keyframe_value_command" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_node_param_set_keyframe_value_command" kindref="compound">NodeParamSetKeyframeValueCommand</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="class_undo_command" kindref="compound">UndoCommand</ref><sp/>{</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="102" refid="class_node_param_set_keyframe_value_command_1a393d10a67e2a7405f2faac83b74e16d3" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_node_param_set_keyframe_value_command_1a393d10a67e2a7405f2faac83b74e16d3" kindref="member">NodeParamSetKeyframeValueCommand</ref>(<ref refid="keyframe_8h_1a741b7edf62813e254aba77dca9f281ea" kindref="member">NodeKeyframePtr</ref><sp/>key,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QVariant&amp;<sp/>value,<sp/>QUndoCommand*<sp/>parent<sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="103" refid="class_node_param_set_keyframe_value_command_1ae993b3f09062ab7d9e975735815dd245" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_node_param_set_keyframe_value_command_1ae993b3f09062ab7d9e975735815dd245" kindref="member">NodeParamSetKeyframeValueCommand</ref>(<ref refid="keyframe_8h_1a741b7edf62813e254aba77dca9f281ea" kindref="member">NodeKeyframePtr</ref><sp/>key,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QVariant&amp;<sp/>new_value,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QVariant&amp;<sp/>old_value,<sp/>QUndoCommand*<sp/>parent<sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105" refid="class_node_param_set_keyframe_value_command_1a4027b9e789d627d8c4dfe509971feec2" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="class_project" kindref="compound">Project</ref>*<sp/><ref refid="class_node_param_set_keyframe_value_command_1a4027b9e789d627d8c4dfe509971feec2" kindref="member">GetRelevantProject</ref>()<sp/></highlight><highlight class="keyword">const<sp/>override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="108" refid="class_node_param_set_keyframe_value_command_1a5f19a37c695a03052bce15021292bd69" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_param_set_keyframe_value_command_1a5f19a37c695a03052bce15021292bd69" kindref="member">redo_internal</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="109" refid="class_node_param_set_keyframe_value_command_1ae9a45a375e6b141b6a4e4fdcde5a770f" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_param_set_keyframe_value_command_1ae9a45a375e6b141b6a4e4fdcde5a770f" kindref="member">undo_internal</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="112" refid="class_node_param_set_keyframe_value_command_1adc591185a7badafa58bead1006782362" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="keyframe_8h_1a741b7edf62813e254aba77dca9f281ea" kindref="member">NodeKeyframePtr</ref><sp/><ref refid="class_node_param_set_keyframe_value_command_1adc591185a7badafa58bead1006782362" kindref="member">key_</ref>;</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight></codeline>
+<codeline lineno="114" refid="class_node_param_set_keyframe_value_command_1ac7c1dfd7e9cb127686f510114d426962" refkind="member"><highlight class="normal"><sp/><sp/>QVariant<sp/><ref refid="class_node_param_set_keyframe_value_command_1ac7c1dfd7e9cb127686f510114d426962" kindref="member">old_value_</ref>;</highlight></codeline>
+<codeline lineno="115" refid="class_node_param_set_keyframe_value_command_1a17302b1880968c7eed904eec68791cd6" refkind="member"><highlight class="normal"><sp/><sp/>QVariant<sp/><ref refid="class_node_param_set_keyframe_value_command_1a17302b1880968c7eed904eec68791cd6" kindref="member">new_value_</ref>;</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119" refid="class_node_param_set_standard_value_command" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_node_param_set_standard_value_command" kindref="compound">NodeParamSetStandardValueCommand</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="class_undo_command" kindref="compound">UndoCommand</ref><sp/>{</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="121" refid="class_node_param_set_standard_value_command_1ab21925f03315abb81f0ffdb7915c9d0a" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_node_param_set_standard_value_command_1ab21925f03315abb81f0ffdb7915c9d0a" kindref="member">NodeParamSetStandardValueCommand</ref>(<ref refid="class_node_input" kindref="compound">NodeInput</ref>*<sp/>input,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>track,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QVariant&amp;<sp/>value,<sp/>QUndoCommand*<sp/>parent<sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="122" refid="class_node_param_set_standard_value_command_1afd5c24703bb922e3ef004dcd210531cb" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_node_param_set_standard_value_command_1afd5c24703bb922e3ef004dcd210531cb" kindref="member">NodeParamSetStandardValueCommand</ref>(<ref refid="class_node_input" kindref="compound">NodeInput</ref>*<sp/>input,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>track,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QVariant&amp;<sp/>new_value,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QVariant&amp;<sp/>old_value,<sp/>QUndoCommand*<sp/>parent<sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight></codeline>
+<codeline lineno="124" refid="class_node_param_set_standard_value_command_1a1581e1304559070b096f60cb6e9ff3de" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="class_project" kindref="compound">Project</ref>*<sp/><ref refid="class_node_param_set_standard_value_command_1a1581e1304559070b096f60cb6e9ff3de" kindref="member">GetRelevantProject</ref>()<sp/></highlight><highlight class="keyword">const<sp/>override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="127" refid="class_node_param_set_standard_value_command_1a78db4dda65cb379d23da4ae84ef4d187" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_param_set_standard_value_command_1a78db4dda65cb379d23da4ae84ef4d187" kindref="member">redo_internal</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="128" refid="class_node_param_set_standard_value_command_1a5e8c55ae49ec329bc875ab592dd666ba" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_param_set_standard_value_command_1a5e8c55ae49ec329bc875ab592dd666ba" kindref="member">undo_internal</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="131" refid="class_node_param_set_standard_value_command_1a929f2f20d5c524c1d159b97ca8c34fa0" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_node_input" kindref="compound">NodeInput</ref>*<sp/><ref refid="class_node_param_set_standard_value_command_1a929f2f20d5c524c1d159b97ca8c34fa0" kindref="member">input_</ref>;</highlight></codeline>
+<codeline lineno="132" refid="class_node_param_set_standard_value_command_1a82069894f49e14976deaacb94e0cef6f" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="class_node_param_set_standard_value_command_1a82069894f49e14976deaacb94e0cef6f" kindref="member">track_</ref>;</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight></codeline>
+<codeline lineno="134" refid="class_node_param_set_standard_value_command_1aef96bf2e297477f7b6d0313f81fea8cb" refkind="member"><highlight class="normal"><sp/><sp/>QVariant<sp/><ref refid="class_node_param_set_standard_value_command_1aef96bf2e297477f7b6d0313f81fea8cb" kindref="member">old_value_</ref>;</highlight></codeline>
+<codeline lineno="135" refid="class_node_param_set_standard_value_command_1af0f82e55e3e9fd4b3f880a5a7ddec880" refkind="member"><highlight class="normal"><sp/><sp/>QVariant<sp/><ref refid="class_node_param_set_standard_value_command_1af0f82e55e3e9fd4b3f880a5a7ddec880" kindref="member">new_value_</ref>;</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><ref refid="define_8h_1abe3de0634d907ca0f5d1acf732c49dac" kindref="member">OLIVE_NAMESPACE_EXIT</ref></highlight></codeline>
+<codeline lineno="140"><highlight class="normal"></highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//<sp/>NODEPARAMVIEWUNDO_H</highlight></codeline>
+    </programlisting>
+    <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewundo.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,304 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_index_manager" kind="class" language="C++" prot="public">
+    <compoundname>IndexManager</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QObject</basecompoundref>
+    <includes refid="indexmanager_8h" local="no">indexmanager.h</includes>
+    <innerclass refid="struct_index_manager_1_1_conform_pair" prot="private">IndexManager::ConformPair</innerclass>
+    <innerclass refid="struct_index_manager_1_1_index_pair" prot="private">IndexManager::IndexPair</innerclass>
+      <sectiondef kind="private-static-attrib">
+      <memberdef kind="variable" id="class_index_manager_1ad062832cedc18dffb6c1749fc410edd6" prot="private" static="yes" mutable="no">
+        <type><ref refid="class_index_manager" kindref="compound">IndexManager</ref> *</type>
+        <definition>IndexManager* IndexManager::instance_</definition>
+        <argsstring></argsstring>
+        <name>instance_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/indexmanager.h" line="72" column="23" bodyfile="C:/Daten/Olive/olive/app/render/backend/indexmanager.h" bodystart="72" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_index_manager_1a05f4d774148a10c64ff2b7f80f071438" prot="private" static="no" mutable="no">
+        <type>QList&lt; <ref refid="struct_index_manager_1_1_index_pair" kindref="compound">IndexPair</ref> &gt;</type>
+        <definition>QList&lt;IndexPair&gt; IndexManager::indexing_</definition>
+        <argsstring></argsstring>
+        <name>indexing_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/indexmanager.h" line="85" column="9" bodyfile="C:/Daten/Olive/olive/app/render/backend/indexmanager.h" bodystart="85" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_index_manager_1a6bd688d1d2167c087b6bc7b058c8a8ba" prot="private" static="no" mutable="no">
+        <type>QList&lt; <ref refid="struct_index_manager_1_1_conform_pair" kindref="compound">ConformPair</ref> &gt;</type>
+        <definition>QList&lt;ConformPair&gt; IndexManager::conforming_</definition>
+        <argsstring></argsstring>
+        <name>conforming_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/indexmanager.h" line="87" column="9" bodyfile="C:/Daten/Olive/olive/app/render/backend/indexmanager.h" bodystart="87" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_index_manager_1a2bdf3d0847e29b4d600df4924f15be60" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>IndexManager::IndexManager</definition>
+        <argsstring>()=default</argsstring>
+        <name>IndexManager</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/indexmanager.h" line="54" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_index_manager_1a18c8db05546569e3feb185fbd3908389" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool IndexManager::IsIndexing</definition>
+        <argsstring>(StreamPtr stream) const</argsstring>
+        <name>IsIndexing</name>
+        <param>
+          <type><ref refid="stream_8h_1a3ca5b414655d064180098adf46c1a2f1" kindref="member">StreamPtr</ref></type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/indexmanager.h" line="60" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_index_manager_1a1ebae654f8a22a6d864ae973760928be" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool IndexManager::IsConforming</definition>
+        <argsstring>(AudioStreamPtr stream, const AudioRenderingParams &amp;params) const</argsstring>
+        <name>IsConforming</name>
+        <param>
+          <type><ref refid="audiostream_8h_1a7225e65c10797ffe9af795962d86ba06" kindref="member">AudioStreamPtr</ref></type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref> &amp;</type>
+          <declname>params</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/indexmanager.h" line="61" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="class_index_manager_1ae9397750a9576780a63dcce0c007b4fd" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void IndexManager::CreateInstance</definition>
+        <argsstring>()</argsstring>
+        <name>CreateInstance</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/indexmanager.h" line="56" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_index_manager_1a2d970c29e324cfefd72e8a71b4f826f1" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_index_manager" kindref="compound">IndexManager</ref> *</type>
+        <definition>static IndexManager* IndexManager::instance</definition>
+        <argsstring>()</argsstring>
+        <name>instance</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/indexmanager.h" line="57" column="23"/>
+      </memberdef>
+      <memberdef kind="function" id="class_index_manager_1a46ceb169546fb9284274a4af99259f2d" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void IndexManager::DestroyInstance</definition>
+        <argsstring>()</argsstring>
+        <name>DestroyInstance</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/indexmanager.h" line="58" column="15"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-slot">
+      <memberdef kind="slot" id="class_index_manager_1a3efd915ec2169cd042c138e46c3b7bc4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void IndexManager::StartIndexingStream</definition>
+        <argsstring>(OLIVE_NAMESPACE::StreamPtr stream)</argsstring>
+        <name>StartIndexingStream</name>
+        <param>
+          <type><ref refid="stream_8h_1a3ca5b414655d064180098adf46c1a2f1" kindref="member">OLIVE_NAMESPACE::StreamPtr</ref></type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/indexmanager.h" line="64" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_index_manager_1a37403f483dd6e10dd3a8198fb6ac6d3d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void IndexManager::StartConformingStream</definition>
+        <argsstring>(OLIVE_NAMESPACE::AudioStreamPtr stream, OLIVE_NAMESPACE::AudioRenderingParams params)</argsstring>
+        <name>StartConformingStream</name>
+        <param>
+          <type><ref refid="audiostream_8h_1a7225e65c10797ffe9af795962d86ba06" kindref="member">OLIVE_NAMESPACE::AudioStreamPtr</ref></type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type>OLIVE_NAMESPACE::AudioRenderingParams</type>
+          <declname>params</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/indexmanager.h" line="65" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_index_manager_1a2d471386e5a50bda4752055a2b5dead7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void IndexManager::StreamIndexUpdated</definition>
+        <argsstring>(Stream *stream)</argsstring>
+        <name>StreamIndexUpdated</name>
+        <param>
+          <type><ref refid="class_stream" kindref="compound">Stream</ref> *</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/indexmanager.h" line="68" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_index_manager_1a2f184a6eeaa815012d0511d50d48fd93" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void IndexManager::StreamConformAppended</definition>
+        <argsstring>(Stream *stream, OLIVE_NAMESPACE::AudioRenderingParams params)</argsstring>
+        <name>StreamConformAppended</name>
+        <param>
+          <type><ref refid="class_stream" kindref="compound">Stream</ref> *</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type>OLIVE_NAMESPACE::AudioRenderingParams</type>
+          <declname>params</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/indexmanager.h" line="69" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_index_manager_1af0afc79f3ad2527f6612baef60bd4a03" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void IndexManager::IndexTaskFinished</definition>
+        <argsstring>()</argsstring>
+        <name>IndexTaskFinished</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/indexmanager.h" line="90" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_index_manager_1ae6ab86345ad7c3c18c66c5c952bbb602" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void IndexManager::StreamIndexUpdatedEvent</definition>
+        <argsstring>()</argsstring>
+        <name>StreamIndexUpdatedEvent</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/indexmanager.h" line="92" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_index_manager_1a5c768ca2949933928790cb29ce7ecc11" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void IndexManager::StreamConformAppendedEvent</definition>
+        <argsstring>(const AudioRenderingParams &amp;params)</argsstring>
+        <name>StreamConformAppendedEvent</name>
+        <param>
+          <type>const <ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref> &amp;</type>
+          <declname>params</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/indexmanager.h" line="94" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>IndexManager</label>
+        <link refid="class_index_manager"/>
+        <childnode refid="1" relation="usage">
+          <edgelabel>instance_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/render/backend/indexmanager.h" line="32" column="1" bodyfile="C:/Daten/Olive/olive/app/render/backend/indexmanager.h" bodystart="33" bodyend="78"/>
+    <listofallmembers>
+      <member refid="class_index_manager_1a6bd688d1d2167c087b6bc7b058c8a8ba" prot="private" virt="non-virtual"><scope>IndexManager</scope><name>conforming_</name></member>
+      <member refid="class_index_manager_1ae9397750a9576780a63dcce0c007b4fd" prot="public" virt="non-virtual"><scope>IndexManager</scope><name>CreateInstance</name></member>
+      <member refid="class_index_manager_1a46ceb169546fb9284274a4af99259f2d" prot="public" virt="non-virtual"><scope>IndexManager</scope><name>DestroyInstance</name></member>
+      <member refid="class_index_manager_1a05f4d774148a10c64ff2b7f80f071438" prot="private" virt="non-virtual"><scope>IndexManager</scope><name>indexing_</name></member>
+      <member refid="class_index_manager_1a2bdf3d0847e29b4d600df4924f15be60" prot="public" virt="non-virtual"><scope>IndexManager</scope><name>IndexManager</name></member>
+      <member refid="class_index_manager_1af0afc79f3ad2527f6612baef60bd4a03" prot="private" virt="non-virtual"><scope>IndexManager</scope><name>IndexTaskFinished</name></member>
+      <member refid="class_index_manager_1a2d970c29e324cfefd72e8a71b4f826f1" prot="public" virt="non-virtual"><scope>IndexManager</scope><name>instance</name></member>
+      <member refid="class_index_manager_1ad062832cedc18dffb6c1749fc410edd6" prot="private" virt="non-virtual"><scope>IndexManager</scope><name>instance_</name></member>
+      <member refid="class_index_manager_1a1ebae654f8a22a6d864ae973760928be" prot="public" virt="non-virtual"><scope>IndexManager</scope><name>IsConforming</name></member>
+      <member refid="class_index_manager_1a18c8db05546569e3feb185fbd3908389" prot="public" virt="non-virtual"><scope>IndexManager</scope><name>IsIndexing</name></member>
+      <member refid="class_index_manager_1a37403f483dd6e10dd3a8198fb6ac6d3d" prot="public" virt="non-virtual"><scope>IndexManager</scope><name>StartConformingStream</name></member>
+      <member refid="class_index_manager_1a3efd915ec2169cd042c138e46c3b7bc4" prot="public" virt="non-virtual"><scope>IndexManager</scope><name>StartIndexingStream</name></member>
+      <member refid="class_index_manager_1a2f184a6eeaa815012d0511d50d48fd93" prot="public" virt="non-virtual"><scope>IndexManager</scope><name>StreamConformAppended</name></member>
+      <member refid="class_index_manager_1a5c768ca2949933928790cb29ce7ecc11" prot="private" virt="non-virtual"><scope>IndexManager</scope><name>StreamConformAppendedEvent</name></member>
+      <member refid="class_index_manager_1a2d471386e5a50bda4752055a2b5dead7" prot="public" virt="non-virtual"><scope>IndexManager</scope><name>StreamIndexUpdated</name></member>
+      <member refid="class_index_manager_1ae6ab86345ad7c3c18c66c5c952bbb602" prot="private" virt="non-virtual"><scope>IndexManager</scope><name>StreamIndexUpdatedEvent</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

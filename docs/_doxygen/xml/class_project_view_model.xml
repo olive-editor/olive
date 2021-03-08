@@ -1,0 +1,710 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_project_view_model" kind="class" language="C++" prot="public">
+    <compoundname>ProjectViewModel</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QAbstractItemModel</basecompoundref>
+    <includes refid="projectviewmodel_8h" local="no">projectviewmodel.h</includes>
+    <innerclass refid="class_project_view_model_1_1_add_item_command" prot="public">ProjectViewModel::AddItemCommand</innerclass>
+    <innerclass refid="class_project_view_model_1_1_move_item_command" prot="public">ProjectViewModel::MoveItemCommand</innerclass>
+    <innerclass refid="class_project_view_model_1_1_remove_item_command" prot="public">ProjectViewModel::RemoveItemCommand</innerclass>
+    <innerclass refid="class_project_view_model_1_1_rename_item_command" prot="public">ProjectViewModel::RenameItemCommand</innerclass>
+      <sectiondef kind="public-type">
+      <memberdef kind="enum" id="class_project_view_model_1af365225d0088affca74de6135cb3c48d" prot="public" static="no" strong="no">
+        <type></type>
+        <name>ColumnType</name>
+        <enumvalue id="class_project_view_model_1af365225d0088affca74de6135cb3c48da4e1832099e9472f0cdfc315839d8b8e7" prot="public">
+          <name>kName</name>
+          <briefdescription>
+<para>Media name. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_project_view_model_1af365225d0088affca74de6135cb3c48dac0cdd767ce99fdf76f7a1b401216da1a" prot="public">
+          <name>kDuration</name>
+          <briefdescription>
+<para>Media duration. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_project_view_model_1af365225d0088affca74de6135cb3c48da37c807ff154d3201df1fc53d442e9820" prot="public">
+          <name>kRate</name>
+          <briefdescription>
+<para>Media rate (frame rate for video, sample rate for audio) </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/projectviewmodel.h" line="60" column="3" bodyfile="C:/Daten/Olive/olive/app/project/projectviewmodel.h" bodystart="60" bodyend="69"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_project_view_model_1ae77c904bf15e89fa6eb093b9835f8e21" prot="private" static="no" mutable="no">
+        <type><ref refid="class_project" kindref="compound">Project</ref> *</type>
+        <definition>Project* ProjectViewModel::project_</definition>
+        <argsstring></argsstring>
+        <name>project_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/projectviewmodel.h" line="265" column="11" bodyfile="C:/Daten/Olive/olive/app/project/projectviewmodel.h" bodystart="265" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_project_view_model_1ab5bc043a6cdba2d2c02cf0ce2ff0f748" prot="private" static="no" mutable="no">
+        <type>QVector&lt; <ref refid="class_project_view_model_1af365225d0088affca74de6135cb3c48d" kindref="member">ColumnType</ref> &gt;</type>
+        <definition>QVector&lt;ColumnType&gt; ProjectViewModel::columns_</definition>
+        <argsstring></argsstring>
+        <name>columns_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/projectviewmodel.h" line="267" column="11" bodyfile="C:/Daten/Olive/olive/app/project/projectviewmodel.h" bodystart="267" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_project_view_model_1a2c4632c14ef3bdfa912cb06ae7107521" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>ProjectViewModel::ProjectViewModel</definition>
+        <argsstring>(QObject *parent)</argsstring>
+        <name>ProjectViewModel</name>
+        <param>
+          <type>QObject *</type>
+          <declname>parent</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="class_project_view_model" kindref="compound">ProjectViewModel</ref> Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parent</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Parent object for memory handling </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/projectviewmodel.h" line="77" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_view_model_1a4a91cde2e81995132a0445a2f3f3af74" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_project" kindref="compound">Project</ref> *</type>
+        <definition>Project* ProjectViewModel::project</definition>
+        <argsstring>() const</argsstring>
+        <name>project</name>
+        <briefdescription>
+<para>Get currently active project. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para></para>
+</simplesect>
+Currently active project or nullptr if there is none </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/projectviewmodel.h" line="86" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_view_model_1a98a351c4027365d12b827b6c8c53f67c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectViewModel::set_project</definition>
+        <argsstring>(Project *p)</argsstring>
+        <name>set_project</name>
+        <param>
+          <type><ref refid="class_project" kindref="compound">Project</ref> *</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Set the project to adapt. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Any views attached to this model will get updated by this function.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>p</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="class_project" kindref="compound">Project</ref> to adapt, can be set to nullptr to &quot;close&quot; the project (will show an empty model that cannot be modified) </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/projectviewmodel.h" line="97" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_view_model_1a08e6778191f75a60bbafd9181618b943" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type>QModelIndex</type>
+        <definition>virtual QModelIndex ProjectViewModel::index</definition>
+        <argsstring>(int row, int column, const QModelIndex &amp;parent=QModelIndex()) const override</argsstring>
+        <name>index</name>
+        <param>
+          <type>int</type>
+          <declname>row</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>column</declname>
+        </param>
+        <param>
+          <type>const QModelIndex &amp;</type>
+          <declname>parent</declname>
+          <defval>QModelIndex()</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Compulsory Qt QAbstractItemModel overrides </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/projectviewmodel.h" line="100" column="23"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_view_model_1a8a786ba8fade170d0396abd52a3b13bc" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type>QModelIndex</type>
+        <definition>virtual QModelIndex ProjectViewModel::parent</definition>
+        <argsstring>(const QModelIndex &amp;child) const override</argsstring>
+        <name>parent</name>
+        <param>
+          <type>const QModelIndex &amp;</type>
+          <declname>child</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/projectviewmodel.h" line="101" column="23"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_view_model_1a1a39a698a9714af006cb18b905d6b9d0" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type>int</type>
+        <definition>virtual int ProjectViewModel::rowCount</definition>
+        <argsstring>(const QModelIndex &amp;parent=QModelIndex()) const override</argsstring>
+        <name>rowCount</name>
+        <param>
+          <type>const QModelIndex &amp;</type>
+          <declname>parent</declname>
+          <defval>QModelIndex()</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/projectviewmodel.h" line="102" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_view_model_1a0092da83dc72d0b846ddf0fe577e5c1f" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type>int</type>
+        <definition>virtual int ProjectViewModel::columnCount</definition>
+        <argsstring>(const QModelIndex &amp;parent=QModelIndex()) const override</argsstring>
+        <name>columnCount</name>
+        <param>
+          <type>const QModelIndex &amp;</type>
+          <declname>parent</declname>
+          <defval>QModelIndex()</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/projectviewmodel.h" line="103" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_view_model_1ac100cb80005c5da4d4e063fa5b25975d" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type>QVariant</type>
+        <definition>virtual QVariant ProjectViewModel::data</definition>
+        <argsstring>(const QModelIndex &amp;index, int role=Qt::DisplayRole) const override</argsstring>
+        <name>data</name>
+        <param>
+          <type>const QModelIndex &amp;</type>
+          <declname>index</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>role</declname>
+          <defval>Qt::DisplayRole</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/projectviewmodel.h" line="104" column="20"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_view_model_1a0d5743d0d52edff782accb3897edabea" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type>QVariant</type>
+        <definition>virtual QVariant ProjectViewModel::headerData</definition>
+        <argsstring>(int section, Qt::Orientation orientation, int role=Qt::DisplayRole) const override</argsstring>
+        <name>headerData</name>
+        <param>
+          <type>int</type>
+          <declname>section</declname>
+        </param>
+        <param>
+          <type>Qt::Orientation</type>
+          <declname>orientation</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>role</declname>
+          <defval>Qt::DisplayRole</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Optional Qt QAbstractItemModel overrides </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/projectviewmodel.h" line="107" column="20"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_view_model_1a3e204584fa249671a2154fe3ae1a1adf" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type>bool</type>
+        <definition>virtual bool ProjectViewModel::hasChildren</definition>
+        <argsstring>(const QModelIndex &amp;parent=QModelIndex()) const override</argsstring>
+        <name>hasChildren</name>
+        <param>
+          <type>const QModelIndex &amp;</type>
+          <declname>parent</declname>
+          <defval>QModelIndex()</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/projectviewmodel.h" line="108" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_view_model_1a34cabf55c9dc198905ea3662c1443f60" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>bool</type>
+        <definition>virtual bool ProjectViewModel::setData</definition>
+        <argsstring>(const QModelIndex &amp;index, const QVariant &amp;value, int role=Qt::EditRole) override</argsstring>
+        <name>setData</name>
+        <param>
+          <type>const QModelIndex &amp;</type>
+          <declname>index</declname>
+        </param>
+        <param>
+          <type>const QVariant &amp;</type>
+          <declname>value</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>role</declname>
+          <defval>Qt::EditRole</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/projectviewmodel.h" line="109" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_view_model_1a16020f5510e7a81835a0f6f91426acda" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type>bool</type>
+        <definition>virtual bool ProjectViewModel::canFetchMore</definition>
+        <argsstring>(const QModelIndex &amp;parent) const override</argsstring>
+        <name>canFetchMore</name>
+        <param>
+          <type>const QModelIndex &amp;</type>
+          <declname>parent</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/projectviewmodel.h" line="110" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_view_model_1a03ac877f4f38fb25ecbe3086611aad18" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type>Qt::ItemFlags</type>
+        <definition>virtual Qt::ItemFlags ProjectViewModel::flags</definition>
+        <argsstring>(const QModelIndex &amp;index) const override</argsstring>
+        <name>flags</name>
+        <param>
+          <type>const QModelIndex &amp;</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Drag and drop support </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/projectviewmodel.h" line="113" column="25"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_view_model_1a76a18d5ca0f01aef6ffc96e9d3a98aee" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type>QStringList</type>
+        <definition>virtual QStringList ProjectViewModel::mimeTypes</definition>
+        <argsstring>() const override</argsstring>
+        <name>mimeTypes</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/projectviewmodel.h" line="114" column="23"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_view_model_1aa5f2ba863aba3347f2645bb2d5991365" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type>QMimeData *</type>
+        <definition>virtual QMimeData* ProjectViewModel::mimeData</definition>
+        <argsstring>(const QModelIndexList &amp;indexes) const override</argsstring>
+        <name>mimeData</name>
+        <param>
+          <type>const QModelIndexList &amp;</type>
+          <declname>indexes</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/projectviewmodel.h" line="115" column="22"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_view_model_1aa3e9574f2cd0e646d01d826eb19c06d7" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>bool</type>
+        <definition>virtual bool ProjectViewModel::dropMimeData</definition>
+        <argsstring>(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &amp;parent) override</argsstring>
+        <name>dropMimeData</name>
+        <param>
+          <type>const QMimeData *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>Qt::DropAction</type>
+          <declname>action</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>row</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>column</declname>
+        </param>
+        <param>
+          <type>const QModelIndex &amp;</type>
+          <declname>parent</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/projectviewmodel.h" line="116" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_view_model_1ac5b4b4425c1ad53ebda9e5ae4d795e97" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectViewModel::AddChild</definition>
+        <argsstring>(Item *parent, ItemPtr child)</argsstring>
+        <name>AddChild</name>
+        <param>
+          <type><ref refid="class_item" kindref="compound">Item</ref> *</type>
+          <declname>parent</declname>
+        </param>
+        <param>
+          <type><ref refid="item_8h_1ab17f9c749f423747869d900d2418ffde" kindref="member">ItemPtr</ref></type>
+          <declname>child</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Other model functions </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/projectviewmodel.h" line="119" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_view_model_1a26e7a1d0f5be97e8d6caf22948a4d19d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectViewModel::RemoveChild</definition>
+        <argsstring>(Item *parent, Item *child)</argsstring>
+        <name>RemoveChild</name>
+        <param>
+          <type><ref refid="class_item" kindref="compound">Item</ref> *</type>
+          <declname>parent</declname>
+        </param>
+        <param>
+          <type><ref refid="class_item" kindref="compound">Item</ref> *</type>
+          <declname>child</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/projectviewmodel.h" line="120" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_view_model_1a131fc7040378b1c44116678e3ab929e4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectViewModel::RenameChild</definition>
+        <argsstring>(Item *item, const QString &amp;name)</argsstring>
+        <name>RenameChild</name>
+        <param>
+          <type><ref refid="class_item" kindref="compound">Item</ref> *</type>
+          <declname>item</declname>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>name</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/projectviewmodel.h" line="121" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_view_model_1a6d4fbd4eb743358e659a9dc021d262ce" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QModelIndex</type>
+        <definition>QModelIndex ProjectViewModel::CreateIndexFromItem</definition>
+        <argsstring>(Item *item, int column=0)</argsstring>
+        <name>CreateIndexFromItem</name>
+        <param>
+          <type><ref refid="class_item" kindref="compound">Item</ref> *</type>
+          <declname>item</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>column</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+<para>Convenience function for creating QModelIndexes from an <ref refid="class_item" kindref="compound">Item</ref> object. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/projectviewmodel.h" line="126" column="15"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_project_view_model_1a9a40a8489bc3e6dd1049ee8bb0258b29" prot="private" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int ProjectViewModel::IndexOfChild</definition>
+        <argsstring>(Item *item) const</argsstring>
+        <name>IndexOfChild</name>
+        <param>
+          <type><ref refid="class_item" kindref="compound">Item</ref> *</type>
+          <declname>item</declname>
+        </param>
+        <briefdescription>
+<para>Retrieve the index of <computeroutput>item</computeroutput> in its parent. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function will return the index of a specified item in its parent according to whichever sorting algorithm is currently active.</para>
+<para><simplesect kind="return"><para></para>
+</simplesect>
+Index of the specified item, or -1 if the item is root (in which case it has no parent). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/projectviewmodel.h" line="226" column="7"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_view_model_1aa177ee18b55fff3147cde9e6c7ba827e" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int ProjectViewModel::ChildCount</definition>
+        <argsstring>(const QModelIndex &amp;index)</argsstring>
+        <name>ChildCount</name>
+        <param>
+          <type>const QModelIndex &amp;</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+<para>Get the child count of an index. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para></para>
+</simplesect>
+Return number of children (immediate children only) </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/projectviewmodel.h" line="237" column="7"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_view_model_1ade30b73856206d72035ea7eac7e9f9d6" prot="private" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_item" kindref="compound">Item</ref> *</type>
+        <definition>Item* ProjectViewModel::GetItemObjectFromIndex</definition>
+        <argsstring>(const QModelIndex &amp;index) const</argsstring>
+        <name>GetItemObjectFromIndex</name>
+        <param>
+          <type>const QModelIndex &amp;</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+<para>Retrieves the <ref refid="class_item" kindref="compound">Item</ref> object from a given index. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>A convenience function for retrieving <ref refid="class_item" kindref="compound">Item</ref> objects. If the index is not valid, this returns the root <ref refid="class_item" kindref="compound">Item</ref>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/projectviewmodel.h" line="244" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_view_model_1a60b8c759a91bda5c9ec8f600bc03d5a9" prot="private" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool ProjectViewModel::ItemIsParentOfChild</definition>
+        <argsstring>(Item *parent, Item *child) const</argsstring>
+        <name>ItemIsParentOfChild</name>
+        <param>
+          <type><ref refid="class_item" kindref="compound">Item</ref> *</type>
+          <declname>parent</declname>
+        </param>
+        <param>
+          <type><ref refid="class_item" kindref="compound">Item</ref> *</type>
+          <declname>child</declname>
+        </param>
+        <briefdescription>
+<para>Check if an <ref refid="class_item" kindref="compound">Item</ref> is a parent of a Child. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Checks entire &quot;parent hierarchy&quot; of <computeroutput>child</computeroutput> to see if <computeroutput>parent</computeroutput> is one of its parents. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/projectviewmodel.h" line="251" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_view_model_1a70b2cb39f92f874933ed7ceb105280cb" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectViewModel::MoveItemInternal</definition>
+        <argsstring>(Item *item, Item *destination)</argsstring>
+        <name>MoveItemInternal</name>
+        <param>
+          <type><ref refid="class_item" kindref="compound">Item</ref> *</type>
+          <declname>item</declname>
+        </param>
+        <param>
+          <type><ref refid="class_item" kindref="compound">Item</ref> *</type>
+          <declname>destination</declname>
+        </param>
+        <briefdescription>
+<para>Moves an item to a new destination updating all views in the process. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function will emit a signal indicating that rows are moving, set <computeroutput>destination</computeroutput> as the new parent of <computeroutput>item</computeroutput>, and then emit a signal that the row has finished moving.</para>
+<para>It&apos;s not recommended to use this function directly in most cases since it does not create a QUndoCommand allowing the user to undo the move. Instead this function should primarily be called from QUndoCommands belonging to this class (e.g. <ref refid="class_project_view_model_1_1_move_item_command" kindref="compound">MoveItemCommand</ref>). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/projectviewmodel.h" line="263" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>An adapter that interprets the data in a <ref refid="class_project" kindref="compound">Project</ref> into a Qt item model for usage in ViewModel Views. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Assuming a <ref refid="class_project" kindref="compound">Project</ref> is currently &quot;open&quot; (i.e. the <ref refid="class_project" kindref="compound">Project</ref> is connected to a ProjectExplorer/ProjectPanel through a <ref refid="class_project_view_model" kindref="compound">ProjectViewModel</ref>), it may be better to make modifications (e.g. additions/removals/renames) through the <ref refid="class_project_view_model" kindref="compound">ProjectViewModel</ref> so that the views can be efficiently and correctly updated. <ref refid="class_project_view_model" kindref="compound">ProjectViewModel</ref> contains several &quot;wrapper&quot; functions for <ref refid="class_project" kindref="compound">Project</ref> and <ref refid="class_item" kindref="compound">Item</ref> functions that also signal any connected views to update accordingly. </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="3">
+        <label>ColorManager</label>
+        <link refid="class_color_manager"/>
+      </node>
+      <node id="5">
+        <label>Item</label>
+        <link refid="class_item"/>
+        <childnode refid="5" relation="usage">
+          <edgelabel>parent_</edgelabel>
+        </childnode>
+        <childnode refid="2" relation="usage">
+          <edgelabel>project_</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>Project</label>
+        <link refid="class_project"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>color_manager_</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>root_</edgelabel>
+        </childnode>
+      </node>
+      <node id="4">
+        <label>Folder</label>
+        <link refid="class_folder"/>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>ProjectViewModel</label>
+        <link refid="class_project_view_model"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>project_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/project/projectviewmodel.h" line="39" column="1" bodyfile="C:/Daten/Olive/olive/app/project/projectviewmodel.h" bodystart="40" bodyend="250"/>
+    <listofallmembers>
+      <member refid="class_project_view_model_1ac5b4b4425c1ad53ebda9e5ae4d795e97" prot="public" virt="non-virtual"><scope>ProjectViewModel</scope><name>AddChild</name></member>
+      <member refid="class_project_view_model_1a16020f5510e7a81835a0f6f91426acda" prot="public" virt="virtual"><scope>ProjectViewModel</scope><name>canFetchMore</name></member>
+      <member refid="class_project_view_model_1aa177ee18b55fff3147cde9e6c7ba827e" prot="private" virt="non-virtual"><scope>ProjectViewModel</scope><name>ChildCount</name></member>
+      <member refid="class_project_view_model_1a0092da83dc72d0b846ddf0fe577e5c1f" prot="public" virt="virtual"><scope>ProjectViewModel</scope><name>columnCount</name></member>
+      <member refid="class_project_view_model_1ab5bc043a6cdba2d2c02cf0ce2ff0f748" prot="private" virt="non-virtual"><scope>ProjectViewModel</scope><name>columns_</name></member>
+      <member refid="class_project_view_model_1af365225d0088affca74de6135cb3c48d" prot="public" virt="non-virtual"><scope>ProjectViewModel</scope><name>ColumnType</name></member>
+      <member refid="class_project_view_model_1a6d4fbd4eb743358e659a9dc021d262ce" prot="public" virt="non-virtual"><scope>ProjectViewModel</scope><name>CreateIndexFromItem</name></member>
+      <member refid="class_project_view_model_1ac100cb80005c5da4d4e063fa5b25975d" prot="public" virt="virtual"><scope>ProjectViewModel</scope><name>data</name></member>
+      <member refid="class_project_view_model_1aa3e9574f2cd0e646d01d826eb19c06d7" prot="public" virt="virtual"><scope>ProjectViewModel</scope><name>dropMimeData</name></member>
+      <member refid="class_project_view_model_1a03ac877f4f38fb25ecbe3086611aad18" prot="public" virt="virtual"><scope>ProjectViewModel</scope><name>flags</name></member>
+      <member refid="class_project_view_model_1ade30b73856206d72035ea7eac7e9f9d6" prot="private" virt="non-virtual"><scope>ProjectViewModel</scope><name>GetItemObjectFromIndex</name></member>
+      <member refid="class_project_view_model_1a3e204584fa249671a2154fe3ae1a1adf" prot="public" virt="virtual"><scope>ProjectViewModel</scope><name>hasChildren</name></member>
+      <member refid="class_project_view_model_1a0d5743d0d52edff782accb3897edabea" prot="public" virt="virtual"><scope>ProjectViewModel</scope><name>headerData</name></member>
+      <member refid="class_project_view_model_1a08e6778191f75a60bbafd9181618b943" prot="public" virt="virtual"><scope>ProjectViewModel</scope><name>index</name></member>
+      <member refid="class_project_view_model_1a9a40a8489bc3e6dd1049ee8bb0258b29" prot="private" virt="non-virtual"><scope>ProjectViewModel</scope><name>IndexOfChild</name></member>
+      <member refid="class_project_view_model_1a60b8c759a91bda5c9ec8f600bc03d5a9" prot="private" virt="non-virtual"><scope>ProjectViewModel</scope><name>ItemIsParentOfChild</name></member>
+      <member refid="class_project_view_model_1af365225d0088affca74de6135cb3c48dac0cdd767ce99fdf76f7a1b401216da1a" prot="public" virt="non-virtual"><scope>ProjectViewModel</scope><name>kDuration</name></member>
+      <member refid="class_project_view_model_1af365225d0088affca74de6135cb3c48da4e1832099e9472f0cdfc315839d8b8e7" prot="public" virt="non-virtual"><scope>ProjectViewModel</scope><name>kName</name></member>
+      <member refid="class_project_view_model_1af365225d0088affca74de6135cb3c48da37c807ff154d3201df1fc53d442e9820" prot="public" virt="non-virtual"><scope>ProjectViewModel</scope><name>kRate</name></member>
+      <member refid="class_project_view_model_1aa5f2ba863aba3347f2645bb2d5991365" prot="public" virt="virtual"><scope>ProjectViewModel</scope><name>mimeData</name></member>
+      <member refid="class_project_view_model_1a76a18d5ca0f01aef6ffc96e9d3a98aee" prot="public" virt="virtual"><scope>ProjectViewModel</scope><name>mimeTypes</name></member>
+      <member refid="class_project_view_model_1a70b2cb39f92f874933ed7ceb105280cb" prot="private" virt="non-virtual"><scope>ProjectViewModel</scope><name>MoveItemInternal</name></member>
+      <member refid="class_project_view_model_1a8a786ba8fade170d0396abd52a3b13bc" prot="public" virt="virtual"><scope>ProjectViewModel</scope><name>parent</name></member>
+      <member refid="class_project_view_model_1a4a91cde2e81995132a0445a2f3f3af74" prot="public" virt="non-virtual"><scope>ProjectViewModel</scope><name>project</name></member>
+      <member refid="class_project_view_model_1ae77c904bf15e89fa6eb093b9835f8e21" prot="private" virt="non-virtual"><scope>ProjectViewModel</scope><name>project_</name></member>
+      <member refid="class_project_view_model_1a2c4632c14ef3bdfa912cb06ae7107521" prot="public" virt="non-virtual"><scope>ProjectViewModel</scope><name>ProjectViewModel</name></member>
+      <member refid="class_project_view_model_1a26e7a1d0f5be97e8d6caf22948a4d19d" prot="public" virt="non-virtual"><scope>ProjectViewModel</scope><name>RemoveChild</name></member>
+      <member refid="class_project_view_model_1a131fc7040378b1c44116678e3ab929e4" prot="public" virt="non-virtual"><scope>ProjectViewModel</scope><name>RenameChild</name></member>
+      <member refid="class_project_view_model_1a1a39a698a9714af006cb18b905d6b9d0" prot="public" virt="virtual"><scope>ProjectViewModel</scope><name>rowCount</name></member>
+      <member refid="class_project_view_model_1a98a351c4027365d12b827b6c8c53f67c" prot="public" virt="non-virtual"><scope>ProjectViewModel</scope><name>set_project</name></member>
+      <member refid="class_project_view_model_1a34cabf55c9dc198905ea3662c1443f60" prot="public" virt="virtual"><scope>ProjectViewModel</scope><name>setData</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

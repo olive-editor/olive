@@ -1,0 +1,261 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_audio_output_device_proxy" kind="class" language="C++" prot="public">
+    <compoundname>AudioOutputDeviceProxy</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QIODevice</basecompoundref>
+    <includes refid="outputdeviceproxy_8h" local="no">outputdeviceproxy.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_audio_output_device_proxy_1a5db74fe2cb1fe536a58555d43f5776f7" prot="private" static="no" mutable="no">
+        <type>QFile</type>
+        <definition>QFile AudioOutputDeviceProxy::file_</definition>
+        <argsstring></argsstring>
+        <name>file_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/outputdeviceproxy.h" line="74" column="9" bodyfile="C:/Daten/Olive/olive/app/audio/outputdeviceproxy.h" bodystart="74" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_audio_output_device_proxy_1a80418a30daced0f6b13b63cb887ae2b4" prot="private" static="no" mutable="no">
+        <type><ref refid="class_tempo_processor" kindref="compound">TempoProcessor</ref></type>
+        <definition>TempoProcessor AudioOutputDeviceProxy::tempo_processor_</definition>
+        <argsstring></argsstring>
+        <name>tempo_processor_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/outputdeviceproxy.h" line="76" column="18" bodyfile="C:/Daten/Olive/olive/app/audio/outputdeviceproxy.h" bodystart="76" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_audio_output_device_proxy_1ae794618fabded1c08d6ea185c9cc7b28" prot="private" static="no" mutable="no">
+        <type><ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref></type>
+        <definition>AudioRenderingParams AudioOutputDeviceProxy::params_</definition>
+        <argsstring></argsstring>
+        <name>params_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/outputdeviceproxy.h" line="78" column="24" bodyfile="C:/Daten/Olive/olive/app/audio/outputdeviceproxy.h" bodystart="78" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_audio_output_device_proxy_1a7dcef45411ccf87cabc6d38779d827cf" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int AudioOutputDeviceProxy::playback_speed_</definition>
+        <argsstring></argsstring>
+        <name>playback_speed_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/outputdeviceproxy.h" line="80" column="7" bodyfile="C:/Daten/Olive/olive/app/audio/outputdeviceproxy.h" bodystart="80" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_audio_output_device_proxy_1a737c5ed5ae55d55e1c14c624aa74dc95" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>AudioOutputDeviceProxy::AudioOutputDeviceProxy</definition>
+        <argsstring>()=default</argsstring>
+        <name>AudioOutputDeviceProxy</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/outputdeviceproxy.h" line="56" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_output_device_proxy_1aee8d0ab27a7fc4a5b8af51ea6b01c813" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type></type>
+        <definition>virtual AudioOutputDeviceProxy::~AudioOutputDeviceProxy</definition>
+        <argsstring>() override</argsstring>
+        <name>~AudioOutputDeviceProxy</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/outputdeviceproxy.h" line="58" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_output_device_proxy_1a43912db34c602506ad38e2bfde8198f3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AudioOutputDeviceProxy::SetParameters</definition>
+        <argsstring>(const AudioRenderingParams &amp;params)</argsstring>
+        <name>SetParameters</name>
+        <param>
+          <type>const <ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref> &amp;</type>
+          <declname>params</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/outputdeviceproxy.h" line="60" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_output_device_proxy_1ade177b7204c47ab436a8c9b82d64842c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AudioOutputDeviceProxy::SetDevice</definition>
+        <argsstring>(const QString &amp;filename, qint64 offset, int playback_speed)</argsstring>
+        <name>SetDevice</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>filename</declname>
+        </param>
+        <param>
+          <type>qint64</type>
+          <declname>offset</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>playback_speed</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/outputdeviceproxy.h" line="62" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_output_device_proxy_1ae959e7470a3e0eb0332956b1daa302e4" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void AudioOutputDeviceProxy::close</definition>
+        <argsstring>() override</argsstring>
+        <name>close</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/outputdeviceproxy.h" line="64" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_audio_output_device_proxy_1aadec29e5b4b783fa8a434307fd45fd56" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>qint64</type>
+        <definition>virtual qint64 AudioOutputDeviceProxy::readData</definition>
+        <argsstring>(char *data, qint64 maxlen) override</argsstring>
+        <name>readData</name>
+        <param>
+          <type>char *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>qint64</type>
+          <declname>maxlen</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/outputdeviceproxy.h" line="67" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_output_device_proxy_1a223a44fbd7137acedfcc57fb63f990a8" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>qint64</type>
+        <definition>virtual qint64 AudioOutputDeviceProxy::writeData</definition>
+        <argsstring>(const char *data, qint64 maxSize) override</argsstring>
+        <name>writeData</name>
+        <param>
+          <type>const char *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>qint64</type>
+          <declname>maxSize</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/outputdeviceproxy.h" line="69" column="18"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_audio_output_device_proxy_1a8f8849e7d625701d64eb8d0122bdb05f" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>qint64</type>
+        <definition>qint64 AudioOutputDeviceProxy::ReverseAwareRead</definition>
+        <argsstring>(char *data, qint64 maxlen)</argsstring>
+        <name>ReverseAwareRead</name>
+        <param>
+          <type>char *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>qint64</type>
+          <declname>maxlen</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/outputdeviceproxy.h" line="72" column="10"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>QIODevice wrapper that can adjust speed/reverse an audio file. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>AudioOutputDeviceProxy</label>
+        <link refid="class_audio_output_device_proxy"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>tempo_processor_</edgelabel>
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>params_</edgelabel>
+        </childnode>
+      </node>
+      <node id="4">
+        <label>AudioParams</label>
+        <link refid="class_audio_params"/>
+      </node>
+      <node id="3">
+        <label>AudioRenderingParams</label>
+        <link refid="class_audio_rendering_params"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>TempoProcessor</label>
+        <link refid="class_tempo_processor"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>params_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/audio/outputdeviceproxy.h" line="34" column="1" bodyfile="C:/Daten/Olive/olive/app/audio/outputdeviceproxy.h" bodystart="35" bodyend="64"/>
+    <listofallmembers>
+      <member refid="class_audio_output_device_proxy_1a737c5ed5ae55d55e1c14c624aa74dc95" prot="public" virt="non-virtual"><scope>AudioOutputDeviceProxy</scope><name>AudioOutputDeviceProxy</name></member>
+      <member refid="class_audio_output_device_proxy_1ae959e7470a3e0eb0332956b1daa302e4" prot="public" virt="virtual"><scope>AudioOutputDeviceProxy</scope><name>close</name></member>
+      <member refid="class_audio_output_device_proxy_1a5db74fe2cb1fe536a58555d43f5776f7" prot="private" virt="non-virtual"><scope>AudioOutputDeviceProxy</scope><name>file_</name></member>
+      <member refid="class_audio_output_device_proxy_1ae794618fabded1c08d6ea185c9cc7b28" prot="private" virt="non-virtual"><scope>AudioOutputDeviceProxy</scope><name>params_</name></member>
+      <member refid="class_audio_output_device_proxy_1a7dcef45411ccf87cabc6d38779d827cf" prot="private" virt="non-virtual"><scope>AudioOutputDeviceProxy</scope><name>playback_speed_</name></member>
+      <member refid="class_audio_output_device_proxy_1aadec29e5b4b783fa8a434307fd45fd56" prot="protected" virt="virtual"><scope>AudioOutputDeviceProxy</scope><name>readData</name></member>
+      <member refid="class_audio_output_device_proxy_1a8f8849e7d625701d64eb8d0122bdb05f" prot="private" virt="non-virtual"><scope>AudioOutputDeviceProxy</scope><name>ReverseAwareRead</name></member>
+      <member refid="class_audio_output_device_proxy_1ade177b7204c47ab436a8c9b82d64842c" prot="public" virt="non-virtual"><scope>AudioOutputDeviceProxy</scope><name>SetDevice</name></member>
+      <member refid="class_audio_output_device_proxy_1a43912db34c602506ad38e2bfde8198f3" prot="public" virt="non-virtual"><scope>AudioOutputDeviceProxy</scope><name>SetParameters</name></member>
+      <member refid="class_audio_output_device_proxy_1a80418a30daced0f6b13b63cb887ae2b4" prot="private" virt="non-virtual"><scope>AudioOutputDeviceProxy</scope><name>tempo_processor_</name></member>
+      <member refid="class_audio_output_device_proxy_1a223a44fbd7137acedfcc57fb63f990a8" prot="protected" virt="virtual"><scope>AudioOutputDeviceProxy</scope><name>writeData</name></member>
+      <member refid="class_audio_output_device_proxy_1aee8d0ab27a7fc4a5b8af51ea6b01c813" prot="public" virt="virtual"><scope>AudioOutputDeviceProxy</scope><name>~AudioOutputDeviceProxy</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,457 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_video_rendering_params" kind="class" language="C++" prot="public">
+    <compoundname>VideoRenderingParams</compoundname>
+    <basecompoundref refid="class_video_params" prot="public" virt="non-virtual">VideoParams</basecompoundref>
+    <includes refid="videoparams_8h" local="no">videoparams.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_video_rendering_params_1a9a7231ee2f615cb538294b5f5862787a" prot="private" static="no" mutable="no">
+        <type><ref refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021" kindref="member">PixelFormat::Format</ref></type>
+        <definition>PixelFormat::Format VideoRenderingParams::format_</definition>
+        <argsstring></argsstring>
+        <name>format_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/videoparams.h" line="68" column="23" bodyfile="C:/Daten/Olive/olive/app/render/videoparams.h" bodystart="68" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_video_rendering_params_1a87342465170a598a44749cc2920f54d8" prot="private" static="no" mutable="no">
+        <type><ref refid="class_render_mode_1aa8f6df8efdb14e18f324bf20a40e6a2b" kindref="member">RenderMode::Mode</ref></type>
+        <definition>RenderMode::Mode VideoRenderingParams::mode_</definition>
+        <argsstring></argsstring>
+        <name>mode_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/videoparams.h" line="69" column="20" bodyfile="C:/Daten/Olive/olive/app/render/videoparams.h" bodystart="69" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_video_rendering_params_1aed3c45ed9b335efef9ce2105952d9677" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int VideoRenderingParams::divider_</definition>
+        <argsstring></argsstring>
+        <name>divider_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/videoparams.h" line="71" column="7" bodyfile="C:/Daten/Olive/olive/app/render/videoparams.h" bodystart="71" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_video_rendering_params_1a1b1b373fb9168a47923a4e27738a6a70" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int VideoRenderingParams::effective_width_</definition>
+        <argsstring></argsstring>
+        <name>effective_width_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/videoparams.h" line="72" column="7" bodyfile="C:/Daten/Olive/olive/app/render/videoparams.h" bodystart="72" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_video_rendering_params_1a860fe5b2aa2b6c3724a9de2c8311f979" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int VideoRenderingParams::effective_height_</definition>
+        <argsstring></argsstring>
+        <name>effective_height_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/videoparams.h" line="73" column="7" bodyfile="C:/Daten/Olive/olive/app/render/videoparams.h" bodystart="73" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_video_params_1a5ab5b47abaae965e2b650d621b5a6e12" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int VideoParams::width_</definition>
+        <argsstring></argsstring>
+        <name>width_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/videoparams.h" line="59" column="7" bodyfile="C:/Daten/Olive/olive/app/render/videoparams.h" bodystart="59" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_video_params_1a8c2e014ef31ac1aad1b4e9e97f189b8b" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int VideoParams::height_</definition>
+        <argsstring></argsstring>
+        <name>height_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/videoparams.h" line="60" column="7" bodyfile="C:/Daten/Olive/olive/app/render/videoparams.h" bodystart="60" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_video_params_1ae957a95aba3c50ddf7c81630bf06e346" prot="private" static="no" mutable="no">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational VideoParams::time_base_</definition>
+        <argsstring></argsstring>
+        <name>time_base_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/videoparams.h" line="61" column="12" bodyfile="C:/Daten/Olive/olive/app/render/videoparams.h" bodystart="61" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_video_rendering_params_1aa57e52344ae356e31bb9543fd55ead1d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>VideoRenderingParams::VideoRenderingParams</definition>
+        <argsstring>()</argsstring>
+        <name>VideoRenderingParams</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/videoparams.h" line="49" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_rendering_params_1ad5a05ca5660358b4ea4fe2cbb9563737" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>VideoRenderingParams::VideoRenderingParams</definition>
+        <argsstring>(const int &amp;width, const int &amp;height, const PixelFormat::Format &amp;format, const int &amp;divider=1)</argsstring>
+        <name>VideoRenderingParams</name>
+        <param>
+          <type>const int &amp;</type>
+          <declname>width</declname>
+        </param>
+        <param>
+          <type>const int &amp;</type>
+          <declname>height</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021" kindref="member">PixelFormat::Format</ref> &amp;</type>
+          <declname>format</declname>
+        </param>
+        <param>
+          <type>const int &amp;</type>
+          <declname>divider</declname>
+          <defval>1</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/videoparams.h" line="50" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_rendering_params_1aaa0c1b94f11f462cb6163bfc652c8536" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>VideoRenderingParams::VideoRenderingParams</definition>
+        <argsstring>(const int &amp;width, const int &amp;height, const rational &amp;time_base, const PixelFormat::Format &amp;format, const RenderMode::Mode &amp;mode, const int &amp;divider=1)</argsstring>
+        <name>VideoRenderingParams</name>
+        <param>
+          <type>const int &amp;</type>
+          <declname>width</declname>
+        </param>
+        <param>
+          <type>const int &amp;</type>
+          <declname>height</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>time_base</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021" kindref="member">PixelFormat::Format</ref> &amp;</type>
+          <declname>format</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_render_mode_1aa8f6df8efdb14e18f324bf20a40e6a2b" kindref="member">RenderMode::Mode</ref> &amp;</type>
+          <declname>mode</declname>
+        </param>
+        <param>
+          <type>const int &amp;</type>
+          <declname>divider</declname>
+          <defval>1</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/videoparams.h" line="51" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_rendering_params_1af24d35075f54622112b2dc8d06ac5ced" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>VideoRenderingParams::VideoRenderingParams</definition>
+        <argsstring>(const VideoParams &amp;params, const PixelFormat::Format &amp;format, const RenderMode::Mode &amp;mode, const int &amp;divider=1)</argsstring>
+        <name>VideoRenderingParams</name>
+        <param>
+          <type>const <ref refid="class_video_params" kindref="compound">VideoParams</ref> &amp;</type>
+          <declname>params</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021" kindref="member">PixelFormat::Format</ref> &amp;</type>
+          <declname>format</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_render_mode_1aa8f6df8efdb14e18f324bf20a40e6a2b" kindref="member">RenderMode::Mode</ref> &amp;</type>
+          <declname>mode</declname>
+        </param>
+        <param>
+          <type>const int &amp;</type>
+          <declname>divider</declname>
+          <defval>1</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/videoparams.h" line="52" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_rendering_params_1a18d10f56d9294ded2536d3e314de2f1b" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const int &amp;</type>
+        <definition>const int&amp; VideoRenderingParams::divider</definition>
+        <argsstring>() const</argsstring>
+        <name>divider</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/videoparams.h" line="54" column="13"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_rendering_params_1ac59ed2b50d4a9033769f253da89e2abd" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const int &amp;</type>
+        <definition>const int&amp; VideoRenderingParams::effective_width</definition>
+        <argsstring>() const</argsstring>
+        <name>effective_width</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/videoparams.h" line="55" column="13"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_rendering_params_1a0910b1092ea9a6e2a4bc33ae1be236f9" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const int &amp;</type>
+        <definition>const int&amp; VideoRenderingParams::effective_height</definition>
+        <argsstring>() const</argsstring>
+        <name>effective_height</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/videoparams.h" line="56" column="13"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_rendering_params_1ad80a5f8b5f5f6d0a776d9fb688eaf3bb" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool VideoRenderingParams::is_valid</definition>
+        <argsstring>() const</argsstring>
+        <name>is_valid</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/videoparams.h" line="58" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_rendering_params_1ae4393af096b5422384b2f5e501091e6e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021" kindref="member">PixelFormat::Format</ref> &amp;</type>
+        <definition>const PixelFormat::Format&amp; VideoRenderingParams::format</definition>
+        <argsstring>() const</argsstring>
+        <name>format</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/videoparams.h" line="59" column="29"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_rendering_params_1ae2cb7e27e45fb971d729ae0eb1387a5f" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="class_render_mode_1aa8f6df8efdb14e18f324bf20a40e6a2b" kindref="member">RenderMode::Mode</ref> &amp;</type>
+        <definition>const RenderMode::Mode&amp; VideoRenderingParams::mode</definition>
+        <argsstring>() const</argsstring>
+        <name>mode</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/videoparams.h" line="60" column="26"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_rendering_params_1afa11c6f5f6249601a86299f7316051ef" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool VideoRenderingParams::operator==</definition>
+        <argsstring>(const VideoRenderingParams &amp;rhs) const</argsstring>
+        <name>operator==</name>
+        <param>
+          <type>const <ref refid="class_video_rendering_params" kindref="compound">VideoRenderingParams</ref> &amp;</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/videoparams.h" line="62" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_rendering_params_1a0aceb760ae232cd0434bbea5264d0c95" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool VideoRenderingParams::operator!=</definition>
+        <argsstring>(const VideoRenderingParams &amp;rhs) const</argsstring>
+        <name>operator!=</name>
+        <param>
+          <type>const <ref refid="class_video_rendering_params" kindref="compound">VideoRenderingParams</ref> &amp;</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/videoparams.h" line="63" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_params_1a4735da1b85ce0aa0ef466a11930c7375" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const int &amp;</type>
+        <definition>const int&amp; VideoParams::width</definition>
+        <argsstring>() const</argsstring>
+        <name>width</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/videoparams.h" line="54" column="13"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_params_1a1acbcdd082956f353e6ca9dc8748d553" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const int &amp;</type>
+        <definition>const int&amp; VideoParams::height</definition>
+        <argsstring>() const</argsstring>
+        <name>height</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/videoparams.h" line="55" column="13"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_params_1abe2dcb9d9aacc2238fcc80d42ae4f51c" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+        <definition>const rational&amp; VideoParams::time_base</definition>
+        <argsstring>() const</argsstring>
+        <name>time_base</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/videoparams.h" line="56" column="18"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_video_rendering_params_1a039c275631d2be5779d5fffc4cf74486" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void VideoRenderingParams::calculate_effective_size</definition>
+        <argsstring>()</argsstring>
+        <name>calculate_effective_size</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/videoparams.h" line="66" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>VideoRenderingParams</label>
+        <link refid="class_video_rendering_params"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>VideoParams</label>
+        <link refid="class_video_params"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="3">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="1">
+        <label>VideoRenderingParams</label>
+        <link refid="class_video_rendering_params"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>VideoParams</label>
+        <link refid="class_video_params"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>time_base_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/render/videoparams.h" line="47" column="1" bodyfile="C:/Daten/Olive/olive/app/render/videoparams.h" bodystart="47" bodyend="74"/>
+    <listofallmembers>
+      <member refid="class_video_rendering_params_1a039c275631d2be5779d5fffc4cf74486" prot="private" virt="non-virtual"><scope>VideoRenderingParams</scope><name>calculate_effective_size</name></member>
+      <member refid="class_video_rendering_params_1a18d10f56d9294ded2536d3e314de2f1b" prot="public" virt="non-virtual"><scope>VideoRenderingParams</scope><name>divider</name></member>
+      <member refid="class_video_rendering_params_1aed3c45ed9b335efef9ce2105952d9677" prot="private" virt="non-virtual"><scope>VideoRenderingParams</scope><name>divider_</name></member>
+      <member refid="class_video_rendering_params_1a0910b1092ea9a6e2a4bc33ae1be236f9" prot="public" virt="non-virtual"><scope>VideoRenderingParams</scope><name>effective_height</name></member>
+      <member refid="class_video_rendering_params_1a860fe5b2aa2b6c3724a9de2c8311f979" prot="private" virt="non-virtual"><scope>VideoRenderingParams</scope><name>effective_height_</name></member>
+      <member refid="class_video_rendering_params_1ac59ed2b50d4a9033769f253da89e2abd" prot="public" virt="non-virtual"><scope>VideoRenderingParams</scope><name>effective_width</name></member>
+      <member refid="class_video_rendering_params_1a1b1b373fb9168a47923a4e27738a6a70" prot="private" virt="non-virtual"><scope>VideoRenderingParams</scope><name>effective_width_</name></member>
+      <member refid="class_video_rendering_params_1ae4393af096b5422384b2f5e501091e6e" prot="public" virt="non-virtual"><scope>VideoRenderingParams</scope><name>format</name></member>
+      <member refid="class_video_rendering_params_1a9a7231ee2f615cb538294b5f5862787a" prot="private" virt="non-virtual"><scope>VideoRenderingParams</scope><name>format_</name></member>
+      <member refid="class_video_params_1a1acbcdd082956f353e6ca9dc8748d553" prot="public" virt="non-virtual"><scope>VideoRenderingParams</scope><name>height</name></member>
+      <member refid="class_video_params_1a8c2e014ef31ac1aad1b4e9e97f189b8b" prot="private" virt="non-virtual"><scope>VideoRenderingParams</scope><name>height_</name></member>
+      <member refid="class_video_rendering_params_1ad80a5f8b5f5f6d0a776d9fb688eaf3bb" prot="public" virt="non-virtual"><scope>VideoRenderingParams</scope><name>is_valid</name></member>
+      <member refid="class_video_rendering_params_1ae2cb7e27e45fb971d729ae0eb1387a5f" prot="public" virt="non-virtual"><scope>VideoRenderingParams</scope><name>mode</name></member>
+      <member refid="class_video_rendering_params_1a87342465170a598a44749cc2920f54d8" prot="private" virt="non-virtual"><scope>VideoRenderingParams</scope><name>mode_</name></member>
+      <member refid="class_video_rendering_params_1a0aceb760ae232cd0434bbea5264d0c95" prot="public" virt="non-virtual"><scope>VideoRenderingParams</scope><name>operator!=</name></member>
+      <member refid="class_video_rendering_params_1afa11c6f5f6249601a86299f7316051ef" prot="public" virt="non-virtual"><scope>VideoRenderingParams</scope><name>operator==</name></member>
+      <member refid="class_video_params_1abe2dcb9d9aacc2238fcc80d42ae4f51c" prot="public" virt="non-virtual"><scope>VideoRenderingParams</scope><name>time_base</name></member>
+      <member refid="class_video_params_1ae957a95aba3c50ddf7c81630bf06e346" prot="private" virt="non-virtual"><scope>VideoRenderingParams</scope><name>time_base_</name></member>
+      <member refid="class_video_params_1a953000ee293105849b3828367fe3d832" prot="public" virt="non-virtual"><scope>VideoRenderingParams</scope><name>VideoParams</name></member>
+      <member refid="class_video_params_1aeb6d3e1352e963102aeccb7424acde06" prot="public" virt="non-virtual"><scope>VideoRenderingParams</scope><name>VideoParams</name></member>
+      <member refid="class_video_rendering_params_1aa57e52344ae356e31bb9543fd55ead1d" prot="public" virt="non-virtual"><scope>VideoRenderingParams</scope><name>VideoRenderingParams</name></member>
+      <member refid="class_video_rendering_params_1ad5a05ca5660358b4ea4fe2cbb9563737" prot="public" virt="non-virtual"><scope>VideoRenderingParams</scope><name>VideoRenderingParams</name></member>
+      <member refid="class_video_rendering_params_1aaa0c1b94f11f462cb6163bfc652c8536" prot="public" virt="non-virtual"><scope>VideoRenderingParams</scope><name>VideoRenderingParams</name></member>
+      <member refid="class_video_rendering_params_1af24d35075f54622112b2dc8d06ac5ced" prot="public" virt="non-virtual"><scope>VideoRenderingParams</scope><name>VideoRenderingParams</name></member>
+      <member refid="class_video_params_1a4735da1b85ce0aa0ef466a11930c7375" prot="public" virt="non-virtual"><scope>VideoRenderingParams</scope><name>width</name></member>
+      <member refid="class_video_params_1a5ab5b47abaae965e2b650d621b5a6e12" prot="private" virt="non-virtual"><scope>VideoRenderingParams</scope><name>width_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

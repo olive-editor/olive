@@ -1,0 +1,613 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="namespaceicon" kind="namespace" language="C++">
+    <compoundname>icon</compoundname>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="namespaceicon_1ab691eb3f2d29aadaaf856d528e1c54f3" prot="public" static="no" mutable="no">
+        <type>QIcon</type>
+        <definition>QIcon icon::GoToStart</definition>
+        <argsstring></argsstring>
+        <name>GoToStart</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/icons/icons.h" line="51" column="14" declfile="C:/Daten/Olive/olive/app/ui/icons/icons.h" declline="51" declcolumn="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceicon_1a3051ddab1bd762dddecf6613fcbf9a8e" prot="public" static="no" mutable="no">
+        <type>QIcon</type>
+        <definition>QIcon icon::PrevFrame</definition>
+        <argsstring></argsstring>
+        <name>PrevFrame</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/icons/icons.h" line="52" column="14" declfile="C:/Daten/Olive/olive/app/ui/icons/icons.h" declline="52" declcolumn="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceicon_1ae16848fcea3586ab05e81f20e818b400" prot="public" static="no" mutable="no">
+        <type>QIcon</type>
+        <definition>QIcon icon::Play</definition>
+        <argsstring></argsstring>
+        <name>Play</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/icons/icons.h" line="53" column="14" declfile="C:/Daten/Olive/olive/app/ui/icons/icons.h" declline="53" declcolumn="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceicon_1a183ac339b2e1843ed078b742700887a8" prot="public" static="no" mutable="no">
+        <type>QIcon</type>
+        <definition>QIcon icon::Pause</definition>
+        <argsstring></argsstring>
+        <name>Pause</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/icons/icons.h" line="54" column="14" declfile="C:/Daten/Olive/olive/app/ui/icons/icons.h" declline="54" declcolumn="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceicon_1a72fd4892338dcd73607865eca088c22c" prot="public" static="no" mutable="no">
+        <type>QIcon</type>
+        <definition>QIcon icon::NextFrame</definition>
+        <argsstring></argsstring>
+        <name>NextFrame</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/icons/icons.h" line="55" column="14" declfile="C:/Daten/Olive/olive/app/ui/icons/icons.h" declline="55" declcolumn="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceicon_1a86d4b1c17d00943a22ae5430559f7e53" prot="public" static="no" mutable="no">
+        <type>QIcon</type>
+        <definition>QIcon icon::GoToEnd</definition>
+        <argsstring></argsstring>
+        <name>GoToEnd</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/icons/icons.h" line="56" column="14" declfile="C:/Daten/Olive/olive/app/ui/icons/icons.h" declline="56" declcolumn="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceicon_1a358bd08dc877f79706dc4a1a3213bf43" prot="public" static="no" mutable="no">
+        <type>QIcon</type>
+        <definition>QIcon icon::New</definition>
+        <argsstring></argsstring>
+        <name>New</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/icons/icons.h" line="59" column="14" declfile="C:/Daten/Olive/olive/app/ui/icons/icons.h" declline="59" declcolumn="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceicon_1ac3bdc34ecc64ffaaf388b855209cf847" prot="public" static="no" mutable="no">
+        <type>QIcon</type>
+        <definition>QIcon icon::Open</definition>
+        <argsstring></argsstring>
+        <name>Open</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/icons/icons.h" line="60" column="14" declfile="C:/Daten/Olive/olive/app/ui/icons/icons.h" declline="60" declcolumn="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceicon_1a2817f01d83ddea463ebfaeea8074da9c" prot="public" static="no" mutable="no">
+        <type>QIcon</type>
+        <definition>QIcon icon::Save</definition>
+        <argsstring></argsstring>
+        <name>Save</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/icons/icons.h" line="61" column="14" declfile="C:/Daten/Olive/olive/app/ui/icons/icons.h" declline="61" declcolumn="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceicon_1a8fe6f0e6242c702475fe87f459b3b9c1" prot="public" static="no" mutable="no">
+        <type>QIcon</type>
+        <definition>QIcon icon::Undo</definition>
+        <argsstring></argsstring>
+        <name>Undo</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/icons/icons.h" line="62" column="14" declfile="C:/Daten/Olive/olive/app/ui/icons/icons.h" declline="62" declcolumn="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceicon_1a8e230b933482e6554eb3a610f94a16c2" prot="public" static="no" mutable="no">
+        <type>QIcon</type>
+        <definition>QIcon icon::Redo</definition>
+        <argsstring></argsstring>
+        <name>Redo</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/icons/icons.h" line="63" column="14" declfile="C:/Daten/Olive/olive/app/ui/icons/icons.h" declline="63" declcolumn="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceicon_1a9ad395c1a21a5b5df7a671c9d3c83e31" prot="public" static="no" mutable="no">
+        <type>QIcon</type>
+        <definition>QIcon icon::TreeView</definition>
+        <argsstring></argsstring>
+        <name>TreeView</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/icons/icons.h" line="64" column="14" declfile="C:/Daten/Olive/olive/app/ui/icons/icons.h" declline="64" declcolumn="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceicon_1a5a32589a77d44ad5fe37913524113e68" prot="public" static="no" mutable="no">
+        <type>QIcon</type>
+        <definition>QIcon icon::ListView</definition>
+        <argsstring></argsstring>
+        <name>ListView</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/icons/icons.h" line="65" column="14" declfile="C:/Daten/Olive/olive/app/ui/icons/icons.h" declline="65" declcolumn="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceicon_1a8ec33b17701553f9c3e15adef6761313" prot="public" static="no" mutable="no">
+        <type>QIcon</type>
+        <definition>QIcon icon::IconView</definition>
+        <argsstring></argsstring>
+        <name>IconView</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/icons/icons.h" line="66" column="14" declfile="C:/Daten/Olive/olive/app/ui/icons/icons.h" declline="66" declcolumn="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceicon_1a3b4aae085d07807da3eb478a9b786920" prot="public" static="no" mutable="no">
+        <type>QIcon</type>
+        <definition>QIcon icon::ToolPointer</definition>
+        <argsstring></argsstring>
+        <name>ToolPointer</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/icons/icons.h" line="69" column="14" declfile="C:/Daten/Olive/olive/app/ui/icons/icons.h" declline="69" declcolumn="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceicon_1a12578ea2a1ec13a31c5729fe519231cb" prot="public" static="no" mutable="no">
+        <type>QIcon</type>
+        <definition>QIcon icon::ToolEdit</definition>
+        <argsstring></argsstring>
+        <name>ToolEdit</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/icons/icons.h" line="70" column="14" declfile="C:/Daten/Olive/olive/app/ui/icons/icons.h" declline="70" declcolumn="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceicon_1a745c399cf1d9558ffd67eabfa9d06479" prot="public" static="no" mutable="no">
+        <type>QIcon</type>
+        <definition>QIcon icon::ToolRipple</definition>
+        <argsstring></argsstring>
+        <name>ToolRipple</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/icons/icons.h" line="71" column="14" declfile="C:/Daten/Olive/olive/app/ui/icons/icons.h" declline="71" declcolumn="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceicon_1a947f5d5916e545ba3955bcbe62b69a84" prot="public" static="no" mutable="no">
+        <type>QIcon</type>
+        <definition>QIcon icon::ToolRolling</definition>
+        <argsstring></argsstring>
+        <name>ToolRolling</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/icons/icons.h" line="72" column="14" declfile="C:/Daten/Olive/olive/app/ui/icons/icons.h" declline="72" declcolumn="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceicon_1ab40b65e0e0f130b06fde2dfa143321d8" prot="public" static="no" mutable="no">
+        <type>QIcon</type>
+        <definition>QIcon icon::ToolRazor</definition>
+        <argsstring></argsstring>
+        <name>ToolRazor</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/icons/icons.h" line="73" column="14" declfile="C:/Daten/Olive/olive/app/ui/icons/icons.h" declline="73" declcolumn="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceicon_1aadc915b6516095974491c8e47adaef26" prot="public" static="no" mutable="no">
+        <type>QIcon</type>
+        <definition>QIcon icon::ToolSlip</definition>
+        <argsstring></argsstring>
+        <name>ToolSlip</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/icons/icons.h" line="74" column="14" declfile="C:/Daten/Olive/olive/app/ui/icons/icons.h" declline="74" declcolumn="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceicon_1af511a348fbc42ee045449e86217cb662" prot="public" static="no" mutable="no">
+        <type>QIcon</type>
+        <definition>QIcon icon::ToolSlide</definition>
+        <argsstring></argsstring>
+        <name>ToolSlide</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/icons/icons.h" line="75" column="14" declfile="C:/Daten/Olive/olive/app/ui/icons/icons.h" declline="75" declcolumn="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceicon_1a95aabad65f7fbaf3541f8870c352a560" prot="public" static="no" mutable="no">
+        <type>QIcon</type>
+        <definition>QIcon icon::ToolHand</definition>
+        <argsstring></argsstring>
+        <name>ToolHand</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/icons/icons.h" line="76" column="14" declfile="C:/Daten/Olive/olive/app/ui/icons/icons.h" declline="76" declcolumn="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceicon_1ac56488c12dffdd9aa3265b1d31b37e5c" prot="public" static="no" mutable="no">
+        <type>QIcon</type>
+        <definition>QIcon icon::ToolTransition</definition>
+        <argsstring></argsstring>
+        <name>ToolTransition</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/icons/icons.h" line="77" column="14" declfile="C:/Daten/Olive/olive/app/ui/icons/icons.h" declline="77" declcolumn="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceicon_1adde9e42b58595fb181c8d0c490a8b377" prot="public" static="no" mutable="no">
+        <type>QIcon</type>
+        <definition>QIcon icon::Folder</definition>
+        <argsstring></argsstring>
+        <name>Folder</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/icons/icons.h" line="80" column="14" declfile="C:/Daten/Olive/olive/app/ui/icons/icons.h" declline="80" declcolumn="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceicon_1a7f5369998aa4904ccd6347620ecee1bd" prot="public" static="no" mutable="no">
+        <type>QIcon</type>
+        <definition>QIcon icon::Sequence</definition>
+        <argsstring></argsstring>
+        <name>Sequence</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/icons/icons.h" line="81" column="14" declfile="C:/Daten/Olive/olive/app/ui/icons/icons.h" declline="81" declcolumn="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceicon_1af70d48e96ebaa0e593b1046662e7ccec" prot="public" static="no" mutable="no">
+        <type>QIcon</type>
+        <definition>QIcon icon::Video</definition>
+        <argsstring></argsstring>
+        <name>Video</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/icons/icons.h" line="82" column="14" declfile="C:/Daten/Olive/olive/app/ui/icons/icons.h" declline="82" declcolumn="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceicon_1aaeb536b0299bfd65782c47e2650422cd" prot="public" static="no" mutable="no">
+        <type>QIcon</type>
+        <definition>QIcon icon::Audio</definition>
+        <argsstring></argsstring>
+        <name>Audio</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/icons/icons.h" line="83" column="14" declfile="C:/Daten/Olive/olive/app/ui/icons/icons.h" declline="83" declcolumn="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceicon_1acbbcf7b1a0a130def6fb572ee3381348" prot="public" static="no" mutable="no">
+        <type>QIcon</type>
+        <definition>QIcon icon::Image</definition>
+        <argsstring></argsstring>
+        <name>Image</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/icons/icons.h" line="84" column="14" declfile="C:/Daten/Olive/olive/app/ui/icons/icons.h" declline="84" declcolumn="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceicon_1aa259e4ade53a47fc24e82eb0af15d753" prot="public" static="no" mutable="no">
+        <type>QIcon</type>
+        <definition>QIcon icon::TriUp</definition>
+        <argsstring></argsstring>
+        <name>TriUp</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/icons/icons.h" line="87" column="14" declfile="C:/Daten/Olive/olive/app/ui/icons/icons.h" declline="87" declcolumn="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceicon_1a715592c00fee02841a40b63f8e175344" prot="public" static="no" mutable="no">
+        <type>QIcon</type>
+        <definition>QIcon icon::TriLeft</definition>
+        <argsstring></argsstring>
+        <name>TriLeft</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/icons/icons.h" line="88" column="14" declfile="C:/Daten/Olive/olive/app/ui/icons/icons.h" declline="88" declcolumn="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceicon_1aded272a1133e2cb4adf47dbb3f11bb51" prot="public" static="no" mutable="no">
+        <type>QIcon</type>
+        <definition>QIcon icon::TriDown</definition>
+        <argsstring></argsstring>
+        <name>TriDown</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/icons/icons.h" line="89" column="14" declfile="C:/Daten/Olive/olive/app/ui/icons/icons.h" declline="89" declcolumn="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceicon_1a13c7edfa77d5fbd0eeacc8d84506cc05" prot="public" static="no" mutable="no">
+        <type>QIcon</type>
+        <definition>QIcon icon::TriRight</definition>
+        <argsstring></argsstring>
+        <name>TriRight</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/icons/icons.h" line="90" column="14" declfile="C:/Daten/Olive/olive/app/ui/icons/icons.h" declline="90" declcolumn="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceicon_1a83ff178f10bb13810ecb85721eac43e4" prot="public" static="no" mutable="no">
+        <type>QIcon</type>
+        <definition>QIcon icon::Snapping</definition>
+        <argsstring></argsstring>
+        <name>Snapping</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/icons/icons.h" line="93" column="14" declfile="C:/Daten/Olive/olive/app/ui/icons/icons.h" declline="93" declcolumn="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceicon_1a81d1c5b8c6aeb2b172963a3359f8dc1f" prot="public" static="no" mutable="no">
+        <type>QIcon</type>
+        <definition>QIcon icon::ZoomIn</definition>
+        <argsstring></argsstring>
+        <name>ZoomIn</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/icons/icons.h" line="94" column="14" declfile="C:/Daten/Olive/olive/app/ui/icons/icons.h" declline="94" declcolumn="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceicon_1aa310a3b98879fd64b718655234594161" prot="public" static="no" mutable="no">
+        <type>QIcon</type>
+        <definition>QIcon icon::ZoomOut</definition>
+        <argsstring></argsstring>
+        <name>ZoomOut</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/icons/icons.h" line="95" column="14" declfile="C:/Daten/Olive/olive/app/ui/icons/icons.h" declline="95" declcolumn="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceicon_1a80e85c056e2260d19f3a288beff9959b" prot="public" static="no" mutable="no">
+        <type>QIcon</type>
+        <definition>QIcon icon::Record</definition>
+        <argsstring></argsstring>
+        <name>Record</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/icons/icons.h" line="96" column="14" declfile="C:/Daten/Olive/olive/app/ui/icons/icons.h" declline="96" declcolumn="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceicon_1a39f513f57087292535eb904025efb207" prot="public" static="no" mutable="no">
+        <type>QIcon</type>
+        <definition>QIcon icon::Add</definition>
+        <argsstring></argsstring>
+        <name>Add</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/icons/icons.h" line="97" column="14" declfile="C:/Daten/Olive/olive/app/ui/icons/icons.h" declline="97" declcolumn="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceicon_1ab8d02a85edfbb6e2690b1d48ae38f377" prot="public" static="no" mutable="no">
+        <type>QIcon</type>
+        <definition>QIcon icon::Error</definition>
+        <argsstring></argsstring>
+        <name>Error</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/icons/icons.h" line="98" column="14" declfile="C:/Daten/Olive/olive/app/ui/icons/icons.h" declline="98" declcolumn="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceicon_1a9356657cf0f972906ce3ac3bda93fb2d" prot="public" static="no" mutable="no">
+        <type>QIcon</type>
+        <definition>QIcon icon::DirUp</definition>
+        <argsstring></argsstring>
+        <name>DirUp</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/icons/icons.h" line="99" column="14" declfile="C:/Daten/Olive/olive/app/ui/icons/icons.h" declline="99" declcolumn="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceicon_1a24b0c3041ebf2e9cb26704706693d3a0" prot="public" static="no" mutable="no">
+        <type>QIcon</type>
+        <definition>QIcon icon::Clock</definition>
+        <argsstring></argsstring>
+        <name>Clock</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/icons/icons.h" line="100" column="14" declfile="C:/Daten/Olive/olive/app/ui/icons/icons.h" declline="100" declcolumn="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceicon_1a6a2b01b432cd268ab9193b58c9cb1113" prot="public" static="no" mutable="no">
+        <type>QIcon</type>
+        <definition>QIcon icon::Diamond</definition>
+        <argsstring></argsstring>
+        <name>Diamond</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/icons/icons.h" line="101" column="14" declfile="C:/Daten/Olive/olive/app/ui/icons/icons.h" declline="101" declcolumn="14"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="namespaceicon_1af9bb28ecb66b14f5e04f791b059213bf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QIcon</type>
+        <definition>QIcon icon::Create</definition>
+        <argsstring>(const QString &amp;theme, const QString &amp;name)</argsstring>
+        <name>Create</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>theme</declname>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>name</declname>
+        </param>
+        <briefdescription>
+<para>Create an icon object loaded from file. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Using <computeroutput>name</computeroutput>, this function will load icon files to create an icon object that can be used throughout the application.</para>
+<para>Olive&apos;s icons are stored in a very specific format. They are all sourced from SVGs, but stored as PNGs of various sizes. See <computeroutput>app/ui/icons/genicons.sh</computeroutput>, as this script not only generates the multiple sizes but also the QRC file used to compile the icons into the executable.</para>
+<para>This function is heavily tied into <computeroutput>genicons.sh</computeroutput> and will load all the different sized images (using the same filename formatting and QRC resource directory) that <computeroutput>genicons.sh</computeroutput> generates into one QIcon file. If you change either this function or <computeroutput>genicons.sh</computeroutput>, you will very likely have to change the other too.</para>
+<para>There is not much reason to call this outside of <ref refid="namespaceicon_1af70c42d5e629aa93b23d98d344c9d760" kindref="member">LoadAll()</ref> (which stores icons globally in memory so they don&apos;t have to be reloaded each time a new object needs an icon).</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>theme</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of the theme (used in the URL as the folder to load PNGs from)</para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of the icon (will correspond to the original SVG&apos;s filename with no path or extension)</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para></para>
+</simplesect>
+A QIcon object containing the various icon sizes loaded from resource </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/icons/icons.h" line="132" column="7" declfile="C:/Daten/Olive/olive/app/ui/icons/icons.h" declline="132" declcolumn="7"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceicon_1af70c42d5e629aa93b23d98d344c9d760" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void icon::LoadAll</definition>
+        <argsstring>(const QString &amp;theme)</argsstring>
+        <name>LoadAll</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>theme</declname>
+        </param>
+        <briefdescription>
+<para>Methodically load all Olive icons into global variables that can be accessed throughout the application. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>It&apos;s recommended to load any UI icons here so they&apos;re ready at startup and don&apos;t need to be re-loaded upon each use. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/icons/icons.h" line="140" column="6" declfile="C:/Daten/Olive/olive/app/ui/icons/icons.h" declline="140" declcolumn="6"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/ui/icons/icons.h" line="30" column="1"/>
+  </compounddef>
+</doxygen>

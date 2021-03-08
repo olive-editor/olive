@@ -1,0 +1,273 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_project_explorer_navigation" kind="class" language="C++" prot="public">
+    <compoundname>ProjectExplorerNavigation</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QWidget</basecompoundref>
+    <includes refid="projectexplorernavigation_8h" local="no">projectexplorernavigation.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_project_explorer_navigation_1acdd272ac23092bba0df5dbfc33353d24" prot="private" static="no" mutable="no">
+        <type>QPushButton *</type>
+        <definition>QPushButton* ProjectExplorerNavigation::dir_up_btn_</definition>
+        <argsstring></argsstring>
+        <name>dir_up_btn_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorernavigation.h" line="126" column="15" bodyfile="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorernavigation.h" bodystart="126" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_project_explorer_navigation_1a06309851935767548692297c7088b707" prot="private" static="no" mutable="no">
+        <type>QLabel *</type>
+        <definition>QLabel* ProjectExplorerNavigation::dir_lbl_</definition>
+        <argsstring></argsstring>
+        <name>dir_lbl_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorernavigation.h" line="128" column="10" bodyfile="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorernavigation.h" bodystart="128" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_project_explorer_navigation_1a34f1dacd1fb6dc2b3b1bf4f7ffbd09e3" prot="private" static="no" mutable="no">
+        <type>QSlider *</type>
+        <definition>QSlider* ProjectExplorerNavigation::size_slider_</definition>
+        <argsstring></argsstring>
+        <name>size_slider_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorernavigation.h" line="130" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorernavigation.h" bodystart="130" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_project_explorer_navigation_1a2bf8ee41a5a91d40809727409dfd6e77" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>ProjectExplorerNavigation::ProjectExplorerNavigation</definition>
+        <argsstring>(QWidget *parent)</argsstring>
+        <name>ProjectExplorerNavigation</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorernavigation.h" line="74" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_explorer_navigation_1ab747d41b82b90b4f6a1c66e8a3c9da61" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectExplorerNavigation::set_text</definition>
+        <argsstring>(const QString &amp;s)</argsstring>
+        <name>set_text</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Sets the text string. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This text is intended to be set to the current <ref refid="class_folder" kindref="compound">Folder</ref>&apos;s name</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorernavigation.h" line="83" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_explorer_navigation_1a5b8468229a1163226718385868fbfe3b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectExplorerNavigation::set_dir_up_enabled</definition>
+        <argsstring>(bool e)</argsstring>
+        <name>set_dir_up_enabled</name>
+        <param>
+          <type>bool</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+<para>Set whether the &quot;directory up&quot; button is enabled or not. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>e</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorernavigation.h" line="90" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_explorer_navigation_1a6e19ef97def40f6b0099f7d777d03af6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectExplorerNavigation::set_size_value</definition>
+        <argsstring>(int s)</argsstring>
+        <name>set_size_value</name>
+        <param>
+          <type>int</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Set the current value of the size slider. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>NOTE: Does NOT emit <ref refid="class_project_explorer_navigation_1af28d01a750e68c9d45c3424579493154" kindref="member">SizeChanged()</ref>.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New size value to set to </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorernavigation.h" line="101" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_project_explorer_navigation_1a4af1bcd8d8920821417f764ad63847a2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectExplorerNavigation::DirectoryUpClicked</definition>
+        <argsstring>()</argsstring>
+        <name>DirectoryUpClicked</name>
+        <briefdescription>
+<para>Signal emitted when the directory up button is clicked. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorernavigation.h" line="107" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_project_explorer_navigation_1af28d01a750e68c9d45c3424579493154" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectExplorerNavigation::SizeChanged</definition>
+        <argsstring>(int size)</argsstring>
+        <name>SizeChanged</name>
+        <param>
+          <type>int</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+<para>Signal emitted when the icon size slider changes value. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New size set in the slider </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorernavigation.h" line="116" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_project_explorer_navigation_1ad8a813b71f77c881d4111f4e8ea97bc0" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void ProjectExplorerNavigation::changeEvent</definition>
+        <argsstring>(QEvent *) override</argsstring>
+        <name>changeEvent</name>
+        <param>
+          <type>QEvent *</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorernavigation.h" line="119" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_project_explorer_navigation_1ac78cd9910166e1afe34c84ce16c2cc91" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectExplorerNavigation::Retranslate</definition>
+        <argsstring>()</argsstring>
+        <name>Retranslate</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorernavigation.h" line="122" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_project_explorer_navigation_1a3e845d5f2101ed75e229bd8f7d204650" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectExplorerNavigation::UpdateIcons</definition>
+        <argsstring>()</argsstring>
+        <name>UpdateIcons</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorernavigation.h" line="124" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A navigation bar widget for <ref refid="class_project_explorer" kindref="compound">ProjectExplorer</ref>&apos;s Icon and List views. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Unlike the Tree view, Icon and List don&apos;t follow a hierarchical view of information. This means there is no direct way of navigating in and out of folders in those view types. We solve this in two ways:</para>
+<para><itemizedlist>
+<listitem><para>Double clicking a <ref refid="class_folder" kindref="compound">Folder</ref> in those views will enter that folder</para>
+</listitem><listitem><para>This navigation bar offers a &quot;directory up&quot; button for leaving a folder</para>
+</listitem></itemizedlist>
+</para>
+<para>This navbar also provides an icon size slider for those views (between kProjectIconSizeMinimum and kProjectIconSizeMaximum) as well as text that&apos;s intended to be set to the current <ref refid="class_folder" kindref="compound">Folder</ref>&apos;s name (or empty for the root folder).</para>
+<para>This widget does not actually communicate to <ref refid="class_project" kindref="compound">Project</ref> or <ref refid="class_project_explorer" kindref="compound">ProjectExplorer</ref> classes. It is simply UI widgets that are intended to be connected in ways that do. This is the primarily responsibility of <ref refid="class_project_explorer" kindref="compound">ProjectExplorer</ref>.</para>
+<para>By default, the directory up button is disabled (assuming root folder), the text is empty, and the icon size slider is set to kProjectIconSizeDefault. </para>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorernavigation.h" line="52" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorernavigation.h" bodystart="53" bodyend="113"/>
+    <listofallmembers>
+      <member refid="class_project_explorer_navigation_1ad8a813b71f77c881d4111f4e8ea97bc0" prot="protected" virt="virtual"><scope>ProjectExplorerNavigation</scope><name>changeEvent</name></member>
+      <member refid="class_project_explorer_navigation_1a06309851935767548692297c7088b707" prot="private" virt="non-virtual"><scope>ProjectExplorerNavigation</scope><name>dir_lbl_</name></member>
+      <member refid="class_project_explorer_navigation_1acdd272ac23092bba0df5dbfc33353d24" prot="private" virt="non-virtual"><scope>ProjectExplorerNavigation</scope><name>dir_up_btn_</name></member>
+      <member refid="class_project_explorer_navigation_1a4af1bcd8d8920821417f764ad63847a2" prot="public" virt="non-virtual"><scope>ProjectExplorerNavigation</scope><name>DirectoryUpClicked</name></member>
+      <member refid="class_project_explorer_navigation_1a2bf8ee41a5a91d40809727409dfd6e77" prot="public" virt="non-virtual"><scope>ProjectExplorerNavigation</scope><name>ProjectExplorerNavigation</name></member>
+      <member refid="class_project_explorer_navigation_1ac78cd9910166e1afe34c84ce16c2cc91" prot="private" virt="non-virtual"><scope>ProjectExplorerNavigation</scope><name>Retranslate</name></member>
+      <member refid="class_project_explorer_navigation_1a5b8468229a1163226718385868fbfe3b" prot="public" virt="non-virtual"><scope>ProjectExplorerNavigation</scope><name>set_dir_up_enabled</name></member>
+      <member refid="class_project_explorer_navigation_1a6e19ef97def40f6b0099f7d777d03af6" prot="public" virt="non-virtual"><scope>ProjectExplorerNavigation</scope><name>set_size_value</name></member>
+      <member refid="class_project_explorer_navigation_1ab747d41b82b90b4f6a1c66e8a3c9da61" prot="public" virt="non-virtual"><scope>ProjectExplorerNavigation</scope><name>set_text</name></member>
+      <member refid="class_project_explorer_navigation_1a34f1dacd1fb6dc2b3b1bf4f7ffbd09e3" prot="private" virt="non-virtual"><scope>ProjectExplorerNavigation</scope><name>size_slider_</name></member>
+      <member refid="class_project_explorer_navigation_1af28d01a750e68c9d45c3424579493154" prot="public" virt="non-virtual"><scope>ProjectExplorerNavigation</scope><name>SizeChanged</name></member>
+      <member refid="class_project_explorer_navigation_1a3e845d5f2101ed75e229bd8f7d204650" prot="private" virt="non-virtual"><scope>ProjectExplorerNavigation</scope><name>UpdateIcons</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

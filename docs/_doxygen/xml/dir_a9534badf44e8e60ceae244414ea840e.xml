@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_a9534badf44e8e60ceae244414ea840e" kind="dir">
+    <compoundname>tool</compoundname>
+    <innerfile refid="tool_2tool_8h">tool/tool.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/tool/"/>
+  </compounddef>
+</doxygen>

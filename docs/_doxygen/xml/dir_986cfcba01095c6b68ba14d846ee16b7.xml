@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_986cfcba01095c6b68ba14d846ee16b7" kind="dir">
+    <compoundname>dialog</compoundname>
+    <innerdir refid="dir_2af5942630210d369331362aacfeb2d5">about</innerdir>
+    <innerdir refid="dir_85a1511a9ceeca9e3109b5011607f6ba">actionsearch</innerdir>
+    <innerdir refid="dir_b98cc4663504623a2ef962ec52267fe9">color</innerdir>
+    <innerdir refid="dir_02c10c88bcd0faa532c12e3a009dbe98">crashhandler</innerdir>
+    <innerdir refid="dir_eee8a72db89134f084d4f8739ca4f172">export</innerdir>
+    <innerdir refid="dir_3bd937936de83d9ab8541070b5be826d">footageproperties</innerdir>
+    <innerdir refid="dir_a8bf850de43abd602920908e240d4f6a">keyframeproperties</innerdir>
+    <innerdir refid="dir_8428005b18fffe8ed4fdd637b5ff533f">preferences</innerdir>
+    <innerdir refid="dir_aa1f272f0c4f4561853d6ec658947db2">progress</innerdir>
+    <innerdir refid="dir_e45b7d6af10e6aae746f4359f23012e8">projectproperties</innerdir>
+    <innerdir refid="dir_8aa7831b6227935690a11cc546114d57">rendercancel</innerdir>
+    <innerdir refid="dir_10cd5c5232524e5819e2140299689091">sequence</innerdir>
+    <innerdir refid="dir_10e8f579ee80c3187caa09ef1fa68c74">speedduration</innerdir>
+    <innerdir refid="dir_aa6024fa626e198b0425f32bef4a68a8">task</innerdir>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/dialog/"/>
+  </compounddef>
+</doxygen>

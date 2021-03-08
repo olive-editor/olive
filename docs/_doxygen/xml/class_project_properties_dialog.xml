@@ -1,0 +1,196 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_project_properties_dialog" kind="class" language="C++" prot="public">
+    <compoundname>ProjectPropertiesDialog</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QDialog</basecompoundref>
+    <includes refid="projectproperties_8h" local="no">projectproperties.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_project_properties_dialog_1adef8443784e5026df5b612464b77369e" prot="private" static="no" mutable="no">
+        <type><ref refid="class_project" kindref="compound">Project</ref> *</type>
+        <definition>Project* ProjectPropertiesDialog::working_project_</definition>
+        <argsstring></argsstring>
+        <name>working_project_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/projectproperties/projectproperties.h" line="60" column="11" bodyfile="C:/Daten/Olive/olive/app/dialog/projectproperties/projectproperties.h" bodystart="60" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_project_properties_dialog_1a7cb90074d24ecc586059fc0e73aae7c0" prot="private" static="no" mutable="no">
+        <type>QLineEdit *</type>
+        <definition>QLineEdit* ProjectPropertiesDialog::ocio_filename_</definition>
+        <argsstring></argsstring>
+        <name>ocio_filename_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/projectproperties/projectproperties.h" line="62" column="13" bodyfile="C:/Daten/Olive/olive/app/dialog/projectproperties/projectproperties.h" bodystart="62" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_project_properties_dialog_1adfeae33b48cf92152e06ffa5fc2126ba" prot="private" static="no" mutable="no">
+        <type>QComboBox *</type>
+        <definition>QComboBox* ProjectPropertiesDialog::default_input_colorspace_</definition>
+        <argsstring></argsstring>
+        <name>default_input_colorspace_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/projectproperties/projectproperties.h" line="64" column="13" bodyfile="C:/Daten/Olive/olive/app/dialog/projectproperties/projectproperties.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_project_properties_dialog_1a82e3e1db081c2a317f202d5d64b5a3df" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool ProjectPropertiesDialog::ocio_config_is_valid_</definition>
+        <argsstring></argsstring>
+        <name>ocio_config_is_valid_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/projectproperties/projectproperties.h" line="66" column="8" bodyfile="C:/Daten/Olive/olive/app/dialog/projectproperties/projectproperties.h" bodystart="66" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_project_properties_dialog_1a9b54a1208dcbb176897c0c099da14cef" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString ProjectPropertiesDialog::ocio_config_error_</definition>
+        <argsstring></argsstring>
+        <name>ocio_config_error_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/projectproperties/projectproperties.h" line="68" column="11" bodyfile="C:/Daten/Olive/olive/app/dialog/projectproperties/projectproperties.h" bodystart="68" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_project_properties_dialog_1a802f506994b07553beb893b1cb9e3375" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>ProjectPropertiesDialog::ProjectPropertiesDialog</definition>
+        <argsstring>(Project *p, QWidget *parent)</argsstring>
+        <name>ProjectPropertiesDialog</name>
+        <param>
+          <type><ref refid="class_project" kindref="compound">Project</ref> *</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/projectproperties/projectproperties.h" line="54" column="3"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-slot">
+      <memberdef kind="slot" id="class_project_properties_dialog_1aff90cd8613f43eb7b936f6f6c9a9c4dc" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void ProjectPropertiesDialog::accept</definition>
+        <argsstring>() override</argsstring>
+        <name>accept</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/projectproperties/projectproperties.h" line="57" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_project_properties_dialog_1aa5e2636d51f235dd3c1159a652581a84" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectPropertiesDialog::BrowseForOCIOConfig</definition>
+        <argsstring>()</argsstring>
+        <name>BrowseForOCIOConfig</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/projectproperties/projectproperties.h" line="71" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_project_properties_dialog_1ac753fb6522531d04a6b2c65b12b86649" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectPropertiesDialog::FilenameUpdated</definition>
+        <argsstring>()</argsstring>
+        <name>FilenameUpdated</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/projectproperties/projectproperties.h" line="73" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="3">
+        <label>ColorManager</label>
+        <link refid="class_color_manager"/>
+      </node>
+      <node id="5">
+        <label>Item</label>
+        <link refid="class_item"/>
+        <childnode refid="5" relation="usage">
+          <edgelabel>parent_</edgelabel>
+        </childnode>
+        <childnode refid="2" relation="usage">
+          <edgelabel>project_</edgelabel>
+        </childnode>
+      </node>
+      <node id="1">
+        <label>ProjectPropertiesDialog</label>
+        <link refid="class_project_properties_dialog"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>working_project_</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>Project</label>
+        <link refid="class_project"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>color_manager_</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>root_</edgelabel>
+        </childnode>
+      </node>
+      <node id="4">
+        <label>Folder</label>
+        <link refid="class_folder"/>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/dialog/projectproperties/projectproperties.h" line="32" column="1" bodyfile="C:/Daten/Olive/olive/app/dialog/projectproperties/projectproperties.h" bodystart="33" bodyend="57"/>
+    <listofallmembers>
+      <member refid="class_project_properties_dialog_1aff90cd8613f43eb7b936f6f6c9a9c4dc" prot="public" virt="virtual"><scope>ProjectPropertiesDialog</scope><name>accept</name></member>
+      <member refid="class_project_properties_dialog_1aa5e2636d51f235dd3c1159a652581a84" prot="private" virt="non-virtual"><scope>ProjectPropertiesDialog</scope><name>BrowseForOCIOConfig</name></member>
+      <member refid="class_project_properties_dialog_1adfeae33b48cf92152e06ffa5fc2126ba" prot="private" virt="non-virtual"><scope>ProjectPropertiesDialog</scope><name>default_input_colorspace_</name></member>
+      <member refid="class_project_properties_dialog_1ac753fb6522531d04a6b2c65b12b86649" prot="private" virt="non-virtual"><scope>ProjectPropertiesDialog</scope><name>FilenameUpdated</name></member>
+      <member refid="class_project_properties_dialog_1a9b54a1208dcbb176897c0c099da14cef" prot="private" virt="non-virtual"><scope>ProjectPropertiesDialog</scope><name>ocio_config_error_</name></member>
+      <member refid="class_project_properties_dialog_1a82e3e1db081c2a317f202d5d64b5a3df" prot="private" virt="non-virtual"><scope>ProjectPropertiesDialog</scope><name>ocio_config_is_valid_</name></member>
+      <member refid="class_project_properties_dialog_1a7cb90074d24ecc586059fc0e73aae7c0" prot="private" virt="non-virtual"><scope>ProjectPropertiesDialog</scope><name>ocio_filename_</name></member>
+      <member refid="class_project_properties_dialog_1a802f506994b07553beb893b1cb9e3375" prot="public" virt="non-virtual"><scope>ProjectPropertiesDialog</scope><name>ProjectPropertiesDialog</name></member>
+      <member refid="class_project_properties_dialog_1adef8443784e5026df5b612464b77369e" prot="private" virt="non-virtual"><scope>ProjectPropertiesDialog</scope><name>working_project_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

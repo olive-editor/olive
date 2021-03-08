@@ -1,0 +1,332 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_preferences_keyboard_tab" kind="class" language="C++" prot="public">
+    <compoundname>PreferencesKeyboardTab</compoundname>
+    <basecompoundref refid="class_preferences_tab" prot="public" virt="non-virtual">PreferencesTab</basecompoundref>
+    <includes refid="preferenceskeyboardtab_8h" local="no">preferenceskeyboardtab.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_preferences_keyboard_tab_1a869ce58197536bef64f859f59a8c966d" prot="private" static="no" mutable="no">
+        <type>QTreeWidget *</type>
+        <definition>QTreeWidget* PreferencesKeyboardTab::keyboard_tree_</definition>
+        <argsstring></argsstring>
+        <name>keyboard_tree_</name>
+        <briefdescription>
+<para>UI widget for editing keyboard shortcuts. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferenceskeyboardtab.h" line="134" column="15" bodyfile="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferenceskeyboardtab.h" bodystart="134" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_preferences_keyboard_tab_1a1c4aa96d5f9cf44b36555f1fd9376dd3" prot="private" static="no" mutable="no">
+        <type>QVector&lt; QAction * &gt;</type>
+        <definition>QVector&lt;QAction*&gt; PreferencesKeyboardTab::key_shortcut_actions_</definition>
+        <argsstring></argsstring>
+        <name>key_shortcut_actions_</name>
+        <briefdescription>
+<para>List of keyboard shortcut actions that can be triggered (links with key_shortcut_items and key_shortcut_fields) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferenceskeyboardtab.h" line="140" column="11" bodyfile="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferenceskeyboardtab.h" bodystart="140" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_preferences_keyboard_tab_1a1d494513cb9ed8313eddf6dafeba592f" prot="private" static="no" mutable="no">
+        <type>QVector&lt; QTreeWidgetItem * &gt;</type>
+        <definition>QVector&lt;QTreeWidgetItem*&gt; PreferencesKeyboardTab::key_shortcut_items_</definition>
+        <argsstring></argsstring>
+        <name>key_shortcut_items_</name>
+        <briefdescription>
+<para>List of keyboard shortcut items in keyboard_tree corresponding to existing actions (links with key_shortcut_actions and key_shortcut_fields) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferenceskeyboardtab.h" line="146" column="11" bodyfile="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferenceskeyboardtab.h" bodystart="146" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_preferences_keyboard_tab_1ad7b2ad9505bf64e3b018ea84aaef6af1" prot="private" static="no" mutable="no">
+        <type>QVector&lt; <ref refid="class_key_sequence_editor" kindref="compound">KeySequenceEditor</ref> * &gt;</type>
+        <definition>QVector&lt;KeySequenceEditor*&gt; PreferencesKeyboardTab::key_shortcut_fields_</definition>
+        <argsstring></argsstring>
+        <name>key_shortcut_fields_</name>
+        <briefdescription>
+<para>List of keyboard shortcut editing fields in keyboard_tree corresponding to existing actions (links with key_shortcut_actions and key_shortcut_fields) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferenceskeyboardtab.h" line="152" column="11" bodyfile="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferenceskeyboardtab.h" bodystart="152" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_preferences_keyboard_tab_1a7f621c311f40364c3d66ae66502ff7e9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>PreferencesKeyboardTab::PreferencesKeyboardTab</definition>
+        <argsstring>(QMenuBar *menubar)</argsstring>
+        <name>PreferencesKeyboardTab</name>
+        <param>
+          <type>QMenuBar *</type>
+          <declname>menubar</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferenceskeyboardtab.h" line="54" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_preferences_keyboard_tab_1ae1b7b426001c7eda68a588af17081cbb" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PreferencesKeyboardTab::Accept</definition>
+        <argsstring>() override</argsstring>
+        <name>Accept</name>
+        <reimplements refid="class_preferences_tab_1ac68d2c1754ce85450eed3fb0920163f2">Accept</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferenceskeyboardtab.h" line="56" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_preferences_tab_1aefad5e89125f7a19d26a18ab3931ddfb" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>bool</type>
+        <definition>virtual bool PreferencesTab::Validate</definition>
+        <argsstring>()</argsstring>
+        <name>Validate</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencestab.h" line="53" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_preferences_keyboard_tab_1a2f002f845fe96e756214ec69805fc4c9" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PreferencesKeyboardTab::load_shortcut_file</definition>
+        <argsstring>()</argsstring>
+        <name>load_shortcut_file</name>
+        <briefdescription>
+<para>Show a file dialog to load an external shortcut preset from file. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferenceskeyboardtab.h" line="62" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_preferences_keyboard_tab_1a80aacd9d3ad74617cb54c03e74a04671" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PreferencesKeyboardTab::save_shortcut_file</definition>
+        <argsstring>()</argsstring>
+        <name>save_shortcut_file</name>
+        <briefdescription>
+<para>Show a file dialog to save an external shortcut preset from file. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferenceskeyboardtab.h" line="67" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_preferences_keyboard_tab_1a9136914f8bdfae6777f99b09f0ebecae" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PreferencesKeyboardTab::reset_default_shortcut</definition>
+        <argsstring>()</argsstring>
+        <name>reset_default_shortcut</name>
+        <briefdescription>
+<para>Reset all selected shortcuts in keyboard_tree to their defaults. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferenceskeyboardtab.h" line="72" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_preferences_keyboard_tab_1a24100c1f8e1c4600c8c4fd5588a51598" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PreferencesKeyboardTab::reset_all_shortcuts</definition>
+        <argsstring>()</argsstring>
+        <name>reset_all_shortcuts</name>
+        <briefdescription>
+<para>Reset all shortcuts indiscriminately to their defaults. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This is safe to call directly as it&apos;ll ask the user if they wish to do so before it resets. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferenceskeyboardtab.h" line="79" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_preferences_keyboard_tab_1adddddc79c491a6b00ca506423ef85cb2" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool PreferencesKeyboardTab::refine_shortcut_list</definition>
+        <argsstring>(const QString &amp;s, QTreeWidgetItem *parent=nullptr)</argsstring>
+        <name>refine_shortcut_list</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>QTreeWidgetItem *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+<para>Shows/hides shortcut entries according to a shortcut query. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function can be directly connected to QLineEdit::textChanged() for simplicity.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The search query to compare shortcut names to.</para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>parent</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>This is used as the function calls itself recursively to traverse the menu item hierarchy. This should be left as nullptr when called externally.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para></para>
+</simplesect>
+Value used as function calls itself recursively to determine if a menu parent has any children that are not hidden. If so, TRUE is returned so the parent is shown too (even if it doesn&apos;t match the search query). If not, FALSE is returned so the parent is hidden. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferenceskeyboardtab.h" line="101" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_preferences_keyboard_tab_1a9a4a3aec7ccbbc71044e7f3abb672146" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PreferencesKeyboardTab::setup_kbd_shortcuts</definition>
+        <argsstring>(QMenuBar *menu)</argsstring>
+        <name>setup_kbd_shortcuts</name>
+        <param>
+          <type>QMenuBar *</type>
+          <declname>menu</declname>
+        </param>
+        <briefdescription>
+<para>Populate keyboard shortcut panel with keyboard shortcuts from the menu bar. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>menu</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A reference to the main application&apos;s menu bar. Usually MainWindow::menuBar(). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferenceskeyboardtab.h" line="111" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_preferences_keyboard_tab_1ad059ba43418582748b70c682d2ea0f94" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PreferencesKeyboardTab::setup_kbd_shortcut_worker</definition>
+        <argsstring>(QMenu *menu, QTreeWidgetItem *parent)</argsstring>
+        <name>setup_kbd_shortcut_worker</name>
+        <param>
+          <type>QMenu *</type>
+          <declname>menu</declname>
+        </param>
+        <param>
+          <type>QTreeWidgetItem *</type>
+          <declname>parent</declname>
+        </param>
+        <briefdescription>
+<para>Internal function called by <ref refid="class_preferences_keyboard_tab_1a9a4a3aec7ccbbc71044e7f3abb672146" kindref="member">setup_kbd_shortcuts()</ref> to traverse down the menu bar&apos;s hierarchy and populate the shortcut panel. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function will call itself recursively as it finds submenus belong to the menu provided. It will also create QTreeWidgetItems as children of the parent item provided, either using them as parents themselves for submenus or attaching a <ref refid="class_key_sequence_editor" kindref="compound">KeySequenceEditor</ref> to them for shortcut editing.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>menu</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The current menu to traverse down.</para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>parent</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The parent item to add QTreeWidgetItems to. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferenceskeyboardtab.h" line="129" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>PreferencesTab</label>
+        <link refid="class_preferences_tab"/>
+      </node>
+      <node id="1">
+        <label>PreferencesKeyboardTab</label>
+        <link refid="class_preferences_keyboard_tab"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>PreferencesTab</label>
+        <link refid="class_preferences_tab"/>
+      </node>
+      <node id="1">
+        <label>PreferencesKeyboardTab</label>
+        <link refid="class_preferences_keyboard_tab"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferenceskeyboardtab.h" line="32" column="1" bodyfile="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferenceskeyboardtab.h" bodystart="33" bodyend="135"/>
+    <listofallmembers>
+      <member refid="class_preferences_keyboard_tab_1ae1b7b426001c7eda68a588af17081cbb" prot="public" virt="virtual"><scope>PreferencesKeyboardTab</scope><name>Accept</name></member>
+      <member refid="class_preferences_keyboard_tab_1a1c4aa96d5f9cf44b36555f1fd9376dd3" prot="private" virt="non-virtual"><scope>PreferencesKeyboardTab</scope><name>key_shortcut_actions_</name></member>
+      <member refid="class_preferences_keyboard_tab_1ad7b2ad9505bf64e3b018ea84aaef6af1" prot="private" virt="non-virtual"><scope>PreferencesKeyboardTab</scope><name>key_shortcut_fields_</name></member>
+      <member refid="class_preferences_keyboard_tab_1a1d494513cb9ed8313eddf6dafeba592f" prot="private" virt="non-virtual"><scope>PreferencesKeyboardTab</scope><name>key_shortcut_items_</name></member>
+      <member refid="class_preferences_keyboard_tab_1a869ce58197536bef64f859f59a8c966d" prot="private" virt="non-virtual"><scope>PreferencesKeyboardTab</scope><name>keyboard_tree_</name></member>
+      <member refid="class_preferences_keyboard_tab_1a2f002f845fe96e756214ec69805fc4c9" prot="private" virt="non-virtual"><scope>PreferencesKeyboardTab</scope><name>load_shortcut_file</name></member>
+      <member refid="class_preferences_keyboard_tab_1a7f621c311f40364c3d66ae66502ff7e9" prot="public" virt="non-virtual"><scope>PreferencesKeyboardTab</scope><name>PreferencesKeyboardTab</name></member>
+      <member refid="class_preferences_tab_1a5330b203f9973201f677b0daf642f30e" prot="public" virt="non-virtual"><scope>PreferencesKeyboardTab</scope><name>PreferencesTab</name></member>
+      <member refid="class_preferences_keyboard_tab_1adddddc79c491a6b00ca506423ef85cb2" prot="private" virt="non-virtual"><scope>PreferencesKeyboardTab</scope><name>refine_shortcut_list</name></member>
+      <member refid="class_preferences_keyboard_tab_1a24100c1f8e1c4600c8c4fd5588a51598" prot="private" virt="non-virtual"><scope>PreferencesKeyboardTab</scope><name>reset_all_shortcuts</name></member>
+      <member refid="class_preferences_keyboard_tab_1a9136914f8bdfae6777f99b09f0ebecae" prot="private" virt="non-virtual"><scope>PreferencesKeyboardTab</scope><name>reset_default_shortcut</name></member>
+      <member refid="class_preferences_keyboard_tab_1a80aacd9d3ad74617cb54c03e74a04671" prot="private" virt="non-virtual"><scope>PreferencesKeyboardTab</scope><name>save_shortcut_file</name></member>
+      <member refid="class_preferences_keyboard_tab_1ad059ba43418582748b70c682d2ea0f94" prot="private" virt="non-virtual"><scope>PreferencesKeyboardTab</scope><name>setup_kbd_shortcut_worker</name></member>
+      <member refid="class_preferences_keyboard_tab_1a9a4a3aec7ccbbc71044e7f3abb672146" prot="private" virt="non-virtual"><scope>PreferencesKeyboardTab</scope><name>setup_kbd_shortcuts</name></member>
+      <member refid="class_preferences_tab_1aefad5e89125f7a19d26a18ab3931ddfb" prot="public" virt="virtual"><scope>PreferencesKeyboardTab</scope><name>Validate</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

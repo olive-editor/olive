@@ -1,0 +1,645 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_playback_controls" kind="class" language="C++" prot="public">
+    <compoundname>PlaybackControls</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QWidget</basecompoundref>
+    <includes refid="playbackcontrols_8h" local="no">playbackcontrols.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_playback_controls_1aa461b2ff004b918e8f40b27cf5c9e094" prot="private" static="no" mutable="no">
+        <type>QWidget *</type>
+        <definition>QWidget* PlaybackControls::lower_left_container_</definition>
+        <argsstring></argsstring>
+        <name>lower_left_container_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" line="129" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" bodystart="129" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_playback_controls_1ad39074193ef5cdc768f6482d334a73a2" prot="private" static="no" mutable="no">
+        <type>QWidget *</type>
+        <definition>QWidget* PlaybackControls::lower_right_container_</definition>
+        <argsstring></argsstring>
+        <name>lower_right_container_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" line="130" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" bodystart="130" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_playback_controls_1a226e7bc6a5344d3f34ed4bda65fcf699" prot="private" static="no" mutable="no">
+        <type><ref refid="class_time_slider" kindref="compound">TimeSlider</ref> *</type>
+        <definition>TimeSlider* PlaybackControls::cur_tc_lbl_</definition>
+        <argsstring></argsstring>
+        <name>cur_tc_lbl_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" line="132" column="14" bodyfile="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" bodystart="132" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_playback_controls_1a20baf15c88961fbb3605e1e563fbd138" prot="private" static="no" mutable="no">
+        <type>QLabel *</type>
+        <definition>QLabel* PlaybackControls::end_tc_lbl_</definition>
+        <argsstring></argsstring>
+        <name>end_tc_lbl_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" line="133" column="10" bodyfile="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" bodystart="133" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_playback_controls_1af5a6f0f6d91455fb953952f7cf47cfdf" prot="private" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t PlaybackControls::end_time_</definition>
+        <argsstring></argsstring>
+        <name>end_time_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" line="135" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" bodystart="135" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_playback_controls_1ac958cbaca9f020daa8e81d64ba7cc3a5" prot="private" static="no" mutable="no">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational PlaybackControls::time_base_</definition>
+        <argsstring></argsstring>
+        <name>time_base_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" line="137" column="12" bodyfile="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" bodystart="137" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_playback_controls_1acf6454fa4bf19eb86e0a9ef5270a63f4" prot="private" static="no" mutable="no">
+        <type>QPushButton *</type>
+        <definition>QPushButton* PlaybackControls::go_to_start_btn_</definition>
+        <argsstring></argsstring>
+        <name>go_to_start_btn_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" line="139" column="15" bodyfile="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" bodystart="139" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_playback_controls_1af5c38ee51e1f35eaee72d9298ef22479" prot="private" static="no" mutable="no">
+        <type>QPushButton *</type>
+        <definition>QPushButton* PlaybackControls::prev_frame_btn_</definition>
+        <argsstring></argsstring>
+        <name>prev_frame_btn_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" line="140" column="15" bodyfile="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" bodystart="140" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_playback_controls_1aa4b80ec7620b53b1906e7115805079df" prot="private" static="no" mutable="no">
+        <type>QPushButton *</type>
+        <definition>QPushButton* PlaybackControls::play_btn_</definition>
+        <argsstring></argsstring>
+        <name>play_btn_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" line="141" column="15" bodyfile="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" bodystart="141" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_playback_controls_1ad934ad50e26331f3a8b13ce9994a3310" prot="private" static="no" mutable="no">
+        <type>QPushButton *</type>
+        <definition>QPushButton* PlaybackControls::pause_btn_</definition>
+        <argsstring></argsstring>
+        <name>pause_btn_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" line="142" column="15" bodyfile="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" bodystart="142" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_playback_controls_1a74fceebf594c38be9d3a40e4d841669e" prot="private" static="no" mutable="no">
+        <type>QPushButton *</type>
+        <definition>QPushButton* PlaybackControls::next_frame_btn_</definition>
+        <argsstring></argsstring>
+        <name>next_frame_btn_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" line="143" column="15" bodyfile="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" bodystart="143" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_playback_controls_1a7d51a8be9be7e958bd2a942377c5ad6a" prot="private" static="no" mutable="no">
+        <type>QPushButton *</type>
+        <definition>QPushButton* PlaybackControls::go_to_end_btn_</definition>
+        <argsstring></argsstring>
+        <name>go_to_end_btn_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" line="144" column="15" bodyfile="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" bodystart="144" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_playback_controls_1a7a3c1c71eaad1fc621f06e2bb3405534" prot="private" static="no" mutable="no">
+        <type><ref refid="class_drag_button" kindref="compound">DragButton</ref> *</type>
+        <definition>DragButton* PlaybackControls::video_drag_btn_</definition>
+        <argsstring></argsstring>
+        <name>video_drag_btn_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" line="145" column="14" bodyfile="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" bodystart="145" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_playback_controls_1aa9ab1dcf1fb3d9dc0f9f9ca651c253b5" prot="private" static="no" mutable="no">
+        <type><ref refid="class_drag_button" kindref="compound">DragButton</ref> *</type>
+        <definition>DragButton* PlaybackControls::audio_drag_btn_</definition>
+        <argsstring></argsstring>
+        <name>audio_drag_btn_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" line="146" column="14" bodyfile="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" bodystart="146" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_playback_controls_1a6bb20f589d500c31217a966eb771482a" prot="private" static="no" mutable="no">
+        <type>QStackedWidget *</type>
+        <definition>QStackedWidget* PlaybackControls::playpause_stack_</definition>
+        <argsstring></argsstring>
+        <name>playpause_stack_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" line="148" column="18" bodyfile="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" bodystart="148" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_playback_controls_1a7d27f828f2f1c02d87692ef60ab69b93" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>PlaybackControls::PlaybackControls</definition>
+        <argsstring>(QWidget *parent=nullptr)</argsstring>
+        <name>PlaybackControls</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" line="62" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_playback_controls_1a1f8aa5f77a43213f3b1a009036e537c9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PlaybackControls::SetTimecodeEnabled</definition>
+        <argsstring>(bool enabled)</argsstring>
+        <name>SetTimecodeEnabled</name>
+        <param>
+          <type>bool</type>
+          <declname>enabled</declname>
+        </param>
+        <briefdescription>
+<para>Set whether the timecodes should be shown or not. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" line="67" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_playback_controls_1a9784bab473e5bab58ae6d4944b35a767" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PlaybackControls::SetTimebase</definition>
+        <argsstring>(const rational &amp;r)</argsstring>
+        <name>SetTimebase</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" line="69" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_playback_controls_1af03d9184662289ed944eb58fd562c08d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PlaybackControls::SetAudioVideoDragButtonsVisible</definition>
+        <argsstring>(bool e)</argsstring>
+        <name>SetAudioVideoDragButtonsVisible</name>
+        <param>
+          <type>bool</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" line="71" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-slot">
+      <memberdef kind="slot" id="class_playback_controls_1a05a04eefdbef48f709444c5c8bd098ab" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PlaybackControls::SetTime</definition>
+        <argsstring>(const int64_t &amp;r)</argsstring>
+        <name>SetTime</name>
+        <param>
+          <type>const int64_t &amp;</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" line="74" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_playback_controls_1abeaced7c1fa63624181bf9b6bc63e179" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PlaybackControls::SetEndTime</definition>
+        <argsstring>(const int64_t &amp;r)</argsstring>
+        <name>SetEndTime</name>
+        <param>
+          <type>const int64_t &amp;</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" line="76" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_playback_controls_1acd83e28b4f7d5710f8bb732f234e1b71" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PlaybackControls::ShowPauseButton</definition>
+        <argsstring>()</argsstring>
+        <name>ShowPauseButton</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" line="78" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_playback_controls_1aa4da089f0ac629d88e64b6985d738fd2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PlaybackControls::ShowPlayButton</definition>
+        <argsstring>()</argsstring>
+        <name>ShowPlayButton</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" line="80" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_playback_controls_1a47707f7aeb3b574d1ea17fd3febe5dc0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PlaybackControls::BeginClicked</definition>
+        <argsstring>()</argsstring>
+        <name>BeginClicked</name>
+        <briefdescription>
+<para>Signal emitted when &quot;Go to Start&quot; is clicked. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" line="86" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_playback_controls_1ab153fb155b4523f78a9cce4a8411f14c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PlaybackControls::PrevFrameClicked</definition>
+        <argsstring>()</argsstring>
+        <name>PrevFrameClicked</name>
+        <briefdescription>
+<para>Signal emitted when &quot;Previous Frame&quot; is clicked. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" line="91" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_playback_controls_1ae30b7eb25e4943a1bc2b55c28455f51b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PlaybackControls::PlayClicked</definition>
+        <argsstring>()</argsstring>
+        <name>PlayClicked</name>
+        <briefdescription>
+<para>Signal emitted when &quot;Play&quot; is clicked. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" line="96" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_playback_controls_1a86208271d8e40e5ee8f0cabee2f2e563" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PlaybackControls::PauseClicked</definition>
+        <argsstring>()</argsstring>
+        <name>PauseClicked</name>
+        <briefdescription>
+<para>Signal emitted when &quot;Pause&quot; is clicked. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" line="101" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_playback_controls_1ad0d12ef477d43d0234a2240078d657fa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PlaybackControls::NextFrameClicked</definition>
+        <argsstring>()</argsstring>
+        <name>NextFrameClicked</name>
+        <briefdescription>
+<para>Signal emitted when &quot;Next Frame&quot; is clicked. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" line="106" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_playback_controls_1aa9a6c12032e89772f1dfffc580a85da4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PlaybackControls::EndClicked</definition>
+        <argsstring>()</argsstring>
+        <name>EndClicked</name>
+        <briefdescription>
+<para>Signal emitted when &quot;Go to End&quot; is clicked. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" line="111" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_playback_controls_1a7f68e685ac166e20a41941191b2f0513" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PlaybackControls::AudioClicked</definition>
+        <argsstring>()</argsstring>
+        <name>AudioClicked</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" line="113" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_playback_controls_1a36f7a89bf882f4ef735a62864a4b927e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PlaybackControls::VideoClicked</definition>
+        <argsstring>()</argsstring>
+        <name>VideoClicked</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" line="115" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_playback_controls_1a9e36b8a7c006603dbc60f98aa260cfaa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PlaybackControls::AudioPressed</definition>
+        <argsstring>()</argsstring>
+        <name>AudioPressed</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" line="117" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_playback_controls_1ada7a8d0bb5b78328d86caf778aff1555" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PlaybackControls::VideoPressed</definition>
+        <argsstring>()</argsstring>
+        <name>VideoPressed</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" line="119" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_playback_controls_1ac5d05f1861a813933d505e336fbfe8e3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PlaybackControls::TimeChanged</definition>
+        <argsstring>(const int64_t &amp;t)</argsstring>
+        <name>TimeChanged</name>
+        <param>
+          <type>const int64_t &amp;</type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" line="121" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_playback_controls_1a3dd8fb88a445b9edbb93431af22ced5f" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PlaybackControls::changeEvent</definition>
+        <argsstring>(QEvent *) override</argsstring>
+        <name>changeEvent</name>
+        <param>
+          <type>QEvent *</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" line="124" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_playback_controls_1a7c89c03e655368331a9bef0b9c4cd888" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PlaybackControls::UpdateIcons</definition>
+        <argsstring>()</argsstring>
+        <name>UpdateIcons</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" line="127" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_playback_controls_1a63205f5ee7448145ea35705e866e8f5b" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PlaybackControls::TimecodeChanged</definition>
+        <argsstring>()</argsstring>
+        <name>TimecodeChanged</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" line="151" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A playback controls widget providing buttons for navigating media. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>This widget optionally features timecode displays for the current timecode and end timecode. </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="7">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="6">
+        <label>SliderLabel</label>
+        <link refid="class_slider_label"/>
+      </node>
+      <node id="1">
+        <label>PlaybackControls</label>
+        <link refid="class_playback_controls"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>cur_tc_lbl_</edgelabel>
+        </childnode>
+        <childnode refid="8" relation="usage">
+          <edgelabel>video_drag_btn_</edgelabel>
+          <edgelabel>audio_drag_btn_</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>time_base_</edgelabel>
+        </childnode>
+      </node>
+      <node id="5">
+        <label>FocusableLineEdit</label>
+        <link refid="class_focusable_line_edit"/>
+      </node>
+      <node id="3">
+        <label>IntegerSlider</label>
+        <link refid="class_integer_slider"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>TimeSlider</label>
+        <link refid="class_time_slider"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>timebase_</edgelabel>
+        </childnode>
+      </node>
+      <node id="8">
+        <label>DragButton</label>
+        <link refid="class_drag_button"/>
+      </node>
+      <node id="4">
+        <label>SliderBase</label>
+        <link refid="class_slider_base"/>
+        <childnode refid="5" relation="usage">
+          <edgelabel>editor_</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>label_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" line="40" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/playbackcontrols/playbackcontrols.h" bodystart="41" bodyend="135"/>
+    <listofallmembers>
+      <member refid="class_playback_controls_1aa9ab1dcf1fb3d9dc0f9f9ca651c253b5" prot="private" virt="non-virtual"><scope>PlaybackControls</scope><name>audio_drag_btn_</name></member>
+      <member refid="class_playback_controls_1a7f68e685ac166e20a41941191b2f0513" prot="public" virt="non-virtual"><scope>PlaybackControls</scope><name>AudioClicked</name></member>
+      <member refid="class_playback_controls_1a9e36b8a7c006603dbc60f98aa260cfaa" prot="public" virt="non-virtual"><scope>PlaybackControls</scope><name>AudioPressed</name></member>
+      <member refid="class_playback_controls_1a47707f7aeb3b574d1ea17fd3febe5dc0" prot="public" virt="non-virtual"><scope>PlaybackControls</scope><name>BeginClicked</name></member>
+      <member refid="class_playback_controls_1a3dd8fb88a445b9edbb93431af22ced5f" prot="protected" virt="virtual"><scope>PlaybackControls</scope><name>changeEvent</name></member>
+      <member refid="class_playback_controls_1a226e7bc6a5344d3f34ed4bda65fcf699" prot="private" virt="non-virtual"><scope>PlaybackControls</scope><name>cur_tc_lbl_</name></member>
+      <member refid="class_playback_controls_1a20baf15c88961fbb3605e1e563fbd138" prot="private" virt="non-virtual"><scope>PlaybackControls</scope><name>end_tc_lbl_</name></member>
+      <member refid="class_playback_controls_1af5a6f0f6d91455fb953952f7cf47cfdf" prot="private" virt="non-virtual"><scope>PlaybackControls</scope><name>end_time_</name></member>
+      <member refid="class_playback_controls_1aa9a6c12032e89772f1dfffc580a85da4" prot="public" virt="non-virtual"><scope>PlaybackControls</scope><name>EndClicked</name></member>
+      <member refid="class_playback_controls_1a7d51a8be9be7e958bd2a942377c5ad6a" prot="private" virt="non-virtual"><scope>PlaybackControls</scope><name>go_to_end_btn_</name></member>
+      <member refid="class_playback_controls_1acf6454fa4bf19eb86e0a9ef5270a63f4" prot="private" virt="non-virtual"><scope>PlaybackControls</scope><name>go_to_start_btn_</name></member>
+      <member refid="class_playback_controls_1aa461b2ff004b918e8f40b27cf5c9e094" prot="private" virt="non-virtual"><scope>PlaybackControls</scope><name>lower_left_container_</name></member>
+      <member refid="class_playback_controls_1ad39074193ef5cdc768f6482d334a73a2" prot="private" virt="non-virtual"><scope>PlaybackControls</scope><name>lower_right_container_</name></member>
+      <member refid="class_playback_controls_1a74fceebf594c38be9d3a40e4d841669e" prot="private" virt="non-virtual"><scope>PlaybackControls</scope><name>next_frame_btn_</name></member>
+      <member refid="class_playback_controls_1ad0d12ef477d43d0234a2240078d657fa" prot="public" virt="non-virtual"><scope>PlaybackControls</scope><name>NextFrameClicked</name></member>
+      <member refid="class_playback_controls_1ad934ad50e26331f3a8b13ce9994a3310" prot="private" virt="non-virtual"><scope>PlaybackControls</scope><name>pause_btn_</name></member>
+      <member refid="class_playback_controls_1a86208271d8e40e5ee8f0cabee2f2e563" prot="public" virt="non-virtual"><scope>PlaybackControls</scope><name>PauseClicked</name></member>
+      <member refid="class_playback_controls_1aa4b80ec7620b53b1906e7115805079df" prot="private" virt="non-virtual"><scope>PlaybackControls</scope><name>play_btn_</name></member>
+      <member refid="class_playback_controls_1a7d27f828f2f1c02d87692ef60ab69b93" prot="public" virt="non-virtual"><scope>PlaybackControls</scope><name>PlaybackControls</name></member>
+      <member refid="class_playback_controls_1ae30b7eb25e4943a1bc2b55c28455f51b" prot="public" virt="non-virtual"><scope>PlaybackControls</scope><name>PlayClicked</name></member>
+      <member refid="class_playback_controls_1a6bb20f589d500c31217a966eb771482a" prot="private" virt="non-virtual"><scope>PlaybackControls</scope><name>playpause_stack_</name></member>
+      <member refid="class_playback_controls_1af5c38ee51e1f35eaee72d9298ef22479" prot="private" virt="non-virtual"><scope>PlaybackControls</scope><name>prev_frame_btn_</name></member>
+      <member refid="class_playback_controls_1ab153fb155b4523f78a9cce4a8411f14c" prot="public" virt="non-virtual"><scope>PlaybackControls</scope><name>PrevFrameClicked</name></member>
+      <member refid="class_playback_controls_1af03d9184662289ed944eb58fd562c08d" prot="public" virt="non-virtual"><scope>PlaybackControls</scope><name>SetAudioVideoDragButtonsVisible</name></member>
+      <member refid="class_playback_controls_1abeaced7c1fa63624181bf9b6bc63e179" prot="public" virt="non-virtual"><scope>PlaybackControls</scope><name>SetEndTime</name></member>
+      <member refid="class_playback_controls_1a05a04eefdbef48f709444c5c8bd098ab" prot="public" virt="non-virtual"><scope>PlaybackControls</scope><name>SetTime</name></member>
+      <member refid="class_playback_controls_1a9784bab473e5bab58ae6d4944b35a767" prot="public" virt="non-virtual"><scope>PlaybackControls</scope><name>SetTimebase</name></member>
+      <member refid="class_playback_controls_1a1f8aa5f77a43213f3b1a009036e537c9" prot="public" virt="non-virtual"><scope>PlaybackControls</scope><name>SetTimecodeEnabled</name></member>
+      <member refid="class_playback_controls_1acd83e28b4f7d5710f8bb732f234e1b71" prot="public" virt="non-virtual"><scope>PlaybackControls</scope><name>ShowPauseButton</name></member>
+      <member refid="class_playback_controls_1aa4da089f0ac629d88e64b6985d738fd2" prot="public" virt="non-virtual"><scope>PlaybackControls</scope><name>ShowPlayButton</name></member>
+      <member refid="class_playback_controls_1ac958cbaca9f020daa8e81d64ba7cc3a5" prot="private" virt="non-virtual"><scope>PlaybackControls</scope><name>time_base_</name></member>
+      <member refid="class_playback_controls_1ac5d05f1861a813933d505e336fbfe8e3" prot="public" virt="non-virtual"><scope>PlaybackControls</scope><name>TimeChanged</name></member>
+      <member refid="class_playback_controls_1a63205f5ee7448145ea35705e866e8f5b" prot="private" virt="non-virtual"><scope>PlaybackControls</scope><name>TimecodeChanged</name></member>
+      <member refid="class_playback_controls_1a7c89c03e655368331a9bef0b9c4cd888" prot="private" virt="non-virtual"><scope>PlaybackControls</scope><name>UpdateIcons</name></member>
+      <member refid="class_playback_controls_1a7a3c1c71eaad1fc621f06e2bb3405534" prot="private" virt="non-virtual"><scope>PlaybackControls</scope><name>video_drag_btn_</name></member>
+      <member refid="class_playback_controls_1a36f7a89bf882f4ef735a62864a4b927e" prot="public" virt="non-virtual"><scope>PlaybackControls</scope><name>VideoClicked</name></member>
+      <member refid="class_playback_controls_1ada7a8d0bb5b78328d86caf778aff1555" prot="public" virt="non-virtual"><scope>PlaybackControls</scope><name>VideoPressed</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

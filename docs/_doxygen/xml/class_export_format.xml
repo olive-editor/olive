@@ -1,0 +1,192 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_export_format" kind="class" language="C++" prot="public">
+    <compoundname>ExportFormat</compoundname>
+    <includes refid="exportformat_8h" local="no">exportformat.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_export_format_1a570b57e29bde48442f8e2e8b2ac5e124" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString ExportFormat::name_</definition>
+        <argsstring></argsstring>
+        <name>name_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportformat.h" line="67" column="11" bodyfile="C:/Daten/Olive/olive/app/dialog/export/exportformat.h" bodystart="67" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_export_format_1af0d0059690e8a38194ef813c6b74dc53" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString ExportFormat::extension_</definition>
+        <argsstring></argsstring>
+        <name>extension_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportformat.h" line="68" column="11" bodyfile="C:/Daten/Olive/olive/app/dialog/export/exportformat.h" bodystart="68" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_export_format_1ad69e631db5681e48151d682767f7ba9a" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString ExportFormat::encoder_</definition>
+        <argsstring></argsstring>
+        <name>encoder_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportformat.h" line="69" column="11" bodyfile="C:/Daten/Olive/olive/app/dialog/export/exportformat.h" bodystart="69" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_export_format_1a9963b6cb6e6c7e0b0687e5b2daf471c4" prot="private" static="no" mutable="no">
+        <type>QList&lt; int &gt;</type>
+        <definition>QList&lt;int&gt; ExportFormat::video_codecs_</definition>
+        <argsstring></argsstring>
+        <name>video_codecs_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportformat.h" line="70" column="9" bodyfile="C:/Daten/Olive/olive/app/dialog/export/exportformat.h" bodystart="70" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_export_format_1a99fd1c88b1275ae1d95fc693a8e538a9" prot="private" static="no" mutable="no">
+        <type>QList&lt; int &gt;</type>
+        <definition>QList&lt;int&gt; ExportFormat::audio_codecs_</definition>
+        <argsstring></argsstring>
+        <name>audio_codecs_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportformat.h" line="71" column="9" bodyfile="C:/Daten/Olive/olive/app/dialog/export/exportformat.h" bodystart="71" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_export_format_1a348e186ba3c660f419650b7d2362a801" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>ExportFormat::ExportFormat</definition>
+        <argsstring>(const QString &amp;name, const QString &amp;extension, const QString &amp;encoder, const QList&lt; int &gt; &amp;vcodecs, const QList&lt; int &gt; &amp;acodecs)</argsstring>
+        <name>ExportFormat</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>name</declname>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>extension</declname>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>encoder</declname>
+        </param>
+        <param>
+          <type>const QList&lt; int &gt; &amp;</type>
+          <declname>vcodecs</declname>
+        </param>
+        <param>
+          <type>const QList&lt; int &gt; &amp;</type>
+          <declname>acodecs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportformat.h" line="51" column="3" bodyfile="C:/Daten/Olive/olive/app/dialog/export/exportformat.h" bodystart="51" bodyend="58"/>
+      </memberdef>
+      <memberdef kind="function" id="class_export_format_1a9977c1687f0bbc1a00960bd8b064a940" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>const QString &amp;</type>
+        <definition>const QString&amp; ExportFormat::name</definition>
+        <argsstring>() const</argsstring>
+        <name>name</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportformat.h" line="60" column="17" bodyfile="C:/Daten/Olive/olive/app/dialog/export/exportformat.h" bodystart="60" bodyend="60"/>
+      </memberdef>
+      <memberdef kind="function" id="class_export_format_1a98f39a4abb5e095fbd59d194f3813c29" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>const QString &amp;</type>
+        <definition>const QString&amp; ExportFormat::extension</definition>
+        <argsstring>() const</argsstring>
+        <name>extension</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportformat.h" line="61" column="17" bodyfile="C:/Daten/Olive/olive/app/dialog/export/exportformat.h" bodystart="61" bodyend="61"/>
+      </memberdef>
+      <memberdef kind="function" id="class_export_format_1a53f8c3b17b2563ad2211b7ce1a8a811c" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>const QString &amp;</type>
+        <definition>const QString&amp; ExportFormat::encoder</definition>
+        <argsstring>() const</argsstring>
+        <name>encoder</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportformat.h" line="62" column="17" bodyfile="C:/Daten/Olive/olive/app/dialog/export/exportformat.h" bodystart="62" bodyend="62"/>
+      </memberdef>
+      <memberdef kind="function" id="class_export_format_1a167c51c04cef9502ca6949514671b641" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>const QList&lt; int &gt; &amp;</type>
+        <definition>const QList&lt;int&gt;&amp; ExportFormat::video_codecs</definition>
+        <argsstring>() const</argsstring>
+        <name>video_codecs</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportformat.h" line="63" column="15" bodyfile="C:/Daten/Olive/olive/app/dialog/export/exportformat.h" bodystart="63" bodyend="63"/>
+      </memberdef>
+      <memberdef kind="function" id="class_export_format_1a06d5687dca593ee5a53dedc52a35eb81" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>const QList&lt; int &gt; &amp;</type>
+        <definition>const QList&lt;int&gt;&amp; ExportFormat::audio_codecs</definition>
+        <argsstring>() const</argsstring>
+        <name>audio_codecs</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportformat.h" line="64" column="15" bodyfile="C:/Daten/Olive/olive/app/dialog/export/exportformat.h" bodystart="64" bodyend="64"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/dialog/export/exportformat.h" line="31" column="1" bodyfile="C:/Daten/Olive/olive/app/dialog/export/exportformat.h" bodystart="31" bodyend="55"/>
+    <listofallmembers>
+      <member refid="class_export_format_1a06d5687dca593ee5a53dedc52a35eb81" prot="public" virt="non-virtual"><scope>ExportFormat</scope><name>audio_codecs</name></member>
+      <member refid="class_export_format_1a99fd1c88b1275ae1d95fc693a8e538a9" prot="private" virt="non-virtual"><scope>ExportFormat</scope><name>audio_codecs_</name></member>
+      <member refid="class_export_format_1a53f8c3b17b2563ad2211b7ce1a8a811c" prot="public" virt="non-virtual"><scope>ExportFormat</scope><name>encoder</name></member>
+      <member refid="class_export_format_1ad69e631db5681e48151d682767f7ba9a" prot="private" virt="non-virtual"><scope>ExportFormat</scope><name>encoder_</name></member>
+      <member refid="class_export_format_1a348e186ba3c660f419650b7d2362a801" prot="public" virt="non-virtual"><scope>ExportFormat</scope><name>ExportFormat</name></member>
+      <member refid="class_export_format_1a98f39a4abb5e095fbd59d194f3813c29" prot="public" virt="non-virtual"><scope>ExportFormat</scope><name>extension</name></member>
+      <member refid="class_export_format_1af0d0059690e8a38194ef813c6b74dc53" prot="private" virt="non-virtual"><scope>ExportFormat</scope><name>extension_</name></member>
+      <member refid="class_export_format_1a9977c1687f0bbc1a00960bd8b064a940" prot="public" virt="non-virtual"><scope>ExportFormat</scope><name>name</name></member>
+      <member refid="class_export_format_1a570b57e29bde48442f8e2e8b2ac5e124" prot="private" virt="non-virtual"><scope>ExportFormat</scope><name>name_</name></member>
+      <member refid="class_export_format_1a167c51c04cef9502ca6949514671b641" prot="public" virt="non-virtual"><scope>ExportFormat</scope><name>video_codecs</name></member>
+      <member refid="class_export_format_1a9963b6cb6e6c7e0b0687e5b2daf471c4" prot="private" virt="non-virtual"><scope>ExportFormat</scope><name>video_codecs_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,366 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_task" kind="class" language="C++" prot="public" abstract="yes">
+    <compoundname>Task</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QObject</basecompoundref>
+    <basecompoundref refid="class_cancelable_object" prot="public" virt="non-virtual">CancelableObject</basecompoundref>
+    <derivedcompoundref refid="class_conform_task" prot="public" virt="non-virtual">ConformTask</derivedcompoundref>
+    <derivedcompoundref refid="class_index_task" prot="public" virt="non-virtual">IndexTask</derivedcompoundref>
+    <derivedcompoundref refid="class_project_import_manager" prot="public" virt="non-virtual">ProjectImportManager</derivedcompoundref>
+    <derivedcompoundref refid="class_project_load_manager" prot="public" virt="non-virtual">ProjectLoadManager</derivedcompoundref>
+    <derivedcompoundref refid="class_project_save_manager" prot="public" virt="non-virtual">ProjectSaveManager</derivedcompoundref>
+    <includes refid="task_2task_8h" local="no">task.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_task_1aef309e3fc48137b4a95b72fede125d1c" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString Task::title_</definition>
+        <argsstring></argsstring>
+        <name>title_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/task/task.h" line="160" column="11" bodyfile="C:/Daten/Olive/olive/app/task/task.h" bodystart="160" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_task_1a83cd2efcad1494e336bef9369ecb77b3" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString Task::error_</definition>
+        <argsstring></argsstring>
+        <name>error_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/task/task.h" line="162" column="11" bodyfile="C:/Daten/Olive/olive/app/task/task.h" bodystart="162" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_cancelable_object_1a8b2a76dac816afd7527d077ce100993f" prot="private" static="no" mutable="no">
+        <type>QAtomicInt</type>
+        <definition>QAtomicInt CancelableObject::cancelled_</definition>
+        <argsstring></argsstring>
+        <name>cancelled_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/cancelableobject.h" line="64" column="14" bodyfile="C:/Daten/Olive/olive/app/common/cancelableobject.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_task_1a0ca53354bdc006762a0fda68c64f7608" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Task::Task</definition>
+        <argsstring>()</argsstring>
+        <name>Task</name>
+        <briefdescription>
+<para><ref refid="class_task" kindref="compound">Task</ref> Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/task/task.h" line="73" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_task_1ab0e6c6c7771124abd2b50160286f3e9f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const QString &amp;</type>
+        <definition>const QString&amp; Task::GetTitle</definition>
+        <argsstring>()</argsstring>
+        <name>GetTitle</name>
+        <briefdescription>
+<para>Retrieve the current title of this <ref refid="class_task" kindref="compound">Task</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/task/task.h" line="78" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_cancelable_object_1a3a776cf79c9a231efe9a6e81466c2124" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>const QAtomicInt &amp;</type>
+        <definition>const QAtomicInt&amp; CancelableObject::IsCancelled</definition>
+        <argsstring>() const</argsstring>
+        <name>IsCancelled</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/cancelableobject.h" line="59" column="20" bodyfile="C:/Daten/Olive/olive/app/common/cancelableobject.h" bodystart="59" bodyend="61"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-slot">
+      <memberdef kind="slot" id="class_task_1a2c3d838bfa5f2071c713a19e2f73fc49" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Task::Start</definition>
+        <argsstring>()</argsstring>
+        <name>Start</name>
+        <briefdescription>
+<para>Try to start this <ref refid="class_task" kindref="compound">Task</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The main function for starting this <ref refid="class_task" kindref="compound">Task</ref>. If this task is currently waiting, this function will start a new thread and set the status to kWorking.</para>
+<para>This function also checks its dependency Tasks and will only start if all of them are complete. If they are still working, this function will return FALSE and the status will continue to be kWaiting. If any of them failed, this <ref refid="class_task" kindref="compound">Task</ref> will also fail - this function will return FALSE and the status will be set to kError. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/task/task.h" line="91" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_task_1a444d31998ef5379149713bc44007cc92" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Task::Cancel</definition>
+        <argsstring>()</argsstring>
+        <name>Cancel</name>
+        <briefdescription>
+<para>Cancel the <ref refid="class_task" kindref="compound">Task</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Sends a signal to the <ref refid="class_task" kindref="compound">Task</ref> to stop as soon as possible. Always call this directly or connect with Qt::DirectConnection, or else it&apos;ll be queued <emphasis>after</emphasis> the task has already finished. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/task/task.h" line="99" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_task_1a7031fff1a7e70999908ff28e86e14a44" prot="protected" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>void</type>
+        <definition>virtual void Task::Action</definition>
+        <argsstring>()=0</argsstring>
+        <name>Action</name>
+        <reimplementedby refid="class_index_task_1a8281d5da87b53234068d2bc5fef5eb32">Action</reimplementedby>
+        <reimplementedby refid="class_conform_task_1ae4066c469933895f395c4f741972a217">Action</reimplementedby>
+        <reimplementedby refid="class_project_load_manager_1a4675755e8c24301a4622426d90a587f6">Action</reimplementedby>
+        <reimplementedby refid="class_project_save_manager_1a2baa381fe0f84d8ef9fd4e98544be52a">Action</reimplementedby>
+        <reimplementedby refid="class_project_import_manager_1ae37b2e689b607398cdf4ff3411679bd8">Action</reimplementedby>
+        <briefdescription>
+<para>The main <ref refid="class_task" kindref="compound">Task</ref> function which is run in a separate thread. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><ref refid="class_task_1a7031fff1a7e70999908ff28e86e14a44" kindref="member">Action()</ref> is the function that gets called once the separate thread has been created. This function should be overridden in subclasses.</para>
+<para>It&apos;s also recommended to emit <ref refid="class_task_1ace51d7e4a8007795140abced0bec23e4" kindref="member">ProgressChanged()</ref> throughout your <ref refid="class_task_1a7031fff1a7e70999908ff28e86e14a44" kindref="member">Action()</ref> so that any attached ProgressBars can show accurate progress information.</para>
+<para><simplesect kind="return"><para></para>
+</simplesect>
+TRUE if the <ref refid="class_task" kindref="compound">Task</ref> could complete successfully. FALSE if not. Note that FALSE should only be returned if the <ref refid="class_task" kindref="compound">Task</ref> could not finish, not if the <ref refid="class_task" kindref="compound">Task</ref> found a negative result (see <ref refid="class_task" kindref="compound">Task</ref> documentation for details). Before returning FALSE, it&apos;s recommended to use set_error() to signal to the user what caused the failure. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/task/task.h" line="117" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_task_1aca1712382f1889e0c879a5c71adec756" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Task::SetErrorText</definition>
+        <argsstring>(const QString &amp;s)</argsstring>
+        <name>SetErrorText</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Set the error message. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>It is recommended to use this if your <ref refid="class_task_1a7031fff1a7e70999908ff28e86e14a44" kindref="member">Action()</ref> function ever returns FALSE to tell the user why the failure occurred. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/task/task.h" line="125" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_task_1a70d2df3fcebf7353f746b6be8825a032" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Task::SetTitle</definition>
+        <argsstring>(const QString &amp;s)</argsstring>
+        <name>SetTitle</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Set the <ref refid="class_task" kindref="compound">Task</ref> title. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Used in the UI <ref refid="class_task" kindref="compound">Task</ref> Manager to distinguish Tasks from each other. Generally this should be set in the constructor and shouldn&apos;t need to change during the life of the <ref refid="class_task" kindref="compound">Task</ref>. To show an error message, it&apos;s recommended to use set_error() instead. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/task/task.h" line="134" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_task_1ace51d7e4a8007795140abced0bec23e4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Task::ProgressChanged</definition>
+        <argsstring>(int p)</argsstring>
+        <name>ProgressChanged</name>
+        <param>
+          <type>int</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Signal emitted whenever progress is made. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Emit this throughout <ref refid="class_task_1a7031fff1a7e70999908ff28e86e14a44" kindref="member">Action()</ref> to update any attached ProgressBars on the progress of this <ref refid="class_task" kindref="compound">Task</ref>.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>p</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A value (percentage) between 0 and 100. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/task/task.h" line="146" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_task_1a84158184f90f77080e003710bbd529c3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Task::Succeeded</definition>
+        <argsstring>()</argsstring>
+        <name>Succeeded</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/task/task.h" line="148" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_task_1ae65b82a0c3f4ce687a30083ba39f1b7e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Task::Failed</definition>
+        <argsstring>(const QString &amp;error)</argsstring>
+        <name>Failed</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>error</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/task/task.h" line="150" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_task_1ae66863e2d6a8efb320b8ad9b04e41a53" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Task::Finished</definition>
+        <argsstring>()</argsstring>
+        <name>Finished</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/task/task.h" line="152" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_task_1a2102d128289ea0860472557bafca87f3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Task::Removed</definition>
+        <argsstring>()</argsstring>
+        <name>Removed</name>
+        <briefdescription>
+<para>Signal emitted when this <ref refid="class_task" kindref="compound">Task</ref> is removed from <ref refid="class_task_manager" kindref="compound">TaskManager</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/task/task.h" line="157" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A base class for background tasks running in Olive. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Tasks are multithreaded by design (i.e. they will always spawn a new thread and run in it).</para>
+<para>To subclass your own <ref refid="class_task" kindref="compound">Task</ref>, override <ref refid="class_task_1a7031fff1a7e70999908ff28e86e14a44" kindref="member">Action()</ref> and return TRUE on success or FALSE on failure. Note that a <ref refid="class_task" kindref="compound">Task</ref> can provide a &quot;negative&quot; output and still have succeeded. For example, the ProbeTask&apos;s role is to determine whether a certain media file can be used in Olive. Even if the probe <emphasis>fails</emphasis> to find a <ref refid="class_decoder" kindref="compound">Decoder</ref> for this file, the <ref refid="class_task" kindref="compound">Task</ref> itself has <emphasis>succeeded</emphasis> at discovering this. A failure of ProbeTask would indicate a catastrophic failure meaning it was unable to determine anything about the file.</para>
+<para>Tasks should be used with the <ref refid="class_task_manager" kindref="compound">TaskManager</ref> which will manage starting and deleting them. It&apos;ll also only start as many Tasks as there are threads on the system as to not overload them.</para>
+<para>Tasks support &quot;dependency tasks&quot;, i.e. a <ref refid="class_task" kindref="compound">Task</ref> that should be complete before another <ref refid="class_task" kindref="compound">Task</ref> begins. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="6">
+        <label>ProjectLoadManager</label>
+        <link refid="class_project_load_manager"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>CancelableObject</label>
+        <link refid="class_cancelable_object"/>
+      </node>
+      <node id="1">
+        <label>Task</label>
+        <link refid="class_task"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>ConformTask</label>
+        <link refid="class_conform_task"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>IndexTask</label>
+        <link refid="class_index_task"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>ProjectSaveManager</label>
+        <link refid="class_project_save_manager"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>ProjectImportManager</label>
+        <link refid="class_project_import_manager"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>CancelableObject</label>
+        <link refid="class_cancelable_object"/>
+      </node>
+      <node id="1">
+        <label>Task</label>
+        <link refid="class_task"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/task/task.h" line="48" column="1" bodyfile="C:/Daten/Olive/olive/app/task/task.h" bodystart="49" bodyend="146"/>
+    <listofallmembers>
+      <member refid="class_task_1a7031fff1a7e70999908ff28e86e14a44" prot="protected" virt="pure-virtual"><scope>Task</scope><name>Action</name></member>
+      <member refid="class_task_1a444d31998ef5379149713bc44007cc92" prot="public" virt="non-virtual"><scope>Task</scope><name>Cancel</name></member>
+      <member refid="class_cancelable_object_1acda2934b2fbbd008b729ec2aa792751d" prot="public" virt="non-virtual"><scope>Task</scope><name>CancelableObject</name></member>
+      <member refid="class_cancelable_object_1a8b2a76dac816afd7527d077ce100993f" prot="private" virt="non-virtual"><scope>Task</scope><name>cancelled_</name></member>
+      <member refid="class_task_1a83cd2efcad1494e336bef9369ecb77b3" prot="private" virt="non-virtual"><scope>Task</scope><name>error_</name></member>
+      <member refid="class_task_1ae65b82a0c3f4ce687a30083ba39f1b7e" prot="public" virt="non-virtual"><scope>Task</scope><name>Failed</name></member>
+      <member refid="class_task_1ae66863e2d6a8efb320b8ad9b04e41a53" prot="public" virt="non-virtual"><scope>Task</scope><name>Finished</name></member>
+      <member refid="class_task_1ab0e6c6c7771124abd2b50160286f3e9f" prot="public" virt="non-virtual"><scope>Task</scope><name>GetTitle</name></member>
+      <member refid="class_cancelable_object_1a3a776cf79c9a231efe9a6e81466c2124" prot="public" virt="non-virtual"><scope>Task</scope><name>IsCancelled</name></member>
+      <member refid="class_task_1ace51d7e4a8007795140abced0bec23e4" prot="public" virt="non-virtual"><scope>Task</scope><name>ProgressChanged</name></member>
+      <member refid="class_task_1a2102d128289ea0860472557bafca87f3" prot="public" virt="non-virtual"><scope>Task</scope><name>Removed</name></member>
+      <member refid="class_task_1aca1712382f1889e0c879a5c71adec756" prot="protected" virt="non-virtual"><scope>Task</scope><name>SetErrorText</name></member>
+      <member refid="class_task_1a70d2df3fcebf7353f746b6be8825a032" prot="protected" virt="non-virtual"><scope>Task</scope><name>SetTitle</name></member>
+      <member refid="class_task_1a2c3d838bfa5f2071c713a19e2f73fc49" prot="public" virt="non-virtual"><scope>Task</scope><name>Start</name></member>
+      <member refid="class_task_1a84158184f90f77080e003710bbd529c3" prot="public" virt="non-virtual"><scope>Task</scope><name>Succeeded</name></member>
+      <member refid="class_task_1a0ca53354bdc006762a0fda68c64f7608" prot="public" virt="non-virtual"><scope>Task</scope><name>Task</name></member>
+      <member refid="class_task_1aef309e3fc48137b4a95b72fede125d1c" prot="private" virt="non-virtual"><scope>Task</scope><name>title_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

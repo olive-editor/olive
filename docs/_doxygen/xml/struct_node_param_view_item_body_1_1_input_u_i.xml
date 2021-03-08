@@ -1,0 +1,177 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="struct_node_param_view_item_body_1_1_input_u_i" kind="struct" language="C++" prot="private">
+    <compoundname>NodeParamViewItemBody::InputUI</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="struct_node_param_view_item_body_1_1_input_u_i_1a2eb6b81ab43cbe6192e2add2951b3e7d" prot="public" static="no" mutable="no">
+        <type><ref refid="class_clickable_label" kindref="compound">ClickableLabel</ref> *</type>
+        <definition>ClickableLabel* NodeParamViewItemBody::InputUI::main_label</definition>
+        <argsstring></argsstring>
+        <name>main_label</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewitem.h" line="79" column="20" bodyfile="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewitem.h" bodystart="79" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_node_param_view_item_body_1_1_input_u_i_1af0685c466acca2cf48f13be37e6c6f37" prot="public" static="no" mutable="no">
+        <type><ref refid="class_node_param_view_widget_bridge" kindref="compound">NodeParamViewWidgetBridge</ref> *</type>
+        <definition>NodeParamViewWidgetBridge* NodeParamViewItemBody::InputUI::widget_bridge</definition>
+        <argsstring></argsstring>
+        <name>widget_bridge</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewitem.h" line="80" column="31" bodyfile="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewitem.h" bodystart="80" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_node_param_view_item_body_1_1_input_u_i_1ad4b336cd417e0dbe9cead0749bcf04c2" prot="public" static="no" mutable="no">
+        <type><ref refid="class_node_param_view_connected_label" kindref="compound">NodeParamViewConnectedLabel</ref> *</type>
+        <definition>NodeParamViewConnectedLabel* NodeParamViewItemBody::InputUI::connected_label</definition>
+        <argsstring></argsstring>
+        <name>connected_label</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewitem.h" line="81" column="33" bodyfile="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewitem.h" bodystart="81" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_node_param_view_item_body_1_1_input_u_i_1ae8c7139140801c31c12027672544b78f" prot="public" static="no" mutable="no">
+        <type><ref refid="class_node_param_view_keyframe_control" kindref="compound">NodeParamViewKeyframeControl</ref> *</type>
+        <definition>NodeParamViewKeyframeControl* NodeParamViewItemBody::InputUI::key_control</definition>
+        <argsstring></argsstring>
+        <name>key_control</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewitem.h" line="82" column="34" bodyfile="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewitem.h" bodystart="82" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-slot">
+      <memberdef kind="slot" id="struct_node_param_view_item_body_1_1_input_u_i_1a3a39cff209f565a07b84ac2b1153eadc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>NodeParamViewItemBody::InputUI::InputUI</definition>
+        <argsstring>()</argsstring>
+        <name>InputUI</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewitem.h" line="77" column="5"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="9">
+        <label>NodeOutput</label>
+        <link refid="class_node_output"/>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>NodeParamViewItemBody::InputUI</label>
+        <link refid="struct_node_param_view_item_body_1_1_input_u_i"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>connected_label</edgelabel>
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>main_label</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>key_control</edgelabel>
+        </childnode>
+        <childnode refid="11" relation="usage">
+          <edgelabel>widget_bridge</edgelabel>
+        </childnode>
+      </node>
+      <node id="10">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="3">
+        <label>ClickableLabel</label>
+        <link refid="class_clickable_label"/>
+      </node>
+      <node id="8">
+        <label>Node</label>
+        <link refid="class_node"/>
+        <childnode refid="9" relation="usage">
+          <edgelabel>output_</edgelabel>
+        </childnode>
+      </node>
+      <node id="7">
+        <label>TimeTargetObject</label>
+        <link refid="class_time_target_object"/>
+        <childnode refid="8" relation="usage">
+          <edgelabel>time_target_</edgelabel>
+        </childnode>
+      </node>
+      <node id="4">
+        <label>NodeInput</label>
+        <link refid="class_node_input"/>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>NodeParamViewWidgetBridge</label>
+        <link refid="class_node_param_view_widget_bridge"/>
+        <childnode refid="7" relation="public-inheritance">
+        </childnode>
+        <childnode refid="10" relation="usage">
+          <edgelabel>time_</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>input_</edgelabel>
+        </childnode>
+      </node>
+      <node id="6">
+        <label>NodeParamViewKeyframeControl</label>
+        <link refid="class_node_param_view_keyframe_control"/>
+        <childnode refid="7" relation="public-inheritance">
+        </childnode>
+        <childnode refid="10" relation="usage">
+          <edgelabel>time_</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>input_</edgelabel>
+        </childnode>
+      </node>
+      <node id="5">
+        <label>NodeParam</label>
+        <link refid="class_node_param"/>
+      </node>
+      <node id="2">
+        <label>NodeParamViewConnectedLabel</label>
+        <link refid="class_node_param_view_connected_label"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>connected_to_lbl_</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>input_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewitem.h" line="76" column="3" bodyfile="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewitem.h" bodystart="76" bodyend="83"/>
+    <listofallmembers>
+      <member refid="struct_node_param_view_item_body_1_1_input_u_i_1ad4b336cd417e0dbe9cead0749bcf04c2" prot="public" virt="non-virtual"><scope>NodeParamViewItemBody::InputUI</scope><name>connected_label</name></member>
+      <member refid="struct_node_param_view_item_body_1_1_input_u_i_1a3a39cff209f565a07b84ac2b1153eadc" prot="public" virt="non-virtual"><scope>NodeParamViewItemBody::InputUI</scope><name>InputUI</name></member>
+      <member refid="struct_node_param_view_item_body_1_1_input_u_i_1ae8c7139140801c31c12027672544b78f" prot="public" virt="non-virtual"><scope>NodeParamViewItemBody::InputUI</scope><name>key_control</name></member>
+      <member refid="struct_node_param_view_item_body_1_1_input_u_i_1a2eb6b81ab43cbe6192e2add2951b3e7d" prot="public" virt="non-virtual"><scope>NodeParamViewItemBody::InputUI</scope><name>main_label</name></member>
+      <member refid="struct_node_param_view_item_body_1_1_input_u_i_1af0685c466acca2cf48f13be37e6c6f37" prot="public" virt="non-virtual"><scope>NodeParamViewItemBody::InputUI</scope><name>widget_bridge</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

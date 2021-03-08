@@ -1,0 +1,137 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_audio_params" kind="class" language="C++" prot="public">
+    <compoundname>AudioParams</compoundname>
+    <derivedcompoundref refid="class_audio_rendering_params" prot="public" virt="non-virtual">AudioRenderingParams</derivedcompoundref>
+    <includes refid="audioparams_8h" local="no">audioparams.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_audio_params_1ae0ced5f4737ee5934246b696cc0fd46b" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int AudioParams::sample_rate_</definition>
+        <argsstring></argsstring>
+        <name>sample_rate_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/audioparams.h" line="60" column="7" bodyfile="C:/Daten/Olive/olive/app/render/audioparams.h" bodystart="60" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_audio_params_1ace9a2833ee3efcf148f692f77220a2ca" prot="private" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t AudioParams::channel_layout_</definition>
+        <argsstring></argsstring>
+        <name>channel_layout_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/audioparams.h" line="62" column="12" bodyfile="C:/Daten/Olive/olive/app/render/audioparams.h" bodystart="62" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_audio_params_1a27986e4d771edc6dac244e8d59b0f8db" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>AudioParams::AudioParams</definition>
+        <argsstring>()</argsstring>
+        <name>AudioParams</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/audioparams.h" line="52" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_params_1ac4ed27ef6281c4784239801f9f8939c6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>AudioParams::AudioParams</definition>
+        <argsstring>(const int &amp;sample_rate, const uint64_t &amp;channel_layout)</argsstring>
+        <name>AudioParams</name>
+        <param>
+          <type>const int &amp;</type>
+          <declname>sample_rate</declname>
+        </param>
+        <param>
+          <type>const uint64_t &amp;</type>
+          <declname>channel_layout</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/audioparams.h" line="53" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_params_1a42be9b3bc17cd7ee2eecbb17236321eb" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const int &amp;</type>
+        <definition>const int&amp; AudioParams::sample_rate</definition>
+        <argsstring>() const</argsstring>
+        <name>sample_rate</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/audioparams.h" line="55" column="13"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_params_1a0da67a3e544fd84e796cbac0486e44f0" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const uint64_t &amp;</type>
+        <definition>const uint64_t&amp; AudioParams::channel_layout</definition>
+        <argsstring>() const</argsstring>
+        <name>channel_layout</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/audioparams.h" line="56" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_params_1adf9bbf6efa923fed279869b3cbf49e57" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational AudioParams::time_base</definition>
+        <argsstring>() const</argsstring>
+        <name>time_base</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/audioparams.h" line="57" column="12"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>AudioParams</label>
+        <link refid="class_audio_params"/>
+      </node>
+      <node id="2">
+        <label>AudioRenderingParams</label>
+        <link refid="class_audio_rendering_params"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <location file="C:/Daten/Olive/olive/app/render/audioparams.h" line="31" column="1" bodyfile="C:/Daten/Olive/olive/app/render/audioparams.h" bodystart="32" bodyend="46"/>
+    <listofallmembers>
+      <member refid="class_audio_params_1a27986e4d771edc6dac244e8d59b0f8db" prot="public" virt="non-virtual"><scope>AudioParams</scope><name>AudioParams</name></member>
+      <member refid="class_audio_params_1ac4ed27ef6281c4784239801f9f8939c6" prot="public" virt="non-virtual"><scope>AudioParams</scope><name>AudioParams</name></member>
+      <member refid="class_audio_params_1a0da67a3e544fd84e796cbac0486e44f0" prot="public" virt="non-virtual"><scope>AudioParams</scope><name>channel_layout</name></member>
+      <member refid="class_audio_params_1ace9a2833ee3efcf148f692f77220a2ca" prot="private" virt="non-virtual"><scope>AudioParams</scope><name>channel_layout_</name></member>
+      <member refid="class_audio_params_1a42be9b3bc17cd7ee2eecbb17236321eb" prot="public" virt="non-virtual"><scope>AudioParams</scope><name>sample_rate</name></member>
+      <member refid="class_audio_params_1ae0ced5f4737ee5934246b696cc0fd46b" prot="private" virt="non-virtual"><scope>AudioParams</scope><name>sample_rate_</name></member>
+      <member refid="class_audio_params_1adf9bbf6efa923fed279869b3cbf49e57" prot="public" virt="non-virtual"><scope>AudioParams</scope><name>time_base</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

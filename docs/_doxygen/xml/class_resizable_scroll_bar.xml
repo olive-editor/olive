@@ -1,0 +1,267 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_resizable_scroll_bar" kind="class" language="C++" prot="public">
+    <compoundname>ResizableScrollBar</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QScrollBar</basecompoundref>
+    <includes refid="resizablescrollbar_8h" local="no">resizablescrollbar.h</includes>
+      <sectiondef kind="private-type">
+      <memberdef kind="enum" id="class_resizable_scroll_bar_1ae4f4b613fe602d080adee17411784dda" prot="private" static="no" strong="no">
+        <type></type>
+        <name>MouseHandleState</name>
+        <enumvalue id="class_resizable_scroll_bar_1ae4f4b613fe602d080adee17411784ddaab7167a60982d108c12d729e3df1573dc" prot="private">
+          <name>kNotInHandle</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_resizable_scroll_bar_1ae4f4b613fe602d080adee17411784ddaa40340b70688a226f326b568af48cbf21" prot="private">
+          <name>kInTopHandle</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_resizable_scroll_bar_1ae4f4b613fe602d080adee17411784ddaac1d5f2c8d8677d740ffc2929a62897b2" prot="private">
+          <name>kInBottomHandle</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/resizablescrollbar/resizablescrollbar.h" line="68" column="3" bodyfile="C:/Daten/Olive/olive/app/widget/resizablescrollbar/resizablescrollbar.h" bodystart="68" bodyend="72"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-attrib">
+      <memberdef kind="variable" id="class_resizable_scroll_bar_1a6e73dbed5fcc7c5b0f629c7f13863f17" prot="private" static="yes" mutable="no">
+        <type>const int</type>
+        <definition>const int ResizableScrollBar::kHandleWidth</definition>
+        <argsstring></argsstring>
+        <name>kHandleWidth</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/resizablescrollbar/resizablescrollbar.h" line="66" column="20" bodyfile="C:/Daten/Olive/olive/app/widget/resizablescrollbar/resizablescrollbar.h" bodystart="66" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_resizable_scroll_bar_1a71b921c59e86bc239ae1d8ed59310138" prot="private" static="no" mutable="no">
+        <type><ref refid="class_resizable_scroll_bar_1ae4f4b613fe602d080adee17411784dda" kindref="member">MouseHandleState</ref></type>
+        <definition>MouseHandleState ResizableScrollBar::mouse_handle_state_</definition>
+        <argsstring></argsstring>
+        <name>mouse_handle_state_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/resizablescrollbar/resizablescrollbar.h" line="78" column="20" bodyfile="C:/Daten/Olive/olive/app/widget/resizablescrollbar/resizablescrollbar.h" bodystart="78" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_resizable_scroll_bar_1a5659ba9d6ec3e17b11e520fa96253bdd" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool ResizableScrollBar::mouse_dragging_</definition>
+        <argsstring></argsstring>
+        <name>mouse_dragging_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/resizablescrollbar/resizablescrollbar.h" line="80" column="8" bodyfile="C:/Daten/Olive/olive/app/widget/resizablescrollbar/resizablescrollbar.h" bodystart="80" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_resizable_scroll_bar_1a52373d30531ee1da29468c0a41d3a1f8" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int ResizableScrollBar::mouse_drag_start_</definition>
+        <argsstring></argsstring>
+        <name>mouse_drag_start_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/resizablescrollbar/resizablescrollbar.h" line="82" column="7" bodyfile="C:/Daten/Olive/olive/app/widget/resizablescrollbar/resizablescrollbar.h" bodystart="82" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_resizable_scroll_bar_1a26e76c98543c052a92756949cd67974b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>ResizableScrollBar::ResizableScrollBar</definition>
+        <argsstring>(QWidget *parent=nullptr)</argsstring>
+        <name>ResizableScrollBar</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/resizablescrollbar/resizablescrollbar.h" line="52" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_resizable_scroll_bar_1a489205e64daf70b08baa0906548f7369" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>ResizableScrollBar::ResizableScrollBar</definition>
+        <argsstring>(Qt::Orientation orientation, QWidget *parent=nullptr)</argsstring>
+        <name>ResizableScrollBar</name>
+        <param>
+          <type>Qt::Orientation</type>
+          <declname>orientation</declname>
+        </param>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/resizablescrollbar/resizablescrollbar.h" line="53" column="3"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_resizable_scroll_bar_1a600e14aefc37d4ebb8d685d21785d5fc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ResizableScrollBar::RequestScale</definition>
+        <argsstring>(const double &amp;multiplier)</argsstring>
+        <name>RequestScale</name>
+        <param>
+          <type>const double &amp;</type>
+          <declname>multiplier</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/resizablescrollbar/resizablescrollbar.h" line="56" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_resizable_scroll_bar_1adb0a125112499d3c15c6a430230369be" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void ResizableScrollBar::mousePressEvent</definition>
+        <argsstring>(QMouseEvent *event) override</argsstring>
+        <name>mousePressEvent</name>
+        <param>
+          <type>QMouseEvent *</type>
+          <declname>event</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/resizablescrollbar/resizablescrollbar.h" line="59" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_resizable_scroll_bar_1a3c4e5e493293bb22850645df66dea1d1" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void ResizableScrollBar::mouseMoveEvent</definition>
+        <argsstring>(QMouseEvent *event) override</argsstring>
+        <name>mouseMoveEvent</name>
+        <param>
+          <type>QMouseEvent *</type>
+          <declname>event</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/resizablescrollbar/resizablescrollbar.h" line="61" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_resizable_scroll_bar_1a72124a1d4249e777df21922e73af70a9" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void ResizableScrollBar::mouseReleaseEvent</definition>
+        <argsstring>(QMouseEvent *event) override</argsstring>
+        <name>mouseReleaseEvent</name>
+        <param>
+          <type>QMouseEvent *</type>
+          <declname>event</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/resizablescrollbar/resizablescrollbar.h" line="63" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_resizable_scroll_bar_1ab71a3aaaefc6393bc20b7a91bc3fbac2" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ResizableScrollBar::Init</definition>
+        <argsstring>()</argsstring>
+        <name>Init</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/resizablescrollbar/resizablescrollbar.h" line="74" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_resizable_scroll_bar_1ac3fe6df88b72c4fcd264c0161550af58" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int ResizableScrollBar::GetActiveMousePos</definition>
+        <argsstring>(QMouseEvent *event)</argsstring>
+        <name>GetActiveMousePos</name>
+        <param>
+          <type>QMouseEvent *</type>
+          <declname>event</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/resizablescrollbar/resizablescrollbar.h" line="76" column="7"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/widget/resizablescrollbar/resizablescrollbar.h" line="30" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/resizablescrollbar/resizablescrollbar.h" bodystart="31" bodyend="66"/>
+    <listofallmembers>
+      <member refid="class_resizable_scroll_bar_1ac3fe6df88b72c4fcd264c0161550af58" prot="private" virt="non-virtual"><scope>ResizableScrollBar</scope><name>GetActiveMousePos</name></member>
+      <member refid="class_resizable_scroll_bar_1ab71a3aaaefc6393bc20b7a91bc3fbac2" prot="private" virt="non-virtual"><scope>ResizableScrollBar</scope><name>Init</name></member>
+      <member refid="class_resizable_scroll_bar_1a6e73dbed5fcc7c5b0f629c7f13863f17" prot="private" virt="non-virtual"><scope>ResizableScrollBar</scope><name>kHandleWidth</name></member>
+      <member refid="class_resizable_scroll_bar_1ae4f4b613fe602d080adee17411784ddaac1d5f2c8d8677d740ffc2929a62897b2" prot="private" virt="non-virtual"><scope>ResizableScrollBar</scope><name>kInBottomHandle</name></member>
+      <member refid="class_resizable_scroll_bar_1ae4f4b613fe602d080adee17411784ddaa40340b70688a226f326b568af48cbf21" prot="private" virt="non-virtual"><scope>ResizableScrollBar</scope><name>kInTopHandle</name></member>
+      <member refid="class_resizable_scroll_bar_1ae4f4b613fe602d080adee17411784ddaab7167a60982d108c12d729e3df1573dc" prot="private" virt="non-virtual"><scope>ResizableScrollBar</scope><name>kNotInHandle</name></member>
+      <member refid="class_resizable_scroll_bar_1a52373d30531ee1da29468c0a41d3a1f8" prot="private" virt="non-virtual"><scope>ResizableScrollBar</scope><name>mouse_drag_start_</name></member>
+      <member refid="class_resizable_scroll_bar_1a5659ba9d6ec3e17b11e520fa96253bdd" prot="private" virt="non-virtual"><scope>ResizableScrollBar</scope><name>mouse_dragging_</name></member>
+      <member refid="class_resizable_scroll_bar_1a71b921c59e86bc239ae1d8ed59310138" prot="private" virt="non-virtual"><scope>ResizableScrollBar</scope><name>mouse_handle_state_</name></member>
+      <member refid="class_resizable_scroll_bar_1ae4f4b613fe602d080adee17411784dda" prot="private" virt="non-virtual"><scope>ResizableScrollBar</scope><name>MouseHandleState</name></member>
+      <member refid="class_resizable_scroll_bar_1a3c4e5e493293bb22850645df66dea1d1" prot="protected" virt="virtual"><scope>ResizableScrollBar</scope><name>mouseMoveEvent</name></member>
+      <member refid="class_resizable_scroll_bar_1adb0a125112499d3c15c6a430230369be" prot="protected" virt="virtual"><scope>ResizableScrollBar</scope><name>mousePressEvent</name></member>
+      <member refid="class_resizable_scroll_bar_1a72124a1d4249e777df21922e73af70a9" prot="protected" virt="virtual"><scope>ResizableScrollBar</scope><name>mouseReleaseEvent</name></member>
+      <member refid="class_resizable_scroll_bar_1a600e14aefc37d4ebb8d685d21785d5fc" prot="public" virt="non-virtual"><scope>ResizableScrollBar</scope><name>RequestScale</name></member>
+      <member refid="class_resizable_scroll_bar_1a26e76c98543c052a92756949cd67974b" prot="public" virt="non-virtual"><scope>ResizableScrollBar</scope><name>ResizableScrollBar</name></member>
+      <member refid="class_resizable_scroll_bar_1a489205e64daf70b08baa0906548f7369" prot="public" virt="non-virtual"><scope>ResizableScrollBar</scope><name>ResizableScrollBar</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

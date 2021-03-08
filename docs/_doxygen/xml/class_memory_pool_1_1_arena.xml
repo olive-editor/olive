@@ -1,0 +1,247 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_memory_pool_1_1_arena" kind="class" language="C++" prot="public">
+    <compoundname>MemoryPool::Arena</compoundname>
+    <includes refid="memorypool_8h" local="no">memorypool.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_memory_pool_1_1_arena_1a3c28d5f66e19a9a0cec4c98249ed8f1d" prot="private" static="no" mutable="no">
+        <type><ref refid="class_memory_pool" kindref="compound">MemoryPool</ref> *</type>
+        <definition>MemoryPool* MemoryPool&lt; T &gt;::Arena::parent_</definition>
+        <argsstring></argsstring>
+        <name>parent_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/memorypool.h" line="278" column="16" bodyfile="C:/Daten/Olive/olive/app/common/memorypool.h" bodystart="278" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_memory_pool_1_1_arena_1a214f438fac7d8116465546723864b1e6" prot="private" static="no" mutable="no">
+        <type>char *</type>
+        <definition>char* MemoryPool&lt; T &gt;::Arena::data_</definition>
+        <argsstring></argsstring>
+        <name>data_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/memorypool.h" line="280" column="10" bodyfile="C:/Daten/Olive/olive/app/common/memorypool.h" bodystart="280" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_memory_pool_1_1_arena_1a4a2d02596a6bc05267782eefa09644c5" prot="private" static="no" mutable="no">
+        <type>QVector&lt; bool &gt;</type>
+        <definition>QVector&lt;bool&gt; MemoryPool&lt; T &gt;::Arena::available_</definition>
+        <argsstring></argsstring>
+        <name>available_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/memorypool.h" line="282" column="13" bodyfile="C:/Daten/Olive/olive/app/common/memorypool.h" bodystart="282" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_memory_pool_1_1_arena_1a2256e113cc934c392e9f3ed5a60f4c94" prot="private" static="no" mutable="no">
+        <type>QMutex</type>
+        <definition>QMutex MemoryPool&lt; T &gt;::Arena::lock_</definition>
+        <argsstring></argsstring>
+        <name>lock_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/memorypool.h" line="284" column="12" bodyfile="C:/Daten/Olive/olive/app/common/memorypool.h" bodystart="284" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_memory_pool_1_1_arena_1a3c7e43306341ceaefb0b42167f0ae413" prot="private" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t MemoryPool&lt; T &gt;::Arena::element_sz_</definition>
+        <argsstring></argsstring>
+        <name>element_sz_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/memorypool.h" line="286" column="12" bodyfile="C:/Daten/Olive/olive/app/common/memorypool.h" bodystart="286" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_memory_pool_1_1_arena_1ac417d0570b88e356aa8eddd24f2c3c95" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int MemoryPool&lt; T &gt;::Arena::use_count_</definition>
+        <argsstring></argsstring>
+        <name>use_count_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/memorypool.h" line="288" column="9" bodyfile="C:/Daten/Olive/olive/app/common/memorypool.h" bodystart="288" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_memory_pool_1_1_arena_1a114b076c5b8891c917c1b15c8fa600fd" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>MemoryPool&lt; T &gt;::Arena::Arena</definition>
+        <argsstring>(MemoryPool *parent)</argsstring>
+        <name>Arena</name>
+        <param>
+          <type><ref refid="class_memory_pool" kindref="compound">MemoryPool</ref> *</type>
+          <declname>parent</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/memorypool.h" line="194" column="5" bodyfile="C:/Daten/Olive/olive/app/common/memorypool.h" bodystart="194" bodyend="198"/>
+      </memberdef>
+      <memberdef kind="function" id="class_memory_pool_1_1_arena_1aa04bcbab52d163b9871580174fb4ff84" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>MemoryPool&lt; T &gt;::Arena::~Arena</definition>
+        <argsstring>()</argsstring>
+        <name>~Arena</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/memorypool.h" line="200" column="5" bodyfile="C:/Daten/Olive/olive/app/common/memorypool.h" bodystart="200" bodyend="204"/>
+      </memberdef>
+      <memberdef kind="function" id="class_memory_pool_1_1_arena_1a446a0cf361af83adb0ef9442decb6324" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="class_memory_pool_1a3d5e5aa5207579a4316cd1e601ff079a" kindref="member">ElementPtr</ref></type>
+        <definition>ElementPtr MemoryPool&lt; T &gt;::Arena::Get</definition>
+        <argsstring>()</argsstring>
+        <name>Get</name>
+        <briefdescription>
+<para>Returns an element if there is free memory to do so. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/memorypool.h" line="211" column="16" bodyfile="C:/Daten/Olive/olive/app/common/memorypool.h" bodystart="211" bodyend="224"/>
+      </memberdef>
+      <memberdef kind="function" id="class_memory_pool_1_1_arena_1a2baadc8019883420b87337bedde4f2be" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void MemoryPool&lt; T &gt;::Arena::Release</definition>
+        <argsstring>(Element *e)</argsstring>
+        <name>Release</name>
+        <param>
+          <type><ref refid="class_memory_pool_1_1_element" kindref="compound">Element</ref> *</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+<para>Releases an element back into the pool for use elsewhere. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/memorypool.h" line="229" column="10" bodyfile="C:/Daten/Olive/olive/app/common/memorypool.h" bodystart="229" bodyend="242"/>
+      </memberdef>
+      <memberdef kind="function" id="class_memory_pool_1_1_arena_1ad2014840b2b57a58fc8ba7b855526019" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>const int &amp;</type>
+        <definition>const int&amp; MemoryPool&lt; T &gt;::Arena::GetUsageCount</definition>
+        <argsstring>()</argsstring>
+        <name>GetUsageCount</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/memorypool.h" line="244" column="15" bodyfile="C:/Daten/Olive/olive/app/common/memorypool.h" bodystart="244" bodyend="247"/>
+      </memberdef>
+      <memberdef kind="function" id="class_memory_pool_1_1_arena_1a21a4de85de019d8bfe31a750608450e3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool MemoryPool&lt; T &gt;::Arena::Allocate</definition>
+        <argsstring>(size_t ele_sz, size_t nb_elements)</argsstring>
+        <name>Allocate</name>
+        <param>
+          <type>size_t</type>
+          <declname>ele_sz</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>nb_elements</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/memorypool.h" line="249" column="10" bodyfile="C:/Daten/Olive/olive/app/common/memorypool.h" bodystart="249" bodyend="267"/>
+      </memberdef>
+      <memberdef kind="function" id="class_memory_pool_1_1_arena_1af953a991bdac59f5b5bb433e4faafd24" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int MemoryPool&lt; T &gt;::Arena::GetElementCount</definition>
+        <argsstring>() const</argsstring>
+        <name>GetElementCount</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/memorypool.h" line="269" column="16" bodyfile="C:/Daten/Olive/olive/app/common/memorypool.h" bodystart="269" bodyend="271"/>
+      </memberdef>
+      <memberdef kind="function" id="class_memory_pool_1_1_arena_1acaec711ced22c1276d3bf65e7f5c60b5" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool MemoryPool&lt; T &gt;::Arena::IsAllocated</definition>
+        <argsstring>() const</argsstring>
+        <name>IsAllocated</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/memorypool.h" line="273" column="17" bodyfile="C:/Daten/Olive/olive/app/common/memorypool.h" bodystart="273" bodyend="275"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A memory pool arena - a subsection of memory. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>The pool itself does not store memory, it stores &quot;arenas&quot;. This is so that the pool can handle the situation of an arena becoming full with no more memory to lend. A pool can automatically allocate another arena and continue providing memory (and freeing arenas when they&apos;re no longer in use). </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>MemoryPool&lt; T &gt;::Arena</label>
+        <link refid="class_memory_pool_1_1_arena"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>parent_</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>MemoryPool&lt; T &gt;</label>
+        <link refid="class_memory_pool"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/common/memorypool.h" line="192" column="3" bodyfile="C:/Daten/Olive/olive/app/common/memorypool.h" bodystart="192" bodyend="290"/>
+    <listofallmembers>
+      <member refid="class_memory_pool_1_1_arena_1a21a4de85de019d8bfe31a750608450e3" prot="public" virt="non-virtual"><scope>MemoryPool::Arena</scope><name>Allocate</name></member>
+      <member refid="class_memory_pool_1_1_arena_1a114b076c5b8891c917c1b15c8fa600fd" prot="public" virt="non-virtual"><scope>MemoryPool::Arena</scope><name>Arena</name></member>
+      <member refid="class_memory_pool_1_1_arena_1a4a2d02596a6bc05267782eefa09644c5" prot="private" virt="non-virtual"><scope>MemoryPool::Arena</scope><name>available_</name></member>
+      <member refid="class_memory_pool_1_1_arena_1a214f438fac7d8116465546723864b1e6" prot="private" virt="non-virtual"><scope>MemoryPool::Arena</scope><name>data_</name></member>
+      <member refid="class_memory_pool_1_1_arena_1a3c7e43306341ceaefb0b42167f0ae413" prot="private" virt="non-virtual"><scope>MemoryPool::Arena</scope><name>element_sz_</name></member>
+      <member refid="class_memory_pool_1_1_arena_1a446a0cf361af83adb0ef9442decb6324" prot="public" virt="non-virtual"><scope>MemoryPool::Arena</scope><name>Get</name></member>
+      <member refid="class_memory_pool_1_1_arena_1af953a991bdac59f5b5bb433e4faafd24" prot="public" virt="non-virtual"><scope>MemoryPool::Arena</scope><name>GetElementCount</name></member>
+      <member refid="class_memory_pool_1_1_arena_1ad2014840b2b57a58fc8ba7b855526019" prot="public" virt="non-virtual"><scope>MemoryPool::Arena</scope><name>GetUsageCount</name></member>
+      <member refid="class_memory_pool_1_1_arena_1acaec711ced22c1276d3bf65e7f5c60b5" prot="public" virt="non-virtual"><scope>MemoryPool::Arena</scope><name>IsAllocated</name></member>
+      <member refid="class_memory_pool_1_1_arena_1a2256e113cc934c392e9f3ed5a60f4c94" prot="private" virt="non-virtual"><scope>MemoryPool::Arena</scope><name>lock_</name></member>
+      <member refid="class_memory_pool_1_1_arena_1a3c28d5f66e19a9a0cec4c98249ed8f1d" prot="private" virt="non-virtual"><scope>MemoryPool::Arena</scope><name>parent_</name></member>
+      <member refid="class_memory_pool_1_1_arena_1a2baadc8019883420b87337bedde4f2be" prot="public" virt="non-virtual"><scope>MemoryPool::Arena</scope><name>Release</name></member>
+      <member refid="class_memory_pool_1_1_arena_1ac417d0570b88e356aa8eddd24f2c3c95" prot="private" virt="non-virtual"><scope>MemoryPool::Arena</scope><name>use_count_</name></member>
+      <member refid="class_memory_pool_1_1_arena_1aa04bcbab52d163b9871580174fb4ff84" prot="public" virt="non-virtual"><scope>MemoryPool::Arena</scope><name>~Arena</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,560 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_undo_command" kind="class" language="C++" prot="public" abstract="yes">
+    <compoundname>UndoCommand</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QUndoCommand</basecompoundref>
+    <derivedcompoundref refid="class_block_enable_disable_command" prot="public" virt="non-virtual">BlockEnableDisableCommand</derivedcompoundref>
+    <derivedcompoundref refid="class_block_link_command" prot="public" virt="non-virtual">BlockLinkCommand</derivedcompoundref>
+    <derivedcompoundref refid="class_block_link_many_command" prot="public" virt="non-virtual">BlockLinkManyCommand</derivedcompoundref>
+    <derivedcompoundref refid="class_block_resize_command" prot="public" virt="non-virtual">BlockResizeCommand</derivedcompoundref>
+    <derivedcompoundref refid="class_block_resize_with_media_in_command" prot="public" virt="non-virtual">BlockResizeWithMediaInCommand</derivedcompoundref>
+    <derivedcompoundref refid="class_block_reverse_command" prot="public" virt="non-virtual">BlockReverseCommand</derivedcompoundref>
+    <derivedcompoundref refid="class_block_set_media_in_command" prot="public" virt="non-virtual">BlockSetMediaInCommand</derivedcompoundref>
+    <derivedcompoundref refid="class_block_set_speed_command" prot="public" virt="non-virtual">BlockSetSpeedCommand</derivedcompoundref>
+    <derivedcompoundref refid="class_block_split_command" prot="public" virt="non-virtual">BlockSplitCommand</derivedcompoundref>
+    <derivedcompoundref refid="class_block_split_preserving_links_command" prot="public" virt="non-virtual">BlockSplitPreservingLinksCommand</derivedcompoundref>
+    <derivedcompoundref refid="class_block_unlink_all_command" prot="public" virt="non-virtual">BlockUnlinkAllCommand</derivedcompoundref>
+    <derivedcompoundref refid="class_footage_properties_dialog_1_1_footage_change_command" prot="public" virt="non-virtual">FootagePropertiesDialog::FootageChangeCommand</derivedcompoundref>
+    <derivedcompoundref refid="class_footage_properties_dialog_1_1_stream_enable_change_command" prot="public" virt="non-virtual">FootagePropertiesDialog::StreamEnableChangeCommand</derivedcompoundref>
+    <derivedcompoundref refid="class_keyframe_set_bezier_control_point" prot="public" virt="non-virtual">KeyframeSetBezierControlPoint</derivedcompoundref>
+    <derivedcompoundref refid="class_keyframe_set_type_command" prot="public" virt="non-virtual">KeyframeSetTypeCommand</derivedcompoundref>
+    <derivedcompoundref refid="class_node_add_command" prot="public" virt="non-virtual">NodeAddCommand</derivedcompoundref>
+    <derivedcompoundref refid="class_node_edge_add_command" prot="public" virt="non-virtual">NodeEdgeAddCommand</derivedcompoundref>
+    <derivedcompoundref refid="class_node_edge_remove_command" prot="public" virt="non-virtual">NodeEdgeRemoveCommand</derivedcompoundref>
+    <derivedcompoundref refid="class_node_param_insert_keyframe_command" prot="public" virt="non-virtual">NodeParamInsertKeyframeCommand</derivedcompoundref>
+    <derivedcompoundref refid="class_node_param_remove_keyframe_command" prot="public" virt="non-virtual">NodeParamRemoveKeyframeCommand</derivedcompoundref>
+    <derivedcompoundref refid="class_node_param_set_keyframe_time_command" prot="public" virt="non-virtual">NodeParamSetKeyframeTimeCommand</derivedcompoundref>
+    <derivedcompoundref refid="class_node_param_set_keyframe_value_command" prot="public" virt="non-virtual">NodeParamSetKeyframeValueCommand</derivedcompoundref>
+    <derivedcompoundref refid="class_node_param_set_keyframing_command" prot="public" virt="non-virtual">NodeParamSetKeyframingCommand</derivedcompoundref>
+    <derivedcompoundref refid="class_node_param_set_standard_value_command" prot="public" virt="non-virtual">NodeParamSetStandardValueCommand</derivedcompoundref>
+    <derivedcompoundref refid="class_node_remove_command" prot="public" virt="non-virtual">NodeRemoveCommand</derivedcompoundref>
+    <derivedcompoundref refid="class_node_remove_with_exclusive_deps" prot="public" virt="non-virtual">NodeRemoveWithExclusiveDeps</derivedcompoundref>
+    <derivedcompoundref refid="class_project_view_model_1_1_add_item_command" prot="public" virt="non-virtual">ProjectViewModel::AddItemCommand</derivedcompoundref>
+    <derivedcompoundref refid="class_project_view_model_1_1_move_item_command" prot="public" virt="non-virtual">ProjectViewModel::MoveItemCommand</derivedcompoundref>
+    <derivedcompoundref refid="class_project_view_model_1_1_remove_item_command" prot="public" virt="non-virtual">ProjectViewModel::RemoveItemCommand</derivedcompoundref>
+    <derivedcompoundref refid="class_project_view_model_1_1_rename_item_command" prot="public" virt="non-virtual">ProjectViewModel::RenameItemCommand</derivedcompoundref>
+    <derivedcompoundref refid="class_sequence_dialog_1_1_sequence_param_command" prot="public" virt="non-virtual">SequenceDialog::SequenceParamCommand</derivedcompoundref>
+    <derivedcompoundref refid="class_timeline_ripple_delete_gaps_at_regions_command" prot="public" virt="non-virtual">TimelineRippleDeleteGapsAtRegionsCommand</derivedcompoundref>
+    <derivedcompoundref refid="class_track_clean_gaps_command" prot="public" virt="non-virtual">TrackCleanGapsCommand</derivedcompoundref>
+    <derivedcompoundref refid="class_track_insert_block_after_command" prot="public" virt="non-virtual">TrackInsertBlockAfterCommand</derivedcompoundref>
+    <derivedcompoundref refid="class_track_prepend_block_command" prot="public" virt="non-virtual">TrackPrependBlockCommand</derivedcompoundref>
+    <derivedcompoundref refid="class_track_replace_block_command" prot="public" virt="non-virtual">TrackReplaceBlockCommand</derivedcompoundref>
+    <derivedcompoundref refid="class_track_ripple_remove_area_command" prot="public" virt="non-virtual">TrackRippleRemoveAreaCommand</derivedcompoundref>
+    <derivedcompoundref refid="class_track_ripple_remove_block_command" prot="public" virt="non-virtual">TrackRippleRemoveBlockCommand</derivedcompoundref>
+    <derivedcompoundref refid="class_track_split_at_time_command" prot="public" virt="non-virtual">TrackSplitAtTimeCommand</derivedcompoundref>
+    <derivedcompoundref refid="class_video_stream_properties_1_1_image_sequence_change_command" prot="public" virt="non-virtual">VideoStreamProperties::ImageSequenceChangeCommand</derivedcompoundref>
+    <derivedcompoundref refid="class_video_stream_properties_1_1_video_stream_change_command" prot="public" virt="non-virtual">VideoStreamProperties::VideoStreamChangeCommand</derivedcompoundref>
+    <derivedcompoundref refid="class_workarea_set_enabled_command" prot="public" virt="non-virtual">WorkareaSetEnabledCommand</derivedcompoundref>
+    <derivedcompoundref refid="class_workarea_set_range_command" prot="public" virt="non-virtual">WorkareaSetRangeCommand</derivedcompoundref>
+    <includes refid="undocommand_8h" local="no">undocommand.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_undo_command_1a6c06f9c1b7bfeeff3c4724491945992b" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool UndoCommand::modified_</definition>
+        <argsstring></argsstring>
+        <name>modified_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="64" column="8" bodyfile="C:/Daten/Olive/olive/app/undo/undocommand.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_undo_command_1a5a07a6505a207cf7186c7c726ff9c5fa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>UndoCommand::UndoCommand</definition>
+        <argsstring>(QUndoCommand *parent=nullptr)</argsstring>
+        <name>UndoCommand</name>
+        <param>
+          <type>QUndoCommand *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="52" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_undo_command_1a9907db368d01fb26f5082a36c6d90bd4" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void UndoCommand::redo</definition>
+        <argsstring>() override</argsstring>
+        <name>redo</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="54" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_undo_command_1a09d00f8a2e1c8b3c97d72d9585503030" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void UndoCommand::undo</definition>
+        <argsstring>() override</argsstring>
+        <name>undo</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="55" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_undo_command_1ab5c8967132833ea6be76a63dc5472f4f" prot="public" static="no" const="yes" explicit="no" inline="no" virt="pure-virtual">
+        <type><ref refid="class_project" kindref="compound">Project</ref> *</type>
+        <definition>virtual Project* UndoCommand::GetRelevantProject</definition>
+        <argsstring>() const =0</argsstring>
+        <name>GetRelevantProject</name>
+        <reimplementedby refid="class_node_param_insert_keyframe_command_1a8d075f101b295fa4df0f25cdc3d2a1bc">GetRelevantProject</reimplementedby>
+        <reimplementedby refid="class_node_param_set_keyframing_command_1a39721a1fa35b0ffd6fad1254f65aa43a">GetRelevantProject</reimplementedby>
+        <reimplementedby refid="class_keyframe_set_type_command_1a1e8f832c308d749ee56cc93d601d8add">GetRelevantProject</reimplementedby>
+        <reimplementedby refid="class_keyframe_set_bezier_control_point_1a65d9d20c7d8f2a6d7a21fe01de8eea4d">GetRelevantProject</reimplementedby>
+        <reimplementedby refid="class_block_resize_with_media_in_command_1a4f5c344b28c7dd67fa2e71d43848c078">GetRelevantProject</reimplementedby>
+        <reimplementedby refid="class_block_resize_command_1ac95d8dd1b81741aff6add77fbab84b65">GetRelevantProject</reimplementedby>
+        <reimplementedby refid="class_node_edge_add_command_1ab772dde38a3ed5af7f7cc3b44d843f01">GetRelevantProject</reimplementedby>
+        <reimplementedby refid="class_node_edge_remove_command_1a40d39a56423aebd768e1bf1059b8d64b">GetRelevantProject</reimplementedby>
+        <reimplementedby refid="class_node_param_remove_keyframe_command_1a6c44364870d7f619b311bbd64b9c7066">GetRelevantProject</reimplementedby>
+        <reimplementedby refid="class_block_set_media_in_command_1a73892ee127cced6f617abe4b028846e4">GetRelevantProject</reimplementedby>
+        <reimplementedby refid="class_block_reverse_command_1a95527768504161c7cbf5e5a0b22ebb4f">GetRelevantProject</reimplementedby>
+        <reimplementedby refid="class_footage_properties_dialog_1_1_footage_change_command_1a03dfc031e0d762c5835252f2d2f8921e">GetRelevantProject</reimplementedby>
+        <reimplementedby refid="class_node_add_command_1a0f25283273337e0c609ade526709e290">GetRelevantProject</reimplementedby>
+        <reimplementedby refid="class_node_param_set_keyframe_time_command_1ab3bb0e202cfedc40cc6ac6b72eafa4f4">GetRelevantProject</reimplementedby>
+        <reimplementedby refid="class_block_set_speed_command_1ae9277c643d93d367a1a8d612b287aaa4">GetRelevantProject</reimplementedby>
+        <reimplementedby refid="class_video_stream_properties_1_1_video_stream_change_command_1a63ba1baa061b0223082b6aab54d21b23">GetRelevantProject</reimplementedby>
+        <reimplementedby refid="class_footage_properties_dialog_1_1_stream_enable_change_command_1a6dcb640210d540671fdd33dbfbb3b78e">GetRelevantProject</reimplementedby>
+        <reimplementedby refid="class_node_remove_command_1a00111193e35cd8d2339003364657172d">GetRelevantProject</reimplementedby>
+        <reimplementedby refid="class_track_ripple_remove_block_command_1a16b467182e4c265a496191f1713b67c5">GetRelevantProject</reimplementedby>
+        <reimplementedby refid="class_node_param_set_keyframe_value_command_1a4027b9e789d627d8c4dfe509971feec2">GetRelevantProject</reimplementedby>
+        <reimplementedby refid="class_video_stream_properties_1_1_image_sequence_change_command_1a95092e2e33d3029dcac57d3cfe68f834">GetRelevantProject</reimplementedby>
+        <reimplementedby refid="class_track_prepend_block_command_1a435f9446438b6bef6cc5d46d55fe4c72">GetRelevantProject</reimplementedby>
+        <reimplementedby refid="class_node_remove_with_exclusive_deps_1ab46729ca128e291e2c53c5727e66a2d9">GetRelevantProject</reimplementedby>
+        <reimplementedby refid="class_node_param_set_standard_value_command_1a1581e1304559070b096f60cb6e9ff3de">GetRelevantProject</reimplementedby>
+        <reimplementedby refid="class_project_view_model_1_1_move_item_command_1a19e58b10bfc129aac5cbb226232b9867">GetRelevantProject</reimplementedby>
+        <reimplementedby refid="class_track_insert_block_after_command_1afaf99ba0ac11e3cc192389283181c425">GetRelevantProject</reimplementedby>
+        <reimplementedby refid="class_sequence_dialog_1_1_sequence_param_command_1a9f48398f619ae98dccf3507ac466f008">GetRelevantProject</reimplementedby>
+        <reimplementedby refid="class_project_view_model_1_1_rename_item_command_1a66283a829b4ba96938bc5d2bc6a827b7">GetRelevantProject</reimplementedby>
+        <reimplementedby refid="class_track_ripple_remove_area_command_1a2084787b7653838ca155aa338568a22b">GetRelevantProject</reimplementedby>
+        <reimplementedby refid="class_project_view_model_1_1_add_item_command_1a0af568872dc5e61ba6e1c644046ae2a5">GetRelevantProject</reimplementedby>
+        <reimplementedby refid="class_project_view_model_1_1_remove_item_command_1af8262cd80e20925b7309dfbd9ab4d9ad">GetRelevantProject</reimplementedby>
+        <reimplementedby refid="class_block_split_command_1a8e2dab2329ef1506cd7b39283d05e115">GetRelevantProject</reimplementedby>
+        <reimplementedby refid="class_track_split_at_time_command_1a7e9ecd473f8511f4261d876efcb0b199">GetRelevantProject</reimplementedby>
+        <reimplementedby refid="class_block_split_preserving_links_command_1a76f9e98e90b4c3406dee484ccbc2f0f7">GetRelevantProject</reimplementedby>
+        <reimplementedby refid="class_track_replace_block_command_1aea52cc0829451fdb21257b7ee77fa2fc">GetRelevantProject</reimplementedby>
+        <reimplementedby refid="class_track_clean_gaps_command_1a182fb55421c92920155bd48d521f2523">GetRelevantProject</reimplementedby>
+        <reimplementedby refid="class_timeline_ripple_delete_gaps_at_regions_command_1ae9ff4316ea3505f0a71b5b99c863db7d">GetRelevantProject</reimplementedby>
+        <reimplementedby refid="class_workarea_set_enabled_command_1acb5aa0a76350b7f73f2e739b72c9fa18">GetRelevantProject</reimplementedby>
+        <reimplementedby refid="class_workarea_set_range_command_1a482ccfe9c73880c2d49d66e1a98e57fb">GetRelevantProject</reimplementedby>
+        <reimplementedby refid="class_block_link_many_command_1a2d79c9108189a1e37d86c380512314ad">GetRelevantProject</reimplementedby>
+        <reimplementedby refid="class_block_link_command_1a21e7f38b7c1b37316f23373329648e4e">GetRelevantProject</reimplementedby>
+        <reimplementedby refid="class_block_unlink_all_command_1a25e29d5188d66e63d364cbd0c0340dd7">GetRelevantProject</reimplementedby>
+        <reimplementedby refid="class_block_enable_disable_command_1a3a25efeb8efee9bb52f3bfb5ee1b03aa">GetRelevantProject</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="57" column="19"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_undo_command_1ac8aa20d444a655cd36fa3c7dc01928b4" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void UndoCommand::redo_internal</definition>
+        <argsstring>()</argsstring>
+        <name>redo_internal</name>
+        <reimplementedby refid="class_node_param_insert_keyframe_command_1ad20a33073e41df5798c98c60c2872816">redo_internal</reimplementedby>
+        <reimplementedby refid="class_node_param_set_keyframing_command_1ac1181722ca0342d5360806a4d0df6e5b">redo_internal</reimplementedby>
+        <reimplementedby refid="class_keyframe_set_type_command_1abde24928ce754586a64061a37912cef4">redo_internal</reimplementedby>
+        <reimplementedby refid="class_keyframe_set_bezier_control_point_1a8cbcdce432b9ef8d1184dbf876e9766a">redo_internal</reimplementedby>
+        <reimplementedby refid="class_block_resize_with_media_in_command_1aee7d8507ad797560d4c9e2c42c56a530">redo_internal</reimplementedby>
+        <reimplementedby refid="class_block_resize_command_1a8f2b76a788801ea839a44b5da48f6adb">redo_internal</reimplementedby>
+        <reimplementedby refid="class_node_edge_add_command_1a918b9af405e871fd5092d27aecdb104b">redo_internal</reimplementedby>
+        <reimplementedby refid="class_node_edge_remove_command_1a6a4dc53918609b2fc04c63b2ec0024e7">redo_internal</reimplementedby>
+        <reimplementedby refid="class_node_param_remove_keyframe_command_1ac61652ed0b944d17c45c662847522c11">redo_internal</reimplementedby>
+        <reimplementedby refid="class_block_set_media_in_command_1a7bc2b16c68bb8e36a33e1e54668a5af8">redo_internal</reimplementedby>
+        <reimplementedby refid="class_block_reverse_command_1a7c1d9f197bbebec09205276138ab0d56">redo_internal</reimplementedby>
+        <reimplementedby refid="class_footage_properties_dialog_1_1_footage_change_command_1a9ea5384081879e946ef747a12a3e297b">redo_internal</reimplementedby>
+        <reimplementedby refid="class_node_add_command_1a138b88f9c5c8c8ef0767b49bbd05df12">redo_internal</reimplementedby>
+        <reimplementedby refid="class_node_param_set_keyframe_time_command_1a243163b0def2abfe2e01ffd131104937">redo_internal</reimplementedby>
+        <reimplementedby refid="class_block_set_speed_command_1a04f2ed7b51dc03e8868c5cef085ec04c">redo_internal</reimplementedby>
+        <reimplementedby refid="class_video_stream_properties_1_1_video_stream_change_command_1a905c359a16d0525d4e38786d4f5ec46d">redo_internal</reimplementedby>
+        <reimplementedby refid="class_footage_properties_dialog_1_1_stream_enable_change_command_1a0ec48906555244cd99418a9964004f5c">redo_internal</reimplementedby>
+        <reimplementedby refid="class_node_remove_command_1a50bdb61979cf0f6a7d51f026b299d004">redo_internal</reimplementedby>
+        <reimplementedby refid="class_track_ripple_remove_block_command_1ac933e1def2780094951fbcdea9165eb7">redo_internal</reimplementedby>
+        <reimplementedby refid="class_node_param_set_keyframe_value_command_1a5f19a37c695a03052bce15021292bd69">redo_internal</reimplementedby>
+        <reimplementedby refid="class_video_stream_properties_1_1_image_sequence_change_command_1af6dedb84d67a42fd295fb8252c86c6b2">redo_internal</reimplementedby>
+        <reimplementedby refid="class_track_prepend_block_command_1aaf98577bacd5ad88149cbd24ceec1ed1">redo_internal</reimplementedby>
+        <reimplementedby refid="class_node_param_set_standard_value_command_1a78db4dda65cb379d23da4ae84ef4d187">redo_internal</reimplementedby>
+        <reimplementedby refid="class_project_view_model_1_1_move_item_command_1aef1c045bff0bd64031518ddf3f57a800">redo_internal</reimplementedby>
+        <reimplementedby refid="class_track_insert_block_after_command_1ae84bf57704957503c5a5be1970cfa875">redo_internal</reimplementedby>
+        <reimplementedby refid="class_sequence_dialog_1_1_sequence_param_command_1a884b3e93e99d4688b6044a6dadd7f9a3">redo_internal</reimplementedby>
+        <reimplementedby refid="class_project_view_model_1_1_rename_item_command_1aa342ea316a20c0be6e452ac08606b65b">redo_internal</reimplementedby>
+        <reimplementedby refid="class_track_ripple_remove_area_command_1a02809ef79493e539e4b365774a2d61ca">redo_internal</reimplementedby>
+        <reimplementedby refid="class_project_view_model_1_1_add_item_command_1a21e1e48d7e672689a7cd5bbe59781a9a">redo_internal</reimplementedby>
+        <reimplementedby refid="class_project_view_model_1_1_remove_item_command_1ab1965b1ee4fec7c107f06751f9dc276e">redo_internal</reimplementedby>
+        <reimplementedby refid="class_track_place_block_command_1a984552279b738c98a6064d27da980be1">redo_internal</reimplementedby>
+        <reimplementedby refid="class_block_split_command_1ad2ede147cfb7c248b0e866b127b5486f">redo_internal</reimplementedby>
+        <reimplementedby refid="class_track_replace_block_command_1af866eb333889608e773df845ae267bff">redo_internal</reimplementedby>
+        <reimplementedby refid="class_track_clean_gaps_command_1a08b39da67be464a9b128eaf6b42a73b2">redo_internal</reimplementedby>
+        <reimplementedby refid="class_timeline_ripple_delete_gaps_at_regions_command_1adefc708bf48e4e5d4bb9c9be5acd290b">redo_internal</reimplementedby>
+        <reimplementedby refid="class_workarea_set_enabled_command_1a2e02f896dacd276c307e25a009ba89f6">redo_internal</reimplementedby>
+        <reimplementedby refid="class_workarea_set_range_command_1a016971d3fa9128f62cd68771c2d2c09b">redo_internal</reimplementedby>
+        <reimplementedby refid="class_block_link_command_1afc510f55c982274f4514538b092dbac4">redo_internal</reimplementedby>
+        <reimplementedby refid="class_block_unlink_all_command_1a9713636d7b4568f077a7539346231fb7">redo_internal</reimplementedby>
+        <reimplementedby refid="class_block_enable_disable_command_1aa37e5ab0b11d1b282dff833872c66bd1">redo_internal</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="60" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_undo_command_1a871dbc8a1f95b58e641be13703563faa" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void UndoCommand::undo_internal</definition>
+        <argsstring>()</argsstring>
+        <name>undo_internal</name>
+        <reimplementedby refid="class_node_param_insert_keyframe_command_1a7f4e1ccdfe4d77eeb5d3de43b2d08f63">undo_internal</reimplementedby>
+        <reimplementedby refid="class_node_param_set_keyframing_command_1af3defbaf5a7c2ae0922823dca8c00ee2">undo_internal</reimplementedby>
+        <reimplementedby refid="class_keyframe_set_type_command_1a7d3f1cdb927f9543acefa778ba8f76b3">undo_internal</reimplementedby>
+        <reimplementedby refid="class_keyframe_set_bezier_control_point_1ad90fb0158b3a290dabb6b24f0ad94e51">undo_internal</reimplementedby>
+        <reimplementedby refid="class_block_resize_with_media_in_command_1ab9942dc364b1fc620e2c01e7d9ed0d0b">undo_internal</reimplementedby>
+        <reimplementedby refid="class_block_resize_command_1a5c0095b37c6d6c79631849009840ba81">undo_internal</reimplementedby>
+        <reimplementedby refid="class_node_edge_add_command_1a21ab43596dc0292023ff64eeededfa31">undo_internal</reimplementedby>
+        <reimplementedby refid="class_node_edge_remove_command_1a83e3ffa871a35ff281c3b48663cb9a9a">undo_internal</reimplementedby>
+        <reimplementedby refid="class_node_param_remove_keyframe_command_1a4591fcd368d4de84f8449c5152bfe885">undo_internal</reimplementedby>
+        <reimplementedby refid="class_block_set_media_in_command_1a003e282b4e343b909eedcd6d7ae46ba4">undo_internal</reimplementedby>
+        <reimplementedby refid="class_block_reverse_command_1a3acb3992e8d23d6318b7f6cd4a248d1e">undo_internal</reimplementedby>
+        <reimplementedby refid="class_footage_properties_dialog_1_1_footage_change_command_1a884213bd92343fe151d73cc19641a8c8">undo_internal</reimplementedby>
+        <reimplementedby refid="class_node_add_command_1ad31fba3a4edf7acd1170b5951dedede7">undo_internal</reimplementedby>
+        <reimplementedby refid="class_node_param_set_keyframe_time_command_1a4dbcdcc8f5bd29b7ad791a708805a7d9">undo_internal</reimplementedby>
+        <reimplementedby refid="class_block_set_speed_command_1a823c3cb08f96799737a3cda6e12d805b">undo_internal</reimplementedby>
+        <reimplementedby refid="class_video_stream_properties_1_1_video_stream_change_command_1a85aedb76cfbfefa6e24670dbca83d455">undo_internal</reimplementedby>
+        <reimplementedby refid="class_footage_properties_dialog_1_1_stream_enable_change_command_1a0bbd5af15e458fbdc26066960f0c99ca">undo_internal</reimplementedby>
+        <reimplementedby refid="class_node_remove_command_1a792bc2cc41189fab68ca4d0d9d3fa46d">undo_internal</reimplementedby>
+        <reimplementedby refid="class_track_ripple_remove_block_command_1a6c9debd133640be78099d2f285298008">undo_internal</reimplementedby>
+        <reimplementedby refid="class_node_param_set_keyframe_value_command_1ae9a45a375e6b141b6a4e4fdcde5a770f">undo_internal</reimplementedby>
+        <reimplementedby refid="class_video_stream_properties_1_1_image_sequence_change_command_1a94de89c4280f992556de8ed1eb19472f">undo_internal</reimplementedby>
+        <reimplementedby refid="class_track_prepend_block_command_1a5c9ae8f4ec38de7de2ea7d4e5b472682">undo_internal</reimplementedby>
+        <reimplementedby refid="class_node_param_set_standard_value_command_1a5e8c55ae49ec329bc875ab592dd666ba">undo_internal</reimplementedby>
+        <reimplementedby refid="class_project_view_model_1_1_move_item_command_1a3a1f98dfe6a8be162cae128a590f324b">undo_internal</reimplementedby>
+        <reimplementedby refid="class_track_insert_block_after_command_1a10de7e11e7859be1e89ce40f5b08743a">undo_internal</reimplementedby>
+        <reimplementedby refid="class_sequence_dialog_1_1_sequence_param_command_1ad0874ac2aafff0237151b4da757e75a0">undo_internal</reimplementedby>
+        <reimplementedby refid="class_project_view_model_1_1_rename_item_command_1ae4378b65b10fd527a349cb5e62823089">undo_internal</reimplementedby>
+        <reimplementedby refid="class_track_ripple_remove_area_command_1ac7f7efe77d20efdf2f8db32355b27f30">undo_internal</reimplementedby>
+        <reimplementedby refid="class_project_view_model_1_1_add_item_command_1ac33d467a01cf476cd522e1257093dfbf">undo_internal</reimplementedby>
+        <reimplementedby refid="class_project_view_model_1_1_remove_item_command_1a43f0bcf4f0ce4c5548cb20c0117b9f22">undo_internal</reimplementedby>
+        <reimplementedby refid="class_track_place_block_command_1a7911207d1c6cb81b9bb38d38b1d1d4d1">undo_internal</reimplementedby>
+        <reimplementedby refid="class_block_split_command_1a61f3d72b7dd35ee3db898688ace397c7">undo_internal</reimplementedby>
+        <reimplementedby refid="class_track_replace_block_command_1adf26a282c44b49e2203faae69092fdbe">undo_internal</reimplementedby>
+        <reimplementedby refid="class_track_clean_gaps_command_1a4ce15f4696c3ebe971b12f3e597a6c9b">undo_internal</reimplementedby>
+        <reimplementedby refid="class_timeline_ripple_delete_gaps_at_regions_command_1a129c49804a8acb438fb40c49bb11b080">undo_internal</reimplementedby>
+        <reimplementedby refid="class_workarea_set_enabled_command_1a9aea67f44becf6fbed004e0a500882ef">undo_internal</reimplementedby>
+        <reimplementedby refid="class_workarea_set_range_command_1abd2b95dd8c48e602dc7fad3e912e6934">undo_internal</reimplementedby>
+        <reimplementedby refid="class_block_link_command_1a4eb214feb5f00d175d515d740fd082b8">undo_internal</reimplementedby>
+        <reimplementedby refid="class_block_unlink_all_command_1a686acc51970c74c8ed16adbf97245fb8">undo_internal</reimplementedby>
+        <reimplementedby refid="class_block_enable_disable_command_1ac846b1d713113870b7f797a6e54efe62">undo_internal</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="61" column="16"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="38">
+        <label>TrackRippleRemoveAreaCommand</label>
+        <link refid="class_track_ripple_remove_area_command"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>BlockLinkCommand</label>
+        <link refid="class_block_link_command"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="42">
+        <label>VideoStreamProperties::ImageSequenceChangeCommand</label>
+        <link refid="class_video_stream_properties_1_1_image_sequence_change_command"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>BlockSetSpeedCommand</label>
+        <link refid="class_block_set_speed_command"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="35">
+        <label>TrackInsertBlockAfterCommand</label>
+        <link refid="class_track_insert_block_after_command"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>NodeAddCommand</label>
+        <link refid="class_node_add_command"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>BlockReverseCommand</label>
+        <link refid="class_block_reverse_command"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="30">
+        <label>ProjectViewModel::RemoveItemCommand</label>
+        <link refid="class_project_view_model_1_1_remove_item_command"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="43">
+        <label>VideoStreamProperties::VideoStreamChangeCommand</label>
+        <link refid="class_video_stream_properties_1_1_video_stream_change_command"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>BlockResizeWithMediaInCommand</label>
+        <link refid="class_block_resize_with_media_in_command"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="32">
+        <label>SequenceDialog::SequenceParamCommand</label>
+        <link refid="class_sequence_dialog_1_1_sequence_param_command"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="23">
+        <label>NodeParamSetKeyframeValueCommand</label>
+        <link refid="class_node_param_set_keyframe_value_command"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="36">
+        <label>TrackPrependBlockCommand</label>
+        <link refid="class_track_prepend_block_command"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>BlockUnlinkAllCommand</label>
+        <link refid="class_block_unlink_all_command"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="41">
+        <label>TrackSplitAtTimeCommand</label>
+        <link refid="class_track_split_at_time_command"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>BlockResizeCommand</label>
+        <link refid="class_block_resize_command"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="34">
+        <label>TrackCleanGapsCommand</label>
+        <link refid="class_track_clean_gaps_command"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="33">
+        <label>TimelineRippleDeleteGapsAtRegionsCommand</label>
+        <link refid="class_timeline_ripple_delete_gaps_at_regions_command"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="37">
+        <label>TrackReplaceBlockCommand</label>
+        <link refid="class_track_replace_block_command"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>NodeParamInsertKeyframeCommand</label>
+        <link refid="class_node_param_insert_keyframe_command"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="29">
+        <label>ProjectViewModel::MoveItemCommand</label>
+        <link refid="class_project_view_model_1_1_move_item_command"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="24">
+        <label>NodeParamSetKeyframingCommand</label>
+        <link refid="class_node_param_set_keyframing_command"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="39">
+        <label>TrackPlaceBlockCommand</label>
+        <link refid="class_track_place_block_command"/>
+        <childnode refid="38" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>FootagePropertiesDialog::StreamEnableChangeCommand</label>
+        <link refid="class_footage_properties_dialog_1_1_stream_enable_change_command"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="31">
+        <label>ProjectViewModel::RenameItemCommand</label>
+        <link refid="class_project_view_model_1_1_rename_item_command"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="44">
+        <label>WorkareaSetEnabledCommand</label>
+        <link refid="class_workarea_set_enabled_command"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>BlockLinkManyCommand</label>
+        <link refid="class_block_link_many_command"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="19">
+        <label>NodeEdgeRemoveCommand</label>
+        <link refid="class_node_edge_remove_command"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="45">
+        <label>WorkareaSetRangeCommand</label>
+        <link refid="class_workarea_set_range_command"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="18">
+        <label>NodeEdgeAddCommand</label>
+        <link refid="class_node_edge_add_command"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>NodeParamSetKeyframeTimeCommand</label>
+        <link refid="class_node_param_set_keyframe_time_command"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="27">
+        <label>NodeRemoveWithExclusiveDeps</label>
+        <link refid="class_node_remove_with_exclusive_deps"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="25">
+        <label>NodeParamSetStandardValueCommand</label>
+        <link refid="class_node_param_set_standard_value_command"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>BlockSetMediaInCommand</label>
+        <link refid="class_block_set_media_in_command"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>BlockEnableDisableCommand</label>
+        <link refid="class_block_enable_disable_command"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>BlockSplitCommand</label>
+        <link refid="class_block_split_command"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>BlockSplitPreservingLinksCommand</label>
+        <link refid="class_block_split_preserving_links_command"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>NodeParamRemoveKeyframeCommand</label>
+        <link refid="class_node_param_remove_keyframe_command"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="28">
+        <label>ProjectViewModel::AddItemCommand</label>
+        <link refid="class_project_view_model_1_1_add_item_command"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>FootagePropertiesDialog::FootageChangeCommand</label>
+        <link refid="class_footage_properties_dialog_1_1_footage_change_command"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>UndoCommand</label>
+        <link refid="class_undo_command"/>
+      </node>
+      <node id="16">
+        <label>KeyframeSetTypeCommand</label>
+        <link refid="class_keyframe_set_type_command"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>NodeRemoveCommand</label>
+        <link refid="class_node_remove_command"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="40">
+        <label>TrackRippleRemoveBlockCommand</label>
+        <link refid="class_track_ripple_remove_block_command"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>KeyframeSetBezierControlPoint</label>
+        <link refid="class_keyframe_set_bezier_control_point"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="31" column="1" bodyfile="C:/Daten/Olive/olive/app/undo/undocommand.h" bodystart="32" bodyend="48"/>
+    <listofallmembers>
+      <member refid="class_undo_command_1ab5c8967132833ea6be76a63dc5472f4f" prot="public" virt="pure-virtual"><scope>UndoCommand</scope><name>GetRelevantProject</name></member>
+      <member refid="class_undo_command_1a6c06f9c1b7bfeeff3c4724491945992b" prot="private" virt="non-virtual"><scope>UndoCommand</scope><name>modified_</name></member>
+      <member refid="class_undo_command_1a9907db368d01fb26f5082a36c6d90bd4" prot="public" virt="virtual"><scope>UndoCommand</scope><name>redo</name></member>
+      <member refid="class_undo_command_1ac8aa20d444a655cd36fa3c7dc01928b4" prot="protected" virt="virtual"><scope>UndoCommand</scope><name>redo_internal</name></member>
+      <member refid="class_undo_command_1a09d00f8a2e1c8b3c97d72d9585503030" prot="public" virt="virtual"><scope>UndoCommand</scope><name>undo</name></member>
+      <member refid="class_undo_command_1a871dbc8a1f95b58e641be13703563faa" prot="protected" virt="virtual"><scope>UndoCommand</scope><name>undo_internal</name></member>
+      <member refid="class_undo_command_1a5a07a6505a207cf7186c7c726ff9c5fa" prot="public" virt="non-virtual"><scope>UndoCommand</scope><name>UndoCommand</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

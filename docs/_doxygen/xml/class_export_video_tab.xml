@@ -1,0 +1,619 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_export_video_tab" kind="class" language="C++" prot="public">
+    <compoundname>ExportVideoTab</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QWidget</basecompoundref>
+    <includes refid="exportvideotab_8h" local="no">exportvideotab.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_export_video_tab_1aa3668a3c1384662457e23a955d9f14c2" prot="private" static="no" mutable="no">
+        <type>QComboBox *</type>
+        <definition>QComboBox* ExportVideoTab::codec_combobox_</definition>
+        <argsstring></argsstring>
+        <name>codec_combobox_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" line="88" column="13" bodyfile="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" bodystart="88" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_export_video_tab_1a328612947f48b7ec59fb4552d984248f" prot="private" static="no" mutable="no">
+        <type>QComboBox *</type>
+        <definition>QComboBox* ExportVideoTab::frame_rate_combobox_</definition>
+        <argsstring></argsstring>
+        <name>frame_rate_combobox_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" line="89" column="13" bodyfile="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" bodystart="89" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_export_video_tab_1a58c1af95904523e0c71cccc3c07824f8" prot="private" static="no" mutable="no">
+        <type>QCheckBox *</type>
+        <definition>QCheckBox* ExportVideoTab::maintain_aspect_checkbox_</definition>
+        <argsstring></argsstring>
+        <name>maintain_aspect_checkbox_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" line="90" column="13" bodyfile="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" bodystart="90" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_export_video_tab_1af2c5b7aeedc71ddf96060e0ee4fccc96" prot="private" static="no" mutable="no">
+        <type>QComboBox *</type>
+        <definition>QComboBox* ExportVideoTab::scaling_method_combobox_</definition>
+        <argsstring></argsstring>
+        <name>scaling_method_combobox_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" line="91" column="13" bodyfile="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" bodystart="91" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_export_video_tab_1a967f9813e3bcf883d196e82e9835b08b" prot="private" static="no" mutable="no">
+        <type>QStackedWidget *</type>
+        <definition>QStackedWidget* ExportVideoTab::codec_stack_</definition>
+        <argsstring></argsstring>
+        <name>codec_stack_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" line="93" column="18" bodyfile="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" bodystart="93" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_export_video_tab_1a82456b40993ea90591e68b3274b8e184" prot="private" static="no" mutable="no">
+        <type><ref refid="class_image_section" kindref="compound">ImageSection</ref> *</type>
+        <definition>ImageSection* ExportVideoTab::image_section_</definition>
+        <argsstring></argsstring>
+        <name>image_section_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" line="94" column="16" bodyfile="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" bodystart="94" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_export_video_tab_1a3d3152b72b8025308a3b5c8727f81d49" prot="private" static="no" mutable="no">
+        <type><ref refid="class_h264_section" kindref="compound">H264Section</ref> *</type>
+        <definition>H264Section* ExportVideoTab::h264_section_</definition>
+        <argsstring></argsstring>
+        <name>h264_section_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" line="95" column="15" bodyfile="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" bodystart="95" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_export_video_tab_1a433fd9a53449d64e561a25fad988a018" prot="private" static="no" mutable="no">
+        <type><ref refid="class_color_space_chooser" kindref="compound">ColorSpaceChooser</ref> *</type>
+        <definition>ColorSpaceChooser* ExportVideoTab::color_space_chooser_</definition>
+        <argsstring></argsstring>
+        <name>color_space_chooser_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" line="97" column="21" bodyfile="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" bodystart="97" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_export_video_tab_1a9908bf9ae0bca5630aecbccaafae54ce" prot="private" static="no" mutable="no">
+        <type><ref refid="class_integer_slider" kindref="compound">IntegerSlider</ref> *</type>
+        <definition>IntegerSlider* ExportVideoTab::width_slider_</definition>
+        <argsstring></argsstring>
+        <name>width_slider_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" line="99" column="17" bodyfile="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" bodystart="99" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_export_video_tab_1a31f63adc649277744c3afeca96d55d6b" prot="private" static="no" mutable="no">
+        <type><ref refid="class_integer_slider" kindref="compound">IntegerSlider</ref> *</type>
+        <definition>IntegerSlider* ExportVideoTab::height_slider_</definition>
+        <argsstring></argsstring>
+        <name>height_slider_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" line="100" column="17" bodyfile="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" bodystart="100" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_export_video_tab_1a9eb684ae93b7255aafdd4f17527b2a1b" prot="private" static="no" mutable="no">
+        <type>QList&lt; <ref refid="classrational" kindref="compound">rational</ref> &gt;</type>
+        <definition>QList&lt;rational&gt; ExportVideoTab::frame_rates_</definition>
+        <argsstring></argsstring>
+        <name>frame_rates_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" line="102" column="9" bodyfile="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" bodystart="102" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_export_video_tab_1a52e4d2a8a1ddb6035c18f17e8a69f578" prot="private" static="no" mutable="no">
+        <type><ref refid="class_color_manager" kindref="compound">ColorManager</ref> *</type>
+        <definition>ColorManager* ExportVideoTab::color_manager_</definition>
+        <argsstring></argsstring>
+        <name>color_manager_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" line="104" column="16" bodyfile="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" bodystart="104" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_export_video_tab_1a0b8363678dd6f8e0732671cf49dcd28d" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int ExportVideoTab::threads_</definition>
+        <argsstring></argsstring>
+        <name>threads_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" line="106" column="7" bodyfile="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" bodystart="106" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_export_video_tab_1acdf53053acc84bf38288a4121c296cae" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>ExportVideoTab::ExportVideoTab</definition>
+        <argsstring>(ColorManager *color_manager, QWidget *parent=nullptr)</argsstring>
+        <name>ExportVideoTab</name>
+        <param>
+          <type><ref refid="class_color_manager" kindref="compound">ColorManager</ref> *</type>
+          <declname>color_manager</declname>
+        </param>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" line="59" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_export_video_tab_1a89da453205eb2dfa03c5dfecfdcb6cbd" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QComboBox *</type>
+        <definition>QComboBox* ExportVideoTab::codec_combobox</definition>
+        <argsstring>() const</argsstring>
+        <name>codec_combobox</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" line="61" column="13"/>
+      </memberdef>
+      <memberdef kind="function" id="class_export_video_tab_1a192b2a74f71c83d96929d7a6a7c554d0" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_integer_slider" kindref="compound">IntegerSlider</ref> *</type>
+        <definition>IntegerSlider* ExportVideoTab::width_slider</definition>
+        <argsstring>() const</argsstring>
+        <name>width_slider</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" line="63" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_export_video_tab_1acd962a19d37e77cfd0695a72c10cb25d" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_integer_slider" kindref="compound">IntegerSlider</ref> *</type>
+        <definition>IntegerSlider* ExportVideoTab::height_slider</definition>
+        <argsstring>() const</argsstring>
+        <name>height_slider</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" line="64" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_export_video_tab_1abf5509661a6467ee5d342c8d79e538b6" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QCheckBox *</type>
+        <definition>QCheckBox* ExportVideoTab::maintain_aspect_checkbox</definition>
+        <argsstring>() const</argsstring>
+        <name>maintain_aspect_checkbox</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" line="65" column="13"/>
+      </memberdef>
+      <memberdef kind="function" id="class_export_video_tab_1a0e1ba841668522f41ca105b2313ee83f" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QComboBox *</type>
+        <definition>QComboBox* ExportVideoTab::scaling_method_combobox</definition>
+        <argsstring>() const</argsstring>
+        <name>scaling_method_combobox</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" line="66" column="13"/>
+      </memberdef>
+      <memberdef kind="function" id="class_export_video_tab_1ad3b63df32862609694b579cc4e08bea2" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+        <definition>const rational&amp; ExportVideoTab::frame_rate</definition>
+        <argsstring>() const</argsstring>
+        <name>frame_rate</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" line="68" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_export_video_tab_1a682de39720f82f4aca67e600b67ed307" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ExportVideoTab::set_frame_rate</definition>
+        <argsstring>(const rational &amp;frame_rate)</argsstring>
+        <name>set_frame_rate</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>frame_rate</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" line="69" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_export_video_tab_1aabe7de1ec867373709d12423450ffe5d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>QString ExportVideoTab::CurrentOCIOColorSpace</definition>
+        <argsstring>()</argsstring>
+        <name>CurrentOCIOColorSpace</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" line="71" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_export_video_tab_1a6dc755bf1d9c73d1eccf64c6087c29a2" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_codec_section" kindref="compound">CodecSection</ref> *</type>
+        <definition>CodecSection* ExportVideoTab::GetCodecSection</definition>
+        <argsstring>() const</argsstring>
+        <name>GetCodecSection</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" line="73" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_export_video_tab_1a6b743a7a8ddde844debacf54242b3c17" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ExportVideoTab::SetCodecSection</definition>
+        <argsstring>(CodecSection *section)</argsstring>
+        <name>SetCodecSection</name>
+        <param>
+          <type><ref refid="class_codec_section" kindref="compound">CodecSection</ref> *</type>
+          <declname>section</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" line="74" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_export_video_tab_1a031930ef884a302cf6676de98376a663" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_image_section" kindref="compound">ImageSection</ref> *</type>
+        <definition>ImageSection* ExportVideoTab::image_section</definition>
+        <argsstring>() const</argsstring>
+        <name>image_section</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" line="75" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_export_video_tab_1a81dda4bfc564fa244db58fdbca757524" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_h264_section" kindref="compound">H264Section</ref> *</type>
+        <definition>H264Section* ExportVideoTab::h264_section</definition>
+        <argsstring>() const</argsstring>
+        <name>h264_section</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" line="76" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_export_video_tab_1a4039aac32318d404e83fcf7370ede47f" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const int &amp;</type>
+        <definition>const int&amp; ExportVideoTab::threads</definition>
+        <argsstring>() const</argsstring>
+        <name>threads</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" line="78" column="13"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_export_video_tab_1ad876fe093ff8eb44daaf142b30d2fc02" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ExportVideoTab::ColorSpaceChanged</definition>
+        <argsstring>(const QString &amp;colorspace)</argsstring>
+        <name>ColorSpaceChanged</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>colorspace</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" line="81" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_export_video_tab_1a53351ba54fd7ab51d2d0e54bb9e4ec2b" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QWidget *</type>
+        <definition>QWidget* ExportVideoTab::SetupResolutionSection</definition>
+        <argsstring>()</argsstring>
+        <name>SetupResolutionSection</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" line="84" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_export_video_tab_1a6e9023f44e1032d475cb112ae21859e9" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QWidget *</type>
+        <definition>QWidget* ExportVideoTab::SetupColorSection</definition>
+        <argsstring>()</argsstring>
+        <name>SetupColorSection</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" line="85" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_export_video_tab_1af680154bb4200154a5d70f72473ac8b9" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QWidget *</type>
+        <definition>QWidget* ExportVideoTab::SetupCodecSection</definition>
+        <argsstring>()</argsstring>
+        <name>SetupCodecSection</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" line="86" column="11"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_export_video_tab_1a2ebf0fd5e8241fb824c417df4d00aa50" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ExportVideoTab::MaintainAspectRatioChanged</definition>
+        <argsstring>(bool val)</argsstring>
+        <name>MaintainAspectRatioChanged</name>
+        <param>
+          <type>bool</type>
+          <declname>val</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" line="109" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_export_video_tab_1a65ed22f58c11a870cb7c16c60b884fd5" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ExportVideoTab::OpenAdvancedDialog</definition>
+        <argsstring>()</argsstring>
+        <name>OpenAdvancedDialog</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" line="111" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="11">
+        <label>FloatSlider</label>
+        <link refid="class_float_slider"/>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>ColorManager</label>
+        <link refid="class_color_manager"/>
+      </node>
+      <node id="8">
+        <label>H264Section</label>
+        <link refid="class_h264_section"/>
+        <childnode refid="9" relation="public-inheritance">
+        </childnode>
+        <childnode refid="10" relation="usage">
+          <edgelabel>filesize_section_</edgelabel>
+        </childnode>
+        <childnode refid="12" relation="usage">
+          <edgelabel>bitrate_section_</edgelabel>
+        </childnode>
+        <childnode refid="13" relation="usage">
+          <edgelabel>crf_section_</edgelabel>
+        </childnode>
+      </node>
+      <node id="12">
+        <label>H264BitRateSection</label>
+        <link refid="class_h264_bit_rate_section"/>
+        <childnode refid="11" relation="usage">
+          <edgelabel>target_rate_</edgelabel>
+          <edgelabel>max_rate_</edgelabel>
+        </childnode>
+      </node>
+      <node id="9">
+        <label>CodecSection</label>
+        <link refid="class_codec_section"/>
+      </node>
+      <node id="7">
+        <label>SliderLabel</label>
+        <link refid="class_slider_label"/>
+      </node>
+      <node id="6">
+        <label>FocusableLineEdit</label>
+        <link refid="class_focusable_line_edit"/>
+      </node>
+      <node id="4">
+        <label>IntegerSlider</label>
+        <link refid="class_integer_slider"/>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>H264FileSizeSection</label>
+        <link refid="class_h264_file_size_section"/>
+        <childnode refid="11" relation="usage">
+          <edgelabel>file_size_</edgelabel>
+        </childnode>
+      </node>
+      <node id="14">
+        <label>ImageSection</label>
+        <link refid="class_image_section"/>
+        <childnode refid="9" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>ExportVideoTab</label>
+        <link refid="class_export_video_tab"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>color_space_chooser_</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>width_slider_</edgelabel>
+          <edgelabel>height_slider_</edgelabel>
+        </childnode>
+        <childnode refid="8" relation="usage">
+          <edgelabel>h264_section_</edgelabel>
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>color_manager_</edgelabel>
+        </childnode>
+        <childnode refid="14" relation="usage">
+          <edgelabel>image_section_</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>ColorSpaceChooser</label>
+        <link refid="class_color_space_chooser"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>color_manager_</edgelabel>
+        </childnode>
+      </node>
+      <node id="13">
+        <label>H264CRFSection</label>
+        <link refid="class_h264_c_r_f_section"/>
+      </node>
+      <node id="5">
+        <label>SliderBase</label>
+        <link refid="class_slider_base"/>
+        <childnode refid="6" relation="usage">
+          <edgelabel>editor_</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>label_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" line="37" column="1" bodyfile="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h" bodystart="38" bodyend="95"/>
+    <listofallmembers>
+      <member refid="class_export_video_tab_1a89da453205eb2dfa03c5dfecfdcb6cbd" prot="public" virt="non-virtual"><scope>ExportVideoTab</scope><name>codec_combobox</name></member>
+      <member refid="class_export_video_tab_1aa3668a3c1384662457e23a955d9f14c2" prot="private" virt="non-virtual"><scope>ExportVideoTab</scope><name>codec_combobox_</name></member>
+      <member refid="class_export_video_tab_1a967f9813e3bcf883d196e82e9835b08b" prot="private" virt="non-virtual"><scope>ExportVideoTab</scope><name>codec_stack_</name></member>
+      <member refid="class_export_video_tab_1a52e4d2a8a1ddb6035c18f17e8a69f578" prot="private" virt="non-virtual"><scope>ExportVideoTab</scope><name>color_manager_</name></member>
+      <member refid="class_export_video_tab_1a433fd9a53449d64e561a25fad988a018" prot="private" virt="non-virtual"><scope>ExportVideoTab</scope><name>color_space_chooser_</name></member>
+      <member refid="class_export_video_tab_1ad876fe093ff8eb44daaf142b30d2fc02" prot="public" virt="non-virtual"><scope>ExportVideoTab</scope><name>ColorSpaceChanged</name></member>
+      <member refid="class_export_video_tab_1aabe7de1ec867373709d12423450ffe5d" prot="public" virt="non-virtual"><scope>ExportVideoTab</scope><name>CurrentOCIOColorSpace</name></member>
+      <member refid="class_export_video_tab_1acdf53053acc84bf38288a4121c296cae" prot="public" virt="non-virtual"><scope>ExportVideoTab</scope><name>ExportVideoTab</name></member>
+      <member refid="class_export_video_tab_1ad3b63df32862609694b579cc4e08bea2" prot="public" virt="non-virtual"><scope>ExportVideoTab</scope><name>frame_rate</name></member>
+      <member refid="class_export_video_tab_1a328612947f48b7ec59fb4552d984248f" prot="private" virt="non-virtual"><scope>ExportVideoTab</scope><name>frame_rate_combobox_</name></member>
+      <member refid="class_export_video_tab_1a9eb684ae93b7255aafdd4f17527b2a1b" prot="private" virt="non-virtual"><scope>ExportVideoTab</scope><name>frame_rates_</name></member>
+      <member refid="class_export_video_tab_1a6dc755bf1d9c73d1eccf64c6087c29a2" prot="public" virt="non-virtual"><scope>ExportVideoTab</scope><name>GetCodecSection</name></member>
+      <member refid="class_export_video_tab_1a81dda4bfc564fa244db58fdbca757524" prot="public" virt="non-virtual"><scope>ExportVideoTab</scope><name>h264_section</name></member>
+      <member refid="class_export_video_tab_1a3d3152b72b8025308a3b5c8727f81d49" prot="private" virt="non-virtual"><scope>ExportVideoTab</scope><name>h264_section_</name></member>
+      <member refid="class_export_video_tab_1acd962a19d37e77cfd0695a72c10cb25d" prot="public" virt="non-virtual"><scope>ExportVideoTab</scope><name>height_slider</name></member>
+      <member refid="class_export_video_tab_1a31f63adc649277744c3afeca96d55d6b" prot="private" virt="non-virtual"><scope>ExportVideoTab</scope><name>height_slider_</name></member>
+      <member refid="class_export_video_tab_1a031930ef884a302cf6676de98376a663" prot="public" virt="non-virtual"><scope>ExportVideoTab</scope><name>image_section</name></member>
+      <member refid="class_export_video_tab_1a82456b40993ea90591e68b3274b8e184" prot="private" virt="non-virtual"><scope>ExportVideoTab</scope><name>image_section_</name></member>
+      <member refid="class_export_video_tab_1abf5509661a6467ee5d342c8d79e538b6" prot="public" virt="non-virtual"><scope>ExportVideoTab</scope><name>maintain_aspect_checkbox</name></member>
+      <member refid="class_export_video_tab_1a58c1af95904523e0c71cccc3c07824f8" prot="private" virt="non-virtual"><scope>ExportVideoTab</scope><name>maintain_aspect_checkbox_</name></member>
+      <member refid="class_export_video_tab_1a2ebf0fd5e8241fb824c417df4d00aa50" prot="private" virt="non-virtual"><scope>ExportVideoTab</scope><name>MaintainAspectRatioChanged</name></member>
+      <member refid="class_export_video_tab_1a65ed22f58c11a870cb7c16c60b884fd5" prot="private" virt="non-virtual"><scope>ExportVideoTab</scope><name>OpenAdvancedDialog</name></member>
+      <member refid="class_export_video_tab_1a0e1ba841668522f41ca105b2313ee83f" prot="public" virt="non-virtual"><scope>ExportVideoTab</scope><name>scaling_method_combobox</name></member>
+      <member refid="class_export_video_tab_1af2c5b7aeedc71ddf96060e0ee4fccc96" prot="private" virt="non-virtual"><scope>ExportVideoTab</scope><name>scaling_method_combobox_</name></member>
+      <member refid="class_export_video_tab_1a682de39720f82f4aca67e600b67ed307" prot="public" virt="non-virtual"><scope>ExportVideoTab</scope><name>set_frame_rate</name></member>
+      <member refid="class_export_video_tab_1a6b743a7a8ddde844debacf54242b3c17" prot="public" virt="non-virtual"><scope>ExportVideoTab</scope><name>SetCodecSection</name></member>
+      <member refid="class_export_video_tab_1af680154bb4200154a5d70f72473ac8b9" prot="private" virt="non-virtual"><scope>ExportVideoTab</scope><name>SetupCodecSection</name></member>
+      <member refid="class_export_video_tab_1a6e9023f44e1032d475cb112ae21859e9" prot="private" virt="non-virtual"><scope>ExportVideoTab</scope><name>SetupColorSection</name></member>
+      <member refid="class_export_video_tab_1a53351ba54fd7ab51d2d0e54bb9e4ec2b" prot="private" virt="non-virtual"><scope>ExportVideoTab</scope><name>SetupResolutionSection</name></member>
+      <member refid="class_export_video_tab_1a4039aac32318d404e83fcf7370ede47f" prot="public" virt="non-virtual"><scope>ExportVideoTab</scope><name>threads</name></member>
+      <member refid="class_export_video_tab_1a0b8363678dd6f8e0732671cf49dcd28d" prot="private" virt="non-virtual"><scope>ExportVideoTab</scope><name>threads_</name></member>
+      <member refid="class_export_video_tab_1a192b2a74f71c83d96929d7a6a7c554d0" prot="public" virt="non-virtual"><scope>ExportVideoTab</scope><name>width_slider</name></member>
+      <member refid="class_export_video_tab_1a9908bf9ae0bca5630aecbccaafae54ce" prot="private" virt="non-virtual"><scope>ExportVideoTab</scope><name>width_slider_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

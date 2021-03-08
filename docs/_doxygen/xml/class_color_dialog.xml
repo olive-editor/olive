@@ -1,0 +1,348 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_color_dialog" kind="class" language="C++" prot="public">
+    <compoundname>ColorDialog</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QDialog</basecompoundref>
+    <includes refid="colordialog_8h" local="no">colordialog.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_color_dialog_1acc393d2946e48efd109438630c68d171" prot="private" static="no" mutable="no">
+        <type><ref refid="class_color_manager" kindref="compound">ColorManager</ref> *</type>
+        <definition>ColorManager* ColorDialog::color_manager_</definition>
+        <argsstring></argsstring>
+        <name>color_manager_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/color/colordialog.h" line="91" column="16" bodyfile="C:/Daten/Olive/olive/app/dialog/color/colordialog.h" bodystart="91" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_color_dialog_1aa69356de42f4ca4e4860edbe84b7a10a" prot="private" static="no" mutable="no">
+        <type><ref refid="class_color_wheel_widget" kindref="compound">ColorWheelWidget</ref> *</type>
+        <definition>ColorWheelWidget* ColorDialog::color_wheel_</definition>
+        <argsstring></argsstring>
+        <name>color_wheel_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/color/colordialog.h" line="93" column="20" bodyfile="C:/Daten/Olive/olive/app/dialog/color/colordialog.h" bodystart="93" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_color_dialog_1a1d1e3969dd3268a1bc75b84ec8f52cfb" prot="private" static="no" mutable="no">
+        <type><ref refid="class_color_values_widget" kindref="compound">ColorValuesWidget</ref> *</type>
+        <definition>ColorValuesWidget* ColorDialog::color_values_widget_</definition>
+        <argsstring></argsstring>
+        <name>color_values_widget_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/color/colordialog.h" line="95" column="21" bodyfile="C:/Daten/Olive/olive/app/dialog/color/colordialog.h" bodystart="95" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_color_dialog_1a5554c61cb0749e6bb6b999ca3d252cb0" prot="private" static="no" mutable="no">
+        <type><ref refid="class_color_gradient_widget" kindref="compound">ColorGradientWidget</ref> *</type>
+        <definition>ColorGradientWidget* ColorDialog::hsv_value_gradient_</definition>
+        <argsstring></argsstring>
+        <name>hsv_value_gradient_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/color/colordialog.h" line="97" column="23" bodyfile="C:/Daten/Olive/olive/app/dialog/color/colordialog.h" bodystart="97" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_color_dialog_1ab50e70c2659674b54e845d09110051b8" prot="private" static="no" mutable="no">
+        <type><ref refid="colorprocessor_8h_1ae3985029dcc28a9f9f42fc726d1a9471" kindref="member">ColorProcessorPtr</ref></type>
+        <definition>ColorProcessorPtr ColorDialog::input_to_ref_processor_</definition>
+        <argsstring></argsstring>
+        <name>input_to_ref_processor_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/color/colordialog.h" line="99" column="21" bodyfile="C:/Daten/Olive/olive/app/dialog/color/colordialog.h" bodystart="99" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_color_dialog_1afff995644dcb19e651a912526f648e40" prot="private" static="no" mutable="no">
+        <type><ref refid="class_color_space_chooser" kindref="compound">ColorSpaceChooser</ref> *</type>
+        <definition>ColorSpaceChooser* ColorDialog::chooser_</definition>
+        <argsstring></argsstring>
+        <name>chooser_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/color/colordialog.h" line="101" column="21" bodyfile="C:/Daten/Olive/olive/app/dialog/color/colordialog.h" bodystart="101" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_color_dialog_1a66c21d849d96473320f9f2e5545d57d6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>ColorDialog::ColorDialog</definition>
+        <argsstring>(ColorManager *color_manager, const ManagedColor &amp;start=Color(1.0f, 1.0f, 1.0f), QWidget *parent=nullptr)</argsstring>
+        <name>ColorDialog</name>
+        <param>
+          <type><ref refid="class_color_manager" kindref="compound">ColorManager</ref> *</type>
+          <declname>color_manager</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_managed_color" kindref="compound">ManagedColor</ref> &amp;</type>
+          <declname>start</declname>
+          <defval><ref refid="class_color" kindref="compound">Color</ref>(1.0f, 1.0f, 1.0f)</defval>
+        </param>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+<para><ref refid="class_color_dialog" kindref="compound">ColorDialog</ref> Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>color_manager</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The <ref refid="class_color_manager" kindref="compound">ColorManager</ref> to use for color management. This must be valid.</para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>start</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The color to start with. This must be in the color_manager&apos;s reference space</para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>input_cs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The input range that the user should see. The start color will be converted to this for UI object.</para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>parent</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>QWidget parent. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/color/colordialog.h" line="77" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_dialog_1ac8e97ad45c1b719f28013ae9e2a9dfcc" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_managed_color" kindref="compound">ManagedColor</ref></type>
+        <definition>ManagedColor ColorDialog::GetSelectedColor</definition>
+        <argsstring>() const</argsstring>
+        <name>GetSelectedColor</name>
+        <briefdescription>
+<para>Retrieves the color selected by the user. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The color is always returned in the <ref refid="class_color_manager" kindref="compound">ColorManager</ref>&apos;s reference space (usually scene linear). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/color/colordialog.h" line="84" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_dialog_1a6b1292f2603db4e1307fca7e039aa8ba" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>QString ColorDialog::GetColorSpaceInput</definition>
+        <argsstring>() const</argsstring>
+        <name>GetColorSpaceInput</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/color/colordialog.h" line="86" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_dialog_1a211c90a5bce15a0137770ed96df82031" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_color_transform" kindref="compound">ColorTransform</ref></type>
+        <definition>ColorTransform ColorDialog::GetColorSpaceOutput</definition>
+        <argsstring>() const</argsstring>
+        <name>GetColorSpaceOutput</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/color/colordialog.h" line="88" column="18"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_color_dialog_1a819ed9b679e02fff1e737f72ef061a07" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ColorDialog::ColorSpaceChanged</definition>
+        <argsstring>(const QString &amp;input, const ColorTransform &amp;output)</argsstring>
+        <name>ColorSpaceChanged</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_color_transform" kindref="compound">ColorTransform</ref> &amp;</type>
+          <declname>output</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/color/colordialog.h" line="104" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="10">
+        <label>FloatSlider</label>
+        <link refid="class_float_slider"/>
+        <childnode refid="11" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>ColorManager</label>
+        <link refid="class_color_manager"/>
+      </node>
+      <node id="5">
+        <label>ColorSwatchWidget</label>
+        <link refid="class_color_swatch_widget"/>
+        <childnode refid="6" relation="usage">
+          <edgelabel>selected_color_</edgelabel>
+        </childnode>
+      </node>
+      <node id="13">
+        <label>SliderLabel</label>
+        <link refid="class_slider_label"/>
+      </node>
+      <node id="14">
+        <label>ColorPreviewBox</label>
+        <link refid="class_color_preview_box"/>
+        <childnode refid="6" relation="usage">
+          <edgelabel>color_</edgelabel>
+        </childnode>
+      </node>
+      <node id="12">
+        <label>FocusableLineEdit</label>
+        <link refid="class_focusable_line_edit"/>
+      </node>
+      <node id="6">
+        <label>Color</label>
+        <link refid="class_color"/>
+      </node>
+      <node id="7">
+        <label>ColorGradientWidget</label>
+        <link refid="class_color_gradient_widget"/>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>end_</edgelabel>
+          <edgelabel>start_</edgelabel>
+        </childnode>
+      </node>
+      <node id="9">
+        <label>ColorValuesTab</label>
+        <link refid="class_color_values_tab"/>
+        <childnode refid="10" relation="usage">
+          <edgelabel>blue_slider_</edgelabel>
+          <edgelabel>green_slider_</edgelabel>
+          <edgelabel>red_slider_</edgelabel>
+        </childnode>
+      </node>
+      <node id="4">
+        <label>ColorWheelWidget</label>
+        <link refid="class_color_wheel_widget"/>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>ColorValuesWidget</label>
+        <link refid="class_color_values_widget"/>
+        <childnode refid="9" relation="usage">
+          <edgelabel>reference_tab_</edgelabel>
+          <edgelabel>display_tab_</edgelabel>
+          <edgelabel>input_tab_</edgelabel>
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>manager_</edgelabel>
+        </childnode>
+        <childnode refid="14" relation="usage">
+          <edgelabel>preview_</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>ColorSpaceChooser</label>
+        <link refid="class_color_space_chooser"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>color_manager_</edgelabel>
+        </childnode>
+      </node>
+      <node id="11">
+        <label>SliderBase</label>
+        <link refid="class_slider_base"/>
+        <childnode refid="12" relation="usage">
+          <edgelabel>editor_</edgelabel>
+        </childnode>
+        <childnode refid="13" relation="usage">
+          <edgelabel>label_</edgelabel>
+        </childnode>
+      </node>
+      <node id="1">
+        <label>ColorDialog</label>
+        <link refid="class_color_dialog"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>chooser_</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>color_wheel_</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>hsv_value_gradient_</edgelabel>
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>color_manager_</edgelabel>
+        </childnode>
+        <childnode refid="8" relation="usage">
+          <edgelabel>color_values_widget_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/dialog/color/colordialog.h" line="36" column="1" bodyfile="C:/Daten/Olive/olive/app/dialog/color/colordialog.h" bodystart="37" bodyend="88"/>
+    <listofallmembers>
+      <member refid="class_color_dialog_1afff995644dcb19e651a912526f648e40" prot="private" virt="non-virtual"><scope>ColorDialog</scope><name>chooser_</name></member>
+      <member refid="class_color_dialog_1acc393d2946e48efd109438630c68d171" prot="private" virt="non-virtual"><scope>ColorDialog</scope><name>color_manager_</name></member>
+      <member refid="class_color_dialog_1a1d1e3969dd3268a1bc75b84ec8f52cfb" prot="private" virt="non-virtual"><scope>ColorDialog</scope><name>color_values_widget_</name></member>
+      <member refid="class_color_dialog_1aa69356de42f4ca4e4860edbe84b7a10a" prot="private" virt="non-virtual"><scope>ColorDialog</scope><name>color_wheel_</name></member>
+      <member refid="class_color_dialog_1a66c21d849d96473320f9f2e5545d57d6" prot="public" virt="non-virtual"><scope>ColorDialog</scope><name>ColorDialog</name></member>
+      <member refid="class_color_dialog_1a819ed9b679e02fff1e737f72ef061a07" prot="private" virt="non-virtual"><scope>ColorDialog</scope><name>ColorSpaceChanged</name></member>
+      <member refid="class_color_dialog_1a6b1292f2603db4e1307fca7e039aa8ba" prot="public" virt="non-virtual"><scope>ColorDialog</scope><name>GetColorSpaceInput</name></member>
+      <member refid="class_color_dialog_1a211c90a5bce15a0137770ed96df82031" prot="public" virt="non-virtual"><scope>ColorDialog</scope><name>GetColorSpaceOutput</name></member>
+      <member refid="class_color_dialog_1ac8e97ad45c1b719f28013ae9e2a9dfcc" prot="public" virt="non-virtual"><scope>ColorDialog</scope><name>GetSelectedColor</name></member>
+      <member refid="class_color_dialog_1a5554c61cb0749e6bb6b999ca3d252cb0" prot="private" virt="non-virtual"><scope>ColorDialog</scope><name>hsv_value_gradient_</name></member>
+      <member refid="class_color_dialog_1ab50e70c2659674b54e845d09110051b8" prot="private" virt="non-virtual"><scope>ColorDialog</scope><name>input_to_ref_processor_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

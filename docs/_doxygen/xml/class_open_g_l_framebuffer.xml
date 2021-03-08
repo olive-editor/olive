@@ -1,0 +1,252 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_open_g_l_framebuffer" kind="class" language="C++" prot="public">
+    <compoundname>OpenGLFramebuffer</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QObject</basecompoundref>
+    <includes refid="openglframebuffer_8h" local="no">openglframebuffer.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_open_g_l_framebuffer_1a4c5c614b8c9bc047d5e90726e8f2b161" prot="private" static="no" mutable="no">
+        <type>QOpenGLContext *</type>
+        <definition>QOpenGLContext* OpenGLFramebuffer::context_</definition>
+        <argsstring></argsstring>
+        <name>context_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglframebuffer.h" line="74" column="18" bodyfile="C:/Daten/Olive/olive/app/render/backend/opengl/openglframebuffer.h" bodystart="74" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_open_g_l_framebuffer_1a313ce1ef17b73f5599e3ad9abbf7a87a" prot="private" static="no" mutable="no">
+        <type>GLuint</type>
+        <definition>GLuint OpenGLFramebuffer::buffer_</definition>
+        <argsstring></argsstring>
+        <name>buffer_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglframebuffer.h" line="76" column="10" bodyfile="C:/Daten/Olive/olive/app/render/backend/opengl/openglframebuffer.h" bodystart="76" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_open_g_l_framebuffer_1a2aeb56d56c6e9609e9d60e8490bb40ac" prot="private" static="no" mutable="no">
+        <type><ref refid="class_open_g_l_texture" kindref="compound">OpenGLTexture</ref> *</type>
+        <definition>OpenGLTexture* OpenGLFramebuffer::texture_</definition>
+        <argsstring></argsstring>
+        <name>texture_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglframebuffer.h" line="78" column="17" bodyfile="C:/Daten/Olive/olive/app/render/backend/opengl/openglframebuffer.h" bodystart="78" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_open_g_l_framebuffer_1a0184035277923bf5dc206e0a4808d997" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>OpenGLFramebuffer::OpenGLFramebuffer</definition>
+        <argsstring>()</argsstring>
+        <name>OpenGLFramebuffer</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglframebuffer.h" line="52" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_framebuffer_1a418cdcc357b78170c969b2674f875e2d" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type></type>
+        <definition>virtual OpenGLFramebuffer::~OpenGLFramebuffer</definition>
+        <argsstring>() override</argsstring>
+        <name>~OpenGLFramebuffer</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglframebuffer.h" line="53" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_framebuffer_1ab4ccef6ac6647e9aee21389ee1401b50" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void OpenGLFramebuffer::Create</definition>
+        <argsstring>(QOpenGLContext *ctx)</argsstring>
+        <name>Create</name>
+        <param>
+          <type>QOpenGLContext *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglframebuffer.h" line="55" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_framebuffer_1a6792a0afe3f7a293b289cbf4ab3e7be5" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool OpenGLFramebuffer::IsCreated</definition>
+        <argsstring>() const</argsstring>
+        <name>IsCreated</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglframebuffer.h" line="57" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_framebuffer_1a6939c4089720110b6e896e5267682c52" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void OpenGLFramebuffer::Bind</definition>
+        <argsstring>()</argsstring>
+        <name>Bind</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglframebuffer.h" line="59" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_framebuffer_1aff4446bc1b6b88729530171866b68d41" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void OpenGLFramebuffer::Release</definition>
+        <argsstring>()</argsstring>
+        <name>Release</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglframebuffer.h" line="61" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_framebuffer_1a2f270de44f6855e77291ebfe95796494" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void OpenGLFramebuffer::Attach</definition>
+        <argsstring>(OpenGLTexture *texture, bool clear=false)</argsstring>
+        <name>Attach</name>
+        <param>
+          <type><ref refid="class_open_g_l_texture" kindref="compound">OpenGLTexture</ref> *</type>
+          <declname>texture</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>clear</declname>
+          <defval>false</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglframebuffer.h" line="63" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_framebuffer_1a2458832e041a29666abdc28de389ff55" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void OpenGLFramebuffer::Attach</definition>
+        <argsstring>(OpenGLTexturePtr texture, bool clear=false)</argsstring>
+        <name>Attach</name>
+        <param>
+          <type><ref refid="opengltexture_8h_1a2e544646387943a957198ca8682814f7" kindref="member">OpenGLTexturePtr</ref></type>
+          <declname>texture</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>clear</declname>
+          <defval>false</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglframebuffer.h" line="64" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_framebuffer_1a7b7d22d0430cae83f497cbc4d851cd9e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void OpenGLFramebuffer::Detach</definition>
+        <argsstring>()</argsstring>
+        <name>Detach</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglframebuffer.h" line="66" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_framebuffer_1adaa44c3f133ddf300df8e3bdd9ef2281" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const GLuint &amp;</type>
+        <definition>const GLuint&amp; OpenGLFramebuffer::buffer</definition>
+        <argsstring>() const</argsstring>
+        <name>buffer</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglframebuffer.h" line="68" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-slot">
+      <memberdef kind="slot" id="class_open_g_l_framebuffer_1a751dc8132e1c7eb5eae7a478c5976cf3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void OpenGLFramebuffer::Destroy</definition>
+        <argsstring>()</argsstring>
+        <name>Destroy</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglframebuffer.h" line="71" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="2">
+        <label>OpenGLTexture</label>
+        <link refid="class_open_g_l_texture"/>
+      </node>
+      <node id="1">
+        <label>OpenGLFramebuffer</label>
+        <link refid="class_open_g_l_framebuffer"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>texture_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglframebuffer.h" line="30" column="1" bodyfile="C:/Daten/Olive/olive/app/render/backend/opengl/openglframebuffer.h" bodystart="31" bodyend="61"/>
+    <listofallmembers>
+      <member refid="class_open_g_l_framebuffer_1a2f270de44f6855e77291ebfe95796494" prot="public" virt="non-virtual"><scope>OpenGLFramebuffer</scope><name>Attach</name></member>
+      <member refid="class_open_g_l_framebuffer_1a2458832e041a29666abdc28de389ff55" prot="public" virt="non-virtual"><scope>OpenGLFramebuffer</scope><name>Attach</name></member>
+      <member refid="class_open_g_l_framebuffer_1a6939c4089720110b6e896e5267682c52" prot="public" virt="non-virtual"><scope>OpenGLFramebuffer</scope><name>Bind</name></member>
+      <member refid="class_open_g_l_framebuffer_1adaa44c3f133ddf300df8e3bdd9ef2281" prot="public" virt="non-virtual"><scope>OpenGLFramebuffer</scope><name>buffer</name></member>
+      <member refid="class_open_g_l_framebuffer_1a313ce1ef17b73f5599e3ad9abbf7a87a" prot="private" virt="non-virtual"><scope>OpenGLFramebuffer</scope><name>buffer_</name></member>
+      <member refid="class_open_g_l_framebuffer_1a4c5c614b8c9bc047d5e90726e8f2b161" prot="private" virt="non-virtual"><scope>OpenGLFramebuffer</scope><name>context_</name></member>
+      <member refid="class_open_g_l_framebuffer_1ab4ccef6ac6647e9aee21389ee1401b50" prot="public" virt="non-virtual"><scope>OpenGLFramebuffer</scope><name>Create</name></member>
+      <member refid="class_open_g_l_framebuffer_1a751dc8132e1c7eb5eae7a478c5976cf3" prot="public" virt="non-virtual"><scope>OpenGLFramebuffer</scope><name>Destroy</name></member>
+      <member refid="class_open_g_l_framebuffer_1a7b7d22d0430cae83f497cbc4d851cd9e" prot="public" virt="non-virtual"><scope>OpenGLFramebuffer</scope><name>Detach</name></member>
+      <member refid="class_open_g_l_framebuffer_1a6792a0afe3f7a293b289cbf4ab3e7be5" prot="public" virt="non-virtual"><scope>OpenGLFramebuffer</scope><name>IsCreated</name></member>
+      <member refid="class_open_g_l_framebuffer_1a0184035277923bf5dc206e0a4808d997" prot="public" virt="non-virtual"><scope>OpenGLFramebuffer</scope><name>OpenGLFramebuffer</name></member>
+      <member refid="class_open_g_l_framebuffer_1aff4446bc1b6b88729530171866b68d41" prot="public" virt="non-virtual"><scope>OpenGLFramebuffer</scope><name>Release</name></member>
+      <member refid="class_open_g_l_framebuffer_1a2aeb56d56c6e9609e9d60e8490bb40ac" prot="private" virt="non-virtual"><scope>OpenGLFramebuffer</scope><name>texture_</name></member>
+      <member refid="class_open_g_l_framebuffer_1a418cdcc357b78170c969b2674f875e2d" prot="public" virt="virtual"><scope>OpenGLFramebuffer</scope><name>~OpenGLFramebuffer</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

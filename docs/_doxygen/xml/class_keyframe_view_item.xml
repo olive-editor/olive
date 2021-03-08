@@ -1,0 +1,428 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_keyframe_view_item" kind="class" language="C++" prot="public">
+    <compoundname>KeyframeViewItem</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QObject</basecompoundref>
+    <basecompoundref prot="public" virt="non-virtual">QGraphicsRectItem</basecompoundref>
+    <basecompoundref refid="class_time_target_object" prot="public" virt="non-virtual">TimeTargetObject</basecompoundref>
+    <includes refid="keyframeviewitem_8h" local="no">keyframeviewitem.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_keyframe_view_item_1a57cf99ca7eace919b02473ed11451456" prot="private" static="no" mutable="no">
+        <type><ref refid="keyframe_8h_1a741b7edf62813e254aba77dca9f281ea" kindref="member">NodeKeyframePtr</ref></type>
+        <definition>NodeKeyframePtr KeyframeViewItem::key_</definition>
+        <argsstring></argsstring>
+        <name>key_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/keyframeviewitem.h" line="69" column="19" bodyfile="C:/Daten/Olive/olive/app/widget/keyframeview/keyframeviewitem.h" bodystart="69" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_keyframe_view_item_1aa594655a43f2e134b0949263e6ea954c" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double KeyframeViewItem::scale_</definition>
+        <argsstring></argsstring>
+        <name>scale_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/keyframeviewitem.h" line="71" column="10" bodyfile="C:/Daten/Olive/olive/app/widget/keyframeview/keyframeviewitem.h" bodystart="71" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_keyframe_view_item_1a3b992bd3415746ba542efa47e7c52121" prot="private" static="no" mutable="no">
+        <type>qreal</type>
+        <definition>qreal KeyframeViewItem::vert_center_</definition>
+        <argsstring></argsstring>
+        <name>vert_center_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/keyframeviewitem.h" line="73" column="9" bodyfile="C:/Daten/Olive/olive/app/widget/keyframeview/keyframeviewitem.h" bodystart="73" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_keyframe_view_item_1a9f9f39fdec67bad88ba7af4fb027bb06" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool KeyframeViewItem::use_custom_brush_</definition>
+        <argsstring></argsstring>
+        <name>use_custom_brush_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/keyframeviewitem.h" line="75" column="8" bodyfile="C:/Daten/Olive/olive/app/widget/keyframeview/keyframeviewitem.h" bodystart="75" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_time_target_object_1ae2792431e254b6f0c792689baf81f12c" prot="private" static="no" mutable="no">
+        <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+        <definition>Node* TimeTargetObject::time_target_</definition>
+        <argsstring></argsstring>
+        <name>time_target_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/timetargetobject.h" line="65" column="8" bodyfile="C:/Daten/Olive/olive/app/widget/keyframeview/timetargetobject.h" bodystart="65" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_time_target_object_1a396c17c1ef87220c6ebc479767b0bc32" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int TimeTargetObject::path_index_</definition>
+        <argsstring></argsstring>
+        <name>path_index_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/timetargetobject.h" line="67" column="7" bodyfile="C:/Daten/Olive/olive/app/widget/keyframeview/timetargetobject.h" bodystart="67" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_keyframe_view_item_1afc704d84d4d61c2a5716c9f11646f6c4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>KeyframeViewItem::KeyframeViewItem</definition>
+        <argsstring>(NodeKeyframePtr key, QGraphicsItem *parent=nullptr)</argsstring>
+        <name>KeyframeViewItem</name>
+        <param>
+          <type><ref refid="keyframe_8h_1a741b7edf62813e254aba77dca9f281ea" kindref="member">NodeKeyframePtr</ref></type>
+          <declname>key</declname>
+        </param>
+        <param>
+          <type>QGraphicsItem *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/keyframeviewitem.h" line="53" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_keyframe_view_item_1a5e02312bec9a8ffad2d3e20441aef229" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void KeyframeViewItem::SetOverrideY</definition>
+        <argsstring>(qreal vertical_center)</argsstring>
+        <name>SetOverrideY</name>
+        <param>
+          <type>qreal</type>
+          <declname>vertical_center</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/keyframeviewitem.h" line="55" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_keyframe_view_item_1a3b61992bed091d122d87f6af10d3c0b9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void KeyframeViewItem::SetScale</definition>
+        <argsstring>(double scale)</argsstring>
+        <name>SetScale</name>
+        <param>
+          <type>double</type>
+          <declname>scale</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/keyframeviewitem.h" line="57" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_keyframe_view_item_1a0645b4c6d51a067b78c6ec54e8fe207b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void KeyframeViewItem::SetOverrideBrush</definition>
+        <argsstring>(const QBrush &amp;b)</argsstring>
+        <name>SetOverrideBrush</name>
+        <param>
+          <type>const QBrush &amp;</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/keyframeviewitem.h" line="59" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_keyframe_view_item_1a3c46e529ac7ceb26163d0d15c8129a25" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="keyframe_8h_1a741b7edf62813e254aba77dca9f281ea" kindref="member">NodeKeyframePtr</ref></type>
+        <definition>NodeKeyframePtr KeyframeViewItem::key</definition>
+        <argsstring>() const</argsstring>
+        <name>key</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/keyframeviewitem.h" line="61" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_time_target_object_1a4d42f0e790778389027787114c068cde" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+        <definition>Node* TimeTargetObject::GetTimeTarget</definition>
+        <argsstring>() const</argsstring>
+        <name>GetTimeTarget</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/timetargetobject.h" line="51" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_time_target_object_1ad88c63861b9c2abf103668c4edbe1988" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimeTargetObject::SetTimeTarget</definition>
+        <argsstring>(Node *target)</argsstring>
+        <name>SetTimeTarget</name>
+        <param>
+          <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+          <declname>target</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/timetargetobject.h" line="52" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_time_target_object_1a55c145c76abc5aed2a626323df520215" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimeTargetObject::SetPathIndex</definition>
+        <argsstring>(int index)</argsstring>
+        <name>SetPathIndex</name>
+        <param>
+          <type>int</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/timetargetobject.h" line="54" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_time_target_object_1a71547059dd3abb5bef68333d00e5bf24" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational TimeTargetObject::GetAdjustedTime</definition>
+        <argsstring>(Node *from, Node *to, const rational &amp;r, NodeParam::Type direction) const</argsstring>
+        <name>GetAdjustedTime</name>
+        <param>
+          <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+          <declname>from</declname>
+        </param>
+        <param>
+          <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+          <declname>to</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type><ref refid="class_node_param_1a57c2c5ab98ca8fd2c41cd1ebad045a00" kindref="member">NodeParam::Type</ref></type>
+          <declname>direction</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/timetargetobject.h" line="56" column="12"/>
+      </memberdef>
+      <memberdef kind="function" id="class_time_target_object_1a1817932c14f0f7734c49e29c84377819" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_time_range" kindref="compound">TimeRange</ref></type>
+        <definition>TimeRange TimeTargetObject::GetAdjustedTime</definition>
+        <argsstring>(Node *from, Node *to, const TimeRange &amp;r, NodeParam::Type direction) const</argsstring>
+        <name>GetAdjustedTime</name>
+        <param>
+          <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+          <declname>from</declname>
+        </param>
+        <param>
+          <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+          <declname>to</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_time_range" kindref="compound">TimeRange</ref> &amp;</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type><ref refid="class_node_param_1a57c2c5ab98ca8fd2c41cd1ebad045a00" kindref="member">NodeParam::Type</ref></type>
+          <declname>direction</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/timetargetobject.h" line="57" column="13"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_keyframe_view_item_1ab32c6ac75eb470f49a944272d3d45211" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void KeyframeViewItem::paint</definition>
+        <argsstring>(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget=nullptr) override</argsstring>
+        <name>paint</name>
+        <param>
+          <type>QPainter *</type>
+          <declname>painter</declname>
+        </param>
+        <param>
+          <type>const QStyleOptionGraphicsItem *</type>
+          <declname>option</declname>
+        </param>
+        <param>
+          <type>QWidget *</type>
+          <declname>widget</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/keyframeviewitem.h" line="64" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_keyframe_view_item_1a616746fee2c7ef9dd4b8fa57d8293191" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void KeyframeViewItem::TimeTargetChangedEvent</definition>
+        <argsstring>(Node *) override</argsstring>
+        <name>TimeTargetChangedEvent</name>
+        <reimplements refid="class_time_target_object_1a970f490a7212c20807684cdf36a4d321">TimeTargetChangedEvent</reimplements>
+        <param>
+          <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/keyframeviewitem.h" line="66" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_keyframe_view_item_1a8bde786ded9993071ee745d39ec0e219" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void KeyframeViewItem::UpdatePos</definition>
+        <argsstring>()</argsstring>
+        <name>UpdatePos</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/keyframeviewitem.h" line="78" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_keyframe_view_item_1a26fdd8cf4f21c55db598b6b4b42eb847" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void KeyframeViewItem::Redraw</definition>
+        <argsstring>()</argsstring>
+        <name>Redraw</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/keyframeviewitem.h" line="80" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>TimeTargetObject</label>
+        <link refid="class_time_target_object"/>
+      </node>
+      <node id="1">
+        <label>KeyframeViewItem</label>
+        <link refid="class_keyframe_view_item"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="4">
+        <label>NodeOutput</label>
+        <link refid="class_node_output"/>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>Node</label>
+        <link refid="class_node"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>output_</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>TimeTargetObject</label>
+        <link refid="class_time_target_object"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>time_target_</edgelabel>
+        </childnode>
+      </node>
+      <node id="5">
+        <label>NodeParam</label>
+        <link refid="class_node_param"/>
+      </node>
+      <node id="1">
+        <label>KeyframeViewItem</label>
+        <link refid="class_keyframe_view_item"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/keyframeview/keyframeviewitem.h" line="31" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/keyframeview/keyframeviewitem.h" bodystart="32" bodyend="64"/>
+    <listofallmembers>
+      <member refid="class_time_target_object_1a71547059dd3abb5bef68333d00e5bf24" prot="public" virt="non-virtual"><scope>KeyframeViewItem</scope><name>GetAdjustedTime</name></member>
+      <member refid="class_time_target_object_1a1817932c14f0f7734c49e29c84377819" prot="public" virt="non-virtual"><scope>KeyframeViewItem</scope><name>GetAdjustedTime</name></member>
+      <member refid="class_time_target_object_1a4d42f0e790778389027787114c068cde" prot="public" virt="non-virtual"><scope>KeyframeViewItem</scope><name>GetTimeTarget</name></member>
+      <member refid="class_keyframe_view_item_1a3c46e529ac7ceb26163d0d15c8129a25" prot="public" virt="non-virtual"><scope>KeyframeViewItem</scope><name>key</name></member>
+      <member refid="class_keyframe_view_item_1a57cf99ca7eace919b02473ed11451456" prot="private" virt="non-virtual"><scope>KeyframeViewItem</scope><name>key_</name></member>
+      <member refid="class_keyframe_view_item_1afc704d84d4d61c2a5716c9f11646f6c4" prot="public" virt="non-virtual"><scope>KeyframeViewItem</scope><name>KeyframeViewItem</name></member>
+      <member refid="class_keyframe_view_item_1ab32c6ac75eb470f49a944272d3d45211" prot="protected" virt="virtual"><scope>KeyframeViewItem</scope><name>paint</name></member>
+      <member refid="class_time_target_object_1a396c17c1ef87220c6ebc479767b0bc32" prot="private" virt="non-virtual"><scope>KeyframeViewItem</scope><name>path_index_</name></member>
+      <member refid="class_keyframe_view_item_1a26fdd8cf4f21c55db598b6b4b42eb847" prot="private" virt="non-virtual"><scope>KeyframeViewItem</scope><name>Redraw</name></member>
+      <member refid="class_keyframe_view_item_1aa594655a43f2e134b0949263e6ea954c" prot="private" virt="non-virtual"><scope>KeyframeViewItem</scope><name>scale_</name></member>
+      <member refid="class_keyframe_view_item_1a0645b4c6d51a067b78c6ec54e8fe207b" prot="public" virt="non-virtual"><scope>KeyframeViewItem</scope><name>SetOverrideBrush</name></member>
+      <member refid="class_keyframe_view_item_1a5e02312bec9a8ffad2d3e20441aef229" prot="public" virt="non-virtual"><scope>KeyframeViewItem</scope><name>SetOverrideY</name></member>
+      <member refid="class_time_target_object_1a55c145c76abc5aed2a626323df520215" prot="public" virt="non-virtual"><scope>KeyframeViewItem</scope><name>SetPathIndex</name></member>
+      <member refid="class_keyframe_view_item_1a3b61992bed091d122d87f6af10d3c0b9" prot="public" virt="non-virtual"><scope>KeyframeViewItem</scope><name>SetScale</name></member>
+      <member refid="class_time_target_object_1ad88c63861b9c2abf103668c4edbe1988" prot="public" virt="non-virtual"><scope>KeyframeViewItem</scope><name>SetTimeTarget</name></member>
+      <member refid="class_time_target_object_1ae2792431e254b6f0c792689baf81f12c" prot="private" virt="non-virtual"><scope>KeyframeViewItem</scope><name>time_target_</name></member>
+      <member refid="class_keyframe_view_item_1a616746fee2c7ef9dd4b8fa57d8293191" prot="protected" virt="virtual"><scope>KeyframeViewItem</scope><name>TimeTargetChangedEvent</name></member>
+      <member refid="class_time_target_object_1a9963aaae089e5709e8254521a3922a05" prot="public" virt="non-virtual"><scope>KeyframeViewItem</scope><name>TimeTargetObject</name></member>
+      <member refid="class_keyframe_view_item_1a8bde786ded9993071ee745d39ec0e219" prot="private" virt="non-virtual"><scope>KeyframeViewItem</scope><name>UpdatePos</name></member>
+      <member refid="class_keyframe_view_item_1a9f9f39fdec67bad88ba7af4fb027bb06" prot="private" virt="non-virtual"><scope>KeyframeViewItem</scope><name>use_custom_brush_</name></member>
+      <member refid="class_keyframe_view_item_1a3b992bd3415746ba542efa47e7c52121" prot="private" virt="non-virtual"><scope>KeyframeViewItem</scope><name>vert_center_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

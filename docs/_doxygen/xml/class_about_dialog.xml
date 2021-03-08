@@ -1,0 +1,50 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_about_dialog" kind="class" language="C++" prot="public">
+    <compoundname>AboutDialog</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QDialog</basecompoundref>
+    <includes refid="about_8h" local="no">about.h</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_about_dialog_1a66647a6ddd09e3a000e96bd25a835799" prot="public" static="no" const="no" explicit="yes" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>AboutDialog::AboutDialog</definition>
+        <argsstring>(QWidget *parent=nullptr)</argsstring>
+        <name>AboutDialog</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+<para><ref refid="class_about_dialog" kindref="compound">AboutDialog</ref> Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Creates About dialog.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parent</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>QWidget parent object. Usually this will be <ref refid="class_main_window" kindref="compound">MainWindow</ref>. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/about/about.h" line="67" column="12"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>The <ref refid="class_about_dialog" kindref="compound">AboutDialog</ref> class. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>The About dialog (accessible through Help &gt; About). Contains license and version information. This can be run from anywhere </para>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/dialog/about/about.h" line="36" column="1" bodyfile="C:/Daten/Olive/olive/app/dialog/about/about.h" bodystart="37" bodyend="50"/>
+    <listofallmembers>
+      <member refid="class_about_dialog_1a66647a6ddd09e3a000e96bd25a835799" prot="public" virt="non-virtual"><scope>AboutDialog</scope><name>AboutDialog</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

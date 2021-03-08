@@ -1,0 +1,446 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="exportvideotab_8h" kind="file" language="C++">
+    <compoundname>exportvideotab.h</compoundname>
+    <includes local="no">QCheckBox</includes>
+    <includes local="no">QComboBox</includes>
+    <includes local="no">QWidget</includes>
+    <includes refid="rational_8h" local="yes">common/rational.h</includes>
+    <includes refid="h264section_8h" local="yes">dialog/export/codec/h264section.h</includes>
+    <includes refid="imagesection_8h" local="yes">dialog/export/codec/imagesection.h</includes>
+    <includes refid="colormanager_8h" local="yes">render/colormanager.h</includes>
+    <includes refid="colorspacechooser_8h" local="yes">widget/colorwheel/colorspacechooser.h</includes>
+    <includes refid="integerslider_8h" local="yes">widget/slider/integerslider.h</includes>
+    <includedby refid="export_8h" local="yes">export.h</includedby>
+    <incdepgraph>
+      <node id="9">
+        <label>libavformat/avformat.h</label>
+      </node>
+      <node id="12">
+        <label>QSlider</label>
+      </node>
+      <node id="31">
+        <label>QObject</label>
+      </node>
+      <node id="27">
+        <label>common/timerange.h</label>
+        <link refid="timerange_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="34">
+        <label>sliderlabel.h</label>
+        <link refid="sliderlabel_8h"/>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>QStackedWidget</label>
+      </node>
+      <node id="32">
+        <label>widget/slider/floatslider.h</label>
+        <link refid="floatslider_8h"/>
+        <childnode refid="33" relation="include">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>codecsection.h</label>
+        <link refid="codecsection_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>QMetaType</label>
+      </node>
+      <node id="11">
+        <label>dialog/export/codec/h264section.h</label>
+        <link refid="h264section_8h"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>render/pixelformat.h</label>
+        <link refid="pixelformat_8h"/>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>QCheckBox</label>
+      </node>
+      <node id="5">
+        <label>common/rational.h</label>
+        <link refid="rational_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="25">
+        <label>render/rendermodes.h</label>
+        <link refid="rendermodes_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="40">
+        <label>colorprocessor.h</label>
+        <link refid="colorprocessor_8h"/>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+      </node>
+      <node id="43">
+        <label>widget/colorwheel/colorspacechooser.h</label>
+        <link refid="colorspacechooser_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="44" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>common/define.h</label>
+        <link refid="define_8h"/>
+      </node>
+      <node id="24">
+        <label>QOpenGLExtraFunctions</label>
+      </node>
+      <node id="29">
+        <label>QtMath</label>
+      </node>
+      <node id="7">
+        <label>QDebug</label>
+      </node>
+      <node id="45">
+        <label>widget/slider/integerslider.h</label>
+        <link refid="integerslider_8h"/>
+        <childnode refid="33" relation="include">
+        </childnode>
+      </node>
+      <node id="44">
+        <label>QGroupBox</label>
+      </node>
+      <node id="4">
+        <label>QWidget</label>
+      </node>
+      <node id="37">
+        <label>QLineEdit</label>
+      </node>
+      <node id="17">
+        <label>QString</label>
+      </node>
+      <node id="41">
+        <label>render/colortransform.h</label>
+        <link refid="colortransform_8h"/>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>render/color.h</label>
+        <link refid="color_8h"/>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>QColor</label>
+      </node>
+      <node id="35">
+        <label>QLabel</label>
+      </node>
+      <node id="30">
+        <label>audio/sampleformat.h</label>
+        <link refid="sampleformat_8h"/>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>QComboBox</label>
+      </node>
+      <node id="6">
+        <label>iostream</label>
+      </node>
+      <node id="38">
+        <label>dialog/export/codec/imagesection.h</label>
+        <link refid="imagesection_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="36">
+        <label>widget/focusablelineedit/focusablelineedit.h</label>
+        <link refid="focusablelineedit_8h"/>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>render/videoparams.h</label>
+        <link refid="videoparams_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+      </node>
+      <node id="39">
+        <label>render/colormanager.h</label>
+        <link refid="colormanager_8h"/>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+      </node>
+      <node id="42">
+        <label>OpenColorIO/OpenColorIO.h</label>
+      </node>
+      <node id="18">
+        <label>codec/frame.h</label>
+        <link refid="frame_8h"/>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+      </node>
+      <node id="23">
+        <label>OpenImageIO/imageio.h</label>
+      </node>
+      <node id="1">
+        <label>exportvideotab.h</label>
+        <link refid="exportvideotab_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+      </node>
+      <node id="28">
+        <label>render/audioparams.h</label>
+        <link refid="audioparams_8h"/>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>memory</label>
+      </node>
+      <node id="15">
+        <label>codec/encoder.h</label>
+        <link refid="encoder_8h"/>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+      </node>
+      <node id="19">
+        <label>QVector</label>
+      </node>
+      <node id="33">
+        <label>sliderbase.h</label>
+        <link refid="sliderbase_8h"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>export.h</label>
+        <link refid="export_8h"/>
+      </node>
+      <node id="1">
+        <label>exportvideotab.h</label>
+        <link refid="exportvideotab_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="class_export_video_tab" prot="public">ExportVideoTab</innerclass>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/***</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"></highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/><sp/>Olive<sp/>-<sp/>Non-Linear<sp/>Video<sp/>Editor</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/><sp/>Copyright<sp/>(C)<sp/>2019<sp/>Olive<sp/>Team</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"></highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/><sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/><sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/><sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"></highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/><sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/><sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/><sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"></highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/><sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/><sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"></highlight></codeline>
+<codeline lineno="19"><highlight class="comment">***/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>EXPORTVIDEOTAB_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>EXPORTVIDEOTAB_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QCheckBox&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QComboBox&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QWidget&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="rational_8h" kindref="compound">common/rational.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="h264section_8h" kindref="compound">dialog/export/codec/h264section.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="imagesection_8h" kindref="compound">dialog/export/codec/imagesection.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="colormanager_8h" kindref="compound">render/colormanager.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="colorspacechooser_8h" kindref="compound">widget/colorwheel/colorspacechooser.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="integerslider_8h" kindref="compound">widget/slider/integerslider.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><ref refid="define_8h_1a0472692dd1f22472ad63da20da919e8c" kindref="member">OLIVE_NAMESPACE_ENTER</ref></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37" refid="class_export_video_tab" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_export_video_tab" kindref="compound">ExportVideoTab</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>QWidget</highlight></codeline>
+<codeline lineno="38"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/>Q_OBJECT</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><ref refid="class_export_video_tab_1acdf53053acc84bf38288a4121c296cae" kindref="member">ExportVideoTab</ref>(<ref refid="class_color_manager" kindref="compound">ColorManager</ref>*<sp/>color_manager,<sp/>QWidget*<sp/>parent<sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/>QComboBox*<sp/><ref refid="class_export_video_tab_1a89da453205eb2dfa03c5dfecfdcb6cbd" kindref="member">codec_combobox</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><ref refid="class_integer_slider" kindref="compound">IntegerSlider</ref>*<sp/><ref refid="class_export_video_tab_1a192b2a74f71c83d96929d7a6a7c554d0" kindref="member">width_slider</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><ref refid="class_integer_slider" kindref="compound">IntegerSlider</ref>*<sp/><ref refid="class_export_video_tab_1acd962a19d37e77cfd0695a72c10cb25d" kindref="member">height_slider</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/>QCheckBox*<sp/><ref refid="class_export_video_tab_1abf5509661a6467ee5d342c8d79e538b6" kindref="member">maintain_aspect_checkbox</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/>QComboBox*<sp/><ref refid="class_export_video_tab_1a0e1ba841668522f41ca105b2313ee83f" kindref="member">scaling_method_combobox</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classrational" kindref="compound">rational</ref>&amp;<sp/><ref refid="class_export_video_tab_1ad3b63df32862609694b579cc4e08bea2" kindref="member">frame_rate</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_export_video_tab_1a682de39720f82f4aca67e600b67ed307" kindref="member">set_frame_rate</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classrational" kindref="compound">rational</ref>&amp;<sp/><ref refid="class_export_video_tab_1ad3b63df32862609694b579cc4e08bea2" kindref="member">frame_rate</ref>);</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/>QString<sp/><ref refid="class_export_video_tab_1aabe7de1ec867373709d12423450ffe5d" kindref="member">CurrentOCIOColorSpace</ref>();</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><ref refid="class_codec_section" kindref="compound">CodecSection</ref>*<sp/><ref refid="class_export_video_tab_1a6dc755bf1d9c73d1eccf64c6087c29a2" kindref="member">GetCodecSection</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_export_video_tab_1a6b743a7a8ddde844debacf54242b3c17" kindref="member">SetCodecSection</ref>(<ref refid="class_codec_section" kindref="compound">CodecSection</ref>*<sp/>section);</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><ref refid="class_image_section" kindref="compound">ImageSection</ref>*<sp/><ref refid="class_export_video_tab_1a031930ef884a302cf6676de98376a663" kindref="member">image_section</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><ref refid="class_h264_section" kindref="compound">H264Section</ref>*<sp/><ref refid="class_export_video_tab_1a81dda4bfc564fa244db58fdbca757524" kindref="member">h264_section</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="59" refid="class_export_video_tab_1acdf53053acc84bf38288a4121c296cae" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">&amp;<sp/><ref refid="class_export_video_tab_1a4039aac32318d404e83fcf7370ede47f" kindref="member">threads</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="61" refid="class_export_video_tab_1a89da453205eb2dfa03c5dfecfdcb6cbd" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal">signals:</highlight></codeline>
+<codeline lineno="63" refid="class_export_video_tab_1a192b2a74f71c83d96929d7a6a7c554d0" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_export_video_tab_1ad876fe093ff8eb44daaf142b30d2fc02" kindref="member">ColorSpaceChanged</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/>colorspace);</highlight></codeline>
+<codeline lineno="64" refid="class_export_video_tab_1acd962a19d37e77cfd0695a72c10cb25d" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65" refid="class_export_video_tab_1abf5509661a6467ee5d342c8d79e538b6" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="66" refid="class_export_video_tab_1a0e1ba841668522f41ca105b2313ee83f" refkind="member"><highlight class="normal"><sp/><sp/>QWidget*<sp/><ref refid="class_export_video_tab_1a53351ba54fd7ab51d2d0e54bb9e4ec2b" kindref="member">SetupResolutionSection</ref>();</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/>QWidget*<sp/><ref refid="class_export_video_tab_1a6e9023f44e1032d475cb112ae21859e9" kindref="member">SetupColorSection</ref>();</highlight></codeline>
+<codeline lineno="68" refid="class_export_video_tab_1ad3b63df32862609694b579cc4e08bea2" refkind="member"><highlight class="normal"><sp/><sp/>QWidget*<sp/><ref refid="class_export_video_tab_1af680154bb4200154a5d70f72473ac8b9" kindref="member">SetupCodecSection</ref>();</highlight></codeline>
+<codeline lineno="69" refid="class_export_video_tab_1a682de39720f82f4aca67e600b67ed307" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/>QComboBox*<sp/><ref refid="class_export_video_tab_1aa3668a3c1384662457e23a955d9f14c2" kindref="member">codec_combobox_</ref>;</highlight></codeline>
+<codeline lineno="71" refid="class_export_video_tab_1aabe7de1ec867373709d12423450ffe5d" refkind="member"><highlight class="normal"><sp/><sp/>QComboBox*<sp/><ref refid="class_export_video_tab_1a328612947f48b7ec59fb4552d984248f" kindref="member">frame_rate_combobox_</ref>;</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/>QCheckBox*<sp/><ref refid="class_export_video_tab_1a58c1af95904523e0c71cccc3c07824f8" kindref="member">maintain_aspect_checkbox_</ref>;</highlight></codeline>
+<codeline lineno="73" refid="class_export_video_tab_1a6dc755bf1d9c73d1eccf64c6087c29a2" refkind="member"><highlight class="normal"><sp/><sp/>QComboBox*<sp/><ref refid="class_export_video_tab_1af2c5b7aeedc71ddf96060e0ee4fccc96" kindref="member">scaling_method_combobox_</ref>;</highlight></codeline>
+<codeline lineno="74" refid="class_export_video_tab_1a6b743a7a8ddde844debacf54242b3c17" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75" refid="class_export_video_tab_1a031930ef884a302cf6676de98376a663" refkind="member"><highlight class="normal"><sp/><sp/>QStackedWidget*<sp/><ref refid="class_export_video_tab_1a967f9813e3bcf883d196e82e9835b08b" kindref="member">codec_stack_</ref>;</highlight></codeline>
+<codeline lineno="76" refid="class_export_video_tab_1a81dda4bfc564fa244db58fdbca757524" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_image_section" kindref="compound">ImageSection</ref>*<sp/><ref refid="class_export_video_tab_1a82456b40993ea90591e68b3274b8e184" kindref="member">image_section_</ref>;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><ref refid="class_h264_section" kindref="compound">H264Section</ref>*<sp/><ref refid="class_export_video_tab_1a3d3152b72b8025308a3b5c8727f81d49" kindref="member">h264_section_</ref>;</highlight></codeline>
+<codeline lineno="78" refid="class_export_video_tab_1a4039aac32318d404e83fcf7370ede47f" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><ref refid="class_color_space_chooser" kindref="compound">ColorSpaceChooser</ref>*<sp/><ref refid="class_export_video_tab_1a433fd9a53449d64e561a25fad988a018" kindref="member">color_space_chooser_</ref>;</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight></codeline>
+<codeline lineno="81" refid="class_export_video_tab_1ad876fe093ff8eb44daaf142b30d2fc02" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_integer_slider" kindref="compound">IntegerSlider</ref>*<sp/><ref refid="class_export_video_tab_1a9908bf9ae0bca5630aecbccaafae54ce" kindref="member">width_slider_</ref>;</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><ref refid="class_integer_slider" kindref="compound">IntegerSlider</ref>*<sp/><ref refid="class_export_video_tab_1a31f63adc649277744c3afeca96d55d6b" kindref="member">height_slider_</ref>;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84" refid="class_export_video_tab_1a53351ba54fd7ab51d2d0e54bb9e4ec2b" refkind="member"><highlight class="normal"><sp/><sp/>QList&lt;rational&gt;<sp/><ref refid="class_export_video_tab_1a9eb684ae93b7255aafdd4f17527b2a1b" kindref="member">frame_rates_</ref>;</highlight></codeline>
+<codeline lineno="85" refid="class_export_video_tab_1a6e9023f44e1032d475cb112ae21859e9" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86" refid="class_export_video_tab_1af680154bb4200154a5d70f72473ac8b9" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_color_manager" kindref="compound">ColorManager</ref>*<sp/><ref refid="class_export_video_tab_1a52e4d2a8a1ddb6035c18f17e8a69f578" kindref="member">color_manager_</ref>;</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88" refid="class_export_video_tab_1aa3668a3c1384662457e23a955d9f14c2" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="class_export_video_tab_1a0b8363678dd6f8e0732671cf49dcd28d" kindref="member">threads_</ref>;</highlight></codeline>
+<codeline lineno="89" refid="class_export_video_tab_1a328612947f48b7ec59fb4552d984248f" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90" refid="class_export_video_tab_1a58c1af95904523e0c71cccc3c07824f8" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal"><sp/>slots:</highlight></codeline>
+<codeline lineno="91" refid="class_export_video_tab_1af2c5b7aeedc71ddf96060e0ee4fccc96" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_export_video_tab_1a2ebf0fd5e8241fb824c417df4d00aa50" kindref="member">MaintainAspectRatioChanged</ref>(</highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>val);</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93" refid="class_export_video_tab_1a967f9813e3bcf883d196e82e9835b08b" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_export_video_tab_1a65ed22f58c11a870cb7c16c60b884fd5" kindref="member">OpenAdvancedDialog</ref>();</highlight></codeline>
+<codeline lineno="94" refid="class_export_video_tab_1a82456b40993ea90591e68b3274b8e184" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95" refid="class_export_video_tab_1a3d3152b72b8025308a3b5c8727f81d49" refkind="member"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight></codeline>
+<codeline lineno="97" refid="class_export_video_tab_1a433fd9a53449d64e561a25fad988a018" refkind="member"><highlight class="normal"><ref refid="define_8h_1abe3de0634d907ca0f5d1acf732c49dac" kindref="member">OLIVE_NAMESPACE_EXIT</ref></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99" refid="class_export_video_tab_1a9908bf9ae0bca5630aecbccaafae54ce" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//<sp/>EXPORTVIDEOTAB_H</highlight></codeline>
+    </programlisting>
+    <location file="C:/Daten/Olive/olive/app/dialog/export/exportvideotab.h"/>
+  </compounddef>
+</doxygen>

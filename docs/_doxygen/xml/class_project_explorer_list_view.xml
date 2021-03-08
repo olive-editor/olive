@@ -1,0 +1,125 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_project_explorer_list_view" kind="class" language="C++" prot="public">
+    <compoundname>ProjectExplorerListView</compoundname>
+    <basecompoundref refid="class_project_explorer_list_view_base" prot="public" virt="non-virtual">ProjectExplorerListViewBase</basecompoundref>
+    <includes refid="projectexplorerlistview_8h" local="no">projectexplorerlistview.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_project_explorer_list_view_1a24eaeaab7c1a637ca89989d18a8ddbf7" prot="private" static="no" mutable="no">
+        <type><ref refid="class_project_explorer_list_view_item_delegate" kindref="compound">ProjectExplorerListViewItemDelegate</ref></type>
+        <definition>ProjectExplorerListViewItemDelegate ProjectExplorerListView::delegate_</definition>
+        <argsstring></argsstring>
+        <name>delegate_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorerlistview.h" line="57" column="39" bodyfile="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorerlistview.h" bodystart="57" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_project_explorer_list_view_1aba389d35192fb5da032a3d913b2e6499" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>ProjectExplorerListView::ProjectExplorerListView</definition>
+        <argsstring>(QWidget *parent)</argsstring>
+        <name>ProjectExplorerListView</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorerlistview.h" line="54" column="3"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_project_explorer_list_view_base_1a9f3a533699b22a43b225cd579836e0ee" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void ProjectExplorerListViewBase::mouseDoubleClickEvent</definition>
+        <argsstring>(QMouseEvent *event) override</argsstring>
+        <name>mouseDoubleClickEvent</name>
+        <param>
+          <type>QMouseEvent *</type>
+          <declname>event</declname>
+        </param>
+        <briefdescription>
+<para>Double click event override. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function that signals DoubleClickedView().</para>
+<para>FIXME: This code is the same as the code in <ref refid="class_project_explorer_tree_view" kindref="compound">ProjectExplorerTreeView</ref>. Is there a way to merge these two through subclassing? </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorerlistviewbase.h" line="67" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_project_explorer_list_view_base_1a695844227d6ccbafddd062df0908496a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProjectExplorerListViewBase::DoubleClickedEmptyArea</definition>
+        <argsstring>()</argsstring>
+        <name>DoubleClickedEmptyArea</name>
+        <briefdescription>
+<para>Unconditional double click signal. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Emits a signal when the view is double clicked but not on any particular item </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorerlistviewbase.h" line="75" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>The view widget used when <ref refid="class_project_explorer" kindref="compound">ProjectExplorer</ref> is in List View. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>ProjectExplorerListViewBase</label>
+        <link refid="class_project_explorer_list_view_base"/>
+      </node>
+      <node id="1">
+        <label>ProjectExplorerListView</label>
+        <link refid="class_project_explorer_list_view"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="3">
+        <label>ProjectExplorerListViewItemDelegate</label>
+        <link refid="class_project_explorer_list_view_item_delegate"/>
+      </node>
+      <node id="2">
+        <label>ProjectExplorerListViewBase</label>
+        <link refid="class_project_explorer_list_view_base"/>
+      </node>
+      <node id="1">
+        <label>ProjectExplorerListView</label>
+        <link refid="class_project_explorer_list_view"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>delegate_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorerlistview.h" line="32" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/projectexplorer/projectexplorerlistview.h" bodystart="33" bodyend="40"/>
+    <listofallmembers>
+      <member refid="class_project_explorer_list_view_1a24eaeaab7c1a637ca89989d18a8ddbf7" prot="private" virt="non-virtual"><scope>ProjectExplorerListView</scope><name>delegate_</name></member>
+      <member refid="class_project_explorer_list_view_base_1a695844227d6ccbafddd062df0908496a" prot="public" virt="non-virtual"><scope>ProjectExplorerListView</scope><name>DoubleClickedEmptyArea</name></member>
+      <member refid="class_project_explorer_list_view_base_1a9f3a533699b22a43b225cd579836e0ee" prot="protected" virt="virtual"><scope>ProjectExplorerListView</scope><name>mouseDoubleClickEvent</name></member>
+      <member refid="class_project_explorer_list_view_1aba389d35192fb5da032a3d913b2e6499" prot="public" virt="non-virtual"><scope>ProjectExplorerListView</scope><name>ProjectExplorerListView</name></member>
+      <member refid="class_project_explorer_list_view_base_1a91686da1383afa3ed81790372f5f0553" prot="public" virt="non-virtual"><scope>ProjectExplorerListView</scope><name>ProjectExplorerListViewBase</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

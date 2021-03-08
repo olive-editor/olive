@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_82f1e9adf76b437861796d37c94580d9" kind="dir">
+    <compoundname>view</compoundname>
+    <innerfile refid="handmovableview_8h">handmovableview.h</innerfile>
+    <innerfile refid="timelineplayhead_8h">timelineplayhead.h</innerfile>
+    <innerfile refid="timelineview_8h">timelineview.h</innerfile>
+    <innerfile refid="timelineviewbase_8h">timelineviewbase.h</innerfile>
+    <innerfile refid="timelineviewblockitem_8h">timelineviewblockitem.h</innerfile>
+    <innerfile refid="timelineviewghostitem_8h">timelineviewghostitem.h</innerfile>
+    <innerfile refid="timelineviewmouseevent_8h">timelineviewmouseevent.h</innerfile>
+    <innerfile refid="timelineviewrect_8h">timelineviewrect.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/"/>
+  </compounddef>
+</doxygen>

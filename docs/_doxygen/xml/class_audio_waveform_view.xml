@@ -1,0 +1,1175 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_audio_waveform_view" kind="class" language="C++" prot="public">
+    <compoundname>AudioWaveformView</compoundname>
+    <basecompoundref refid="class_seekable_widget" prot="public" virt="non-virtual">SeekableWidget</basecompoundref>
+    <includes refid="audiowaveformview_8h" local="no">audiowaveformview.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_audio_waveform_view_1ab93390eb3b53a7a6dd59c162848445d2" prot="private" static="no" mutable="no">
+        <type><ref refid="class_audio_render_backend" kindref="compound">AudioRenderBackend</ref> *</type>
+        <definition>AudioRenderBackend* AudioWaveformView::backend_</definition>
+        <argsstring></argsstring>
+        <name>backend_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/audiowaveformview.h" line="67" column="22" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/audiowaveformview.h" bodystart="67" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_audio_waveform_view_1a03da1fd0f91e2845bd0b82b2b7df80be" prot="private" static="no" mutable="no">
+        <type>QPixmap</type>
+        <definition>QPixmap AudioWaveformView::cached_waveform_</definition>
+        <argsstring></argsstring>
+        <name>cached_waveform_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/audiowaveformview.h" line="69" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/audiowaveformview.h" bodystart="69" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_audio_waveform_view_1abde575b0be1688886f079e4a4ca3a04e" prot="private" static="no" mutable="no">
+        <type>QSize</type>
+        <definition>QSize AudioWaveformView::cached_size_</definition>
+        <argsstring></argsstring>
+        <name>cached_size_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/audiowaveformview.h" line="70" column="9" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/audiowaveformview.h" bodystart="70" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_audio_waveform_view_1ad0514aef42a635c7d48914a39b7a5f33" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double AudioWaveformView::cached_scale_</definition>
+        <argsstring></argsstring>
+        <name>cached_scale_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/audiowaveformview.h" line="71" column="10" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/audiowaveformview.h" bodystart="71" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_audio_waveform_view_1aaa73d96f9e8f1e2bbf6a89458b6bcfe3" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int AudioWaveformView::cached_scroll_</definition>
+        <argsstring></argsstring>
+        <name>cached_scroll_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/audiowaveformview.h" line="72" column="7" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/audiowaveformview.h" bodystart="72" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_seekable_widget_1abd8f9f4d9d283b9396baa9fb1bf4455e" prot="private" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t SeekableWidget::time_</definition>
+        <argsstring></argsstring>
+        <name>time_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timeruler/seekablewidget.h" line="114" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/timeruler/seekablewidget.h" bodystart="114" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_seekable_widget_1a1c21f1712886acc394af218d82b0f2aa" prot="private" static="no" mutable="no">
+        <type><ref refid="class_timeline_playhead" kindref="compound">TimelinePlayhead</ref></type>
+        <definition>TimelinePlayhead SeekableWidget::style_</definition>
+        <argsstring></argsstring>
+        <name>style_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timeruler/seekablewidget.h" line="116" column="20" bodyfile="C:/Daten/Olive/olive/app/widget/timeruler/seekablewidget.h" bodystart="116" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_seekable_widget_1a3fe23431470dd62e4d585d9704d1d069" prot="private" static="no" mutable="no">
+        <type><ref refid="class_timeline_points" kindref="compound">TimelinePoints</ref> *</type>
+        <definition>TimelinePoints* SeekableWidget::timeline_points_</definition>
+        <argsstring></argsstring>
+        <name>timeline_points_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timeruler/seekablewidget.h" line="118" column="18" bodyfile="C:/Daten/Olive/olive/app/widget/timeruler/seekablewidget.h" bodystart="118" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_seekable_widget_1a9618d7ac5b5c6c931bb2844e5ba130b8" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int SeekableWidget::scroll_</definition>
+        <argsstring></argsstring>
+        <name>scroll_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timeruler/seekablewidget.h" line="120" column="7" bodyfile="C:/Daten/Olive/olive/app/widget/timeruler/seekablewidget.h" bodystart="120" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_seekable_widget_1a88c8be5c57929aec17c407acc7ed41ba" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int SeekableWidget::text_height_</definition>
+        <argsstring></argsstring>
+        <name>text_height_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timeruler/seekablewidget.h" line="122" column="7" bodyfile="C:/Daten/Olive/olive/app/widget/timeruler/seekablewidget.h" bodystart="122" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_seekable_widget_1aa452a59687b4ba9dd39b4a4c4897801e" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int SeekableWidget::playhead_width_</definition>
+        <argsstring></argsstring>
+        <name>playhead_width_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timeruler/seekablewidget.h" line="124" column="7" bodyfile="C:/Daten/Olive/olive/app/widget/timeruler/seekablewidget.h" bodystart="124" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_timeline_scaled_object_1a69dd77a3c6b37b62dce172256f6633e0" prot="private" static="no" mutable="no">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational TimelineScaledObject::timebase_</definition>
+        <argsstring></argsstring>
+        <name>timebase_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" line="78" column="12" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" bodystart="78" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_timeline_scaled_object_1ad123e92c9a7373dd7ab41d2a6cf3e74f" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double TimelineScaledObject::timebase_dbl_</definition>
+        <argsstring></argsstring>
+        <name>timebase_dbl_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" line="80" column="10" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" bodystart="80" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_timeline_scaled_object_1afef3a4ce71d522eb775952342ac3a724" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double TimelineScaledObject::scale_</definition>
+        <argsstring></argsstring>
+        <name>scale_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" line="82" column="10" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" bodystart="82" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_timeline_scaled_object_1ae573b4cc9ecb09a0ad49e8bc88f80ae2" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double TimelineScaledObject::min_scale_</definition>
+        <argsstring></argsstring>
+        <name>min_scale_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" line="84" column="10" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" bodystart="84" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_timeline_scaled_object_1afc7c3ff17f1a580fbd248c830b3dd281" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double TimelineScaledObject::max_scale_</definition>
+        <argsstring></argsstring>
+        <name>max_scale_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" line="86" column="10" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" bodystart="86" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_audio_waveform_view_1ad7ba05b1d66197407f8940aca8b35c3c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>AudioWaveformView::AudioWaveformView</definition>
+        <argsstring>(QWidget *parent=nullptr)</argsstring>
+        <name>AudioWaveformView</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/audiowaveformview.h" line="55" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_waveform_view_1aa61a616605e0756efa62be3d2242712f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AudioWaveformView::SetBackend</definition>
+        <argsstring>(AudioRenderBackend *backend)</argsstring>
+        <name>SetBackend</name>
+        <param>
+          <type><ref refid="class_audio_render_backend" kindref="compound">AudioRenderBackend</ref> *</type>
+          <declname>backend</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/audiowaveformview.h" line="59" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_seekable_widget_1aa158371ba9f5b73e11ec1d9c66bd925c" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const int64_t &amp;</type>
+        <definition>const int64_t&amp; SeekableWidget::GetTime</definition>
+        <argsstring>() const</argsstring>
+        <name>GetTime</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timeruler/seekablewidget.h" line="55" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_seekable_widget_1a154bfffb4beaee2d4cd10b9075ce60a2" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const int &amp;</type>
+        <definition>const int&amp; SeekableWidget::GetScroll</definition>
+        <argsstring>() const</argsstring>
+        <name>GetScroll</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timeruler/seekablewidget.h" line="57" column="13"/>
+      </memberdef>
+      <memberdef kind="function" id="class_seekable_widget_1a6e45953735f19f9be06bd07277e657a3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void SeekableWidget::ConnectTimelinePoints</definition>
+        <argsstring>(TimelinePoints *points)</argsstring>
+        <name>ConnectTimelinePoints</name>
+        <param>
+          <type><ref refid="class_timeline_points" kindref="compound">TimelinePoints</ref> *</type>
+          <declname>points</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timeruler/seekablewidget.h" line="59" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_scaled_object_1aea594907034d918aaa45718b4e0ad99e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimelineScaledObject::SetTimebase</definition>
+        <argsstring>(const rational &amp;timebase)</argsstring>
+        <name>SetTimebase</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>timebase</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" line="54" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_scaled_object_1a18cc60c718e4521e6b772e4f34adf0c1" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+        <definition>const rational&amp; TimelineScaledObject::timebase</definition>
+        <argsstring>() const</argsstring>
+        <name>timebase</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" line="56" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_scaled_object_1a77d512b8c299bf894a9e2d30db5ab5f8" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const double &amp;</type>
+        <definition>const double&amp; TimelineScaledObject::timebase_dbl</definition>
+        <argsstring>() const</argsstring>
+        <name>timebase_dbl</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" line="57" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_scaled_object_1a1c4d396511a29aff6f103077c475094d" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const double &amp;</type>
+        <definition>const double&amp; TimelineScaledObject::GetScale</definition>
+        <argsstring>() const</argsstring>
+        <name>GetScale</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" line="61" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_scaled_object_1ad0f9d3d2177be98b0e9be09a3865f4bb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimelineScaledObject::SetScale</definition>
+        <argsstring>(const double &amp;scale)</argsstring>
+        <name>SetScale</name>
+        <param>
+          <type>const double &amp;</type>
+          <declname>scale</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" line="63" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="class_audio_waveform_view_1a9005d61bcbd97ee40085d3719fae4a5f" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void AudioWaveformView::DrawWaveform</definition>
+        <argsstring>(QPainter *painter, const QRect &amp;rect, const double &amp;scale, const SampleSummer::Sum *samples, int nb_samples, int channels)</argsstring>
+        <name>DrawWaveform</name>
+        <param>
+          <type>QPainter *</type>
+          <declname>painter</declname>
+        </param>
+        <param>
+          <type>const QRect &amp;</type>
+          <declname>rect</declname>
+        </param>
+        <param>
+          <type>const double &amp;</type>
+          <declname>scale</declname>
+        </param>
+        <param>
+          <type>const <ref refid="struct_sample_summer_1_1_sum" kindref="compound">SampleSummer::Sum</ref> *</type>
+          <declname>samples</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>nb_samples</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>channels</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/audiowaveformview.h" line="61" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_scaled_object_1a62c2ffba8b9819e2d4026ae8e3be14c6" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>static rational TimelineScaledObject::SceneToTime</definition>
+        <argsstring>(const double &amp;x, const double &amp;x_scale, const rational &amp;timebase, bool round=false)</argsstring>
+        <name>SceneToTime</name>
+        <param>
+          <type>const double &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const double &amp;</type>
+          <declname>x_scale</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>timebase</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>round</declname>
+          <defval>false</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" line="59" column="19"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_audio_waveform_view_1ae60d0a0f676903ad3a6a946e677f16ed" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void AudioWaveformView::paintEvent</definition>
+        <argsstring>(QPaintEvent *event) override</argsstring>
+        <name>paintEvent</name>
+        <param>
+          <type>QPaintEvent *</type>
+          <declname>event</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/audiowaveformview.h" line="64" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_seekable_widget_1aefb4082e22a2dea91bda47bac4f0cf67" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void SeekableWidget::SeekToScreenPoint</definition>
+        <argsstring>(int screen)</argsstring>
+        <name>SeekToScreenPoint</name>
+        <param>
+          <type>int</type>
+          <declname>screen</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timeruler/seekablewidget.h" line="67" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_seekable_widget_1a7d215db04a4ef3f4bed85e387ff29005" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void SeekableWidget::mousePressEvent</definition>
+        <argsstring>(QMouseEvent *event) override</argsstring>
+        <name>mousePressEvent</name>
+        <param>
+          <type>QMouseEvent *</type>
+          <declname>event</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timeruler/seekablewidget.h" line="69" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_seekable_widget_1ada356c665dcfe57b1bc46b2d64bbebb2" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void SeekableWidget::mouseMoveEvent</definition>
+        <argsstring>(QMouseEvent *event) override</argsstring>
+        <name>mouseMoveEvent</name>
+        <param>
+          <type>QMouseEvent *</type>
+          <declname>event</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timeruler/seekablewidget.h" line="70" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_seekable_widget_1ab5c69140cc195557ff789dd114778f0f" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void SeekableWidget::ScaleChangedEvent</definition>
+        <argsstring>(const double &amp;) override</argsstring>
+        <name>ScaleChangedEvent</name>
+        <reimplements refid="class_timeline_scaled_object_1a9ce7487a60bd33d17d2e50334d7335d5">ScaleChangedEvent</reimplements>
+        <param>
+          <type>const double &amp;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timeruler/seekablewidget.h" line="72" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_seekable_widget_1a25a7f4c7e06d3d7d231add65b71dad00" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void SeekableWidget::DrawTimelinePoints</definition>
+        <argsstring>(QPainter *p, int marker_bottom=0)</argsstring>
+        <name>DrawTimelinePoints</name>
+        <param>
+          <type>QPainter *</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>marker_bottom</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timeruler/seekablewidget.h" line="74" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_seekable_widget_1a73004845408166805652612efabed353" prot="protected" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_timeline_points" kindref="compound">TimelinePoints</ref> *</type>
+        <definition>TimelinePoints* SeekableWidget::timeline_points</definition>
+        <argsstring>() const</argsstring>
+        <name>timeline_points</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timeruler/seekablewidget.h" line="76" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_seekable_widget_1aec6558a81818d47c792285362bdb598c" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double SeekableWidget::ScreenToUnitFloat</definition>
+        <argsstring>(int screen)</argsstring>
+        <name>ScreenToUnitFloat</name>
+        <param>
+          <type>int</type>
+          <declname>screen</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timeruler/seekablewidget.h" line="78" column="10"/>
+      </memberdef>
+      <memberdef kind="function" id="class_seekable_widget_1a92b2ea7ecb8907c89a68bb8f50622acd" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int64_t</type>
+        <definition>int64_t SeekableWidget::ScreenToUnit</definition>
+        <argsstring>(int screen)</argsstring>
+        <name>ScreenToUnit</name>
+        <param>
+          <type>int</type>
+          <declname>screen</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timeruler/seekablewidget.h" line="80" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_seekable_widget_1a8c518afa1a3d9952d99240350c03860f" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int64_t</type>
+        <definition>int64_t SeekableWidget::ScreenToUnitRounded</definition>
+        <argsstring>(int screen)</argsstring>
+        <name>ScreenToUnitRounded</name>
+        <param>
+          <type>int</type>
+          <declname>screen</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timeruler/seekablewidget.h" line="81" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_seekable_widget_1a3e07e58c162175275f3faddbc87c4531" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int SeekableWidget::UnitToScreen</definition>
+        <argsstring>(int64_t unit)</argsstring>
+        <name>UnitToScreen</name>
+        <param>
+          <type>int64_t</type>
+          <declname>unit</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timeruler/seekablewidget.h" line="83" column="7"/>
+      </memberdef>
+      <memberdef kind="function" id="class_seekable_widget_1a3508eb3e2e79ed4329122ad8188afc46" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int SeekableWidget::TimeToScreen</definition>
+        <argsstring>(const rational &amp;time)</argsstring>
+        <name>TimeToScreen</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timeruler/seekablewidget.h" line="85" column="7"/>
+      </memberdef>
+      <memberdef kind="function" id="class_seekable_widget_1a437060e6daed8422259fb90c39a51913" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void SeekableWidget::DrawPlayhead</definition>
+        <argsstring>(QPainter *p, int x, int y)</argsstring>
+        <name>DrawPlayhead</name>
+        <param>
+          <type>QPainter *</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timeruler/seekablewidget.h" line="87" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_seekable_widget_1abd9be5bbf3d65eb7ecc3e3ee8eb3e91b" prot="protected" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>const int &amp;</type>
+        <definition>const int&amp; SeekableWidget::text_height</definition>
+        <argsstring>() const</argsstring>
+        <name>text_height</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timeruler/seekablewidget.h" line="89" column="20" bodyfile="C:/Daten/Olive/olive/app/widget/timeruler/seekablewidget.h" bodystart="89" bodyend="91"/>
+      </memberdef>
+      <memberdef kind="function" id="class_seekable_widget_1a67c9bc33558f007fb034351d3085d767" prot="protected" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>const int &amp;</type>
+        <definition>const int&amp; SeekableWidget::playhead_width</definition>
+        <argsstring>() const</argsstring>
+        <name>playhead_width</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timeruler/seekablewidget.h" line="93" column="20" bodyfile="C:/Daten/Olive/olive/app/widget/timeruler/seekablewidget.h" bodystart="93" bodyend="95"/>
+      </memberdef>
+      <memberdef kind="function" id="class_seekable_widget_1ac5b311d383f58b3f97eee120bb0dd2dc" prot="protected" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>const QColor &amp;</type>
+        <definition>const QColor&amp; SeekableWidget::GetPlayheadColor</definition>
+        <argsstring>() const</argsstring>
+        <name>GetPlayheadColor</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timeruler/seekablewidget.h" line="97" column="23" bodyfile="C:/Daten/Olive/olive/app/widget/timeruler/seekablewidget.h" bodystart="97" bodyend="100"/>
+      </memberdef>
+      <memberdef kind="function" id="class_seekable_widget_1a07d6bf2a07585a664eb721dc7a3a3bf6" prot="protected" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>const QColor &amp;</type>
+        <definition>const QColor&amp; SeekableWidget::GetPlayheadHighlightColor</definition>
+        <argsstring>() const</argsstring>
+        <name>GetPlayheadHighlightColor</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timeruler/seekablewidget.h" line="102" column="23" bodyfile="C:/Daten/Olive/olive/app/widget/timeruler/seekablewidget.h" bodystart="102" bodyend="105"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_scaled_object_1a99501640a7a292524fd4846c0c22ea08" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational TimelineScaledObject::SceneToTime</definition>
+        <argsstring>(const double &amp;x, bool round=false)</argsstring>
+        <name>SceneToTime</name>
+        <param>
+          <type>const double &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>round</declname>
+          <defval>false</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" line="67" column="12"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_scaled_object_1a59f6d4022281bc54c185c40b1c4bbc41" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double TimelineScaledObject::TimeToScene</definition>
+        <argsstring>(const rational &amp;time)</argsstring>
+        <name>TimeToScene</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" line="66" column="10"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_scaled_object_1ac9b6fc87eb687efc7b0f09a3051273ca" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void TimelineScaledObject::TimebaseChangedEvent</definition>
+        <argsstring>(const rational &amp;)</argsstring>
+        <name>TimebaseChangedEvent</name>
+        <reimplementedby refid="class_timeline_view_rect_1a0f17a9f9ee0d2e1faaffcc921da7e98e">TimebaseChangedEvent</reimplementedby>
+        <reimplementedby refid="class_curve_widget_1a8ebe2ed2cd428736fdd8bafe54bd7d59">TimebaseChangedEvent</reimplementedby>
+        <reimplementedby refid="class_node_param_view_1a490fd684d66c74f344fe34c128876ef0">TimebaseChangedEvent</reimplementedby>
+        <reimplementedby refid="class_timeline_view_base_1aaae9298a7db020fbde3531181589ed10">TimebaseChangedEvent</reimplementedby>
+        <reimplementedby refid="class_time_based_widget_1afbb0c0ed294c73ac274a3ef428f9f360">TimebaseChangedEvent</reimplementedby>
+        <reimplementedby refid="class_timeline_widget_1a5acc7f28049d809478ce449efe40d75f">TimebaseChangedEvent</reimplementedby>
+        <reimplementedby refid="class_viewer_widget_1a43885e443a8d17cea32dfdccf5617b87">TimebaseChangedEvent</reimplementedby>
+        <reimplementedby refid="class_time_ruler_1adc3fc28ad7db68eeb6c06b6053945ffe">TimebaseChangedEvent</reimplementedby>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" line="69" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" bodystart="69" bodyend="69"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_scaled_object_1ad5879898bf6e79af848805685393fab7" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimelineScaledObject::SetMaximumScale</definition>
+        <argsstring>(const double &amp;max)</argsstring>
+        <name>SetMaximumScale</name>
+        <param>
+          <type>const double &amp;</type>
+          <declname>max</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" line="73" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_scaled_object_1a9269c75d9cb55cff460c9f34647e1dd1" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimelineScaledObject::SetMinimumScale</definition>
+        <argsstring>(const double &amp;min)</argsstring>
+        <name>SetMinimumScale</name>
+        <param>
+          <type>const double &amp;</type>
+          <declname>min</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" line="75" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_audio_waveform_view_1a9318628046c97464a7c53841c911cb4a" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AudioWaveformView::BackendParamsChanged</definition>
+        <argsstring>()</argsstring>
+        <name>BackendParamsChanged</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/audiowaveformview.h" line="75" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_audio_waveform_view_1af0e576b701588177481052d60a63eb51" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AudioWaveformView::ForceUpdate</definition>
+        <argsstring>()</argsstring>
+        <name>ForceUpdate</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/audiowaveformview.h" line="77" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-slot">
+      <memberdef kind="slot" id="class_seekable_widget_1af68e9b90dbb52925537c67f9b22674ca" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void SeekableWidget::SetTime</definition>
+        <argsstring>(const int64_t &amp;r)</argsstring>
+        <name>SetTime</name>
+        <param>
+          <type>const int64_t &amp;</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timeruler/seekablewidget.h" line="62" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_seekable_widget_1a49fecc33c936de2644fd7be2dbf7107d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void SeekableWidget::SetScroll</definition>
+        <argsstring>(int s)</argsstring>
+        <name>SetScroll</name>
+        <param>
+          <type>int</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timeruler/seekablewidget.h" line="64" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_seekable_widget_1a2cc04b2deb9aa039db48dd835c30d3f5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void SeekableWidget::TimeChanged</definition>
+        <argsstring>(int64_t)</argsstring>
+        <name>TimeChanged</name>
+        <param>
+          <type>int64_t</type>
+        </param>
+        <briefdescription>
+<para>Signal emitted whenever the time changes on this ruler, either by user or programmatically. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timeruler/seekablewidget.h" line="111" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="4">
+        <label>TimelineScaledObject</label>
+        <link refid="class_timeline_scaled_object"/>
+      </node>
+      <node id="3">
+        <label>TimelineScaledWidget</label>
+        <link refid="class_timeline_scaled_widget"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>SeekableWidget</label>
+        <link refid="class_seekable_widget"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>AudioWaveformView</label>
+        <link refid="class_audio_waveform_view"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="18">
+        <label>NodeOutput</label>
+        <link refid="class_node_output"/>
+        <childnode refid="19" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>TimelinePoints</label>
+        <link refid="class_timeline_points"/>
+        <childnode refid="8" relation="usage">
+          <edgelabel>markers_</edgelabel>
+        </childnode>
+        <childnode refid="9" relation="usage">
+          <edgelabel>workarea_</edgelabel>
+        </childnode>
+      </node>
+      <node id="15">
+        <label>NodeGraph</label>
+        <link refid="class_node_graph"/>
+      </node>
+      <node id="13">
+        <label>RenderCancelDialog</label>
+        <link refid="class_render_cancel_dialog"/>
+        <childnode refid="14" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>AudioParams</label>
+        <link refid="class_audio_params"/>
+      </node>
+      <node id="16">
+        <label>ViewerOutput</label>
+        <link refid="class_viewer_output"/>
+        <childnode refid="17" relation="public-inheritance">
+        </childnode>
+        <childnode refid="20" relation="usage">
+          <edgelabel>video_params_</edgelabel>
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>timeline_length_</edgelabel>
+        </childnode>
+        <childnode refid="21" relation="usage">
+          <edgelabel>audio_params_</edgelabel>
+        </childnode>
+        <childnode refid="22" relation="usage">
+          <edgelabel>texture_input_</edgelabel>
+          <edgelabel>samples_input_</edgelabel>
+        </childnode>
+      </node>
+      <node id="6">
+        <label>TimelinePlayhead</label>
+        <link refid="class_timeline_playhead"/>
+      </node>
+      <node id="5">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="14">
+        <label>ProgressDialog</label>
+        <link refid="class_progress_dialog"/>
+      </node>
+      <node id="24">
+        <label>AudioRenderingParams</label>
+        <link refid="class_audio_rendering_params"/>
+        <childnode refid="21" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>TimelineScaledObject</label>
+        <link refid="class_timeline_scaled_object"/>
+        <childnode refid="5" relation="usage">
+          <edgelabel>timebase_</edgelabel>
+        </childnode>
+      </node>
+      <node id="17">
+        <label>Node</label>
+        <link refid="class_node"/>
+        <childnode refid="18" relation="usage">
+          <edgelabel>output_</edgelabel>
+        </childnode>
+      </node>
+      <node id="22">
+        <label>NodeInput</label>
+        <link refid="class_node_input"/>
+        <childnode refid="19" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>RenderBackend</label>
+        <link refid="class_render_backend"/>
+        <childnode refid="13" relation="usage">
+          <edgelabel>cancel_dialog_</edgelabel>
+        </childnode>
+        <childnode refid="15" relation="usage">
+          <edgelabel>copied_graph_</edgelabel>
+        </childnode>
+        <childnode refid="16" relation="usage">
+          <edgelabel>copied_viewer_node_</edgelabel>
+          <edgelabel>viewer_node_</edgelabel>
+        </childnode>
+        <childnode refid="23" relation="usage">
+          <edgelabel>cache_queue_</edgelabel>
+        </childnode>
+      </node>
+      <node id="23">
+        <label>TimeRangeList</label>
+        <link refid="class_time_range_list"/>
+      </node>
+      <node id="3">
+        <label>TimelineScaledWidget</label>
+        <link refid="class_timeline_scaled_widget"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>TimelineWorkArea</label>
+        <link refid="class_timeline_work_area"/>
+        <childnode refid="10" relation="usage">
+          <edgelabel>workarea_range_</edgelabel>
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>kResetOut</edgelabel>
+          <edgelabel>kResetIn</edgelabel>
+        </childnode>
+      </node>
+      <node id="11">
+        <label>AudioRenderBackend</label>
+        <link refid="class_audio_render_backend"/>
+        <childnode refid="12" relation="public-inheritance">
+        </childnode>
+        <childnode refid="24" relation="usage">
+          <edgelabel>params_</edgelabel>
+        </childnode>
+      </node>
+      <node id="19">
+        <label>NodeParam</label>
+        <link refid="class_node_param"/>
+      </node>
+      <node id="10">
+        <label>TimeRange</label>
+        <link refid="class_time_range"/>
+        <childnode refid="5" relation="usage">
+          <edgelabel>out_</edgelabel>
+          <edgelabel>in_</edgelabel>
+          <edgelabel>length_</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>SeekableWidget</label>
+        <link refid="class_seekable_widget"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>style_</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>timeline_points_</edgelabel>
+        </childnode>
+      </node>
+      <node id="20">
+        <label>VideoParams</label>
+        <link refid="class_video_params"/>
+        <childnode refid="5" relation="usage">
+          <edgelabel>time_base_</edgelabel>
+        </childnode>
+      </node>
+      <node id="8">
+        <label>TimelineMarkerList</label>
+        <link refid="class_timeline_marker_list"/>
+      </node>
+      <node id="1">
+        <label>AudioWaveformView</label>
+        <link refid="class_audio_waveform_view"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="11" relation="usage">
+          <edgelabel>backend_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/viewer/audiowaveformview.h" line="33" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/audiowaveformview.h" bodystart="34" bodyend="61"/>
+    <listofallmembers>
+      <member refid="class_audio_waveform_view_1ad7ba05b1d66197407f8940aca8b35c3c" prot="public" virt="non-virtual"><scope>AudioWaveformView</scope><name>AudioWaveformView</name></member>
+      <member refid="class_audio_waveform_view_1ab93390eb3b53a7a6dd59c162848445d2" prot="private" virt="non-virtual"><scope>AudioWaveformView</scope><name>backend_</name></member>
+      <member refid="class_audio_waveform_view_1a9318628046c97464a7c53841c911cb4a" prot="private" virt="non-virtual"><scope>AudioWaveformView</scope><name>BackendParamsChanged</name></member>
+      <member refid="class_audio_waveform_view_1ad0514aef42a635c7d48914a39b7a5f33" prot="private" virt="non-virtual"><scope>AudioWaveformView</scope><name>cached_scale_</name></member>
+      <member refid="class_audio_waveform_view_1aaa73d96f9e8f1e2bbf6a89458b6bcfe3" prot="private" virt="non-virtual"><scope>AudioWaveformView</scope><name>cached_scroll_</name></member>
+      <member refid="class_audio_waveform_view_1abde575b0be1688886f079e4a4ca3a04e" prot="private" virt="non-virtual"><scope>AudioWaveformView</scope><name>cached_size_</name></member>
+      <member refid="class_audio_waveform_view_1a03da1fd0f91e2845bd0b82b2b7df80be" prot="private" virt="non-virtual"><scope>AudioWaveformView</scope><name>cached_waveform_</name></member>
+      <member refid="class_seekable_widget_1a6e45953735f19f9be06bd07277e657a3" prot="public" virt="non-virtual"><scope>AudioWaveformView</scope><name>ConnectTimelinePoints</name></member>
+      <member refid="class_seekable_widget_1a437060e6daed8422259fb90c39a51913" prot="protected" virt="non-virtual"><scope>AudioWaveformView</scope><name>DrawPlayhead</name></member>
+      <member refid="class_seekable_widget_1a25a7f4c7e06d3d7d231add65b71dad00" prot="protected" virt="non-virtual"><scope>AudioWaveformView</scope><name>DrawTimelinePoints</name></member>
+      <member refid="class_audio_waveform_view_1a9005d61bcbd97ee40085d3719fae4a5f" prot="public" virt="non-virtual"><scope>AudioWaveformView</scope><name>DrawWaveform</name></member>
+      <member refid="class_audio_waveform_view_1af0e576b701588177481052d60a63eb51" prot="private" virt="non-virtual"><scope>AudioWaveformView</scope><name>ForceUpdate</name></member>
+      <member refid="class_seekable_widget_1ac5b311d383f58b3f97eee120bb0dd2dc" prot="protected" virt="non-virtual"><scope>AudioWaveformView</scope><name>GetPlayheadColor</name></member>
+      <member refid="class_seekable_widget_1a07d6bf2a07585a664eb721dc7a3a3bf6" prot="protected" virt="non-virtual"><scope>AudioWaveformView</scope><name>GetPlayheadHighlightColor</name></member>
+      <member refid="class_timeline_scaled_object_1a1c4d396511a29aff6f103077c475094d" prot="public" virt="non-virtual"><scope>AudioWaveformView</scope><name>GetScale</name></member>
+      <member refid="class_seekable_widget_1a154bfffb4beaee2d4cd10b9075ce60a2" prot="public" virt="non-virtual"><scope>AudioWaveformView</scope><name>GetScroll</name></member>
+      <member refid="class_seekable_widget_1aa158371ba9f5b73e11ec1d9c66bd925c" prot="public" virt="non-virtual"><scope>AudioWaveformView</scope><name>GetTime</name></member>
+      <member refid="class_timeline_scaled_object_1afc7c3ff17f1a580fbd248c830b3dd281" prot="private" virt="non-virtual"><scope>AudioWaveformView</scope><name>max_scale_</name></member>
+      <member refid="class_timeline_scaled_object_1ae573b4cc9ecb09a0ad49e8bc88f80ae2" prot="private" virt="non-virtual"><scope>AudioWaveformView</scope><name>min_scale_</name></member>
+      <member refid="class_seekable_widget_1ada356c665dcfe57b1bc46b2d64bbebb2" prot="protected" virt="virtual"><scope>AudioWaveformView</scope><name>mouseMoveEvent</name></member>
+      <member refid="class_seekable_widget_1a7d215db04a4ef3f4bed85e387ff29005" prot="protected" virt="virtual"><scope>AudioWaveformView</scope><name>mousePressEvent</name></member>
+      <member refid="class_audio_waveform_view_1ae60d0a0f676903ad3a6a946e677f16ed" prot="protected" virt="virtual"><scope>AudioWaveformView</scope><name>paintEvent</name></member>
+      <member refid="class_seekable_widget_1a67c9bc33558f007fb034351d3085d767" prot="protected" virt="non-virtual"><scope>AudioWaveformView</scope><name>playhead_width</name></member>
+      <member refid="class_seekable_widget_1aa452a59687b4ba9dd39b4a4c4897801e" prot="private" virt="non-virtual"><scope>AudioWaveformView</scope><name>playhead_width_</name></member>
+      <member refid="class_timeline_scaled_object_1afef3a4ce71d522eb775952342ac3a724" prot="private" virt="non-virtual"><scope>AudioWaveformView</scope><name>scale_</name></member>
+      <member refid="class_seekable_widget_1ab5c69140cc195557ff789dd114778f0f" prot="protected" virt="virtual"><scope>AudioWaveformView</scope><name>ScaleChangedEvent</name></member>
+      <member refid="class_timeline_scaled_object_1a62c2ffba8b9819e2d4026ae8e3be14c6" prot="public" virt="non-virtual"><scope>AudioWaveformView</scope><name>SceneToTime</name></member>
+      <member refid="class_timeline_scaled_object_1a99501640a7a292524fd4846c0c22ea08" prot="protected" virt="non-virtual"><scope>AudioWaveformView</scope><name>SceneToTime</name></member>
+      <member refid="class_seekable_widget_1a92b2ea7ecb8907c89a68bb8f50622acd" prot="protected" virt="non-virtual"><scope>AudioWaveformView</scope><name>ScreenToUnit</name></member>
+      <member refid="class_seekable_widget_1aec6558a81818d47c792285362bdb598c" prot="protected" virt="non-virtual"><scope>AudioWaveformView</scope><name>ScreenToUnitFloat</name></member>
+      <member refid="class_seekable_widget_1a8c518afa1a3d9952d99240350c03860f" prot="protected" virt="non-virtual"><scope>AudioWaveformView</scope><name>ScreenToUnitRounded</name></member>
+      <member refid="class_seekable_widget_1a9618d7ac5b5c6c931bb2844e5ba130b8" prot="private" virt="non-virtual"><scope>AudioWaveformView</scope><name>scroll_</name></member>
+      <member refid="class_seekable_widget_1a6d777c686c3a6117ff6d37f600907d01" prot="public" virt="non-virtual"><scope>AudioWaveformView</scope><name>SeekableWidget</name></member>
+      <member refid="class_seekable_widget_1aefb4082e22a2dea91bda47bac4f0cf67" prot="protected" virt="non-virtual"><scope>AudioWaveformView</scope><name>SeekToScreenPoint</name></member>
+      <member refid="class_audio_waveform_view_1aa61a616605e0756efa62be3d2242712f" prot="public" virt="non-virtual"><scope>AudioWaveformView</scope><name>SetBackend</name></member>
+      <member refid="class_timeline_scaled_object_1ad5879898bf6e79af848805685393fab7" prot="protected" virt="non-virtual"><scope>AudioWaveformView</scope><name>SetMaximumScale</name></member>
+      <member refid="class_timeline_scaled_object_1a9269c75d9cb55cff460c9f34647e1dd1" prot="protected" virt="non-virtual"><scope>AudioWaveformView</scope><name>SetMinimumScale</name></member>
+      <member refid="class_timeline_scaled_object_1ad0f9d3d2177be98b0e9be09a3865f4bb" prot="public" virt="non-virtual"><scope>AudioWaveformView</scope><name>SetScale</name></member>
+      <member refid="class_seekable_widget_1a49fecc33c936de2644fd7be2dbf7107d" prot="public" virt="non-virtual"><scope>AudioWaveformView</scope><name>SetScroll</name></member>
+      <member refid="class_seekable_widget_1af68e9b90dbb52925537c67f9b22674ca" prot="public" virt="non-virtual"><scope>AudioWaveformView</scope><name>SetTime</name></member>
+      <member refid="class_timeline_scaled_object_1aea594907034d918aaa45718b4e0ad99e" prot="public" virt="non-virtual"><scope>AudioWaveformView</scope><name>SetTimebase</name></member>
+      <member refid="class_seekable_widget_1a1c21f1712886acc394af218d82b0f2aa" prot="private" virt="non-virtual"><scope>AudioWaveformView</scope><name>style_</name></member>
+      <member refid="class_seekable_widget_1abd9be5bbf3d65eb7ecc3e3ee8eb3e91b" prot="protected" virt="non-virtual"><scope>AudioWaveformView</scope><name>text_height</name></member>
+      <member refid="class_seekable_widget_1a88c8be5c57929aec17c407acc7ed41ba" prot="private" virt="non-virtual"><scope>AudioWaveformView</scope><name>text_height_</name></member>
+      <member refid="class_seekable_widget_1abd8f9f4d9d283b9396baa9fb1bf4455e" prot="private" virt="non-virtual"><scope>AudioWaveformView</scope><name>time_</name></member>
+      <member refid="class_timeline_scaled_object_1a18cc60c718e4521e6b772e4f34adf0c1" prot="public" virt="non-virtual"><scope>AudioWaveformView</scope><name>timebase</name></member>
+      <member refid="class_timeline_scaled_object_1a69dd77a3c6b37b62dce172256f6633e0" prot="private" virt="non-virtual"><scope>AudioWaveformView</scope><name>timebase_</name></member>
+      <member refid="class_timeline_scaled_object_1a77d512b8c299bf894a9e2d30db5ab5f8" prot="public" virt="non-virtual"><scope>AudioWaveformView</scope><name>timebase_dbl</name></member>
+      <member refid="class_timeline_scaled_object_1ad123e92c9a7373dd7ab41d2a6cf3e74f" prot="private" virt="non-virtual"><scope>AudioWaveformView</scope><name>timebase_dbl_</name></member>
+      <member refid="class_timeline_scaled_object_1ac9b6fc87eb687efc7b0f09a3051273ca" prot="protected" virt="virtual"><scope>AudioWaveformView</scope><name>TimebaseChangedEvent</name></member>
+      <member refid="class_seekable_widget_1a2cc04b2deb9aa039db48dd835c30d3f5" prot="public" virt="non-virtual"><scope>AudioWaveformView</scope><name>TimeChanged</name></member>
+      <member refid="class_seekable_widget_1a73004845408166805652612efabed353" prot="protected" virt="non-virtual"><scope>AudioWaveformView</scope><name>timeline_points</name></member>
+      <member refid="class_seekable_widget_1a3fe23431470dd62e4d585d9704d1d069" prot="private" virt="non-virtual"><scope>AudioWaveformView</scope><name>timeline_points_</name></member>
+      <member refid="class_timeline_scaled_object_1aa6fbe05a6bd678116b36c9e9418d83c8" prot="public" virt="non-virtual"><scope>AudioWaveformView</scope><name>TimelineScaledObject</name></member>
+      <member refid="class_timeline_scaled_widget_1a8959f035ed05b56d78f602ab059169ba" prot="public" virt="non-virtual"><scope>AudioWaveformView</scope><name>TimelineScaledWidget</name></member>
+      <member refid="class_timeline_scaled_object_1a59f6d4022281bc54c185c40b1c4bbc41" prot="protected" virt="non-virtual"><scope>AudioWaveformView</scope><name>TimeToScene</name></member>
+      <member refid="class_seekable_widget_1a3508eb3e2e79ed4329122ad8188afc46" prot="protected" virt="non-virtual"><scope>AudioWaveformView</scope><name>TimeToScreen</name></member>
+      <member refid="class_seekable_widget_1a3e07e58c162175275f3faddbc87c4531" prot="protected" virt="non-virtual"><scope>AudioWaveformView</scope><name>UnitToScreen</name></member>
+      <member refid="class_timeline_scaled_object_1a244de99230b465f17d720cbf644f0499" prot="public" virt="virtual"><scope>AudioWaveformView</scope><name>~TimelineScaledObject</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

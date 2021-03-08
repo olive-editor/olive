@@ -1,0 +1,57 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="struct_color_wheel_widget_1_1_triangle" kind="struct" language="C++" prot="private">
+    <compoundname>ColorWheelWidget::Triangle</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="struct_color_wheel_widget_1_1_triangle_1a8407763bdfffd7839650945ee79d2960" prot="public" static="no" mutable="no">
+        <type>qreal</type>
+        <definition>qreal ColorWheelWidget::Triangle::opposite</definition>
+        <argsstring></argsstring>
+        <name>opposite</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorwheelwidget.h" line="74" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/colorwheel/colorwheelwidget.h" bodystart="74" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_color_wheel_widget_1_1_triangle_1a91ad559a8f281a0b40a8fe10b5113686" prot="public" static="no" mutable="no">
+        <type>qreal</type>
+        <definition>qreal ColorWheelWidget::Triangle::adjacent</definition>
+        <argsstring></argsstring>
+        <name>adjacent</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorwheelwidget.h" line="75" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/colorwheel/colorwheelwidget.h" bodystart="75" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_color_wheel_widget_1_1_triangle_1a55fff50d546a3b82d208079f6f616fc0" prot="public" static="no" mutable="no">
+        <type>qreal</type>
+        <definition>qreal ColorWheelWidget::Triangle::hypotenuse</definition>
+        <argsstring></argsstring>
+        <name>hypotenuse</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorwheelwidget.h" line="76" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/colorwheel/colorwheelwidget.h" bodystart="76" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorwheelwidget.h" line="73" column="3" bodyfile="C:/Daten/Olive/olive/app/widget/colorwheel/colorwheelwidget.h" bodystart="73" bodyend="77"/>
+    <listofallmembers>
+      <member refid="struct_color_wheel_widget_1_1_triangle_1a91ad559a8f281a0b40a8fe10b5113686" prot="public" virt="non-virtual"><scope>ColorWheelWidget::Triangle</scope><name>adjacent</name></member>
+      <member refid="struct_color_wheel_widget_1_1_triangle_1a55fff50d546a3b82d208079f6f616fc0" prot="public" virt="non-virtual"><scope>ColorWheelWidget::Triangle</scope><name>hypotenuse</name></member>
+      <member refid="struct_color_wheel_widget_1_1_triangle_1a8407763bdfffd7839650945ee79d2960" prot="public" virt="non-virtual"><scope>ColorWheelWidget::Triangle</scope><name>opposite</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

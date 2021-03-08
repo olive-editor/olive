@@ -1,0 +1,137 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_preferences_quality_tab" kind="class" language="C++" prot="public">
+    <compoundname>PreferencesQualityTab</compoundname>
+    <basecompoundref refid="class_preferences_tab" prot="public" virt="non-virtual">PreferencesTab</basecompoundref>
+    <includes refid="preferencesqualitytab_8h" local="no">preferencesqualitytab.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_preferences_quality_tab_1a62f8a76c176e2ac9bb24429b4b1692df" prot="private" static="no" mutable="no">
+        <type>QStackedWidget *</type>
+        <definition>QStackedWidget* PreferencesQualityTab::quality_stack_</definition>
+        <argsstring></argsstring>
+        <name>quality_stack_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesqualitytab.h" line="59" column="18" bodyfile="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesqualitytab.h" bodystart="59" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_preferences_quality_tab_1a6bc43985f810969d75d3bc9ec15046aa" prot="private" static="no" mutable="no">
+        <type><ref refid="class_preferences_quality_group" kindref="compound">PreferencesQualityGroup</ref> *</type>
+        <definition>PreferencesQualityGroup* PreferencesQualityTab::offline_group_</definition>
+        <argsstring></argsstring>
+        <name>offline_group_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesqualitytab.h" line="61" column="27" bodyfile="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesqualitytab.h" bodystart="61" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_preferences_quality_tab_1a57684668ee1f47af527ca1da03ad9824" prot="private" static="no" mutable="no">
+        <type><ref refid="class_preferences_quality_group" kindref="compound">PreferencesQualityGroup</ref> *</type>
+        <definition>PreferencesQualityGroup* PreferencesQualityTab::online_group_</definition>
+        <argsstring></argsstring>
+        <name>online_group_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesqualitytab.h" line="63" column="27" bodyfile="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesqualitytab.h" bodystart="63" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_preferences_quality_tab_1a51689f550a39ac72a274cc3b15ce0edc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>PreferencesQualityTab::PreferencesQualityTab</definition>
+        <argsstring>()</argsstring>
+        <name>PreferencesQualityTab</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesqualitytab.h" line="54" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_preferences_quality_tab_1a6a1c14d623831028cd0de47f5c84a35b" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PreferencesQualityTab::Accept</definition>
+        <argsstring>() override</argsstring>
+        <name>Accept</name>
+        <reimplements refid="class_preferences_tab_1ac68d2c1754ce85450eed3fb0920163f2">Accept</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesqualitytab.h" line="56" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_preferences_tab_1aefad5e89125f7a19d26a18ab3931ddfb" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>bool</type>
+        <definition>virtual bool PreferencesTab::Validate</definition>
+        <argsstring>()</argsstring>
+        <name>Validate</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencestab.h" line="53" column="16"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>PreferencesTab</label>
+        <link refid="class_preferences_tab"/>
+      </node>
+      <node id="1">
+        <label>PreferencesQualityTab</label>
+        <link refid="class_preferences_quality_tab"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="3">
+        <label>PreferencesQualityGroup</label>
+        <link refid="class_preferences_quality_group"/>
+      </node>
+      <node id="2">
+        <label>PreferencesTab</label>
+        <link refid="class_preferences_tab"/>
+      </node>
+      <node id="1">
+        <label>PreferencesQualityTab</label>
+        <link refid="class_preferences_quality_tab"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>online_group_</edgelabel>
+          <edgelabel>offline_group_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesqualitytab.h" line="50" column="1" bodyfile="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesqualitytab.h" bodystart="51" bodyend="65"/>
+    <listofallmembers>
+      <member refid="class_preferences_quality_tab_1a6a1c14d623831028cd0de47f5c84a35b" prot="public" virt="virtual"><scope>PreferencesQualityTab</scope><name>Accept</name></member>
+      <member refid="class_preferences_quality_tab_1a6bc43985f810969d75d3bc9ec15046aa" prot="private" virt="non-virtual"><scope>PreferencesQualityTab</scope><name>offline_group_</name></member>
+      <member refid="class_preferences_quality_tab_1a57684668ee1f47af527ca1da03ad9824" prot="private" virt="non-virtual"><scope>PreferencesQualityTab</scope><name>online_group_</name></member>
+      <member refid="class_preferences_quality_tab_1a51689f550a39ac72a274cc3b15ce0edc" prot="public" virt="non-virtual"><scope>PreferencesQualityTab</scope><name>PreferencesQualityTab</name></member>
+      <member refid="class_preferences_tab_1a5330b203f9973201f677b0daf642f30e" prot="public" virt="non-virtual"><scope>PreferencesQualityTab</scope><name>PreferencesTab</name></member>
+      <member refid="class_preferences_quality_tab_1a62f8a76c176e2ac9bb24429b4b1692df" prot="private" virt="non-virtual"><scope>PreferencesQualityTab</scope><name>quality_stack_</name></member>
+      <member refid="class_preferences_tab_1aefad5e89125f7a19d26a18ab3931ddfb" prot="public" virt="virtual"><scope>PreferencesQualityTab</scope><name>Validate</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

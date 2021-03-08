@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_8428005b18fffe8ed4fdd637b5ff533f" kind="dir">
+    <compoundname>preferences</compoundname>
+    <innerdir refid="dir_666828ab50a537d7b88f26d2395f17e1">tabs</innerdir>
+    <innerfile refid="keysequenceeditor_8h">keysequenceeditor.h</innerfile>
+    <innerfile refid="preferences_8h">preferences.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/dialog/preferences/"/>
+  </compounddef>
+</doxygen>

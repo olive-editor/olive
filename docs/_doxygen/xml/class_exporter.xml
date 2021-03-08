@@ -1,0 +1,790 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_exporter" kind="class" language="C++" prot="public">
+    <compoundname>Exporter</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QObject</basecompoundref>
+    <includes refid="exporter_8h" local="no">exporter.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_exporter_1a3743cbe991a116b5eabeccc9774135c1" prot="private" static="no" mutable="no">
+        <type><ref refid="class_viewer_output" kindref="compound">ViewerOutput</ref> *</type>
+        <definition>ViewerOutput* Exporter::viewer_node_</definition>
+        <argsstring></argsstring>
+        <name>viewer_node_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/exporter.h" line="90" column="16" bodyfile="C:/Daten/Olive/olive/app/render/backend/exporter.h" bodystart="90" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_exporter_1af3ae00a33f3d4e5248ce8bdf894768a9" prot="private" static="no" mutable="no">
+        <type><ref refid="colorprocessor_8h_1ae3985029dcc28a9f9f42fc726d1a9471" kindref="member">ColorProcessorPtr</ref></type>
+        <definition>ColorProcessorPtr Exporter::color_processor_</definition>
+        <argsstring></argsstring>
+        <name>color_processor_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/exporter.h" line="92" column="21" bodyfile="C:/Daten/Olive/olive/app/render/backend/exporter.h" bodystart="92" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_exporter_1aca9594456c193ca521fc824d443cc608" prot="private" static="no" mutable="no">
+        <type><ref refid="class_export_params" kindref="compound">ExportParams</ref></type>
+        <definition>ExportParams Exporter::params_</definition>
+        <argsstring></argsstring>
+        <name>params_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/exporter.h" line="94" column="16" bodyfile="C:/Daten/Olive/olive/app/render/backend/exporter.h" bodystart="94" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_exporter_1a3c8fb773a81360d8e6d6838edfabfcfe" prot="private" static="no" mutable="no">
+        <type><ref refid="class_video_render_backend" kindref="compound">VideoRenderBackend</ref> *</type>
+        <definition>VideoRenderBackend* Exporter::video_backend_</definition>
+        <argsstring></argsstring>
+        <name>video_backend_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/exporter.h" line="97" column="22" bodyfile="C:/Daten/Olive/olive/app/render/backend/exporter.h" bodystart="97" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_exporter_1ac57ed03f4b74fbcdf79ef80c9d8d0102" prot="private" static="no" mutable="no">
+        <type><ref refid="class_audio_render_backend" kindref="compound">AudioRenderBackend</ref> *</type>
+        <definition>AudioRenderBackend* Exporter::audio_backend_</definition>
+        <argsstring></argsstring>
+        <name>audio_backend_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/exporter.h" line="98" column="22" bodyfile="C:/Daten/Olive/olive/app/render/backend/exporter.h" bodystart="98" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_exporter_1ae09d98bcf7f7161211b0f355e4594708" prot="private" static="no" mutable="no">
+        <type>QMatrix4x4</type>
+        <definition>QMatrix4x4 Exporter::transform_</definition>
+        <argsstring></argsstring>
+        <name>transform_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/exporter.h" line="101" column="14" bodyfile="C:/Daten/Olive/olive/app/render/backend/exporter.h" bodystart="101" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_exporter_1a65692684801b2fceca3ce8cb9396b1a1" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool Exporter::video_done_</definition>
+        <argsstring></argsstring>
+        <name>video_done_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/exporter.h" line="103" column="8" bodyfile="C:/Daten/Olive/olive/app/render/backend/exporter.h" bodystart="103" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_exporter_1a357374f74882ad27c46ff56e548b20cf" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool Exporter::audio_done_</definition>
+        <argsstring></argsstring>
+        <name>audio_done_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/exporter.h" line="105" column="8" bodyfile="C:/Daten/Olive/olive/app/render/backend/exporter.h" bodystart="105" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_exporter_1a2045c23ff5f8f08c5549b66d5214534e" prot="private" static="no" mutable="no">
+        <type><ref refid="class_encoder" kindref="compound">Encoder</ref> *</type>
+        <definition>Encoder* Exporter::encoder_</definition>
+        <argsstring></argsstring>
+        <name>encoder_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/exporter.h" line="107" column="11" bodyfile="C:/Daten/Olive/olive/app/render/backend/exporter.h" bodystart="107" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_exporter_1a78b6c6e9dce4304944e9f937e23b8e3e" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool Exporter::export_status_</definition>
+        <argsstring></argsstring>
+        <name>export_status_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/exporter.h" line="109" column="8" bodyfile="C:/Daten/Olive/olive/app/render/backend/exporter.h" bodystart="109" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_exporter_1a23a42fcb732390c93a6a49e6efb8cc7b" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString Exporter::export_msg_</definition>
+        <argsstring></argsstring>
+        <name>export_msg_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/exporter.h" line="111" column="11" bodyfile="C:/Daten/Olive/olive/app/render/backend/exporter.h" bodystart="111" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_exporter_1a33c624c1d46ee0a2b29cfa61dd6b6341" prot="private" static="no" mutable="no">
+        <type><ref refid="class_time_range" kindref="compound">TimeRange</ref></type>
+        <definition>TimeRange Exporter::export_range_</definition>
+        <argsstring></argsstring>
+        <name>export_range_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/exporter.h" line="113" column="13" bodyfile="C:/Daten/Olive/olive/app/render/backend/exporter.h" bodystart="113" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_exporter_1a32d1a1b12ea8e13506fe6ba766bbd7ac" prot="private" static="no" mutable="no">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational Exporter::waiting_for_frame_</definition>
+        <argsstring></argsstring>
+        <name>waiting_for_frame_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/exporter.h" line="115" column="12" bodyfile="C:/Daten/Olive/olive/app/render/backend/exporter.h" bodystart="115" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_exporter_1af44a3ee0778abd29850401540e900fc9" prot="private" static="no" mutable="no">
+        <type>QHash&lt; <ref refid="classrational" kindref="compound">rational</ref>, <ref refid="frame_8h_1a2ae9a822fc1e331fa3b449797f717db6" kindref="member">FramePtr</ref> &gt;</type>
+        <definition>QHash&lt;rational, FramePtr&gt; Exporter::cached_frames_</definition>
+        <argsstring></argsstring>
+        <name>cached_frames_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/exporter.h" line="117" column="9" bodyfile="C:/Daten/Olive/olive/app/render/backend/exporter.h" bodystart="117" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_exporter_1a391b39a1573e7c8024ee07d9b44399cb" prot="private" static="no" mutable="no">
+        <type>QTimer</type>
+        <definition>QTimer Exporter::debug_timer_</definition>
+        <argsstring></argsstring>
+        <name>debug_timer_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/exporter.h" line="119" column="10" bodyfile="C:/Daten/Olive/olive/app/render/backend/exporter.h" bodystart="119" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_exporter_1afcdd6db65c1992317c1cbb2ae9f0fbc5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Exporter::Exporter</definition>
+        <argsstring>(ViewerOutput *viewer_node, ColorManager *color_manager, const ExportParams &amp;params, QObject *parent=nullptr)</argsstring>
+        <name>Exporter</name>
+        <param>
+          <type><ref refid="class_viewer_output" kindref="compound">ViewerOutput</ref> *</type>
+          <declname>viewer_node</declname>
+        </param>
+        <param>
+          <type><ref refid="class_color_manager" kindref="compound">ColorManager</ref> *</type>
+          <declname>color_manager</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_export_params" kindref="compound">ExportParams</ref> &amp;</type>
+          <declname>params</declname>
+        </param>
+        <param>
+          <type>QObject *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/exporter.h" line="60" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_exporter_1af29d8d0b118d566d6e98616d6713fb80" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Exporter::GetExportStatus</definition>
+        <argsstring>() const</argsstring>
+        <name>GetExportStatus</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/exporter.h" line="65" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_exporter_1a19aec6c30bdec7f28edd8e08bb4dc647" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const QString &amp;</type>
+        <definition>const QString&amp; Exporter::GetExportError</definition>
+        <argsstring>() const</argsstring>
+        <name>GetExportError</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/exporter.h" line="66" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_exporter_1aaeb6b236f1a6ecf69cd70586781539cf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Exporter::Cancel</definition>
+        <argsstring>()</argsstring>
+        <name>Cancel</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/exporter.h" line="68" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="class_exporter_1a9ebcd93e00fd47eae0af24ceff573fe7" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QMatrix4x4</type>
+        <definition>static QMatrix4x4 Exporter::GenerateMatrix</definition>
+        <argsstring>(ExportParams::VideoScalingMethod method, int source_width, int source_height, int dest_width, int dest_height)</argsstring>
+        <name>GenerateMatrix</name>
+        <param>
+          <type><ref refid="class_export_params_1a8be72929c915b9304886d118ff144f97" kindref="member">ExportParams::VideoScalingMethod</ref></type>
+          <declname>method</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>source_width</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>source_height</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>dest_width</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>dest_height</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/exporter.h" line="70" column="21"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-slot">
+      <memberdef kind="slot" id="class_exporter_1a5fa68afb565ed355cdca22b198b5f2f3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Exporter::StartExporting</definition>
+        <argsstring>()</argsstring>
+        <name>StartExporting</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/exporter.h" line="73" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_exporter_1a62947affb163205291de4fde45529d43" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Exporter::ProgressChanged</definition>
+        <argsstring>(double)</argsstring>
+        <name>ProgressChanged</name>
+        <param>
+          <type>double</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/exporter.h" line="76" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_exporter_1af6b8367aff13430020fa3b948fe5e0ab" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Exporter::ExportEnded</definition>
+        <argsstring>()</argsstring>
+        <name>ExportEnded</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/exporter.h" line="78" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_exporter_1a08acebd035b8584d62d1889d78a41e77" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Exporter::SetExportMessage</definition>
+        <argsstring>(const QString &amp;s)</argsstring>
+        <name>SetExportMessage</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/exporter.h" line="81" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_exporter_1aa6073ac0e1a4b68a9d03aa0fb56fd27e" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Exporter::ExportSucceeded</definition>
+        <argsstring>()</argsstring>
+        <name>ExportSucceeded</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/exporter.h" line="84" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_exporter_1a1dab6fc9d562c2aad3f5654f40c2fe71" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Exporter::ExportStopped</definition>
+        <argsstring>()</argsstring>
+        <name>ExportStopped</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/exporter.h" line="86" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_exporter_1ae2f15bf519d909b3e0f1d25e45cf8cee" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Exporter::EncodeFrame</definition>
+        <argsstring>()</argsstring>
+        <name>EncodeFrame</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/exporter.h" line="88" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_exporter_1ac3129de9a193567916f48894043f9592" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Exporter::FrameRendered</definition>
+        <argsstring>(FramePtr frame)</argsstring>
+        <name>FrameRendered</name>
+        <param>
+          <type><ref refid="frame_8h_1a2ae9a822fc1e331fa3b449797f717db6" kindref="member">FramePtr</ref></type>
+          <declname>frame</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/exporter.h" line="122" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_exporter_1a7a568a97169f39c9907f9a9ceaad08b7" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Exporter::AudioRendered</definition>
+        <argsstring>()</argsstring>
+        <name>AudioRendered</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/exporter.h" line="124" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_exporter_1aaa864c369c58b45bd61c9b549a1fac83" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Exporter::AudioEncodeComplete</definition>
+        <argsstring>()</argsstring>
+        <name>AudioEncodeComplete</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/exporter.h" line="126" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_exporter_1a2e2c20f2f79bf3aeb8f239dace70fd73" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Exporter::EncoderOpenedSuccessfully</definition>
+        <argsstring>()</argsstring>
+        <name>EncoderOpenedSuccessfully</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/exporter.h" line="128" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_exporter_1a758060badc5a654d81228647fba4f2a7" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Exporter::EncoderOpenFailed</definition>
+        <argsstring>()</argsstring>
+        <name>EncoderOpenFailed</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/exporter.h" line="130" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_exporter_1aa5c4472d5a5c59ebec1e2ac7d797df42" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Exporter::EncoderClosed</definition>
+        <argsstring>()</argsstring>
+        <name>EncoderClosed</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/exporter.h" line="132" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_exporter_1ae77956602d0bbc54b9b349fd187c590f" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Exporter::VideoHashesComplete</definition>
+        <argsstring>()</argsstring>
+        <name>VideoHashesComplete</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/exporter.h" line="134" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_exporter_1a2b425a96bff20ae25ea778b44526adae" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Exporter::DebugTimerMessage</definition>
+        <argsstring>()</argsstring>
+        <name>DebugTimerMessage</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/exporter.h" line="136" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_exporter_1a3b597ca9a819c3278f2024010551ba22" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Exporter::FrameColorFinished</definition>
+        <argsstring>()</argsstring>
+        <name>FrameColorFinished</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/exporter.h" line="138" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="16">
+        <label>NodeOutput</label>
+        <link refid="class_node_output"/>
+        <childnode refid="17" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>NodeGraph</label>
+        <link refid="class_node_graph"/>
+      </node>
+      <node id="2">
+        <label>Encoder</label>
+        <link refid="class_encoder"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>params_</edgelabel>
+        </childnode>
+      </node>
+      <node id="11">
+        <label>RenderCancelDialog</label>
+        <link refid="class_render_cancel_dialog"/>
+        <childnode refid="12" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>VideoRenderBackend</label>
+        <link refid="class_video_render_backend"/>
+        <childnode refid="10" relation="public-inheritance">
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>params_</edgelabel>
+        </childnode>
+        <childnode refid="19" relation="usage">
+          <edgelabel>invalidated_</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>last_time_requested_</edgelabel>
+        </childnode>
+        <childnode refid="20" relation="usage">
+          <edgelabel>frame_cache_</edgelabel>
+        </childnode>
+      </node>
+      <node id="8">
+        <label>AudioParams</label>
+        <link refid="class_audio_params"/>
+      </node>
+      <node id="14">
+        <label>ViewerOutput</label>
+        <link refid="class_viewer_output"/>
+        <childnode refid="15" relation="public-inheritance">
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>video_params_</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>timeline_length_</edgelabel>
+        </childnode>
+        <childnode refid="8" relation="usage">
+          <edgelabel>audio_params_</edgelabel>
+        </childnode>
+        <childnode refid="18" relation="usage">
+          <edgelabel>texture_input_</edgelabel>
+          <edgelabel>samples_input_</edgelabel>
+        </childnode>
+      </node>
+      <node id="6">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="12">
+        <label>ProgressDialog</label>
+        <link refid="class_progress_dialog"/>
+      </node>
+      <node id="7">
+        <label>AudioRenderingParams</label>
+        <link refid="class_audio_rendering_params"/>
+        <childnode refid="8" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>Node</label>
+        <link refid="class_node"/>
+        <childnode refid="16" relation="usage">
+          <edgelabel>output_</edgelabel>
+        </childnode>
+      </node>
+      <node id="4">
+        <label>VideoRenderingParams</label>
+        <link refid="class_video_rendering_params"/>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="18">
+        <label>NodeInput</label>
+        <link refid="class_node_input"/>
+        <childnode refid="17" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>RenderBackend</label>
+        <link refid="class_render_backend"/>
+        <childnode refid="11" relation="usage">
+          <edgelabel>cancel_dialog_</edgelabel>
+        </childnode>
+        <childnode refid="13" relation="usage">
+          <edgelabel>copied_graph_</edgelabel>
+        </childnode>
+        <childnode refid="14" relation="usage">
+          <edgelabel>copied_viewer_node_</edgelabel>
+          <edgelabel>viewer_node_</edgelabel>
+        </childnode>
+        <childnode refid="19" relation="usage">
+          <edgelabel>cache_queue_</edgelabel>
+        </childnode>
+      </node>
+      <node id="19">
+        <label>TimeRangeList</label>
+        <link refid="class_time_range_list"/>
+      </node>
+      <node id="24">
+        <label>AudioRenderBackend</label>
+        <link refid="class_audio_render_backend"/>
+        <childnode refid="10" relation="public-inheritance">
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>params_</edgelabel>
+        </childnode>
+      </node>
+      <node id="17">
+        <label>NodeParam</label>
+        <link refid="class_node_param"/>
+      </node>
+      <node id="22">
+        <label>TimeRange</label>
+        <link refid="class_time_range"/>
+        <childnode refid="6" relation="usage">
+          <edgelabel>out_</edgelabel>
+          <edgelabel>in_</edgelabel>
+          <edgelabel>length_</edgelabel>
+        </childnode>
+      </node>
+      <node id="5">
+        <label>VideoParams</label>
+        <link refid="class_video_params"/>
+        <childnode refid="6" relation="usage">
+          <edgelabel>time_base_</edgelabel>
+        </childnode>
+      </node>
+      <node id="1">
+        <label>Exporter</label>
+        <link refid="class_exporter"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>encoder_</edgelabel>
+        </childnode>
+        <childnode refid="9" relation="usage">
+          <edgelabel>video_backend_</edgelabel>
+        </childnode>
+        <childnode refid="21" relation="usage">
+          <edgelabel>params_</edgelabel>
+        </childnode>
+        <childnode refid="14" relation="usage">
+          <edgelabel>viewer_node_</edgelabel>
+        </childnode>
+        <childnode refid="22" relation="usage">
+          <edgelabel>export_range_</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>waiting_for_frame_</edgelabel>
+        </childnode>
+        <childnode refid="24" relation="usage">
+          <edgelabel>audio_backend_</edgelabel>
+        </childnode>
+      </node>
+      <node id="21">
+        <label>ExportParams</label>
+        <link refid="class_export_params"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+        <childnode refid="22" relation="usage">
+          <edgelabel>custom_range_</edgelabel>
+        </childnode>
+        <childnode refid="23" relation="usage">
+          <edgelabel>color_transform_</edgelabel>
+        </childnode>
+      </node>
+      <node id="23">
+        <label>ColorTransform</label>
+        <link refid="class_color_transform"/>
+      </node>
+      <node id="20">
+        <label>VideoRenderFrameCache</label>
+        <link refid="class_video_render_frame_cache"/>
+      </node>
+      <node id="3">
+        <label>EncodingParams</label>
+        <link refid="class_encoding_params"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>video_params_</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>export_length_</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>audio_params_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/render/backend/exporter.h" line="38" column="1" bodyfile="C:/Daten/Olive/olive/app/render/backend/exporter.h" bodystart="39" bodyend="122"/>
+    <listofallmembers>
+      <member refid="class_exporter_1ac57ed03f4b74fbcdf79ef80c9d8d0102" prot="private" virt="non-virtual"><scope>Exporter</scope><name>audio_backend_</name></member>
+      <member refid="class_exporter_1a357374f74882ad27c46ff56e548b20cf" prot="private" virt="non-virtual"><scope>Exporter</scope><name>audio_done_</name></member>
+      <member refid="class_exporter_1aaa864c369c58b45bd61c9b549a1fac83" prot="private" virt="non-virtual"><scope>Exporter</scope><name>AudioEncodeComplete</name></member>
+      <member refid="class_exporter_1a7a568a97169f39c9907f9a9ceaad08b7" prot="private" virt="non-virtual"><scope>Exporter</scope><name>AudioRendered</name></member>
+      <member refid="class_exporter_1af44a3ee0778abd29850401540e900fc9" prot="private" virt="non-virtual"><scope>Exporter</scope><name>cached_frames_</name></member>
+      <member refid="class_exporter_1aaeb6b236f1a6ecf69cd70586781539cf" prot="public" virt="non-virtual"><scope>Exporter</scope><name>Cancel</name></member>
+      <member refid="class_exporter_1af3ae00a33f3d4e5248ce8bdf894768a9" prot="private" virt="non-virtual"><scope>Exporter</scope><name>color_processor_</name></member>
+      <member refid="class_exporter_1a391b39a1573e7c8024ee07d9b44399cb" prot="private" virt="non-virtual"><scope>Exporter</scope><name>debug_timer_</name></member>
+      <member refid="class_exporter_1a2b425a96bff20ae25ea778b44526adae" prot="private" virt="non-virtual"><scope>Exporter</scope><name>DebugTimerMessage</name></member>
+      <member refid="class_exporter_1ae2f15bf519d909b3e0f1d25e45cf8cee" prot="private" virt="non-virtual"><scope>Exporter</scope><name>EncodeFrame</name></member>
+      <member refid="class_exporter_1a2045c23ff5f8f08c5549b66d5214534e" prot="private" virt="non-virtual"><scope>Exporter</scope><name>encoder_</name></member>
+      <member refid="class_exporter_1aa5c4472d5a5c59ebec1e2ac7d797df42" prot="private" virt="non-virtual"><scope>Exporter</scope><name>EncoderClosed</name></member>
+      <member refid="class_exporter_1a2e2c20f2f79bf3aeb8f239dace70fd73" prot="private" virt="non-virtual"><scope>Exporter</scope><name>EncoderOpenedSuccessfully</name></member>
+      <member refid="class_exporter_1a758060badc5a654d81228647fba4f2a7" prot="private" virt="non-virtual"><scope>Exporter</scope><name>EncoderOpenFailed</name></member>
+      <member refid="class_exporter_1a23a42fcb732390c93a6a49e6efb8cc7b" prot="private" virt="non-virtual"><scope>Exporter</scope><name>export_msg_</name></member>
+      <member refid="class_exporter_1a33c624c1d46ee0a2b29cfa61dd6b6341" prot="private" virt="non-virtual"><scope>Exporter</scope><name>export_range_</name></member>
+      <member refid="class_exporter_1a78b6c6e9dce4304944e9f937e23b8e3e" prot="private" virt="non-virtual"><scope>Exporter</scope><name>export_status_</name></member>
+      <member refid="class_exporter_1af6b8367aff13430020fa3b948fe5e0ab" prot="public" virt="non-virtual"><scope>Exporter</scope><name>ExportEnded</name></member>
+      <member refid="class_exporter_1afcdd6db65c1992317c1cbb2ae9f0fbc5" prot="public" virt="non-virtual"><scope>Exporter</scope><name>Exporter</name></member>
+      <member refid="class_exporter_1a1dab6fc9d562c2aad3f5654f40c2fe71" prot="private" virt="non-virtual"><scope>Exporter</scope><name>ExportStopped</name></member>
+      <member refid="class_exporter_1aa6073ac0e1a4b68a9d03aa0fb56fd27e" prot="private" virt="non-virtual"><scope>Exporter</scope><name>ExportSucceeded</name></member>
+      <member refid="class_exporter_1a3b597ca9a819c3278f2024010551ba22" prot="private" virt="non-virtual"><scope>Exporter</scope><name>FrameColorFinished</name></member>
+      <member refid="class_exporter_1ac3129de9a193567916f48894043f9592" prot="private" virt="non-virtual"><scope>Exporter</scope><name>FrameRendered</name></member>
+      <member refid="class_exporter_1a9ebcd93e00fd47eae0af24ceff573fe7" prot="public" virt="non-virtual"><scope>Exporter</scope><name>GenerateMatrix</name></member>
+      <member refid="class_exporter_1a19aec6c30bdec7f28edd8e08bb4dc647" prot="public" virt="non-virtual"><scope>Exporter</scope><name>GetExportError</name></member>
+      <member refid="class_exporter_1af29d8d0b118d566d6e98616d6713fb80" prot="public" virt="non-virtual"><scope>Exporter</scope><name>GetExportStatus</name></member>
+      <member refid="class_exporter_1aca9594456c193ca521fc824d443cc608" prot="private" virt="non-virtual"><scope>Exporter</scope><name>params_</name></member>
+      <member refid="class_exporter_1a62947affb163205291de4fde45529d43" prot="public" virt="non-virtual"><scope>Exporter</scope><name>ProgressChanged</name></member>
+      <member refid="class_exporter_1a08acebd035b8584d62d1889d78a41e77" prot="protected" virt="non-virtual"><scope>Exporter</scope><name>SetExportMessage</name></member>
+      <member refid="class_exporter_1a5fa68afb565ed355cdca22b198b5f2f3" prot="public" virt="non-virtual"><scope>Exporter</scope><name>StartExporting</name></member>
+      <member refid="class_exporter_1ae09d98bcf7f7161211b0f355e4594708" prot="private" virt="non-virtual"><scope>Exporter</scope><name>transform_</name></member>
+      <member refid="class_exporter_1a3c8fb773a81360d8e6d6838edfabfcfe" prot="private" virt="non-virtual"><scope>Exporter</scope><name>video_backend_</name></member>
+      <member refid="class_exporter_1a65692684801b2fceca3ce8cb9396b1a1" prot="private" virt="non-virtual"><scope>Exporter</scope><name>video_done_</name></member>
+      <member refid="class_exporter_1ae77956602d0bbc54b9b349fd187c590f" prot="private" virt="non-virtual"><scope>Exporter</scope><name>VideoHashesComplete</name></member>
+      <member refid="class_exporter_1a3743cbe991a116b5eabeccc9774135c1" prot="private" virt="non-virtual"><scope>Exporter</scope><name>viewer_node_</name></member>
+      <member refid="class_exporter_1a32d1a1b12ea8e13506fe6ba766bbd7ac" prot="private" virt="non-virtual"><scope>Exporter</scope><name>waiting_for_frame_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

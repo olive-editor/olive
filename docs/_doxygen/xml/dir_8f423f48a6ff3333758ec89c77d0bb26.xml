@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_8f423f48a6ff3333758ec89c77d0bb26" kind="dir">
+    <compoundname>viewer</compoundname>
+    <innerfile refid="audiowaveformview_8h">audiowaveformview.h</innerfile>
+    <innerfile refid="widget_2viewer_2footageviewer_8h">widget/viewer/footageviewer.h</innerfile>
+    <innerfile refid="pixelsamplerwidget_8h">pixelsamplerwidget.h</innerfile>
+    <innerfile refid="widget_2viewer_2viewer_8h">widget/viewer/viewer.h</innerfile>
+    <innerfile refid="viewerdisplay_8h">viewerdisplay.h</innerfile>
+    <innerfile refid="viewersafemargininfo_8h">viewersafemargininfo.h</innerfile>
+    <innerfile refid="viewersizer_8h">viewersizer.h</innerfile>
+    <innerfile refid="viewerwindow_8h">viewerwindow.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/widget/viewer/"/>
+  </compounddef>
+</doxygen>

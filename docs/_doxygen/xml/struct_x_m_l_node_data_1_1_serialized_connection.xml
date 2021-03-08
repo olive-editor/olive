@@ -1,0 +1,63 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="struct_x_m_l_node_data_1_1_serialized_connection" kind="struct" language="C++" prot="public">
+    <compoundname>XMLNodeData::SerializedConnection</compoundname>
+    <includes refid="xmlutils_8h" local="no">xmlutils.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="struct_x_m_l_node_data_1_1_serialized_connection_1a2b286be95015c78593b0d68c353b5582" prot="public" static="no" mutable="no">
+        <type><ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+        <definition>NodeInput* XMLNodeData::SerializedConnection::input</definition>
+        <argsstring></argsstring>
+        <name>input</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/xmlutils.h" line="46" column="15" bodyfile="C:/Daten/Olive/olive/app/common/xmlutils.h" bodystart="46" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_x_m_l_node_data_1_1_serialized_connection_1ae5b8438d38d3c98d5f46443e4212a945" prot="public" static="no" mutable="no">
+        <type>quintptr</type>
+        <definition>quintptr XMLNodeData::SerializedConnection::output</definition>
+        <argsstring></argsstring>
+        <name>output</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/xmlutils.h" line="47" column="14" bodyfile="C:/Daten/Olive/olive/app/common/xmlutils.h" bodystart="47" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>XMLNodeData::SerializedConnection</label>
+        <link refid="struct_x_m_l_node_data_1_1_serialized_connection"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>input</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>NodeInput</label>
+        <link refid="class_node_input"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>NodeParam</label>
+        <link refid="class_node_param"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/common/xmlutils.h" line="45" column="3" bodyfile="C:/Daten/Olive/olive/app/common/xmlutils.h" bodystart="45" bodyend="48"/>
+    <listofallmembers>
+      <member refid="struct_x_m_l_node_data_1_1_serialized_connection_1a2b286be95015c78593b0d68c353b5582" prot="public" virt="non-virtual"><scope>XMLNodeData::SerializedConnection</scope><name>input</name></member>
+      <member refid="struct_x_m_l_node_data_1_1_serialized_connection_1ae5b8438d38d3c98d5f46443e4212a945" prot="public" virt="non-virtual"><scope>XMLNodeData::SerializedConnection</scope><name>output</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

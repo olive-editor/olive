@@ -1,0 +1,186 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_export_audio_tab" kind="class" language="C++" prot="public">
+    <compoundname>ExportAudioTab</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QWidget</basecompoundref>
+    <includes refid="exportaudiotab_8h" local="no">exportaudiotab.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_export_audio_tab_1aebc32af6d72afd819a2cb59514f27bbb" prot="private" static="no" mutable="no">
+        <type>QComboBox *</type>
+        <definition>QComboBox* ExportAudioTab::codec_combobox_</definition>
+        <argsstring></argsstring>
+        <name>codec_combobox_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportaudiotab.h" line="62" column="13" bodyfile="C:/Daten/Olive/olive/app/dialog/export/exportaudiotab.h" bodystart="62" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_export_audio_tab_1ad784df2a6a71f6d939a58f5f41b8118f" prot="private" static="no" mutable="no">
+        <type>QComboBox *</type>
+        <definition>QComboBox* ExportAudioTab::sample_rate_combobox_</definition>
+        <argsstring></argsstring>
+        <name>sample_rate_combobox_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportaudiotab.h" line="63" column="13" bodyfile="C:/Daten/Olive/olive/app/dialog/export/exportaudiotab.h" bodystart="63" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_export_audio_tab_1a181ee01f0f51374d91254ba3bf287b77" prot="private" static="no" mutable="no">
+        <type>QComboBox *</type>
+        <definition>QComboBox* ExportAudioTab::channel_layout_combobox_</definition>
+        <argsstring></argsstring>
+        <name>channel_layout_combobox_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportaudiotab.h" line="64" column="13" bodyfile="C:/Daten/Olive/olive/app/dialog/export/exportaudiotab.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_export_audio_tab_1a24d9f9d32c8620c3b6147bc377bf4fc2" prot="private" static="no" mutable="no">
+        <type>QList&lt; int &gt;</type>
+        <definition>QList&lt;int&gt; ExportAudioTab::sample_rates_</definition>
+        <argsstring></argsstring>
+        <name>sample_rates_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportaudiotab.h" line="66" column="9" bodyfile="C:/Daten/Olive/olive/app/dialog/export/exportaudiotab.h" bodystart="66" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_export_audio_tab_1a1ed15640030c3ffa068c959e77f8f3a2" prot="private" static="no" mutable="no">
+        <type>QList&lt; uint64_t &gt;</type>
+        <definition>QList&lt;uint64_t&gt; ExportAudioTab::channel_layouts_</definition>
+        <argsstring></argsstring>
+        <name>channel_layouts_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportaudiotab.h" line="67" column="9" bodyfile="C:/Daten/Olive/olive/app/dialog/export/exportaudiotab.h" bodystart="67" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_export_audio_tab_1adcc0b97af81a4cc42ac1570317c36fc7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>ExportAudioTab::ExportAudioTab</definition>
+        <argsstring>(QWidget *parent=nullptr)</argsstring>
+        <name>ExportAudioTab</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportaudiotab.h" line="52" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_export_audio_tab_1a73950b885232ec8c7b1461eebd4210be" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QComboBox *</type>
+        <definition>QComboBox* ExportAudioTab::codec_combobox</definition>
+        <argsstring>() const</argsstring>
+        <name>codec_combobox</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportaudiotab.h" line="54" column="13"/>
+      </memberdef>
+      <memberdef kind="function" id="class_export_audio_tab_1a7c403418ecf7c23e267eadf13ee5afed" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QComboBox *</type>
+        <definition>QComboBox* ExportAudioTab::sample_rate_combobox</definition>
+        <argsstring>() const</argsstring>
+        <name>sample_rate_combobox</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportaudiotab.h" line="55" column="13"/>
+      </memberdef>
+      <memberdef kind="function" id="class_export_audio_tab_1abffefe09efe3c61996aca70b7b07cab8" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QComboBox *</type>
+        <definition>QComboBox* ExportAudioTab::channel_layout_combobox</definition>
+        <argsstring>() const</argsstring>
+        <name>channel_layout_combobox</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportaudiotab.h" line="56" column="13"/>
+      </memberdef>
+      <memberdef kind="function" id="class_export_audio_tab_1a28054a77365d2c0754b600a05fcb9ba0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ExportAudioTab::set_sample_rate</definition>
+        <argsstring>(int rate)</argsstring>
+        <name>set_sample_rate</name>
+        <param>
+          <type>int</type>
+          <declname>rate</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportaudiotab.h" line="58" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_export_audio_tab_1aa7eaf7c29f359a7bebfeabecb24bb49d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ExportAudioTab::set_channel_layout</definition>
+        <argsstring>(uint64_t layout)</argsstring>
+        <name>set_channel_layout</name>
+        <param>
+          <type>uint64_t</type>
+          <declname>layout</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/exportaudiotab.h" line="59" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/dialog/export/exportaudiotab.h" line="31" column="1" bodyfile="C:/Daten/Olive/olive/app/dialog/export/exportaudiotab.h" bodystart="32" bodyend="50"/>
+    <listofallmembers>
+      <member refid="class_export_audio_tab_1abffefe09efe3c61996aca70b7b07cab8" prot="public" virt="non-virtual"><scope>ExportAudioTab</scope><name>channel_layout_combobox</name></member>
+      <member refid="class_export_audio_tab_1a181ee01f0f51374d91254ba3bf287b77" prot="private" virt="non-virtual"><scope>ExportAudioTab</scope><name>channel_layout_combobox_</name></member>
+      <member refid="class_export_audio_tab_1a1ed15640030c3ffa068c959e77f8f3a2" prot="private" virt="non-virtual"><scope>ExportAudioTab</scope><name>channel_layouts_</name></member>
+      <member refid="class_export_audio_tab_1a73950b885232ec8c7b1461eebd4210be" prot="public" virt="non-virtual"><scope>ExportAudioTab</scope><name>codec_combobox</name></member>
+      <member refid="class_export_audio_tab_1aebc32af6d72afd819a2cb59514f27bbb" prot="private" virt="non-virtual"><scope>ExportAudioTab</scope><name>codec_combobox_</name></member>
+      <member refid="class_export_audio_tab_1adcc0b97af81a4cc42ac1570317c36fc7" prot="public" virt="non-virtual"><scope>ExportAudioTab</scope><name>ExportAudioTab</name></member>
+      <member refid="class_export_audio_tab_1a7c403418ecf7c23e267eadf13ee5afed" prot="public" virt="non-virtual"><scope>ExportAudioTab</scope><name>sample_rate_combobox</name></member>
+      <member refid="class_export_audio_tab_1ad784df2a6a71f6d939a58f5f41b8118f" prot="private" virt="non-virtual"><scope>ExportAudioTab</scope><name>sample_rate_combobox_</name></member>
+      <member refid="class_export_audio_tab_1a24d9f9d32c8620c3b6147bc377bf4fc2" prot="private" virt="non-virtual"><scope>ExportAudioTab</scope><name>sample_rates_</name></member>
+      <member refid="class_export_audio_tab_1aa7eaf7c29f359a7bebfeabecb24bb49d" prot="public" virt="non-virtual"><scope>ExportAudioTab</scope><name>set_channel_layout</name></member>
+      <member refid="class_export_audio_tab_1a28054a77365d2c0754b600a05fcb9ba0" prot="public" virt="non-virtual"><scope>ExportAudioTab</scope><name>set_sample_rate</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_187daba3bcc90ed01f6481c4193bc096" kind="dir">
+    <compoundname>scope</compoundname>
+    <innerdir refid="dir_02579ddb7253db56edc1e197f52de1e2">histogram</innerdir>
+    <innerdir refid="dir_593e7491580971a19d2b85b05e61169e">waveform</innerdir>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/widget/scope/"/>
+  </compounddef>
+</doxygen>

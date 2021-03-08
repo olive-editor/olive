@@ -1,0 +1,68 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="struct_index_manager_1_1_index_pair" kind="struct" language="C++" prot="private">
+    <compoundname>IndexManager::IndexPair</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="struct_index_manager_1_1_index_pair_1a8554ff003f46192b9a203de95ae4cbfe" prot="public" static="no" mutable="no">
+        <type><ref refid="stream_8h_1a3ca5b414655d064180098adf46c1a2f1" kindref="member">StreamPtr</ref></type>
+        <definition>StreamPtr IndexManager::IndexPair::stream</definition>
+        <argsstring></argsstring>
+        <name>stream</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/indexmanager.h" line="75" column="15" bodyfile="C:/Daten/Olive/olive/app/render/backend/indexmanager.h" bodystart="75" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_index_manager_1_1_index_pair_1a5939cd3f1441360d282d17e3e5ec3cd0" prot="public" static="no" mutable="no">
+        <type><ref refid="class_index_task" kindref="compound">IndexTask</ref> *</type>
+        <definition>IndexTask* IndexManager::IndexPair::task</definition>
+        <argsstring></argsstring>
+        <name>task</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/indexmanager.h" line="76" column="15" bodyfile="C:/Daten/Olive/olive/app/render/backend/indexmanager.h" bodystart="76" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>IndexManager::IndexPair</label>
+        <link refid="struct_index_manager_1_1_index_pair"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>task</edgelabel>
+        </childnode>
+      </node>
+      <node id="4">
+        <label>CancelableObject</label>
+        <link refid="class_cancelable_object"/>
+      </node>
+      <node id="3">
+        <label>Task</label>
+        <link refid="class_task"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>IndexTask</label>
+        <link refid="class_index_task"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/render/backend/indexmanager.h" line="74" column="3" bodyfile="C:/Daten/Olive/olive/app/render/backend/indexmanager.h" bodystart="74" bodyend="77"/>
+    <listofallmembers>
+      <member refid="struct_index_manager_1_1_index_pair_1a8554ff003f46192b9a203de95ae4cbfe" prot="public" virt="non-virtual"><scope>IndexManager::IndexPair</scope><name>stream</name></member>
+      <member refid="struct_index_manager_1_1_index_pair_1a5939cd3f1441360d282d17e3e5ec3cd0" prot="public" virt="non-virtual"><scope>IndexManager::IndexPair</scope><name>task</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

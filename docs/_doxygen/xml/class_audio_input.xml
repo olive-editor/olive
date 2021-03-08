@@ -1,0 +1,1735 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_audio_input" kind="class" language="C++" prot="public">
+    <compoundname>AudioInput</compoundname>
+    <basecompoundref refid="class_media_input" prot="public" virt="non-virtual">MediaInput</basecompoundref>
+    <includes refid="audio_8h" local="no">audio.h</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_audio_input_1ab3b5c2a75f0acaeadc794b255f9b8091" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>AudioInput::AudioInput</definition>
+        <argsstring>()=default</argsstring>
+        <name>AudioInput</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/input/media/audio/audio.h" line="49" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_input_1a505a20b018039f5c149bdad750b9d2c3" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+        <definition>virtual Node* AudioInput::copy</definition>
+        <argsstring>() const override</argsstring>
+        <name>copy</name>
+        <reimplements refid="class_node_1a265c9f0caa1ca5b100e17b2d7e299d23">copy</reimplements>
+        <briefdescription>
+<para>Creates a clone of the <ref refid="class_node" kindref="compound">Node</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>By default, the clone will NOT have the values and connections of the original node. The caller is responsible for copying that data with functions like <ref refid="class_node_1a3b5e014cd602732bd27656339cdfd037" kindref="member">CopyInputs()</ref> as copies may be done for different reasons. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/input/media/audio/audio.h" line="51" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_input_1ab38fce6b850e61ebadbf67e69b9288f2" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type>QString</type>
+        <definition>virtual QString AudioInput::Name</definition>
+        <argsstring>() const override</argsstring>
+        <name>Name</name>
+        <reimplements refid="class_node_1af5d5a0f9710c2cd0202b3f60a1ff7d15">Name</reimplements>
+        <briefdescription>
+<para>Return the name of the node. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This is the node&apos;s name shown to the user. This must be overridden by subclasses, and preferably run through the translator. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/input/media/audio/audio.h" line="53" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_input_1a7fe33fd08d29a49a38dd48a16681fc22" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type>QString</type>
+        <definition>virtual QString AudioInput::id</definition>
+        <argsstring>() const override</argsstring>
+        <name>id</name>
+        <reimplements refid="class_node_1a1ccf5b7cbd5f5e63d0f7fb7caebcdcc2">id</reimplements>
+        <briefdescription>
+<para>Return the unique identifier of the node. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This is used in save files and any other times a specific node must be picked out at runtime. This must be an ID completely unique to this node, and preferably in bundle identifier format (e.g. &quot;org.company.Name&quot;). This string should NOT be translated. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/input/media/audio/audio.h" line="54" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_input_1aa10a7c6856cb5bf2d4f23e88f9d8d2b7" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type>QString</type>
+        <definition>virtual QString AudioInput::Description</definition>
+        <argsstring>() const override</argsstring>
+        <name>Description</name>
+        <reimplements refid="class_node_1aff31db0b121f8dbe51eb5be26f74a443">Description</reimplements>
+        <briefdescription>
+<para>Return a description of this node&apos;s purpose (optional for subclassing, but recommended) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>A short (1-2 sentence) description of what this node should do to help the user understand its purpose. This should be run through a translator. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/input/media/audio/audio.h" line="55" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_media_input_1aa250e2be398585150c2048da33ac2245" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type>QString</type>
+        <definition>virtual QString MediaInput::Category</definition>
+        <argsstring>() const override</argsstring>
+        <name>Category</name>
+        <reimplements refid="class_node_1a1bf7b4cb36d33995c17b37c30e31f781">Category</reimplements>
+        <briefdescription>
+<para>Return the category this node is in (optional for subclassing, but recommended) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>In any organized node menus, show the node in this category. If this node should be in a subfolder of a subfolder, use a &quot;/&quot; to separate categories (e.g. &quot;Distort/Noise&quot;). The string should not start with a &quot;/&quot; as this will be interpreted as an empty string category. This value should be run through a translator as its largely user oriented. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/input/media/media.h" line="56" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_media_input_1a40901539dc74564d55cb4f40895d105b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="stream_8h_1a3ca5b414655d064180098adf46c1a2f1" kindref="member">StreamPtr</ref></type>
+        <definition>StreamPtr MediaInput::footage</definition>
+        <argsstring>()</argsstring>
+        <name>footage</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/input/media/media.h" line="58" column="13"/>
+      </memberdef>
+      <memberdef kind="function" id="class_media_input_1af91f7d6a6e15f3dd6d0853bdac382cef" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MediaInput::SetFootage</definition>
+        <argsstring>(StreamPtr f)</argsstring>
+        <name>SetFootage</name>
+        <param>
+          <type><ref refid="stream_8h_1a3ca5b414655d064180098adf46c1a2f1" kindref="member">StreamPtr</ref></type>
+          <declname>f</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/input/media/media.h" line="59" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_media_input_1a402f81b12b4f66be0d94e5023d41c4b4" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void MediaInput::Retranslate</definition>
+        <argsstring>() override</argsstring>
+        <name>Retranslate</name>
+        <reimplements refid="class_node_1a6f649b4a2ae1437b779a60faeeba4db3">Retranslate</reimplements>
+        <briefdescription>
+<para>Function called to retranslate parameter names (should be overridden in derivatives) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/input/media/media.h" line="61" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_media_input_1a91216a0ca440640919241d3f86f7a5c4" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="class_node_value_table" kindref="compound">NodeValueTable</ref></type>
+        <definition>virtual NodeValueTable MediaInput::Value</definition>
+        <argsstring>(NodeValueDatabase &amp;value) const override</argsstring>
+        <name>Value</name>
+        <reimplements refid="class_node_1afe4587837f02bcb0d1c86aef1aa000eb">Value</reimplements>
+        <param>
+          <type><ref refid="class_node_value_database" kindref="compound">NodeValueDatabase</ref> &amp;</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+<para>The main processing function. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The node&apos;s main purpose is to take values from inputs to set values in outputs. For whatever subclass node you create, this is where the code for that goes.</para>
+<para>Note that as a video editor, the node graph has to work across time. Depending on the purpose of your node, it may output different values depending on the time, and even if not, it will likely be receiving different input depending on the time. Most of the difficult work here is handled by NodeInput::get_value() which you should pass the <computeroutput>time</computeroutput> parameter to. It will return its value (at that time, if it&apos;s keyframed), or pass the time to a corresponding output if it&apos;s connected to one. If your node doesn&apos;t directly deal with time, the default behavior of the <ref refid="class_node_param" kindref="compound">NodeParam</ref> objects will handle everything related to it automatically. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/input/media/media.h" line="63" column="26"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1ab237c5c5334f1708214dff734af2849a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Node::Load</definition>
+        <argsstring>(QXmlStreamReader *reader, XMLNodeData &amp;xml_node_data, const QAtomicInt *cancelled)</argsstring>
+        <name>Load</name>
+        <param>
+          <type>QXmlStreamReader *</type>
+          <declname>reader</declname>
+        </param>
+        <param>
+          <type><ref refid="struct_x_m_l_node_data" kindref="compound">XMLNodeData</ref> &amp;</type>
+          <declname>xml_node_data</declname>
+        </param>
+        <param>
+          <type>const QAtomicInt *</type>
+          <declname>cancelled</declname>
+        </param>
+        <briefdescription>
+<para>Clear current node variables and replace them with. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="97" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1a07219b52a31315721bdaeda2fab03489" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Node::Save</definition>
+        <argsstring>(QXmlStreamWriter *writer, const QString &amp;custom_name=QString()) const</argsstring>
+        <name>Save</name>
+        <param>
+          <type>QXmlStreamWriter *</type>
+          <declname>writer</declname>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>custom_name</declname>
+          <defval>QString()</defval>
+        </param>
+        <briefdescription>
+<para>Save this node into a text/XML format. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="102" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1accc571649e5d757906989b0db9d31aad" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type>QString</type>
+        <definition>virtual QString Node::ShortName</definition>
+        <argsstring>() const</argsstring>
+        <name>ShortName</name>
+        <reimplementedby refid="class_matrix_generator_1aa26a318bcbd3b6db3f06287d365a08d8">ShortName</reimplementedby>
+        <reimplementedby refid="class_external_transition_1addba5d16fa482e9501bf12e76d76e743">ShortName</reimplementedby>
+        <reimplementedby refid="class_external_node_1a52bda789da2a30d21fa65001b449e7b5">ShortName</reimplementedby>
+        <briefdescription>
+<para>Returns a shortened name of this node if applicable. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Defaults to returning <ref refid="class_node_1af5d5a0f9710c2cd0202b3f60a1ff7d15" kindref="member">Name()</ref> but can be overridden. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="117" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1ad5705365a69e6d054a112c6322be88d3" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const QList&lt; <ref refid="class_node_param" kindref="compound">NodeParam</ref> * &gt; &amp;</type>
+        <definition>const QList&lt;NodeParam*&gt;&amp; Node::parameters</definition>
+        <argsstring>() const</argsstring>
+        <name>parameters</name>
+        <briefdescription>
+<para>Return a list of NodeParams. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="154" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1ab9000f8de3867d95b5cd767955df7d95" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int Node::IndexOfParameter</definition>
+        <argsstring>(NodeParam *param) const</argsstring>
+        <name>IndexOfParameter</name>
+        <param>
+          <type><ref refid="class_node_param" kindref="compound">NodeParam</ref> *</type>
+          <declname>param</declname>
+        </param>
+        <briefdescription>
+<para>Return the index of a parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>Parameter index or -1 if this parameter is not part of this <ref refid="class_node" kindref="compound">Node</ref> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="160" column="7"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1aaeb631801d5f319b0e0c6943a0fad1a0" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QList&lt; <ref refid="class_node" kindref="compound">Node</ref> * &gt;</type>
+        <definition>QList&lt;Node*&gt; Node::GetDependencies</definition>
+        <argsstring>() const</argsstring>
+        <name>GetDependencies</name>
+        <briefdescription>
+<para>Return a list of all Nodes that this <ref refid="class_node" kindref="compound">Node</ref>&apos;s inputs are connected to (does not include this <ref refid="class_node" kindref="compound">Node</ref>) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="165" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1a1ec732e6e5f7c696ea8cc3ce743818cf" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QList&lt; <ref refid="class_node" kindref="compound">Node</ref> * &gt;</type>
+        <definition>QList&lt;Node*&gt; Node::GetExclusiveDependencies</definition>
+        <argsstring>() const</argsstring>
+        <name>GetExclusiveDependencies</name>
+        <briefdescription>
+<para>Returns a list of Nodes that this <ref refid="class_node" kindref="compound">Node</ref> is dependent on, provided no other Nodes are dependent on them outside of this hierarchy. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Similar to <ref refid="class_node_1aaeb631801d5f319b0e0c6943a0fad1a0" kindref="member">GetDependencies()</ref>, but excludes any Nodes that are used outside the dependency graph of this <ref refid="class_node" kindref="compound">Node</ref>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="173" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1aaf4cc01490dd0a8e10c4f46d8f221025" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QList&lt; <ref refid="class_node" kindref="compound">Node</ref> * &gt;</type>
+        <definition>QList&lt;Node*&gt; Node::GetImmediateDependencies</definition>
+        <argsstring>() const</argsstring>
+        <name>GetImmediateDependencies</name>
+        <briefdescription>
+<para>Retrieve immediate dependencies (only nodes that are directly connected to the inputs of this one) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="178" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1ab790fee50c23284741e10f18d259c12c" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="class_node_1a04b586dface8f84c5c50e56e1bb26a79" kindref="member">Capabilities</ref></type>
+        <definition>virtual Capabilities Node::GetCapabilities</definition>
+        <argsstring>(const NodeValueDatabase &amp;) const</argsstring>
+        <name>GetCapabilities</name>
+        <reimplementedby refid="class_volume_node_1a0180a2cb7bd6c27df086b488fc25f839">GetCapabilities</reimplementedby>
+        <reimplementedby refid="class_pan_node_1a7cd95534074de9558aa4ff302c46ddd9">GetCapabilities</reimplementedby>
+        <reimplementedby refid="class_math_node_1a63e2b33bc2c90b30147d621bd5ec8e1b">GetCapabilities</reimplementedby>
+        <reimplementedby refid="class_external_transition_1a4c10432a21bac1f23562d8ed4f1238ed">GetCapabilities</reimplementedby>
+        <reimplementedby refid="class_external_node_1a7152685fb6ee888ce7cffc363a5eac43">GetCapabilities</reimplementedby>
+        <param>
+          <type>const <ref refid="class_node_value_database" kindref="compound">NodeValueDatabase</ref> &amp;</type>
+        </param>
+        <briefdescription>
+<para>Return accelerated capabilities of this node (if any) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="183" column="24"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1ad32bf0dda31241ea313bddaf67d728f7" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type>QString</type>
+        <definition>virtual QString Node::ShaderID</definition>
+        <argsstring>(const NodeValueDatabase &amp;) const</argsstring>
+        <name>ShaderID</name>
+        <reimplementedby refid="class_math_node_1ad5849154ef78a8147667c04f1343ea3e">ShaderID</reimplementedby>
+        <param>
+          <type>const <ref refid="class_node_value_database" kindref="compound">NodeValueDatabase</ref> &amp;</type>
+        </param>
+        <briefdescription>
+<para>Generate a unique identifier for the shader code (if a node can produce multiple) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="188" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1a83746334406522ff4e234f7ebbf7215f" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type>QString</type>
+        <definition>virtual QString Node::ShaderVertexCode</definition>
+        <argsstring>(const NodeValueDatabase &amp;) const</argsstring>
+        <name>ShaderVertexCode</name>
+        <reimplementedby refid="class_external_transition_1ace39685a9d8611b34d690135900170e2">ShaderVertexCode</reimplementedby>
+        <reimplementedby refid="class_external_node_1abf2ce366b6b61b588d988dd3b47b18c8">ShaderVertexCode</reimplementedby>
+        <reimplementedby refid="class_math_node_1aa377b415e096181064aeb1aa9c925e79">ShaderVertexCode</reimplementedby>
+        <param>
+          <type>const <ref refid="class_node_value_database" kindref="compound">NodeValueDatabase</ref> &amp;</type>
+        </param>
+        <briefdescription>
+<para>Generate hardware accelerated code for this <ref refid="class_node" kindref="compound">Node</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="193" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1ac468089820d1f1226ef269303172420b" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type>QString</type>
+        <definition>virtual QString Node::ShaderFragmentCode</definition>
+        <argsstring>(const NodeValueDatabase &amp;) const</argsstring>
+        <name>ShaderFragmentCode</name>
+        <reimplementedby refid="class_math_node_1a9c1cb72136cc5c101ef8c357f18fcc24">ShaderFragmentCode</reimplementedby>
+        <reimplementedby refid="class_external_transition_1a60954370d1cd697372568c78f75c8913">ShaderFragmentCode</reimplementedby>
+        <reimplementedby refid="class_external_node_1a4a8203f5e1886ea77795b3811a029051">ShaderFragmentCode</reimplementedby>
+        <param>
+          <type>const <ref refid="class_node_value_database" kindref="compound">NodeValueDatabase</ref> &amp;</type>
+        </param>
+        <briefdescription>
+<para>Generate hardware accelerated code for this <ref refid="class_node" kindref="compound">Node</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="198" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1a33d3ace4b8bb5f0d00b7c320bb79a7d2" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type>int</type>
+        <definition>virtual int Node::ShaderIterations</definition>
+        <argsstring>() const</argsstring>
+        <name>ShaderIterations</name>
+        <reimplementedby refid="class_external_transition_1ab1ff3f011e49ea0a34630e99e055c1d8">ShaderIterations</reimplementedby>
+        <reimplementedby refid="class_external_node_1a29fc81d0895b928a44652f26beb66246">ShaderIterations</reimplementedby>
+        <briefdescription>
+<para>Number of iterations to run the accelerated code. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Some code is faster if it&apos;s merely repeated on a resulting texture rather than run once on the same buffer. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="205" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1aa2f099ef6e5ab2c6773fc3da0da02acf" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+        <definition>virtual NodeInput* Node::ShaderIterativeInput</definition>
+        <argsstring>() const</argsstring>
+        <name>ShaderIterativeInput</name>
+        <reimplementedby refid="class_external_transition_1a3b0bb181f2ba314146d8b5b9a0639307">ShaderIterativeInput</reimplementedby>
+        <reimplementedby refid="class_external_node_1a205f70502425e0185b5419b7a40d1da2">ShaderIterativeInput</reimplementedby>
+        <briefdescription>
+<para>Parameter that should receive the buffer on an iteration past the first. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="210" column="21"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1ab6390f64297373b60737a86fde151344" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+        <definition>virtual NodeInput* Node::ProcessesSamplesFrom</definition>
+        <argsstring>(const NodeValueDatabase &amp;value) const</argsstring>
+        <name>ProcessesSamplesFrom</name>
+        <reimplementedby refid="class_volume_node_1a98756a58aa046418c3a0d06fdb3abcbc">ProcessesSamplesFrom</reimplementedby>
+        <reimplementedby refid="class_pan_node_1aa6b481db82c5a00eab6955e37126ff45">ProcessesSamplesFrom</reimplementedby>
+        <reimplementedby refid="class_math_node_1abc87600f27e339aaa8cf20dd6fbfb0a2">ProcessesSamplesFrom</reimplementedby>
+        <param>
+          <type>const <ref refid="class_node_value_database" kindref="compound">NodeValueDatabase</ref> &amp;</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+<para>Return whether this node processes samples or not. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="215" column="21"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1abf4c84b42fa3710f648d4c14686f190a" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void Node::ProcessSamples</definition>
+        <argsstring>(const NodeValueDatabase &amp;values, const AudioRenderingParams &amp;params, const SampleBufferPtr input, SampleBufferPtr output, int index) const</argsstring>
+        <name>ProcessSamples</name>
+        <reimplementedby refid="class_volume_node_1aa54ad9819af1497ade43618422d19561">ProcessSamples</reimplementedby>
+        <reimplementedby refid="class_pan_node_1a4b4eb10a11d491eaab3b3b8cd37d70cc">ProcessSamples</reimplementedby>
+        <reimplementedby refid="class_math_node_1a47d67d7fe78e4893869b72728856ccf2">ProcessSamples</reimplementedby>
+        <param>
+          <type>const <ref refid="class_node_value_database" kindref="compound">NodeValueDatabase</ref> &amp;</type>
+          <declname>values</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref> &amp;</type>
+          <declname>params</declname>
+        </param>
+        <param>
+          <type>const <ref refid="samplebuffer_8h_1aa60dc68e3e43775112c8dabb364d0a33" kindref="member">SampleBufferPtr</ref></type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type><ref refid="samplebuffer_8h_1aa60dc68e3e43775112c8dabb364d0a33" kindref="member">SampleBufferPtr</ref></type>
+          <declname>output</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+<para>If ProcessesSamples() is true, this is the function that will process them. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="220" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1a08c42082f183b805d7cc5185ccd37deb" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+        <definition>NodeInput* Node::GetInputWithID</definition>
+        <argsstring>(const QString &amp;id) const</argsstring>
+        <name>GetInputWithID</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>id</declname>
+        </param>
+        <briefdescription>
+<para>Returns the input with the specified ID (or nullptr if it doesn&apos;t exist) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="225" column="13"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1a1cef35e6faa34510d720ffc9214c8e96" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_node_output" kindref="compound">NodeOutput</ref> *</type>
+        <definition>NodeOutput* Node::GetOutputWithID</definition>
+        <argsstring>(const QString &amp;id) const</argsstring>
+        <name>GetOutputWithID</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>id</declname>
+        </param>
+        <briefdescription>
+<para>Returns the output with the specified ID (or nullptr if it doesn&apos;t exist) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="230" column="14"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1ac4ab93459e1c72fee464efe9b7064cda" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Node::OutputsTo</definition>
+        <argsstring>(Node *n) const</argsstring>
+        <name>OutputsTo</name>
+        <param>
+          <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Returns whether this <ref refid="class_node" kindref="compound">Node</ref> outputs data to the <ref refid="class_node" kindref="compound">Node</ref> <computeroutput>n</computeroutput> in any way. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="235" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1a78cdfda505d40df5df88299fb6c181af" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Node::HasInputs</definition>
+        <argsstring>() const</argsstring>
+        <name>HasInputs</name>
+        <briefdescription>
+<para>Return whether this <ref refid="class_node" kindref="compound">Node</ref> has input parameters. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="240" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1a68a1e0edba85c5b1e453b729b9834c32" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Node::HasOutputs</definition>
+        <argsstring>() const</argsstring>
+        <name>HasOutputs</name>
+        <briefdescription>
+<para>Return whether this <ref refid="class_node" kindref="compound">Node</ref> has output parameters. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="245" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1a2700b0e5380d14a0aff32a221427bf60" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Node::HasConnectedInputs</definition>
+        <argsstring>() const</argsstring>
+        <name>HasConnectedInputs</name>
+        <briefdescription>
+<para>Return whether this <ref refid="class_node" kindref="compound">Node</ref> has input parameters and at least one of them is connected. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="250" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1ac8b664344a78a45f5ca1ae5cacec1f0b" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Node::HasConnectedOutputs</definition>
+        <argsstring>() const</argsstring>
+        <name>HasConnectedOutputs</name>
+        <briefdescription>
+<para>Return whether this <ref refid="class_node" kindref="compound">Node</ref> has output parameters and at least one of them is connected. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="255" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1acaeeeb78a4b8d60d31a408bdfc525434" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Node::DisconnectAll</definition>
+        <argsstring>()</argsstring>
+        <name>DisconnectAll</name>
+        <briefdescription>
+<para>Severs all input and output connections. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="260" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1a5a3ce13d77997d3548d21f991d3b23b6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QList&lt; <ref refid="class_time_range" kindref="compound">TimeRange</ref> &gt;</type>
+        <definition>QList&lt;TimeRange&gt; Node::TransformTimeTo</definition>
+        <argsstring>(const TimeRange &amp;time, Node *target, NodeParam::Type direction)</argsstring>
+        <name>TransformTimeTo</name>
+        <param>
+          <type>const <ref refid="class_time_range" kindref="compound">TimeRange</ref> &amp;</type>
+          <declname>time</declname>
+        </param>
+        <param>
+          <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+          <declname>target</declname>
+        </param>
+        <param>
+          <type><ref refid="class_node_param_1a57c2c5ab98ca8fd2c41cd1ebad045a00" kindref="member">NodeParam::Type</ref></type>
+          <declname>direction</declname>
+        </param>
+        <briefdescription>
+<para>Transforms time from this node through the connections it takes to get to the specified node. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="265" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1af2603d2807f3560fb9dc105a25d636bf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T *</type>
+        <definition>T * Node::FindOutputNode</definition>
+        <argsstring>()</argsstring>
+        <name>FindOutputNode</name>
+        <briefdescription>
+<para>Find a node of a certain type that this <ref refid="class_node" kindref="compound">Node</ref> outputs to. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="271" column="5" bodyfile="C:/Daten/Olive/olive/app/node/node.h" bodystart="484" bodyend="487"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1a7411f82bb3aa6c9d6cbf42c48754a08b" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void Node::InvalidateCache</definition>
+        <argsstring>(const TimeRange &amp;range, NodeInput *from, NodeInput *source)</argsstring>
+        <name>InvalidateCache</name>
+        <reimplementedby refid="class_clip_block_1a1dcb8adc35833ba0b8a1493127bc7655">InvalidateCache</reimplementedby>
+        <reimplementedby refid="class_viewer_output_1a1e05f5c11ac78b1024e190054c9313eb">InvalidateCache</reimplementedby>
+        <reimplementedby refid="class_track_output_1a3f2a66c855acb7da0179197a3f8cb489">InvalidateCache</reimplementedby>
+        <reimplementedby refid="class_block_1aaad6f0e7af2e2064acb0e8efd730367c">InvalidateCache</reimplementedby>
+        <param>
+          <type>const <ref refid="class_time_range" kindref="compound">TimeRange</ref> &amp;</type>
+          <declname>range</declname>
+        </param>
+        <param>
+          <type><ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+          <declname>from</declname>
+        </param>
+        <param>
+          <type><ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+          <declname>source</declname>
+        </param>
+        <briefdescription>
+<para>Signal all dependent Nodes that anything cached between start_range and end_range is now invalid and requires re-rendering. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Override this if your <ref refid="class_node" kindref="compound">Node</ref> subclass keeps a cache, but call this base function at the end of the subclass function. Default behavior is to relay this signal to all connected outputs, which will need to be done as to not break the DAG. Even if the time needs to be transformed somehow (e.g. converting media time to sequence time), you can call this function with transformed time and relay the signal that way. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="293" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1ad115f78e7e345603f506b5937b6c53a7" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void Node::InvalidateVisible</definition>
+        <argsstring>(NodeInput *from, NodeInput *source)</argsstring>
+        <name>InvalidateVisible</name>
+        <reimplementedby refid="class_viewer_output_1a01f2494e0fe2560e1988a810128f1428">InvalidateVisible</reimplementedby>
+        <param>
+          <type><ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+          <declname>from</declname>
+        </param>
+        <param>
+          <type><ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+          <declname>source</declname>
+        </param>
+        <briefdescription>
+<para>Signal through node graph to only invalidate frames that are currently visible on a <ref refid="class_viewer_widget" kindref="compound">ViewerWidget</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="298" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1ad84b426f59fe49f73fb79a28234c26c9" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="class_time_range" kindref="compound">TimeRange</ref></type>
+        <definition>virtual TimeRange Node::InputTimeAdjustment</definition>
+        <argsstring>(NodeInput *input, const TimeRange &amp;input_time) const</argsstring>
+        <name>InputTimeAdjustment</name>
+        <reimplementedby refid="class_clip_block_1ab28c4e1ced68d0fd57b20da179900b4c">InputTimeAdjustment</reimplementedby>
+        <param>
+          <type><ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_time_range" kindref="compound">TimeRange</ref> &amp;</type>
+          <declname>input_time</declname>
+        </param>
+        <briefdescription>
+<para>Adjusts time that should be sent to nodes connected to certain inputs. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If this node modifies the <computeroutput>time</computeroutput> (i.e. a clip converting sequence time to media time), this function should be overridden to do so. Also make sure to override <ref refid="class_node_1abea3f3ea8c812e1d25c9da7376562d01" kindref="member">OutputTimeAdjustment()</ref> to provide the inverse function. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="306" column="21"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1abea3f3ea8c812e1d25c9da7376562d01" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="class_time_range" kindref="compound">TimeRange</ref></type>
+        <definition>virtual TimeRange Node::OutputTimeAdjustment</definition>
+        <argsstring>(NodeInput *input, const TimeRange &amp;input_time) const</argsstring>
+        <name>OutputTimeAdjustment</name>
+        <reimplementedby refid="class_clip_block_1a3b27ce9941f1dcc6f34ef5800ac83d70">OutputTimeAdjustment</reimplementedby>
+        <param>
+          <type><ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_time_range" kindref="compound">TimeRange</ref> &amp;</type>
+          <declname>input_time</declname>
+        </param>
+        <briefdescription>
+<para>The inverse of <ref refid="class_node_1ad84b426f59fe49f73fb79a28234c26c9" kindref="member">InputTimeAdjustment()</ref> </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="311" column="21"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1a351cb23683548e89df80abb71f293cd5" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Node::CanBeDeleted</definition>
+        <argsstring>() const</argsstring>
+        <name>CanBeDeleted</name>
+        <briefdescription>
+<para>Return whether this <ref refid="class_node" kindref="compound">Node</ref> can be deleted or not. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="323" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1a172a44608da85955aae72e63c8282d1f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Node::SetCanBeDeleted</definition>
+        <argsstring>(bool s)</argsstring>
+        <name>SetCanBeDeleted</name>
+        <param>
+          <type>bool</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Set whether this <ref refid="class_node" kindref="compound">Node</ref> can be deleted in the UI or not. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="328" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1acd23e6ee77917b462b92f8e9f51fc1ac" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type>bool</type>
+        <definition>virtual bool Node::IsBlock</definition>
+        <argsstring>() const</argsstring>
+        <name>IsBlock</name>
+        <reimplementedby refid="class_block_1a426ef6896be2b8ab28a4ad9441b4c76f">IsBlock</reimplementedby>
+        <briefdescription>
+<para>Returns whether this <ref refid="class_node" kindref="compound">Node</ref> is a &quot;Block&quot; type or not. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>You shouldn&apos;t ever need to override this since all derivatives of <ref refid="class_block" kindref="compound">Block</ref> will automatically have this set to true. It&apos;s just a more convenient way of checking than dynamic_casting. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="336" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1a2c0db284cbeaa1161c025081992ea4e6" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type>bool</type>
+        <definition>virtual bool Node::IsTrack</definition>
+        <argsstring>() const</argsstring>
+        <name>IsTrack</name>
+        <reimplementedby refid="class_track_output_1ac2c9bc2d2baa0055fc69bd5e3f9df495">IsTrack</reimplementedby>
+        <briefdescription>
+<para>Returns whether this <ref refid="class_node" kindref="compound">Node</ref> is a &quot;Track&quot; type or not. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>You shouldn&apos;t ever need to override this since all derivatives of Track will automatically have this set to true. It&apos;s just a more convenient way of checking than dynamic_casting. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="344" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1a7ebd83198688375252c457ffb65cfabb" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Node::HasParamWithID</definition>
+        <argsstring>(const QString &amp;id) const</argsstring>
+        <name>HasParamWithID</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>id</declname>
+        </param>
+        <briefdescription>
+<para>Return whether a parameter with ID <computeroutput>id</computeroutput> has already been added to this <ref refid="class_node" kindref="compound">Node</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="364" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1a92d01e866aa35bfd762b297a68cc9f72" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_node_output" kindref="compound">NodeOutput</ref> *</type>
+        <definition>NodeOutput* Node::output</definition>
+        <argsstring>() const</argsstring>
+        <name>output</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="366" column="14"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1afacddc858f87a9fd1d00ae612aa4e648" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="class_node_value" kindref="compound">NodeValue</ref></type>
+        <definition>virtual NodeValue Node::InputValueFromTable</definition>
+        <argsstring>(NodeInput *input, NodeValueDatabase &amp;db, bool take) const</argsstring>
+        <name>InputValueFromTable</name>
+        <reimplementedby refid="class_math_node_1a80c10899ac80c77c4dfa6dd60f3c1e3a">InputValueFromTable</reimplementedby>
+        <param>
+          <type><ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type><ref refid="class_node_value_database" kindref="compound">NodeValueDatabase</ref> &amp;</type>
+          <declname>db</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>take</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="368" column="21"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1a9ff9d3b36383cc91c010f5d3a78cda87" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const QPointF &amp;</type>
+        <definition>const QPointF&amp; Node::GetPosition</definition>
+        <argsstring>() const</argsstring>
+        <name>GetPosition</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="370" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1a533b1ed463da7f833e0da4237494c448" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Node::SetPosition</definition>
+        <argsstring>(const QPointF &amp;pos)</argsstring>
+        <name>SetPosition</name>
+        <param>
+          <type>const QPointF &amp;</type>
+          <declname>pos</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="372" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1aa86cf2be9994c0d2519ea95bc1150de5" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QList&lt; <ref refid="class_node_input" kindref="compound">NodeInput</ref> * &gt;</type>
+        <definition>QList&lt;NodeInput*&gt; Node::GetInputsIncludingArrays</definition>
+        <argsstring>() const</argsstring>
+        <name>GetInputsIncludingArrays</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="376" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1a57c9424b9b3744cb4ce3d6683617e1a7" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QList&lt; <ref refid="class_node_output" kindref="compound">NodeOutput</ref> * &gt;</type>
+        <definition>QList&lt;NodeOutput*&gt; Node::GetOutputs</definition>
+        <argsstring>() const</argsstring>
+        <name>GetOutputs</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="378" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1a50ed6ecf511e4647bb69528497e231ff" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const QString &amp;</type>
+        <definition>const QString&amp; Node::GetLabel</definition>
+        <argsstring>() const</argsstring>
+        <name>GetLabel</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="380" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1a7d3bec35d2f87adb39ef274badbc7267" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Node::SetLabel</definition>
+        <argsstring>(const QString &amp;s)</argsstring>
+        <name>SetLabel</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="381" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1a3458bec8a783fa52c7239e4a86de0d7b" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void Node::Hash</definition>
+        <argsstring>(QCryptographicHash &amp;hash, const rational &amp;time) const</argsstring>
+        <name>Hash</name>
+        <reimplementedby refid="class_time_input_1a354819d440a6dd007755bfbd07cc907f">Hash</reimplementedby>
+        <reimplementedby refid="class_transition_block_1ac274d92ceb9b15f31d9e092178c16f50">Hash</reimplementedby>
+        <reimplementedby refid="class_track_output_1a3d2ed84cd34fdf7cbd1319b82df62a75">Hash</reimplementedby>
+        <param>
+          <type>QCryptographicHash &amp;</type>
+          <declname>hash</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="383" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="class_media_input_1a601539c5349212e9881da2a02e44bf19" prot="protected" static="no" mutable="no">
+        <type><ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+        <definition>NodeInput* MediaInput::footage_input_</definition>
+        <argsstring></argsstring>
+        <name>footage_input_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/input/media/media.h" line="66" column="13" bodyfile="C:/Daten/Olive/olive/app/node/input/media/media.h" bodystart="66" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_media_input_1a6aa2cf4a0fbcf442c4fdfaf26d6a7d82" prot="protected" static="no" mutable="no">
+        <type><ref refid="stream_8h_1a3ca5b414655d064180098adf46c1a2f1" kindref="member">StreamPtr</ref></type>
+        <definition>StreamPtr MediaInput::connected_footage_</definition>
+        <argsstring></argsstring>
+        <name>connected_footage_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/input/media/media.h" line="68" column="13" bodyfile="C:/Daten/Olive/olive/app/node/input/media/media.h" bodystart="68" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_media_input_1a879b2b18bcd2e2355792bfcd184555e7" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MediaInput::FootageChanged</definition>
+        <argsstring>()</argsstring>
+        <name>FootageChanged</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/input/media/media.h" line="71" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_media_input_1aadb17fef6eddcca6abef416cb21900c7" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MediaInput::FootageParametersChanged</definition>
+        <argsstring>()</argsstring>
+        <name>FootageParametersChanged</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/input/media/media.h" line="73" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_node_1a0cfe46c4157cecef7f65fb2a20635f38" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Node::InputChanged</definition>
+        <argsstring>(const OLIVE_NAMESPACE::TimeRange &amp;range)</argsstring>
+        <name>InputChanged</name>
+        <param>
+          <type>const OLIVE_NAMESPACE::TimeRange &amp;</type>
+          <declname>range</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="470" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_node_1aad142abd5561695aba425b87a720fe67" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Node::InputConnectionChanged</definition>
+        <argsstring>(NodeEdgePtr edge)</argsstring>
+        <name>InputConnectionChanged</name>
+        <param>
+          <type><ref refid="edge_8h_1a9eb6ae7d2b608077e13ab3571ea6b101" kindref="member">NodeEdgePtr</ref></type>
+          <declname>edge</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="472" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-type">
+      <memberdef kind="enum" id="class_node_1a04b586dface8f84c5c50e56e1bb26a79" prot="public" static="no" strong="no">
+        <type></type>
+        <name>Capabilities</name>
+        <enumvalue id="class_node_1a04b586dface8f84c5c50e56e1bb26a79a8b08bc0703d59d2f45631d730cc2a420" prot="public">
+          <name>kNormal</name>
+          <initializer>= 0x0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_node_1a04b586dface8f84c5c50e56e1bb26a79aa63efe1777efffa21c9c407178804991" prot="public">
+          <name>kShader</name>
+          <initializer>= 0x1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_node_1a04b586dface8f84c5c50e56e1bb26a79a90045a358087ecefdd3f8b0ffdcd561d" prot="public">
+          <name>kSampleProcessor</name>
+          <initializer>= 0x2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="76" column="3" bodyfile="C:/Daten/Olive/olive/app/node/node.h" bodystart="76" bodyend="80"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_node_1ae6e27101e07c7a9ff0b4bcc3ec7345db" prot="private" static="no" mutable="no">
+        <type>QList&lt; <ref refid="class_node_param" kindref="compound">NodeParam</ref> * &gt;</type>
+        <definition>QList&lt;NodeParam *&gt; Node::params_</definition>
+        <argsstring></argsstring>
+        <name>params_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="447" column="9" bodyfile="C:/Daten/Olive/olive/app/node/node.h" bodystart="447" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_1a06e1a7774571d4065e257733ef52afd5" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool Node::can_be_deleted_</definition>
+        <argsstring></argsstring>
+        <name>can_be_deleted_</name>
+        <briefdescription>
+<para>Internal variable for whether this <ref refid="class_node" kindref="compound">Node</ref> can be deleted or not. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="452" column="8" bodyfile="C:/Daten/Olive/olive/app/node/node.h" bodystart="452" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_1a96e3a3b10fed1f90e0a3800b6040fc1a" prot="private" static="no" mutable="no">
+        <type><ref refid="class_node_output" kindref="compound">NodeOutput</ref> *</type>
+        <definition>NodeOutput* Node::output_</definition>
+        <argsstring></argsstring>
+        <name>output_</name>
+        <briefdescription>
+<para>Primary node output. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="457" column="14" bodyfile="C:/Daten/Olive/olive/app/node/node.h" bodystart="457" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_1adfb6511ef60d99ab88ac33939067ec50" prot="private" static="no" mutable="no">
+        <type>QPointF</type>
+        <definition>QPointF Node::position_</definition>
+        <argsstring></argsstring>
+        <name>position_</name>
+        <briefdescription>
+<para>UI position for NodeViews. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="462" column="11" bodyfile="C:/Daten/Olive/olive/app/node/node.h" bodystart="462" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_1a5ef9a5c0045693901f0643cf764d4daf" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString Node::label_</definition>
+        <argsstring></argsstring>
+        <name>label_</name>
+        <briefdescription>
+<para>Custom user label for node. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="467" column="11" bodyfile="C:/Daten/Olive/olive/app/node/node.h" bodystart="467" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="class_node_1a0593374c01622a5071690b2865721048" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QVariant</type>
+        <definition>static QVariant Node::PtrToValue</definition>
+        <argsstring>(void *ptr)</argsstring>
+        <name>PtrToValue</name>
+        <param>
+          <type>void *</type>
+          <declname>ptr</declname>
+        </param>
+        <briefdescription>
+<para>Convert a pointer to a value that can be sent between NodeParams. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="276" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1a490b5f79b1528112f34c5c79e27627bd" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T *</type>
+        <definition>T * Node::ValueToPtr</definition>
+        <argsstring>(const QVariant &amp;ptr)</argsstring>
+        <name>ValueToPtr</name>
+        <param>
+          <type>const QVariant &amp;</type>
+          <declname>ptr</declname>
+        </param>
+        <briefdescription>
+<para>Convert a <ref refid="class_node_param" kindref="compound">NodeParam</ref> value to a pointer of any kind. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="282" column="12" bodyfile="C:/Daten/Olive/olive/app/node/node.h" bodystart="459" bodyend="462"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1a3b5e014cd602732bd27656339cdfd037" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void Node::CopyInputs</definition>
+        <argsstring>(Node *source, Node *destination, bool include_connections=true)</argsstring>
+        <name>CopyInputs</name>
+        <param>
+          <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+          <declname>source</declname>
+        </param>
+        <param>
+          <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+          <declname>destination</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>include_connections</declname>
+          <defval>true</defval>
+        </param>
+        <briefdescription>
+<para>Copies inputs from from <ref refid="class_node" kindref="compound">Node</ref> to another including connections. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Nodes must be of the same types (i.e. have the same ID) </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="318" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1a425e7190e204109f70c009e270b7b1ac" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>static QString Node::ReadFileAsString</definition>
+        <argsstring>(const QString &amp;filename)</argsstring>
+        <name>ReadFileAsString</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>filename</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="374" column="18"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_node_1a9560ac16a9ec07fc7e20ec58ce7b9225" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Node::AddInput</definition>
+        <argsstring>(NodeInput *input)</argsstring>
+        <name>AddInput</name>
+        <param>
+          <type><ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+          <declname>input</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="386" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1a343518383b77cd0cf4f6cd5bb753ea94" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Node::ClearCachedValuesInParameters</definition>
+        <argsstring>(const rational &amp;start_range, const rational &amp;end_range)</argsstring>
+        <name>ClearCachedValuesInParameters</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>start_range</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>end_range</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="388" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1ae8cd0ef9b0cb9e008a6d6451b42d9dbf" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Node::SendInvalidateCache</definition>
+        <argsstring>(const TimeRange &amp;range, NodeInput *source)</argsstring>
+        <name>SendInvalidateCache</name>
+        <param>
+          <type>const <ref refid="class_time_range" kindref="compound">TimeRange</ref> &amp;</type>
+          <declname>range</declname>
+        </param>
+        <param>
+          <type><ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+          <declname>source</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="390" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1ab834ee00478586d25aaa085132b2e227" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void Node::LoadInternal</definition>
+        <argsstring>(QXmlStreamReader *reader, XMLNodeData &amp;xml_node_data)</argsstring>
+        <name>LoadInternal</name>
+        <reimplementedby refid="class_block_1ad9bf372ff01ea1b5732df88a2891370b">LoadInternal</reimplementedby>
+        <param>
+          <type>QXmlStreamReader *</type>
+          <declname>reader</declname>
+        </param>
+        <param>
+          <type><ref refid="struct_x_m_l_node_data" kindref="compound">XMLNodeData</ref> &amp;</type>
+          <declname>xml_node_data</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="392" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1a29bab16dfcf6e94eb2d2255f16a8de9d" prot="protected" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void Node::SaveInternal</definition>
+        <argsstring>(QXmlStreamWriter *writer) const</argsstring>
+        <name>SaveInternal</name>
+        <reimplementedby refid="class_block_1a995f8c2091a10c26ab02222ab20af4fb">SaveInternal</reimplementedby>
+        <param>
+          <type>QXmlStreamWriter *</type>
+          <declname>writer</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="394" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1a39167448372b4397d2c9f446580f1f55" prot="protected" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type>QList&lt; <ref refid="class_node_input" kindref="compound">NodeInput</ref> * &gt;</type>
+        <definition>virtual QList&lt;NodeInput*&gt; Node::GetInputsToHash</definition>
+        <argsstring>() const</argsstring>
+        <name>GetInputsToHash</name>
+        <reimplementedby refid="class_block_1a18a51e59e9ae076067e1206b03af71f6">GetInputsToHash</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="396" column="17"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_node_1ab6bb700dbcf95e37982c6c23421b6416" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Node::EdgeAdded</definition>
+        <argsstring>(NodeEdgePtr edge)</argsstring>
+        <name>EdgeAdded</name>
+        <param>
+          <type><ref refid="edge_8h_1a9eb6ae7d2b608077e13ab3571ea6b101" kindref="member">NodeEdgePtr</ref></type>
+          <declname>edge</declname>
+        </param>
+        <briefdescription>
+<para>Signal emitted when a node is connected to another node (creating an &quot;edge&quot;) </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>edge</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The edge that was added </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="408" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_node_1af8af3f70c76b9c149228b316d708dbb3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Node::EdgeRemoved</definition>
+        <argsstring>(NodeEdgePtr edge)</argsstring>
+        <name>EdgeRemoved</name>
+        <param>
+          <type><ref refid="edge_8h_1a9eb6ae7d2b608077e13ab3571ea6b101" kindref="member">NodeEdgePtr</ref></type>
+          <declname>edge</declname>
+        </param>
+        <briefdescription>
+<para>Signal emitted when a node is disconnected from another node (removing an &quot;edge&quot;) </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>edge</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The edge that was removed </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="417" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_node_1ac6f147025dc8f6c4ea29eaae61650f44" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Node::PositionChanged</definition>
+        <argsstring>(const QPointF &amp;pos)</argsstring>
+        <name>PositionChanged</name>
+        <param>
+          <type>const QPointF &amp;</type>
+          <declname>pos</declname>
+        </param>
+        <briefdescription>
+<para>Signal emitted whenever the position is set through <ref refid="class_node_1a533b1ed463da7f833e0da4237494c448" kindref="member">SetPosition()</ref> </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="422" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_node_1a806f7e418033399c6346e120041e861c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Node::LabelChanged</definition>
+        <argsstring>(const QString &amp;s)</argsstring>
+        <name>LabelChanged</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Signal emitted when <ref refid="class_node_1a7d3bec35d2f87adb39ef274badbc7267" kindref="member">SetLabel()</ref> is called. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="427" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_node_1a3bff493d15dc5248bb4937839b372f5e" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Node::AddParameter</definition>
+        <argsstring>(NodeParam *param)</argsstring>
+        <name>AddParameter</name>
+        <param>
+          <type><ref refid="class_node_param" kindref="compound">NodeParam</ref> *</type>
+          <declname>param</declname>
+        </param>
+        <briefdescription>
+<para>Add a parameter to this node. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The <ref refid="class_node" kindref="compound">Node</ref> takes ownership of this parameter.</para>
+<para>This can be either an output or an input at any time. Parameters will always appear in the order they&apos;re added. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="437" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1a4e3e37036cd8176f9a50793ad219e25e" prot="private" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Node::HasParamOfType</definition>
+        <argsstring>(NodeParam::Type type, bool must_be_connected) const</argsstring>
+        <name>HasParamOfType</name>
+        <param>
+          <type><ref refid="class_node_param_1a57c2c5ab98ca8fd2c41cd1ebad045a00" kindref="member">NodeParam::Type</ref></type>
+          <declname>type</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>must_be_connected</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="439" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1a1731daf42da1ea40fa2544fa407989db" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Node::ConnectInput</definition>
+        <argsstring>(NodeInput *input)</argsstring>
+        <name>ConnectInput</name>
+        <param>
+          <type><ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+          <declname>input</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="441" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1a3ff8bd613782c41951eb17f08d2369e9" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Node::DisconnectInput</definition>
+        <argsstring>(NodeInput *input)</argsstring>
+        <name>DisconnectInput</name>
+        <param>
+          <type><ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+          <declname>input</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="443" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_1acc5e70e1bed3ec92a857ff48782d2316" prot="private" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QList&lt; <ref refid="class_node" kindref="compound">Node</ref> * &gt;</type>
+        <definition>QList&lt;Node *&gt; Node::GetDependenciesInternal</definition>
+        <argsstring>(bool traverse, bool exclusive_only) const</argsstring>
+        <name>GetDependenciesInternal</name>
+        <param>
+          <type>bool</type>
+          <declname>traverse</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>exclusive_only</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/node.h" line="445" column="9"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>AudioInput</label>
+        <link refid="class_audio_input"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>Node</label>
+        <link refid="class_node"/>
+      </node>
+      <node id="2">
+        <label>MediaInput</label>
+        <link refid="class_media_input"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="4">
+        <label>NodeOutput</label>
+        <link refid="class_node_output"/>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>AudioInput</label>
+        <link refid="class_audio_input"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>Node</label>
+        <link refid="class_node"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>output_</edgelabel>
+        </childnode>
+      </node>
+      <node id="6">
+        <label>NodeInput</label>
+        <link refid="class_node_input"/>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>MediaInput</label>
+        <link refid="class_media_input"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>footage_input_</edgelabel>
+        </childnode>
+      </node>
+      <node id="5">
+        <label>NodeParam</label>
+        <link refid="class_node_param"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/node/input/media/audio/audio.h" line="28" column="1" bodyfile="C:/Daten/Olive/olive/app/node/input/media/audio/audio.h" bodystart="29" bodyend="39"/>
+    <listofallmembers>
+      <member refid="class_node_1a9560ac16a9ec07fc7e20ec58ce7b9225" prot="protected" virt="non-virtual"><scope>AudioInput</scope><name>AddInput</name></member>
+      <member refid="class_node_1a3bff493d15dc5248bb4937839b372f5e" prot="private" virt="non-virtual"><scope>AudioInput</scope><name>AddParameter</name></member>
+      <member refid="class_audio_input_1ab3b5c2a75f0acaeadc794b255f9b8091" prot="public" virt="non-virtual"><scope>AudioInput</scope><name>AudioInput</name></member>
+      <member refid="class_node_1a06e1a7774571d4065e257733ef52afd5" prot="private" virt="non-virtual"><scope>AudioInput</scope><name>can_be_deleted_</name></member>
+      <member refid="class_node_1a351cb23683548e89df80abb71f293cd5" prot="public" virt="non-virtual"><scope>AudioInput</scope><name>CanBeDeleted</name></member>
+      <member refid="class_node_1a04b586dface8f84c5c50e56e1bb26a79" prot="public" virt="non-virtual"><scope>AudioInput</scope><name>Capabilities</name></member>
+      <member refid="class_media_input_1aa250e2be398585150c2048da33ac2245" prot="public" virt="virtual"><scope>AudioInput</scope><name>Category</name></member>
+      <member refid="class_node_1a343518383b77cd0cf4f6cd5bb753ea94" prot="protected" virt="non-virtual"><scope>AudioInput</scope><name>ClearCachedValuesInParameters</name></member>
+      <member refid="class_media_input_1a6aa2cf4a0fbcf442c4fdfaf26d6a7d82" prot="protected" virt="non-virtual"><scope>AudioInput</scope><name>connected_footage_</name></member>
+      <member refid="class_node_1a1731daf42da1ea40fa2544fa407989db" prot="private" virt="non-virtual"><scope>AudioInput</scope><name>ConnectInput</name></member>
+      <member refid="class_audio_input_1a505a20b018039f5c149bdad750b9d2c3" prot="public" virt="virtual"><scope>AudioInput</scope><name>copy</name></member>
+      <member refid="class_node_1a3b5e014cd602732bd27656339cdfd037" prot="public" virt="non-virtual"><scope>AudioInput</scope><name>CopyInputs</name></member>
+      <member refid="class_audio_input_1aa10a7c6856cb5bf2d4f23e88f9d8d2b7" prot="public" virt="virtual"><scope>AudioInput</scope><name>Description</name></member>
+      <member refid="class_node_1acaeeeb78a4b8d60d31a408bdfc525434" prot="public" virt="non-virtual"><scope>AudioInput</scope><name>DisconnectAll</name></member>
+      <member refid="class_node_1a3ff8bd613782c41951eb17f08d2369e9" prot="private" virt="non-virtual"><scope>AudioInput</scope><name>DisconnectInput</name></member>
+      <member refid="class_node_1ab6bb700dbcf95e37982c6c23421b6416" prot="public" virt="non-virtual"><scope>AudioInput</scope><name>EdgeAdded</name></member>
+      <member refid="class_node_1af8af3f70c76b9c149228b316d708dbb3" prot="public" virt="non-virtual"><scope>AudioInput</scope><name>EdgeRemoved</name></member>
+      <member refid="class_node_1af2603d2807f3560fb9dc105a25d636bf" prot="public" virt="non-virtual"><scope>AudioInput</scope><name>FindOutputNode</name></member>
+      <member refid="class_media_input_1a40901539dc74564d55cb4f40895d105b" prot="public" virt="non-virtual"><scope>AudioInput</scope><name>footage</name></member>
+      <member refid="class_media_input_1a601539c5349212e9881da2a02e44bf19" prot="protected" virt="non-virtual"><scope>AudioInput</scope><name>footage_input_</name></member>
+      <member refid="class_media_input_1a879b2b18bcd2e2355792bfcd184555e7" prot="private" virt="non-virtual"><scope>AudioInput</scope><name>FootageChanged</name></member>
+      <member refid="class_media_input_1aadb17fef6eddcca6abef416cb21900c7" prot="private" virt="non-virtual"><scope>AudioInput</scope><name>FootageParametersChanged</name></member>
+      <member refid="class_node_1ab790fee50c23284741e10f18d259c12c" prot="public" virt="virtual"><scope>AudioInput</scope><name>GetCapabilities</name></member>
+      <member refid="class_node_1aaeb631801d5f319b0e0c6943a0fad1a0" prot="public" virt="non-virtual"><scope>AudioInput</scope><name>GetDependencies</name></member>
+      <member refid="class_node_1acc5e70e1bed3ec92a857ff48782d2316" prot="private" virt="non-virtual"><scope>AudioInput</scope><name>GetDependenciesInternal</name></member>
+      <member refid="class_node_1a1ec732e6e5f7c696ea8cc3ce743818cf" prot="public" virt="non-virtual"><scope>AudioInput</scope><name>GetExclusiveDependencies</name></member>
+      <member refid="class_node_1aaf4cc01490dd0a8e10c4f46d8f221025" prot="public" virt="non-virtual"><scope>AudioInput</scope><name>GetImmediateDependencies</name></member>
+      <member refid="class_node_1aa86cf2be9994c0d2519ea95bc1150de5" prot="public" virt="non-virtual"><scope>AudioInput</scope><name>GetInputsIncludingArrays</name></member>
+      <member refid="class_node_1a39167448372b4397d2c9f446580f1f55" prot="protected" virt="virtual"><scope>AudioInput</scope><name>GetInputsToHash</name></member>
+      <member refid="class_node_1a08c42082f183b805d7cc5185ccd37deb" prot="public" virt="non-virtual"><scope>AudioInput</scope><name>GetInputWithID</name></member>
+      <member refid="class_node_1a50ed6ecf511e4647bb69528497e231ff" prot="public" virt="non-virtual"><scope>AudioInput</scope><name>GetLabel</name></member>
+      <member refid="class_node_1a57c9424b9b3744cb4ce3d6683617e1a7" prot="public" virt="non-virtual"><scope>AudioInput</scope><name>GetOutputs</name></member>
+      <member refid="class_node_1a1cef35e6faa34510d720ffc9214c8e96" prot="public" virt="non-virtual"><scope>AudioInput</scope><name>GetOutputWithID</name></member>
+      <member refid="class_node_1a9ff9d3b36383cc91c010f5d3a78cda87" prot="public" virt="non-virtual"><scope>AudioInput</scope><name>GetPosition</name></member>
+      <member refid="class_node_1a2700b0e5380d14a0aff32a221427bf60" prot="public" virt="non-virtual"><scope>AudioInput</scope><name>HasConnectedInputs</name></member>
+      <member refid="class_node_1ac8b664344a78a45f5ca1ae5cacec1f0b" prot="public" virt="non-virtual"><scope>AudioInput</scope><name>HasConnectedOutputs</name></member>
+      <member refid="class_node_1a3458bec8a783fa52c7239e4a86de0d7b" prot="public" virt="virtual"><scope>AudioInput</scope><name>Hash</name></member>
+      <member refid="class_node_1a78cdfda505d40df5df88299fb6c181af" prot="public" virt="non-virtual"><scope>AudioInput</scope><name>HasInputs</name></member>
+      <member refid="class_node_1a68a1e0edba85c5b1e453b729b9834c32" prot="public" virt="non-virtual"><scope>AudioInput</scope><name>HasOutputs</name></member>
+      <member refid="class_node_1a4e3e37036cd8176f9a50793ad219e25e" prot="private" virt="non-virtual"><scope>AudioInput</scope><name>HasParamOfType</name></member>
+      <member refid="class_node_1a7ebd83198688375252c457ffb65cfabb" prot="public" virt="non-virtual"><scope>AudioInput</scope><name>HasParamWithID</name></member>
+      <member refid="class_audio_input_1a7fe33fd08d29a49a38dd48a16681fc22" prot="public" virt="virtual"><scope>AudioInput</scope><name>id</name></member>
+      <member refid="class_node_1ab9000f8de3867d95b5cd767955df7d95" prot="public" virt="non-virtual"><scope>AudioInput</scope><name>IndexOfParameter</name></member>
+      <member refid="class_node_1a0cfe46c4157cecef7f65fb2a20635f38" prot="private" virt="non-virtual"><scope>AudioInput</scope><name>InputChanged</name></member>
+      <member refid="class_node_1aad142abd5561695aba425b87a720fe67" prot="private" virt="non-virtual"><scope>AudioInput</scope><name>InputConnectionChanged</name></member>
+      <member refid="class_node_1ad84b426f59fe49f73fb79a28234c26c9" prot="public" virt="virtual"><scope>AudioInput</scope><name>InputTimeAdjustment</name></member>
+      <member refid="class_node_1afacddc858f87a9fd1d00ae612aa4e648" prot="public" virt="virtual"><scope>AudioInput</scope><name>InputValueFromTable</name></member>
+      <member refid="class_node_1a7411f82bb3aa6c9d6cbf42c48754a08b" prot="public" virt="virtual"><scope>AudioInput</scope><name>InvalidateCache</name></member>
+      <member refid="class_node_1ad115f78e7e345603f506b5937b6c53a7" prot="public" virt="virtual"><scope>AudioInput</scope><name>InvalidateVisible</name></member>
+      <member refid="class_node_1acd23e6ee77917b462b92f8e9f51fc1ac" prot="public" virt="virtual"><scope>AudioInput</scope><name>IsBlock</name></member>
+      <member refid="class_node_1a2c0db284cbeaa1161c025081992ea4e6" prot="public" virt="virtual"><scope>AudioInput</scope><name>IsTrack</name></member>
+      <member refid="class_node_1a04b586dface8f84c5c50e56e1bb26a79a8b08bc0703d59d2f45631d730cc2a420" prot="public" virt="non-virtual"><scope>AudioInput</scope><name>kNormal</name></member>
+      <member refid="class_node_1a04b586dface8f84c5c50e56e1bb26a79a90045a358087ecefdd3f8b0ffdcd561d" prot="public" virt="non-virtual"><scope>AudioInput</scope><name>kSampleProcessor</name></member>
+      <member refid="class_node_1a04b586dface8f84c5c50e56e1bb26a79aa63efe1777efffa21c9c407178804991" prot="public" virt="non-virtual"><scope>AudioInput</scope><name>kShader</name></member>
+      <member refid="class_node_1a5ef9a5c0045693901f0643cf764d4daf" prot="private" virt="non-virtual"><scope>AudioInput</scope><name>label_</name></member>
+      <member refid="class_node_1a806f7e418033399c6346e120041e861c" prot="public" virt="non-virtual"><scope>AudioInput</scope><name>LabelChanged</name></member>
+      <member refid="class_node_1ab237c5c5334f1708214dff734af2849a" prot="public" virt="non-virtual"><scope>AudioInput</scope><name>Load</name></member>
+      <member refid="class_node_1ab834ee00478586d25aaa085132b2e227" prot="protected" virt="virtual"><scope>AudioInput</scope><name>LoadInternal</name></member>
+      <member refid="class_media_input_1a137374f50665f0de3459a6d770495963" prot="public" virt="non-virtual"><scope>AudioInput</scope><name>MediaInput</name></member>
+      <member refid="class_audio_input_1ab38fce6b850e61ebadbf67e69b9288f2" prot="public" virt="virtual"><scope>AudioInput</scope><name>Name</name></member>
+      <member refid="class_node_1ad7a34779cad45d997bfd6d3d8043c75f" prot="public" virt="non-virtual"><scope>AudioInput</scope><name>Node</name></member>
+      <member refid="class_node_1a92d01e866aa35bfd762b297a68cc9f72" prot="public" virt="non-virtual"><scope>AudioInput</scope><name>output</name></member>
+      <member refid="class_node_1a96e3a3b10fed1f90e0a3800b6040fc1a" prot="private" virt="non-virtual"><scope>AudioInput</scope><name>output_</name></member>
+      <member refid="class_node_1ac4ab93459e1c72fee464efe9b7064cda" prot="public" virt="non-virtual"><scope>AudioInput</scope><name>OutputsTo</name></member>
+      <member refid="class_node_1abea3f3ea8c812e1d25c9da7376562d01" prot="public" virt="virtual"><scope>AudioInput</scope><name>OutputTimeAdjustment</name></member>
+      <member refid="class_node_1ad5705365a69e6d054a112c6322be88d3" prot="public" virt="non-virtual"><scope>AudioInput</scope><name>parameters</name></member>
+      <member refid="class_node_1ae6e27101e07c7a9ff0b4bcc3ec7345db" prot="private" virt="non-virtual"><scope>AudioInput</scope><name>params_</name></member>
+      <member refid="class_node_1adfb6511ef60d99ab88ac33939067ec50" prot="private" virt="non-virtual"><scope>AudioInput</scope><name>position_</name></member>
+      <member refid="class_node_1ac6f147025dc8f6c4ea29eaae61650f44" prot="public" virt="non-virtual"><scope>AudioInput</scope><name>PositionChanged</name></member>
+      <member refid="class_node_1ab6390f64297373b60737a86fde151344" prot="public" virt="virtual"><scope>AudioInput</scope><name>ProcessesSamplesFrom</name></member>
+      <member refid="class_node_1abf4c84b42fa3710f648d4c14686f190a" prot="public" virt="virtual"><scope>AudioInput</scope><name>ProcessSamples</name></member>
+      <member refid="class_node_1a0593374c01622a5071690b2865721048" prot="public" virt="non-virtual"><scope>AudioInput</scope><name>PtrToValue</name></member>
+      <member refid="class_node_1a425e7190e204109f70c009e270b7b1ac" prot="public" virt="non-virtual"><scope>AudioInput</scope><name>ReadFileAsString</name></member>
+      <member refid="class_media_input_1a402f81b12b4f66be0d94e5023d41c4b4" prot="public" virt="virtual"><scope>AudioInput</scope><name>Retranslate</name></member>
+      <member refid="class_node_1a07219b52a31315721bdaeda2fab03489" prot="public" virt="non-virtual"><scope>AudioInput</scope><name>Save</name></member>
+      <member refid="class_node_1a29bab16dfcf6e94eb2d2255f16a8de9d" prot="protected" virt="virtual"><scope>AudioInput</scope><name>SaveInternal</name></member>
+      <member refid="class_node_1ae8cd0ef9b0cb9e008a6d6451b42d9dbf" prot="protected" virt="non-virtual"><scope>AudioInput</scope><name>SendInvalidateCache</name></member>
+      <member refid="class_node_1a172a44608da85955aae72e63c8282d1f" prot="public" virt="non-virtual"><scope>AudioInput</scope><name>SetCanBeDeleted</name></member>
+      <member refid="class_media_input_1af91f7d6a6e15f3dd6d0853bdac382cef" prot="public" virt="non-virtual"><scope>AudioInput</scope><name>SetFootage</name></member>
+      <member refid="class_node_1a7d3bec35d2f87adb39ef274badbc7267" prot="public" virt="non-virtual"><scope>AudioInput</scope><name>SetLabel</name></member>
+      <member refid="class_node_1a533b1ed463da7f833e0da4237494c448" prot="public" virt="non-virtual"><scope>AudioInput</scope><name>SetPosition</name></member>
+      <member refid="class_node_1ac468089820d1f1226ef269303172420b" prot="public" virt="virtual"><scope>AudioInput</scope><name>ShaderFragmentCode</name></member>
+      <member refid="class_node_1ad32bf0dda31241ea313bddaf67d728f7" prot="public" virt="virtual"><scope>AudioInput</scope><name>ShaderID</name></member>
+      <member refid="class_node_1a33d3ace4b8bb5f0d00b7c320bb79a7d2" prot="public" virt="virtual"><scope>AudioInput</scope><name>ShaderIterations</name></member>
+      <member refid="class_node_1aa2f099ef6e5ab2c6773fc3da0da02acf" prot="public" virt="virtual"><scope>AudioInput</scope><name>ShaderIterativeInput</name></member>
+      <member refid="class_node_1a83746334406522ff4e234f7ebbf7215f" prot="public" virt="virtual"><scope>AudioInput</scope><name>ShaderVertexCode</name></member>
+      <member refid="class_node_1accc571649e5d757906989b0db9d31aad" prot="public" virt="virtual"><scope>AudioInput</scope><name>ShortName</name></member>
+      <member refid="class_node_1a5a3ce13d77997d3548d21f991d3b23b6" prot="public" virt="non-virtual"><scope>AudioInput</scope><name>TransformTimeTo</name></member>
+      <member refid="class_media_input_1a91216a0ca440640919241d3f86f7a5c4" prot="public" virt="virtual"><scope>AudioInput</scope><name>Value</name></member>
+      <member refid="class_node_1a490b5f79b1528112f34c5c79e27627bd" prot="public" virt="non-virtual"><scope>AudioInput</scope><name>ValueToPtr</name></member>
+      <member refid="class_node_1a0b9f0bab77df2c53e5e758cf371e751f" prot="public" virt="virtual"><scope>AudioInput</scope><name>~Node</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

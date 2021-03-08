@@ -1,0 +1,155 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_color_preview_box" kind="class" language="C++" prot="public">
+    <compoundname>ColorPreviewBox</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QWidget</basecompoundref>
+    <includes refid="colorpreviewbox_8h" local="no">colorpreviewbox.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_color_preview_box_1a3ebde73a04e417ce87bfa678801dc718" prot="private" static="no" mutable="no">
+        <type><ref refid="class_color" kindref="compound">Color</ref></type>
+        <definition>Color ColorPreviewBox::color_</definition>
+        <argsstring></argsstring>
+        <name>color_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorpreviewbox.h" line="64" column="9" bodyfile="C:/Daten/Olive/olive/app/widget/colorwheel/colorpreviewbox.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_color_preview_box_1a2f9595702387e6b3167962c30bbe4d4b" prot="private" static="no" mutable="no">
+        <type><ref refid="colorprocessor_8h_1ae3985029dcc28a9f9f42fc726d1a9471" kindref="member">ColorProcessorPtr</ref></type>
+        <definition>ColorProcessorPtr ColorPreviewBox::to_ref_processor_</definition>
+        <argsstring></argsstring>
+        <name>to_ref_processor_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorpreviewbox.h" line="66" column="21" bodyfile="C:/Daten/Olive/olive/app/widget/colorwheel/colorpreviewbox.h" bodystart="66" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_color_preview_box_1aea6c9c3ec57b0105a5830c34f1a62fc9" prot="private" static="no" mutable="no">
+        <type><ref refid="colorprocessor_8h_1ae3985029dcc28a9f9f42fc726d1a9471" kindref="member">ColorProcessorPtr</ref></type>
+        <definition>ColorProcessorPtr ColorPreviewBox::to_display_processor_</definition>
+        <argsstring></argsstring>
+        <name>to_display_processor_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorpreviewbox.h" line="68" column="21" bodyfile="C:/Daten/Olive/olive/app/widget/colorwheel/colorpreviewbox.h" bodystart="68" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_color_preview_box_1ad089f9cd0340429eff784ded9babcd64" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>ColorPreviewBox::ColorPreviewBox</definition>
+        <argsstring>(QWidget *parent=nullptr)</argsstring>
+        <name>ColorPreviewBox</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorpreviewbox.h" line="53" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_preview_box_1a0c6aa7202f9d20f11cfa8762abe5fab0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ColorPreviewBox::SetColorProcessor</definition>
+        <argsstring>(ColorProcessorPtr to_ref, ColorProcessorPtr to_display)</argsstring>
+        <name>SetColorProcessor</name>
+        <param>
+          <type><ref refid="colorprocessor_8h_1ae3985029dcc28a9f9f42fc726d1a9471" kindref="member">ColorProcessorPtr</ref></type>
+          <declname>to_ref</declname>
+        </param>
+        <param>
+          <type><ref refid="colorprocessor_8h_1ae3985029dcc28a9f9f42fc726d1a9471" kindref="member">ColorProcessorPtr</ref></type>
+          <declname>to_display</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorpreviewbox.h" line="55" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-slot">
+      <memberdef kind="slot" id="class_color_preview_box_1a9f688db80954ac97a69779ceeb25242c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ColorPreviewBox::SetColor</definition>
+        <argsstring>(const Color &amp;c)</argsstring>
+        <name>SetColor</name>
+        <param>
+          <type>const <ref refid="class_color" kindref="compound">Color</ref> &amp;</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorpreviewbox.h" line="58" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_color_preview_box_1aba4e23ef4e749064cd54660b5e7e8073" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void ColorPreviewBox::paintEvent</definition>
+        <argsstring>(QPaintEvent *e) override</argsstring>
+        <name>paintEvent</name>
+        <param>
+          <type>QPaintEvent *</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorpreviewbox.h" line="61" column="16"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>ColorPreviewBox</label>
+        <link refid="class_color_preview_box"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>color_</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>Color</label>
+        <link refid="class_color"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/colorwheel/colorpreviewbox.h" line="31" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/colorwheel/colorpreviewbox.h" bodystart="32" bodyend="52"/>
+    <listofallmembers>
+      <member refid="class_color_preview_box_1a3ebde73a04e417ce87bfa678801dc718" prot="private" virt="non-virtual"><scope>ColorPreviewBox</scope><name>color_</name></member>
+      <member refid="class_color_preview_box_1ad089f9cd0340429eff784ded9babcd64" prot="public" virt="non-virtual"><scope>ColorPreviewBox</scope><name>ColorPreviewBox</name></member>
+      <member refid="class_color_preview_box_1aba4e23ef4e749064cd54660b5e7e8073" prot="protected" virt="virtual"><scope>ColorPreviewBox</scope><name>paintEvent</name></member>
+      <member refid="class_color_preview_box_1a9f688db80954ac97a69779ceeb25242c" prot="public" virt="non-virtual"><scope>ColorPreviewBox</scope><name>SetColor</name></member>
+      <member refid="class_color_preview_box_1a0c6aa7202f9d20f11cfa8762abe5fab0" prot="public" virt="non-virtual"><scope>ColorPreviewBox</scope><name>SetColorProcessor</name></member>
+      <member refid="class_color_preview_box_1aea6c9c3ec57b0105a5830c34f1a62fc9" prot="private" virt="non-virtual"><scope>ColorPreviewBox</scope><name>to_display_processor_</name></member>
+      <member refid="class_color_preview_box_1a2f9595702387e6b3167962c30bbe4d4b" prot="private" virt="non-virtual"><scope>ColorPreviewBox</scope><name>to_ref_processor_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

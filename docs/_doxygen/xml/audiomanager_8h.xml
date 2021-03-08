@@ -1,0 +1,293 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="audiomanager_8h" kind="file" language="C++">
+    <compoundname>audiomanager.h</compoundname>
+    <includes local="no">memory</includes>
+    <includes local="no">QAudioInput</includes>
+    <includes local="no">QAudioOutput</includes>
+    <includes local="no">QtConcurrent/QtConcurrent</includes>
+    <includes local="no">QThread</includes>
+    <includes refid="define_8h" local="yes">common/define.h</includes>
+    <includes refid="outputmanager_8h" local="yes">outputmanager.h</includes>
+    <includes refid="audioparams_8h" local="yes">render/audioparams.h</includes>
+    <incdepgraph>
+      <node id="26">
+        <label>libavformat/avformat.h</label>
+      </node>
+      <node id="20">
+        <label>QObject</label>
+      </node>
+      <node id="8">
+        <label>outputmanager.h</label>
+        <link refid="outputmanager_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>tempoprocessor.h</label>
+        <link refid="tempoprocessor_8h"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>audiomanager.h</label>
+        <link refid="audiomanager_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>QThread</label>
+      </node>
+      <node id="9">
+        <label>QBuffer</label>
+      </node>
+      <node id="25">
+        <label>QMetaType</label>
+      </node>
+      <node id="22">
+        <label>common/rational.h</label>
+        <link refid="rational_8h"/>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>render/rendermodes.h</label>
+        <link refid="rendermodes_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>QMutex</label>
+      </node>
+      <node id="10">
+        <label>QIODevice</label>
+      </node>
+      <node id="7">
+        <label>common/define.h</label>
+        <link refid="define_8h"/>
+      </node>
+      <node id="18">
+        <label>QtMath</label>
+      </node>
+      <node id="24">
+        <label>QDebug</label>
+      </node>
+      <node id="5">
+        <label>QtConcurrent/QtConcurrent</label>
+      </node>
+      <node id="13">
+        <label>QFile</label>
+      </node>
+      <node id="4">
+        <label>QAudioOutput</label>
+      </node>
+      <node id="19">
+        <label>audio/sampleformat.h</label>
+        <link refid="sampleformat_8h"/>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>QAudioInput</label>
+      </node>
+      <node id="23">
+        <label>iostream</label>
+      </node>
+      <node id="16">
+        <label>libavfilter/avfilter.h</label>
+      </node>
+      <node id="17">
+        <label>render/audioparams.h</label>
+        <link refid="audioparams_8h"/>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>outputdeviceproxy.h</label>
+        <link refid="outputdeviceproxy_8h"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>memory</label>
+      </node>
+      <node id="15">
+        <label>inttypes.h</label>
+      </node>
+    </incdepgraph>
+    <innerclass refid="class_audio_manager" prot="public">AudioManager</innerclass>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/***</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"></highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/><sp/>Olive<sp/>-<sp/>Non-Linear<sp/>Video<sp/>Editor</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/><sp/>Copyright<sp/>(C)<sp/>2019<sp/>Olive<sp/>Team</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"></highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/><sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/><sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/><sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"></highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/><sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/><sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/><sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"></highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/><sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/><sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"></highlight></codeline>
+<codeline lineno="19"><highlight class="comment">***/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>AUDIOMANAGER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>AUDIOMANAGER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;memory&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QAudioInput&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QAudioOutput&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QtConcurrent/QtConcurrent&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QThread&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="define_8h" kindref="compound">common/define.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="outputmanager_8h" kindref="compound">outputmanager.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="audioparams_8h" kindref="compound">render/audioparams.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><ref refid="define_8h_1a0472692dd1f22472ad63da20da919e8c" kindref="member">OLIVE_NAMESPACE_ENTER</ref></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42" refid="class_audio_manager" refkind="compound"><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_audio_manager" kindref="compound">AudioManager</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>QObject</highlight></codeline>
+<codeline lineno="43"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/>Q_OBJECT</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_audio_manager_1a6e05c487b00b2270980db1cd21fcea87" kindref="member">CreateInstance</ref>();</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_audio_manager_1a3f5912ed0bbbddd9abd84dece3efbc8f" kindref="member">DestroyInstance</ref>();</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="class_audio_manager" kindref="compound">AudioManager</ref>*<sp/><ref refid="class_audio_manager_1a74adb4457673a38b7dc5d7673c0a4268" kindref="member">instance</ref>();</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_audio_manager_1a40d954189d7696b46eedf544377316a2" kindref="member">RefreshDevices</ref>();</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_audio_manager_1a398b46b2a4d7bd8ca0d0bae13ff846e1" kindref="member">IsRefreshingOutputs</ref>();</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_audio_manager_1a31425736363fddae40027cf39be6b238" kindref="member">IsRefreshingInputs</ref>();</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_audio_manager_1abd4562fb0a236eba2500fb9e9ce6546e" kindref="member">PushToOutput</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QByteArray&amp;<sp/>samples);</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64" refid="class_audio_manager_1a6e05c487b00b2270980db1cd21fcea87" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_audio_manager_1a337cc0c51a3f87daaf079040f824dff9" kindref="member">StartOutput</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/>filename,<sp/>qint64<sp/>offset,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>playback_speed);</highlight></codeline>
+<codeline lineno="65" refid="class_audio_manager_1a3f5912ed0bbbddd9abd84dece3efbc8f" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69" refid="class_audio_manager_1a40d954189d7696b46eedf544377316a2" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_audio_manager_1a061eabe8bf7d800f87f2fa12bdcdf020" kindref="member">StopOutput</ref>();</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71" refid="class_audio_manager_1a398b46b2a4d7bd8ca0d0bae13ff846e1" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_audio_manager_1a2d31a7865b03552b526416af1d3bca64" kindref="member">SetOutputDevice</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QAudioDeviceInfo&amp;<sp/>info);</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73" refid="class_audio_manager_1a31425736363fddae40027cf39be6b238" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_audio_manager_1a638681a2666aed6b153e119f8adb2236" kindref="member">SetOutputParams</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref>&amp;<sp/>params);</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75" refid="class_audio_manager_1abd4562fb0a236eba2500fb9e9ce6546e" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_audio_manager_1ac5778410f8be90019160d677e1179b30" kindref="member">SetInputDevice</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QAudioDeviceInfo&amp;<sp/>info);</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QList&lt;QAudioDeviceInfo&gt;&amp;<sp/><ref refid="class_audio_manager_1adfa4ec7234c990438f5302259ead3347" kindref="member">ListInputDevices</ref>();</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QList&lt;QAudioDeviceInfo&gt;&amp;<sp/><ref refid="class_audio_manager_1a803aab46cfbb7fc381e92d6b8d613cd1" kindref="member">ListOutputDevices</ref>();</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_audio_manager_1af2b582bfae55561c825c7bded054e327" kindref="member">ReverseBuffer</ref>(</highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/>buffer,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>size,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>resolution);</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82" refid="class_audio_manager_1a337cc0c51a3f87daaf079040f824dff9" refkind="member"><highlight class="normal">signals:</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_audio_manager_1a3240f53f2a2e486fe1310736b1d7ee5b" kindref="member">OutputListReady</ref>();</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_audio_manager_1a5853274596b817f5c259a27b651e147c" kindref="member">InputListReady</ref>();</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87" refid="class_audio_manager_1a061eabe8bf7d800f87f2fa12bdcdf020" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_audio_manager_1a4a6c89ccddd895c9760dd1d3617766b1" kindref="member">OutputNotified</ref>();</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="89" refid="class_audio_manager_1a2d31a7865b03552b526416af1d3bca64" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_audio_manager_1a3925b6222e1d2ff58bbb82c3d6437186" kindref="member">OutputDeviceStarted</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/>filename,<sp/>qint64<sp/>offset,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>playback_speed);</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91" refid="class_audio_manager_1a638681a2666aed6b153e119f8adb2236" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_audio_manager_1a78e6412047a93bbd888820fb582282b9" kindref="member">AudioParamsChanged</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref>&amp;<sp/>params);</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93" refid="class_audio_manager_1ac5778410f8be90019160d677e1179b30" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_audio_manager_1ae757b817935e384dc98ad4696873fbfe" kindref="member">OutputPushed</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QByteArray&amp;<sp/>data);</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95" refid="class_audio_manager_1adfa4ec7234c990438f5302259ead3347" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_audio_manager_1a00a384305f0b98897704f277797d85e8" kindref="member">Stopped</ref>();</highlight></codeline>
+<codeline lineno="96" refid="class_audio_manager_1a803aab46cfbb7fc381e92d6b8d613cd1" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="98" refid="class_audio_manager_1af2b582bfae55561c825c7bded054e327" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_audio_manager_1ae59d8605c1d706e7bab47d4e8f900d09" kindref="member">AudioManager</ref>();</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="class_audio_manager_1acf1c37c439fbc8090598179f7c322145" kindref="member">~AudioManager</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="101" refid="class_audio_manager_1a3240f53f2a2e486fe1310736b1d7ee5b" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/>QList&lt;QAudioDeviceInfo&gt;<sp/><ref refid="class_audio_manager_1a861c8754882266a13189b664a9873952" kindref="member">input_devices_</ref>;</highlight></codeline>
+<codeline lineno="103" refid="class_audio_manager_1a5853274596b817f5c259a27b651e147c" refkind="member"><highlight class="normal"><sp/><sp/>QList&lt;QAudioDeviceInfo&gt;<sp/><ref refid="class_audio_manager_1a22a96c3d3ac302ba4f2b3cfed3f25573" kindref="member">output_devices_</ref>;</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105" refid="class_audio_manager_1a4a6c89ccddd895c9760dd1d3617766b1" refkind="member"><highlight class="normal"><sp/><sp/>QFutureWatcher&lt;<sp/>QList&lt;QAudioDeviceInfo&gt;<sp/>&gt;<sp/><ref refid="class_audio_manager_1adf87beec1e7506bd76be94afac61e73e" kindref="member">input_watcher_</ref>;</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/>QFutureWatcher&lt;<sp/>QList&lt;QAudioDeviceInfo&gt;<sp/>&gt;<sp/><ref refid="class_audio_manager_1a1b48a2f03c6ad6760f131b920b45c6fd" kindref="member">output_watcher_</ref>;</highlight></codeline>
+<codeline lineno="107" refid="class_audio_manager_1a3925b6222e1d2ff58bbb82c3d6437186" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="class_audio_manager" kindref="compound">AudioManager</ref>*<sp/><ref refid="class_audio_manager_1a7ae28ce005eb90a9968939d17f37b5b4" kindref="member">instance_</ref>;</highlight></codeline>
+<codeline lineno="109" refid="class_audio_manager_1a78e6412047a93bbd888820fb582282b9" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/>QThread<sp/><ref refid="class_audio_manager_1aab65f603c13818c310727dc60ba1c741" kindref="member">output_thread_</ref>;</highlight></codeline>
+<codeline lineno="111" refid="class_audio_manager_1ae757b817935e384dc98ad4696873fbfe" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_audio_output_manager" kindref="compound">AudioOutputManager</ref><sp/><ref refid="class_audio_manager_1a7a7cc703b896f7e05161aae26ae199f3" kindref="member">output_manager_</ref>;</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_audio_manager_1a4be46c50a39d58bc526660aa669e0afc" kindref="member">output_is_set_</ref>;</highlight></codeline>
+<codeline lineno="113" refid="class_audio_manager_1a00a384305f0b98897704f277797d85e8" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/>QAudioDeviceInfo<sp/><ref refid="class_audio_manager_1af102f383f84cf1c7d618cf79440e236d" kindref="member">output_device_info_</ref>;</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref><sp/><ref refid="class_audio_manager_1a0ab76eff4951f8bb364607365d37cc43" kindref="member">output_params_</ref>;</highlight></codeline>
+<codeline lineno="116" refid="class_audio_manager_1ae59d8605c1d706e7bab47d4e8f900d09" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/>std::unique_ptr&lt;QAudioInput&gt;<sp/><ref refid="class_audio_manager_1a92392d07bd238dfce5ef34334898a33f" kindref="member">input_</ref>;</highlight></codeline>
+<codeline lineno="118" refid="class_audio_manager_1acf1c37c439fbc8090598179f7c322145" refkind="member"><highlight class="normal"><sp/><sp/>QAudioDeviceInfo<sp/><ref refid="class_audio_manager_1ad5edeea0e5aa4a3d28f315a35fba100f" kindref="member">input_device_info_</ref>;</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/>QIODevice*<sp/><ref refid="class_audio_manager_1af20769d1439406bdc319a912082448c6" kindref="member">input_file_</ref>;</highlight></codeline>
+<codeline lineno="120" refid="class_audio_manager_1a861c8754882266a13189b664a9873952" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="121" refid="class_audio_manager_1a22a96c3d3ac302ba4f2b3cfed3f25573" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal"><sp/>slots:</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_audio_manager_1a9a40e288926d51bfcd72ad55bfe09a96" kindref="member">OutputDevicesRefreshed</ref>();</highlight></codeline>
+<codeline lineno="123" refid="class_audio_manager_1adf87beec1e7506bd76be94afac61e73e" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="124" refid="class_audio_manager_1a1b48a2f03c6ad6760f131b920b45c6fd" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_audio_manager_1a21aef19bc528165c0cfd7fe386bc94f0" kindref="member">InputDevicesRefreshed</ref>();</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight></codeline>
+<codeline lineno="126" refid="class_audio_manager_1a7ae28ce005eb90a9968939d17f37b5b4" refkind="member"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="128" refid="class_audio_manager_1aab65f603c13818c310727dc60ba1c741" refkind="member"><highlight class="normal"><ref refid="define_8h_1abe3de0634d907ca0f5d1acf732c49dac" kindref="member">OLIVE_NAMESPACE_EXIT</ref></highlight></codeline>
+<codeline lineno="129" refid="class_audio_manager_1a7a7cc703b896f7e05161aae26ae199f3" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="130" refid="class_audio_manager_1a4be46c50a39d58bc526660aa669e0afc" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//<sp/>AUDIOMANAGER_H</highlight></codeline>
+    </programlisting>
+    <location file="C:/Daten/Olive/olive/app/audio/audiomanager.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,153 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_main_status_bar" kind="class" language="C++" prot="public">
+    <compoundname>MainStatusBar</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QStatusBar</basecompoundref>
+    <includes refid="mainstatusbar_8h" local="no">mainstatusbar.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_main_status_bar_1ae9a0ad0bf2e9386d81a8eb4e526fe873" prot="private" static="no" mutable="no">
+        <type><ref refid="class_task_manager" kindref="compound">TaskManager</ref> *</type>
+        <definition>TaskManager* MainStatusBar::manager_</definition>
+        <argsstring></argsstring>
+        <name>manager_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainstatusbar.h" line="70" column="15" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainstatusbar.h" bodystart="70" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_status_bar_1a25767da99871921442adddeea8828b3d" prot="private" static="no" mutable="no">
+        <type>QProgressBar *</type>
+        <definition>QProgressBar* MainStatusBar::bar_</definition>
+        <argsstring></argsstring>
+        <name>bar_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainstatusbar.h" line="72" column="16" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainstatusbar.h" bodystart="72" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_main_status_bar_1a7283f43ef6c9f7bc8c1caf55837391e9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>MainStatusBar::MainStatusBar</definition>
+        <argsstring>(QWidget *parent=nullptr)</argsstring>
+        <name>MainStatusBar</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainstatusbar.h" line="56" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_main_status_bar_1a3ab5b599ebb4e2e80947bbaa9e2ad1db" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainStatusBar::ConnectTaskManager</definition>
+        <argsstring>(TaskManager *manager)</argsstring>
+        <name>ConnectTaskManager</name>
+        <param>
+          <type><ref refid="class_task_manager" kindref="compound">TaskManager</ref> *</type>
+          <declname>manager</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainstatusbar.h" line="58" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_main_status_bar_1a2597ccf4a2c0d5fde918adfa563cd7c9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainStatusBar::DoubleClicked</definition>
+        <argsstring>()</argsstring>
+        <name>DoubleClicked</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainstatusbar.h" line="61" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_main_status_bar_1a75fcab28ebfb7dd3327fe70e4b8824e3" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void MainStatusBar::mouseDoubleClickEvent</definition>
+        <argsstring>(QMouseEvent *e) override</argsstring>
+        <name>mouseDoubleClickEvent</name>
+        <param>
+          <type>QMouseEvent *</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainstatusbar.h" line="64" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_main_status_bar_1a9532de883f5470703e84bd435453fcde" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainStatusBar::UpdateStatus</definition>
+        <argsstring>()</argsstring>
+        <name>UpdateStatus</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainstatusbar.h" line="67" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Shows abbreviated information from a <ref refid="class_task_manager" kindref="compound">TaskManager</ref> object. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>MainStatusBar</label>
+        <link refid="class_main_status_bar"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>manager_</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>TaskManager</label>
+        <link refid="class_task_manager"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>instance_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainstatusbar.h" line="34" column="1" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainstatusbar.h" bodystart="35" bodyend="56"/>
+    <listofallmembers>
+      <member refid="class_main_status_bar_1a25767da99871921442adddeea8828b3d" prot="private" virt="non-virtual"><scope>MainStatusBar</scope><name>bar_</name></member>
+      <member refid="class_main_status_bar_1a3ab5b599ebb4e2e80947bbaa9e2ad1db" prot="public" virt="non-virtual"><scope>MainStatusBar</scope><name>ConnectTaskManager</name></member>
+      <member refid="class_main_status_bar_1a2597ccf4a2c0d5fde918adfa563cd7c9" prot="public" virt="non-virtual"><scope>MainStatusBar</scope><name>DoubleClicked</name></member>
+      <member refid="class_main_status_bar_1a7283f43ef6c9f7bc8c1caf55837391e9" prot="public" virt="non-virtual"><scope>MainStatusBar</scope><name>MainStatusBar</name></member>
+      <member refid="class_main_status_bar_1ae9a0ad0bf2e9386d81a8eb4e526fe873" prot="private" virt="non-virtual"><scope>MainStatusBar</scope><name>manager_</name></member>
+      <member refid="class_main_status_bar_1a75fcab28ebfb7dd3327fe70e4b8824e3" prot="protected" virt="virtual"><scope>MainStatusBar</scope><name>mouseDoubleClickEvent</name></member>
+      <member refid="class_main_status_bar_1a9532de883f5470703e84bd435453fcde" prot="private" virt="non-virtual"><scope>MainStatusBar</scope><name>UpdateStatus</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

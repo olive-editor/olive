@@ -1,0 +1,826 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_timeline_widget_1_1_tool" kind="class" language="C++" prot="private">
+    <compoundname>TimelineWidget::Tool</compoundname>
+    <derivedcompoundref refid="class_timeline_widget_1_1_add_tool" prot="public" virt="non-virtual">TimelineWidget::AddTool</derivedcompoundref>
+    <derivedcompoundref refid="class_timeline_widget_1_1_edit_tool" prot="public" virt="non-virtual">TimelineWidget::EditTool</derivedcompoundref>
+    <derivedcompoundref refid="class_timeline_widget_1_1_import_tool" prot="public" virt="non-virtual">TimelineWidget::ImportTool</derivedcompoundref>
+    <derivedcompoundref refid="class_timeline_widget_1_1_pointer_tool" prot="public" virt="non-virtual">TimelineWidget::PointerTool</derivedcompoundref>
+    <derivedcompoundref refid="class_timeline_widget_1_1_razor_tool" prot="public" virt="non-virtual">TimelineWidget::RazorTool</derivedcompoundref>
+    <derivedcompoundref refid="class_timeline_widget_1_1_zoom_tool" prot="public" virt="non-virtual">TimelineWidget::ZoomTool</derivedcompoundref>
+      <sectiondef kind="protected-type">
+      <memberdef kind="enum" id="class_timeline_widget_1_1_tool_1ac1b49cfc740e8576f96ad7b3f7b161f2" prot="protected" static="no" strong="no">
+        <type></type>
+        <name>SnapPoints</name>
+        <enumvalue id="class_timeline_widget_1_1_tool_1ac1b49cfc740e8576f96ad7b3f7b161f2ad47206e59b0a27af7a2842fc8faa60e1" prot="protected">
+          <name>kSnapToClips</name>
+          <initializer>= 0x1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_timeline_widget_1_1_tool_1ac1b49cfc740e8576f96ad7b3f7b161f2af594e1e2e7211c084a8ff464fd9d54fe" prot="protected">
+          <name>kSnapToPlayhead</name>
+          <initializer>= 0x2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_timeline_widget_1_1_tool_1ac1b49cfc740e8576f96ad7b3f7b161f2a177ff28208a43b873808641a4bcc0be4" prot="protected">
+          <name>kSnapAll</name>
+          <initializer>= 0xFF</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" line="209" column="5" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" bodystart="209" bodyend="213"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="class_timeline_widget_1_1_tool_1a3969a4653b274a32fe8768b02133d924" prot="protected" static="no" mutable="no">
+        <type>QList&lt; <ref refid="classrational" kindref="compound">rational</ref> &gt;</type>
+        <definition>QList&lt;rational&gt; TimelineWidget::Tool::snap_points_</definition>
+        <argsstring></argsstring>
+        <name>snap_points_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" line="224" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" bodystart="224" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_timeline_widget_1_1_tool_1a1466ddd07a735c390350bc66fbbbcadc" prot="protected" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool TimelineWidget::Tool::dragging_</definition>
+        <argsstring></argsstring>
+        <name>dragging_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" line="226" column="10" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" bodystart="226" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_timeline_widget_1_1_tool_1a326338368427d4732acc92ed109256f5" prot="protected" static="no" mutable="no">
+        <type><ref refid="class_timeline_coordinate" kindref="compound">TimelineCoordinate</ref></type>
+        <definition>TimelineCoordinate TimelineWidget::Tool::drag_start_</definition>
+        <argsstring></argsstring>
+        <name>drag_start_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" line="228" column="24" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" bodystart="228" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_timeline_widget_1_1_tool_1a807a7e3cade006107c88c2ae76bc311d" prot="private" static="no" mutable="no">
+        <type><ref refid="class_timeline_widget" kindref="compound">TimelineWidget</ref> *</type>
+        <definition>TimelineWidget* TimelineWidget::Tool::parent_</definition>
+        <argsstring></argsstring>
+        <name>parent_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" line="231" column="20" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" bodystart="231" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_timeline_widget_1_1_tool_1a3faef3aa580c92c3fb18f0a5fb7bef74" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>TimelineWidget::Tool::Tool</definition>
+        <argsstring>(TimelineWidget *parent)</argsstring>
+        <name>Tool</name>
+        <param>
+          <type><ref refid="class_timeline_widget" kindref="compound">TimelineWidget</ref> *</type>
+          <declname>parent</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" line="166" column="5"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_widget_1_1_tool_1a9ea8c62ad5d3de140a4eb466ece2f5c0" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type></type>
+        <definition>virtual TimelineWidget::Tool::~Tool</definition>
+        <argsstring>()</argsstring>
+        <name>~Tool</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" line="167" column="13"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_widget_1_1_tool_1a3638833f1d0c6b1656f5d3bb0959ee95" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void TimelineWidget::Tool::MousePress</definition>
+        <argsstring>(TimelineViewMouseEvent *)</argsstring>
+        <name>MousePress</name>
+        <reimplementedby refid="class_timeline_widget_1_1_pointer_tool_1aceab85a65c5dba521fd7ad1141a85048">MousePress</reimplementedby>
+        <reimplementedby refid="class_timeline_widget_1_1_edit_tool_1a4c2a1ab739aea4b04a17134f8a35c62e">MousePress</reimplementedby>
+        <reimplementedby refid="class_timeline_widget_1_1_razor_tool_1a10db77d02534ef68803556f64b86cfea">MousePress</reimplementedby>
+        <reimplementedby refid="class_timeline_widget_1_1_zoom_tool_1a3cd72f2183b2a8bcaaa292e37ca2d7fc">MousePress</reimplementedby>
+        <reimplementedby refid="class_timeline_widget_1_1_add_tool_1aabcf643459e3f983119c51d6f80bc246">MousePress</reimplementedby>
+        <reimplementedby refid="class_timeline_widget_1_1_transition_tool_1ade4078801ac0227f7774f9db35a61eef">MousePress</reimplementedby>
+        <param>
+          <type><ref refid="class_timeline_view_mouse_event" kindref="compound">TimelineViewMouseEvent</ref> *</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" line="169" column="18" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" bodystart="169" bodyend="169"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_widget_1_1_tool_1a8ac363ef2bf96d3a18e85cf9a4de6bb4" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void TimelineWidget::Tool::MouseMove</definition>
+        <argsstring>(TimelineViewMouseEvent *)</argsstring>
+        <name>MouseMove</name>
+        <reimplementedby refid="class_timeline_widget_1_1_pointer_tool_1a753f7ae89504cec7cfb97edcb3f471bc">MouseMove</reimplementedby>
+        <reimplementedby refid="class_timeline_widget_1_1_edit_tool_1a5e3aa9986c726ce023263f2092b44637">MouseMove</reimplementedby>
+        <reimplementedby refid="class_timeline_widget_1_1_razor_tool_1addc2883fc2eeea3db26830b621e24965">MouseMove</reimplementedby>
+        <reimplementedby refid="class_timeline_widget_1_1_zoom_tool_1aa85f516a39e2ab4f0bff6e285f68cdc4">MouseMove</reimplementedby>
+        <reimplementedby refid="class_timeline_widget_1_1_add_tool_1a3142e664b317d7b0fce1feeb5712053c">MouseMove</reimplementedby>
+        <reimplementedby refid="class_timeline_widget_1_1_transition_tool_1acfa77a9c75be489ac0e29a8ddcfb1d89">MouseMove</reimplementedby>
+        <param>
+          <type><ref refid="class_timeline_view_mouse_event" kindref="compound">TimelineViewMouseEvent</ref> *</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" line="170" column="18" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" bodystart="170" bodyend="170"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_widget_1_1_tool_1a33e279253be415b308bb8c456c7bdc0a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void TimelineWidget::Tool::MouseRelease</definition>
+        <argsstring>(TimelineViewMouseEvent *)</argsstring>
+        <name>MouseRelease</name>
+        <reimplementedby refid="class_timeline_widget_1_1_pointer_tool_1af15eb36381844166edec250d8ae4f98e">MouseRelease</reimplementedby>
+        <reimplementedby refid="class_timeline_widget_1_1_edit_tool_1a2d3ea77ea874cec1823d8106d2006028">MouseRelease</reimplementedby>
+        <reimplementedby refid="class_timeline_widget_1_1_razor_tool_1a316d0a900d8545b83af1b16de42a1f5b">MouseRelease</reimplementedby>
+        <reimplementedby refid="class_timeline_widget_1_1_zoom_tool_1ac6caa60444bd43110f8ee91710aaaac1">MouseRelease</reimplementedby>
+        <reimplementedby refid="class_timeline_widget_1_1_add_tool_1a6ed2d1df21751b00f49240a47140d6e4">MouseRelease</reimplementedby>
+        <reimplementedby refid="class_timeline_widget_1_1_transition_tool_1ab81cae4e974beb1adb02745ed779149d">MouseRelease</reimplementedby>
+        <param>
+          <type><ref refid="class_timeline_view_mouse_event" kindref="compound">TimelineViewMouseEvent</ref> *</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" line="171" column="18" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" bodystart="171" bodyend="171"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_widget_1_1_tool_1a4aa8df205c76454b5f237fc5cc43bd99" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void TimelineWidget::Tool::MouseDoubleClick</definition>
+        <argsstring>(TimelineViewMouseEvent *)</argsstring>
+        <name>MouseDoubleClick</name>
+        <param>
+          <type><ref refid="class_timeline_view_mouse_event" kindref="compound">TimelineViewMouseEvent</ref> *</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" line="172" column="18" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" bodystart="172" bodyend="172"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_widget_1_1_tool_1a5c93d46df0ac76b01d82ef92d7ae867c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void TimelineWidget::Tool::HoverMove</definition>
+        <argsstring>(TimelineViewMouseEvent *)</argsstring>
+        <name>HoverMove</name>
+        <reimplementedby refid="class_timeline_widget_1_1_pointer_tool_1a41af8a2d7387153eca8e5517b6c9b766">HoverMove</reimplementedby>
+        <param>
+          <type><ref refid="class_timeline_view_mouse_event" kindref="compound">TimelineViewMouseEvent</ref> *</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" line="174" column="18" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" bodystart="174" bodyend="174"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_widget_1_1_tool_1a79a14fb8a583f6d70ee80750b87eafda" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void TimelineWidget::Tool::DragEnter</definition>
+        <argsstring>(TimelineViewMouseEvent *)</argsstring>
+        <name>DragEnter</name>
+        <reimplementedby refid="class_timeline_widget_1_1_import_tool_1ae4e807ff00d510fa313f730fee54b840">DragEnter</reimplementedby>
+        <param>
+          <type><ref refid="class_timeline_view_mouse_event" kindref="compound">TimelineViewMouseEvent</ref> *</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" line="176" column="18" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" bodystart="176" bodyend="176"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_widget_1_1_tool_1a978578659074ae7fd0e3a1b0cbda3986" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void TimelineWidget::Tool::DragMove</definition>
+        <argsstring>(TimelineViewMouseEvent *)</argsstring>
+        <name>DragMove</name>
+        <reimplementedby refid="class_timeline_widget_1_1_import_tool_1ab450cff5ea5f3dc4cb02ca118076ff8f">DragMove</reimplementedby>
+        <param>
+          <type><ref refid="class_timeline_view_mouse_event" kindref="compound">TimelineViewMouseEvent</ref> *</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" line="177" column="18" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" bodystart="177" bodyend="177"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_widget_1_1_tool_1ac4de16f99d686e8fad19233b4742dbfd" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void TimelineWidget::Tool::DragLeave</definition>
+        <argsstring>(QDragLeaveEvent *)</argsstring>
+        <name>DragLeave</name>
+        <reimplementedby refid="class_timeline_widget_1_1_import_tool_1af312b55f26ca65f28d4569aacd64d395">DragLeave</reimplementedby>
+        <param>
+          <type>QDragLeaveEvent *</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" line="178" column="18" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" bodystart="178" bodyend="178"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_widget_1_1_tool_1a3417bff78b6b2ed26d63ac732aae26e0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void TimelineWidget::Tool::DragDrop</definition>
+        <argsstring>(TimelineViewMouseEvent *)</argsstring>
+        <name>DragDrop</name>
+        <reimplementedby refid="class_timeline_widget_1_1_import_tool_1a699ed4ba2bdacb51be977b890a41b3b9">DragDrop</reimplementedby>
+        <param>
+          <type><ref refid="class_timeline_view_mouse_event" kindref="compound">TimelineViewMouseEvent</ref> *</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" line="179" column="18" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" bodystart="179" bodyend="179"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_widget_1_1_tool_1a9b68dea5f50f55c88e840a142e543927" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_timeline_widget" kindref="compound">TimelineWidget</ref> *</type>
+        <definition>TimelineWidget* TimelineWidget::Tool::parent</definition>
+        <argsstring>()</argsstring>
+        <name>parent</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" line="181" column="20"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="class_timeline_widget_1_1_tool_1a0aaa921baa2b9219aa90f181f613df01" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_timeline_1a541f8e285446d35262af274e46ef62ec" kindref="member">Timeline::MovementMode</ref></type>
+        <definition>static Timeline::MovementMode TimelineWidget::Tool::FlipTrimMode</definition>
+        <argsstring>(const Timeline::MovementMode &amp;trim_mode)</argsstring>
+        <name>FlipTrimMode</name>
+        <param>
+          <type>const <ref refid="class_timeline_1a541f8e285446d35262af274e46ef62ec" kindref="member">Timeline::MovementMode</ref> &amp;</type>
+          <declname>trim_mode</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" line="183" column="35"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_timeline_widget_1_1_tool_1ab37c74e8d8ccb43a8f3c4a9b13be6bfa" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_timeline_view_block_item" kindref="compound">TimelineViewBlockItem</ref> *</type>
+        <definition>TimelineViewBlockItem* TimelineWidget::Tool::GetItemAtScenePos</definition>
+        <argsstring>(const TimelineCoordinate &amp;coord)</argsstring>
+        <name>GetItemAtScenePos</name>
+        <param>
+          <type>const <ref refid="class_timeline_coordinate" kindref="compound">TimelineCoordinate</ref> &amp;</type>
+          <declname>coord</declname>
+        </param>
+        <briefdescription>
+<para>Retrieve the QGraphicsItem at a particular scene position. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Requires a float-based scene position. If you have a screen position, use GetScenePos() first to convert it to a scene position </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" line="192" column="27"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_widget_1_1_tool_1a15c48635082c45c1d968e6e4d991353a" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational TimelineWidget::Tool::ValidateFrameMovement</definition>
+        <argsstring>(rational movement, const QVector&lt; TimelineViewGhostItem * &gt; ghosts)</argsstring>
+        <name>ValidateFrameMovement</name>
+        <param>
+          <type><ref refid="classrational" kindref="compound">rational</ref></type>
+          <declname>movement</declname>
+        </param>
+        <param>
+          <type>const QVector&lt; <ref refid="class_timeline_view_ghost_item" kindref="compound">TimelineViewGhostItem</ref> * &gt;</type>
+          <declname>ghosts</declname>
+        </param>
+        <briefdescription>
+<para>Validates Ghosts that are moving horizontally (time-based) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Validation is the process of ensuring that whatever movements the user is making are &quot;valid&quot; and &quot;legal&quot;. This function&apos;s validation ensures that no Ghost&apos;s in point ends up in a negative timecode. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" line="200" column="14"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_widget_1_1_tool_1a758db3774a50bee421084e6e42568633" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int TimelineWidget::Tool::ValidateTrackMovement</definition>
+        <argsstring>(int movement, const QVector&lt; TimelineViewGhostItem * &gt; ghosts)</argsstring>
+        <name>ValidateTrackMovement</name>
+        <param>
+          <type>int</type>
+          <declname>movement</declname>
+        </param>
+        <param>
+          <type>const QVector&lt; <ref refid="class_timeline_view_ghost_item" kindref="compound">TimelineViewGhostItem</ref> * &gt;</type>
+          <declname>ghosts</declname>
+        </param>
+        <briefdescription>
+<para>Validates Ghosts that are moving vertically (track-based) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function&apos;s validation ensures that no Ghost&apos;s track ends up in a negative (non-existent) track. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" line="207" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_widget_1_1_tool_1a5b256b8c975ca752968b5386b078dc22" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool TimelineWidget::Tool::SnapPoint</definition>
+        <argsstring>(QList&lt; rational &gt; start_times, rational *movement, int snap_points=kSnapAll)</argsstring>
+        <name>SnapPoint</name>
+        <param>
+          <type>QList&lt; <ref refid="classrational" kindref="compound">rational</ref> &gt;</type>
+          <declname>start_times</declname>
+        </param>
+        <param>
+          <type><ref refid="classrational" kindref="compound">rational</ref> *</type>
+          <declname>movement</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>snap_points</declname>
+          <defval><ref refid="class_timeline_widget_1_1_tool_1ac1b49cfc740e8576f96ad7b3f7b161f2a177ff28208a43b873808641a4bcc0be4" kindref="member">kSnapAll</ref></defval>
+        </param>
+        <briefdescription>
+<para>Snaps point <computeroutput>start_point</computeroutput> that is moving by <computeroutput>movement</computeroutput> to currently existing clips. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" line="218" column="10"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_widget_1_1_tool_1af6089230947a4a60a4636fd0564dabbd" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimelineWidget::Tool::GetGhostData</definition>
+        <argsstring>(const QVector&lt; TimelineViewGhostItem * &gt; &amp;ghosts, rational *earliest_point, rational *latest_point)</argsstring>
+        <name>GetGhostData</name>
+        <param>
+          <type>const QVector&lt; <ref refid="class_timeline_view_ghost_item" kindref="compound">TimelineViewGhostItem</ref> * &gt; &amp;</type>
+          <declname>ghosts</declname>
+        </param>
+        <param>
+          <type><ref refid="classrational" kindref="compound">rational</ref> *</type>
+          <declname>earliest_point</declname>
+        </param>
+        <param>
+          <type><ref refid="classrational" kindref="compound">rational</ref> *</type>
+          <declname>latest_point</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" line="220" column="10"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_widget_1_1_tool_1a324b9f324a1019e2c4328b0faede2b6a" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimelineWidget::Tool::InsertGapsAtGhostDestination</definition>
+        <argsstring>(const QVector&lt; TimelineViewGhostItem * &gt; &amp;ghosts, QUndoCommand *command)</argsstring>
+        <name>InsertGapsAtGhostDestination</name>
+        <param>
+          <type>const QVector&lt; <ref refid="class_timeline_view_ghost_item" kindref="compound">TimelineViewGhostItem</ref> * &gt; &amp;</type>
+          <declname>ghosts</declname>
+        </param>
+        <param>
+          <type>QUndoCommand *</type>
+          <declname>command</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" line="222" column="10"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>TimelineWidget::AddTool</label>
+        <link refid="class_timeline_widget_1_1_add_tool"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>TimelineWidget::ZoomTool</label>
+        <link refid="class_timeline_widget_1_1_zoom_tool"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>TimelineWidget::SlipTool</label>
+        <link refid="class_timeline_widget_1_1_slip_tool"/>
+        <childnode refid="6" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>TimelineWidget::SlideTool</label>
+        <link refid="class_timeline_widget_1_1_slide_tool"/>
+        <childnode refid="6" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>TimelineWidget::RippleTool</label>
+        <link refid="class_timeline_widget_1_1_ripple_tool"/>
+        <childnode refid="6" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>TimelineWidget::ImportTool</label>
+        <link refid="class_timeline_widget_1_1_import_tool"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>TimelineWidget::RollingTool</label>
+        <link refid="class_timeline_widget_1_1_rolling_tool"/>
+        <childnode refid="6" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>TimelineWidget::RazorTool</label>
+        <link refid="class_timeline_widget_1_1_razor_tool"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>TimelineWidget::TransitionTool</label>
+        <link refid="class_timeline_widget_1_1_transition_tool"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>TimelineWidget::Tool</label>
+        <link refid="class_timeline_widget_1_1_tool"/>
+      </node>
+      <node id="6">
+        <label>TimelineWidget::PointerTool</label>
+        <link refid="class_timeline_widget_1_1_pointer_tool"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>TimelineWidget::EditTool</label>
+        <link refid="class_timeline_widget_1_1_edit_tool"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="20">
+        <label>NodeOutput</label>
+        <link refid="class_node_output"/>
+        <childnode refid="21" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>TimelinePoints</label>
+        <link refid="class_timeline_points"/>
+        <childnode refid="14" relation="usage">
+          <edgelabel>markers_</edgelabel>
+        </childnode>
+        <childnode refid="15" relation="usage">
+          <edgelabel>workarea_</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>TimelineCoordinate</label>
+        <link refid="class_timeline_coordinate"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>track_</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>frame_</edgelabel>
+        </childnode>
+      </node>
+      <node id="23">
+        <label>AudioParams</label>
+        <link refid="class_audio_params"/>
+      </node>
+      <node id="18">
+        <label>ViewerOutput</label>
+        <link refid="class_viewer_output"/>
+        <childnode refid="19" relation="public-inheritance">
+        </childnode>
+        <childnode refid="22" relation="usage">
+          <edgelabel>video_params_</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>timeline_length_</edgelabel>
+        </childnode>
+        <childnode refid="23" relation="usage">
+          <edgelabel>audio_params_</edgelabel>
+        </childnode>
+        <childnode refid="24" relation="usage">
+          <edgelabel>texture_input_</edgelabel>
+          <edgelabel>samples_input_</edgelabel>
+        </childnode>
+      </node>
+      <node id="12">
+        <label>TimelinePlayhead</label>
+        <link refid="class_timeline_playhead"/>
+      </node>
+      <node id="4">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="30">
+        <label>SliderLabel</label>
+        <link refid="class_slider_label"/>
+      </node>
+      <node id="8">
+        <label>TimelineScaledObject</label>
+        <link refid="class_timeline_scaled_object"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>timebase_</edgelabel>
+        </childnode>
+      </node>
+      <node id="19">
+        <label>Node</label>
+        <link refid="class_node"/>
+        <childnode refid="20" relation="usage">
+          <edgelabel>output_</edgelabel>
+        </childnode>
+      </node>
+      <node id="31">
+        <label>TimelineWidget::ImportTool</label>
+        <link refid="class_timeline_widget_1_1_import_tool"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="29">
+        <label>FocusableLineEdit</label>
+        <link refid="class_focusable_line_edit"/>
+      </node>
+      <node id="24">
+        <label>NodeInput</label>
+        <link refid="class_node_input"/>
+        <childnode refid="21" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>TimeBasedWidget</label>
+        <link refid="class_time_based_widget"/>
+        <childnode refid="7" relation="public-inheritance">
+        </childnode>
+        <childnode refid="9" relation="usage">
+          <edgelabel>scrollbar_</edgelabel>
+        </childnode>
+        <childnode refid="10" relation="usage">
+          <edgelabel>ruler_</edgelabel>
+        </childnode>
+        <childnode refid="18" relation="usage">
+          <edgelabel>viewer_node_</edgelabel>
+        </childnode>
+        <childnode refid="13" relation="usage">
+          <edgelabel>points_</edgelabel>
+        </childnode>
+      </node>
+      <node id="27">
+        <label>IntegerSlider</label>
+        <link refid="class_integer_slider"/>
+        <childnode refid="28" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>TimeSlider</label>
+        <link refid="class_time_slider"/>
+        <childnode refid="27" relation="public-inheritance">
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>timebase_</edgelabel>
+        </childnode>
+      </node>
+      <node id="17">
+        <label>TimeRangeList</label>
+        <link refid="class_time_range_list"/>
+      </node>
+      <node id="7">
+        <label>TimelineScaledWidget</label>
+        <link refid="class_timeline_scaled_widget"/>
+        <childnode refid="8" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>TimelineWorkArea</label>
+        <link refid="class_timeline_work_area"/>
+        <childnode refid="16" relation="usage">
+          <edgelabel>workarea_range_</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>kResetOut</edgelabel>
+          <edgelabel>kResetIn</edgelabel>
+        </childnode>
+      </node>
+      <node id="5">
+        <label>TimelineWidget</label>
+        <link refid="class_timeline_widget"/>
+        <childnode refid="6" relation="public-inheritance">
+        </childnode>
+        <childnode refid="25" relation="public-inheritance">
+        </childnode>
+        <childnode refid="26" relation="usage">
+          <edgelabel>timecode_label_</edgelabel>
+        </childnode>
+        <childnode refid="31" relation="usage">
+          <edgelabel>import_tool_</edgelabel>
+        </childnode>
+        <childnode refid="1" relation="usage">
+          <edgelabel>active_tool_</edgelabel>
+        </childnode>
+      </node>
+      <node id="21">
+        <label>NodeParam</label>
+        <link refid="class_node_param"/>
+      </node>
+      <node id="16">
+        <label>TimeRange</label>
+        <link refid="class_time_range"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>out_</edgelabel>
+          <edgelabel>in_</edgelabel>
+          <edgelabel>length_</edgelabel>
+        </childnode>
+      </node>
+      <node id="11">
+        <label>SeekableWidget</label>
+        <link refid="class_seekable_widget"/>
+        <childnode refid="7" relation="public-inheritance">
+        </childnode>
+        <childnode refid="12" relation="usage">
+          <edgelabel>style_</edgelabel>
+        </childnode>
+        <childnode refid="13" relation="usage">
+          <edgelabel>timeline_points_</edgelabel>
+        </childnode>
+      </node>
+      <node id="9">
+        <label>ResizableScrollBar</label>
+        <link refid="class_resizable_scroll_bar"/>
+      </node>
+      <node id="1">
+        <label>TimelineWidget::Tool</label>
+        <link refid="class_timeline_widget_1_1_tool"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>drag_start_</edgelabel>
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>parent_</edgelabel>
+        </childnode>
+      </node>
+      <node id="25">
+        <label>NodeCopyPasteWidget</label>
+        <link refid="class_node_copy_paste_widget"/>
+      </node>
+      <node id="3">
+        <label>TrackReference</label>
+        <link refid="class_track_reference"/>
+      </node>
+      <node id="22">
+        <label>VideoParams</label>
+        <link refid="class_video_params"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>time_base_</edgelabel>
+        </childnode>
+      </node>
+      <node id="10">
+        <label>TimeRuler</label>
+        <link refid="class_time_ruler"/>
+        <childnode refid="11" relation="public-inheritance">
+        </childnode>
+        <childnode refid="17" relation="usage">
+          <edgelabel>dirty_cache_ranges_</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>cache_length_</edgelabel>
+        </childnode>
+      </node>
+      <node id="14">
+        <label>TimelineMarkerList</label>
+        <link refid="class_timeline_marker_list"/>
+      </node>
+      <node id="28">
+        <label>SliderBase</label>
+        <link refid="class_slider_base"/>
+        <childnode refid="29" relation="usage">
+          <edgelabel>editor_</edgelabel>
+        </childnode>
+        <childnode refid="30" relation="usage">
+          <edgelabel>label_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" line="163" column="3" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinewidget.h" bodystart="164" bodyend="233"/>
+    <listofallmembers>
+      <member refid="class_timeline_widget_1_1_tool_1a326338368427d4732acc92ed109256f5" prot="protected" virt="non-virtual"><scope>TimelineWidget::Tool</scope><name>drag_start_</name></member>
+      <member refid="class_timeline_widget_1_1_tool_1a3417bff78b6b2ed26d63ac732aae26e0" prot="public" virt="virtual"><scope>TimelineWidget::Tool</scope><name>DragDrop</name></member>
+      <member refid="class_timeline_widget_1_1_tool_1a79a14fb8a583f6d70ee80750b87eafda" prot="public" virt="virtual"><scope>TimelineWidget::Tool</scope><name>DragEnter</name></member>
+      <member refid="class_timeline_widget_1_1_tool_1a1466ddd07a735c390350bc66fbbbcadc" prot="protected" virt="non-virtual"><scope>TimelineWidget::Tool</scope><name>dragging_</name></member>
+      <member refid="class_timeline_widget_1_1_tool_1ac4de16f99d686e8fad19233b4742dbfd" prot="public" virt="virtual"><scope>TimelineWidget::Tool</scope><name>DragLeave</name></member>
+      <member refid="class_timeline_widget_1_1_tool_1a978578659074ae7fd0e3a1b0cbda3986" prot="public" virt="virtual"><scope>TimelineWidget::Tool</scope><name>DragMove</name></member>
+      <member refid="class_timeline_widget_1_1_tool_1a0aaa921baa2b9219aa90f181f613df01" prot="public" virt="non-virtual"><scope>TimelineWidget::Tool</scope><name>FlipTrimMode</name></member>
+      <member refid="class_timeline_widget_1_1_tool_1af6089230947a4a60a4636fd0564dabbd" prot="protected" virt="non-virtual"><scope>TimelineWidget::Tool</scope><name>GetGhostData</name></member>
+      <member refid="class_timeline_widget_1_1_tool_1ab37c74e8d8ccb43a8f3c4a9b13be6bfa" prot="protected" virt="non-virtual"><scope>TimelineWidget::Tool</scope><name>GetItemAtScenePos</name></member>
+      <member refid="class_timeline_widget_1_1_tool_1a5c93d46df0ac76b01d82ef92d7ae867c" prot="public" virt="virtual"><scope>TimelineWidget::Tool</scope><name>HoverMove</name></member>
+      <member refid="class_timeline_widget_1_1_tool_1a324b9f324a1019e2c4328b0faede2b6a" prot="protected" virt="non-virtual"><scope>TimelineWidget::Tool</scope><name>InsertGapsAtGhostDestination</name></member>
+      <member refid="class_timeline_widget_1_1_tool_1ac1b49cfc740e8576f96ad7b3f7b161f2a177ff28208a43b873808641a4bcc0be4" prot="protected" virt="non-virtual"><scope>TimelineWidget::Tool</scope><name>kSnapAll</name></member>
+      <member refid="class_timeline_widget_1_1_tool_1ac1b49cfc740e8576f96ad7b3f7b161f2ad47206e59b0a27af7a2842fc8faa60e1" prot="protected" virt="non-virtual"><scope>TimelineWidget::Tool</scope><name>kSnapToClips</name></member>
+      <member refid="class_timeline_widget_1_1_tool_1ac1b49cfc740e8576f96ad7b3f7b161f2af594e1e2e7211c084a8ff464fd9d54fe" prot="protected" virt="non-virtual"><scope>TimelineWidget::Tool</scope><name>kSnapToPlayhead</name></member>
+      <member refid="class_timeline_widget_1_1_tool_1a4aa8df205c76454b5f237fc5cc43bd99" prot="public" virt="virtual"><scope>TimelineWidget::Tool</scope><name>MouseDoubleClick</name></member>
+      <member refid="class_timeline_widget_1_1_tool_1a8ac363ef2bf96d3a18e85cf9a4de6bb4" prot="public" virt="virtual"><scope>TimelineWidget::Tool</scope><name>MouseMove</name></member>
+      <member refid="class_timeline_widget_1_1_tool_1a3638833f1d0c6b1656f5d3bb0959ee95" prot="public" virt="virtual"><scope>TimelineWidget::Tool</scope><name>MousePress</name></member>
+      <member refid="class_timeline_widget_1_1_tool_1a33e279253be415b308bb8c456c7bdc0a" prot="public" virt="virtual"><scope>TimelineWidget::Tool</scope><name>MouseRelease</name></member>
+      <member refid="class_timeline_widget_1_1_tool_1a9b68dea5f50f55c88e840a142e543927" prot="public" virt="non-virtual"><scope>TimelineWidget::Tool</scope><name>parent</name></member>
+      <member refid="class_timeline_widget_1_1_tool_1a807a7e3cade006107c88c2ae76bc311d" prot="private" virt="non-virtual"><scope>TimelineWidget::Tool</scope><name>parent_</name></member>
+      <member refid="class_timeline_widget_1_1_tool_1a3969a4653b274a32fe8768b02133d924" prot="protected" virt="non-virtual"><scope>TimelineWidget::Tool</scope><name>snap_points_</name></member>
+      <member refid="class_timeline_widget_1_1_tool_1a5b256b8c975ca752968b5386b078dc22" prot="protected" virt="non-virtual"><scope>TimelineWidget::Tool</scope><name>SnapPoint</name></member>
+      <member refid="class_timeline_widget_1_1_tool_1ac1b49cfc740e8576f96ad7b3f7b161f2" prot="protected" virt="non-virtual"><scope>TimelineWidget::Tool</scope><name>SnapPoints</name></member>
+      <member refid="class_timeline_widget_1_1_tool_1a3faef3aa580c92c3fb18f0a5fb7bef74" prot="public" virt="non-virtual"><scope>TimelineWidget::Tool</scope><name>Tool</name></member>
+      <member refid="class_timeline_widget_1_1_tool_1a15c48635082c45c1d968e6e4d991353a" prot="protected" virt="non-virtual"><scope>TimelineWidget::Tool</scope><name>ValidateFrameMovement</name></member>
+      <member refid="class_timeline_widget_1_1_tool_1a758db3774a50bee421084e6e42568633" prot="protected" virt="non-virtual"><scope>TimelineWidget::Tool</scope><name>ValidateTrackMovement</name></member>
+      <member refid="class_timeline_widget_1_1_tool_1a9ea8c62ad5d3de140a4eb466ece2f5c0" prot="public" virt="virtual"><scope>TimelineWidget::Tool</scope><name>~Tool</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

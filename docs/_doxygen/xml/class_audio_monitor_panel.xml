@@ -1,0 +1,1108 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_audio_monitor_panel" kind="class" language="C++" prot="public">
+    <compoundname>AudioMonitorPanel</compoundname>
+    <basecompoundref refid="class_panel_widget" prot="public" virt="non-virtual">PanelWidget</basecompoundref>
+    <includes refid="panel_2audiomonitor_2audiomonitor_8h" local="no">audiomonitor.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_audio_monitor_panel_1a700f2af5286bded70cf39500b5b4683c" prot="private" static="no" mutable="no">
+        <type><ref refid="class_audio_monitor" kindref="compound">AudioMonitor</ref> *</type>
+        <definition>AudioMonitor* AudioMonitorPanel::audio_monitor_</definition>
+        <argsstring></argsstring>
+        <name>audio_monitor_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/panel/audiomonitor/audiomonitor.h" line="58" column="16" bodyfile="C:/Daten/Olive/olive/app/panel/audiomonitor/audiomonitor.h" bodystart="58" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_panel_widget_1a257e97519bfcd4663b729c72ef9d130e" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString PanelWidget::title_</definition>
+        <argsstring></argsstring>
+        <name>title_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="243" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/panel/panel.h" bodystart="243" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_panel_widget_1a52595f00d810b860920ff570501762ea" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString PanelWidget::subtitle_</definition>
+        <argsstring></argsstring>
+        <name>subtitle_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="245" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/panel/panel.h" bodystart="245" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_panel_widget_1abebef8d94bc2665e4a5b588cdb6e216d" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool PanelWidget::border_visible_</definition>
+        <argsstring></argsstring>
+        <name>border_visible_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="247" column="8" bodyfile="C:/Daten/Olive/olive/app/widget/panel/panel.h" bodystart="247" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_panel_widget_1a73382d0b38d5011427e82e43fc3050c0" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool PanelWidget::signal_instead_of_close_</definition>
+        <argsstring></argsstring>
+        <name>signal_instead_of_close_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="249" column="8" bodyfile="C:/Daten/Olive/olive/app/widget/panel/panel.h" bodystart="249" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_audio_monitor_panel_1abf2e262fcf81105835fc4f5df1c143cb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>AudioMonitorPanel::AudioMonitorPanel</definition>
+        <argsstring>(QWidget *parent=nullptr)</argsstring>
+        <name>AudioMonitorPanel</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/panel/audiomonitor/audiomonitor.h" line="53" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1a38dbfc29d6eaf2b07e487a61f2f029aa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PanelWidget::SetMovementLocked</definition>
+        <argsstring>(bool locked)</argsstring>
+        <name>SetMovementLocked</name>
+        <param>
+          <type>bool</type>
+          <declname>locked</declname>
+        </param>
+        <briefdescription>
+<para>Set whether panel movement is locked or not. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="68" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1ae52a843c1a40ca5fdd535a4becacc2d9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PanelWidget::SetBorderVisible</definition>
+        <argsstring>(bool enabled)</argsstring>
+        <name>SetBorderVisible</name>
+        <param>
+          <type>bool</type>
+          <declname>enabled</declname>
+        </param>
+        <briefdescription>
+<para>Set visibility of panel&apos;s highlighted border, mostly used for showing panel focus. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>enabled</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="75" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1a85b6ec7d5742382e0ea3eb5a5fbc04a8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PanelWidget::SetSignalInsteadOfClose</definition>
+        <argsstring>(bool e)</argsstring>
+        <name>SetSignalInsteadOfClose</name>
+        <param>
+          <type>bool</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+<para>If enabled, sends signal <ref refid="class_panel_widget_1a126ba33d6c1bc990e599721164b8efdc" kindref="member">CloseRequested()</ref> when the user closes instead of closing. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Defaults to FALSE. Use this to override default panel closing functionality. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="82" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1afb16fa6eb09011677d011f2b8b0fe557" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PanelWidget::ZoomIn</definition>
+        <argsstring>()</argsstring>
+        <name>ZoomIn</name>
+        <reimplementedby refid="class_time_based_panel_1aab78fb071095771599ffef4d2cf0d6f1">ZoomIn</reimplementedby>
+        <briefdescription>
+<para>Called whenever this panel is focused and user uses &quot;Zoom In&quot; (either in menus or as a keyboard shortcut) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function is up to the Panel&apos;s interpretation of what the user intends to zoom into. Default behavior is a no-op. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="90" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/panel/panel.h" bodystart="90" bodyend="90"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1a3a4c799aa33814401ef518eb4d958f30" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PanelWidget::ZoomOut</definition>
+        <argsstring>()</argsstring>
+        <name>ZoomOut</name>
+        <reimplementedby refid="class_time_based_panel_1aa24f52154f49a3e121c17ec64f4acd22">ZoomOut</reimplementedby>
+        <briefdescription>
+<para>Called whenever this panel is focused and user uses &quot;Zoom Out&quot; (either in menus or as a keyboard shortcut) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function is up to the Panel&apos;s interpretation of what the user intends to zoom out of. Default behavior is a no-op. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="98" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/panel/panel.h" bodystart="98" bodyend="98"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1ace38187a5209a9c25a7efb439d3cfe19" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PanelWidget::GoToStart</definition>
+        <argsstring>()</argsstring>
+        <name>GoToStart</name>
+        <reimplementedby refid="class_time_based_panel_1ac7ea675bd8feebb085abbc1a10928805">GoToStart</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="100" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/panel/panel.h" bodystart="100" bodyend="100"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1a1ec51ea78760bae323a05e6307c4a637" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PanelWidget::PrevFrame</definition>
+        <argsstring>()</argsstring>
+        <name>PrevFrame</name>
+        <reimplementedby refid="class_time_based_panel_1a31a20f44fd871987b1575e961dd7841b">PrevFrame</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="102" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/panel/panel.h" bodystart="102" bodyend="102"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1a58a7bed4fd9727575b20a00740c33892" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PanelWidget::PlayPause</definition>
+        <argsstring>()</argsstring>
+        <name>PlayPause</name>
+        <reimplementedby refid="class_viewer_panel_base_1ab4fc9e874c1108495c241c7eeb7b5f0a">PlayPause</reimplementedby>
+        <reimplementedby refid="class_time_based_panel_1a7a51600f17dbd8068e3a6bf0cbe45ce7">PlayPause</reimplementedby>
+        <briefdescription>
+<para>Called whenever this panel is focused and user uses &quot;Play/Pause&quot; (either in menus or as a keyboard shortcut) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function is up to the Panel&apos;s interpretation of what the user intends to zoom out of. Default behavior is a no-op. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="110" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/panel/panel.h" bodystart="110" bodyend="110"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1acfe6646e603b5163b5e3e840eaae9968" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PanelWidget::PlayInToOut</definition>
+        <argsstring>()</argsstring>
+        <name>PlayInToOut</name>
+        <reimplementedby refid="class_viewer_panel_base_1a050955fdf6f40259deb0774f085c53b4">PlayInToOut</reimplementedby>
+        <reimplementedby refid="class_time_based_panel_1aa1b17d5133b654e3141b564125fd1c6d">PlayInToOut</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="112" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/panel/panel.h" bodystart="112" bodyend="112"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1a232235670aec81c3d1f970789cfffbe0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PanelWidget::NextFrame</definition>
+        <argsstring>()</argsstring>
+        <name>NextFrame</name>
+        <reimplementedby refid="class_time_based_panel_1a5de34325e706155be9b26271b74e90ff">NextFrame</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="114" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/panel/panel.h" bodystart="114" bodyend="114"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1a40536c71036b3d2d9fe0c732605e122b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PanelWidget::GoToEnd</definition>
+        <argsstring>()</argsstring>
+        <name>GoToEnd</name>
+        <reimplementedby refid="class_time_based_panel_1a8020d972fbe076f702a62f6ee0cd8f51">GoToEnd</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="116" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/panel/panel.h" bodystart="116" bodyend="116"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1af367e309deecdc4f3e136635eaab56dd" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PanelWidget::SelectAll</definition>
+        <argsstring>()</argsstring>
+        <name>SelectAll</name>
+        <reimplementedby refid="class_node_panel_1afafc06062fb78af3efdb2fb37b1a9969">SelectAll</reimplementedby>
+        <reimplementedby refid="class_timeline_panel_1ae682f68db6a7979c757f998928caa16f">SelectAll</reimplementedby>
+        <reimplementedby refid="class_project_panel_1aefc1da7be4b53234f12a4ea21868f859">SelectAll</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="118" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/panel/panel.h" bodystart="118" bodyend="118"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1a1879a9dd3f145d91da208d02067c8fa4" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PanelWidget::DeselectAll</definition>
+        <argsstring>()</argsstring>
+        <name>DeselectAll</name>
+        <reimplementedby refid="class_node_panel_1aa8d6a199d48e63194f00681e653f62d8">DeselectAll</reimplementedby>
+        <reimplementedby refid="class_timeline_panel_1a76b61ac40518c4ae616e421cdacd4cf1">DeselectAll</reimplementedby>
+        <reimplementedby refid="class_project_panel_1a8c4fabcbd2267506e59b659c04096d6b">DeselectAll</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="120" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/panel/panel.h" bodystart="120" bodyend="120"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1a1d9359ad889d7e2d950f2022dfb5d262" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PanelWidget::RippleToIn</definition>
+        <argsstring>()</argsstring>
+        <name>RippleToIn</name>
+        <reimplementedby refid="class_timeline_panel_1a331ad948faae84c5381ccc1f2d4e9b3d">RippleToIn</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="122" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/panel/panel.h" bodystart="122" bodyend="122"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1a04b4f2934f5a844b677e3478e9b7b5f6" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PanelWidget::RippleToOut</definition>
+        <argsstring>()</argsstring>
+        <name>RippleToOut</name>
+        <reimplementedby refid="class_timeline_panel_1a1bc3a0338030404d39ec816e9cfcbb69">RippleToOut</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="124" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/panel/panel.h" bodystart="124" bodyend="124"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1a287cd2da5522991c15e352e33404311f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PanelWidget::EditToIn</definition>
+        <argsstring>()</argsstring>
+        <name>EditToIn</name>
+        <reimplementedby refid="class_timeline_panel_1aa8d38fe5cd67aaa870a2685094b39c8a">EditToIn</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="126" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/panel/panel.h" bodystart="126" bodyend="126"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1af03f6a283fb2cb301e198f05fcd44b0c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PanelWidget::EditToOut</definition>
+        <argsstring>()</argsstring>
+        <name>EditToOut</name>
+        <reimplementedby refid="class_timeline_panel_1ac1aa5f7aa1b44cb2578409adbfc2c4d3">EditToOut</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="128" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/panel/panel.h" bodystart="128" bodyend="128"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1ab7670adff57a1e3aa3a8bcd6990bc86c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PanelWidget::ShuttleLeft</definition>
+        <argsstring>()</argsstring>
+        <name>ShuttleLeft</name>
+        <reimplementedby refid="class_viewer_panel_base_1a6d67977fd1cb80e785bc5c5ef7666b58">ShuttleLeft</reimplementedby>
+        <reimplementedby refid="class_time_based_panel_1abe97a529ac5b347a985d65f7af92d338">ShuttleLeft</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="130" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/panel/panel.h" bodystart="130" bodyend="130"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1a4d287f35c51b8124c28355d5a830d039" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PanelWidget::ShuttleStop</definition>
+        <argsstring>()</argsstring>
+        <name>ShuttleStop</name>
+        <reimplementedby refid="class_viewer_panel_base_1a810a74f94126fbc08e0915150f71f9e0">ShuttleStop</reimplementedby>
+        <reimplementedby refid="class_time_based_panel_1a810f754d9a77b3c8825fdeec20f03c03">ShuttleStop</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="132" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/panel/panel.h" bodystart="132" bodyend="132"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1a588ed9f2aebd4d83349274a0d54d46de" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PanelWidget::ShuttleRight</definition>
+        <argsstring>()</argsstring>
+        <name>ShuttleRight</name>
+        <reimplementedby refid="class_viewer_panel_base_1ad34d21ccedfffb098e010d8559396fe7">ShuttleRight</reimplementedby>
+        <reimplementedby refid="class_time_based_panel_1a46f6fb431bb2902a5479cc2eb7b1d1c4">ShuttleRight</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="134" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/panel/panel.h" bodystart="134" bodyend="134"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1a644b4931a8752c0d6c9c5ace18974a09" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PanelWidget::GoToPrevCut</definition>
+        <argsstring>()</argsstring>
+        <name>GoToPrevCut</name>
+        <reimplementedby refid="class_time_based_panel_1a1b3d6596d62e36461bfed8b5bf2a608e">GoToPrevCut</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="136" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/panel/panel.h" bodystart="136" bodyend="136"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1ae280d1f61fed0c2cae2e36463238835b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PanelWidget::GoToNextCut</definition>
+        <argsstring>()</argsstring>
+        <name>GoToNextCut</name>
+        <reimplementedby refid="class_time_based_panel_1a0e14c02d76519ea8bd031de7c379836f">GoToNextCut</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="138" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/panel/panel.h" bodystart="138" bodyend="138"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1a4e69203f7e299ed8b1afd4a1592cdeec" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PanelWidget::DeleteSelected</definition>
+        <argsstring>()</argsstring>
+        <name>DeleteSelected</name>
+        <reimplementedby refid="class_curve_panel_1a1898ccc0d211cba24ecb4a657e4ea3ed">DeleteSelected</reimplementedby>
+        <reimplementedby refid="class_node_panel_1a88c2ebe253003cebb182e47480167f71">DeleteSelected</reimplementedby>
+        <reimplementedby refid="class_timeline_panel_1ae062cfc86e32bee2f5ddc3f42c469adb">DeleteSelected</reimplementedby>
+        <reimplementedby refid="class_project_panel_1a793b89ea4b6fb70735095b55df37fb53">DeleteSelected</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="140" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/panel/panel.h" bodystart="140" bodyend="140"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1a6dd4ae8f7856c798e9c5f01fdc51d5fb" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PanelWidget::RippleDelete</definition>
+        <argsstring>()</argsstring>
+        <name>RippleDelete</name>
+        <reimplementedby refid="class_timeline_panel_1af706cb8241d14a65ed4d5cba747ad7af">RippleDelete</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="142" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/panel/panel.h" bodystart="142" bodyend="142"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1ae599c3b5188581561ba8548b75744457" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PanelWidget::Insert</definition>
+        <argsstring>()</argsstring>
+        <name>Insert</name>
+        <reimplementedby refid="class_project_panel_1a46bd6f1152596f64f908619a7d33cd71">Insert</reimplementedby>
+        <reimplementedby refid="class_timeline_panel_1aa2cfd0c7a2a1bc747e2da6abba37f17e">Insert</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="144" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/panel/panel.h" bodystart="144" bodyend="144"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1a2f17fbf0de518bc653c1f705d09cfaae" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PanelWidget::Overwrite</definition>
+        <argsstring>()</argsstring>
+        <name>Overwrite</name>
+        <reimplementedby refid="class_project_panel_1a4f3cc7efd6cba67eafd12ee9a86ea4c1">Overwrite</reimplementedby>
+        <reimplementedby refid="class_timeline_panel_1a3bd5de53c42f42e3a7a3b23abab283ae">Overwrite</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="146" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/panel/panel.h" bodystart="146" bodyend="146"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1adeb49582a3c5772cccc807d7957fde9b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PanelWidget::IncreaseTrackHeight</definition>
+        <argsstring>()</argsstring>
+        <name>IncreaseTrackHeight</name>
+        <reimplementedby refid="class_timeline_panel_1a4b10832f48c37895bd258d30faf40107">IncreaseTrackHeight</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="148" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/panel/panel.h" bodystart="148" bodyend="148"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1a712712f864a16418c7d76200d6d05c7a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PanelWidget::DecreaseTrackHeight</definition>
+        <argsstring>()</argsstring>
+        <name>DecreaseTrackHeight</name>
+        <reimplementedby refid="class_timeline_panel_1a0b6670442c12752b842a492eb148cf96">DecreaseTrackHeight</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="150" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/panel/panel.h" bodystart="150" bodyend="150"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1a5ee718b815ceb1bc0fafdb507404d3d2" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PanelWidget::SetIn</definition>
+        <argsstring>()</argsstring>
+        <name>SetIn</name>
+        <reimplementedby refid="class_time_based_panel_1ab1243fbb324b2ae525a49e342ab8fbc5">SetIn</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="152" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/panel/panel.h" bodystart="152" bodyend="152"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1a19ffd475072fdac8f8e2bfe021af9b15" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PanelWidget::SetOut</definition>
+        <argsstring>()</argsstring>
+        <name>SetOut</name>
+        <reimplementedby refid="class_time_based_panel_1aab3d883d42e802a91a056839a57a836f">SetOut</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="154" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/panel/panel.h" bodystart="154" bodyend="154"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1a59bc5479a1ae417eec39db0ce8e7a2d3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PanelWidget::ResetIn</definition>
+        <argsstring>()</argsstring>
+        <name>ResetIn</name>
+        <reimplementedby refid="class_time_based_panel_1a4a29017671338a59f8d850cce3eaf72b">ResetIn</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="156" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/panel/panel.h" bodystart="156" bodyend="156"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1a3653cbe8c2dc5da9458f82926420c176" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PanelWidget::ResetOut</definition>
+        <argsstring>()</argsstring>
+        <name>ResetOut</name>
+        <reimplementedby refid="class_time_based_panel_1a19424ad0d40dc0c11912c60d9b8700f9">ResetOut</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="158" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/panel/panel.h" bodystart="158" bodyend="158"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1a86480fb14c8a220eb64ccdcf7d4874a9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PanelWidget::ClearInOut</definition>
+        <argsstring>()</argsstring>
+        <name>ClearInOut</name>
+        <reimplementedby refid="class_time_based_panel_1a77ab978d58077b47d5263c3ff3694346">ClearInOut</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="160" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/panel/panel.h" bodystart="160" bodyend="160"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1acdfba5099125a18b8a3f4d95de1359d0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PanelWidget::SetMarker</definition>
+        <argsstring>()</argsstring>
+        <name>SetMarker</name>
+        <reimplementedby refid="class_time_based_panel_1aa6e32b37db13ee58ae87a051aea7adf6">SetMarker</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="162" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/panel/panel.h" bodystart="162" bodyend="162"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1acfa18d278971ee1f582beab05d63ab8a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PanelWidget::ToggleLinks</definition>
+        <argsstring>()</argsstring>
+        <name>ToggleLinks</name>
+        <reimplementedby refid="class_timeline_panel_1af005478a64dfc8a18c484ddbe4637489">ToggleLinks</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="164" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/panel/panel.h" bodystart="164" bodyend="164"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1a24ab3a2967f34509a0c3682db60cbed9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PanelWidget::CutSelected</definition>
+        <argsstring>()</argsstring>
+        <name>CutSelected</name>
+        <reimplementedby refid="class_node_panel_1a2c6523b88be95d47cd0a1f9ba2d81d93">CutSelected</reimplementedby>
+        <reimplementedby refid="class_timeline_panel_1abc7f7c740b4afa6454606246229a667d">CutSelected</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="166" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/panel/panel.h" bodystart="166" bodyend="166"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1a1ae59709e5e480c036c4bb5fce4a9452" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PanelWidget::CopySelected</definition>
+        <argsstring>()</argsstring>
+        <name>CopySelected</name>
+        <reimplementedby refid="class_node_panel_1abf13dae11bca5fa1e9ec5f96151bd684">CopySelected</reimplementedby>
+        <reimplementedby refid="class_timeline_panel_1a19a6bf103ce2990b69e1b32efd8fdf9a">CopySelected</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="168" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/panel/panel.h" bodystart="168" bodyend="168"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1abc2ad045885bd5c5260a152cf493f61c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PanelWidget::Paste</definition>
+        <argsstring>()</argsstring>
+        <name>Paste</name>
+        <reimplementedby refid="class_node_panel_1a9c8d61c9d6d08b62d96bffff2c731664">Paste</reimplementedby>
+        <reimplementedby refid="class_timeline_panel_1a2e47759e205a9e940706944f030b15e8">Paste</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="170" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/panel/panel.h" bodystart="170" bodyend="170"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1a7c2d0fd3d376497b5c5e55e9dba5fc60" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PanelWidget::PasteInsert</definition>
+        <argsstring>()</argsstring>
+        <name>PasteInsert</name>
+        <reimplementedby refid="class_timeline_panel_1aa9dea127edac2a0d1b5d1ea41c55b94c">PasteInsert</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="172" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/panel/panel.h" bodystart="172" bodyend="172"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1aceeef1ac70dc970d9534fb16a5c002f0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PanelWidget::ToggleShowAll</definition>
+        <argsstring>()</argsstring>
+        <name>ToggleShowAll</name>
+        <reimplementedby refid="class_time_based_panel_1a54f115379a2560782c8c06703368327a">ToggleShowAll</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="174" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/panel/panel.h" bodystart="174" bodyend="174"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1a3fc7e288a448f2b2b9e98da82b17f647" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PanelWidget::GoToIn</definition>
+        <argsstring>()</argsstring>
+        <name>GoToIn</name>
+        <reimplementedby refid="class_time_based_panel_1a1f3f4855068d0c59115a199d9c9fea53">GoToIn</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="176" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/panel/panel.h" bodystart="176" bodyend="176"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1a13bd8385176f97d03280d2eb8eed67f6" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PanelWidget::GoToOut</definition>
+        <argsstring>()</argsstring>
+        <name>GoToOut</name>
+        <reimplementedby refid="class_time_based_panel_1af5fbbfbdf34b4bb0e66af7cee44bfc7d">GoToOut</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="178" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/panel/panel.h" bodystart="178" bodyend="178"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1a34278f9c8ff9d6b77d5d8544c71ac153" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PanelWidget::DeleteInToOut</definition>
+        <argsstring>()</argsstring>
+        <name>DeleteInToOut</name>
+        <reimplementedby refid="class_timeline_panel_1a26d4d454df9713f32af903487c0feace">DeleteInToOut</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="180" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/panel/panel.h" bodystart="180" bodyend="180"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1ada5244c434ad039ad20d5d01a7ecab87" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PanelWidget::RippleDeleteInToOut</definition>
+        <argsstring>()</argsstring>
+        <name>RippleDeleteInToOut</name>
+        <reimplementedby refid="class_timeline_panel_1a91f8063ec4f5b7f1ffae9fdc91700abb">RippleDeleteInToOut</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="182" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/panel/panel.h" bodystart="182" bodyend="182"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1af832705480abe8546de8c55dc6b1c51e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PanelWidget::ToggleSelectedEnabled</definition>
+        <argsstring>()</argsstring>
+        <name>ToggleSelectedEnabled</name>
+        <reimplementedby refid="class_timeline_panel_1a2328e2924eb5794c586dc17885880519">ToggleSelectedEnabled</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="184" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/panel/panel.h" bodystart="184" bodyend="184"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1aa5b4a01b957f597a4b0d58564547fa9a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PanelWidget::Duplicate</definition>
+        <argsstring>()</argsstring>
+        <name>Duplicate</name>
+        <reimplementedby refid="class_node_panel_1acaf3a46b19fd0c4f6b3129619ed59ead">Duplicate</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="186" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/panel/panel.h" bodystart="186" bodyend="186"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_audio_monitor_panel_1a1c518b2dd3c02bb5b75b82d4dc7a3338" prot="private" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void AudioMonitorPanel::Retranslate</definition>
+        <argsstring>() override</argsstring>
+        <name>Retranslate</name>
+        <reimplements refid="class_panel_widget_1a2bcaa48a708c6847cc72b522fd42674a">Retranslate</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/panel/audiomonitor/audiomonitor.h" line="56" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1aeb70102fa7591f67def51159b80a0317" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PanelWidget::UpdateTitle</definition>
+        <argsstring>()</argsstring>
+        <name>UpdateTitle</name>
+        <briefdescription>
+<para>Internal function that sets the QDockWidget&apos;s window title whenever the title/subtitle change. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Should be called any time a change is made to title_ or subtitle_ </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="241" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_panel_widget_1a126ba33d6c1bc990e599721164b8efdc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PanelWidget::CloseRequested</definition>
+        <argsstring>()</argsstring>
+        <name>CloseRequested</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="189" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_panel_widget_1adbb61ac0a9bf7bc1db30ffab38a0e47d" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PanelWidget::paintEvent</definition>
+        <argsstring>(QPaintEvent *event) override</argsstring>
+        <name>paintEvent</name>
+        <param>
+          <type>QPaintEvent *</type>
+          <declname>event</declname>
+        </param>
+        <briefdescription>
+<para>paintEvent </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>event</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="196" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1a0dfbde361a26c80546326d9dbb9a8063" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PanelWidget::changeEvent</definition>
+        <argsstring>(QEvent *e) override</argsstring>
+        <name>changeEvent</name>
+        <param>
+          <type>QEvent *</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="198" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1ab06b0894435f1ad66d8993917f13fd78" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PanelWidget::closeEvent</definition>
+        <argsstring>(QCloseEvent *event) override</argsstring>
+        <name>closeEvent</name>
+        <param>
+          <type>QCloseEvent *</type>
+          <declname>event</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="200" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_widget_1aebcb916143c8ec5d6794b4ef38ac7087" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PanelWidget::SetWidgetWithPadding</definition>
+        <argsstring>(QWidget *widget)</argsstring>
+        <name>SetWidgetWithPadding</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>widget</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="204" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-slot">
+      <memberdef kind="slot" id="class_panel_widget_1a4b6fed0e0a03cbe112b31cae7b0d0ada" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PanelWidget::SetTitle</definition>
+        <argsstring>(const QString &amp;t)</argsstring>
+        <name>SetTitle</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+<para>Set panel&apos;s title. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Use this function to set the title of the panel.</para>
+<para>A <ref refid="class_panel_widget" kindref="compound">PanelWidget</ref> has the default format of &quot;Title: Subtitle&quot; (can differ depending on translation). If no Subtitle is set, the title will just be formatted &quot;Title&quot;.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>t</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>String to set the title to </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="219" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_panel_widget_1a77401a1aa98e821f5643503206232ce7" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PanelWidget::SetSubtitle</definition>
+        <argsstring>(const QString &amp;t)</argsstring>
+        <name>SetSubtitle</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+<para>Set panel&apos;s subtitle. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Use this function to set the subtitle of the panel.</para>
+<para>A <ref refid="class_panel_widget" kindref="compound">PanelWidget</ref> has the default format of &quot;Title: Subtitle&quot; (can differ depending on translation). If no Subtitle is set, the title will just be formatted &quot;Title&quot;.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>t</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>String to set the subtitle to </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="233" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_panel_widget_1a44d38ee5e7f07221ea2991e28d2d5127" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PanelWidget::PanelVisibilityChanged</definition>
+        <argsstring>(bool e)</argsstring>
+        <name>PanelVisibilityChanged</name>
+        <param>
+          <type>bool</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/panel/panel.h" line="252" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para><ref refid="class_panel_widget" kindref="compound">PanelWidget</ref> wrapper around an <ref refid="class_audio_monitor" kindref="compound">AudioMonitor</ref>. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>PanelWidget</label>
+        <link refid="class_panel_widget"/>
+      </node>
+      <node id="1">
+        <label>AudioMonitorPanel</label>
+        <link refid="class_audio_monitor_panel"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="5">
+        <label>AudioParams</label>
+        <link refid="class_audio_params"/>
+      </node>
+      <node id="2">
+        <label>PanelWidget</label>
+        <link refid="class_panel_widget"/>
+      </node>
+      <node id="1">
+        <label>AudioMonitorPanel</label>
+        <link refid="class_audio_monitor_panel"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>audio_monitor_</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>AudioMonitor</label>
+        <link refid="class_audio_monitor"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>params_</edgelabel>
+        </childnode>
+      </node>
+      <node id="4">
+        <label>AudioRenderingParams</label>
+        <link refid="class_audio_rendering_params"/>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/panel/audiomonitor/audiomonitor.h" line="32" column="1" bodyfile="C:/Daten/Olive/olive/app/panel/audiomonitor/audiomonitor.h" bodystart="33" bodyend="42"/>
+    <listofallmembers>
+      <member refid="class_audio_monitor_panel_1a700f2af5286bded70cf39500b5b4683c" prot="private" virt="non-virtual"><scope>AudioMonitorPanel</scope><name>audio_monitor_</name></member>
+      <member refid="class_audio_monitor_panel_1abf2e262fcf81105835fc4f5df1c143cb" prot="public" virt="non-virtual"><scope>AudioMonitorPanel</scope><name>AudioMonitorPanel</name></member>
+      <member refid="class_panel_widget_1abebef8d94bc2665e4a5b588cdb6e216d" prot="private" virt="non-virtual"><scope>AudioMonitorPanel</scope><name>border_visible_</name></member>
+      <member refid="class_panel_widget_1a0dfbde361a26c80546326d9dbb9a8063" prot="protected" virt="virtual"><scope>AudioMonitorPanel</scope><name>changeEvent</name></member>
+      <member refid="class_panel_widget_1a86480fb14c8a220eb64ccdcf7d4874a9" prot="public" virt="virtual"><scope>AudioMonitorPanel</scope><name>ClearInOut</name></member>
+      <member refid="class_panel_widget_1ab06b0894435f1ad66d8993917f13fd78" prot="protected" virt="virtual"><scope>AudioMonitorPanel</scope><name>closeEvent</name></member>
+      <member refid="class_panel_widget_1a126ba33d6c1bc990e599721164b8efdc" prot="public" virt="non-virtual"><scope>AudioMonitorPanel</scope><name>CloseRequested</name></member>
+      <member refid="class_panel_widget_1a1ae59709e5e480c036c4bb5fce4a9452" prot="public" virt="virtual"><scope>AudioMonitorPanel</scope><name>CopySelected</name></member>
+      <member refid="class_panel_widget_1a24ab3a2967f34509a0c3682db60cbed9" prot="public" virt="virtual"><scope>AudioMonitorPanel</scope><name>CutSelected</name></member>
+      <member refid="class_panel_widget_1a712712f864a16418c7d76200d6d05c7a" prot="public" virt="virtual"><scope>AudioMonitorPanel</scope><name>DecreaseTrackHeight</name></member>
+      <member refid="class_panel_widget_1a34278f9c8ff9d6b77d5d8544c71ac153" prot="public" virt="virtual"><scope>AudioMonitorPanel</scope><name>DeleteInToOut</name></member>
+      <member refid="class_panel_widget_1a4e69203f7e299ed8b1afd4a1592cdeec" prot="public" virt="virtual"><scope>AudioMonitorPanel</scope><name>DeleteSelected</name></member>
+      <member refid="class_panel_widget_1a1879a9dd3f145d91da208d02067c8fa4" prot="public" virt="virtual"><scope>AudioMonitorPanel</scope><name>DeselectAll</name></member>
+      <member refid="class_panel_widget_1aa5b4a01b957f597a4b0d58564547fa9a" prot="public" virt="virtual"><scope>AudioMonitorPanel</scope><name>Duplicate</name></member>
+      <member refid="class_panel_widget_1a287cd2da5522991c15e352e33404311f" prot="public" virt="virtual"><scope>AudioMonitorPanel</scope><name>EditToIn</name></member>
+      <member refid="class_panel_widget_1af03f6a283fb2cb301e198f05fcd44b0c" prot="public" virt="virtual"><scope>AudioMonitorPanel</scope><name>EditToOut</name></member>
+      <member refid="class_panel_widget_1a40536c71036b3d2d9fe0c732605e122b" prot="public" virt="virtual"><scope>AudioMonitorPanel</scope><name>GoToEnd</name></member>
+      <member refid="class_panel_widget_1a3fc7e288a448f2b2b9e98da82b17f647" prot="public" virt="virtual"><scope>AudioMonitorPanel</scope><name>GoToIn</name></member>
+      <member refid="class_panel_widget_1ae280d1f61fed0c2cae2e36463238835b" prot="public" virt="virtual"><scope>AudioMonitorPanel</scope><name>GoToNextCut</name></member>
+      <member refid="class_panel_widget_1a13bd8385176f97d03280d2eb8eed67f6" prot="public" virt="virtual"><scope>AudioMonitorPanel</scope><name>GoToOut</name></member>
+      <member refid="class_panel_widget_1a644b4931a8752c0d6c9c5ace18974a09" prot="public" virt="virtual"><scope>AudioMonitorPanel</scope><name>GoToPrevCut</name></member>
+      <member refid="class_panel_widget_1ace38187a5209a9c25a7efb439d3cfe19" prot="public" virt="virtual"><scope>AudioMonitorPanel</scope><name>GoToStart</name></member>
+      <member refid="class_panel_widget_1adeb49582a3c5772cccc807d7957fde9b" prot="public" virt="virtual"><scope>AudioMonitorPanel</scope><name>IncreaseTrackHeight</name></member>
+      <member refid="class_panel_widget_1ae599c3b5188581561ba8548b75744457" prot="public" virt="virtual"><scope>AudioMonitorPanel</scope><name>Insert</name></member>
+      <member refid="class_panel_widget_1a232235670aec81c3d1f970789cfffbe0" prot="public" virt="virtual"><scope>AudioMonitorPanel</scope><name>NextFrame</name></member>
+      <member refid="class_panel_widget_1a2f17fbf0de518bc653c1f705d09cfaae" prot="public" virt="virtual"><scope>AudioMonitorPanel</scope><name>Overwrite</name></member>
+      <member refid="class_panel_widget_1adbb61ac0a9bf7bc1db30ffab38a0e47d" prot="protected" virt="non-virtual"><scope>AudioMonitorPanel</scope><name>paintEvent</name></member>
+      <member refid="class_panel_widget_1a44d38ee5e7f07221ea2991e28d2d5127" prot="private" virt="non-virtual"><scope>AudioMonitorPanel</scope><name>PanelVisibilityChanged</name></member>
+      <member refid="class_panel_widget_1a2b2563e56288e19cb1cd86a36b8da49f" prot="public" virt="non-virtual"><scope>AudioMonitorPanel</scope><name>PanelWidget</name></member>
+      <member refid="class_panel_widget_1abc2ad045885bd5c5260a152cf493f61c" prot="public" virt="virtual"><scope>AudioMonitorPanel</scope><name>Paste</name></member>
+      <member refid="class_panel_widget_1a7c2d0fd3d376497b5c5e55e9dba5fc60" prot="public" virt="virtual"><scope>AudioMonitorPanel</scope><name>PasteInsert</name></member>
+      <member refid="class_panel_widget_1acfe6646e603b5163b5e3e840eaae9968" prot="public" virt="virtual"><scope>AudioMonitorPanel</scope><name>PlayInToOut</name></member>
+      <member refid="class_panel_widget_1a58a7bed4fd9727575b20a00740c33892" prot="public" virt="virtual"><scope>AudioMonitorPanel</scope><name>PlayPause</name></member>
+      <member refid="class_panel_widget_1a1ec51ea78760bae323a05e6307c4a637" prot="public" virt="virtual"><scope>AudioMonitorPanel</scope><name>PrevFrame</name></member>
+      <member refid="class_panel_widget_1a59bc5479a1ae417eec39db0ce8e7a2d3" prot="public" virt="virtual"><scope>AudioMonitorPanel</scope><name>ResetIn</name></member>
+      <member refid="class_panel_widget_1a3653cbe8c2dc5da9458f82926420c176" prot="public" virt="virtual"><scope>AudioMonitorPanel</scope><name>ResetOut</name></member>
+      <member refid="class_audio_monitor_panel_1a1c518b2dd3c02bb5b75b82d4dc7a3338" prot="private" virt="virtual"><scope>AudioMonitorPanel</scope><name>Retranslate</name></member>
+      <member refid="class_panel_widget_1a6dd4ae8f7856c798e9c5f01fdc51d5fb" prot="public" virt="virtual"><scope>AudioMonitorPanel</scope><name>RippleDelete</name></member>
+      <member refid="class_panel_widget_1ada5244c434ad039ad20d5d01a7ecab87" prot="public" virt="virtual"><scope>AudioMonitorPanel</scope><name>RippleDeleteInToOut</name></member>
+      <member refid="class_panel_widget_1a1d9359ad889d7e2d950f2022dfb5d262" prot="public" virt="virtual"><scope>AudioMonitorPanel</scope><name>RippleToIn</name></member>
+      <member refid="class_panel_widget_1a04b4f2934f5a844b677e3478e9b7b5f6" prot="public" virt="virtual"><scope>AudioMonitorPanel</scope><name>RippleToOut</name></member>
+      <member refid="class_panel_widget_1af367e309deecdc4f3e136635eaab56dd" prot="public" virt="virtual"><scope>AudioMonitorPanel</scope><name>SelectAll</name></member>
+      <member refid="class_panel_widget_1ae52a843c1a40ca5fdd535a4becacc2d9" prot="public" virt="non-virtual"><scope>AudioMonitorPanel</scope><name>SetBorderVisible</name></member>
+      <member refid="class_panel_widget_1a5ee718b815ceb1bc0fafdb507404d3d2" prot="public" virt="virtual"><scope>AudioMonitorPanel</scope><name>SetIn</name></member>
+      <member refid="class_panel_widget_1acdfba5099125a18b8a3f4d95de1359d0" prot="public" virt="virtual"><scope>AudioMonitorPanel</scope><name>SetMarker</name></member>
+      <member refid="class_panel_widget_1a38dbfc29d6eaf2b07e487a61f2f029aa" prot="public" virt="non-virtual"><scope>AudioMonitorPanel</scope><name>SetMovementLocked</name></member>
+      <member refid="class_panel_widget_1a19ffd475072fdac8f8e2bfe021af9b15" prot="public" virt="virtual"><scope>AudioMonitorPanel</scope><name>SetOut</name></member>
+      <member refid="class_panel_widget_1a85b6ec7d5742382e0ea3eb5a5fbc04a8" prot="public" virt="non-virtual"><scope>AudioMonitorPanel</scope><name>SetSignalInsteadOfClose</name></member>
+      <member refid="class_panel_widget_1a77401a1aa98e821f5643503206232ce7" prot="protected" virt="non-virtual"><scope>AudioMonitorPanel</scope><name>SetSubtitle</name></member>
+      <member refid="class_panel_widget_1a4b6fed0e0a03cbe112b31cae7b0d0ada" prot="protected" virt="non-virtual"><scope>AudioMonitorPanel</scope><name>SetTitle</name></member>
+      <member refid="class_panel_widget_1aebcb916143c8ec5d6794b4ef38ac7087" prot="protected" virt="non-virtual"><scope>AudioMonitorPanel</scope><name>SetWidgetWithPadding</name></member>
+      <member refid="class_panel_widget_1ab7670adff57a1e3aa3a8bcd6990bc86c" prot="public" virt="virtual"><scope>AudioMonitorPanel</scope><name>ShuttleLeft</name></member>
+      <member refid="class_panel_widget_1a588ed9f2aebd4d83349274a0d54d46de" prot="public" virt="virtual"><scope>AudioMonitorPanel</scope><name>ShuttleRight</name></member>
+      <member refid="class_panel_widget_1a4d287f35c51b8124c28355d5a830d039" prot="public" virt="virtual"><scope>AudioMonitorPanel</scope><name>ShuttleStop</name></member>
+      <member refid="class_panel_widget_1a73382d0b38d5011427e82e43fc3050c0" prot="private" virt="non-virtual"><scope>AudioMonitorPanel</scope><name>signal_instead_of_close_</name></member>
+      <member refid="class_panel_widget_1a52595f00d810b860920ff570501762ea" prot="private" virt="non-virtual"><scope>AudioMonitorPanel</scope><name>subtitle_</name></member>
+      <member refid="class_panel_widget_1a257e97519bfcd4663b729c72ef9d130e" prot="private" virt="non-virtual"><scope>AudioMonitorPanel</scope><name>title_</name></member>
+      <member refid="class_panel_widget_1acfa18d278971ee1f582beab05d63ab8a" prot="public" virt="virtual"><scope>AudioMonitorPanel</scope><name>ToggleLinks</name></member>
+      <member refid="class_panel_widget_1af832705480abe8546de8c55dc6b1c51e" prot="public" virt="virtual"><scope>AudioMonitorPanel</scope><name>ToggleSelectedEnabled</name></member>
+      <member refid="class_panel_widget_1aceeef1ac70dc970d9534fb16a5c002f0" prot="public" virt="virtual"><scope>AudioMonitorPanel</scope><name>ToggleShowAll</name></member>
+      <member refid="class_panel_widget_1aeb70102fa7591f67def51159b80a0317" prot="private" virt="non-virtual"><scope>AudioMonitorPanel</scope><name>UpdateTitle</name></member>
+      <member refid="class_panel_widget_1afb16fa6eb09011677d011f2b8b0fe557" prot="public" virt="virtual"><scope>AudioMonitorPanel</scope><name>ZoomIn</name></member>
+      <member refid="class_panel_widget_1a3a4c799aa33814401ef518eb4d958f30" prot="public" virt="virtual"><scope>AudioMonitorPanel</scope><name>ZoomOut</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

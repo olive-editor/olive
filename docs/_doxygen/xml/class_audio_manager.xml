@@ -1,0 +1,689 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_audio_manager" kind="class" language="C++" prot="public">
+    <compoundname>AudioManager</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QObject</basecompoundref>
+    <includes refid="audiomanager_8h" local="no">audiomanager.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_audio_manager_1a861c8754882266a13189b664a9873952" prot="private" static="no" mutable="no">
+        <type>QList&lt; QAudioDeviceInfo &gt;</type>
+        <definition>QList&lt;QAudioDeviceInfo&gt; AudioManager::input_devices_</definition>
+        <argsstring></argsstring>
+        <name>input_devices_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/audiomanager.h" line="120" column="9" bodyfile="C:/Daten/Olive/olive/app/audio/audiomanager.h" bodystart="120" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_audio_manager_1a22a96c3d3ac302ba4f2b3cfed3f25573" prot="private" static="no" mutable="no">
+        <type>QList&lt; QAudioDeviceInfo &gt;</type>
+        <definition>QList&lt;QAudioDeviceInfo&gt; AudioManager::output_devices_</definition>
+        <argsstring></argsstring>
+        <name>output_devices_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/audiomanager.h" line="121" column="9" bodyfile="C:/Daten/Olive/olive/app/audio/audiomanager.h" bodystart="121" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_audio_manager_1adf87beec1e7506bd76be94afac61e73e" prot="private" static="no" mutable="no">
+        <type>QFutureWatcher&lt; QList&lt; QAudioDeviceInfo &gt; &gt;</type>
+        <definition>QFutureWatcher&lt; QList&lt;QAudioDeviceInfo&gt; &gt; AudioManager::input_watcher_</definition>
+        <argsstring></argsstring>
+        <name>input_watcher_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/audiomanager.h" line="123" column="18" bodyfile="C:/Daten/Olive/olive/app/audio/audiomanager.h" bodystart="123" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_audio_manager_1a1b48a2f03c6ad6760f131b920b45c6fd" prot="private" static="no" mutable="no">
+        <type>QFutureWatcher&lt; QList&lt; QAudioDeviceInfo &gt; &gt;</type>
+        <definition>QFutureWatcher&lt; QList&lt;QAudioDeviceInfo&gt; &gt; AudioManager::output_watcher_</definition>
+        <argsstring></argsstring>
+        <name>output_watcher_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/audiomanager.h" line="124" column="18" bodyfile="C:/Daten/Olive/olive/app/audio/audiomanager.h" bodystart="124" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_audio_manager_1aab65f603c13818c310727dc60ba1c741" prot="private" static="no" mutable="no">
+        <type>QThread</type>
+        <definition>QThread AudioManager::output_thread_</definition>
+        <argsstring></argsstring>
+        <name>output_thread_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/audiomanager.h" line="128" column="11" bodyfile="C:/Daten/Olive/olive/app/audio/audiomanager.h" bodystart="128" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_audio_manager_1a7a7cc703b896f7e05161aae26ae199f3" prot="private" static="no" mutable="no">
+        <type><ref refid="class_audio_output_manager" kindref="compound">AudioOutputManager</ref></type>
+        <definition>AudioOutputManager AudioManager::output_manager_</definition>
+        <argsstring></argsstring>
+        <name>output_manager_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/audiomanager.h" line="129" column="22" bodyfile="C:/Daten/Olive/olive/app/audio/audiomanager.h" bodystart="129" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_audio_manager_1a4be46c50a39d58bc526660aa669e0afc" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool AudioManager::output_is_set_</definition>
+        <argsstring></argsstring>
+        <name>output_is_set_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/audiomanager.h" line="130" column="8" bodyfile="C:/Daten/Olive/olive/app/audio/audiomanager.h" bodystart="130" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_audio_manager_1af102f383f84cf1c7d618cf79440e236d" prot="private" static="no" mutable="no">
+        <type>QAudioDeviceInfo</type>
+        <definition>QAudioDeviceInfo AudioManager::output_device_info_</definition>
+        <argsstring></argsstring>
+        <name>output_device_info_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/audiomanager.h" line="132" column="20" bodyfile="C:/Daten/Olive/olive/app/audio/audiomanager.h" bodystart="132" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_audio_manager_1a0ab76eff4951f8bb364607365d37cc43" prot="private" static="no" mutable="no">
+        <type><ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref></type>
+        <definition>AudioRenderingParams AudioManager::output_params_</definition>
+        <argsstring></argsstring>
+        <name>output_params_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/audiomanager.h" line="133" column="24" bodyfile="C:/Daten/Olive/olive/app/audio/audiomanager.h" bodystart="133" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_audio_manager_1a92392d07bd238dfce5ef34334898a33f" prot="private" static="no" mutable="no">
+        <type>std::unique_ptr&lt; QAudioInput &gt;</type>
+        <definition>std::unique_ptr&lt;QAudioInput&gt; AudioManager::input_</definition>
+        <argsstring></argsstring>
+        <name>input_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/audiomanager.h" line="135" column="19" bodyfile="C:/Daten/Olive/olive/app/audio/audiomanager.h" bodystart="135" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_audio_manager_1ad5edeea0e5aa4a3d28f315a35fba100f" prot="private" static="no" mutable="no">
+        <type>QAudioDeviceInfo</type>
+        <definition>QAudioDeviceInfo AudioManager::input_device_info_</definition>
+        <argsstring></argsstring>
+        <name>input_device_info_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/audiomanager.h" line="136" column="20" bodyfile="C:/Daten/Olive/olive/app/audio/audiomanager.h" bodystart="136" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_audio_manager_1af20769d1439406bdc319a912082448c6" prot="private" static="no" mutable="no">
+        <type>QIODevice *</type>
+        <definition>QIODevice* AudioManager::input_file_</definition>
+        <argsstring></argsstring>
+        <name>input_file_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/audiomanager.h" line="137" column="13" bodyfile="C:/Daten/Olive/olive/app/audio/audiomanager.h" bodystart="137" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-attrib">
+      <memberdef kind="variable" id="class_audio_manager_1a7ae28ce005eb90a9968939d17f37b5b4" prot="private" static="yes" mutable="no">
+        <type><ref refid="class_audio_manager" kindref="compound">AudioManager</ref> *</type>
+        <definition>AudioManager* AudioManager::instance_</definition>
+        <argsstring></argsstring>
+        <name>instance_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/audiomanager.h" line="126" column="23" bodyfile="C:/Daten/Olive/olive/app/audio/audiomanager.h" bodystart="126" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="class_audio_manager_1a6e05c487b00b2270980db1cd21fcea87" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void AudioManager::CreateInstance</definition>
+        <argsstring>()</argsstring>
+        <name>CreateInstance</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/audiomanager.h" line="64" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_manager_1a3f5912ed0bbbddd9abd84dece3efbc8f" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void AudioManager::DestroyInstance</definition>
+        <argsstring>()</argsstring>
+        <name>DestroyInstance</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/audiomanager.h" line="65" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_manager_1a74adb4457673a38b7dc5d7673c0a4268" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_audio_manager" kindref="compound">AudioManager</ref> *</type>
+        <definition>static AudioManager* AudioManager::instance</definition>
+        <argsstring>()</argsstring>
+        <name>instance</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/audiomanager.h" line="67" column="23"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_manager_1af2b582bfae55561c825c7bded054e327" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void AudioManager::ReverseBuffer</definition>
+        <argsstring>(char *buffer, int size, int resolution)</argsstring>
+        <name>ReverseBuffer</name>
+        <param>
+          <type>char *</type>
+          <declname>buffer</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>size</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>resolution</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/audiomanager.h" line="98" column="15"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_audio_manager_1a40d954189d7696b46eedf544377316a2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AudioManager::RefreshDevices</definition>
+        <argsstring>()</argsstring>
+        <name>RefreshDevices</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/audiomanager.h" line="69" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_manager_1a398b46b2a4d7bd8ca0d0bae13ff846e1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool AudioManager::IsRefreshingOutputs</definition>
+        <argsstring>()</argsstring>
+        <name>IsRefreshingOutputs</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/audiomanager.h" line="71" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_manager_1a31425736363fddae40027cf39be6b238" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool AudioManager::IsRefreshingInputs</definition>
+        <argsstring>()</argsstring>
+        <name>IsRefreshingInputs</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/audiomanager.h" line="73" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_manager_1abd4562fb0a236eba2500fb9e9ce6546e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AudioManager::PushToOutput</definition>
+        <argsstring>(const QByteArray &amp;samples)</argsstring>
+        <name>PushToOutput</name>
+        <param>
+          <type>const QByteArray &amp;</type>
+          <declname>samples</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/audiomanager.h" line="75" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_manager_1a337cc0c51a3f87daaf079040f824dff9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AudioManager::StartOutput</definition>
+        <argsstring>(const QString &amp;filename, qint64 offset, int playback_speed)</argsstring>
+        <name>StartOutput</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>filename</declname>
+        </param>
+        <param>
+          <type>qint64</type>
+          <declname>offset</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>playback_speed</declname>
+        </param>
+        <briefdescription>
+<para>Start playing audio from QIODevice. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This takes ownership of the QIODevice and will delete it when <ref refid="class_audio_manager_1a061eabe8bf7d800f87f2fa12bdcdf020" kindref="member">StopOutput()</ref> is called </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/audiomanager.h" line="82" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_manager_1a061eabe8bf7d800f87f2fa12bdcdf020" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AudioManager::StopOutput</definition>
+        <argsstring>()</argsstring>
+        <name>StopOutput</name>
+        <briefdescription>
+<para>Stop audio output immediately. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/audiomanager.h" line="87" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_manager_1a2d31a7865b03552b526416af1d3bca64" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AudioManager::SetOutputDevice</definition>
+        <argsstring>(const QAudioDeviceInfo &amp;info)</argsstring>
+        <name>SetOutputDevice</name>
+        <param>
+          <type>const QAudioDeviceInfo &amp;</type>
+          <declname>info</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/audiomanager.h" line="89" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_manager_1a638681a2666aed6b153e119f8adb2236" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AudioManager::SetOutputParams</definition>
+        <argsstring>(const AudioRenderingParams &amp;params)</argsstring>
+        <name>SetOutputParams</name>
+        <param>
+          <type>const <ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref> &amp;</type>
+          <declname>params</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/audiomanager.h" line="91" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_manager_1ac5778410f8be90019160d677e1179b30" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AudioManager::SetInputDevice</definition>
+        <argsstring>(const QAudioDeviceInfo &amp;info)</argsstring>
+        <name>SetInputDevice</name>
+        <param>
+          <type>const QAudioDeviceInfo &amp;</type>
+          <declname>info</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/audiomanager.h" line="93" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_manager_1adfa4ec7234c990438f5302259ead3347" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const QList&lt; QAudioDeviceInfo &gt; &amp;</type>
+        <definition>const QList&lt;QAudioDeviceInfo&gt;&amp; AudioManager::ListInputDevices</definition>
+        <argsstring>()</argsstring>
+        <name>ListInputDevices</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/audiomanager.h" line="95" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_manager_1a803aab46cfbb7fc381e92d6b8d613cd1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const QList&lt; QAudioDeviceInfo &gt; &amp;</type>
+        <definition>const QList&lt;QAudioDeviceInfo&gt;&amp; AudioManager::ListOutputDevices</definition>
+        <argsstring>()</argsstring>
+        <name>ListOutputDevices</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/audiomanager.h" line="96" column="15"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_audio_manager_1a3240f53f2a2e486fe1310736b1d7ee5b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AudioManager::OutputListReady</definition>
+        <argsstring>()</argsstring>
+        <name>OutputListReady</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/audiomanager.h" line="101" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_audio_manager_1a5853274596b817f5c259a27b651e147c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AudioManager::InputListReady</definition>
+        <argsstring>()</argsstring>
+        <name>InputListReady</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/audiomanager.h" line="103" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_audio_manager_1a4a6c89ccddd895c9760dd1d3617766b1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AudioManager::OutputNotified</definition>
+        <argsstring>()</argsstring>
+        <name>OutputNotified</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/audiomanager.h" line="105" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_audio_manager_1a3925b6222e1d2ff58bbb82c3d6437186" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AudioManager::OutputDeviceStarted</definition>
+        <argsstring>(const QString &amp;filename, qint64 offset, int playback_speed)</argsstring>
+        <name>OutputDeviceStarted</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>filename</declname>
+        </param>
+        <param>
+          <type>qint64</type>
+          <declname>offset</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>playback_speed</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/audiomanager.h" line="107" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_audio_manager_1a78e6412047a93bbd888820fb582282b9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AudioManager::AudioParamsChanged</definition>
+        <argsstring>(const AudioRenderingParams &amp;params)</argsstring>
+        <name>AudioParamsChanged</name>
+        <param>
+          <type>const <ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref> &amp;</type>
+          <declname>params</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/audiomanager.h" line="109" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_audio_manager_1ae757b817935e384dc98ad4696873fbfe" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AudioManager::OutputPushed</definition>
+        <argsstring>(const QByteArray &amp;data)</argsstring>
+        <name>OutputPushed</name>
+        <param>
+          <type>const QByteArray &amp;</type>
+          <declname>data</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/audiomanager.h" line="111" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_audio_manager_1a00a384305f0b98897704f277797d85e8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AudioManager::Stopped</definition>
+        <argsstring>()</argsstring>
+        <name>Stopped</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/audiomanager.h" line="113" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_audio_manager_1ae59d8605c1d706e7bab47d4e8f900d09" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>AudioManager::AudioManager</definition>
+        <argsstring>()</argsstring>
+        <name>AudioManager</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/audiomanager.h" line="116" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_manager_1acf1c37c439fbc8090598179f7c322145" prot="private" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type></type>
+        <definition>virtual AudioManager::~AudioManager</definition>
+        <argsstring>() override</argsstring>
+        <name>~AudioManager</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/audiomanager.h" line="118" column="11"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_audio_manager_1a9a40e288926d51bfcd72ad55bfe09a96" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AudioManager::OutputDevicesRefreshed</definition>
+        <argsstring>()</argsstring>
+        <name>OutputDevicesRefreshed</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/audiomanager.h" line="140" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_audio_manager_1a21aef19bc528165c0cfd7fe386bc94f0" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AudioManager::InputDevicesRefreshed</definition>
+        <argsstring>()</argsstring>
+        <name>InputDevicesRefreshed</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/audiomanager.h" line="142" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Audio input and output management class. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Wraps around a QAudioOutput and AudioHybridDevice, connecting them together and exposing audio functionality to the rest of the system. </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="2">
+        <label>AudioOutputManager</label>
+        <link refid="class_audio_output_manager"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>device_proxy_</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>AudioOutputDeviceProxy</label>
+        <link refid="class_audio_output_device_proxy"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>tempo_processor_</edgelabel>
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>params_</edgelabel>
+        </childnode>
+      </node>
+      <node id="6">
+        <label>AudioParams</label>
+        <link refid="class_audio_params"/>
+      </node>
+      <node id="5">
+        <label>AudioRenderingParams</label>
+        <link refid="class_audio_rendering_params"/>
+        <childnode refid="6" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>TempoProcessor</label>
+        <link refid="class_tempo_processor"/>
+        <childnode refid="5" relation="usage">
+          <edgelabel>params_</edgelabel>
+        </childnode>
+      </node>
+      <node id="1">
+        <label>AudioManager</label>
+        <link refid="class_audio_manager"/>
+        <childnode refid="1" relation="usage">
+          <edgelabel>instance_</edgelabel>
+        </childnode>
+        <childnode refid="2" relation="usage">
+          <edgelabel>output_manager_</edgelabel>
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>output_params_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/audio/audiomanager.h" line="42" column="1" bodyfile="C:/Daten/Olive/olive/app/audio/audiomanager.h" bodystart="43" bodyend="126"/>
+    <listofallmembers>
+      <member refid="class_audio_manager_1ae59d8605c1d706e7bab47d4e8f900d09" prot="private" virt="non-virtual"><scope>AudioManager</scope><name>AudioManager</name></member>
+      <member refid="class_audio_manager_1a78e6412047a93bbd888820fb582282b9" prot="public" virt="non-virtual"><scope>AudioManager</scope><name>AudioParamsChanged</name></member>
+      <member refid="class_audio_manager_1a6e05c487b00b2270980db1cd21fcea87" prot="public" virt="non-virtual"><scope>AudioManager</scope><name>CreateInstance</name></member>
+      <member refid="class_audio_manager_1a3f5912ed0bbbddd9abd84dece3efbc8f" prot="public" virt="non-virtual"><scope>AudioManager</scope><name>DestroyInstance</name></member>
+      <member refid="class_audio_manager_1a92392d07bd238dfce5ef34334898a33f" prot="private" virt="non-virtual"><scope>AudioManager</scope><name>input_</name></member>
+      <member refid="class_audio_manager_1ad5edeea0e5aa4a3d28f315a35fba100f" prot="private" virt="non-virtual"><scope>AudioManager</scope><name>input_device_info_</name></member>
+      <member refid="class_audio_manager_1a861c8754882266a13189b664a9873952" prot="private" virt="non-virtual"><scope>AudioManager</scope><name>input_devices_</name></member>
+      <member refid="class_audio_manager_1af20769d1439406bdc319a912082448c6" prot="private" virt="non-virtual"><scope>AudioManager</scope><name>input_file_</name></member>
+      <member refid="class_audio_manager_1adf87beec1e7506bd76be94afac61e73e" prot="private" virt="non-virtual"><scope>AudioManager</scope><name>input_watcher_</name></member>
+      <member refid="class_audio_manager_1a21aef19bc528165c0cfd7fe386bc94f0" prot="private" virt="non-virtual"><scope>AudioManager</scope><name>InputDevicesRefreshed</name></member>
+      <member refid="class_audio_manager_1a5853274596b817f5c259a27b651e147c" prot="public" virt="non-virtual"><scope>AudioManager</scope><name>InputListReady</name></member>
+      <member refid="class_audio_manager_1a74adb4457673a38b7dc5d7673c0a4268" prot="public" virt="non-virtual"><scope>AudioManager</scope><name>instance</name></member>
+      <member refid="class_audio_manager_1a7ae28ce005eb90a9968939d17f37b5b4" prot="private" virt="non-virtual"><scope>AudioManager</scope><name>instance_</name></member>
+      <member refid="class_audio_manager_1a31425736363fddae40027cf39be6b238" prot="public" virt="non-virtual"><scope>AudioManager</scope><name>IsRefreshingInputs</name></member>
+      <member refid="class_audio_manager_1a398b46b2a4d7bd8ca0d0bae13ff846e1" prot="public" virt="non-virtual"><scope>AudioManager</scope><name>IsRefreshingOutputs</name></member>
+      <member refid="class_audio_manager_1adfa4ec7234c990438f5302259ead3347" prot="public" virt="non-virtual"><scope>AudioManager</scope><name>ListInputDevices</name></member>
+      <member refid="class_audio_manager_1a803aab46cfbb7fc381e92d6b8d613cd1" prot="public" virt="non-virtual"><scope>AudioManager</scope><name>ListOutputDevices</name></member>
+      <member refid="class_audio_manager_1af102f383f84cf1c7d618cf79440e236d" prot="private" virt="non-virtual"><scope>AudioManager</scope><name>output_device_info_</name></member>
+      <member refid="class_audio_manager_1a22a96c3d3ac302ba4f2b3cfed3f25573" prot="private" virt="non-virtual"><scope>AudioManager</scope><name>output_devices_</name></member>
+      <member refid="class_audio_manager_1a4be46c50a39d58bc526660aa669e0afc" prot="private" virt="non-virtual"><scope>AudioManager</scope><name>output_is_set_</name></member>
+      <member refid="class_audio_manager_1a7a7cc703b896f7e05161aae26ae199f3" prot="private" virt="non-virtual"><scope>AudioManager</scope><name>output_manager_</name></member>
+      <member refid="class_audio_manager_1a0ab76eff4951f8bb364607365d37cc43" prot="private" virt="non-virtual"><scope>AudioManager</scope><name>output_params_</name></member>
+      <member refid="class_audio_manager_1aab65f603c13818c310727dc60ba1c741" prot="private" virt="non-virtual"><scope>AudioManager</scope><name>output_thread_</name></member>
+      <member refid="class_audio_manager_1a1b48a2f03c6ad6760f131b920b45c6fd" prot="private" virt="non-virtual"><scope>AudioManager</scope><name>output_watcher_</name></member>
+      <member refid="class_audio_manager_1a9a40e288926d51bfcd72ad55bfe09a96" prot="private" virt="non-virtual"><scope>AudioManager</scope><name>OutputDevicesRefreshed</name></member>
+      <member refid="class_audio_manager_1a3925b6222e1d2ff58bbb82c3d6437186" prot="public" virt="non-virtual"><scope>AudioManager</scope><name>OutputDeviceStarted</name></member>
+      <member refid="class_audio_manager_1a3240f53f2a2e486fe1310736b1d7ee5b" prot="public" virt="non-virtual"><scope>AudioManager</scope><name>OutputListReady</name></member>
+      <member refid="class_audio_manager_1a4a6c89ccddd895c9760dd1d3617766b1" prot="public" virt="non-virtual"><scope>AudioManager</scope><name>OutputNotified</name></member>
+      <member refid="class_audio_manager_1ae757b817935e384dc98ad4696873fbfe" prot="public" virt="non-virtual"><scope>AudioManager</scope><name>OutputPushed</name></member>
+      <member refid="class_audio_manager_1abd4562fb0a236eba2500fb9e9ce6546e" prot="public" virt="non-virtual"><scope>AudioManager</scope><name>PushToOutput</name></member>
+      <member refid="class_audio_manager_1a40d954189d7696b46eedf544377316a2" prot="public" virt="non-virtual"><scope>AudioManager</scope><name>RefreshDevices</name></member>
+      <member refid="class_audio_manager_1af2b582bfae55561c825c7bded054e327" prot="public" virt="non-virtual"><scope>AudioManager</scope><name>ReverseBuffer</name></member>
+      <member refid="class_audio_manager_1ac5778410f8be90019160d677e1179b30" prot="public" virt="non-virtual"><scope>AudioManager</scope><name>SetInputDevice</name></member>
+      <member refid="class_audio_manager_1a2d31a7865b03552b526416af1d3bca64" prot="public" virt="non-virtual"><scope>AudioManager</scope><name>SetOutputDevice</name></member>
+      <member refid="class_audio_manager_1a638681a2666aed6b153e119f8adb2236" prot="public" virt="non-virtual"><scope>AudioManager</scope><name>SetOutputParams</name></member>
+      <member refid="class_audio_manager_1a337cc0c51a3f87daaf079040f824dff9" prot="public" virt="non-virtual"><scope>AudioManager</scope><name>StartOutput</name></member>
+      <member refid="class_audio_manager_1a061eabe8bf7d800f87f2fa12bdcdf020" prot="public" virt="non-virtual"><scope>AudioManager</scope><name>StopOutput</name></member>
+      <member refid="class_audio_manager_1a00a384305f0b98897704f277797d85e8" prot="public" virt="non-virtual"><scope>AudioManager</scope><name>Stopped</name></member>
+      <member refid="class_audio_manager_1acf1c37c439fbc8090598179f7c322145" prot="private" virt="virtual"><scope>AudioManager</scope><name>~AudioManager</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

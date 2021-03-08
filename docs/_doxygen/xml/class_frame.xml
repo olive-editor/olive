@@ -1,0 +1,500 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_frame" kind="class" language="C++" prot="public">
+    <compoundname>Frame</compoundname>
+    <includes refid="frame_8h" local="no">frame.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_frame_1a4fa41afe7d55f7d967ecc5bd0b29868a" prot="private" static="no" mutable="no">
+        <type><ref refid="class_video_rendering_params" kindref="compound">VideoRenderingParams</ref></type>
+        <definition>VideoRenderingParams Frame::params_</definition>
+        <argsstring></argsstring>
+        <name>params_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/frame.h" line="110" column="24" bodyfile="C:/Daten/Olive/olive/app/codec/frame.h" bodystart="110" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_frame_1a00e00b605424cc2e1769551fc03c6334" prot="private" static="no" mutable="no">
+        <type>QByteArray</type>
+        <definition>QByteArray Frame::data_</definition>
+        <argsstring></argsstring>
+        <name>data_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/frame.h" line="112" column="14" bodyfile="C:/Daten/Olive/olive/app/codec/frame.h" bodystart="112" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_frame_1a9d06fb689d3bb4b207b2286f7ca152bb" prot="private" static="no" mutable="no">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational Frame::timestamp_</definition>
+        <argsstring></argsstring>
+        <name>timestamp_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/frame.h" line="114" column="12" bodyfile="C:/Daten/Olive/olive/app/codec/frame.h" bodystart="114" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_frame_1abc80b9ce38d336e032d77cb4966c5c9b" prot="private" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t Frame::native_timestamp_</definition>
+        <argsstring></argsstring>
+        <name>native_timestamp_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/frame.h" line="116" column="11" bodyfile="C:/Daten/Olive/olive/app/codec/frame.h" bodystart="116" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_frame_1aa28185ff1e37d014bedfde84f633e11d" prot="private" static="no" mutable="no">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational Frame::sample_aspect_ratio_</definition>
+        <argsstring></argsstring>
+        <name>sample_aspect_ratio_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/frame.h" line="118" column="12" bodyfile="C:/Daten/Olive/olive/app/codec/frame.h" bodystart="118" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_frame_1a66d0a16c7e8ee37b39d25dd83940cab1" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Frame::linesize_</definition>
+        <argsstring></argsstring>
+        <name>linesize_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/frame.h" line="120" column="7" bodyfile="C:/Daten/Olive/olive/app/codec/frame.h" bodystart="120" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_frame_1ad2e5946cf41d4817e750500acf05d02b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Frame::Frame</definition>
+        <argsstring>()</argsstring>
+        <name>Frame</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/frame.h" line="43" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_frame_1a228ad19fa3f0e57ab09b577f13db539e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="class_video_rendering_params" kindref="compound">VideoRenderingParams</ref> &amp;</type>
+        <definition>const VideoRenderingParams&amp; Frame::video_params</definition>
+        <argsstring>() const</argsstring>
+        <name>video_params</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/frame.h" line="47" column="30"/>
+      </memberdef>
+      <memberdef kind="function" id="class_frame_1a462a017d21d2897c0411b265f5520ec7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Frame::set_video_params</definition>
+        <argsstring>(const VideoRenderingParams &amp;params)</argsstring>
+        <name>set_video_params</name>
+        <param>
+          <type>const <ref refid="class_video_rendering_params" kindref="compound">VideoRenderingParams</ref> &amp;</type>
+          <declname>params</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/frame.h" line="48" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_frame_1aa9ec70062edd84e54b50d72e5f3e3ec6" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int Frame::linesize_pixels</definition>
+        <argsstring>() const</argsstring>
+        <name>linesize_pixels</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/frame.h" line="50" column="7"/>
+      </memberdef>
+      <memberdef kind="function" id="class_frame_1a5b14dd7d7dfb9619429fb9a9b9ea96da" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int Frame::linesize_bytes</definition>
+        <argsstring>() const</argsstring>
+        <name>linesize_bytes</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/frame.h" line="51" column="7"/>
+      </memberdef>
+      <memberdef kind="function" id="class_frame_1af77a3c5229efeb39689b6f96213c8a82" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const int &amp;</type>
+        <definition>const int&amp; Frame::width</definition>
+        <argsstring>() const</argsstring>
+        <name>width</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/frame.h" line="52" column="13"/>
+      </memberdef>
+      <memberdef kind="function" id="class_frame_1a6dfd2252668c22f02f40c6f105790618" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const int &amp;</type>
+        <definition>const int&amp; Frame::height</definition>
+        <argsstring>() const</argsstring>
+        <name>height</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/frame.h" line="53" column="13"/>
+      </memberdef>
+      <memberdef kind="function" id="class_frame_1acbebd3676cb023915007f6ecaa5a6850" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021" kindref="member">PixelFormat::Format</ref> &amp;</type>
+        <definition>const PixelFormat::Format&amp; Frame::format</definition>
+        <argsstring>() const</argsstring>
+        <name>format</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/frame.h" line="54" column="29"/>
+      </memberdef>
+      <memberdef kind="function" id="class_frame_1aefd1306c03da422e5e7dee9577daec73" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_color" kindref="compound">Color</ref></type>
+        <definition>Color Frame::get_pixel</definition>
+        <argsstring>(int x, int y) const</argsstring>
+        <name>get_pixel</name>
+        <param>
+          <type>int</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/frame.h" line="56" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="class_frame_1ad52b1dd3dd64673cb1b99168061f7778" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Frame::contains_pixel</definition>
+        <argsstring>(int x, int y) const</argsstring>
+        <name>contains_pixel</name>
+        <param>
+          <type>int</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/frame.h" line="57" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_frame_1af4b228d1731e161ce246c8e09c38e9fb" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+        <definition>const rational&amp; Frame::sample_aspect_ratio</definition>
+        <argsstring>() const</argsstring>
+        <name>sample_aspect_ratio</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/frame.h" line="59" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_frame_1a72b28a246b72ef61e7970b65d2980b84" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Frame::set_sample_aspect_ratio</definition>
+        <argsstring>(const rational &amp;sample_aspect_ratio)</argsstring>
+        <name>set_sample_aspect_ratio</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>sample_aspect_ratio</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/frame.h" line="60" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_frame_1a2d56662e7bafafb99c79b092796c3578" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+        <definition>const rational&amp; Frame::timestamp</definition>
+        <argsstring>() const</argsstring>
+        <name>timestamp</name>
+        <briefdescription>
+<para>Get frame&apos;s timestamp. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This timestamp is always a rational that will equate to the time in seconds. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/frame.h" line="67" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_frame_1a428b1e26d886e2187afcd1b86c32fcfb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Frame::set_timestamp</definition>
+        <argsstring>(const rational &amp;timestamp)</argsstring>
+        <name>set_timestamp</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>timestamp</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/frame.h" line="68" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_frame_1a68ea6690fe510b5998778b2cba3961a8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const int64_t &amp;</type>
+        <definition>const int64_t&amp; Frame::native_timestamp</definition>
+        <argsstring>()</argsstring>
+        <name>native_timestamp</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/frame.h" line="70" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_frame_1a0af88b3a464a8d987bd1795b34464021" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Frame::set_native_timestamp</definition>
+        <argsstring>(const int64_t &amp;timestamp)</argsstring>
+        <name>set_native_timestamp</name>
+        <param>
+          <type>const int64_t &amp;</type>
+          <declname>timestamp</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/frame.h" line="71" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_frame_1add6ec7b7833452822dcf1de1f123b6f6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>char *</type>
+        <definition>char* Frame::data</definition>
+        <argsstring>()</argsstring>
+        <name>data</name>
+        <briefdescription>
+<para>Get the data buffer of this frame. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/frame.h" line="76" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_frame_1a61f85f1f2ea4dd83a21d2637c7329e9e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const char *</type>
+        <definition>const char* Frame::const_data</definition>
+        <argsstring>() const</argsstring>
+        <name>const_data</name>
+        <briefdescription>
+<para>Get the const data buffer of this frame. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/frame.h" line="81" column="14"/>
+      </memberdef>
+      <memberdef kind="function" id="class_frame_1aa3d573e62a3b6ed9abc6003b0ad566a2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Frame::allocate</definition>
+        <argsstring>()</argsstring>
+        <name>allocate</name>
+        <briefdescription>
+<para>Allocate memory buffer to store data based on parameters. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>For video frames, the <ref refid="class_frame_1af77a3c5229efeb39689b6f96213c8a82" kindref="member">width()</ref>, <ref refid="class_frame_1a6dfd2252668c22f02f40c6f105790618" kindref="member">height()</ref>, and <ref refid="class_frame_1acbebd3676cb023915007f6ecaa5a6850" kindref="member">format()</ref> must be set for this function to work.</para>
+<para>If a memory buffer has been previously allocated without destroying, this function will destroy it. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/frame.h" line="90" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_frame_1a259532cc8f6e10e50ba2e4f74b4a29b5" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Frame::is_allocated</definition>
+        <argsstring>() const</argsstring>
+        <name>is_allocated</name>
+        <briefdescription>
+<para>Return whether the frame is allocated or not. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/frame.h" line="95" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_frame_1a538e2e03787c196818d3d8e3c3e42609" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Frame::destroy</definition>
+        <argsstring>()</argsstring>
+        <name>destroy</name>
+        <briefdescription>
+<para>Destroy a memory buffer allocated with <ref refid="class_frame_1aa3d573e62a3b6ed9abc6003b0ad566a2" kindref="member">allocate()</ref> </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/frame.h" line="100" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_frame_1a947cea97b0d3a04115f45f0cce60ed48" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int Frame::allocated_size</definition>
+        <argsstring>() const</argsstring>
+        <name>allocated_size</name>
+        <briefdescription>
+<para>Returns the size of the array returned in <ref refid="class_frame_1add6ec7b7833452822dcf1de1f123b6f6" kindref="member">data()</ref> in bytes. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns 0 if nothing is allocated. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/frame.h" line="107" column="7"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="class_frame_1a717731dcd33acb6ebb253ab92828a093" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="frame_8h_1a2ae9a822fc1e331fa3b449797f717db6" kindref="member">FramePtr</ref></type>
+        <definition>static FramePtr Frame::Create</definition>
+        <argsstring>()</argsstring>
+        <name>Create</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/frame.h" line="45" column="19"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Video frame data or audio sample data from a <ref refid="class_decoder" kindref="compound">Decoder</ref>. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="4">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="2">
+        <label>VideoRenderingParams</label>
+        <link refid="class_video_rendering_params"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>Frame</label>
+        <link refid="class_frame"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>params_</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>sample_aspect_ratio_</edgelabel>
+          <edgelabel>timestamp_</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>VideoParams</label>
+        <link refid="class_video_params"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>time_base_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/codec/frame.h" line="40" column="1" bodyfile="C:/Daten/Olive/olive/app/codec/frame.h" bodystart="41" bodyend="122"/>
+    <listofallmembers>
+      <member refid="class_frame_1aa3d573e62a3b6ed9abc6003b0ad566a2" prot="public" virt="non-virtual"><scope>Frame</scope><name>allocate</name></member>
+      <member refid="class_frame_1a947cea97b0d3a04115f45f0cce60ed48" prot="public" virt="non-virtual"><scope>Frame</scope><name>allocated_size</name></member>
+      <member refid="class_frame_1a61f85f1f2ea4dd83a21d2637c7329e9e" prot="public" virt="non-virtual"><scope>Frame</scope><name>const_data</name></member>
+      <member refid="class_frame_1ad52b1dd3dd64673cb1b99168061f7778" prot="public" virt="non-virtual"><scope>Frame</scope><name>contains_pixel</name></member>
+      <member refid="class_frame_1a717731dcd33acb6ebb253ab92828a093" prot="public" virt="non-virtual"><scope>Frame</scope><name>Create</name></member>
+      <member refid="class_frame_1add6ec7b7833452822dcf1de1f123b6f6" prot="public" virt="non-virtual"><scope>Frame</scope><name>data</name></member>
+      <member refid="class_frame_1a00e00b605424cc2e1769551fc03c6334" prot="private" virt="non-virtual"><scope>Frame</scope><name>data_</name></member>
+      <member refid="class_frame_1a538e2e03787c196818d3d8e3c3e42609" prot="public" virt="non-virtual"><scope>Frame</scope><name>destroy</name></member>
+      <member refid="class_frame_1acbebd3676cb023915007f6ecaa5a6850" prot="public" virt="non-virtual"><scope>Frame</scope><name>format</name></member>
+      <member refid="class_frame_1ad2e5946cf41d4817e750500acf05d02b" prot="public" virt="non-virtual"><scope>Frame</scope><name>Frame</name></member>
+      <member refid="class_frame_1aefd1306c03da422e5e7dee9577daec73" prot="public" virt="non-virtual"><scope>Frame</scope><name>get_pixel</name></member>
+      <member refid="class_frame_1a6dfd2252668c22f02f40c6f105790618" prot="public" virt="non-virtual"><scope>Frame</scope><name>height</name></member>
+      <member refid="class_frame_1a259532cc8f6e10e50ba2e4f74b4a29b5" prot="public" virt="non-virtual"><scope>Frame</scope><name>is_allocated</name></member>
+      <member refid="class_frame_1a66d0a16c7e8ee37b39d25dd83940cab1" prot="private" virt="non-virtual"><scope>Frame</scope><name>linesize_</name></member>
+      <member refid="class_frame_1a5b14dd7d7dfb9619429fb9a9b9ea96da" prot="public" virt="non-virtual"><scope>Frame</scope><name>linesize_bytes</name></member>
+      <member refid="class_frame_1aa9ec70062edd84e54b50d72e5f3e3ec6" prot="public" virt="non-virtual"><scope>Frame</scope><name>linesize_pixels</name></member>
+      <member refid="class_frame_1a68ea6690fe510b5998778b2cba3961a8" prot="public" virt="non-virtual"><scope>Frame</scope><name>native_timestamp</name></member>
+      <member refid="class_frame_1abc80b9ce38d336e032d77cb4966c5c9b" prot="private" virt="non-virtual"><scope>Frame</scope><name>native_timestamp_</name></member>
+      <member refid="class_frame_1a4fa41afe7d55f7d967ecc5bd0b29868a" prot="private" virt="non-virtual"><scope>Frame</scope><name>params_</name></member>
+      <member refid="class_frame_1af4b228d1731e161ce246c8e09c38e9fb" prot="public" virt="non-virtual"><scope>Frame</scope><name>sample_aspect_ratio</name></member>
+      <member refid="class_frame_1aa28185ff1e37d014bedfde84f633e11d" prot="private" virt="non-virtual"><scope>Frame</scope><name>sample_aspect_ratio_</name></member>
+      <member refid="class_frame_1a0af88b3a464a8d987bd1795b34464021" prot="public" virt="non-virtual"><scope>Frame</scope><name>set_native_timestamp</name></member>
+      <member refid="class_frame_1a72b28a246b72ef61e7970b65d2980b84" prot="public" virt="non-virtual"><scope>Frame</scope><name>set_sample_aspect_ratio</name></member>
+      <member refid="class_frame_1a428b1e26d886e2187afcd1b86c32fcfb" prot="public" virt="non-virtual"><scope>Frame</scope><name>set_timestamp</name></member>
+      <member refid="class_frame_1a462a017d21d2897c0411b265f5520ec7" prot="public" virt="non-virtual"><scope>Frame</scope><name>set_video_params</name></member>
+      <member refid="class_frame_1a2d56662e7bafafb99c79b092796c3578" prot="public" virt="non-virtual"><scope>Frame</scope><name>timestamp</name></member>
+      <member refid="class_frame_1a9d06fb689d3bb4b207b2286f7ca152bb" prot="private" virt="non-virtual"><scope>Frame</scope><name>timestamp_</name></member>
+      <member refid="class_frame_1a228ad19fa3f0e57ab09b577f13db539e" prot="public" virt="non-virtual"><scope>Frame</scope><name>video_params</name></member>
+      <member refid="class_frame_1af77a3c5229efeb39689b6f96213c8a82" prot="public" virt="non-virtual"><scope>Frame</scope><name>width</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

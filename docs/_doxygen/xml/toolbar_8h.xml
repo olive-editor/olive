@@ -1,0 +1,159 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="toolbar_8h" kind="file" language="C++">
+    <compoundname>toolbar.h</compoundname>
+    <includes local="no">QPushButton</includes>
+    <includes refid="flowlayout_8h" local="yes">widget/flowlayout/flowlayout.h</includes>
+    <includes refid="toolbarbutton_8h" local="yes">widget/toolbar/toolbarbutton.h</includes>
+    <includes local="yes">tool/tool.h</includes>
+    <incdepgraph>
+      <node id="7">
+        <label>widget/toolbar/toolbarbutton.h</label>
+        <link refid="toolbarbutton_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>toolbar.h</label>
+        <link refid="toolbar_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>QLayout</label>
+      </node>
+      <node id="8">
+        <label>tool/tool.h</label>
+      </node>
+      <node id="5">
+        <label>QRect</label>
+      </node>
+      <node id="3">
+        <label>widget/flowlayout/flowlayout.h</label>
+        <link refid="flowlayout_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>QStyle</label>
+      </node>
+      <node id="2">
+        <label>QPushButton</label>
+      </node>
+    </incdepgraph>
+    <innerclass refid="class_toolbar" prot="public">Toolbar</innerclass>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/***</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"></highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/><sp/>Olive<sp/>-<sp/>Non-Linear<sp/>Video<sp/>Editor</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/><sp/>Copyright<sp/>(C)<sp/>2019<sp/>Olive<sp/>Team</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"></highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/><sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/><sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/><sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"></highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/><sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/><sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/><sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"></highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/><sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/><sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"></highlight></codeline>
+<codeline lineno="19"><highlight class="comment">***/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>TOOLBAR_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TOOLBAR_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QPushButton&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="flowlayout_8h" kindref="compound">widget/flowlayout/flowlayout.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="toolbarbutton_8h" kindref="compound">widget/toolbar/toolbarbutton.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tool/tool.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><ref refid="define_8h_1a0472692dd1f22472ad63da20da919e8c" kindref="member">OLIVE_NAMESPACE_ENTER</ref></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43" refid="class_toolbar" refkind="compound"><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_toolbar" kindref="compound">Toolbar</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>QWidget</highlight></codeline>
+<codeline lineno="44"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/>Q_OBJECT</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><ref refid="class_toolbar_1adda38df867c466995f94f6920f07266b" kindref="member">Toolbar</ref>(QWidget*<sp/>parent);</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>slots:</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_toolbar_1aa5b9d53e272d1a424d8d6e2e2c220dbe" kindref="member">SetTool</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_tool_1aa5b3343d5a8a21b7473dfe74af2976cb" kindref="member">Tool::Item</ref><sp/>&amp;tool);</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_toolbar_1ac912766449143fc8556689c773bc2ebf" kindref="member">SetSnapping</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>&amp;snapping);</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_toolbar_1aa0e50a7f7746f5fefb66b67ecc4c7bf1" kindref="member">changeEvent</ref>(QEvent*<sp/>e)<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal">signals:</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_toolbar_1a393534edb38f008cd92316ae402ac786" kindref="member">ToolChanged</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_tool_1aa5b3343d5a8a21b7473dfe74af2976cb" kindref="member">Tool::Item</ref>&amp;<sp/>t);</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_toolbar_1a3125a69173ce10d97e62e48e2089337a" kindref="member">SnappingChanged</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal">&amp;<sp/>b);</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_toolbar_1a8f46126fd041ba456a77b71ec45ea060" kindref="member">AddableObjectChanged</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_tool_1a0e3e529d5e6fb843a0866537a6e4b7d7" kindref="member">Tool::AddableObject</ref>&amp;<sp/>obj);</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_toolbar_1a56de767637adb7004c91757712fadff5" kindref="member">Retranslate</ref>();</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_toolbar_1abd676c14bbe090d4e7fae8725aff39aa" kindref="member">UpdateIcons</ref>();</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><ref refid="class_toolbar_button" kindref="compound">ToolbarButton</ref>*<sp/><ref refid="class_toolbar_1a69d2d17cf3c93387033577048956e9c6" kindref="member">CreateToolButton</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_tool_1aa5b3343d5a8a21b7473dfe74af2976cb" kindref="member">Tool::Item</ref>&amp;<sp/>tool);</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><ref refid="class_toolbar_button" kindref="compound">ToolbarButton</ref>*<sp/><ref refid="class_toolbar_1af76fca1c204f67a577bc33c5cdb019a4" kindref="member">CreateNonToolButton</ref>();</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"></highlight></codeline>
+<codeline lineno="158" refid="class_toolbar_1a69d2d17cf3c93387033577048956e9c6" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_flow_layout" kindref="compound">FlowLayout</ref>*<sp/><ref refid="class_toolbar_1a08cc8727a8ce48f50216ff51db765f0c" kindref="member">layout_</ref>;</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/>QList&lt;ToolbarButton*&gt;<sp/><ref refid="class_toolbar_1a7bb5d98afd2be0442623f5ce00945682" kindref="member">toolbar_btns_</ref>;</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"></highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><ref refid="class_toolbar_button" kindref="compound">ToolbarButton</ref>*<sp/><ref refid="class_toolbar_1a05a576b7fb15c58d7428287881c23827" kindref="member">btn_pointer_tool_</ref>;</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><ref refid="class_toolbar_button" kindref="compound">ToolbarButton</ref>*<sp/><ref refid="class_toolbar_1a52180b61a17a4e7eb8d37b67a3143da7" kindref="member">btn_edit_tool_</ref>;</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><ref refid="class_toolbar_button" kindref="compound">ToolbarButton</ref>*<sp/><ref refid="class_toolbar_1a599cd4ba001c6d7f37ed198e2f889323" kindref="member">btn_ripple_tool_</ref>;</highlight></codeline>
+<codeline lineno="171" refid="class_toolbar_1af76fca1c204f67a577bc33c5cdb019a4" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_toolbar_button" kindref="compound">ToolbarButton</ref>*<sp/><ref refid="class_toolbar_1abd08cfcd0badcf92db45861a8f4482aa" kindref="member">btn_rolling_tool_</ref>;</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><ref refid="class_toolbar_button" kindref="compound">ToolbarButton</ref>*<sp/><ref refid="class_toolbar_1abb35bf189dc49644847d3c2a146cfb50" kindref="member">btn_razor_tool_</ref>;</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><ref refid="class_toolbar_button" kindref="compound">ToolbarButton</ref>*<sp/><ref refid="class_toolbar_1a0879087977cf574e86d95913c284a63a" kindref="member">btn_slip_tool_</ref>;</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><ref refid="class_toolbar_button" kindref="compound">ToolbarButton</ref>*<sp/><ref refid="class_toolbar_1ad38e7706ec6ef883f966d4ebea60b6cc" kindref="member">btn_slide_tool_</ref>;</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><ref refid="class_toolbar_button" kindref="compound">ToolbarButton</ref>*<sp/><ref refid="class_toolbar_1afe5e440cb0a96f76d00a923fddc11dd6" kindref="member">btn_hand_tool_</ref>;</highlight></codeline>
+<codeline lineno="176" refid="class_toolbar_1a08cc8727a8ce48f50216ff51db765f0c" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_toolbar_button" kindref="compound">ToolbarButton</ref>*<sp/><ref refid="class_toolbar_1a971fcb31d0d6d7328c46bb3ce58b74b5" kindref="member">btn_transition_tool_</ref>;</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><ref refid="class_toolbar_button" kindref="compound">ToolbarButton</ref>*<sp/><ref refid="class_toolbar_1a5736a9082ca44ba3a6445fd2f6d6c75d" kindref="member">btn_zoom_tool_</ref>;</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><ref refid="class_toolbar_button" kindref="compound">ToolbarButton</ref>*<sp/><ref refid="class_toolbar_1ad0770f18a00a5583819044a72a41e929" kindref="member">btn_record_</ref>;</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><ref refid="class_toolbar_button" kindref="compound">ToolbarButton</ref>*<sp/><ref refid="class_toolbar_1a092e7daf9f0aa278ed9187cec454d581" kindref="member">btn_add_</ref>;</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"></highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><ref refid="class_toolbar_button" kindref="compound">ToolbarButton</ref>*<sp/><ref refid="class_toolbar_1a7f733acc2f3d60959f52cfad27f133ad" kindref="member">btn_snapping_toggle_</ref>;</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"></highlight></codeline>
+<codeline lineno="183"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal"><sp/>slots:</highlight></codeline>
+<codeline lineno="192" refid="class_toolbar_1ad38e7706ec6ef883f966d4ebea60b6cc" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_toolbar_1a16ac34d2c04fcb70a30d4017dd069887" kindref="member">ToolButtonClicked</ref>();</highlight></codeline>
+<codeline lineno="193" refid="class_toolbar_1afe5e440cb0a96f76d00a923fddc11dd6" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_toolbar_1a019ab2165b7b335ae1a7a5125e7087a7" kindref="member">SnappingButtonClicked</ref>(</highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>b);</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"></highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_toolbar_1a766e328c3714437727417c3ba454e4d5" kindref="member">AddButtonClicked</ref>();</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"></highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_toolbar_1a453e4bdf52cbf5d873811990d7423828" kindref="member">AddMenuItemTriggered</ref>(QAction*<sp/>a);</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"></highlight></codeline>
+<codeline lineno="218"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"></highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><ref refid="define_8h_1abe3de0634d907ca0f5d1acf732c49dac" kindref="member">OLIVE_NAMESPACE_EXIT</ref></highlight></codeline>
+<codeline lineno="221"><highlight class="normal"></highlight></codeline>
+<codeline lineno="222" refid="class_toolbar_1a019ab2165b7b335ae1a7a5125e7087a7" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//<sp/>TOOLBAR_H</highlight></codeline>
+    </programlisting>
+    <location file="C:/Daten/Olive/olive/app/widget/toolbar/toolbar.h"/>
+  </compounddef>
+</doxygen>

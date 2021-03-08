@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_38e2c5db243c0bb5e53a6c0902efad9d" kind="dir">
+    <compoundname>node</compoundname>
+    <innerfile refid="panel_2node_2node_8h">panel/node/node.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/panel/node/"/>
+  </compounddef>
+</doxygen>

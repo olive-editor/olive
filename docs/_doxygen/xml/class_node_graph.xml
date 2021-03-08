@@ -1,0 +1,233 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_node_graph" kind="class" language="C++" prot="public">
+    <compoundname>NodeGraph</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QObject</basecompoundref>
+    <derivedcompoundref refid="class_sequence" prot="public" virt="non-virtual">Sequence</derivedcompoundref>
+    <includes refid="graph_8h" local="no">graph.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_node_graph_1ab67dbbbe996a43dad619fdf4cc8dae01" prot="private" static="no" mutable="no">
+        <type>QList&lt; <ref refid="class_node" kindref="compound">Node</ref> * &gt;</type>
+        <definition>QList&lt;Node*&gt; NodeGraph::node_children_</definition>
+        <argsstring></argsstring>
+        <name>node_children_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/graph.h" line="110" column="9" bodyfile="C:/Daten/Olive/olive/app/node/graph.h" bodystart="110" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_node_graph_1afad96f9400912192890cc7873d77cb5b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>NodeGraph::NodeGraph</definition>
+        <argsstring>()=default</argsstring>
+        <name>NodeGraph</name>
+        <briefdescription>
+<para><ref refid="class_node_graph" kindref="compound">NodeGraph</ref> Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/graph.h" line="58" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_graph_1a6e32f35428bb41927db97e5dd5cd61f6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeGraph::Clear</definition>
+        <argsstring>()</argsstring>
+        <name>Clear</name>
+        <briefdescription>
+<para>Destructively destroys all nodes in the graph. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/graph.h" line="63" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_graph_1af2a3a2346be0e584868095e3c297ec96" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeGraph::AddNode</definition>
+        <argsstring>(Node *node)</argsstring>
+        <name>AddNode</name>
+        <param>
+          <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+          <declname>node</declname>
+        </param>
+        <briefdescription>
+<para>Add a node to this graph. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The node will get added to this graph. It is not automatically connected to anything, any connections will need to be made manually after the node is added. The graph takes ownership of the <ref refid="class_node" kindref="compound">Node</ref>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/graph.h" line="71" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_graph_1ad07da68357789d99b222fde671f4e45b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeGraph::TakeNode</definition>
+        <argsstring>(Node *node, QObject *new_parent=nullptr)</argsstring>
+        <name>TakeNode</name>
+        <param>
+          <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+          <declname>node</declname>
+        </param>
+        <param>
+          <type>QObject *</type>
+          <declname>new_parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+<para>Removes a <ref refid="class_node" kindref="compound">Node</ref> from the graph BUT doesn&apos;t destroy it. Ownership is passed to <computeroutput>new_parent</computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/graph.h" line="76" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_graph_1a56563ed5fd4c4b04c319135c52f17ea7" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const QList&lt; <ref refid="class_node" kindref="compound">Node</ref> * &gt; &amp;</type>
+        <definition>const QList&lt;Node*&gt;&amp; NodeGraph::nodes</definition>
+        <argsstring>() const</argsstring>
+        <name>nodes</name>
+        <briefdescription>
+<para>Retrieve a complete list of the nodes belonging to this graph. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/graph.h" line="81" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_graph_1a39e94be81156d03af9f6930d71f9286b" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool NodeGraph::ContainsNode</definition>
+        <argsstring>(Node *n) const</argsstring>
+        <name>ContainsNode</name>
+        <param>
+          <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Returns whether a certain <ref refid="class_node" kindref="compound">Node</ref> is in the graph or not. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/graph.h" line="86" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_node_graph_1a12c26233abf2189d5c1b75ff8e97e851" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeGraph::NodeAdded</definition>
+        <argsstring>(Node *node)</argsstring>
+        <name>NodeAdded</name>
+        <param>
+          <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+          <declname>node</declname>
+        </param>
+        <briefdescription>
+<para>Signal emitted when a <ref refid="class_node" kindref="compound">Node</ref> is added to the graph. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/graph.h" line="92" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_node_graph_1ad5981a96376972891cca2a0ce1ec3f91" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeGraph::NodeRemoved</definition>
+        <argsstring>(Node *node)</argsstring>
+        <name>NodeRemoved</name>
+        <param>
+          <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+          <declname>node</declname>
+        </param>
+        <briefdescription>
+<para>Signal emitted when a <ref refid="class_node" kindref="compound">Node</ref> is removed from the graph. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/graph.h" line="97" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_node_graph_1a9ec2356d198c4eea6e1520e481f0b5b0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeGraph::EdgeAdded</definition>
+        <argsstring>(NodeEdgePtr edge)</argsstring>
+        <name>EdgeAdded</name>
+        <param>
+          <type><ref refid="edge_8h_1a9eb6ae7d2b608077e13ab3571ea6b101" kindref="member">NodeEdgePtr</ref></type>
+          <declname>edge</declname>
+        </param>
+        <briefdescription>
+<para>Signal emitted when a member node of this graph has been connected to another (creating an &quot;edge&quot;) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/graph.h" line="102" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_node_graph_1a5921b66fca19e32036453d13bfcf69af" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeGraph::EdgeRemoved</definition>
+        <argsstring>(NodeEdgePtr edge)</argsstring>
+        <name>EdgeRemoved</name>
+        <param>
+          <type><ref refid="edge_8h_1a9eb6ae7d2b608077e13ab3571ea6b101" kindref="member">NodeEdgePtr</ref></type>
+          <declname>edge</declname>
+        </param>
+        <briefdescription>
+<para>Signal emitted when a member node of this graph has been disconnected from another (removing an &quot;edge&quot;) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/graph.h" line="107" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A collection of nodes. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>Sequence</label>
+        <link refid="class_sequence"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>NodeGraph</label>
+        <link refid="class_node_graph"/>
+      </node>
+    </inheritancegraph>
+    <location file="C:/Daten/Olive/olive/app/node/graph.h" line="33" column="1" bodyfile="C:/Daten/Olive/olive/app/node/graph.h" bodystart="34" bodyend="93"/>
+    <listofallmembers>
+      <member refid="class_node_graph_1af2a3a2346be0e584868095e3c297ec96" prot="public" virt="non-virtual"><scope>NodeGraph</scope><name>AddNode</name></member>
+      <member refid="class_node_graph_1a6e32f35428bb41927db97e5dd5cd61f6" prot="public" virt="non-virtual"><scope>NodeGraph</scope><name>Clear</name></member>
+      <member refid="class_node_graph_1a39e94be81156d03af9f6930d71f9286b" prot="public" virt="non-virtual"><scope>NodeGraph</scope><name>ContainsNode</name></member>
+      <member refid="class_node_graph_1a9ec2356d198c4eea6e1520e481f0b5b0" prot="public" virt="non-virtual"><scope>NodeGraph</scope><name>EdgeAdded</name></member>
+      <member refid="class_node_graph_1a5921b66fca19e32036453d13bfcf69af" prot="public" virt="non-virtual"><scope>NodeGraph</scope><name>EdgeRemoved</name></member>
+      <member refid="class_node_graph_1ab67dbbbe996a43dad619fdf4cc8dae01" prot="private" virt="non-virtual"><scope>NodeGraph</scope><name>node_children_</name></member>
+      <member refid="class_node_graph_1a12c26233abf2189d5c1b75ff8e97e851" prot="public" virt="non-virtual"><scope>NodeGraph</scope><name>NodeAdded</name></member>
+      <member refid="class_node_graph_1afad96f9400912192890cc7873d77cb5b" prot="public" virt="non-virtual"><scope>NodeGraph</scope><name>NodeGraph</name></member>
+      <member refid="class_node_graph_1ad5981a96376972891cca2a0ce1ec3f91" prot="public" virt="non-virtual"><scope>NodeGraph</scope><name>NodeRemoved</name></member>
+      <member refid="class_node_graph_1a56563ed5fd4c4b04c319135c52f17ea7" prot="public" virt="non-virtual"><scope>NodeGraph</scope><name>nodes</name></member>
+      <member refid="class_node_graph_1ad07da68357789d99b222fde671f4e45b" prot="public" virt="non-virtual"><scope>NodeGraph</scope><name>TakeNode</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

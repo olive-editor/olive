@@ -1,0 +1,228 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_h264_section" kind="class" language="C++" prot="public">
+    <compoundname>H264Section</compoundname>
+    <basecompoundref refid="class_codec_section" prot="public" virt="non-virtual">CodecSection</basecompoundref>
+    <includes refid="h264section_8h" local="no">h264section.h</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="enum" id="class_h264_section_1a5ee59f6f9b7e7ca81fa026296b7d1f7d" prot="public" static="no" strong="no">
+        <type></type>
+        <name>CompressionMethod</name>
+        <enumvalue id="class_h264_section_1a5ee59f6f9b7e7ca81fa026296b7d1f7da28a2277797a77da09c636bfcaac81574" prot="public">
+          <name>kConstantRateFactor</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_h264_section_1a5ee59f6f9b7e7ca81fa026296b7d1f7dacdf7cdd824e79fa4e36a7fd7c224136a" prot="public">
+          <name>kTargetBitRate</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_h264_section_1a5ee59f6f9b7e7ca81fa026296b7d1f7da9801d40fa61cb64d7d988025f6a351c5" prot="public">
+          <name>kTargetFileSize</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/codec/h264section.h" line="90" column="3" bodyfile="C:/Daten/Olive/olive/app/dialog/export/codec/h264section.h" bodystart="90" bodyend="94"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_h264_section_1aac446b9e58f4e214eb42372f0f9a9b10" prot="private" static="no" mutable="no">
+        <type>QStackedWidget *</type>
+        <definition>QStackedWidget* H264Section::compression_method_stack_</definition>
+        <argsstring></argsstring>
+        <name>compression_method_stack_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/codec/h264section.h" line="101" column="18" bodyfile="C:/Daten/Olive/olive/app/dialog/export/codec/h264section.h" bodystart="101" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_h264_section_1a2ca220c3b2803c6ee6af8ba3db5e078a" prot="private" static="no" mutable="no">
+        <type><ref refid="class_h264_c_r_f_section" kindref="compound">H264CRFSection</ref> *</type>
+        <definition>H264CRFSection* H264Section::crf_section_</definition>
+        <argsstring></argsstring>
+        <name>crf_section_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/codec/h264section.h" line="103" column="18" bodyfile="C:/Daten/Olive/olive/app/dialog/export/codec/h264section.h" bodystart="103" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_h264_section_1aa3d8d0d54962dd61df3f3b77f1679cc5" prot="private" static="no" mutable="no">
+        <type><ref refid="class_h264_bit_rate_section" kindref="compound">H264BitRateSection</ref> *</type>
+        <definition>H264BitRateSection* H264Section::bitrate_section_</definition>
+        <argsstring></argsstring>
+        <name>bitrate_section_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/codec/h264section.h" line="105" column="22" bodyfile="C:/Daten/Olive/olive/app/dialog/export/codec/h264section.h" bodystart="105" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_h264_section_1a49a3f79aeda59549b3ae62c8d708202f" prot="private" static="no" mutable="no">
+        <type><ref refid="class_h264_file_size_section" kindref="compound">H264FileSizeSection</ref> *</type>
+        <definition>H264FileSizeSection* H264Section::filesize_section_</definition>
+        <argsstring></argsstring>
+        <name>filesize_section_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/codec/h264section.h" line="107" column="23" bodyfile="C:/Daten/Olive/olive/app/dialog/export/codec/h264section.h" bodystart="107" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_h264_section_1ac4a7a2c04e79ed1a09bcf5bd93c2fbb5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>H264Section::H264Section</definition>
+        <argsstring>(QWidget *parent=nullptr)</argsstring>
+        <name>H264Section</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/codec/h264section.h" line="96" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_h264_section_1a828c9cd970efcadc203e875eb234ed1b" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void H264Section::AddOpts</definition>
+        <argsstring>(EncodingParams *params) override</argsstring>
+        <name>AddOpts</name>
+        <reimplements refid="class_codec_section_1a5cf8d3c3bbdd8fc24378e657a453a374">AddOpts</reimplements>
+        <param>
+          <type><ref refid="class_encoding_params" kindref="compound">EncodingParams</ref> *</type>
+          <declname>params</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/codec/h264section.h" line="98" column="16"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>H264Section</label>
+        <link refid="class_h264_section"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>CodecSection</label>
+        <link refid="class_codec_section"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="4">
+        <label>FloatSlider</label>
+        <link refid="class_float_slider"/>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>H264Section</label>
+        <link refid="class_h264_section"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>filesize_section_</edgelabel>
+        </childnode>
+        <childnode refid="8" relation="usage">
+          <edgelabel>bitrate_section_</edgelabel>
+        </childnode>
+        <childnode refid="9" relation="usage">
+          <edgelabel>crf_section_</edgelabel>
+        </childnode>
+      </node>
+      <node id="8">
+        <label>H264BitRateSection</label>
+        <link refid="class_h264_bit_rate_section"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>target_rate_</edgelabel>
+          <edgelabel>max_rate_</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>CodecSection</label>
+        <link refid="class_codec_section"/>
+      </node>
+      <node id="7">
+        <label>SliderLabel</label>
+        <link refid="class_slider_label"/>
+      </node>
+      <node id="6">
+        <label>FocusableLineEdit</label>
+        <link refid="class_focusable_line_edit"/>
+      </node>
+      <node id="3">
+        <label>H264FileSizeSection</label>
+        <link refid="class_h264_file_size_section"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>file_size_</edgelabel>
+        </childnode>
+      </node>
+      <node id="9">
+        <label>H264CRFSection</label>
+        <link refid="class_h264_c_r_f_section"/>
+      </node>
+      <node id="5">
+        <label>SliderBase</label>
+        <link refid="class_slider_base"/>
+        <childnode refid="6" relation="usage">
+          <edgelabel>editor_</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>label_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/dialog/export/codec/h264section.h" line="87" column="1" bodyfile="C:/Daten/Olive/olive/app/dialog/export/codec/h264section.h" bodystart="88" bodyend="109"/>
+    <listofallmembers>
+      <member refid="class_h264_section_1a828c9cd970efcadc203e875eb234ed1b" prot="public" virt="virtual"><scope>H264Section</scope><name>AddOpts</name></member>
+      <member refid="class_h264_section_1aa3d8d0d54962dd61df3f3b77f1679cc5" prot="private" virt="non-virtual"><scope>H264Section</scope><name>bitrate_section_</name></member>
+      <member refid="class_codec_section_1affc1f536d95abca37de43b4c32cc1e07" prot="public" virt="non-virtual"><scope>H264Section</scope><name>CodecSection</name></member>
+      <member refid="class_h264_section_1aac446b9e58f4e214eb42372f0f9a9b10" prot="private" virt="non-virtual"><scope>H264Section</scope><name>compression_method_stack_</name></member>
+      <member refid="class_h264_section_1a5ee59f6f9b7e7ca81fa026296b7d1f7d" prot="public" virt="non-virtual"><scope>H264Section</scope><name>CompressionMethod</name></member>
+      <member refid="class_h264_section_1a2ca220c3b2803c6ee6af8ba3db5e078a" prot="private" virt="non-virtual"><scope>H264Section</scope><name>crf_section_</name></member>
+      <member refid="class_h264_section_1a49a3f79aeda59549b3ae62c8d708202f" prot="private" virt="non-virtual"><scope>H264Section</scope><name>filesize_section_</name></member>
+      <member refid="class_h264_section_1ac4a7a2c04e79ed1a09bcf5bd93c2fbb5" prot="public" virt="non-virtual"><scope>H264Section</scope><name>H264Section</name></member>
+      <member refid="class_h264_section_1a5ee59f6f9b7e7ca81fa026296b7d1f7da28a2277797a77da09c636bfcaac81574" prot="public" virt="non-virtual"><scope>H264Section</scope><name>kConstantRateFactor</name></member>
+      <member refid="class_h264_section_1a5ee59f6f9b7e7ca81fa026296b7d1f7dacdf7cdd824e79fa4e36a7fd7c224136a" prot="public" virt="non-virtual"><scope>H264Section</scope><name>kTargetBitRate</name></member>
+      <member refid="class_h264_section_1a5ee59f6f9b7e7ca81fa026296b7d1f7da9801d40fa61cb64d7d988025f6a351c5" prot="public" virt="non-virtual"><scope>H264Section</scope><name>kTargetFileSize</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

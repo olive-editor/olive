@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_b0034939a851129485596043f27de521" kind="dir">
+    <compoundname>audiomonitor</compoundname>
+    <innerfile refid="panel_2audiomonitor_2audiomonitor_8h">panel/audiomonitor/audiomonitor.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/panel/audiomonitor/"/>
+  </compounddef>
+</doxygen>

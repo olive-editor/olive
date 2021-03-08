@@ -1,0 +1,223 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_preferences_behavior_tab" kind="class" language="C++" prot="public">
+    <compoundname>PreferencesBehaviorTab</compoundname>
+    <basecompoundref refid="class_preferences_tab" prot="public" virt="non-virtual">PreferencesTab</basecompoundref>
+    <includes refid="preferencesbehaviortab_8h" local="no">preferencesbehaviortab.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_preferences_behavior_tab_1af41216e70b25cc18a0419c512d92ba12" prot="private" static="no" mutable="no">
+        <type>QMap&lt; QTreeWidgetItem *, QString &gt;</type>
+        <definition>QMap&lt;QTreeWidgetItem*, QString&gt; PreferencesBehaviorTab::config_map_</definition>
+        <argsstring></argsstring>
+        <name>config_map_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesbehaviortab.h" line="63" column="8" bodyfile="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesbehaviortab.h" bodystart="63" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_preferences_behavior_tab_1a0b8641f1097df2ce5eca6abafeeb3c90" prot="private" static="no" mutable="no">
+        <type>QTreeWidget *</type>
+        <definition>QTreeWidget* PreferencesBehaviorTab::behavior_tree_</definition>
+        <argsstring></argsstring>
+        <name>behavior_tree_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesbehaviortab.h" line="65" column="15" bodyfile="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesbehaviortab.h" bodystart="65" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_preferences_behavior_tab_1ae1bb7942ea2b4ac1ebf40af4e7292eef" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>PreferencesBehaviorTab::PreferencesBehaviorTab</definition>
+        <argsstring>()</argsstring>
+        <name>PreferencesBehaviorTab</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesbehaviortab.h" line="52" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_preferences_behavior_tab_1ac88bee0af76d00a43e3205484fa1f7d1" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PreferencesBehaviorTab::Accept</definition>
+        <argsstring>() override</argsstring>
+        <name>Accept</name>
+        <reimplements refid="class_preferences_tab_1ac68d2c1754ce85450eed3fb0920163f2">Accept</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesbehaviortab.h" line="54" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_preferences_tab_1aefad5e89125f7a19d26a18ab3931ddfb" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>bool</type>
+        <definition>virtual bool PreferencesTab::Validate</definition>
+        <argsstring>()</argsstring>
+        <name>Validate</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencestab.h" line="53" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_preferences_behavior_tab_1ac4c32dd28088c72661ebe6bc749fa49a" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QTreeWidgetItem *</type>
+        <definition>QTreeWidgetItem* PreferencesBehaviorTab::AddParent</definition>
+        <argsstring>(const QString &amp;text, const QString &amp;tooltip, QTreeWidgetItem *parent=nullptr)</argsstring>
+        <name>AddParent</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>text</declname>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>tooltip</declname>
+        </param>
+        <param>
+          <type>QTreeWidgetItem *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesbehaviortab.h" line="57" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_preferences_behavior_tab_1a269487c21f156489f0fe5a0b55896ed1" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QTreeWidgetItem *</type>
+        <definition>QTreeWidgetItem* PreferencesBehaviorTab::AddParent</definition>
+        <argsstring>(const QString &amp;text, QTreeWidgetItem *parent=nullptr)</argsstring>
+        <name>AddParent</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>text</declname>
+        </param>
+        <param>
+          <type>QTreeWidgetItem *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesbehaviortab.h" line="58" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_preferences_behavior_tab_1a84d6e5a46a779665588df1dfbd45a2c1" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QTreeWidgetItem *</type>
+        <definition>QTreeWidgetItem* PreferencesBehaviorTab::AddItem</definition>
+        <argsstring>(const QString &amp;text, const QString &amp;config_key, const QString &amp;tooltip, QTreeWidgetItem *parent)</argsstring>
+        <name>AddItem</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>text</declname>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>config_key</declname>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>tooltip</declname>
+        </param>
+        <param>
+          <type>QTreeWidgetItem *</type>
+          <declname>parent</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesbehaviortab.h" line="60" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_preferences_behavior_tab_1ac158dc4b22ef2dbff3b86680c5c01ad1" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QTreeWidgetItem *</type>
+        <definition>QTreeWidgetItem* PreferencesBehaviorTab::AddItem</definition>
+        <argsstring>(const QString &amp;text, const QString &amp;config_key, QTreeWidgetItem *parent)</argsstring>
+        <name>AddItem</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>text</declname>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>config_key</declname>
+        </param>
+        <param>
+          <type>QTreeWidgetItem *</type>
+          <declname>parent</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesbehaviortab.h" line="61" column="19"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>PreferencesBehaviorTab</label>
+        <link refid="class_preferences_behavior_tab"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>PreferencesTab</label>
+        <link refid="class_preferences_tab"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>PreferencesBehaviorTab</label>
+        <link refid="class_preferences_behavior_tab"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>PreferencesTab</label>
+        <link refid="class_preferences_tab"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesbehaviortab.h" line="30" column="1" bodyfile="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesbehaviortab.h" bodystart="31" bodyend="49"/>
+    <listofallmembers>
+      <member refid="class_preferences_behavior_tab_1ac88bee0af76d00a43e3205484fa1f7d1" prot="public" virt="virtual"><scope>PreferencesBehaviorTab</scope><name>Accept</name></member>
+      <member refid="class_preferences_behavior_tab_1a84d6e5a46a779665588df1dfbd45a2c1" prot="private" virt="non-virtual"><scope>PreferencesBehaviorTab</scope><name>AddItem</name></member>
+      <member refid="class_preferences_behavior_tab_1ac158dc4b22ef2dbff3b86680c5c01ad1" prot="private" virt="non-virtual"><scope>PreferencesBehaviorTab</scope><name>AddItem</name></member>
+      <member refid="class_preferences_behavior_tab_1ac4c32dd28088c72661ebe6bc749fa49a" prot="private" virt="non-virtual"><scope>PreferencesBehaviorTab</scope><name>AddParent</name></member>
+      <member refid="class_preferences_behavior_tab_1a269487c21f156489f0fe5a0b55896ed1" prot="private" virt="non-virtual"><scope>PreferencesBehaviorTab</scope><name>AddParent</name></member>
+      <member refid="class_preferences_behavior_tab_1a0b8641f1097df2ce5eca6abafeeb3c90" prot="private" virt="non-virtual"><scope>PreferencesBehaviorTab</scope><name>behavior_tree_</name></member>
+      <member refid="class_preferences_behavior_tab_1af41216e70b25cc18a0419c512d92ba12" prot="private" virt="non-virtual"><scope>PreferencesBehaviorTab</scope><name>config_map_</name></member>
+      <member refid="class_preferences_behavior_tab_1ae1bb7942ea2b4ac1ebf40af4e7292eef" prot="public" virt="non-virtual"><scope>PreferencesBehaviorTab</scope><name>PreferencesBehaviorTab</name></member>
+      <member refid="class_preferences_tab_1a5330b203f9973201f677b0daf642f30e" prot="public" virt="non-virtual"><scope>PreferencesBehaviorTab</scope><name>PreferencesTab</name></member>
+      <member refid="class_preferences_tab_1aefad5e89125f7a19d26a18ab3931ddfb" prot="public" virt="virtual"><scope>PreferencesBehaviorTab</scope><name>Validate</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

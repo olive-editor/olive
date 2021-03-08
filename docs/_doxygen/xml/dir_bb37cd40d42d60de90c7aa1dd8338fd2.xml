@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_bb37cd40d42d60de90c7aa1dd8338fd2" kind="dir">
+    <compoundname>input</compoundname>
+    <innerdir refid="dir_0a724da162e3559a0974d0b8ae5277f7">media</innerdir>
+    <innerdir refid="dir_4046f080e8b530b34a2f4c2e22132cb9">time</innerdir>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/node/input/"/>
+  </compounddef>
+</doxygen>

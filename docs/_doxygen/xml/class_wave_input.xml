@@ -1,0 +1,345 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_wave_input" kind="class" language="C++" prot="public">
+    <compoundname>WaveInput</compoundname>
+    <includes refid="waveinput_8h" local="no">waveinput.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_wave_input_1a6382a929357d09a71854b4253dc2be29" prot="private" static="no" mutable="no">
+        <type><ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref></type>
+        <definition>AudioRenderingParams WaveInput::params_</definition>
+        <argsstring></argsstring>
+        <name>params_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/waveinput.h" line="82" column="24" bodyfile="C:/Daten/Olive/olive/app/codec/waveinput.h" bodystart="82" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_wave_input_1adc8bcb4f8064a5a56ff4b92a59243cb6" prot="private" static="no" mutable="no">
+        <type>QFile</type>
+        <definition>QFile WaveInput::file_</definition>
+        <argsstring></argsstring>
+        <name>file_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/waveinput.h" line="84" column="9" bodyfile="C:/Daten/Olive/olive/app/codec/waveinput.h" bodystart="84" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_wave_input_1a9fe39f9f3c9bc9f21327a71224e9442c" prot="private" static="no" mutable="no">
+        <type>qint64</type>
+        <definition>qint64 WaveInput::data_position_</definition>
+        <argsstring></argsstring>
+        <name>data_position_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/waveinput.h" line="86" column="10" bodyfile="C:/Daten/Olive/olive/app/codec/waveinput.h" bodystart="86" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_wave_input_1a7edc80bf5861e86e650b6b420b059d27" prot="private" static="no" mutable="no">
+        <type>quint32</type>
+        <definition>quint32 WaveInput::data_size_</definition>
+        <argsstring></argsstring>
+        <name>data_size_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/waveinput.h" line="88" column="11" bodyfile="C:/Daten/Olive/olive/app/codec/waveinput.h" bodystart="88" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_wave_input_1a4b5f663c204e19e6eb18405db0732647" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>WaveInput::WaveInput</definition>
+        <argsstring>(const QString &amp;f)</argsstring>
+        <name>WaveInput</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>f</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/waveinput.h" line="51" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_wave_input_1a92717c0cc2b4f9bb4f93061bfbd7e739" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>WaveInput::~WaveInput</definition>
+        <argsstring>()</argsstring>
+        <name>~WaveInput</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/waveinput.h" line="53" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_wave_input_1a71052de1b5092a5feff84cd7687c8982" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool WaveInput::open</definition>
+        <argsstring>()</argsstring>
+        <name>open</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/waveinput.h" line="57" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_wave_input_1ae505761e8aa20afcb9d05a12091ebfef" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool WaveInput::is_open</definition>
+        <argsstring>() const</argsstring>
+        <name>is_open</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/waveinput.h" line="59" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_wave_input_1a84be0eb3104c40eb7219d62271ebe5ce" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QByteArray</type>
+        <definition>QByteArray WaveInput::read</definition>
+        <argsstring>(int length)</argsstring>
+        <name>read</name>
+        <param>
+          <type>int</type>
+          <declname>length</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/waveinput.h" line="61" column="14"/>
+      </memberdef>
+      <memberdef kind="function" id="class_wave_input_1a1044ecd5e8394d4d1e2e9448c9fc06c9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QByteArray</type>
+        <definition>QByteArray WaveInput::read</definition>
+        <argsstring>(int offset, int length)</argsstring>
+        <name>read</name>
+        <param>
+          <type>int</type>
+          <declname>offset</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>length</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/waveinput.h" line="62" column="14"/>
+      </memberdef>
+      <memberdef kind="function" id="class_wave_input_1a645bae048c1fe1ba76ad3672429bf6bd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>qint64</type>
+        <definition>qint64 WaveInput::read</definition>
+        <argsstring>(int offset, char *buffer, int length)</argsstring>
+        <name>read</name>
+        <param>
+          <type>int</type>
+          <declname>offset</declname>
+        </param>
+        <param>
+          <type>char *</type>
+          <declname>buffer</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>length</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/waveinput.h" line="63" column="10"/>
+      </memberdef>
+      <memberdef kind="function" id="class_wave_input_1a17a2253a41b78e3662516a165b728a8c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool WaveInput::seek</definition>
+        <argsstring>(qint64 pos)</argsstring>
+        <name>seek</name>
+        <param>
+          <type>qint64</type>
+          <declname>pos</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/waveinput.h" line="65" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_wave_input_1a0d4792ba26fb2732f57a9c5f64e37ed2" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool WaveInput::at_end</definition>
+        <argsstring>() const</argsstring>
+        <name>at_end</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/waveinput.h" line="67" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_wave_input_1af34d56fafd8ff30f927bca0df33512b8" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref> &amp;</type>
+        <definition>const AudioRenderingParams&amp; WaveInput::params</definition>
+        <argsstring>() const</argsstring>
+        <name>params</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/waveinput.h" line="69" column="30"/>
+      </memberdef>
+      <memberdef kind="function" id="class_wave_input_1a7e6639aa07be5c15fcfd4997bfef1fed" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void WaveInput::close</definition>
+        <argsstring>()</argsstring>
+        <name>close</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/waveinput.h" line="71" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_wave_input_1ab3a45b91feaa1357d4af398b9e475192" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const quint32 &amp;</type>
+        <definition>const quint32&amp; WaveInput::data_length</definition>
+        <argsstring>() const</argsstring>
+        <name>data_length</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/waveinput.h" line="73" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_wave_input_1a9329d361006e2678a62ac541fa35a833" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int WaveInput::sample_count</definition>
+        <argsstring>() const</argsstring>
+        <name>sample_count</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/waveinput.h" line="75" column="7"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_wave_input_1a551bc8221ebe07e825851fe2c96a3239" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool WaveInput::find_str</definition>
+        <argsstring>(QFile *f, const char *str)</argsstring>
+        <name>find_str</name>
+        <param>
+          <type>QFile *</type>
+          <declname>f</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>str</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/waveinput.h" line="78" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_wave_input_1aa0964e118995c03eaf209d50b732e758" prot="private" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>qint64</type>
+        <definition>qint64 WaveInput::calculate_max_read</definition>
+        <argsstring>() const</argsstring>
+        <name>calculate_max_read</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/waveinput.h" line="80" column="10"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="3">
+        <label>AudioParams</label>
+        <link refid="class_audio_params"/>
+      </node>
+      <node id="2">
+        <label>AudioRenderingParams</label>
+        <link refid="class_audio_rendering_params"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>WaveInput</label>
+        <link refid="class_wave_input"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>params_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/codec/waveinput.h" line="30" column="1" bodyfile="C:/Daten/Olive/olive/app/codec/waveinput.h" bodystart="31" bodyend="71"/>
+    <listofallmembers>
+      <member refid="class_wave_input_1a0d4792ba26fb2732f57a9c5f64e37ed2" prot="public" virt="non-virtual"><scope>WaveInput</scope><name>at_end</name></member>
+      <member refid="class_wave_input_1aa0964e118995c03eaf209d50b732e758" prot="private" virt="non-virtual"><scope>WaveInput</scope><name>calculate_max_read</name></member>
+      <member refid="class_wave_input_1a7e6639aa07be5c15fcfd4997bfef1fed" prot="public" virt="non-virtual"><scope>WaveInput</scope><name>close</name></member>
+      <member refid="class_wave_input_1ab3a45b91feaa1357d4af398b9e475192" prot="public" virt="non-virtual"><scope>WaveInput</scope><name>data_length</name></member>
+      <member refid="class_wave_input_1a9fe39f9f3c9bc9f21327a71224e9442c" prot="private" virt="non-virtual"><scope>WaveInput</scope><name>data_position_</name></member>
+      <member refid="class_wave_input_1a7edc80bf5861e86e650b6b420b059d27" prot="private" virt="non-virtual"><scope>WaveInput</scope><name>data_size_</name></member>
+      <member refid="class_wave_input_1adc8bcb4f8064a5a56ff4b92a59243cb6" prot="private" virt="non-virtual"><scope>WaveInput</scope><name>file_</name></member>
+      <member refid="class_wave_input_1a551bc8221ebe07e825851fe2c96a3239" prot="private" virt="non-virtual"><scope>WaveInput</scope><name>find_str</name></member>
+      <member refid="class_wave_input_1ae505761e8aa20afcb9d05a12091ebfef" prot="public" virt="non-virtual"><scope>WaveInput</scope><name>is_open</name></member>
+      <member refid="class_wave_input_1a71052de1b5092a5feff84cd7687c8982" prot="public" virt="non-virtual"><scope>WaveInput</scope><name>open</name></member>
+      <member refid="class_wave_input_1af34d56fafd8ff30f927bca0df33512b8" prot="public" virt="non-virtual"><scope>WaveInput</scope><name>params</name></member>
+      <member refid="class_wave_input_1a6382a929357d09a71854b4253dc2be29" prot="private" virt="non-virtual"><scope>WaveInput</scope><name>params_</name></member>
+      <member refid="class_wave_input_1a84be0eb3104c40eb7219d62271ebe5ce" prot="public" virt="non-virtual"><scope>WaveInput</scope><name>read</name></member>
+      <member refid="class_wave_input_1a1044ecd5e8394d4d1e2e9448c9fc06c9" prot="public" virt="non-virtual"><scope>WaveInput</scope><name>read</name></member>
+      <member refid="class_wave_input_1a645bae048c1fe1ba76ad3672429bf6bd" prot="public" virt="non-virtual"><scope>WaveInput</scope><name>read</name></member>
+      <member refid="class_wave_input_1a9329d361006e2678a62ac541fa35a833" prot="public" virt="non-virtual"><scope>WaveInput</scope><name>sample_count</name></member>
+      <member refid="class_wave_input_1a17a2253a41b78e3662516a165b728a8c" prot="public" virt="non-virtual"><scope>WaveInput</scope><name>seek</name></member>
+      <member refid="class_wave_input_1a4b5f663c204e19e6eb18405db0732647" prot="public" virt="non-virtual"><scope>WaveInput</scope><name>WaveInput</name></member>
+      <member refid="class_wave_input_1a92717c0cc2b4f9bb4f93061bfbd7e739" prot="public" virt="non-virtual"><scope>WaveInput</scope><name>~WaveInput</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

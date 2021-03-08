@@ -1,0 +1,229 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_open_g_l_texture_cache" kind="class" language="C++" prot="public">
+    <compoundname>OpenGLTextureCache</compoundname>
+    <includes refid="opengltexturecache_8h" local="no">opengltexturecache.h</includes>
+    <innerclass refid="class_open_g_l_texture_cache_1_1_reference" prot="public">OpenGLTextureCache::Reference</innerclass>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="class_open_g_l_texture_cache_1aeb5a3b0954143a797c21bcce55efd3a5" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="class_open_g_l_texture_cache_1_1_reference" kindref="compound">Reference</ref> &gt;</type>
+        <definition>using OpenGLTextureCache::ReferencePtr =  std::shared_ptr&lt;Reference&gt;</definition>
+        <argsstring></argsstring>
+        <name>ReferencePtr</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexturecache.h" line="70" column="3" bodyfile="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexturecache.h" bodystart="70" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_open_g_l_texture_cache_1ade3c968363c7df8844e86df44e7527ee" prot="private" static="no" mutable="no">
+        <type>QMutex</type>
+        <definition>QMutex OpenGLTextureCache::lock_</definition>
+        <argsstring></argsstring>
+        <name>lock_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexturecache.h" line="86" column="10" bodyfile="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexturecache.h" bodystart="86" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_open_g_l_texture_cache_1a17ae9786747facb2eea377508afa2806" prot="private" static="no" mutable="no">
+        <type>QList&lt; <ref refid="opengltexture_8h_1a2e544646387943a957198ca8682814f7" kindref="member">OpenGLTexturePtr</ref> &gt;</type>
+        <definition>QList&lt;OpenGLTexturePtr&gt; OpenGLTextureCache::available_textures_</definition>
+        <argsstring></argsstring>
+        <name>available_textures_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexturecache.h" line="88" column="9" bodyfile="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexturecache.h" bodystart="88" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_open_g_l_texture_cache_1add6b2e641c6ec529de1a0be40956b128" prot="private" static="no" mutable="no">
+        <type>QList&lt; <ref refid="class_open_g_l_texture_cache_1_1_reference" kindref="compound">Reference</ref> * &gt;</type>
+        <definition>QList&lt;Reference*&gt; OpenGLTextureCache::existing_references_</definition>
+        <argsstring></argsstring>
+        <name>existing_references_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexturecache.h" line="90" column="9" bodyfile="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexturecache.h" bodystart="90" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_open_g_l_texture_cache_1a3789567c9441d9cf2cf941e8aad1e754" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>OpenGLTextureCache::OpenGLTextureCache</definition>
+        <argsstring>()=default</argsstring>
+        <name>OpenGLTextureCache</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexturecache.h" line="72" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_texture_cache_1abf88051c2706697cef622d0889873578" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>OpenGLTextureCache::~OpenGLTextureCache</definition>
+        <argsstring>()</argsstring>
+        <name>~OpenGLTextureCache</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexturecache.h" line="74" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_texture_cache_1a0dd644bb896d8228af26968d863e1c75" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_open_g_l_texture_cache_1aeb5a3b0954143a797c21bcce55efd3a5" kindref="member">ReferencePtr</ref></type>
+        <definition>ReferencePtr OpenGLTextureCache::Get</definition>
+        <argsstring>(QOpenGLContext *ctx, const VideoRenderingParams &amp;params, FramePtr frame)</argsstring>
+        <name>Get</name>
+        <param>
+          <type>QOpenGLContext *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_video_rendering_params" kindref="compound">VideoRenderingParams</ref> &amp;</type>
+          <declname>params</declname>
+        </param>
+        <param>
+          <type><ref refid="frame_8h_1a2ae9a822fc1e331fa3b449797f717db6" kindref="member">FramePtr</ref></type>
+          <declname>frame</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexturecache.h" line="78" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_texture_cache_1a785019d0034b07d7af73c1a37ca3f558" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_open_g_l_texture_cache_1aeb5a3b0954143a797c21bcce55efd3a5" kindref="member">ReferencePtr</ref></type>
+        <definition>ReferencePtr OpenGLTextureCache::Get</definition>
+        <argsstring>(QOpenGLContext *ctx, const VideoRenderingParams &amp;params, Frame *frame)</argsstring>
+        <name>Get</name>
+        <param>
+          <type>QOpenGLContext *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_video_rendering_params" kindref="compound">VideoRenderingParams</ref> &amp;</type>
+          <declname>params</declname>
+        </param>
+        <param>
+          <type><ref refid="class_frame" kindref="compound">Frame</ref> *</type>
+          <declname>frame</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexturecache.h" line="79" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_texture_cache_1a3be908e72695a84eb4aa8ce356de50ac" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_open_g_l_texture_cache_1aeb5a3b0954143a797c21bcce55efd3a5" kindref="member">ReferencePtr</ref></type>
+        <definition>ReferencePtr OpenGLTextureCache::Get</definition>
+        <argsstring>(QOpenGLContext *ctx, const VideoRenderingParams &amp;params, const void *data, int linesize)</argsstring>
+        <name>Get</name>
+        <param>
+          <type>QOpenGLContext *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_video_rendering_params" kindref="compound">VideoRenderingParams</ref> &amp;</type>
+          <declname>params</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>linesize</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexturecache.h" line="80" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_texture_cache_1a9771c275b6752780a1f2850d73fbb6c5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_open_g_l_texture_cache_1aeb5a3b0954143a797c21bcce55efd3a5" kindref="member">ReferencePtr</ref></type>
+        <definition>ReferencePtr OpenGLTextureCache::Get</definition>
+        <argsstring>(QOpenGLContext *ctx, const VideoRenderingParams &amp;params)</argsstring>
+        <name>Get</name>
+        <param>
+          <type>QOpenGLContext *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_video_rendering_params" kindref="compound">VideoRenderingParams</ref> &amp;</type>
+          <declname>params</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexturecache.h" line="81" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_open_g_l_texture_cache_1a9140592419ca287bd7934e32b8d423c4" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void OpenGLTextureCache::Relinquish</definition>
+        <argsstring>(Reference *ref)</argsstring>
+        <name>Relinquish</name>
+        <param>
+          <type><ref refid="class_open_g_l_texture_cache_1_1_reference" kindref="compound">Reference</ref> *</type>
+          <declname>ref</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexturecache.h" line="84" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexturecache.h" line="32" column="1" bodyfile="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexturecache.h" bodystart="33" bodyend="74"/>
+    <listofallmembers>
+      <member refid="class_open_g_l_texture_cache_1a17ae9786747facb2eea377508afa2806" prot="private" virt="non-virtual"><scope>OpenGLTextureCache</scope><name>available_textures_</name></member>
+      <member refid="class_open_g_l_texture_cache_1add6b2e641c6ec529de1a0be40956b128" prot="private" virt="non-virtual"><scope>OpenGLTextureCache</scope><name>existing_references_</name></member>
+      <member refid="class_open_g_l_texture_cache_1a0dd644bb896d8228af26968d863e1c75" prot="public" virt="non-virtual"><scope>OpenGLTextureCache</scope><name>Get</name></member>
+      <member refid="class_open_g_l_texture_cache_1a785019d0034b07d7af73c1a37ca3f558" prot="public" virt="non-virtual"><scope>OpenGLTextureCache</scope><name>Get</name></member>
+      <member refid="class_open_g_l_texture_cache_1a3be908e72695a84eb4aa8ce356de50ac" prot="public" virt="non-virtual"><scope>OpenGLTextureCache</scope><name>Get</name></member>
+      <member refid="class_open_g_l_texture_cache_1a9771c275b6752780a1f2850d73fbb6c5" prot="public" virt="non-virtual"><scope>OpenGLTextureCache</scope><name>Get</name></member>
+      <member refid="class_open_g_l_texture_cache_1ade3c968363c7df8844e86df44e7527ee" prot="private" virt="non-virtual"><scope>OpenGLTextureCache</scope><name>lock_</name></member>
+      <member refid="class_open_g_l_texture_cache_1a3789567c9441d9cf2cf941e8aad1e754" prot="public" virt="non-virtual"><scope>OpenGLTextureCache</scope><name>OpenGLTextureCache</name></member>
+      <member refid="class_open_g_l_texture_cache_1aeb5a3b0954143a797c21bcce55efd3a5" prot="public" virt="non-virtual"><scope>OpenGLTextureCache</scope><name>ReferencePtr</name></member>
+      <member refid="class_open_g_l_texture_cache_1a9140592419ca287bd7934e32b8d423c4" prot="private" virt="non-virtual"><scope>OpenGLTextureCache</scope><name>Relinquish</name></member>
+      <member refid="class_open_g_l_texture_cache_1abf88051c2706697cef622d0889873578" prot="public" virt="non-virtual"><scope>OpenGLTextureCache</scope><name>~OpenGLTextureCache</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

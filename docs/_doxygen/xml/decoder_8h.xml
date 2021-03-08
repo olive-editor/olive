@@ -1,0 +1,742 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="decoder_8h" kind="file" language="C++">
+    <compoundname>decoder.h</compoundname>
+    <includes local="no">libswresample/swresample.h</includes>
+    <includes local="no">QMutex</includes>
+    <includes local="no">QObject</includes>
+    <includes local="no">stdint.h</includes>
+    <includes refid="frame_8h" local="yes">codec/frame.h</includes>
+    <includes refid="samplebuffer_8h" local="yes">codec/samplebuffer.h</includes>
+    <includes refid="waveoutput_8h" local="yes">codec/waveoutput.h</includes>
+    <includes refid="rational_8h" local="yes">common/rational.h</includes>
+    <includes refid="footage_8h" local="yes">project/item/footage/footage.h</includes>
+    <includedby refid="ffmpegdecoder_8h" local="yes">ffmpegdecoder.h</includedby>
+    <includedby refid="oiiodecoder_8h" local="yes">oiiodecoder.h</includedby>
+    <includedby refid="media_8h" local="yes">media.h</includedby>
+    <includedby refid="traverser_8h" local="yes">traverser.h</includedby>
+    <includedby refid="decodercache_8h" local="yes">decodercache.h</includedby>
+    <incdepgraph>
+      <node id="13">
+        <label>libavformat/avformat.h</label>
+      </node>
+      <node id="42">
+        <label>node/param.h</label>
+        <link refid="node_2param_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="44" relation="include">
+        </childnode>
+      </node>
+      <node id="27">
+        <label>codec/waveoutput.h</label>
+        <link refid="waveoutput_8h"/>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+      </node>
+      <node id="46">
+        <label>project/item/footage/imagestream.h</label>
+        <link refid="imagestream_8h"/>
+        <childnode refid="40" relation="include">
+        </childnode>
+      </node>
+      <node id="32">
+        <label>QDateTime</label>
+      </node>
+      <node id="4">
+        <label>QObject</label>
+      </node>
+      <node id="50">
+        <label>common/timerange.h</label>
+        <link refid="timerange_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="39">
+        <label>QXmlStreamReader</label>
+      </node>
+      <node id="31">
+        <label>QList</label>
+      </node>
+      <node id="5">
+        <label>stdint.h</label>
+      </node>
+      <node id="45">
+        <label>project/item/footage/audiostream.h</label>
+        <link refid="audiostream_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+      </node>
+      <node id="49">
+        <label>timelinemarker.h</label>
+        <link refid="timelinemarker_8h"/>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>QMetaType</label>
+      </node>
+      <node id="51">
+        <label>timelineworkarea.h</label>
+        <link refid="timelineworkarea_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>render/pixelformat.h</label>
+        <link refid="pixelformat_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="38">
+        <label>QUndoCommand</label>
+      </node>
+      <node id="9">
+        <label>common/rational.h</label>
+        <link refid="rational_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="34">
+        <label>QIcon</label>
+      </node>
+      <node id="21">
+        <label>render/rendermodes.h</label>
+        <link refid="rendermodes_8h"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="28">
+        <label>QByteArray</label>
+      </node>
+      <node id="3">
+        <label>QMutex</label>
+      </node>
+      <node id="1">
+        <label>decoder.h</label>
+        <link refid="decoder_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>libswresample/swresample.h</label>
+      </node>
+      <node id="14">
+        <label>common/define.h</label>
+        <link refid="define_8h"/>
+      </node>
+      <node id="19">
+        <label>QOpenGLExtraFunctions</label>
+      </node>
+      <node id="25">
+        <label>QtMath</label>
+      </node>
+      <node id="11">
+        <label>QDebug</label>
+      </node>
+      <node id="44">
+        <label>node/edge.h</label>
+        <link refid="edge_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="33">
+        <label>project/item/item.h</label>
+        <link refid="item_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+      </node>
+      <node id="30">
+        <label>project/item/footage/footage.h</label>
+        <link refid="footage_8h"/>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="46" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+        <childnode refid="48" relation="include">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>QString</label>
+      </node>
+      <node id="15">
+        <label>render/color.h</label>
+        <link refid="color_8h"/>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="29">
+        <label>QFile</label>
+      </node>
+      <node id="16">
+        <label>QColor</label>
+      </node>
+      <node id="48">
+        <label>timeline/timelinepoints.h</label>
+        <link refid="timelinepoints_8h"/>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="51" relation="include">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>audio/sampleformat.h</label>
+        <link refid="sampleformat_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="23">
+        <label>codec/samplebuffer.h</label>
+        <link refid="samplebuffer_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>iostream</label>
+      </node>
+      <node id="35">
+        <label>QXmlStreamWriter</label>
+      </node>
+      <node id="22">
+        <label>render/videoparams.h</label>
+        <link refid="videoparams_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="40">
+        <label>project/item/footage/stream.h</label>
+        <link refid="stream_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="47">
+        <label>project/item/footage/videostream.h</label>
+        <link refid="videostream_8h"/>
+        <childnode refid="46" relation="include">
+        </childnode>
+      </node>
+      <node id="37">
+        <label>common/xmlutils.h</label>
+        <link refid="xmlutils_8h"/>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+      </node>
+      <node id="43">
+        <label>QVariant</label>
+      </node>
+      <node id="6">
+        <label>codec/frame.h</label>
+        <link refid="frame_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+      </node>
+      <node id="18">
+        <label>OpenImageIO/imageio.h</label>
+      </node>
+      <node id="24">
+        <label>render/audioparams.h</label>
+        <link refid="audioparams_8h"/>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>memory</label>
+      </node>
+      <node id="36">
+        <label>common/threadedobject.h</label>
+        <link refid="threadedobject_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>QVector</label>
+      </node>
+      <node id="41">
+        <label>QCoreApplication</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="21">
+        <label>audiowaveformview.h</label>
+        <link refid="audiowaveformview_8h"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>mainwindow.h</label>
+        <link refid="mainwindow_8h"/>
+      </node>
+      <node id="8">
+        <label>traverser.h</label>
+        <link refid="traverser_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>exporter.h</label>
+        <link refid="exporter_8h"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>viewer.h</label>
+        <link refid="widget_2viewer_2viewer_8h"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>videorenderbackend.h</label>
+        <link refid="videorenderbackend_8h"/>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>viewerbase.h</label>
+        <link refid="viewerbase_8h"/>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="28">
+        <label>openglworker.h</label>
+        <link refid="openglworker_8h"/>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>audiobackend.h</label>
+        <link refid="audiobackend_8h"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="25">
+        <label>audioworker.h</label>
+        <link refid="audioworker_8h"/>
+      </node>
+      <node id="29">
+        <label>decodercache.h</label>
+        <link refid="decodercache_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>renderworker.h</label>
+        <link refid="renderworker_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>renderbackend.h</label>
+        <link refid="renderbackend_8h"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>footageviewer.h</label>
+        <link refid="widget_2viewer_2footageviewer_8h"/>
+      </node>
+      <node id="1">
+        <label>decoder.h</label>
+        <link refid="decoder_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+      </node>
+      <node id="27">
+        <label>openglproxy.h</label>
+        <link refid="openglproxy_8h"/>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>videorenderworker.h</label>
+        <link refid="videorenderworker_8h"/>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>audiorenderbackend.h</label>
+        <link refid="audiorenderbackend_8h"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="19">
+        <label>sequenceviewer.h</label>
+        <link refid="sequenceviewer_8h"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>export.h</label>
+        <link refid="export_8h"/>
+      </node>
+      <node id="3">
+        <label>oiiodecoder.h</label>
+        <link refid="oiiodecoder_8h"/>
+      </node>
+      <node id="2">
+        <label>ffmpegdecoder.h</label>
+        <link refid="ffmpegdecoder_8h"/>
+      </node>
+      <node id="18">
+        <label>viewer.h</label>
+        <link refid="panel_2viewer_2viewer_8h"/>
+        <childnode refid="19" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>media.h</label>
+        <link refid="media_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>video.h</label>
+        <link refid="video_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>audio.h</label>
+        <link refid="audio_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>footageviewer.h</label>
+        <link refid="panel_2footageviewer_2footageviewer_8h"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="23">
+        <label>openglbackend.h</label>
+        <link refid="openglbackend_8h"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="24">
+        <label>audiorenderworker.h</label>
+        <link refid="audiorenderworker_8h"/>
+        <childnode refid="25" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="class_decoder" prot="public">Decoder</innerclass>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="decoder_8h_1ad3c54eeaaa80a244c75e2fadabe0944c" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="class_decoder" kindref="compound">Decoder</ref> &gt;</type>
+        <definition>using DecoderPtr =  std::shared_ptr&lt;Decoder&gt;</definition>
+        <argsstring></argsstring>
+        <name>DecoderPtr</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/decoder.h" line="41" column="1" bodyfile="C:/Daten/Olive/olive/app/codec/decoder.h" bodystart="41" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/***</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"></highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/><sp/>Olive<sp/>-<sp/>Non-Linear<sp/>Video<sp/>Editor</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/><sp/>Copyright<sp/>(C)<sp/>2019<sp/>Olive<sp/>Team</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"></highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/><sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/><sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/><sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"></highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/><sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/><sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/><sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"></highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/><sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/><sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"></highlight></codeline>
+<codeline lineno="19"><highlight class="comment">***/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>DECODER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>DECODER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;libswresample/swresample.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QMutex&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QObject&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="frame_8h" kindref="compound">codec/frame.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="samplebuffer_8h" kindref="compound">codec/samplebuffer.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="waveoutput_8h" kindref="compound">codec/waveoutput.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="rational_8h" kindref="compound">common/rational.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="footage_8h" kindref="compound">project/item/footage/footage.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><ref refid="define_8h_1a0472692dd1f22472ad63da20da919e8c" kindref="member">OLIVE_NAMESPACE_ENTER</ref></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_decoder" kindref="compound">Decoder</ref>;</highlight></codeline>
+<codeline lineno="41" refid="decoder_8h_1ad3c54eeaaa80a244c75e2fadabe0944c" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">using</highlight><highlight class="normal"><sp/><ref refid="decoder_8h_1ad3c54eeaaa80a244c75e2fadabe0944c" kindref="member">DecoderPtr</ref><sp/>=<sp/>std::shared_ptr&lt;Decoder&gt;;</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59" refid="class_decoder" refkind="compound"><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_decoder" kindref="compound">Decoder</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>QObject</highlight></codeline>
+<codeline lineno="60"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/>Q_OBJECT</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="63" refid="class_decoder_1aaf2969a042349edc13d9b054894d105f" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/><ref refid="class_decoder_1aaf2969a042349edc13d9b054894d105f" kindref="member">RetrieveState</ref><sp/>{</highlight></codeline>
+<codeline lineno="64" refid="class_decoder_1aaf2969a042349edc13d9b054894d105fabd3e02331c859481b55ea588119cc6c4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_decoder_1aaf2969a042349edc13d9b054894d105fabd3e02331c859481b55ea588119cc6c4" kindref="member">kReady</ref>,</highlight></codeline>
+<codeline lineno="65" refid="class_decoder_1aaf2969a042349edc13d9b054894d105facf91f190f975de43755054b2e812c751" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_decoder_1aaf2969a042349edc13d9b054894d105facf91f190f975de43755054b2e812c751" kindref="member">kFailedToOpen</ref>,</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_decoder_1aaf2969a042349edc13d9b054894d105fa67c4ec6806b95854af466eac34c798bd" kindref="member">kIndexUnavailable</ref></highlight></codeline>
+<codeline lineno="67" refid="class_decoder_1aaf2969a042349edc13d9b054894d105fa67c4ec6806b95854af466eac34c798bd" refkind="member"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69" refid="class_decoder_1a691a867940a1c494b77e458ae1325352" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_decoder_1a691a867940a1c494b77e458ae1325352" kindref="member">Decoder</ref>();</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71" refid="class_decoder_1adbea95d1bc5f127e19bbfacaedc18c4a" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_decoder_1adbea95d1bc5f127e19bbfacaedc18c4a" kindref="member">Decoder</ref>(<ref refid="class_stream" kindref="compound">Stream</ref>*<sp/>fs);</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><ref refid="define_8h_1a49ad49a490f2b30e39821d11a9cc9769" kindref="member">DISABLE_COPY_MOVE</ref>(<ref refid="class_decoder" kindref="compound">Decoder</ref>)</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75" refid="class_decoder_1a4043a5c61c184331d9db680b653685cf" refkind="member"><highlight class="normal"><sp/><sp/>virtual<sp/>QString<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">()<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77" refid="class_decoder_1a766960ea42ec5dcef66fd22d8482b94a" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="stream_8h_1a3ca5b414655d064180098adf46c1a2f1" kindref="member">StreamPtr</ref><sp/><ref refid="class_decoder_1a766960ea42ec5dcef66fd22d8482b94a" kindref="member">stream</ref>();</highlight></codeline>
+<codeline lineno="78" refid="class_decoder_1a209ef567e42228ccd0739378504a9edc" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_decoder_1a209ef567e42228ccd0739378504a9edc" kindref="member">set_stream</ref>(<ref refid="stream_8h_1a3ca5b414655d064180098adf46c1a2f1" kindref="member">StreamPtr</ref><sp/>fs);</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105" refid="class_decoder_1ad337c171cc239556fa57260698fa2ee6" refkind="member"><highlight class="normal"><sp/><sp/>virtual<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_decoder_1ad337c171cc239556fa57260698fa2ee6" kindref="member">Probe</ref>(<ref refid="class_footage" kindref="compound">Footage</ref>*<sp/>f,<sp/>const<sp/>QAtomicInt*<sp/>cancelled)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight></codeline>
+<codeline lineno="118" refid="class_decoder_1a2fe2c3c44ce777ccf950b31a2317ac35" refkind="member"><highlight class="normal"><sp/><sp/>virtual<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_decoder_1a2fe2c3c44ce777ccf950b31a2317ac35" kindref="member">Open</ref>()<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123" refid="class_decoder_1a274f1d219d51d9549c1201f1f14bafa0" refkind="member"><highlight class="normal"><sp/><sp/>virtual<sp/><ref refid="class_decoder_1aaf2969a042349edc13d9b054894d105f" kindref="member">RetrieveState</ref><sp/><ref refid="class_decoder_1a274f1d219d51d9549c1201f1f14bafa0" kindref="member">GetRetrieveState</ref>(const<sp/><ref refid="classrational" kindref="compound">rational</ref>&amp;<sp/>time)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight></codeline>
+<codeline lineno="146" refid="class_decoder_1a568cf374d3fe1dd02ddadcaccbd43a96" refkind="member"><highlight class="normal"><sp/><sp/>virtual<sp/><ref refid="frame_8h_1a2ae9a822fc1e331fa3b449797f717db6" kindref="member">FramePtr</ref><sp/><ref refid="class_decoder_1a568cf374d3fe1dd02ddadcaccbd43a96" kindref="member">RetrieveVideo</ref>(const<sp/><ref refid="classrational" kindref="compound">rational</ref>&amp;<sp/>timecode,<sp/>const<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">&amp;<sp/>divider);</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"></highlight></codeline>
+<codeline lineno="172" refid="class_decoder_1a37bac11d9b19042f13dd2742c964f1ff" refkind="member"><highlight class="normal"><sp/><sp/>virtual<sp/><ref refid="samplebuffer_8h_1aa60dc68e3e43775112c8dabb364d0a33" kindref="member">SampleBufferPtr</ref><sp/><ref refid="class_decoder_1a37bac11d9b19042f13dd2742c964f1ff" kindref="member">RetrieveAudio</ref>(const<sp/><ref refid="classrational" kindref="compound">rational</ref>&amp;<sp/>timecode,<sp/>const<sp/><ref refid="classrational" kindref="compound">rational</ref>&amp;<sp/>length,<sp/>const<sp/><ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref>&amp;<sp/>params);</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"></highlight></codeline>
+<codeline lineno="174" refid="class_decoder_1ab4d5d39d1903e47e191e2824bfb2438f" refkind="member"><highlight class="normal"><sp/><sp/>virtual<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_decoder_1ab4d5d39d1903e47e191e2824bfb2438f" kindref="member">SupportsVideo</ref>();</highlight></codeline>
+<codeline lineno="175" refid="class_decoder_1aa55e65e31e55399682c6cc9fcd9f2f60" refkind="member"><highlight class="normal"><sp/><sp/>virtual<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_decoder_1aa55e65e31e55399682c6cc9fcd9f2f60" kindref="member">SupportsAudio</ref>();</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"></highlight></codeline>
+<codeline lineno="186" refid="class_decoder_1a5fd4e728c00a568890410ab3b5d308c2" refkind="member"><highlight class="normal"><sp/><sp/>virtual<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_decoder_1a5fd4e728c00a568890410ab3b5d308c2" kindref="member">Close</ref>()<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"></highlight></codeline>
+<codeline lineno="207" refid="class_decoder_1a014f610ba2c4122464fc715b6c13d870" refkind="member"><highlight class="normal"><sp/><sp/>static<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_decoder_1a014f610ba2c4122464fc715b6c13d870" kindref="member">ProbeMedia</ref>(<ref refid="class_footage" kindref="compound">Footage</ref>*<sp/>f,<sp/>const<sp/>QAtomicInt<sp/>*cancelled);</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"></highlight></codeline>
+<codeline lineno="216" refid="class_decoder_1ad79f8bc9438171d55bb872f567d0e615" refkind="member"><highlight class="normal"><sp/><sp/>static<sp/><ref refid="decoder_8h_1ad3c54eeaaa80a244c75e2fadabe0944c" kindref="member">DecoderPtr</ref><sp/><ref refid="class_decoder_1ad79f8bc9438171d55bb872f567d0e615" kindref="member">CreateFromID</ref>(const<sp/>QString&amp;<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"></highlight></codeline>
+<codeline lineno="229" refid="class_decoder_1a9c2d54ca80a2a58bf4e03f934e3338de" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_decoder_1a9c2d54ca80a2a58bf4e03f934e3338de" kindref="member">Conform</ref>(const<sp/><ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref>&amp;<sp/>params,<sp/>const<sp/>QAtomicInt*<sp/>cancelled);</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"></highlight></codeline>
+<codeline lineno="240" refid="class_decoder_1a435d1fe3141a553223a8f43e47fbf308" refkind="member"><highlight class="normal"><sp/><sp/>virtual<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_decoder_1a435d1fe3141a553223a8f43e47fbf308" kindref="member">Index</ref>(const<sp/>QAtomicInt*<sp/>cancelled);</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"></highlight></codeline>
+<codeline lineno="245" refid="class_decoder_1aa891c486348824beb350ddb77cb6f0fa" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_decoder_1aa891c486348824beb350ddb77cb6f0fa" kindref="member">HasConformedVersion</ref>(const<sp/><ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref>&amp;<sp/>params);</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"></highlight></codeline>
+<codeline lineno="247"><highlight class="normal">signals:</highlight></codeline>
+<codeline lineno="251" refid="class_decoder_1ad37b8056bca7618fec6a562d6a3bec30" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_decoder_1ad37b8056bca7618fec6a562d6a3bec30" kindref="member">IndexProgress</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"></highlight></codeline>
+<codeline lineno="253"><highlight class="normal">protected:</highlight></codeline>
+<codeline lineno="254" refid="class_decoder_1a34257307ae1ce675458a07a84118cff3" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_decoder_1a34257307ae1ce675458a07a84118cff3" kindref="member">SignalIndexProgress</ref>(const<sp/>int64_t&amp;<sp/>ts);</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"></highlight></codeline>
+<codeline lineno="261" refid="class_decoder_1ad843b561f49d06356a20b9c9f480d3a6" refkind="member"><highlight class="normal"><sp/><sp/>virtual<sp/>QString<sp/><ref refid="class_decoder_1ad843b561f49d06356a20b9c9f480d3a6" kindref="member">GetIndexFilename</ref>()<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="262"><highlight class="normal"></highlight></codeline>
+<codeline lineno="266" refid="class_decoder_1a533882d542f18da5a00713428dc22704" refkind="member"><highlight class="normal"><sp/><sp/>QString<sp/><ref refid="class_decoder_1a533882d542f18da5a00713428dc22704" kindref="member">GetConformedFilename</ref>(const<sp/><ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref><sp/>&amp;params);</highlight></codeline>
+<codeline lineno="267"><highlight class="normal"></highlight></codeline>
+<codeline lineno="268" refid="class_decoder_1a4b6509473b3fa917cb3c066ae44af6c7" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_decoder_1a4b6509473b3fa917cb3c066ae44af6c7" kindref="member">open_</ref>;</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"></highlight></codeline>
+<codeline lineno="270" refid="class_decoder_1ac09fc7131e8955106db416ade8b264a1" refkind="member"><highlight class="normal"><sp/><sp/>QMutex<sp/><ref refid="class_decoder_1ac09fc7131e8955106db416ade8b264a1" kindref="member">mutex_</ref>;</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"></highlight></codeline>
+<codeline lineno="272"><highlight class="normal">private:</highlight></codeline>
+<codeline lineno="273" refid="class_decoder_1ac1d273379b1d64b939d365195a7e9b85" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_decoder_1ac1d273379b1d64b939d365195a7e9b85" kindref="member">ConformInternal</ref>(SwrContext<sp/>*resampler,<sp/><ref refid="class_wave_output" kindref="compound">WaveOutput</ref><sp/>*output,<sp/>const<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*in_data,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>in_sample_count);</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"></highlight></codeline>
+<codeline lineno="275" refid="class_decoder_1a43ab5fbc422aa7d11f205b1fff3d38b7" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="stream_8h_1a3ca5b414655d064180098adf46c1a2f1" kindref="member">StreamPtr</ref><sp/><ref refid="class_decoder_1a43ab5fbc422aa7d11f205b1fff3d38b7" kindref="member">stream_</ref>;</highlight></codeline>
+<codeline lineno="276"><highlight class="normal"></highlight></codeline>
+<codeline lineno="277"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="278"><highlight class="normal"></highlight></codeline>
+<codeline lineno="279"><highlight class="normal"><ref refid="define_8h_1abe3de0634d907ca0f5d1acf732c49dac" kindref="member">OLIVE_NAMESPACE_EXIT</ref></highlight></codeline>
+<codeline lineno="280"><highlight class="normal"></highlight></codeline>
+<codeline lineno="281"><highlight class="normal">Q_DECLARE_METATYPE(<ref refid="define_8h_1a4ed90b73ac8dce3334c5adb60d5b7068" kindref="member">OLIVE_NAMESPACE</ref>::<ref refid="class_decoder" kindref="compound">Decoder</ref>::<ref refid="class_decoder_1aaf2969a042349edc13d9b054894d105f" kindref="member">RetrieveState</ref>)</highlight></codeline>
+<codeline lineno="282"><highlight class="normal"></highlight></codeline>
+<codeline lineno="283"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//<sp/>DECODER_H</highlight></codeline>
+    </programlisting>
+    <location file="C:/Daten/Olive/olive/app/codec/decoder.h"/>
+  </compounddef>
+</doxygen>

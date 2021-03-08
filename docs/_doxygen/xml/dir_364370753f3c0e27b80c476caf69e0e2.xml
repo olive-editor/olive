@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_364370753f3c0e27b80c476caf69e0e2" kind="dir">
+    <compoundname>render</compoundname>
+    <innerdir refid="dir_7e33e2e4fc3e718df635b2721b4cdf65">backend</innerdir>
+    <innerfile refid="audioparams_8h">audioparams.h</innerfile>
+    <innerfile refid="color_8h">color.h</innerfile>
+    <innerfile refid="colormanager_8h">colormanager.h</innerfile>
+    <innerfile refid="colorprocessor_8h">colorprocessor.h</innerfile>
+    <innerfile refid="colortransform_8h">colortransform.h</innerfile>
+    <innerfile refid="diskmanager_8h">diskmanager.h</innerfile>
+    <innerfile refid="managedcolor_8h">managedcolor.h</innerfile>
+    <innerfile refid="pixelformat_8h">pixelformat.h</innerfile>
+    <innerfile refid="rendermodes_8h">rendermodes.h</innerfile>
+    <innerfile refid="videoparams_8h">videoparams.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/render/"/>
+  </compounddef>
+</doxygen>

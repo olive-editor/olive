@@ -1,0 +1,202 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_color_transform" kind="class" language="C++" prot="public">
+    <compoundname>ColorTransform</compoundname>
+    <includes refid="colortransform_8h" local="no">colortransform.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_color_transform_1a3ab74dbf9b0c915ffc04d874ee1571a4" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString ColorTransform::output_</definition>
+        <argsstring></argsstring>
+        <name>output_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colortransform.h" line="94" column="11" bodyfile="C:/Daten/Olive/olive/app/render/colortransform.h" bodystart="94" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_color_transform_1aab61ed585fa0e3bde75157f87db357b6" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool ColorTransform::is_display_</definition>
+        <argsstring></argsstring>
+        <name>is_display_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colortransform.h" line="96" column="8" bodyfile="C:/Daten/Olive/olive/app/render/colortransform.h" bodystart="96" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_color_transform_1a8e51e9b47c452aa40c5651eb9a73f418" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString ColorTransform::view_</definition>
+        <argsstring></argsstring>
+        <name>view_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colortransform.h" line="97" column="11" bodyfile="C:/Daten/Olive/olive/app/render/colortransform.h" bodystart="97" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_color_transform_1abca346e989ce9b973ca71dfea21efea6" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString ColorTransform::look_</definition>
+        <argsstring></argsstring>
+        <name>look_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colortransform.h" line="98" column="11" bodyfile="C:/Daten/Olive/olive/app/render/colortransform.h" bodystart="98" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_color_transform_1a80a5b8355e8106b464e0a93e1e1ef184" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>ColorTransform::ColorTransform</definition>
+        <argsstring>()</argsstring>
+        <name>ColorTransform</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colortransform.h" line="54" column="3" bodyfile="C:/Daten/Olive/olive/app/render/colortransform.h" bodystart="54" bodyend="57"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_transform_1a6e169a059b68a9412c9bc0fe78df046f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>ColorTransform::ColorTransform</definition>
+        <argsstring>(const QString &amp;output)</argsstring>
+        <name>ColorTransform</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>output</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colortransform.h" line="59" column="3" bodyfile="C:/Daten/Olive/olive/app/render/colortransform.h" bodystart="59" bodyend="63"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_transform_1ae431a2afe3204f3069e90fe611d07101" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>ColorTransform::ColorTransform</definition>
+        <argsstring>(const QString &amp;display, const QString &amp;view, const QString &amp;look)</argsstring>
+        <name>ColorTransform</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>display</declname>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>view</declname>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>look</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colortransform.h" line="65" column="3" bodyfile="C:/Daten/Olive/olive/app/render/colortransform.h" bodystart="65" bodyend="71"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_transform_1ad223f005ce59c9832e1bd6904b479125" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool ColorTransform::is_display</definition>
+        <argsstring>() const</argsstring>
+        <name>is_display</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colortransform.h" line="73" column="8" bodyfile="C:/Daten/Olive/olive/app/render/colortransform.h" bodystart="73" bodyend="75"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_transform_1a19ade59bd9fea768ea94c55302f7cdbc" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>const QString &amp;</type>
+        <definition>const QString&amp; ColorTransform::display</definition>
+        <argsstring>() const</argsstring>
+        <name>display</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colortransform.h" line="77" column="17" bodyfile="C:/Daten/Olive/olive/app/render/colortransform.h" bodystart="77" bodyend="79"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_transform_1acc9d0cd2a9164e196211559f20dad3ec" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>const QString &amp;</type>
+        <definition>const QString&amp; ColorTransform::output</definition>
+        <argsstring>() const</argsstring>
+        <name>output</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colortransform.h" line="81" column="17" bodyfile="C:/Daten/Olive/olive/app/render/colortransform.h" bodystart="81" bodyend="83"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_transform_1ad5deb7c513cb9844e88342dbd9ed0b10" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>const QString &amp;</type>
+        <definition>const QString&amp; ColorTransform::view</definition>
+        <argsstring>() const</argsstring>
+        <name>view</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colortransform.h" line="85" column="17" bodyfile="C:/Daten/Olive/olive/app/render/colortransform.h" bodystart="85" bodyend="87"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_transform_1adf9c17ef3958a904b9c524e335d36e79" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>const QString &amp;</type>
+        <definition>const QString&amp; ColorTransform::look</definition>
+        <argsstring>() const</argsstring>
+        <name>look</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/colortransform.h" line="89" column="17" bodyfile="C:/Daten/Olive/olive/app/render/colortransform.h" bodystart="89" bodyend="91"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/render/colortransform.h" line="33" column="1" bodyfile="C:/Daten/Olive/olive/app/render/colortransform.h" bodystart="34" bodyend="82"/>
+    <listofallmembers>
+      <member refid="class_color_transform_1a80a5b8355e8106b464e0a93e1e1ef184" prot="public" virt="non-virtual"><scope>ColorTransform</scope><name>ColorTransform</name></member>
+      <member refid="class_color_transform_1a6e169a059b68a9412c9bc0fe78df046f" prot="public" virt="non-virtual"><scope>ColorTransform</scope><name>ColorTransform</name></member>
+      <member refid="class_color_transform_1ae431a2afe3204f3069e90fe611d07101" prot="public" virt="non-virtual"><scope>ColorTransform</scope><name>ColorTransform</name></member>
+      <member refid="class_color_transform_1a19ade59bd9fea768ea94c55302f7cdbc" prot="public" virt="non-virtual"><scope>ColorTransform</scope><name>display</name></member>
+      <member refid="class_color_transform_1ad223f005ce59c9832e1bd6904b479125" prot="public" virt="non-virtual"><scope>ColorTransform</scope><name>is_display</name></member>
+      <member refid="class_color_transform_1aab61ed585fa0e3bde75157f87db357b6" prot="private" virt="non-virtual"><scope>ColorTransform</scope><name>is_display_</name></member>
+      <member refid="class_color_transform_1adf9c17ef3958a904b9c524e335d36e79" prot="public" virt="non-virtual"><scope>ColorTransform</scope><name>look</name></member>
+      <member refid="class_color_transform_1abca346e989ce9b973ca71dfea21efea6" prot="private" virt="non-virtual"><scope>ColorTransform</scope><name>look_</name></member>
+      <member refid="class_color_transform_1acc9d0cd2a9164e196211559f20dad3ec" prot="public" virt="non-virtual"><scope>ColorTransform</scope><name>output</name></member>
+      <member refid="class_color_transform_1a3ab74dbf9b0c915ffc04d874ee1571a4" prot="private" virt="non-virtual"><scope>ColorTransform</scope><name>output_</name></member>
+      <member refid="class_color_transform_1ad5deb7c513cb9844e88342dbd9ed0b10" prot="public" virt="non-virtual"><scope>ColorTransform</scope><name>view</name></member>
+      <member refid="class_color_transform_1a8e51e9b47c452aa40c5651eb9a73f418" prot="private" virt="non-virtual"><scope>ColorTransform</scope><name>view_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

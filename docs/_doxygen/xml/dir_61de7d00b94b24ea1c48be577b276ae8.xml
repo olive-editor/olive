@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_61de7d00b94b24ea1c48be577b276ae8" kind="dir">
+    <compoundname>audio</compoundname>
+    <innerfile refid="audiobackend_8h">audiobackend.h</innerfile>
+    <innerfile refid="audioworker_8h">audioworker.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/render/backend/audio/"/>
+  </compounddef>
+</doxygen>

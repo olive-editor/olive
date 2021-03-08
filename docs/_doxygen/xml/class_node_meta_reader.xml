@@ -1,0 +1,573 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_node_meta_reader" kind="class" language="C++" prot="public">
+    <compoundname>NodeMetaReader</compoundname>
+    <includes refid="metareader_8h" local="no">metareader.h</includes>
+      <sectiondef kind="private-type">
+      <memberdef kind="typedef" id="class_node_meta_reader_1a6db4c048914a683a2a6b3d58bbe9bdd0" prot="private" static="no">
+        <type>QMap&lt; QString, QString &gt;</type>
+        <definition>using NodeMetaReader::LanguageMap =  QMap&lt;QString, QString&gt;</definition>
+        <argsstring></argsstring>
+        <name>LanguageMap</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/metareader.h" line="74" column="3" bodyfile="C:/Daten/Olive/olive/app/node/metareader.h" bodystart="74" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_node_meta_reader_1a4d031a8e5c5a52da77b08ff598cac185" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString NodeMetaReader::xml_filename_</definition>
+        <argsstring></argsstring>
+        <name>xml_filename_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/metareader.h" line="86" column="11" bodyfile="C:/Daten/Olive/olive/app/node/metareader.h" bodystart="86" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_meta_reader_1a822542f4b609a0f563fc4b82f07a0ee0" prot="private" static="no" mutable="no">
+        <type><ref refid="class_node_meta_reader_1a6db4c048914a683a2a6b3d58bbe9bdd0" kindref="member">LanguageMap</ref></type>
+        <definition>LanguageMap NodeMetaReader::names_</definition>
+        <argsstring></argsstring>
+        <name>names_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/metareader.h" line="88" column="15" bodyfile="C:/Daten/Olive/olive/app/node/metareader.h" bodystart="88" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_meta_reader_1a6e231d56107de9686e45b1184fe1e4f8" prot="private" static="no" mutable="no">
+        <type><ref refid="class_node_meta_reader_1a6db4c048914a683a2a6b3d58bbe9bdd0" kindref="member">LanguageMap</ref></type>
+        <definition>LanguageMap NodeMetaReader::short_names_</definition>
+        <argsstring></argsstring>
+        <name>short_names_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/metareader.h" line="89" column="15" bodyfile="C:/Daten/Olive/olive/app/node/metareader.h" bodystart="89" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_meta_reader_1a9ba2b735670204ea673e641cce4df077" prot="private" static="no" mutable="no">
+        <type><ref refid="class_node_meta_reader_1a6db4c048914a683a2a6b3d58bbe9bdd0" kindref="member">LanguageMap</ref></type>
+        <definition>LanguageMap NodeMetaReader::descriptions_</definition>
+        <argsstring></argsstring>
+        <name>descriptions_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/metareader.h" line="90" column="15" bodyfile="C:/Daten/Olive/olive/app/node/metareader.h" bodystart="90" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_meta_reader_1a665cd2c581a12b360c19825c611e01d3" prot="private" static="no" mutable="no">
+        <type><ref refid="class_node_meta_reader_1a6db4c048914a683a2a6b3d58bbe9bdd0" kindref="member">LanguageMap</ref></type>
+        <definition>LanguageMap NodeMetaReader::categories_</definition>
+        <argsstring></argsstring>
+        <name>categories_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/metareader.h" line="91" column="15" bodyfile="C:/Daten/Olive/olive/app/node/metareader.h" bodystart="91" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_meta_reader_1a00a1e2646b8b57d89fef5581786d8b23" prot="private" static="no" mutable="no">
+        <type>QMap&lt; QString, <ref refid="class_node_meta_reader_1a6db4c048914a683a2a6b3d58bbe9bdd0" kindref="member">LanguageMap</ref> &gt;</type>
+        <definition>QMap&lt;QString, LanguageMap &gt; NodeMetaReader::param_names_</definition>
+        <argsstring></argsstring>
+        <name>param_names_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/metareader.h" line="92" column="8" bodyfile="C:/Daten/Olive/olive/app/node/metareader.h" bodystart="92" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_meta_reader_1acec7a7c41d13ade15daebb8591990568" prot="private" static="no" mutable="no">
+        <type>QMap&lt; QString, QList&lt; <ref refid="class_node_meta_reader_1a6db4c048914a683a2a6b3d58bbe9bdd0" kindref="member">LanguageMap</ref> &gt; &gt;</type>
+        <definition>QMap&lt;QString, QList&lt;LanguageMap&gt; &gt; NodeMetaReader::combo_names_</definition>
+        <argsstring></argsstring>
+        <name>combo_names_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/metareader.h" line="93" column="8" bodyfile="C:/Daten/Olive/olive/app/node/metareader.h" bodystart="93" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_meta_reader_1a29958d1808603f0c5eaec7dbe4112e77" prot="private" static="no" mutable="no">
+        <type>QMap&lt; QString, QList&lt; <ref refid="class_node_meta_reader_1a6db4c048914a683a2a6b3d58bbe9bdd0" kindref="member">LanguageMap</ref> &gt; &gt;</type>
+        <definition>QMap&lt;QString, QList&lt;LanguageMap&gt; &gt; NodeMetaReader::combo_descriptions_</definition>
+        <argsstring></argsstring>
+        <name>combo_descriptions_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/metareader.h" line="94" column="8" bodyfile="C:/Daten/Olive/olive/app/node/metareader.h" bodystart="94" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_meta_reader_1a95cf0a0ed8cdf5eb0c063732ef177660" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString NodeMetaReader::id_</definition>
+        <argsstring></argsstring>
+        <name>id_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/metareader.h" line="96" column="11" bodyfile="C:/Daten/Olive/olive/app/node/metareader.h" bodystart="96" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_meta_reader_1a7a37c72467bf79ecf78f7c87a62e0617" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString NodeMetaReader::frag_code_</definition>
+        <argsstring></argsstring>
+        <name>frag_code_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/metareader.h" line="98" column="11" bodyfile="C:/Daten/Olive/olive/app/node/metareader.h" bodystart="98" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_meta_reader_1a87be97c09364c5478e7c9188a9df7435" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString NodeMetaReader::vert_code_</definition>
+        <argsstring></argsstring>
+        <name>vert_code_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/metareader.h" line="99" column="11" bodyfile="C:/Daten/Olive/olive/app/node/metareader.h" bodystart="99" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_meta_reader_1a8f5acd31c483c4cd8dabafb4757ad67a" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int NodeMetaReader::iterations_</definition>
+        <argsstring></argsstring>
+        <name>iterations_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/metareader.h" line="101" column="7" bodyfile="C:/Daten/Olive/olive/app/node/metareader.h" bodystart="101" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_meta_reader_1a2ba22861544129787162687c00c951a2" prot="private" static="no" mutable="no">
+        <type><ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+        <definition>NodeInput* NodeMetaReader::iteration_input_</definition>
+        <argsstring></argsstring>
+        <name>iteration_input_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/metareader.h" line="102" column="13" bodyfile="C:/Daten/Olive/olive/app/node/metareader.h" bodystart="102" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_meta_reader_1ad1de14a7027bc98fdeae792a59fbda5d" prot="private" static="no" mutable="no">
+        <type>QList&lt; <ref refid="class_node_input" kindref="compound">NodeInput</ref> * &gt;</type>
+        <definition>QList&lt;NodeInput*&gt; NodeMetaReader::inputs_</definition>
+        <argsstring></argsstring>
+        <name>inputs_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/metareader.h" line="104" column="9" bodyfile="C:/Daten/Olive/olive/app/node/metareader.h" bodystart="104" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_node_meta_reader_1a41f4b4a979c67464028d57635c3acb56" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>NodeMetaReader::NodeMetaReader</definition>
+        <argsstring>(const QString &amp;xml_meta_filename)</argsstring>
+        <name>NodeMetaReader</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>xml_meta_filename</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/metareader.h" line="53" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_meta_reader_1a745cc1b6007a89bc4bccb6451a1e3d02" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>QString NodeMetaReader::Name</definition>
+        <argsstring>() const</argsstring>
+        <name>Name</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/metareader.h" line="55" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_meta_reader_1a0f7545a20cb178e75015b1227a5dcdc7" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>QString NodeMetaReader::ShortName</definition>
+        <argsstring>() const</argsstring>
+        <name>ShortName</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/metareader.h" line="56" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_meta_reader_1a5e82bd83573a0a8918d40ae324aab3ac" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const QString &amp;</type>
+        <definition>const QString&amp; NodeMetaReader::id</definition>
+        <argsstring>() const</argsstring>
+        <name>id</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/metareader.h" line="57" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_meta_reader_1aabb7e6c0ba715ec2c5efd7c22571da31" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>QString NodeMetaReader::Category</definition>
+        <argsstring>() const</argsstring>
+        <name>Category</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/metareader.h" line="58" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_meta_reader_1a3f3a5ca71e38159df347631f93a8900c" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>QString NodeMetaReader::Description</definition>
+        <argsstring>() const</argsstring>
+        <name>Description</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/metareader.h" line="59" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_meta_reader_1ab6c505527c4099045178924defb52edf" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const QString &amp;</type>
+        <definition>const QString&amp; NodeMetaReader::filename</definition>
+        <argsstring>() const</argsstring>
+        <name>filename</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/metareader.h" line="61" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_meta_reader_1aeba67d26224ae32fc7b54ec2da05ad34" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const QString &amp;</type>
+        <definition>const QString&amp; NodeMetaReader::frag_code</definition>
+        <argsstring>() const</argsstring>
+        <name>frag_code</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/metareader.h" line="63" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_meta_reader_1a25c3814663babbdc13d1b2670722710b" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const QString &amp;</type>
+        <definition>const QString&amp; NodeMetaReader::vert_code</definition>
+        <argsstring>() const</argsstring>
+        <name>vert_code</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/metareader.h" line="64" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_meta_reader_1a02f50d070b05cdf031dbdb9bf9831aea" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const int &amp;</type>
+        <definition>const int&amp; NodeMetaReader::iterations</definition>
+        <argsstring>() const</argsstring>
+        <name>iterations</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/metareader.h" line="66" column="13"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_meta_reader_1afc4da23e36bbd329a690a485374148d3" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+        <definition>NodeInput* NodeMetaReader::iteration_input</definition>
+        <argsstring>() const</argsstring>
+        <name>iteration_input</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/metareader.h" line="67" column="13"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_meta_reader_1ac744661e837df570e518e4624aa62a8f" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const QList&lt; <ref refid="class_node_input" kindref="compound">NodeInput</ref> * &gt; &amp;</type>
+        <definition>const QList&lt;NodeInput*&gt;&amp; NodeMetaReader::inputs</definition>
+        <argsstring>() const</argsstring>
+        <name>inputs</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/metareader.h" line="69" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_meta_reader_1a0e840fdf4c360156f61ae693d6484116" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeMetaReader::Retranslate</definition>
+        <argsstring>()</argsstring>
+        <name>Retranslate</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/metareader.h" line="71" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_node_meta_reader_1a0f01580fedfe7070e5da2de879d13780" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeMetaReader::XMLReadLanguageString</definition>
+        <argsstring>(QXmlStreamReader *reader, LanguageMap *map)</argsstring>
+        <name>XMLReadLanguageString</name>
+        <param>
+          <type>QXmlStreamReader *</type>
+          <declname>reader</declname>
+        </param>
+        <param>
+          <type><ref refid="class_node_meta_reader_1a6db4c048914a683a2a6b3d58bbe9bdd0" kindref="member">LanguageMap</ref> *</type>
+          <declname>map</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/metareader.h" line="76" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_meta_reader_1a016a4d1fb6e4775dd225d79d389bcc69" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeMetaReader::XMLReadEffect</definition>
+        <argsstring>(QXmlStreamReader *reader)</argsstring>
+        <name>XMLReadEffect</name>
+        <param>
+          <type>QXmlStreamReader *</type>
+          <declname>reader</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/metareader.h" line="77" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_meta_reader_1a47915d59231211b6e6308d45f444495c" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeMetaReader::XMLReadIterations</definition>
+        <argsstring>(QXmlStreamReader *reader)</argsstring>
+        <name>XMLReadIterations</name>
+        <param>
+          <type>QXmlStreamReader *</type>
+          <declname>reader</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/metareader.h" line="78" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_meta_reader_1a54e939dbe96120844685897d292af7f8" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeMetaReader::XMLReadParam</definition>
+        <argsstring>(QXmlStreamReader *reader)</argsstring>
+        <name>XMLReadParam</name>
+        <param>
+          <type>QXmlStreamReader *</type>
+          <declname>reader</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/metareader.h" line="79" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_meta_reader_1ad484844fb9e05ea9b450033b086de761" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeMetaReader::XMLReadShader</definition>
+        <argsstring>(QXmlStreamReader *reader, QString &amp;destination)</argsstring>
+        <name>XMLReadShader</name>
+        <param>
+          <type>QXmlStreamReader *</type>
+          <declname>reader</declname>
+        </param>
+        <param>
+          <type>QString &amp;</type>
+          <declname>destination</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/metareader.h" line="80" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_meta_reader_1aa2813d0ce687619623d6214260daffbb" prot="private" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+        <definition>NodeInput* NodeMetaReader::GetInputWithID</definition>
+        <argsstring>(const QString &amp;id) const</argsstring>
+        <name>GetInputWithID</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>id</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/metareader.h" line="84" column="13"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-func">
+      <memberdef kind="function" id="class_node_meta_reader_1a044310a87a93a5d4b3b0d13a5926b451" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>static QString NodeMetaReader::GetStringForCurrentLanguage</definition>
+        <argsstring>(const LanguageMap *language_map)</argsstring>
+        <name>GetStringForCurrentLanguage</name>
+        <param>
+          <type>const <ref refid="class_node_meta_reader_1a6db4c048914a683a2a6b3d58bbe9bdd0" kindref="member">LanguageMap</ref> *</type>
+          <declname>language_map</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/metareader.h" line="82" column="18"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>NodeMetaReader</label>
+        <link refid="class_node_meta_reader"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>iteration_input_</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>NodeInput</label>
+        <link refid="class_node_input"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>NodeParam</label>
+        <link refid="class_node_param"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/node/metareader.h" line="32" column="1" bodyfile="C:/Daten/Olive/olive/app/node/metareader.h" bodystart="33" bodyend="87"/>
+    <listofallmembers>
+      <member refid="class_node_meta_reader_1a665cd2c581a12b360c19825c611e01d3" prot="private" virt="non-virtual"><scope>NodeMetaReader</scope><name>categories_</name></member>
+      <member refid="class_node_meta_reader_1aabb7e6c0ba715ec2c5efd7c22571da31" prot="public" virt="non-virtual"><scope>NodeMetaReader</scope><name>Category</name></member>
+      <member refid="class_node_meta_reader_1a29958d1808603f0c5eaec7dbe4112e77" prot="private" virt="non-virtual"><scope>NodeMetaReader</scope><name>combo_descriptions_</name></member>
+      <member refid="class_node_meta_reader_1acec7a7c41d13ade15daebb8591990568" prot="private" virt="non-virtual"><scope>NodeMetaReader</scope><name>combo_names_</name></member>
+      <member refid="class_node_meta_reader_1a3f3a5ca71e38159df347631f93a8900c" prot="public" virt="non-virtual"><scope>NodeMetaReader</scope><name>Description</name></member>
+      <member refid="class_node_meta_reader_1a9ba2b735670204ea673e641cce4df077" prot="private" virt="non-virtual"><scope>NodeMetaReader</scope><name>descriptions_</name></member>
+      <member refid="class_node_meta_reader_1ab6c505527c4099045178924defb52edf" prot="public" virt="non-virtual"><scope>NodeMetaReader</scope><name>filename</name></member>
+      <member refid="class_node_meta_reader_1aeba67d26224ae32fc7b54ec2da05ad34" prot="public" virt="non-virtual"><scope>NodeMetaReader</scope><name>frag_code</name></member>
+      <member refid="class_node_meta_reader_1a7a37c72467bf79ecf78f7c87a62e0617" prot="private" virt="non-virtual"><scope>NodeMetaReader</scope><name>frag_code_</name></member>
+      <member refid="class_node_meta_reader_1aa2813d0ce687619623d6214260daffbb" prot="private" virt="non-virtual"><scope>NodeMetaReader</scope><name>GetInputWithID</name></member>
+      <member refid="class_node_meta_reader_1a044310a87a93a5d4b3b0d13a5926b451" prot="private" virt="non-virtual"><scope>NodeMetaReader</scope><name>GetStringForCurrentLanguage</name></member>
+      <member refid="class_node_meta_reader_1a5e82bd83573a0a8918d40ae324aab3ac" prot="public" virt="non-virtual"><scope>NodeMetaReader</scope><name>id</name></member>
+      <member refid="class_node_meta_reader_1a95cf0a0ed8cdf5eb0c063732ef177660" prot="private" virt="non-virtual"><scope>NodeMetaReader</scope><name>id_</name></member>
+      <member refid="class_node_meta_reader_1ac744661e837df570e518e4624aa62a8f" prot="public" virt="non-virtual"><scope>NodeMetaReader</scope><name>inputs</name></member>
+      <member refid="class_node_meta_reader_1ad1de14a7027bc98fdeae792a59fbda5d" prot="private" virt="non-virtual"><scope>NodeMetaReader</scope><name>inputs_</name></member>
+      <member refid="class_node_meta_reader_1afc4da23e36bbd329a690a485374148d3" prot="public" virt="non-virtual"><scope>NodeMetaReader</scope><name>iteration_input</name></member>
+      <member refid="class_node_meta_reader_1a2ba22861544129787162687c00c951a2" prot="private" virt="non-virtual"><scope>NodeMetaReader</scope><name>iteration_input_</name></member>
+      <member refid="class_node_meta_reader_1a02f50d070b05cdf031dbdb9bf9831aea" prot="public" virt="non-virtual"><scope>NodeMetaReader</scope><name>iterations</name></member>
+      <member refid="class_node_meta_reader_1a8f5acd31c483c4cd8dabafb4757ad67a" prot="private" virt="non-virtual"><scope>NodeMetaReader</scope><name>iterations_</name></member>
+      <member refid="class_node_meta_reader_1a6db4c048914a683a2a6b3d58bbe9bdd0" prot="private" virt="non-virtual"><scope>NodeMetaReader</scope><name>LanguageMap</name></member>
+      <member refid="class_node_meta_reader_1a745cc1b6007a89bc4bccb6451a1e3d02" prot="public" virt="non-virtual"><scope>NodeMetaReader</scope><name>Name</name></member>
+      <member refid="class_node_meta_reader_1a822542f4b609a0f563fc4b82f07a0ee0" prot="private" virt="non-virtual"><scope>NodeMetaReader</scope><name>names_</name></member>
+      <member refid="class_node_meta_reader_1a41f4b4a979c67464028d57635c3acb56" prot="public" virt="non-virtual"><scope>NodeMetaReader</scope><name>NodeMetaReader</name></member>
+      <member refid="class_node_meta_reader_1a00a1e2646b8b57d89fef5581786d8b23" prot="private" virt="non-virtual"><scope>NodeMetaReader</scope><name>param_names_</name></member>
+      <member refid="class_node_meta_reader_1a0e840fdf4c360156f61ae693d6484116" prot="public" virt="non-virtual"><scope>NodeMetaReader</scope><name>Retranslate</name></member>
+      <member refid="class_node_meta_reader_1a6e231d56107de9686e45b1184fe1e4f8" prot="private" virt="non-virtual"><scope>NodeMetaReader</scope><name>short_names_</name></member>
+      <member refid="class_node_meta_reader_1a0f7545a20cb178e75015b1227a5dcdc7" prot="public" virt="non-virtual"><scope>NodeMetaReader</scope><name>ShortName</name></member>
+      <member refid="class_node_meta_reader_1a25c3814663babbdc13d1b2670722710b" prot="public" virt="non-virtual"><scope>NodeMetaReader</scope><name>vert_code</name></member>
+      <member refid="class_node_meta_reader_1a87be97c09364c5478e7c9188a9df7435" prot="private" virt="non-virtual"><scope>NodeMetaReader</scope><name>vert_code_</name></member>
+      <member refid="class_node_meta_reader_1a4d031a8e5c5a52da77b08ff598cac185" prot="private" virt="non-virtual"><scope>NodeMetaReader</scope><name>xml_filename_</name></member>
+      <member refid="class_node_meta_reader_1a016a4d1fb6e4775dd225d79d389bcc69" prot="private" virt="non-virtual"><scope>NodeMetaReader</scope><name>XMLReadEffect</name></member>
+      <member refid="class_node_meta_reader_1a47915d59231211b6e6308d45f444495c" prot="private" virt="non-virtual"><scope>NodeMetaReader</scope><name>XMLReadIterations</name></member>
+      <member refid="class_node_meta_reader_1a0f01580fedfe7070e5da2de879d13780" prot="private" virt="non-virtual"><scope>NodeMetaReader</scope><name>XMLReadLanguageString</name></member>
+      <member refid="class_node_meta_reader_1a54e939dbe96120844685897d292af7f8" prot="private" virt="non-virtual"><scope>NodeMetaReader</scope><name>XMLReadParam</name></member>
+      <member refid="class_node_meta_reader_1ad484844fb9e05ea9b450033b086de761" prot="private" virt="non-virtual"><scope>NodeMetaReader</scope><name>XMLReadShader</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

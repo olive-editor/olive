@@ -1,0 +1,298 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="videostreamproperties_8h" kind="file" language="C++">
+    <compoundname>videostreamproperties.h</compoundname>
+    <includes local="no">QCheckBox</includes>
+    <includes local="no">QComboBox</includes>
+    <includes refid="videostream_8h" local="yes">project/item/footage/videostream.h</includes>
+    <includes refid="streamproperties_8h" local="yes">streamproperties.h</includes>
+    <includes refid="undocommand_8h" local="yes">undo/undocommand.h</includes>
+    <includes refid="integerslider_8h" local="yes">widget/slider/integerslider.h</includes>
+    <incdepgraph>
+      <node id="21">
+        <label>undo/undocommand.h</label>
+        <link refid="undocommand_8h"/>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>libavformat/avformat.h</label>
+      </node>
+      <node id="5">
+        <label>imagestream.h</label>
+        <link refid="imagestream_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>sliderlabel.h</label>
+        <link refid="sliderlabel_8h"/>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="25">
+        <label>QStackedWidget</label>
+      </node>
+      <node id="18">
+        <label>streamproperties.h</label>
+        <link refid="streamproperties_8h"/>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>QMetaType</label>
+      </node>
+      <node id="1">
+        <label>videostreamproperties.h</label>
+        <link refid="videostreamproperties_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="19">
+        <label>QUndoCommand</label>
+      </node>
+      <node id="2">
+        <label>QCheckBox</label>
+      </node>
+      <node id="12">
+        <label>common/rational.h</label>
+        <link refid="rational_8h"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>QMutex</label>
+      </node>
+      <node id="22">
+        <label>project/project.h</label>
+      </node>
+      <node id="17">
+        <label>common/define.h</label>
+        <link refid="define_8h"/>
+      </node>
+      <node id="14">
+        <label>QDebug</label>
+      </node>
+      <node id="23">
+        <label>widget/slider/integerslider.h</label>
+        <link refid="integerslider_8h"/>
+        <childnode refid="24" relation="include">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>QWidget</label>
+      </node>
+      <node id="29">
+        <label>QLineEdit</label>
+      </node>
+      <node id="10">
+        <label>QString</label>
+      </node>
+      <node id="27">
+        <label>QLabel</label>
+      </node>
+      <node id="3">
+        <label>QComboBox</label>
+      </node>
+      <node id="13">
+        <label>iostream</label>
+      </node>
+      <node id="11">
+        <label>QXmlStreamWriter</label>
+      </node>
+      <node id="28">
+        <label>widget/focusablelineedit/focusablelineedit.h</label>
+        <link refid="focusablelineedit_8h"/>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>stream.h</label>
+        <link refid="stream_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>project/item/footage/videostream.h</label>
+        <link refid="videostream_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>memory</label>
+      </node>
+      <node id="24">
+        <label>sliderbase.h</label>
+        <link refid="sliderbase_8h"/>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>QCoreApplication</label>
+      </node>
+    </incdepgraph>
+    <innerclass refid="class_video_stream_properties" prot="public">VideoStreamProperties</innerclass>
+    <innerclass refid="class_video_stream_properties_1_1_video_stream_change_command" prot="private">VideoStreamProperties::VideoStreamChangeCommand</innerclass>
+    <innerclass refid="class_video_stream_properties_1_1_image_sequence_change_command" prot="private">VideoStreamProperties::ImageSequenceChangeCommand</innerclass>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/***</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"></highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/><sp/>Olive<sp/>-<sp/>Non-Linear<sp/>Video<sp/>Editor</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/><sp/>Copyright<sp/>(C)<sp/>2019<sp/>Olive<sp/>Team</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"></highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/><sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/><sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/><sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"></highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/><sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/><sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/><sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"></highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/><sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/><sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"></highlight></codeline>
+<codeline lineno="19"><highlight class="comment">***/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>VIDEOSTREAMPROPERTIES_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VIDEOSTREAMPROPERTIES_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QCheckBox&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QComboBox&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="videostream_8h" kindref="compound">project/item/footage/videostream.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="streamproperties_8h" kindref="compound">streamproperties.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="undocommand_8h" kindref="compound">undo/undocommand.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="integerslider_8h" kindref="compound">widget/slider/integerslider.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><ref refid="define_8h_1a0472692dd1f22472ad63da20da919e8c" kindref="member">OLIVE_NAMESPACE_ENTER</ref></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34" refid="class_video_stream_properties" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_video_stream_properties" kindref="compound">VideoStreamProperties</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="class_stream_properties" kindref="compound">StreamProperties</ref></highlight></codeline>
+<codeline lineno="35"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><ref refid="class_video_stream_properties_1ae0ad3c23738ab9cb67bcf24b8c5e5288" kindref="member">VideoStreamProperties</ref>(<ref refid="imagestream_8h_1a82a88e56101f71b0e232fd6f51310dcf" kindref="member">ImageStreamPtr</ref><sp/>stream);</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_video_stream_properties_1a6400c7e082e19a09a76617b01488a981" kindref="member">Accept</ref>(QUndoCommand*<sp/>parent)<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_video_stream_properties_1af0649ed6eefdea015630c7d118d01576" kindref="member">SanityCheck</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_video_stream_properties_1a16cf408e895e512ffb236c9c39e9863e" kindref="member">IsImageSequence</ref>(<ref refid="class_image_stream" kindref="compound">ImageStream</ref>*<sp/>stream);</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><ref refid="imagestream_8h_1a82a88e56101f71b0e232fd6f51310dcf" kindref="member">ImageStreamPtr</ref><sp/><ref refid="class_video_stream_properties_1ad966da12a6dc79e848c7bb8bb3621600" kindref="member">stream_</ref>;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/>QCheckBox*<sp/><ref refid="class_video_stream_properties_1ab4dbcafc495b498f9653650ece8b9c90" kindref="member">video_premultiply_alpha_</ref>;</highlight></codeline>
+<codeline lineno="55" refid="class_video_stream_properties_1ae0ad3c23738ab9cb67bcf24b8c5e5288" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59" refid="class_video_stream_properties_1af0649ed6eefdea015630c7d118d01576" refkind="member"><highlight class="normal"><sp/><sp/>QComboBox*<sp/><ref refid="class_video_stream_properties_1a3fde9dce202f9cb082b9c8ab699fa3e6" kindref="member">video_color_space_</ref>;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><ref refid="class_integer_slider" kindref="compound">IntegerSlider</ref>*<sp/><ref refid="class_video_stream_properties_1a64d2f7a15c77ac1d463f832462fb6849" kindref="member">imgseq_start_time_</ref>;</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><ref refid="class_integer_slider" kindref="compound">IntegerSlider</ref>*<sp/><ref refid="class_video_stream_properties_1a460d5d1e7eed05396ab62ec28d8fd70b" kindref="member">imgseq_end_time_</ref>;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_video_stream_properties_1_1_video_stream_change_command" kindref="compound">VideoStreamChangeCommand</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="class_undo_command" kindref="compound">UndoCommand</ref><sp/>{</highlight></codeline>
+<codeline lineno="72" refid="class_video_stream_properties_1ab4dbcafc495b498f9653650ece8b9c90" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_video_stream_properties_1_1_video_stream_change_command_1a9aa4a99824e788bf102a0842aa0092fd" kindref="member">VideoStreamChangeCommand</ref>(<ref refid="imagestream_8h_1a82a88e56101f71b0e232fd6f51310dcf" kindref="member">ImageStreamPtr</ref><sp/>stream,</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>premultiplied,</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>QString<sp/>colorspace,</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>QUndoCommand*<sp/>parent<sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="77" refid="class_video_stream_properties_1a3fde9dce202f9cb082b9c8ab699fa3e6" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="class_project" kindref="compound">Project</ref>*<sp/><ref refid="class_video_stream_properties_1_1_video_stream_change_command_1a63ba1baa061b0223082b6aab54d21b23" kindref="member">GetRelevantProject</ref>()<sp/></highlight><highlight class="keyword">const<sp/>override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_video_stream_properties_1_1_video_stream_change_command_1a905c359a16d0525d4e38786d4f5ec46d" kindref="member">redo_internal</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="82" refid="class_video_stream_properties_1a64d2f7a15c77ac1d463f832462fb6849" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_video_stream_properties_1_1_video_stream_change_command_1a85aedb76cfbfefa6e24670dbca83d455" kindref="member">undo_internal</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="imagestream_8h_1a82a88e56101f71b0e232fd6f51310dcf" kindref="member">ImageStreamPtr</ref><sp/><ref refid="class_video_stream_properties_1_1_video_stream_change_command_1aa46c72239b8a5d073686326c0b82b857" kindref="member">stream_</ref>;</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87" refid="class_video_stream_properties_1a460d5d1e7eed05396ab62ec28d8fd70b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_video_stream_properties_1_1_video_stream_change_command_1ac5c5d3072bb4e5f8136412fa2d973784" kindref="member">new_premultiplied_</ref>;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/>QString<sp/><ref refid="class_video_stream_properties_1_1_video_stream_change_command_1a2a7a6abafbf01a10caf9d204b6dcd798" kindref="member">new_colorspace_</ref>;</highlight></codeline>
+<codeline lineno="89" refid="class_video_stream_properties_1_1_video_stream_change_command" refkind="compound"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_video_stream_properties_1_1_video_stream_change_command_1a3058ab9c2ee7475924608d117f684150" kindref="member">old_premultiplied_</ref>;</highlight></codeline>
+<codeline lineno="91" refid="class_video_stream_properties_1_1_video_stream_change_command_1a9aa4a99824e788bf102a0842aa0092fd" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>QString<sp/><ref refid="class_video_stream_properties_1_1_video_stream_change_command_1af6090f671112dd894384ae523174b63b" kindref="member">old_colorspace_</ref>;</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_video_stream_properties_1_1_image_sequence_change_command" kindref="compound">ImageSequenceChangeCommand</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="class_undo_command" kindref="compound">UndoCommand</ref><sp/>{</highlight></codeline>
+<codeline lineno="96" refid="class_video_stream_properties_1_1_video_stream_change_command_1a63ba1baa061b0223082b6aab54d21b23" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_video_stream_properties_1_1_image_sequence_change_command_1a8f3891c5e7430ad0450cd9e2072aa871" kindref="member">ImageSequenceChangeCommand</ref>(<ref refid="videostream_8h_1a61723119e9a95ef980f20e0e1c5e911b" kindref="member">VideoStreamPtr</ref><sp/>video_stream,</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>start_index,</highlight></codeline>
+<codeline lineno="99" refid="class_video_stream_properties_1_1_video_stream_change_command_1a905c359a16d0525d4e38786d4f5ec46d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>duration,</highlight></codeline>
+<codeline lineno="100" refid="class_video_stream_properties_1_1_video_stream_change_command_1a85aedb76cfbfefa6e24670dbca83d455" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>QUndoCommand*<sp/>parent<sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="class_project" kindref="compound">Project</ref>*<sp/><ref refid="class_video_stream_properties_1_1_image_sequence_change_command_1a95092e2e33d3029dcac57d3cfe68f834" kindref="member">GetRelevantProject</ref>()<sp/></highlight><highlight class="keyword">const<sp/>override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="103" refid="class_video_stream_properties_1_1_video_stream_change_command_1aa46c72239b8a5d073686326c0b82b857" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="105" refid="class_video_stream_properties_1_1_video_stream_change_command_1ac5c5d3072bb4e5f8136412fa2d973784" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_video_stream_properties_1_1_image_sequence_change_command_1af6dedb84d67a42fd295fb8252c86c6b2" kindref="member">redo_internal</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="106" refid="class_video_stream_properties_1_1_video_stream_change_command_1a2a7a6abafbf01a10caf9d204b6dcd798" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_video_stream_properties_1_1_image_sequence_change_command_1a94de89c4280f992556de8ed1eb19472f" kindref="member">undo_internal</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108" refid="class_video_stream_properties_1_1_video_stream_change_command_1a3058ab9c2ee7475924608d117f684150" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="109" refid="class_video_stream_properties_1_1_video_stream_change_command_1af6090f671112dd894384ae523174b63b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="videostream_8h_1a61723119e9a95ef980f20e0e1c5e911b" kindref="member">VideoStreamPtr</ref><sp/><ref refid="class_video_stream_properties_1_1_image_sequence_change_command_1a294dee07e9293316cf461f00afaed908" kindref="member">video_stream_</ref>;</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/>int64_t<sp/><ref refid="class_video_stream_properties_1_1_image_sequence_change_command_1a4243fa70f9db405f0988ea24f5cfe0ce" kindref="member">new_start_index_</ref>;</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/>int64_t<sp/><ref refid="class_video_stream_properties_1_1_image_sequence_change_command_1af4e3f84ec722c3edc7e0ab1a02152691" kindref="member">old_start_index_</ref>;</highlight></codeline>
+<codeline lineno="113" refid="class_video_stream_properties_1_1_image_sequence_change_command" refkind="compound"><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/>int64_t<sp/><ref refid="class_video_stream_properties_1_1_image_sequence_change_command_1ae04a666ad7ba763437ba0ac570d2a430" kindref="member">new_duration_</ref>;</highlight></codeline>
+<codeline lineno="115" refid="class_video_stream_properties_1_1_image_sequence_change_command_1a8f3891c5e7430ad0450cd9e2072aa871" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int64_t<sp/><ref refid="class_video_stream_properties_1_1_image_sequence_change_command_1af47475b482f8a3c968f9850a55da05eb" kindref="member">old_duration_</ref>;</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="118"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight></codeline>
+<codeline lineno="120" refid="class_video_stream_properties_1_1_image_sequence_change_command_1a95092e2e33d3029dcac57d3cfe68f834" refkind="member"><highlight class="normal"><ref refid="define_8h_1abe3de0634d907ca0f5d1acf732c49dac" kindref="member">OLIVE_NAMESPACE_EXIT</ref></highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//<sp/>VIDEOSTREAMPROPERTIES_H</highlight></codeline>
+    </programlisting>
+    <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h"/>
+  </compounddef>
+</doxygen>

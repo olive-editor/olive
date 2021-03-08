@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="struct_task_manager_1_1_thread_container" kind="struct" language="C++" prot="private">
+    <compoundname>TaskManager::ThreadContainer</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="struct_task_manager_1_1_thread_container_1ae46bff6a9ca36c6736464d4c3946b7ce" prot="public" static="no" mutable="no">
+        <type>QThread *</type>
+        <definition>QThread* TaskManager::ThreadContainer::thread</definition>
+        <argsstring></argsstring>
+        <name>thread</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/task/taskmanager.h" line="143" column="13" bodyfile="C:/Daten/Olive/olive/app/task/taskmanager.h" bodystart="143" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_task_manager_1_1_thread_container_1ab604d1d0589544c4c7a802c5b24c8ff5" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool TaskManager::ThreadContainer::active</definition>
+        <argsstring></argsstring>
+        <name>active</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/task/taskmanager.h" line="144" column="10" bodyfile="C:/Daten/Olive/olive/app/task/taskmanager.h" bodystart="144" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/task/taskmanager.h" line="142" column="3" bodyfile="C:/Daten/Olive/olive/app/task/taskmanager.h" bodystart="142" bodyend="145"/>
+    <listofallmembers>
+      <member refid="struct_task_manager_1_1_thread_container_1ab604d1d0589544c4c7a802c5b24c8ff5" prot="public" virt="non-virtual"><scope>TaskManager::ThreadContainer</scope><name>active</name></member>
+      <member refid="struct_task_manager_1_1_thread_container_1ae46bff6a9ca36c6736464d4c3946b7ce" prot="public" virt="non-virtual"><scope>TaskManager::ThreadContainer</scope><name>thread</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

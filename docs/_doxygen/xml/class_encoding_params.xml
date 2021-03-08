@@ -1,0 +1,625 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_encoding_params" kind="class" language="C++" prot="public">
+    <compoundname>EncodingParams</compoundname>
+    <derivedcompoundref refid="class_export_params" prot="public" virt="non-virtual">ExportParams</derivedcompoundref>
+    <includes refid="encoder_8h" local="no">encoder.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_encoding_params_1a3923a2cc6518c1973857fb3ffdb369c2" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString EncodingParams::filename_</definition>
+        <argsstring></argsstring>
+        <name>filename_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="71" column="11" bodyfile="C:/Daten/Olive/olive/app/codec/encoder.h" bodystart="71" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_encoding_params_1a43f8d919b63fb3fcccc9c272ca172c66" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool EncodingParams::video_enabled_</definition>
+        <argsstring></argsstring>
+        <name>video_enabled_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="73" column="8" bodyfile="C:/Daten/Olive/olive/app/codec/encoder.h" bodystart="73" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_encoding_params_1ab7cab50ad6984bcf65f827924ed69e0b" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString EncodingParams::video_codec_</definition>
+        <argsstring></argsstring>
+        <name>video_codec_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="74" column="11" bodyfile="C:/Daten/Olive/olive/app/codec/encoder.h" bodystart="74" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_encoding_params_1a5303857f48a3d0e5ec5b73b100101100" prot="private" static="no" mutable="no">
+        <type><ref refid="class_video_rendering_params" kindref="compound">VideoRenderingParams</ref></type>
+        <definition>VideoRenderingParams EncodingParams::video_params_</definition>
+        <argsstring></argsstring>
+        <name>video_params_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="75" column="24" bodyfile="C:/Daten/Olive/olive/app/codec/encoder.h" bodystart="75" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_encoding_params_1a9a7cb831f60a05269f6d4fb2cf7331a6" prot="private" static="no" mutable="no">
+        <type>QHash&lt; QString, QString &gt;</type>
+        <definition>QHash&lt;QString, QString&gt; EncodingParams::video_opts_</definition>
+        <argsstring></argsstring>
+        <name>video_opts_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="76" column="9" bodyfile="C:/Daten/Olive/olive/app/codec/encoder.h" bodystart="76" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_encoding_params_1a51d2997d3a5c02f19a6c47ddf51df28f" prot="private" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t EncodingParams::video_bit_rate_</definition>
+        <argsstring></argsstring>
+        <name>video_bit_rate_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="77" column="11" bodyfile="C:/Daten/Olive/olive/app/codec/encoder.h" bodystart="77" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_encoding_params_1a4419296667e996156b44da46ed1f4f59" prot="private" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t EncodingParams::video_max_bit_rate_</definition>
+        <argsstring></argsstring>
+        <name>video_max_bit_rate_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="78" column="11" bodyfile="C:/Daten/Olive/olive/app/codec/encoder.h" bodystart="78" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_encoding_params_1a675392b3e4ef04a57f8c7ad82cfc3de4" prot="private" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t EncodingParams::video_buffer_size_</definition>
+        <argsstring></argsstring>
+        <name>video_buffer_size_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="79" column="11" bodyfile="C:/Daten/Olive/olive/app/codec/encoder.h" bodystart="79" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_encoding_params_1a5a2d0e8ed05ca9d1f39e0a37572d31b6" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int EncodingParams::video_threads_</definition>
+        <argsstring></argsstring>
+        <name>video_threads_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="80" column="7" bodyfile="C:/Daten/Olive/olive/app/codec/encoder.h" bodystart="80" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_encoding_params_1a02e8ef02ac30adbf4676376e5c4e2525" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool EncodingParams::audio_enabled_</definition>
+        <argsstring></argsstring>
+        <name>audio_enabled_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="82" column="8" bodyfile="C:/Daten/Olive/olive/app/codec/encoder.h" bodystart="82" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_encoding_params_1abc798fcf7e8e1cef46119455fe177c8b" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString EncodingParams::audio_codec_</definition>
+        <argsstring></argsstring>
+        <name>audio_codec_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="83" column="11" bodyfile="C:/Daten/Olive/olive/app/codec/encoder.h" bodystart="83" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_encoding_params_1ae204390c965e6f53d017842acf2f7b02" prot="private" static="no" mutable="no">
+        <type><ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref></type>
+        <definition>AudioRenderingParams EncodingParams::audio_params_</definition>
+        <argsstring></argsstring>
+        <name>audio_params_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="84" column="24" bodyfile="C:/Daten/Olive/olive/app/codec/encoder.h" bodystart="84" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_encoding_params_1aaf08bbb6f2ca4793c9f54eef00413c39" prot="private" static="no" mutable="no">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational EncodingParams::export_length_</definition>
+        <argsstring></argsstring>
+        <name>export_length_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="86" column="12" bodyfile="C:/Daten/Olive/olive/app/codec/encoder.h" bodystart="86" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_encoding_params_1a7af5384111245a8efe1657196e531e77" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>EncodingParams::EncodingParams</definition>
+        <argsstring>()</argsstring>
+        <name>EncodingParams</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="39" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_encoding_params_1a05cedf1287aab670a682fcc4c744915d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void EncodingParams::SetFilename</definition>
+        <argsstring>(const QString &amp;filename)</argsstring>
+        <name>SetFilename</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>filename</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="41" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_encoding_params_1a37babc18c8873e4ee956a093a58980fb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void EncodingParams::EnableVideo</definition>
+        <argsstring>(const VideoRenderingParams &amp;video_params, const QString &amp;vcodec)</argsstring>
+        <name>EnableVideo</name>
+        <param>
+          <type>const <ref refid="class_video_rendering_params" kindref="compound">VideoRenderingParams</ref> &amp;</type>
+          <declname>video_params</declname>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>vcodec</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="43" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_encoding_params_1a0c6fe41c7aba17510505f5103a2f769d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void EncodingParams::EnableAudio</definition>
+        <argsstring>(const AudioRenderingParams &amp;audio_params, const QString &amp;acodec)</argsstring>
+        <name>EnableAudio</name>
+        <param>
+          <type>const <ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref> &amp;</type>
+          <declname>audio_params</declname>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>acodec</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="44" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_encoding_params_1ac822ec1bfb587fd5f08cd47327dcac37" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void EncodingParams::set_video_option</definition>
+        <argsstring>(const QString &amp;key, const QString &amp;value)</argsstring>
+        <name>set_video_option</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>key</declname>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="46" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_encoding_params_1a732e4180116d30ed5ab07da6503198f4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void EncodingParams::set_video_bit_rate</definition>
+        <argsstring>(const int64_t &amp;rate)</argsstring>
+        <name>set_video_bit_rate</name>
+        <param>
+          <type>const int64_t &amp;</type>
+          <declname>rate</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="47" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_encoding_params_1a0ca92f6e9322744683103a467819b7dd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void EncodingParams::set_video_max_bit_rate</definition>
+        <argsstring>(const int64_t &amp;rate)</argsstring>
+        <name>set_video_max_bit_rate</name>
+        <param>
+          <type>const int64_t &amp;</type>
+          <declname>rate</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="48" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_encoding_params_1a105ab0b6d5ce6c20ff4de465bded46bb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void EncodingParams::set_video_buffer_size</definition>
+        <argsstring>(const int64_t &amp;sz)</argsstring>
+        <name>set_video_buffer_size</name>
+        <param>
+          <type>const int64_t &amp;</type>
+          <declname>sz</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="49" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_encoding_params_1aca058d4203d637c75aeffb57b5d0edc5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void EncodingParams::set_video_threads</definition>
+        <argsstring>(const int &amp;threads)</argsstring>
+        <name>set_video_threads</name>
+        <param>
+          <type>const int &amp;</type>
+          <declname>threads</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="50" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_encoding_params_1a8c1f8964a3794d90716f4c671c0a477d" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const QString &amp;</type>
+        <definition>const QString&amp; EncodingParams::filename</definition>
+        <argsstring>() const</argsstring>
+        <name>filename</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="52" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_encoding_params_1a86a3c52695c432789165af725758d15b" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool EncodingParams::video_enabled</definition>
+        <argsstring>() const</argsstring>
+        <name>video_enabled</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="54" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_encoding_params_1a1e1564a14ea457e9c1cd63fe16478221" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const QString &amp;</type>
+        <definition>const QString&amp; EncodingParams::video_codec</definition>
+        <argsstring>() const</argsstring>
+        <name>video_codec</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="55" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_encoding_params_1a800534a1d31f6d906252bc0e18fb83cc" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="class_video_rendering_params" kindref="compound">VideoRenderingParams</ref> &amp;</type>
+        <definition>const VideoRenderingParams&amp; EncodingParams::video_params</definition>
+        <argsstring>() const</argsstring>
+        <name>video_params</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="56" column="30"/>
+      </memberdef>
+      <memberdef kind="function" id="class_encoding_params_1a259089ead00c935b0a2143cc074ef164" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const QHash&lt; QString, QString &gt; &amp;</type>
+        <definition>const QHash&lt;QString, QString&gt;&amp; EncodingParams::video_opts</definition>
+        <argsstring>() const</argsstring>
+        <name>video_opts</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="57" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_encoding_params_1a72e7a86b5938448f84e934c97d567d01" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const int64_t &amp;</type>
+        <definition>const int64_t&amp; EncodingParams::video_bit_rate</definition>
+        <argsstring>() const</argsstring>
+        <name>video_bit_rate</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="58" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_encoding_params_1a22556fa5d01cf76cc517ea2d58be9f51" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const int64_t &amp;</type>
+        <definition>const int64_t&amp; EncodingParams::video_max_bit_rate</definition>
+        <argsstring>() const</argsstring>
+        <name>video_max_bit_rate</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="59" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_encoding_params_1ac599be07c03026037e566103529d9afb" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const int64_t &amp;</type>
+        <definition>const int64_t&amp; EncodingParams::video_buffer_size</definition>
+        <argsstring>() const</argsstring>
+        <name>video_buffer_size</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="60" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_encoding_params_1a1d4b8e7736b694eea4f94284d88ad590" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const int &amp;</type>
+        <definition>const int&amp; EncodingParams::video_threads</definition>
+        <argsstring>() const</argsstring>
+        <name>video_threads</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="61" column="13"/>
+      </memberdef>
+      <memberdef kind="function" id="class_encoding_params_1a448a775af607e3f5731b68fe7565fe1a" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool EncodingParams::audio_enabled</definition>
+        <argsstring>() const</argsstring>
+        <name>audio_enabled</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="63" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_encoding_params_1af61556a9014fe0b09f9d27179c44d11f" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const QString &amp;</type>
+        <definition>const QString&amp; EncodingParams::audio_codec</definition>
+        <argsstring>() const</argsstring>
+        <name>audio_codec</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="64" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_encoding_params_1a783ee115b8b72297bacd83f5a60a77ba" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="class_audio_rendering_params" kindref="compound">AudioRenderingParams</ref> &amp;</type>
+        <definition>const AudioRenderingParams&amp; EncodingParams::audio_params</definition>
+        <argsstring>() const</argsstring>
+        <name>audio_params</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="65" column="30"/>
+      </memberdef>
+      <memberdef kind="function" id="class_encoding_params_1a58697c328746d2ca67a89cbcf32e9f0e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+        <definition>const rational&amp; EncodingParams::GetExportLength</definition>
+        <argsstring>() const</argsstring>
+        <name>GetExportLength</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="67" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_encoding_params_1a5c16f20d95c9c39e626f55f0c26ea6fc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void EncodingParams::SetExportLength</definition>
+        <argsstring>(const rational &amp;GetExportLength)</argsstring>
+        <name>SetExportLength</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>GetExportLength</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="68" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>ExportParams</label>
+        <link refid="class_export_params"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>EncodingParams</label>
+        <link refid="class_encoding_params"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="6">
+        <label>AudioParams</label>
+        <link refid="class_audio_params"/>
+      </node>
+      <node id="4">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="5">
+        <label>AudioRenderingParams</label>
+        <link refid="class_audio_rendering_params"/>
+        <childnode refid="6" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>VideoRenderingParams</label>
+        <link refid="class_video_rendering_params"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>VideoParams</label>
+        <link refid="class_video_params"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>time_base_</edgelabel>
+        </childnode>
+      </node>
+      <node id="1">
+        <label>EncodingParams</label>
+        <link refid="class_encoding_params"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>video_params_</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>export_length_</edgelabel>
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>audio_params_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/codec/encoder.h" line="37" column="1" bodyfile="C:/Daten/Olive/olive/app/codec/encoder.h" bodystart="37" bodyend="88"/>
+    <listofallmembers>
+      <member refid="class_encoding_params_1af61556a9014fe0b09f9d27179c44d11f" prot="public" virt="non-virtual"><scope>EncodingParams</scope><name>audio_codec</name></member>
+      <member refid="class_encoding_params_1abc798fcf7e8e1cef46119455fe177c8b" prot="private" virt="non-virtual"><scope>EncodingParams</scope><name>audio_codec_</name></member>
+      <member refid="class_encoding_params_1a448a775af607e3f5731b68fe7565fe1a" prot="public" virt="non-virtual"><scope>EncodingParams</scope><name>audio_enabled</name></member>
+      <member refid="class_encoding_params_1a02e8ef02ac30adbf4676376e5c4e2525" prot="private" virt="non-virtual"><scope>EncodingParams</scope><name>audio_enabled_</name></member>
+      <member refid="class_encoding_params_1a783ee115b8b72297bacd83f5a60a77ba" prot="public" virt="non-virtual"><scope>EncodingParams</scope><name>audio_params</name></member>
+      <member refid="class_encoding_params_1ae204390c965e6f53d017842acf2f7b02" prot="private" virt="non-virtual"><scope>EncodingParams</scope><name>audio_params_</name></member>
+      <member refid="class_encoding_params_1a0c6fe41c7aba17510505f5103a2f769d" prot="public" virt="non-virtual"><scope>EncodingParams</scope><name>EnableAudio</name></member>
+      <member refid="class_encoding_params_1a37babc18c8873e4ee956a093a58980fb" prot="public" virt="non-virtual"><scope>EncodingParams</scope><name>EnableVideo</name></member>
+      <member refid="class_encoding_params_1a7af5384111245a8efe1657196e531e77" prot="public" virt="non-virtual"><scope>EncodingParams</scope><name>EncodingParams</name></member>
+      <member refid="class_encoding_params_1aaf08bbb6f2ca4793c9f54eef00413c39" prot="private" virt="non-virtual"><scope>EncodingParams</scope><name>export_length_</name></member>
+      <member refid="class_encoding_params_1a8c1f8964a3794d90716f4c671c0a477d" prot="public" virt="non-virtual"><scope>EncodingParams</scope><name>filename</name></member>
+      <member refid="class_encoding_params_1a3923a2cc6518c1973857fb3ffdb369c2" prot="private" virt="non-virtual"><scope>EncodingParams</scope><name>filename_</name></member>
+      <member refid="class_encoding_params_1a58697c328746d2ca67a89cbcf32e9f0e" prot="public" virt="non-virtual"><scope>EncodingParams</scope><name>GetExportLength</name></member>
+      <member refid="class_encoding_params_1a732e4180116d30ed5ab07da6503198f4" prot="public" virt="non-virtual"><scope>EncodingParams</scope><name>set_video_bit_rate</name></member>
+      <member refid="class_encoding_params_1a105ab0b6d5ce6c20ff4de465bded46bb" prot="public" virt="non-virtual"><scope>EncodingParams</scope><name>set_video_buffer_size</name></member>
+      <member refid="class_encoding_params_1a0ca92f6e9322744683103a467819b7dd" prot="public" virt="non-virtual"><scope>EncodingParams</scope><name>set_video_max_bit_rate</name></member>
+      <member refid="class_encoding_params_1ac822ec1bfb587fd5f08cd47327dcac37" prot="public" virt="non-virtual"><scope>EncodingParams</scope><name>set_video_option</name></member>
+      <member refid="class_encoding_params_1aca058d4203d637c75aeffb57b5d0edc5" prot="public" virt="non-virtual"><scope>EncodingParams</scope><name>set_video_threads</name></member>
+      <member refid="class_encoding_params_1a5c16f20d95c9c39e626f55f0c26ea6fc" prot="public" virt="non-virtual"><scope>EncodingParams</scope><name>SetExportLength</name></member>
+      <member refid="class_encoding_params_1a05cedf1287aab670a682fcc4c744915d" prot="public" virt="non-virtual"><scope>EncodingParams</scope><name>SetFilename</name></member>
+      <member refid="class_encoding_params_1a72e7a86b5938448f84e934c97d567d01" prot="public" virt="non-virtual"><scope>EncodingParams</scope><name>video_bit_rate</name></member>
+      <member refid="class_encoding_params_1a51d2997d3a5c02f19a6c47ddf51df28f" prot="private" virt="non-virtual"><scope>EncodingParams</scope><name>video_bit_rate_</name></member>
+      <member refid="class_encoding_params_1ac599be07c03026037e566103529d9afb" prot="public" virt="non-virtual"><scope>EncodingParams</scope><name>video_buffer_size</name></member>
+      <member refid="class_encoding_params_1a675392b3e4ef04a57f8c7ad82cfc3de4" prot="private" virt="non-virtual"><scope>EncodingParams</scope><name>video_buffer_size_</name></member>
+      <member refid="class_encoding_params_1a1e1564a14ea457e9c1cd63fe16478221" prot="public" virt="non-virtual"><scope>EncodingParams</scope><name>video_codec</name></member>
+      <member refid="class_encoding_params_1ab7cab50ad6984bcf65f827924ed69e0b" prot="private" virt="non-virtual"><scope>EncodingParams</scope><name>video_codec_</name></member>
+      <member refid="class_encoding_params_1a86a3c52695c432789165af725758d15b" prot="public" virt="non-virtual"><scope>EncodingParams</scope><name>video_enabled</name></member>
+      <member refid="class_encoding_params_1a43f8d919b63fb3fcccc9c272ca172c66" prot="private" virt="non-virtual"><scope>EncodingParams</scope><name>video_enabled_</name></member>
+      <member refid="class_encoding_params_1a22556fa5d01cf76cc517ea2d58be9f51" prot="public" virt="non-virtual"><scope>EncodingParams</scope><name>video_max_bit_rate</name></member>
+      <member refid="class_encoding_params_1a4419296667e996156b44da46ed1f4f59" prot="private" virt="non-virtual"><scope>EncodingParams</scope><name>video_max_bit_rate_</name></member>
+      <member refid="class_encoding_params_1a259089ead00c935b0a2143cc074ef164" prot="public" virt="non-virtual"><scope>EncodingParams</scope><name>video_opts</name></member>
+      <member refid="class_encoding_params_1a9a7cb831f60a05269f6d4fb2cf7331a6" prot="private" virt="non-virtual"><scope>EncodingParams</scope><name>video_opts_</name></member>
+      <member refid="class_encoding_params_1a800534a1d31f6d906252bc0e18fb83cc" prot="public" virt="non-virtual"><scope>EncodingParams</scope><name>video_params</name></member>
+      <member refid="class_encoding_params_1a5303857f48a3d0e5ec5b73b100101100" prot="private" virt="non-virtual"><scope>EncodingParams</scope><name>video_params_</name></member>
+      <member refid="class_encoding_params_1a1d4b8e7736b694eea4f94284d88ad590" prot="public" virt="non-virtual"><scope>EncodingParams</scope><name>video_threads</name></member>
+      <member refid="class_encoding_params_1a5a2d0e8ed05ca9d1f39e0a37572d31b6" prot="private" virt="non-virtual"><scope>EncodingParams</scope><name>video_threads_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

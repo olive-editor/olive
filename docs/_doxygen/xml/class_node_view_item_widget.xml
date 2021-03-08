@@ -1,0 +1,127 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_node_view_item_widget" kind="class" language="C++" prot="public">
+    <compoundname>NodeViewItemWidget</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QWidget</basecompoundref>
+    <includes refid="nodeviewitemwidgetproxy_8h" local="no">nodeviewitemwidgetproxy.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_node_view_item_widget_1a3b8acadcb665bc7681b1bd0cd37a9452" prot="private" static="no" mutable="no">
+        <type>QColor</type>
+        <definition>QColor NodeViewItemWidget::title_bar_color_</definition>
+        <argsstring></argsstring>
+        <name>title_bar_color_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitemwidgetproxy.h" line="63" column="10" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitemwidgetproxy.h" bodystart="63" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_view_item_widget_1aaca1b6177f9a1b94ac25b550beaaf25a" prot="private" static="no" mutable="no">
+        <type>QColor</type>
+        <definition>QColor NodeViewItemWidget::border_color_</definition>
+        <argsstring></argsstring>
+        <name>border_color_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitemwidgetproxy.h" line="64" column="10" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitemwidgetproxy.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_node_view_item_widget_1a9cabc5e665f2c3e35e90d204437bd7de" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>NodeViewItemWidget::NodeViewItemWidget</definition>
+        <argsstring>()=default</argsstring>
+        <name>NodeViewItemWidget</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitemwidgetproxy.h" line="55" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_item_widget_1a82c007ea6d1bb90719f26b1885ad81a5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QColor</type>
+        <definition>QColor NodeViewItemWidget::TitleBarColor</definition>
+        <argsstring>()</argsstring>
+        <name>TitleBarColor</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitemwidgetproxy.h" line="57" column="10"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_item_widget_1aa3392109852cfca7c5adc35f0b1d1658" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeViewItemWidget::SetTitleBarColor</definition>
+        <argsstring>(QColor color)</argsstring>
+        <name>SetTitleBarColor</name>
+        <param>
+          <type>QColor</type>
+          <declname>color</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitemwidgetproxy.h" line="58" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_item_widget_1a884d3490e2a94a49ceaf33f16909a8c5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QColor</type>
+        <definition>QColor NodeViewItemWidget::BorderColor</definition>
+        <argsstring>()</argsstring>
+        <name>BorderColor</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitemwidgetproxy.h" line="60" column="10"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_item_widget_1a9b7e8adde487290d280281d37e07c442" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeViewItemWidget::SetBorderColor</definition>
+        <argsstring>(QColor color)</argsstring>
+        <name>SetBorderColor</name>
+        <param>
+          <type>QColor</type>
+          <declname>color</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitemwidgetproxy.h" line="61" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A proxy object to allow <ref refid="class_node_view_item" kindref="compound">NodeViewItem</ref> access to CSS functions. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>QGraphicsItems can&apos;t take Q_PROPERTYs for CSS stylesheet input, but QWidgets can. This is a hack to allow CSS properties to be set from CSS and then read by <ref refid="class_node_view_item" kindref="compound">NodeViewItem</ref>. </para>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitemwidgetproxy.h" line="32" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewitemwidgetproxy.h" bodystart="32" bodyend="47"/>
+    <listofallmembers>
+      <member refid="class_node_view_item_widget_1aaca1b6177f9a1b94ac25b550beaaf25a" prot="private" virt="non-virtual"><scope>NodeViewItemWidget</scope><name>border_color_</name></member>
+      <member refid="class_node_view_item_widget_1a884d3490e2a94a49ceaf33f16909a8c5" prot="public" virt="non-virtual"><scope>NodeViewItemWidget</scope><name>BorderColor</name></member>
+      <member refid="class_node_view_item_widget_1a9cabc5e665f2c3e35e90d204437bd7de" prot="public" virt="non-virtual"><scope>NodeViewItemWidget</scope><name>NodeViewItemWidget</name></member>
+      <member refid="class_node_view_item_widget_1a9b7e8adde487290d280281d37e07c442" prot="public" virt="non-virtual"><scope>NodeViewItemWidget</scope><name>SetBorderColor</name></member>
+      <member refid="class_node_view_item_widget_1aa3392109852cfca7c5adc35f0b1d1658" prot="public" virt="non-virtual"><scope>NodeViewItemWidget</scope><name>SetTitleBarColor</name></member>
+      <member refid="class_node_view_item_widget_1a3b8acadcb665bc7681b1bd0cd37a9452" prot="private" virt="non-virtual"><scope>NodeViewItemWidget</scope><name>title_bar_color_</name></member>
+      <member refid="class_node_view_item_widget_1a82c007ea6d1bb90719f26b1885ad81a5" prot="public" virt="non-virtual"><scope>NodeViewItemWidget</scope><name>TitleBarColor</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

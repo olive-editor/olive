@@ -1,0 +1,488 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_pixel_format" kind="class" language="C++" prot="public">
+    <compoundname>PixelFormat</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QObject</basecompoundref>
+    <includes refid="pixelformat_8h" local="no">pixelformat.h</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="enum" id="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021" prot="public" static="no" strong="no">
+        <type></type>
+        <name>Format</name>
+        <enumvalue id="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021acfb768a60d3cd20f57b7427f74d3b062" prot="public">
+          <name>PIX_FMT_INVALID</name>
+          <initializer>= -1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021a1a9a98d971f4c310c4e9397a328201ee" prot="public">
+          <name>PIX_FMT_RGBA8</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021a6cb729a649f2e4976ef6eb38eef690ed" prot="public">
+          <name>PIX_FMT_RGBA16U</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021a3a2aa0dcbcf596775503d69bb295173d" prot="public">
+          <name>PIX_FMT_RGBA16F</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021ab3f730adb815cd66b63d15237a540d86" prot="public">
+          <name>PIX_FMT_RGBA32F</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021a4e55500817e5ed104fd2da925f634a26" prot="public">
+          <name>PIX_FMT_RGB8</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021a29be8bf9b36eed557ad0e47e22a9bfa4" prot="public">
+          <name>PIX_FMT_RGB16U</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021a535d52ed6007bb5c8d4e6316af8150c3" prot="public">
+          <name>PIX_FMT_RGB16F</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021a40319d01c92c1340b32621b43f52d8fd" prot="public">
+          <name>PIX_FMT_RGB32F</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021af5d11f9f4eef34518868ad8c769acf90" prot="public">
+          <name>PIX_FMT_COUNT</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Olive&apos;s internal supported pixel formats. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/pixelformat.h" line="43" column="3" bodyfile="C:/Daten/Olive/olive/app/render/pixelformat.h" bodystart="43" bodyend="57"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-attrib">
+      <memberdef kind="variable" id="class_pixel_format_1acbbd8aa8c40dc119cadaaf36409695ca" prot="private" static="yes" mutable="no">
+        <type><ref refid="class_pixel_format" kindref="compound">PixelFormat</ref> *</type>
+        <definition>PixelFormat* PixelFormat::instance_</definition>
+        <argsstring></argsstring>
+        <name>instance_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/pixelformat.h" line="140" column="22" bodyfile="C:/Daten/Olive/olive/app/render/pixelformat.h" bodystart="140" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="class_pixel_format_1a762739a7e2ef4532e7d1490db5e9a059" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void PixelFormat::CreateInstance</definition>
+        <argsstring>()</argsstring>
+        <name>CreateInstance</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/pixelformat.h" line="59" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_pixel_format_1ac027b6b8e0e54d6e6a5bb3931f1c2e11" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void PixelFormat::DestroyInstance</definition>
+        <argsstring>()</argsstring>
+        <name>DestroyInstance</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/pixelformat.h" line="60" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_pixel_format_1a0554e3e66821c717f23bf8d7c92d9e45" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_pixel_format" kindref="compound">PixelFormat</ref> *</type>
+        <definition>static PixelFormat* PixelFormat::instance</definition>
+        <argsstring>()</argsstring>
+        <name>instance</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/pixelformat.h" line="61" column="22"/>
+      </memberdef>
+      <memberdef kind="function" id="class_pixel_format_1a40d45c7c6189b1a4ae2a070d16228e6c" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021" kindref="member">Format</ref></type>
+        <definition>static Format PixelFormat::OIIOFormatToOliveFormat</definition>
+        <argsstring>(OIIO::TypeDesc desc, bool has_alpha)</argsstring>
+        <name>OIIOFormatToOliveFormat</name>
+        <param>
+          <type>OIIO::TypeDesc</type>
+          <declname>desc</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>has_alpha</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/pixelformat.h" line="69" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_pixel_format_1ad3af3e053e3b4a53feb969424db927ed" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>static int PixelFormat::GetBufferSize</definition>
+        <argsstring>(const Format &amp;format, const int &amp;width, const int &amp;height)</argsstring>
+        <name>GetBufferSize</name>
+        <param>
+          <type>const <ref refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021" kindref="member">Format</ref> &amp;</type>
+          <declname>format</declname>
+        </param>
+        <param>
+          <type>const int &amp;</type>
+          <declname>width</declname>
+        </param>
+        <param>
+          <type>const int &amp;</type>
+          <declname>height</declname>
+        </param>
+        <briefdescription>
+<para>Returns the minimum buffer size (in bytes) necessary for a given format, width, and height. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>format</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The format of the data the buffer should contain. Must be a member of the olive::PixelFormat enum.</para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>width</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The width (in pixels) of the buffer.</para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>height</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The height (in pixels) of the buffer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/pixelformat.h" line="86" column="14"/>
+      </memberdef>
+      <memberdef kind="function" id="class_pixel_format_1aef1010143ef00994d726a7abdfd4e003" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>static int PixelFormat::BytesPerPixel</definition>
+        <argsstring>(const Format &amp;format)</argsstring>
+        <name>BytesPerPixel</name>
+        <param>
+          <type>const <ref refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021" kindref="member">Format</ref> &amp;</type>
+          <declname>format</declname>
+        </param>
+        <briefdescription>
+<para>Returns the number of bytes per pixel for a certain format. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Different formats use different sizes of data for pixels. Use this function to determine how many bytes a pixel requires for a certain format. The number of bytes will always be a multiple of 4 since all formats use RGBA and are at least 1 bpc. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/pixelformat.h" line="95" column="14"/>
+      </memberdef>
+      <memberdef kind="function" id="class_pixel_format_1a331876177ba00f21ffc6d008afb06dc9" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>static int PixelFormat::BytesPerChannel</definition>
+        <argsstring>(const Format &amp;format)</argsstring>
+        <name>BytesPerChannel</name>
+        <param>
+          <type>const <ref refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021" kindref="member">Format</ref> &amp;</type>
+          <declname>format</declname>
+        </param>
+        <briefdescription>
+<para>Returns the number of bytes per channel for a certain format. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/pixelformat.h" line="100" column="14"/>
+      </memberdef>
+      <memberdef kind="function" id="class_pixel_format_1ab588b3049f86590db0bff0555aac5ed3" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>static int PixelFormat::ChannelCount</definition>
+        <argsstring>(const Format &amp;format)</argsstring>
+        <name>ChannelCount</name>
+        <param>
+          <type>const <ref refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021" kindref="member">Format</ref> &amp;</type>
+          <declname>format</declname>
+        </param>
+        <briefdescription>
+<para>Return the number of channels in this format. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/pixelformat.h" line="105" column="14"/>
+      </memberdef>
+      <memberdef kind="function" id="class_pixel_format_1a353c6cdc320ed64040e6fcdbf9768aaa" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="frame_8h_1a2ae9a822fc1e331fa3b449797f717db6" kindref="member">FramePtr</ref></type>
+        <definition>static FramePtr PixelFormat::ConvertPixelFormat</definition>
+        <argsstring>(FramePtr frame, const Format &amp;dest_format)</argsstring>
+        <name>ConvertPixelFormat</name>
+        <param>
+          <type><ref refid="frame_8h_1a2ae9a822fc1e331fa3b449797f717db6" kindref="member">FramePtr</ref></type>
+          <declname>frame</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021" kindref="member">Format</ref> &amp;</type>
+          <declname>dest_format</declname>
+        </param>
+        <briefdescription>
+<para>Convert a frame to a pixel format. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If the frame&apos;s pixel format == the destination format, this just returns <computeroutput>frame</computeroutput>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/pixelformat.h" line="112" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_pixel_format_1a10cc823a4e4309b99399b8d8ad481fad" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool PixelFormat::FormatHasAlphaChannel</definition>
+        <argsstring>(const Format &amp;format)</argsstring>
+        <name>FormatHasAlphaChannel</name>
+        <param>
+          <type>const <ref refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021" kindref="member">Format</ref> &amp;</type>
+          <declname>format</declname>
+        </param>
+        <briefdescription>
+<para>Simple convenience function returning whether a pixel format has an alpha channel or not. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/pixelformat.h" line="117" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_pixel_format_1a7b1c958b7e48acb51ffd0a7191341caf" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool PixelFormat::FormatIsFloat</definition>
+        <argsstring>(const Format &amp;format)</argsstring>
+        <name>FormatIsFloat</name>
+        <param>
+          <type>const <ref refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021" kindref="member">Format</ref> &amp;</type>
+          <declname>format</declname>
+        </param>
+        <briefdescription>
+<para>Simple convenience function returning whether a pixel format is float-based or integer-based. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/pixelformat.h" line="122" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_pixel_format_1a21e705f842fbffef48c33a55b6c100e6" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>OIIO::TypeDesc::BASETYPE</type>
+        <definition>static OIIO::TypeDesc::BASETYPE PixelFormat::GetOIIOTypeDesc</definition>
+        <argsstring>(const Format &amp;format)</argsstring>
+        <name>GetOIIOTypeDesc</name>
+        <param>
+          <type>const <ref refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021" kindref="member">Format</ref> &amp;</type>
+          <declname>format</declname>
+        </param>
+        <briefdescription>
+<para>Get corresponding OpenImageIO TypeDesc for a given pixel format. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/pixelformat.h" line="127" column="35"/>
+      </memberdef>
+      <memberdef kind="function" id="class_pixel_format_1a89b86fadaf42c4d774684591af55c61d" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>static QString PixelFormat::GetName</definition>
+        <argsstring>(const Format &amp;format)</argsstring>
+        <name>GetName</name>
+        <param>
+          <type>const <ref refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021" kindref="member">Format</ref> &amp;</type>
+          <declname>format</declname>
+        </param>
+        <briefdescription>
+<para>Get format name. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/pixelformat.h" line="132" column="18"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_pixel_format_1a0c37953ce42fcdd86e1cec06d4262289" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021" kindref="member">Format</ref></type>
+        <definition>Format PixelFormat::GetConfiguredFormatForMode</definition>
+        <argsstring>(RenderMode::Mode mode)</argsstring>
+        <name>GetConfiguredFormatForMode</name>
+        <param>
+          <type><ref refid="class_render_mode_1aa8f6df8efdb14e18f324bf20a40e6a2b" kindref="member">RenderMode::Mode</ref></type>
+          <declname>mode</declname>
+        </param>
+        <briefdescription>
+<para>Returns the configured pixel format for a given mode. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/pixelformat.h" line="66" column="10"/>
+      </memberdef>
+      <memberdef kind="function" id="class_pixel_format_1a35b438a5b7b6bc6a55df4ad1967c53d5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PixelFormat::SetConfiguredFormatForMode</definition>
+        <argsstring>(RenderMode::Mode mode, PixelFormat::Format format)</argsstring>
+        <name>SetConfiguredFormatForMode</name>
+        <param>
+          <type><ref refid="class_render_mode_1aa8f6df8efdb14e18f324bf20a40e6a2b" kindref="member">RenderMode::Mode</ref></type>
+          <declname>mode</declname>
+        </param>
+        <param>
+          <type><ref refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021" kindref="member">PixelFormat::Format</ref></type>
+          <declname>format</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/pixelformat.h" line="67" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_pixel_format_1adc55ba637d5df7a68744653722520092" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PixelFormat::FormatChanged</definition>
+        <argsstring>()</argsstring>
+        <name>FormatChanged</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/pixelformat.h" line="135" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_pixel_format_1abf3ca707e9a87ddcf70ab95e6fa3b418" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>PixelFormat::PixelFormat</definition>
+        <argsstring>()=default</argsstring>
+        <name>PixelFormat</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/pixelformat.h" line="138" column="3"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>PixelFormat</label>
+        <link refid="class_pixel_format"/>
+        <childnode refid="1" relation="usage">
+          <edgelabel>instance_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/render/pixelformat.h" line="36" column="1" bodyfile="C:/Daten/Olive/olive/app/render/pixelformat.h" bodystart="37" bodyend="142"/>
+    <listofallmembers>
+      <member refid="class_pixel_format_1a331876177ba00f21ffc6d008afb06dc9" prot="public" virt="non-virtual"><scope>PixelFormat</scope><name>BytesPerChannel</name></member>
+      <member refid="class_pixel_format_1aef1010143ef00994d726a7abdfd4e003" prot="public" virt="non-virtual"><scope>PixelFormat</scope><name>BytesPerPixel</name></member>
+      <member refid="class_pixel_format_1ab588b3049f86590db0bff0555aac5ed3" prot="public" virt="non-virtual"><scope>PixelFormat</scope><name>ChannelCount</name></member>
+      <member refid="class_pixel_format_1a353c6cdc320ed64040e6fcdbf9768aaa" prot="public" virt="non-virtual"><scope>PixelFormat</scope><name>ConvertPixelFormat</name></member>
+      <member refid="class_pixel_format_1a762739a7e2ef4532e7d1490db5e9a059" prot="public" virt="non-virtual"><scope>PixelFormat</scope><name>CreateInstance</name></member>
+      <member refid="class_pixel_format_1ac027b6b8e0e54d6e6a5bb3931f1c2e11" prot="public" virt="non-virtual"><scope>PixelFormat</scope><name>DestroyInstance</name></member>
+      <member refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021" prot="public" virt="non-virtual"><scope>PixelFormat</scope><name>Format</name></member>
+      <member refid="class_pixel_format_1adc55ba637d5df7a68744653722520092" prot="public" virt="non-virtual"><scope>PixelFormat</scope><name>FormatChanged</name></member>
+      <member refid="class_pixel_format_1a10cc823a4e4309b99399b8d8ad481fad" prot="public" virt="non-virtual"><scope>PixelFormat</scope><name>FormatHasAlphaChannel</name></member>
+      <member refid="class_pixel_format_1a7b1c958b7e48acb51ffd0a7191341caf" prot="public" virt="non-virtual"><scope>PixelFormat</scope><name>FormatIsFloat</name></member>
+      <member refid="class_pixel_format_1ad3af3e053e3b4a53feb969424db927ed" prot="public" virt="non-virtual"><scope>PixelFormat</scope><name>GetBufferSize</name></member>
+      <member refid="class_pixel_format_1a0c37953ce42fcdd86e1cec06d4262289" prot="public" virt="non-virtual"><scope>PixelFormat</scope><name>GetConfiguredFormatForMode</name></member>
+      <member refid="class_pixel_format_1a89b86fadaf42c4d774684591af55c61d" prot="public" virt="non-virtual"><scope>PixelFormat</scope><name>GetName</name></member>
+      <member refid="class_pixel_format_1a21e705f842fbffef48c33a55b6c100e6" prot="public" virt="non-virtual"><scope>PixelFormat</scope><name>GetOIIOTypeDesc</name></member>
+      <member refid="class_pixel_format_1a0554e3e66821c717f23bf8d7c92d9e45" prot="public" virt="non-virtual"><scope>PixelFormat</scope><name>instance</name></member>
+      <member refid="class_pixel_format_1acbbd8aa8c40dc119cadaaf36409695ca" prot="private" virt="non-virtual"><scope>PixelFormat</scope><name>instance_</name></member>
+      <member refid="class_pixel_format_1a40d45c7c6189b1a4ae2a070d16228e6c" prot="public" virt="non-virtual"><scope>PixelFormat</scope><name>OIIOFormatToOliveFormat</name></member>
+      <member refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021af5d11f9f4eef34518868ad8c769acf90" prot="public" virt="non-virtual"><scope>PixelFormat</scope><name>PIX_FMT_COUNT</name></member>
+      <member refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021acfb768a60d3cd20f57b7427f74d3b062" prot="public" virt="non-virtual"><scope>PixelFormat</scope><name>PIX_FMT_INVALID</name></member>
+      <member refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021a535d52ed6007bb5c8d4e6316af8150c3" prot="public" virt="non-virtual"><scope>PixelFormat</scope><name>PIX_FMT_RGB16F</name></member>
+      <member refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021a29be8bf9b36eed557ad0e47e22a9bfa4" prot="public" virt="non-virtual"><scope>PixelFormat</scope><name>PIX_FMT_RGB16U</name></member>
+      <member refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021a40319d01c92c1340b32621b43f52d8fd" prot="public" virt="non-virtual"><scope>PixelFormat</scope><name>PIX_FMT_RGB32F</name></member>
+      <member refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021a4e55500817e5ed104fd2da925f634a26" prot="public" virt="non-virtual"><scope>PixelFormat</scope><name>PIX_FMT_RGB8</name></member>
+      <member refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021a3a2aa0dcbcf596775503d69bb295173d" prot="public" virt="non-virtual"><scope>PixelFormat</scope><name>PIX_FMT_RGBA16F</name></member>
+      <member refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021a6cb729a649f2e4976ef6eb38eef690ed" prot="public" virt="non-virtual"><scope>PixelFormat</scope><name>PIX_FMT_RGBA16U</name></member>
+      <member refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021ab3f730adb815cd66b63d15237a540d86" prot="public" virt="non-virtual"><scope>PixelFormat</scope><name>PIX_FMT_RGBA32F</name></member>
+      <member refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021a1a9a98d971f4c310c4e9397a328201ee" prot="public" virt="non-virtual"><scope>PixelFormat</scope><name>PIX_FMT_RGBA8</name></member>
+      <member refid="class_pixel_format_1abf3ca707e9a87ddcf70ab95e6fa3b418" prot="private" virt="non-virtual"><scope>PixelFormat</scope><name>PixelFormat</name></member>
+      <member refid="class_pixel_format_1a35b438a5b7b6bc6a55df4ad1967c53d5" prot="public" virt="non-virtual"><scope>PixelFormat</scope><name>SetConfiguredFormatForMode</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

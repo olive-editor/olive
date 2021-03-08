@@ -1,0 +1,110 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_audio_stream_properties" kind="class" language="C++" prot="public">
+    <compoundname>AudioStreamProperties</compoundname>
+    <basecompoundref refid="class_stream_properties" prot="public" virt="non-virtual">StreamProperties</basecompoundref>
+    <includes refid="audiostreamproperties_8h" local="no">audiostreamproperties.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_audio_stream_properties_1ab993b7f24fdfaff982c6db1d571d6ae1" prot="private" static="no" mutable="no">
+        <type><ref refid="audiostream_8h_1a7225e65c10797ffe9af795962d86ba06" kindref="member">AudioStreamPtr</ref></type>
+        <definition>AudioStreamPtr AudioStreamProperties::stream_</definition>
+        <argsstring></argsstring>
+        <name>stream_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/audiostreamproperties.h" line="55" column="18" bodyfile="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/audiostreamproperties.h" bodystart="55" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_audio_stream_properties_1a32dc8702e463338ca9c134f8fd375844" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>AudioStreamProperties::AudioStreamProperties</definition>
+        <argsstring>(AudioStreamPtr stream)</argsstring>
+        <name>AudioStreamProperties</name>
+        <param>
+          <type><ref refid="audiostream_8h_1a7225e65c10797ffe9af795962d86ba06" kindref="member">AudioStreamPtr</ref></type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/audiostreamproperties.h" line="50" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_stream_properties_1a1b994024be90d3513689d34a549936f4" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void AudioStreamProperties::Accept</definition>
+        <argsstring>(QUndoCommand *parent) override</argsstring>
+        <name>Accept</name>
+        <reimplements refid="class_stream_properties_1a7795d5e4f3af459f1b83aa0f6038f3c6">Accept</reimplements>
+        <param>
+          <type>QUndoCommand *</type>
+          <declname>parent</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/audiostreamproperties.h" line="52" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_stream_properties_1a0420478789a7a22dfeadbd624101652a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>bool</type>
+        <definition>virtual bool StreamProperties::SanityCheck</definition>
+        <argsstring>()</argsstring>
+        <name>SanityCheck</name>
+        <reimplementedby refid="class_video_stream_properties_1af0649ed6eefdea015630c7d118d01576">SanityCheck</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/streamproperties.h" line="56" column="16" bodyfile="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/streamproperties.h" bodystart="56" bodyend="56"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>AudioStreamProperties</label>
+        <link refid="class_audio_stream_properties"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>StreamProperties</label>
+        <link refid="class_stream_properties"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>AudioStreamProperties</label>
+        <link refid="class_audio_stream_properties"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>StreamProperties</label>
+        <link refid="class_stream_properties"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/audiostreamproperties.h" line="29" column="1" bodyfile="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/audiostreamproperties.h" bodystart="30" bodyend="38"/>
+    <listofallmembers>
+      <member refid="class_audio_stream_properties_1a1b994024be90d3513689d34a549936f4" prot="public" virt="virtual"><scope>AudioStreamProperties</scope><name>Accept</name></member>
+      <member refid="class_audio_stream_properties_1a32dc8702e463338ca9c134f8fd375844" prot="public" virt="non-virtual"><scope>AudioStreamProperties</scope><name>AudioStreamProperties</name></member>
+      <member refid="class_stream_properties_1a0420478789a7a22dfeadbd624101652a" prot="public" virt="virtual"><scope>AudioStreamProperties</scope><name>SanityCheck</name></member>
+      <member refid="class_audio_stream_properties_1ab993b7f24fdfaff982c6db1d571d6ae1" prot="private" virt="non-virtual"><scope>AudioStreamProperties</scope><name>stream_</name></member>
+      <member refid="class_stream_properties_1a1a7eff92dff9f6e2a12d628279a6bb95" prot="public" virt="non-virtual"><scope>AudioStreamProperties</scope><name>StreamProperties</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

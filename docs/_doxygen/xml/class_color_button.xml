@@ -1,0 +1,203 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_color_button" kind="class" language="C++" prot="public">
+    <compoundname>ColorButton</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QPushButton</basecompoundref>
+    <includes refid="colorbutton_8h" local="no">colorbutton.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_color_button_1a263a65e18d899e316fb8e6f281bc6e5f" prot="private" static="no" mutable="no">
+        <type><ref refid="class_color_manager" kindref="compound">ColorManager</ref> *</type>
+        <definition>ColorManager* ColorButton::color_manager_</definition>
+        <argsstring></argsstring>
+        <name>color_manager_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorbutton/colorbutton.h" line="69" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/colorbutton/colorbutton.h" bodystart="69" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_color_button_1aede1795e385b3ba159e16e455c90d479" prot="private" static="no" mutable="no">
+        <type><ref refid="class_managed_color" kindref="compound">ManagedColor</ref></type>
+        <definition>ManagedColor ColorButton::color_</definition>
+        <argsstring></argsstring>
+        <name>color_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorbutton/colorbutton.h" line="71" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/colorbutton/colorbutton.h" bodystart="71" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_color_button_1a6b9e2ba64e75fb46f5954ccb3fff8cb7" prot="private" static="no" mutable="no">
+        <type><ref refid="colorprocessor_8h_1ae3985029dcc28a9f9f42fc726d1a9471" kindref="member">ColorProcessorPtr</ref></type>
+        <definition>ColorProcessorPtr ColorButton::color_processor_</definition>
+        <argsstring></argsstring>
+        <name>color_processor_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorbutton/colorbutton.h" line="73" column="21" bodyfile="C:/Daten/Olive/olive/app/widget/colorbutton/colorbutton.h" bodystart="73" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_color_button_1a3cf2bd2ac992e82a2b75019d491314c2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>ColorButton::ColorButton</definition>
+        <argsstring>(ColorManager *color_manager, QWidget *parent=nullptr)</argsstring>
+        <name>ColorButton</name>
+        <param>
+          <type><ref refid="class_color_manager" kindref="compound">ColorManager</ref> *</type>
+          <declname>color_manager</declname>
+        </param>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorbutton/colorbutton.h" line="53" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_color_button_1a41e5e8d15c42a3c1d8192cf43e4fff76" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="class_managed_color" kindref="compound">ManagedColor</ref> &amp;</type>
+        <definition>const ManagedColor&amp; ColorButton::GetColor</definition>
+        <argsstring>() const</argsstring>
+        <name>GetColor</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorbutton/colorbutton.h" line="55" column="22"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-slot">
+      <memberdef kind="slot" id="class_color_button_1a305e3c0b9dd67a849346e54bea95e4fc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ColorButton::SetColor</definition>
+        <argsstring>(const ManagedColor &amp;c)</argsstring>
+        <name>SetColor</name>
+        <param>
+          <type>const <ref refid="class_managed_color" kindref="compound">ManagedColor</ref> &amp;</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorbutton/colorbutton.h" line="58" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_color_button_1a52c477929f35a28ebea1db9aeb501e10" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ColorButton::ColorChanged</definition>
+        <argsstring>(const ManagedColor &amp;c)</argsstring>
+        <name>ColorChanged</name>
+        <param>
+          <type>const <ref refid="class_managed_color" kindref="compound">ManagedColor</ref> &amp;</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorbutton/colorbutton.h" line="61" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_color_button_1a32d711794915d41c451aa4c19a581221" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ColorButton::ShowColorDialog</definition>
+        <argsstring>()</argsstring>
+        <name>ShowColorDialog</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorbutton/colorbutton.h" line="64" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_color_button_1a1460bc11ebf1c14e0e788275356ea5ed" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ColorButton::UpdateColor</definition>
+        <argsstring>()</argsstring>
+        <name>UpdateColor</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/colorbutton/colorbutton.h" line="67" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="2">
+        <label>ManagedColor</label>
+        <link refid="class_managed_color"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>color_transform_</edgelabel>
+        </childnode>
+      </node>
+      <node id="5">
+        <label>ColorManager</label>
+        <link refid="class_color_manager"/>
+      </node>
+      <node id="1">
+        <label>ColorButton</label>
+        <link refid="class_color_button"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>color_</edgelabel>
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>color_manager_</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>Color</label>
+        <link refid="class_color"/>
+      </node>
+      <node id="4">
+        <label>ColorTransform</label>
+        <link refid="class_color_transform"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/colorbutton/colorbutton.h" line="31" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/colorbutton/colorbutton.h" bodystart="32" bodyend="57"/>
+    <listofallmembers>
+      <member refid="class_color_button_1aede1795e385b3ba159e16e455c90d479" prot="private" virt="non-virtual"><scope>ColorButton</scope><name>color_</name></member>
+      <member refid="class_color_button_1a263a65e18d899e316fb8e6f281bc6e5f" prot="private" virt="non-virtual"><scope>ColorButton</scope><name>color_manager_</name></member>
+      <member refid="class_color_button_1a6b9e2ba64e75fb46f5954ccb3fff8cb7" prot="private" virt="non-virtual"><scope>ColorButton</scope><name>color_processor_</name></member>
+      <member refid="class_color_button_1a3cf2bd2ac992e82a2b75019d491314c2" prot="public" virt="non-virtual"><scope>ColorButton</scope><name>ColorButton</name></member>
+      <member refid="class_color_button_1a52c477929f35a28ebea1db9aeb501e10" prot="public" virt="non-virtual"><scope>ColorButton</scope><name>ColorChanged</name></member>
+      <member refid="class_color_button_1a41e5e8d15c42a3c1d8192cf43e4fff76" prot="public" virt="non-virtual"><scope>ColorButton</scope><name>GetColor</name></member>
+      <member refid="class_color_button_1a305e3c0b9dd67a849346e54bea95e4fc" prot="public" virt="non-virtual"><scope>ColorButton</scope><name>SetColor</name></member>
+      <member refid="class_color_button_1a32d711794915d41c451aa4c19a581221" prot="private" virt="non-virtual"><scope>ColorButton</scope><name>ShowColorDialog</name></member>
+      <member refid="class_color_button_1a1460bc11ebf1c14e0e788275356ea5ed" prot="private" virt="non-virtual"><scope>ColorButton</scope><name>UpdateColor</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,276 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="ffmpegencoder_8h" kind="file" language="C++">
+    <compoundname>ffmpegencoder.h</compoundname>
+    <includes local="no">libavformat/avformat.h</includes>
+    <includes local="no">libswscale/swscale.h</includes>
+    <includes local="no">libswresample/swresample.h</includes>
+    <includes local="no">libavutil/opt.h</includes>
+    <includes refid="encoder_8h" local="yes">codec/encoder.h</includes>
+    <incdepgraph>
+      <node id="2">
+        <label>libavformat/avformat.h</label>
+      </node>
+      <node id="27">
+        <label>QObject</label>
+      </node>
+      <node id="23">
+        <label>common/timerange.h</label>
+        <link refid="timerange_8h"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>libavutil/opt.h</label>
+      </node>
+      <node id="14">
+        <label>QMetaType</label>
+      </node>
+      <node id="18">
+        <label>render/pixelformat.h</label>
+        <link refid="pixelformat_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>common/rational.h</label>
+        <link refid="rational_8h"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>render/rendermodes.h</label>
+        <link refid="rendermodes_8h"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>libswresample/swresample.h</label>
+      </node>
+      <node id="15">
+        <label>common/define.h</label>
+        <link refid="define_8h"/>
+      </node>
+      <node id="20">
+        <label>QOpenGLExtraFunctions</label>
+      </node>
+      <node id="25">
+        <label>QtMath</label>
+      </node>
+      <node id="13">
+        <label>QDebug</label>
+      </node>
+      <node id="3">
+        <label>libswscale/swscale.h</label>
+      </node>
+      <node id="8">
+        <label>QString</label>
+      </node>
+      <node id="16">
+        <label>render/color.h</label>
+        <link refid="color_8h"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>QColor</label>
+      </node>
+      <node id="26">
+        <label>audio/sampleformat.h</label>
+        <link refid="sampleformat_8h"/>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>iostream</label>
+      </node>
+      <node id="22">
+        <label>render/videoparams.h</label>
+        <link refid="videoparams_8h"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>codec/frame.h</label>
+        <link refid="frame_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+      </node>
+      <node id="19">
+        <label>OpenImageIO/imageio.h</label>
+      </node>
+      <node id="24">
+        <label>render/audioparams.h</label>
+        <link refid="audioparams_8h"/>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>memory</label>
+      </node>
+      <node id="1">
+        <label>ffmpegencoder.h</label>
+        <link refid="ffmpegencoder_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>codec/encoder.h</label>
+        <link refid="encoder_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>QVector</label>
+      </node>
+    </incdepgraph>
+    <innerclass refid="class_f_fmpeg_encoder" prot="public">FFmpegEncoder</innerclass>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/***</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"></highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/><sp/>Olive<sp/>-<sp/>Non-Linear<sp/>Video<sp/>Editor</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/><sp/>Copyright<sp/>(C)<sp/>2019<sp/>Olive<sp/>Team</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"></highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/><sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/><sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/><sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"></highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/><sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/><sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/><sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"></highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/><sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/><sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"></highlight></codeline>
+<codeline lineno="19"><highlight class="comment">***/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>FFMPEGENCODER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>FFMPEGENCODER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;libavformat/avformat.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;libswscale/swscale.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;libswresample/swresample.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;libavutil/opt.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="encoder_8h" kindref="compound">codec/encoder.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><ref refid="define_8h_1a0472692dd1f22472ad63da20da919e8c" kindref="member">OLIVE_NAMESPACE_ENTER</ref></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35" refid="class_f_fmpeg_encoder" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_f_fmpeg_encoder" kindref="compound">FFmpegEncoder</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="class_encoder" kindref="compound">Encoder</ref></highlight></codeline>
+<codeline lineno="36"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/>Q_OBJECT</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><ref refid="class_f_fmpeg_encoder_1a8e3c2abfaa2a433927dc889e68239db9" kindref="member">FFmpegEncoder</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_encoding_params" kindref="compound">EncodingParams</ref><sp/>&amp;<ref refid="class_encoder_1aae58d67791f76a7243097471215bbe69" kindref="member">params</ref>);</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>slots:</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_f_fmpeg_encoder_1afcc1428db3a199a60f4bd86ea62b45ab" kindref="member">WriteAudio</ref>(OLIVE_NAMESPACE::AudioRenderingParams<sp/>pcm_info,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/>pcm_filename,<sp/>OLIVE_NAMESPACE::TimeRange<sp/>range)<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_f_fmpeg_encoder_1a7080d542750a8810780eb961326f887e" kindref="member">OpenInternal</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_f_fmpeg_encoder_1ac38cc9afe34aafb89d704c3ad59eb656" kindref="member">WriteInternal</ref>(<ref refid="frame_8h_1a2ae9a822fc1e331fa3b449797f717db6" kindref="member">FramePtr</ref><sp/>frame,<sp/><ref refid="classrational" kindref="compound">rational</ref><sp/>time)<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_f_fmpeg_encoder_1ac57f4469a4ae35e3af361c5b25c662ca" kindref="member">CloseInternal</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="57" refid="class_f_fmpeg_encoder_1a8e3c2abfaa2a433927dc889e68239db9" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_f_fmpeg_encoder_1a7518414897c940a87fd5731ac335f294" kindref="member">Error</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/>s);</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_f_fmpeg_encoder_1a4ff5b50aab125304d65a53e8eaaed319" kindref="member">FFmpegError</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*context,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>error_code);</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_f_fmpeg_encoder_1acb842653d66d8fe37ef507535eb1e559" kindref="member">WriteAVFrame</ref>(AVFrame*<sp/>frame,<sp/>AVCodecContext<sp/>*codec_ctx,<sp/>AVStream<sp/>*stream);</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_f_fmpeg_encoder_1a7ab4836c2c220ea2f5d8ea07279c9c8c" kindref="member">InitializeStream</ref>(</highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>AVMediaType<sp/>type,<sp/>AVStream**<sp/>stream,<sp/>AVCodecContext**<sp/>codec_ctx,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/>codec);</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_f_fmpeg_encoder_1a79364d6e6313cd931c043ce217a00357" kindref="member">InitializeCodecContext</ref>(AVStream**<sp/>stream,<sp/>AVCodecContext**<sp/>codec_ctx,<sp/>AVCodec*<sp/>codec);</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_f_fmpeg_encoder_1a21e7b8ccd0788274f565c05b7c31315d" kindref="member">SetupCodecContext</ref>(AVStream<sp/>*stream,<sp/>AVCodecContext<sp/>*codec_ctx,<sp/>AVCodec<sp/>*codec);</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75" refid="class_f_fmpeg_encoder_1a7518414897c940a87fd5731ac335f294" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_f_fmpeg_encoder_1af024927b5ee93d8ed93c87fd8ad8e9b4" kindref="member">FlushEncoders</ref>();</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_f_fmpeg_encoder_1a6b22aefbbda5c9b73c47d2b6f644832e" kindref="member">FlushCodecCtx</ref>(AVCodecContext*<sp/>codec_ctx,<sp/>AVStream<sp/>*stream);</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/>AVFormatContext*<sp/><ref refid="class_f_fmpeg_encoder_1a36a50c3846f259d082bc9c7ee81d7394" kindref="member">fmt_ctx_</ref>;</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/>AVStream*<sp/><ref refid="class_f_fmpeg_encoder_1abd0f511cb02c843527ac3d4d49c3636a" kindref="member">video_stream_</ref>;</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/>AVCodecContext*<sp/><ref refid="class_f_fmpeg_encoder_1afd0665393f49d2439ba299783ba185a5" kindref="member">video_codec_ctx_</ref>;</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/>SwsContext*<sp/><ref refid="class_f_fmpeg_encoder_1afa977c43362a2fbb74c22655dd2decdf" kindref="member">video_scale_ctx_</ref>;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><ref refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021" kindref="member">PixelFormat::Format</ref><sp/><ref refid="class_f_fmpeg_encoder_1a68fae25301d513f3c7f5c547f1b6f70d" kindref="member">video_conversion_fmt_</ref>;</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85" refid="class_f_fmpeg_encoder_1a4ff5b50aab125304d65a53e8eaaed319" refkind="member"><highlight class="normal"><sp/><sp/>AVStream*<sp/><ref refid="class_f_fmpeg_encoder_1a95f05ae1fc6f2631dc498aa560c9af1f" kindref="member">audio_stream_</ref>;</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/>AVCodecContext*<sp/><ref refid="class_f_fmpeg_encoder_1a3a0378d40ce11141c19bf82c13aef00a" kindref="member">audio_codec_ctx_</ref>;</highlight></codeline>
+<codeline lineno="87" refid="class_f_fmpeg_encoder_1acb842653d66d8fe37ef507535eb1e559" refkind="member"><highlight class="normal"><sp/><sp/>SwrContext*<sp/><ref refid="class_f_fmpeg_encoder_1aa0f7c566d4bcdc93b8473c40fe28ec97" kindref="member">audio_resample_ctx_</ref>;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="89" refid="class_f_fmpeg_encoder_1a7ab4836c2c220ea2f5d8ea07279c9c8c" refkind="member"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="90" refid="class_f_fmpeg_encoder_1a79364d6e6313cd931c043ce217a00357" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91" refid="class_f_fmpeg_encoder_1a21e7b8ccd0788274f565c05b7c31315d" refkind="member"><highlight class="normal"><ref refid="define_8h_1abe3de0634d907ca0f5d1acf732c49dac" kindref="member">OLIVE_NAMESPACE_EXIT</ref></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93" refid="class_f_fmpeg_encoder_1af024927b5ee93d8ed93c87fd8ad8e9b4" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//<sp/>FFMPEGENCODER_H</highlight></codeline>
+    </programlisting>
+    <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegencoder.h"/>
+  </compounddef>
+</doxygen>

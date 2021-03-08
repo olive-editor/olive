@@ -1,0 +1,154 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_cancelable_object" kind="class" language="C++" prot="public">
+    <compoundname>CancelableObject</compoundname>
+    <derivedcompoundref refid="class_node_traverser" prot="public" virt="non-virtual">NodeTraverser</derivedcompoundref>
+    <derivedcompoundref refid="class_task" prot="public" virt="non-virtual">Task</derivedcompoundref>
+    <includes refid="cancelableobject_8h" local="no">cancelableobject.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_cancelable_object_1a8b2a76dac816afd7527d077ce100993f" prot="private" static="no" mutable="no">
+        <type>QAtomicInt</type>
+        <definition>QAtomicInt CancelableObject::cancelled_</definition>
+        <argsstring></argsstring>
+        <name>cancelled_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/cancelableobject.h" line="64" column="14" bodyfile="C:/Daten/Olive/olive/app/common/cancelableobject.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_cancelable_object_1acda2934b2fbbd008b729ec2aa792751d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>CancelableObject::CancelableObject</definition>
+        <argsstring>()</argsstring>
+        <name>CancelableObject</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/cancelableobject.h" line="50" column="3" bodyfile="C:/Daten/Olive/olive/app/common/cancelableobject.h" bodystart="50" bodyend="53"/>
+      </memberdef>
+      <memberdef kind="function" id="class_cancelable_object_1a70568a2278397439553639b4fffeab9f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void CancelableObject::Cancel</definition>
+        <argsstring>()</argsstring>
+        <name>Cancel</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/cancelableobject.h" line="55" column="8" bodyfile="C:/Daten/Olive/olive/app/common/cancelableobject.h" bodystart="55" bodyend="57"/>
+      </memberdef>
+      <memberdef kind="function" id="class_cancelable_object_1a3a776cf79c9a231efe9a6e81466c2124" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>const QAtomicInt &amp;</type>
+        <definition>const QAtomicInt&amp; CancelableObject::IsCancelled</definition>
+        <argsstring>() const</argsstring>
+        <name>IsCancelled</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/cancelableobject.h" line="59" column="20" bodyfile="C:/Daten/Olive/olive/app/common/cancelableobject.h" bodystart="59" bodyend="61"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="7">
+        <label>OpenGLWorker</label>
+        <link refid="class_open_g_l_worker"/>
+        <childnode refid="6" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>ProjectLoadManager</label>
+        <link refid="class_project_load_manager"/>
+        <childnode refid="8" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>CancelableObject</label>
+        <link refid="class_cancelable_object"/>
+      </node>
+      <node id="4">
+        <label>AudioRenderWorker</label>
+        <link refid="class_audio_render_worker"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>Task</label>
+        <link refid="class_task"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>RenderWorker</label>
+        <link refid="class_render_worker"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>ConformTask</label>
+        <link refid="class_conform_task"/>
+        <childnode refid="8" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>AudioWorker</label>
+        <link refid="class_audio_worker"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>NodeTraverser</label>
+        <link refid="class_node_traverser"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>IndexTask</label>
+        <link refid="class_index_task"/>
+        <childnode refid="8" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>ProjectSaveManager</label>
+        <link refid="class_project_save_manager"/>
+        <childnode refid="8" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>ProjectImportManager</label>
+        <link refid="class_project_import_manager"/>
+        <childnode refid="8" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>VideoRenderWorker</label>
+        <link refid="class_video_render_worker"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <location file="C:/Daten/Olive/olive/app/common/cancelableobject.h" line="30" column="1" bodyfile="C:/Daten/Olive/olive/app/common/cancelableobject.h" bodystart="30" bodyend="48"/>
+    <listofallmembers>
+      <member refid="class_cancelable_object_1a70568a2278397439553639b4fffeab9f" prot="public" virt="non-virtual"><scope>CancelableObject</scope><name>Cancel</name></member>
+      <member refid="class_cancelable_object_1acda2934b2fbbd008b729ec2aa792751d" prot="public" virt="non-virtual"><scope>CancelableObject</scope><name>CancelableObject</name></member>
+      <member refid="class_cancelable_object_1a8b2a76dac816afd7527d077ce100993f" prot="private" virt="non-virtual"><scope>CancelableObject</scope><name>cancelled_</name></member>
+      <member refid="class_cancelable_object_1a3a776cf79c9a231efe9a6e81466c2124" prot="public" virt="non-virtual"><scope>CancelableObject</scope><name>IsCancelled</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

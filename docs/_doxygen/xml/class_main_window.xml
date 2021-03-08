@@ -1,0 +1,1128 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_main_window" kind="class" language="C++" prot="public">
+    <compoundname>MainWindow</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QMainWindow</basecompoundref>
+    <includes refid="mainwindow_8h" local="no">mainwindow.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_main_window_1a84735721affa32164c25d2b9599caad8" prot="private" static="no" mutable="no">
+        <type>QByteArray</type>
+        <definition>QByteArray MainWindow::premaximized_state_</definition>
+        <argsstring></argsstring>
+        <name>premaximized_state_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" line="135" column="14" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" bodystart="135" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_window_1a3448ebdb354f4d0d19064f724dd574ca" prot="private" static="no" mutable="no">
+        <type><ref refid="class_node_panel" kindref="compound">NodePanel</ref> *</type>
+        <definition>NodePanel* MainWindow::node_panel_</definition>
+        <argsstring></argsstring>
+        <name>node_panel_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" line="138" column="13" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" bodystart="138" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_window_1a3df1b20bc899b08ead18a693e32585f3" prot="private" static="no" mutable="no">
+        <type><ref refid="class_param_panel" kindref="compound">ParamPanel</ref> *</type>
+        <definition>ParamPanel* MainWindow::param_panel_</definition>
+        <argsstring></argsstring>
+        <name>param_panel_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" line="139" column="14" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" bodystart="139" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_window_1aa3260e01cc3b3440ee1aa5c2f412f982" prot="private" static="no" mutable="no">
+        <type><ref refid="class_sequence_viewer_panel" kindref="compound">SequenceViewerPanel</ref> *</type>
+        <definition>SequenceViewerPanel* MainWindow::sequence_viewer_panel_</definition>
+        <argsstring></argsstring>
+        <name>sequence_viewer_panel_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" line="140" column="23" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" bodystart="140" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_window_1a0de3c90d92a1bba950dcf84507217a38" prot="private" static="no" mutable="no">
+        <type><ref refid="class_footage_viewer_panel" kindref="compound">FootageViewerPanel</ref> *</type>
+        <definition>FootageViewerPanel* MainWindow::footage_viewer_panel_</definition>
+        <argsstring></argsstring>
+        <name>footage_viewer_panel_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" line="141" column="22" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" bodystart="141" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_window_1a389fd7d09f570321a0b62d5ada04a1a3" prot="private" static="no" mutable="no">
+        <type>QList&lt; <ref refid="class_project_panel" kindref="compound">ProjectPanel</ref> * &gt;</type>
+        <definition>QList&lt;ProjectPanel*&gt; MainWindow::project_panels_</definition>
+        <argsstring></argsstring>
+        <name>project_panels_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" line="142" column="9" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" bodystart="142" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_window_1ad0aba30e86cf9e7135c10bd9ef238670" prot="private" static="no" mutable="no">
+        <type>QList&lt; <ref refid="class_project_panel" kindref="compound">ProjectPanel</ref> * &gt;</type>
+        <definition>QList&lt;ProjectPanel*&gt; MainWindow::folder_panels_</definition>
+        <argsstring></argsstring>
+        <name>folder_panels_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" line="143" column="9" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" bodystart="143" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_window_1a55ebbbdfd1d9aa781d198c5a8ae5118b" prot="private" static="no" mutable="no">
+        <type><ref refid="class_tool_panel" kindref="compound">ToolPanel</ref> *</type>
+        <definition>ToolPanel* MainWindow::tool_panel_</definition>
+        <argsstring></argsstring>
+        <name>tool_panel_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" line="144" column="13" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" bodystart="144" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_window_1adaf220b40e036eddf42a83f93e7daaa4" prot="private" static="no" mutable="no">
+        <type>QList&lt; <ref refid="class_timeline_panel" kindref="compound">TimelinePanel</ref> * &gt;</type>
+        <definition>QList&lt;TimelinePanel*&gt; MainWindow::timeline_panels_</definition>
+        <argsstring></argsstring>
+        <name>timeline_panels_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" line="145" column="9" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" bodystart="145" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_window_1ae95104f4d5708d34c27fcf7cdbc2228a" prot="private" static="no" mutable="no">
+        <type><ref refid="class_audio_monitor_panel" kindref="compound">AudioMonitorPanel</ref> *</type>
+        <definition>AudioMonitorPanel* MainWindow::audio_monitor_panel_</definition>
+        <argsstring></argsstring>
+        <name>audio_monitor_panel_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" line="146" column="21" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" bodystart="146" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_window_1a88be1fe33343b580a872697dac377a37" prot="private" static="no" mutable="no">
+        <type><ref refid="class_task_manager_panel" kindref="compound">TaskManagerPanel</ref> *</type>
+        <definition>TaskManagerPanel* MainWindow::task_man_panel_</definition>
+        <argsstring></argsstring>
+        <name>task_man_panel_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" line="147" column="20" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" bodystart="147" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_window_1ad21f8c5e54a8d56895683c1a1bb4e6e9" prot="private" static="no" mutable="no">
+        <type>QList&lt; <ref refid="class_curve_panel" kindref="compound">CurvePanel</ref> * &gt;</type>
+        <definition>QList&lt;CurvePanel*&gt; MainWindow::curve_panels_</definition>
+        <argsstring></argsstring>
+        <name>curve_panels_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" line="148" column="9" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" bodystart="148" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_window_1ac2b283e1e7860d6f19434610f3bad2f8" prot="private" static="no" mutable="no">
+        <type><ref refid="class_pixel_sampler_panel" kindref="compound">PixelSamplerPanel</ref> *</type>
+        <definition>PixelSamplerPanel* MainWindow::pixel_sampler_panel_</definition>
+        <argsstring></argsstring>
+        <name>pixel_sampler_panel_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" line="149" column="21" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" bodystart="149" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_window_1a3907d786042ef94302209299313cbc2e" prot="private" static="no" mutable="no">
+        <type>QList&lt; <ref refid="class_scope_panel" kindref="compound">ScopePanel</ref> * &gt;</type>
+        <definition>QList&lt;ScopePanel*&gt; MainWindow::scope_panels_</definition>
+        <argsstring></argsstring>
+        <name>scope_panels_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" line="150" column="9" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" bodystart="150" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_main_window_1a996c5a2b6f77944776856f08ec30858d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>MainWindow::MainWindow</definition>
+        <argsstring>(QWidget *parent=nullptr)</argsstring>
+        <name>MainWindow</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" line="71" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_main_window_1a8820c49e3387049560caf94f39abd1b9" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type></type>
+        <definition>virtual MainWindow::~MainWindow</definition>
+        <argsstring>() override</argsstring>
+        <name>~MainWindow</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" line="73" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_main_window_1af30bf95fce0a0b9354aa6feaf887f8a7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainWindow::LoadLayout</definition>
+        <argsstring>(QXmlStreamReader *reader, XMLNodeData &amp;xml_data)</argsstring>
+        <name>LoadLayout</name>
+        <param>
+          <type>QXmlStreamReader *</type>
+          <declname>reader</declname>
+        </param>
+        <param>
+          <type><ref refid="struct_x_m_l_node_data" kindref="compound">XMLNodeData</ref> &amp;</type>
+          <declname>xml_data</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" line="75" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_main_window_1af6ceb7f6767e2c50a2397911db7fa9af" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainWindow::SaveLayout</definition>
+        <argsstring>(QXmlStreamWriter *writer) const</argsstring>
+        <name>SaveLayout</name>
+        <param>
+          <type>QXmlStreamWriter *</type>
+          <declname>writer</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" line="77" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_main_window_1ad9cfa6c6fa1082de59c9d39ace1f9a41" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainWindow::OpenSequence</definition>
+        <argsstring>(Sequence *sequence)</argsstring>
+        <name>OpenSequence</name>
+        <param>
+          <type><ref refid="class_sequence" kindref="compound">Sequence</ref> *</type>
+          <declname>sequence</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" line="79" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_main_window_1a6f57b5b9665e43f6026b953452f6e393" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainWindow::CloseSequence</definition>
+        <argsstring>(Sequence *sequence)</argsstring>
+        <name>CloseSequence</name>
+        <param>
+          <type><ref refid="class_sequence" kindref="compound">Sequence</ref> *</type>
+          <declname>sequence</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" line="81" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_main_window_1a5e338029b435183ba6a931e21409e7c2" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool MainWindow::IsSequenceOpen</definition>
+        <argsstring>(Sequence *sequence) const</argsstring>
+        <name>IsSequenceOpen</name>
+        <param>
+          <type><ref refid="class_sequence" kindref="compound">Sequence</ref> *</type>
+          <declname>sequence</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" line="83" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_main_window_1a43c2b2f3ff3ed83ef74f66db9a65e12b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainWindow::FolderOpen</definition>
+        <argsstring>(Project *p, Item *i, bool floating)</argsstring>
+        <name>FolderOpen</name>
+        <param>
+          <type><ref refid="class_project" kindref="compound">Project</ref> *</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="class_item" kindref="compound">Item</ref> *</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>floating</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" line="85" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_main_window_1a7db46b618a583ae05f53278784f9a633" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_scope_panel" kindref="compound">ScopePanel</ref> *</type>
+        <definition>ScopePanel* MainWindow::AppendScopePanel</definition>
+        <argsstring>()</argsstring>
+        <name>AppendScopePanel</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" line="87" column="14"/>
+      </memberdef>
+      <memberdef kind="function" id="class_main_window_1afddf64725b7c8e7a13ea2d1931a5611a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_curve_panel" kindref="compound">CurvePanel</ref> *</type>
+        <definition>CurvePanel* MainWindow::AppendCurvePanel</definition>
+        <argsstring>()</argsstring>
+        <name>AppendCurvePanel</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" line="89" column="14"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-slot">
+      <memberdef kind="slot" id="class_main_window_1aef1a840987c18ddb1671568888999f2b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainWindow::ProjectOpen</definition>
+        <argsstring>(Project *p)</argsstring>
+        <name>ProjectOpen</name>
+        <param>
+          <type><ref refid="class_project" kindref="compound">Project</ref> *</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" line="98" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_window_1a5ad718e5a6481138ef71fde25b44dde5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainWindow::ProjectClose</definition>
+        <argsstring>(Project *p)</argsstring>
+        <name>ProjectClose</name>
+        <param>
+          <type><ref refid="class_project" kindref="compound">Project</ref> *</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" line="100" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_window_1a95dddf384e181dfbad86365143864f78" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainWindow::SetFullscreen</definition>
+        <argsstring>(bool fullscreen)</argsstring>
+        <name>SetFullscreen</name>
+        <param>
+          <type>bool</type>
+          <declname>fullscreen</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" line="102" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_window_1afb86226851a972dbb1e3a9a041d50892" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainWindow::ToggleMaximizedPanel</definition>
+        <argsstring>()</argsstring>
+        <name>ToggleMaximizedPanel</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" line="104" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_window_1a5bd977a320594bc7730824db8b24c69f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainWindow::SetDefaultLayout</definition>
+        <argsstring>()</argsstring>
+        <name>SetDefaultLayout</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" line="106" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_main_window_1aeb7d24940d556ea8047f8dc184b02482" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void MainWindow::closeEvent</definition>
+        <argsstring>(QCloseEvent *e) override</argsstring>
+        <name>closeEvent</name>
+        <param>
+          <type>QCloseEvent *</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" line="109" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_main_window_1af11d9060c3256049be13584351c652ba" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_timeline_panel" kindref="compound">TimelinePanel</ref> *</type>
+        <definition>TimelinePanel* MainWindow::AppendTimelinePanel</definition>
+        <argsstring>()</argsstring>
+        <name>AppendTimelinePanel</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" line="116" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_main_window_1a706de3870992ba6c8158c86d29abf149" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_project_panel" kindref="compound">ProjectPanel</ref> *</type>
+        <definition>ProjectPanel* MainWindow::AppendProjectPanel</definition>
+        <argsstring>()</argsstring>
+        <name>AppendProjectPanel</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" line="118" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_main_window_1aaa83a61d18c9922b7e733abc120a5479" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>T *</type>
+        <definition>T* MainWindow::AppendPanelInternal</definition>
+        <argsstring>(QList&lt; T * &gt; &amp;list)</argsstring>
+        <name>AppendPanelInternal</name>
+        <param>
+          <type>QList&lt; T * &gt; &amp;</type>
+          <declname>list</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" line="121" column="5"/>
+      </memberdef>
+      <memberdef kind="function" id="class_main_window_1a9d3c9022e7e7e78fe6b7130f7682d3ea" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>T *</type>
+        <definition>T* MainWindow::AppendFloatingPanelInternal</definition>
+        <argsstring>(QList&lt; T * &gt; &amp;list)</argsstring>
+        <name>AppendFloatingPanelInternal</name>
+        <param>
+          <type>QList&lt; T * &gt; &amp;</type>
+          <declname>list</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" line="124" column="5"/>
+      </memberdef>
+      <memberdef kind="function" id="class_main_window_1ab1ad8c32293eab950a3bb041ab78e8fa" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void MainWindow::SetUniquePanelID</definition>
+        <argsstring>(T *panel, const QList&lt; T * &gt; &amp;list)</argsstring>
+        <name>SetUniquePanelID</name>
+        <param>
+          <type>T *</type>
+          <declname>panel</declname>
+        </param>
+        <param>
+          <type>const QList&lt; T * &gt; &amp;</type>
+          <declname>list</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" line="127" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_main_window_1a9d6c137e47fedcfa425ded539ba2d15a" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainWindow::RemoveTimelinePanel</definition>
+        <argsstring>(TimelinePanel *panel)</argsstring>
+        <name>RemoveTimelinePanel</name>
+        <param>
+          <type><ref refid="class_timeline_panel" kindref="compound">TimelinePanel</ref> *</type>
+          <declname>panel</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" line="129" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_main_window_1a4625f2ad00f2de16de9ab6109f6eac56" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainWindow::RemoveProjectPanel</definition>
+        <argsstring>(ProjectPanel *panel)</argsstring>
+        <name>RemoveProjectPanel</name>
+        <param>
+          <type><ref refid="class_project_panel" kindref="compound">ProjectPanel</ref> *</type>
+          <declname>panel</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" line="131" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_main_window_1ad554359bb182d4af68015001d84599a3" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainWindow::TimelineFocused</definition>
+        <argsstring>(ViewerOutput *viewer)</argsstring>
+        <name>TimelineFocused</name>
+        <param>
+          <type><ref refid="class_viewer_output" kindref="compound">ViewerOutput</ref> *</type>
+          <declname>viewer</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" line="133" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_main_window_1a02f74f7e0bc7c273e41f7f723364d5a3" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainWindow::FocusedPanelChanged</definition>
+        <argsstring>(PanelWidget *panel)</argsstring>
+        <name>FocusedPanelChanged</name>
+        <param>
+          <type><ref refid="class_panel_widget" kindref="compound">PanelWidget</ref> *</type>
+          <declname>panel</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" line="159" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_window_1af67a18c01a5492dc694eca5da1feb9c1" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainWindow::UpdateTitle</definition>
+        <argsstring>()</argsstring>
+        <name>UpdateTitle</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" line="161" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_window_1a05076a8b3447a26da30d07176448229a" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainWindow::TimelineCloseRequested</definition>
+        <argsstring>()</argsstring>
+        <name>TimelineCloseRequested</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" line="163" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_window_1a77e45574ee6e11de1583c6e046505a38" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainWindow::ProjectCloseRequested</definition>
+        <argsstring>()</argsstring>
+        <name>ProjectCloseRequested</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" line="165" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_window_1ae937587e0dd3dab4a5a6c0bb82891aae" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainWindow::FloatingPanelCloseRequested</definition>
+        <argsstring>()</argsstring>
+        <name>FloatingPanelCloseRequested</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" line="167" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_window_1ac51a1b562921b02472d75fe05a77d07f" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainWindow::LoadLayoutInternal</definition>
+        <argsstring>(QXmlStreamReader *reader, XMLNodeData *xml_data)</argsstring>
+        <name>LoadLayoutInternal</name>
+        <param>
+          <type>QXmlStreamReader *</type>
+          <declname>reader</declname>
+        </param>
+        <param>
+          <type><ref refid="struct_x_m_l_node_data" kindref="compound">XMLNodeData</ref> *</type>
+          <declname>xml_data</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" line="169" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_window_1a1cc2479b746f41c98627d4bc2a05505c" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainWindow::StatusBarDoubleClicked</definition>
+        <argsstring>()</argsstring>
+        <name>StatusBarDoubleClicked</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" line="171" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Olive&apos;s main window responsible for docking widgets and the main menu bar. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="22">
+        <label>NodeOutput</label>
+        <link refid="class_node_output"/>
+        <childnode refid="23" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>TimelinePoints</label>
+        <link refid="class_timeline_points"/>
+        <childnode refid="16" relation="usage">
+          <edgelabel>markers_</edgelabel>
+        </childnode>
+        <childnode refid="17" relation="usage">
+          <edgelabel>workarea_</edgelabel>
+        </childnode>
+      </node>
+      <node id="40">
+        <label>TaskManagerPanel</label>
+        <link refid="class_task_manager_panel"/>
+        <childnode refid="6" relation="public-inheritance">
+        </childnode>
+        <childnode refid="41" relation="usage">
+          <edgelabel>view_</edgelabel>
+        </childnode>
+      </node>
+      <node id="39">
+        <label>ParamPanel</label>
+        <link refid="class_param_panel"/>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="31">
+        <label>NodeViewEdge</label>
+        <link refid="class_node_view_edge"/>
+      </node>
+      <node id="35">
+        <label>PixelSamplerPanel</label>
+        <link refid="class_pixel_sampler_panel"/>
+        <childnode refid="6" relation="public-inheritance">
+        </childnode>
+        <childnode refid="36" relation="usage">
+          <edgelabel>sampler_widget_</edgelabel>
+        </childnode>
+      </node>
+      <node id="41">
+        <label>TaskView</label>
+        <link refid="class_task_view"/>
+      </node>
+      <node id="32">
+        <label>NodeGraph</label>
+        <link refid="class_node_graph"/>
+      </node>
+      <node id="5">
+        <label>TimeBasedPanel</label>
+        <link refid="class_time_based_panel"/>
+        <childnode refid="6" relation="public-inheritance">
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>widget_</edgelabel>
+        </childnode>
+      </node>
+      <node id="46">
+        <label>FootageManagementPanel</label>
+        <link refid="class_footage_management_panel"/>
+      </node>
+      <node id="25">
+        <label>AudioParams</label>
+        <link refid="class_audio_params"/>
+      </node>
+      <node id="27">
+        <label>NodePanel</label>
+        <link refid="class_node_panel"/>
+        <childnode refid="6" relation="public-inheritance">
+        </childnode>
+        <childnode refid="28" relation="usage">
+          <edgelabel>node_view_</edgelabel>
+        </childnode>
+      </node>
+      <node id="20">
+        <label>ViewerOutput</label>
+        <link refid="class_viewer_output"/>
+        <childnode refid="21" relation="public-inheritance">
+        </childnode>
+        <childnode refid="24" relation="usage">
+          <edgelabel>video_params_</edgelabel>
+        </childnode>
+        <childnode refid="10" relation="usage">
+          <edgelabel>timeline_length_</edgelabel>
+        </childnode>
+        <childnode refid="25" relation="usage">
+          <edgelabel>audio_params_</edgelabel>
+        </childnode>
+        <childnode refid="26" relation="usage">
+          <edgelabel>texture_input_</edgelabel>
+          <edgelabel>samples_input_</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>SequenceViewerPanel</label>
+        <link refid="class_sequence_viewer_panel"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>TimelinePlayhead</label>
+        <link refid="class_timeline_playhead"/>
+      </node>
+      <node id="6">
+        <label>PanelWidget</label>
+        <link refid="class_panel_widget"/>
+      </node>
+      <node id="42">
+        <label>AudioMonitorPanel</label>
+        <link refid="class_audio_monitor_panel"/>
+        <childnode refid="6" relation="public-inheritance">
+        </childnode>
+        <childnode refid="43" relation="usage">
+          <edgelabel>audio_monitor_</edgelabel>
+        </childnode>
+      </node>
+      <node id="29">
+        <label>HandMovableView</label>
+        <link refid="class_hand_movable_view"/>
+      </node>
+      <node id="37">
+        <label>PixelSamplerWidget</label>
+        <link refid="class_pixel_sampler_widget"/>
+        <childnode refid="38" relation="usage">
+          <edgelabel>color_</edgelabel>
+        </childnode>
+      </node>
+      <node id="1">
+        <label>MainWindow</label>
+        <link refid="class_main_window"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>sequence_viewer_panel_</edgelabel>
+        </childnode>
+        <childnode refid="27" relation="usage">
+          <edgelabel>node_panel_</edgelabel>
+        </childnode>
+        <childnode refid="34" relation="usage">
+          <edgelabel>tool_panel_</edgelabel>
+        </childnode>
+        <childnode refid="35" relation="usage">
+          <edgelabel>pixel_sampler_panel_</edgelabel>
+        </childnode>
+        <childnode refid="39" relation="usage">
+          <edgelabel>param_panel_</edgelabel>
+        </childnode>
+        <childnode refid="40" relation="usage">
+          <edgelabel>task_man_panel_</edgelabel>
+        </childnode>
+        <childnode refid="42" relation="usage">
+          <edgelabel>audio_monitor_panel_</edgelabel>
+        </childnode>
+        <childnode refid="45" relation="usage">
+          <edgelabel>footage_viewer_panel_</edgelabel>
+        </childnode>
+      </node>
+      <node id="36">
+        <label>ManagedPixelSamplerWidget</label>
+        <link refid="class_managed_pixel_sampler_widget"/>
+        <childnode refid="37" relation="usage">
+          <edgelabel>reference_view_</edgelabel>
+          <edgelabel>display_view_</edgelabel>
+        </childnode>
+      </node>
+      <node id="10">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="43">
+        <label>AudioMonitor</label>
+        <link refid="class_audio_monitor"/>
+        <childnode refid="44" relation="usage">
+          <edgelabel>params_</edgelabel>
+        </childnode>
+      </node>
+      <node id="44">
+        <label>AudioRenderingParams</label>
+        <link refid="class_audio_rendering_params"/>
+        <childnode refid="25" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="33">
+        <label>NodeViewScene</label>
+        <link refid="class_node_view_scene"/>
+        <childnode refid="32" relation="usage">
+          <edgelabel>graph_</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>ViewerPanel</label>
+        <link refid="class_viewer_panel"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>TimelineScaledObject</label>
+        <link refid="class_timeline_scaled_object"/>
+        <childnode refid="10" relation="usage">
+          <edgelabel>timebase_</edgelabel>
+        </childnode>
+      </node>
+      <node id="21">
+        <label>Node</label>
+        <link refid="class_node"/>
+        <childnode refid="22" relation="usage">
+          <edgelabel>output_</edgelabel>
+        </childnode>
+      </node>
+      <node id="34">
+        <label>ToolPanel</label>
+        <link refid="class_tool_panel"/>
+        <childnode refid="6" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>NodeInput</label>
+        <link refid="class_node_input"/>
+        <childnode refid="23" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>TimeBasedWidget</label>
+        <link refid="class_time_based_widget"/>
+        <childnode refid="8" relation="public-inheritance">
+        </childnode>
+        <childnode refid="11" relation="usage">
+          <edgelabel>scrollbar_</edgelabel>
+        </childnode>
+        <childnode refid="12" relation="usage">
+          <edgelabel>ruler_</edgelabel>
+        </childnode>
+        <childnode refid="20" relation="usage">
+          <edgelabel>viewer_node_</edgelabel>
+        </childnode>
+        <childnode refid="15" relation="usage">
+          <edgelabel>points_</edgelabel>
+        </childnode>
+      </node>
+      <node id="19">
+        <label>TimeRangeList</label>
+        <link refid="class_time_range_list"/>
+      </node>
+      <node id="38">
+        <label>Color</label>
+        <link refid="class_color"/>
+      </node>
+      <node id="4">
+        <label>ViewerPanelBase</label>
+        <link refid="class_viewer_panel_base"/>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>TimelineScaledWidget</label>
+        <link refid="class_timeline_scaled_widget"/>
+        <childnode refid="9" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="45">
+        <label>FootageViewerPanel</label>
+        <link refid="class_footage_viewer_panel"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+        <childnode refid="46" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>TimelineWorkArea</label>
+        <link refid="class_timeline_work_area"/>
+        <childnode refid="18" relation="usage">
+          <edgelabel>workarea_range_</edgelabel>
+        </childnode>
+        <childnode refid="10" relation="usage">
+          <edgelabel>kResetOut</edgelabel>
+          <edgelabel>kResetIn</edgelabel>
+        </childnode>
+      </node>
+      <node id="23">
+        <label>NodeParam</label>
+        <link refid="class_node_param"/>
+      </node>
+      <node id="18">
+        <label>TimeRange</label>
+        <link refid="class_time_range"/>
+        <childnode refid="10" relation="usage">
+          <edgelabel>out_</edgelabel>
+          <edgelabel>in_</edgelabel>
+          <edgelabel>length_</edgelabel>
+        </childnode>
+      </node>
+      <node id="13">
+        <label>SeekableWidget</label>
+        <link refid="class_seekable_widget"/>
+        <childnode refid="8" relation="public-inheritance">
+        </childnode>
+        <childnode refid="14" relation="usage">
+          <edgelabel>style_</edgelabel>
+        </childnode>
+        <childnode refid="15" relation="usage">
+          <edgelabel>timeline_points_</edgelabel>
+        </childnode>
+      </node>
+      <node id="11">
+        <label>ResizableScrollBar</label>
+        <link refid="class_resizable_scroll_bar"/>
+      </node>
+      <node id="30">
+        <label>NodeCopyPasteWidget</label>
+        <link refid="class_node_copy_paste_widget"/>
+      </node>
+      <node id="24">
+        <label>VideoParams</label>
+        <link refid="class_video_params"/>
+        <childnode refid="10" relation="usage">
+          <edgelabel>time_base_</edgelabel>
+        </childnode>
+      </node>
+      <node id="12">
+        <label>TimeRuler</label>
+        <link refid="class_time_ruler"/>
+        <childnode refid="13" relation="public-inheritance">
+        </childnode>
+        <childnode refid="19" relation="usage">
+          <edgelabel>dirty_cache_ranges_</edgelabel>
+        </childnode>
+        <childnode refid="10" relation="usage">
+          <edgelabel>cache_length_</edgelabel>
+        </childnode>
+      </node>
+      <node id="16">
+        <label>TimelineMarkerList</label>
+        <link refid="class_timeline_marker_list"/>
+      </node>
+      <node id="28">
+        <label>NodeView</label>
+        <link refid="class_node_view"/>
+        <childnode refid="29" relation="public-inheritance">
+        </childnode>
+        <childnode refid="30" relation="public-inheritance">
+        </childnode>
+        <childnode refid="31" relation="usage">
+          <edgelabel>drop_edge_</edgelabel>
+        </childnode>
+        <childnode refid="32" relation="usage">
+          <edgelabel>graph_</edgelabel>
+        </childnode>
+        <childnode refid="26" relation="usage">
+          <edgelabel>drop_input_</edgelabel>
+        </childnode>
+        <childnode refid="33" relation="usage">
+          <edgelabel>scene_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" line="50" column="1" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainwindow.h" bodystart="50" bodyend="155"/>
+    <listofallmembers>
+      <member refid="class_main_window_1afddf64725b7c8e7a13ea2d1931a5611a" prot="public" virt="non-virtual"><scope>MainWindow</scope><name>AppendCurvePanel</name></member>
+      <member refid="class_main_window_1a9d3c9022e7e7e78fe6b7130f7682d3ea" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>AppendFloatingPanelInternal</name></member>
+      <member refid="class_main_window_1aaa83a61d18c9922b7e733abc120a5479" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>AppendPanelInternal</name></member>
+      <member refid="class_main_window_1a706de3870992ba6c8158c86d29abf149" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>AppendProjectPanel</name></member>
+      <member refid="class_main_window_1a7db46b618a583ae05f53278784f9a633" prot="public" virt="non-virtual"><scope>MainWindow</scope><name>AppendScopePanel</name></member>
+      <member refid="class_main_window_1af11d9060c3256049be13584351c652ba" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>AppendTimelinePanel</name></member>
+      <member refid="class_main_window_1ae95104f4d5708d34c27fcf7cdbc2228a" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>audio_monitor_panel_</name></member>
+      <member refid="class_main_window_1aeb7d24940d556ea8047f8dc184b02482" prot="protected" virt="virtual"><scope>MainWindow</scope><name>closeEvent</name></member>
+      <member refid="class_main_window_1a6f57b5b9665e43f6026b953452f6e393" prot="public" virt="non-virtual"><scope>MainWindow</scope><name>CloseSequence</name></member>
+      <member refid="class_main_window_1ad21f8c5e54a8d56895683c1a1bb4e6e9" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>curve_panels_</name></member>
+      <member refid="class_main_window_1ae937587e0dd3dab4a5a6c0bb82891aae" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>FloatingPanelCloseRequested</name></member>
+      <member refid="class_main_window_1a02f74f7e0bc7c273e41f7f723364d5a3" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>FocusedPanelChanged</name></member>
+      <member refid="class_main_window_1ad0aba30e86cf9e7135c10bd9ef238670" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>folder_panels_</name></member>
+      <member refid="class_main_window_1a43c2b2f3ff3ed83ef74f66db9a65e12b" prot="public" virt="non-virtual"><scope>MainWindow</scope><name>FolderOpen</name></member>
+      <member refid="class_main_window_1a0de3c90d92a1bba950dcf84507217a38" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>footage_viewer_panel_</name></member>
+      <member refid="class_main_window_1a5e338029b435183ba6a931e21409e7c2" prot="public" virt="non-virtual"><scope>MainWindow</scope><name>IsSequenceOpen</name></member>
+      <member refid="class_main_window_1af30bf95fce0a0b9354aa6feaf887f8a7" prot="public" virt="non-virtual"><scope>MainWindow</scope><name>LoadLayout</name></member>
+      <member refid="class_main_window_1ac51a1b562921b02472d75fe05a77d07f" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>LoadLayoutInternal</name></member>
+      <member refid="class_main_window_1a996c5a2b6f77944776856f08ec30858d" prot="public" virt="non-virtual"><scope>MainWindow</scope><name>MainWindow</name></member>
+      <member refid="class_main_window_1a3448ebdb354f4d0d19064f724dd574ca" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>node_panel_</name></member>
+      <member refid="class_main_window_1ad9cfa6c6fa1082de59c9d39ace1f9a41" prot="public" virt="non-virtual"><scope>MainWindow</scope><name>OpenSequence</name></member>
+      <member refid="class_main_window_1a3df1b20bc899b08ead18a693e32585f3" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>param_panel_</name></member>
+      <member refid="class_main_window_1ac2b283e1e7860d6f19434610f3bad2f8" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>pixel_sampler_panel_</name></member>
+      <member refid="class_main_window_1a84735721affa32164c25d2b9599caad8" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>premaximized_state_</name></member>
+      <member refid="class_main_window_1a389fd7d09f570321a0b62d5ada04a1a3" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>project_panels_</name></member>
+      <member refid="class_main_window_1a5ad718e5a6481138ef71fde25b44dde5" prot="public" virt="non-virtual"><scope>MainWindow</scope><name>ProjectClose</name></member>
+      <member refid="class_main_window_1a77e45574ee6e11de1583c6e046505a38" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>ProjectCloseRequested</name></member>
+      <member refid="class_main_window_1aef1a840987c18ddb1671568888999f2b" prot="public" virt="non-virtual"><scope>MainWindow</scope><name>ProjectOpen</name></member>
+      <member refid="class_main_window_1a4625f2ad00f2de16de9ab6109f6eac56" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>RemoveProjectPanel</name></member>
+      <member refid="class_main_window_1a9d6c137e47fedcfa425ded539ba2d15a" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>RemoveTimelinePanel</name></member>
+      <member refid="class_main_window_1af6ceb7f6767e2c50a2397911db7fa9af" prot="public" virt="non-virtual"><scope>MainWindow</scope><name>SaveLayout</name></member>
+      <member refid="class_main_window_1a3907d786042ef94302209299313cbc2e" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>scope_panels_</name></member>
+      <member refid="class_main_window_1aa3260e01cc3b3440ee1aa5c2f412f982" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>sequence_viewer_panel_</name></member>
+      <member refid="class_main_window_1a5bd977a320594bc7730824db8b24c69f" prot="public" virt="non-virtual"><scope>MainWindow</scope><name>SetDefaultLayout</name></member>
+      <member refid="class_main_window_1a95dddf384e181dfbad86365143864f78" prot="public" virt="non-virtual"><scope>MainWindow</scope><name>SetFullscreen</name></member>
+      <member refid="class_main_window_1ab1ad8c32293eab950a3bb041ab78e8fa" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>SetUniquePanelID</name></member>
+      <member refid="class_main_window_1a1cc2479b746f41c98627d4bc2a05505c" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>StatusBarDoubleClicked</name></member>
+      <member refid="class_main_window_1a88be1fe33343b580a872697dac377a37" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>task_man_panel_</name></member>
+      <member refid="class_main_window_1adaf220b40e036eddf42a83f93e7daaa4" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>timeline_panels_</name></member>
+      <member refid="class_main_window_1a05076a8b3447a26da30d07176448229a" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>TimelineCloseRequested</name></member>
+      <member refid="class_main_window_1ad554359bb182d4af68015001d84599a3" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>TimelineFocused</name></member>
+      <member refid="class_main_window_1afb86226851a972dbb1e3a9a041d50892" prot="public" virt="non-virtual"><scope>MainWindow</scope><name>ToggleMaximizedPanel</name></member>
+      <member refid="class_main_window_1a55ebbbdfd1d9aa781d198c5a8ae5118b" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>tool_panel_</name></member>
+      <member refid="class_main_window_1af67a18c01a5492dc694eca5da1feb9c1" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>UpdateTitle</name></member>
+      <member refid="class_main_window_1a8820c49e3387049560caf94f39abd1b9" prot="public" virt="virtual"><scope>MainWindow</scope><name>~MainWindow</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

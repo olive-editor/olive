@@ -1,0 +1,607 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_timeline_view_block_item" kind="class" language="C++" prot="public">
+    <compoundname>TimelineViewBlockItem</compoundname>
+    <basecompoundref refid="class_timeline_view_rect" prot="public" virt="non-virtual">TimelineViewRect</basecompoundref>
+    <includes refid="timelineviewblockitem_8h" local="no">timelineviewblockitem.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_timeline_view_block_item_1af5f2c075f746a0effb80308fbecc321c" prot="private" static="no" mutable="no">
+        <type><ref refid="class_block" kindref="compound">Block</ref> *</type>
+        <definition>Block* TimelineViewBlockItem::block_</definition>
+        <argsstring></argsstring>
+        <name>block_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewblockitem.h" line="63" column="9" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewblockitem.h" bodystart="63" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_timeline_scaled_object_1a69dd77a3c6b37b62dce172256f6633e0" prot="private" static="no" mutable="no">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational TimelineScaledObject::timebase_</definition>
+        <argsstring></argsstring>
+        <name>timebase_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" line="78" column="12" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" bodystart="78" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_timeline_scaled_object_1ad123e92c9a7373dd7ab41d2a6cf3e74f" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double TimelineScaledObject::timebase_dbl_</definition>
+        <argsstring></argsstring>
+        <name>timebase_dbl_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" line="80" column="10" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" bodystart="80" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_timeline_scaled_object_1afef3a4ce71d522eb775952342ac3a724" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double TimelineScaledObject::scale_</definition>
+        <argsstring></argsstring>
+        <name>scale_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" line="82" column="10" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" bodystart="82" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_timeline_scaled_object_1ae573b4cc9ecb09a0ad49e8bc88f80ae2" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double TimelineScaledObject::min_scale_</definition>
+        <argsstring></argsstring>
+        <name>min_scale_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" line="84" column="10" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" bodystart="84" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_timeline_scaled_object_1afc7c3ff17f1a580fbd248c830b3dd281" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double TimelineScaledObject::max_scale_</definition>
+        <argsstring></argsstring>
+        <name>max_scale_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" line="86" column="10" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" bodystart="86" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_timeline_view_block_item_1a3bb8a5d0a19984f9126e00c0583b5501" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>TimelineViewBlockItem::TimelineViewBlockItem</definition>
+        <argsstring>(Block *block, QGraphicsItem *parent=nullptr)</argsstring>
+        <name>TimelineViewBlockItem</name>
+        <param>
+          <type><ref refid="class_block" kindref="compound">Block</ref> *</type>
+          <declname>block</declname>
+        </param>
+        <param>
+          <type>QGraphicsItem *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewblockitem.h" line="53" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_view_block_item_1aea6a08ac4cec47681c7ca6740cafd506" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_block" kindref="compound">Block</ref> *</type>
+        <definition>Block* TimelineViewBlockItem::block</definition>
+        <argsstring>() const</argsstring>
+        <name>block</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewblockitem.h" line="55" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_view_block_item_1af7ae3bb9e3007877d45e631ffdfa34bc" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void TimelineViewBlockItem::UpdateRect</definition>
+        <argsstring>() override</argsstring>
+        <name>UpdateRect</name>
+        <reimplements refid="class_timeline_view_rect_1aca266c73625419961c7caba1325df39b">UpdateRect</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewblockitem.h" line="57" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_view_rect_1ab4bcf19aa24c85c39f04dcdfb39c7176" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimelineViewRect::SetYCoords</definition>
+        <argsstring>(int y, int height)</argsstring>
+        <name>SetYCoords</name>
+        <param>
+          <type>int</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>height</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewrect.h" line="57" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_view_rect_1ae608b89a0791c5f629a282e6c989b48a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="class_track_reference" kindref="compound">TrackReference</ref> &amp;</type>
+        <definition>const TrackReference&amp; TimelineViewRect::Track</definition>
+        <argsstring>()</argsstring>
+        <name>Track</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewrect.h" line="59" column="24"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_view_rect_1ac4bcee3d94b21e3cb0da3a826f2b979c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimelineViewRect::SetTrack</definition>
+        <argsstring>(const TrackReference &amp;track)</argsstring>
+        <name>SetTrack</name>
+        <param>
+          <type>const <ref refid="class_track_reference" kindref="compound">TrackReference</ref> &amp;</type>
+          <declname>track</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewrect.h" line="60" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_scaled_object_1aea594907034d918aaa45718b4e0ad99e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimelineScaledObject::SetTimebase</definition>
+        <argsstring>(const rational &amp;timebase)</argsstring>
+        <name>SetTimebase</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>timebase</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" line="54" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_scaled_object_1a18cc60c718e4521e6b772e4f34adf0c1" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+        <definition>const rational&amp; TimelineScaledObject::timebase</definition>
+        <argsstring>() const</argsstring>
+        <name>timebase</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" line="56" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_scaled_object_1a77d512b8c299bf894a9e2d30db5ab5f8" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const double &amp;</type>
+        <definition>const double&amp; TimelineScaledObject::timebase_dbl</definition>
+        <argsstring>() const</argsstring>
+        <name>timebase_dbl</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" line="57" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_scaled_object_1a1c4d396511a29aff6f103077c475094d" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const double &amp;</type>
+        <definition>const double&amp; TimelineScaledObject::GetScale</definition>
+        <argsstring>() const</argsstring>
+        <name>GetScale</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" line="61" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_scaled_object_1ad0f9d3d2177be98b0e9be09a3865f4bb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimelineScaledObject::SetScale</definition>
+        <argsstring>(const double &amp;scale)</argsstring>
+        <name>SetScale</name>
+        <param>
+          <type>const double &amp;</type>
+          <declname>scale</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" line="63" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_timeline_view_block_item_1aabafefb3041eaf75d56dccf11a627548" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void TimelineViewBlockItem::paint</definition>
+        <argsstring>(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget=nullptr) override</argsstring>
+        <name>paint</name>
+        <param>
+          <type>QPainter *</type>
+          <declname>painter</declname>
+        </param>
+        <param>
+          <type>const QStyleOptionGraphicsItem *</type>
+          <declname>option</declname>
+        </param>
+        <param>
+          <type>QWidget *</type>
+          <declname>widget</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewblockitem.h" line="60" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_view_rect_1aee8f2074dcae50a385e1c1e582802c2b" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void TimelineViewRect::ScaleChangedEvent</definition>
+        <argsstring>(const double &amp;) override</argsstring>
+        <name>ScaleChangedEvent</name>
+        <reimplements refid="class_timeline_scaled_object_1a9ce7487a60bd33d17d2e50334d7335d5">ScaleChangedEvent</reimplements>
+        <param>
+          <type>const double &amp;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewrect.h" line="65" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_view_rect_1a0f17a9f9ee0d2e1faaffcc921da7e98e" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void TimelineViewRect::TimebaseChangedEvent</definition>
+        <argsstring>(const rational &amp;) override</argsstring>
+        <name>TimebaseChangedEvent</name>
+        <reimplements refid="class_timeline_scaled_object_1ac9b6fc87eb687efc7b0f09a3051273ca">TimebaseChangedEvent</reimplements>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewrect.h" line="67" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_scaled_object_1a99501640a7a292524fd4846c0c22ea08" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational TimelineScaledObject::SceneToTime</definition>
+        <argsstring>(const double &amp;x, bool round=false)</argsstring>
+        <name>SceneToTime</name>
+        <param>
+          <type>const double &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>round</declname>
+          <defval>false</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" line="67" column="12"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_scaled_object_1a59f6d4022281bc54c185c40b1c4bbc41" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double TimelineScaledObject::TimeToScene</definition>
+        <argsstring>(const rational &amp;time)</argsstring>
+        <name>TimeToScene</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" line="66" column="10"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_scaled_object_1ad5879898bf6e79af848805685393fab7" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimelineScaledObject::SetMaximumScale</definition>
+        <argsstring>(const double &amp;max)</argsstring>
+        <name>SetMaximumScale</name>
+        <param>
+          <type>const double &amp;</type>
+          <declname>max</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" line="73" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_scaled_object_1a9269c75d9cb55cff460c9f34647e1dd1" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimelineScaledObject::SetMinimumScale</definition>
+        <argsstring>(const double &amp;min)</argsstring>
+        <name>SetMinimumScale</name>
+        <param>
+          <type>const double &amp;</type>
+          <declname>min</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" line="75" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="class_timeline_view_rect_1a92b6ec98950aa9f2c398f61e3e83378d" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int TimelineViewRect::y_</definition>
+        <argsstring></argsstring>
+        <name>y_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewrect.h" line="69" column="7" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewrect.h" bodystart="69" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_timeline_view_rect_1a5fde03e4bf4eb956606e47db604872ff" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int TimelineViewRect::height_</definition>
+        <argsstring></argsstring>
+        <name>height_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewrect.h" line="71" column="7" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewrect.h" bodystart="71" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_timeline_view_rect_1ae83fc3a55ff4cdb33d8446b068bb1804" prot="protected" static="no" mutable="no">
+        <type><ref refid="class_track_reference" kindref="compound">TrackReference</ref></type>
+        <definition>TrackReference TimelineViewRect::track_</definition>
+        <argsstring></argsstring>
+        <name>track_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewrect.h" line="73" column="18" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewrect.h" bodystart="73" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="class_timeline_scaled_object_1a62c2ffba8b9819e2d4026ae8e3be14c6" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>static rational TimelineScaledObject::SceneToTime</definition>
+        <argsstring>(const double &amp;x, const double &amp;x_scale, const rational &amp;timebase, bool round=false)</argsstring>
+        <name>SceneToTime</name>
+        <param>
+          <type>const double &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const double &amp;</type>
+          <declname>x_scale</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>timebase</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>round</declname>
+          <defval>false</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/timelinescaledobject.h" line="59" column="19"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A graphical representation of a <ref refid="class_clip_block" kindref="compound">ClipBlock</ref>. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>TimelineViewRect</label>
+        <link refid="class_timeline_view_rect"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>TimelineViewBlockItem</label>
+        <link refid="class_timeline_view_block_item"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>TimelineScaledObject</label>
+        <link refid="class_timeline_scaled_object"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="8">
+        <label>NodeOutput</label>
+        <link refid="class_node_output"/>
+        <childnode refid="9" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>Block</label>
+        <link refid="class_block"/>
+        <childnode refid="7" relation="public-inheritance">
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>in_point_</edgelabel>
+          <edgelabel>out_point_</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>next_</edgelabel>
+          <edgelabel>previous_</edgelabel>
+        </childnode>
+        <childnode refid="10" relation="usage">
+          <edgelabel>enabled_input_</edgelabel>
+          <edgelabel>speed_input_</edgelabel>
+          <edgelabel>media_in_input_</edgelabel>
+          <edgelabel>name_input_</edgelabel>
+          <edgelabel>length_input_</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>TimelineViewRect</label>
+        <link refid="class_timeline_view_rect"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>track_</edgelabel>
+        </childnode>
+      </node>
+      <node id="4">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="1">
+        <label>TimelineViewBlockItem</label>
+        <link refid="class_timeline_view_block_item"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>block_</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>TimelineScaledObject</label>
+        <link refid="class_timeline_scaled_object"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>timebase_</edgelabel>
+        </childnode>
+      </node>
+      <node id="7">
+        <label>Node</label>
+        <link refid="class_node"/>
+        <childnode refid="8" relation="usage">
+          <edgelabel>output_</edgelabel>
+        </childnode>
+      </node>
+      <node id="10">
+        <label>NodeInput</label>
+        <link refid="class_node_input"/>
+        <childnode refid="9" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>NodeParam</label>
+        <link refid="class_node_param"/>
+      </node>
+      <node id="5">
+        <label>TrackReference</label>
+        <link refid="class_track_reference"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewblockitem.h" line="32" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineviewblockitem.h" bodystart="33" bodyend="47"/>
+    <listofallmembers>
+      <member refid="class_timeline_view_block_item_1aea6a08ac4cec47681c7ca6740cafd506" prot="public" virt="non-virtual"><scope>TimelineViewBlockItem</scope><name>block</name></member>
+      <member refid="class_timeline_view_block_item_1af5f2c075f746a0effb80308fbecc321c" prot="private" virt="non-virtual"><scope>TimelineViewBlockItem</scope><name>block_</name></member>
+      <member refid="class_timeline_scaled_object_1a1c4d396511a29aff6f103077c475094d" prot="public" virt="non-virtual"><scope>TimelineViewBlockItem</scope><name>GetScale</name></member>
+      <member refid="class_timeline_view_rect_1a5fde03e4bf4eb956606e47db604872ff" prot="protected" virt="non-virtual"><scope>TimelineViewBlockItem</scope><name>height_</name></member>
+      <member refid="class_timeline_scaled_object_1afc7c3ff17f1a580fbd248c830b3dd281" prot="private" virt="non-virtual"><scope>TimelineViewBlockItem</scope><name>max_scale_</name></member>
+      <member refid="class_timeline_scaled_object_1ae573b4cc9ecb09a0ad49e8bc88f80ae2" prot="private" virt="non-virtual"><scope>TimelineViewBlockItem</scope><name>min_scale_</name></member>
+      <member refid="class_timeline_view_block_item_1aabafefb3041eaf75d56dccf11a627548" prot="protected" virt="virtual"><scope>TimelineViewBlockItem</scope><name>paint</name></member>
+      <member refid="class_timeline_scaled_object_1afef3a4ce71d522eb775952342ac3a724" prot="private" virt="non-virtual"><scope>TimelineViewBlockItem</scope><name>scale_</name></member>
+      <member refid="class_timeline_view_rect_1aee8f2074dcae50a385e1c1e582802c2b" prot="protected" virt="virtual"><scope>TimelineViewBlockItem</scope><name>ScaleChangedEvent</name></member>
+      <member refid="class_timeline_scaled_object_1a62c2ffba8b9819e2d4026ae8e3be14c6" prot="public" virt="non-virtual"><scope>TimelineViewBlockItem</scope><name>SceneToTime</name></member>
+      <member refid="class_timeline_scaled_object_1a99501640a7a292524fd4846c0c22ea08" prot="protected" virt="non-virtual"><scope>TimelineViewBlockItem</scope><name>SceneToTime</name></member>
+      <member refid="class_timeline_scaled_object_1ad5879898bf6e79af848805685393fab7" prot="protected" virt="non-virtual"><scope>TimelineViewBlockItem</scope><name>SetMaximumScale</name></member>
+      <member refid="class_timeline_scaled_object_1a9269c75d9cb55cff460c9f34647e1dd1" prot="protected" virt="non-virtual"><scope>TimelineViewBlockItem</scope><name>SetMinimumScale</name></member>
+      <member refid="class_timeline_scaled_object_1ad0f9d3d2177be98b0e9be09a3865f4bb" prot="public" virt="non-virtual"><scope>TimelineViewBlockItem</scope><name>SetScale</name></member>
+      <member refid="class_timeline_scaled_object_1aea594907034d918aaa45718b4e0ad99e" prot="public" virt="non-virtual"><scope>TimelineViewBlockItem</scope><name>SetTimebase</name></member>
+      <member refid="class_timeline_view_rect_1ac4bcee3d94b21e3cb0da3a826f2b979c" prot="public" virt="non-virtual"><scope>TimelineViewBlockItem</scope><name>SetTrack</name></member>
+      <member refid="class_timeline_view_rect_1ab4bcf19aa24c85c39f04dcdfb39c7176" prot="public" virt="non-virtual"><scope>TimelineViewBlockItem</scope><name>SetYCoords</name></member>
+      <member refid="class_timeline_scaled_object_1a18cc60c718e4521e6b772e4f34adf0c1" prot="public" virt="non-virtual"><scope>TimelineViewBlockItem</scope><name>timebase</name></member>
+      <member refid="class_timeline_scaled_object_1a69dd77a3c6b37b62dce172256f6633e0" prot="private" virt="non-virtual"><scope>TimelineViewBlockItem</scope><name>timebase_</name></member>
+      <member refid="class_timeline_scaled_object_1a77d512b8c299bf894a9e2d30db5ab5f8" prot="public" virt="non-virtual"><scope>TimelineViewBlockItem</scope><name>timebase_dbl</name></member>
+      <member refid="class_timeline_scaled_object_1ad123e92c9a7373dd7ab41d2a6cf3e74f" prot="private" virt="non-virtual"><scope>TimelineViewBlockItem</scope><name>timebase_dbl_</name></member>
+      <member refid="class_timeline_view_rect_1a0f17a9f9ee0d2e1faaffcc921da7e98e" prot="protected" virt="virtual"><scope>TimelineViewBlockItem</scope><name>TimebaseChangedEvent</name></member>
+      <member refid="class_timeline_scaled_object_1aa6fbe05a6bd678116b36c9e9418d83c8" prot="public" virt="non-virtual"><scope>TimelineViewBlockItem</scope><name>TimelineScaledObject</name></member>
+      <member refid="class_timeline_view_block_item_1a3bb8a5d0a19984f9126e00c0583b5501" prot="public" virt="non-virtual"><scope>TimelineViewBlockItem</scope><name>TimelineViewBlockItem</name></member>
+      <member refid="class_timeline_view_rect_1a312b78cced80abea9ee743691dc25474" prot="public" virt="non-virtual"><scope>TimelineViewBlockItem</scope><name>TimelineViewRect</name></member>
+      <member refid="class_timeline_scaled_object_1a59f6d4022281bc54c185c40b1c4bbc41" prot="protected" virt="non-virtual"><scope>TimelineViewBlockItem</scope><name>TimeToScene</name></member>
+      <member refid="class_timeline_view_rect_1ae608b89a0791c5f629a282e6c989b48a" prot="public" virt="non-virtual"><scope>TimelineViewBlockItem</scope><name>Track</name></member>
+      <member refid="class_timeline_view_rect_1ae83fc3a55ff4cdb33d8446b068bb1804" prot="protected" virt="non-virtual"><scope>TimelineViewBlockItem</scope><name>track_</name></member>
+      <member refid="class_timeline_view_block_item_1af7ae3bb9e3007877d45e631ffdfa34bc" prot="public" virt="virtual"><scope>TimelineViewBlockItem</scope><name>UpdateRect</name></member>
+      <member refid="class_timeline_view_rect_1a92b6ec98950aa9f2c398f61e3e83378d" prot="protected" virt="non-virtual"><scope>TimelineViewBlockItem</scope><name>y_</name></member>
+      <member refid="class_timeline_scaled_object_1a244de99230b465f17d720cbf644f0499" prot="public" virt="virtual"><scope>TimelineViewBlockItem</scope><name>~TimelineScaledObject</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

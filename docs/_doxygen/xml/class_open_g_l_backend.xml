@@ -1,0 +1,1700 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_open_g_l_backend" kind="class" language="C++" prot="public">
+    <compoundname>OpenGLBackend</compoundname>
+    <basecompoundref refid="class_video_render_backend" prot="public" virt="non-virtual">VideoRenderBackend</basecompoundref>
+    <includes refid="openglbackend_8h" local="no">openglbackend.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_open_g_l_backend_1a91a222a8a24f330c894a9537498bda99" prot="private" static="no" mutable="no">
+        <type><ref refid="class_open_g_l_proxy" kindref="compound">OpenGLProxy</ref> *</type>
+        <definition>OpenGLProxy* OpenGLBackend::proxy_</definition>
+        <argsstring></argsstring>
+        <name>proxy_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglbackend.h" line="67" column="15" bodyfile="C:/Daten/Olive/olive/app/render/backend/opengl/openglbackend.h" bodystart="67" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_video_render_backend_1a88ca8e5c2d57362a6c02452c530b9c8d" prot="private" static="no" mutable="no">
+        <type><ref refid="class_video_rendering_params" kindref="compound">VideoRenderingParams</ref></type>
+        <definition>VideoRenderingParams VideoRenderBackend::params_</definition>
+        <argsstring></argsstring>
+        <name>params_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" line="142" column="24" bodyfile="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" bodystart="142" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_video_render_backend_1aece856d61f80d8457a425f479bf4a4a8" prot="private" static="no" mutable="no">
+        <type><ref refid="class_video_render_frame_cache" kindref="compound">VideoRenderFrameCache</ref></type>
+        <definition>VideoRenderFrameCache VideoRenderBackend::frame_cache_</definition>
+        <argsstring></argsstring>
+        <name>frame_cache_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" line="144" column="25" bodyfile="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" bodystart="144" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_video_render_backend_1a512bd3c74cf6c1c773226c788fa5a52c" prot="private" static="no" mutable="no">
+        <type><ref refid="class_time_range_list" kindref="compound">TimeRangeList</ref></type>
+        <definition>TimeRangeList VideoRenderBackend::invalidated_</definition>
+        <argsstring></argsstring>
+        <name>invalidated_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" line="146" column="17" bodyfile="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" bodystart="146" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_video_render_backend_1a38e6a156440d270a386bf353aa56264a" prot="private" static="no" mutable="no">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational VideoRenderBackend::last_time_requested_</definition>
+        <argsstring></argsstring>
+        <name>last_time_requested_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" line="148" column="12" bodyfile="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" bodystart="148" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_video_render_backend_1a6a5242b5a51829f4e967a030430b154c" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool VideoRenderBackend::only_signal_last_frame_requested_</definition>
+        <argsstring></argsstring>
+        <name>only_signal_last_frame_requested_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" line="150" column="8" bodyfile="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" bodystart="150" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_video_render_backend_1a266f598290a10a1b514c10730f899868" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool VideoRenderBackend::limit_caching_</definition>
+        <argsstring></argsstring>
+        <name>limit_caching_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" line="152" column="8" bodyfile="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" bodystart="152" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_video_render_backend_1a178e061ffc4c90ea1c1d13d6f5a5a237" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool VideoRenderBackend::pop_toggle_</definition>
+        <argsstring></argsstring>
+        <name>pop_toggle_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" line="154" column="8" bodyfile="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" bodystart="154" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_render_backend_1af4261773acf9c1437b8f264d6833c500" prot="private" static="no" mutable="no">
+        <type>QVector&lt; QThread * &gt;</type>
+        <definition>QVector&lt;QThread*&gt; RenderBackend::threads_</definition>
+        <argsstring></argsstring>
+        <name>threads_</name>
+        <briefdescription>
+<para>Internal list of RenderProcessThreads. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" line="148" column="11" bodyfile="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" bodystart="148" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_render_backend_1a00aaeabc2791b719669d8c849ca055a3" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool RenderBackend::started_</definition>
+        <argsstring></argsstring>
+        <name>started_</name>
+        <briefdescription>
+<para>Internal variable that contains whether the Renderer has started or not. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" line="153" column="8" bodyfile="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" bodystart="153" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_render_backend_1a54294cee614d25a23cc0f03ee17e995a" prot="private" static="no" mutable="no">
+        <type><ref refid="class_viewer_output" kindref="compound">ViewerOutput</ref> *</type>
+        <definition>ViewerOutput* RenderBackend::viewer_node_</definition>
+        <argsstring></argsstring>
+        <name>viewer_node_</name>
+        <briefdescription>
+<para>Internal reference to attached viewer node. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" line="158" column="16" bodyfile="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" bodystart="158" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_render_backend_1a357faf9309ff681fb96000626840728e" prot="private" static="no" mutable="no">
+        <type><ref refid="class_viewer_output" kindref="compound">ViewerOutput</ref> *</type>
+        <definition>ViewerOutput* RenderBackend::copied_viewer_node_</definition>
+        <argsstring></argsstring>
+        <name>copied_viewer_node_</name>
+        <briefdescription>
+<para>Internal reference to the copied viewer node we made in the compilation process. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" line="163" column="16" bodyfile="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" bodystart="163" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_render_backend_1a8f863f2f5cbfbcb6409614b6d6e9e3e6" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString RenderBackend::error_</definition>
+        <argsstring></argsstring>
+        <name>error_</name>
+        <briefdescription>
+<para>Error string that can be set in <ref refid="class_render_backend_1a642973aa8dee0f2b842d1f7ac53949eb" kindref="member">SetError()</ref> to handle failures. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" line="168" column="11" bodyfile="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" bodystart="168" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_render_backend_1ab1952491b0e3aa78785d89a5bd4bb6e2" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString RenderBackend::cache_id_</definition>
+        <argsstring></argsstring>
+        <name>cache_id_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" line="170" column="11" bodyfile="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" bodystart="170" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_render_backend_1a77b06fd7198b3320668d3dd4afb85e07" prot="private" static="no" mutable="no">
+        <type>QList&lt; <ref refid="class_node_input" kindref="compound">NodeInput</ref> * &gt;</type>
+        <definition>QList&lt;NodeInput*&gt; RenderBackend::input_update_queued_</definition>
+        <argsstring></argsstring>
+        <name>input_update_queued_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" line="172" column="9" bodyfile="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" bodystart="172" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_render_backend_1a1f4324a88f769e0f8b42617db4eba080" prot="private" static="no" mutable="no">
+        <type>QVector&lt; bool &gt;</type>
+        <definition>QVector&lt;bool&gt; RenderBackend::processor_busy_state_</definition>
+        <argsstring></argsstring>
+        <name>processor_busy_state_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" line="174" column="11" bodyfile="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" bodystart="174" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_render_backend_1aaaf6a5c8f5b29f9865f70149ebb9aa0a" prot="private" static="no" mutable="no">
+        <type><ref refid="class_render_cancel_dialog" kindref="compound">RenderCancelDialog</ref> *</type>
+        <definition>RenderCancelDialog* RenderBackend::cancel_dialog_</definition>
+        <argsstring></argsstring>
+        <name>cancel_dialog_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" line="176" column="22" bodyfile="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" bodystart="176" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_render_backend_1afb3a3ca2de00bbfdee8fab85d7683db5" prot="private" static="no" mutable="no">
+        <type>QList&lt; <ref refid="struct_render_backend_1_1_footage_wait_info" kindref="compound">FootageWaitInfo</ref> &gt;</type>
+        <definition>QList&lt;FootageWaitInfo&gt; RenderBackend::footage_wait_info_</definition>
+        <argsstring></argsstring>
+        <name>footage_wait_info_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" line="186" column="9" bodyfile="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" bodystart="186" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_open_g_l_backend_1a6f7e23f3cffcaab8cb204d2be1e71688" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>OpenGLBackend::OpenGLBackend</definition>
+        <argsstring>(QObject *parent=nullptr)</argsstring>
+        <name>OpenGLBackend</name>
+        <param>
+          <type>QObject *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglbackend.h" line="55" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_backend_1a0a89ab7d1fd3d1d7c3602c2f6abbb294" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type></type>
+        <definition>virtual OpenGLBackend::~OpenGLBackend</definition>
+        <argsstring>() override</argsstring>
+        <name>~OpenGLBackend</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglbackend.h" line="57" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_render_backend_1ab67f086f19e2b8494a079677d9cd6633" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void VideoRenderBackend::SetParameters</definition>
+        <argsstring>(const VideoRenderingParams &amp;params)</argsstring>
+        <name>SetParameters</name>
+        <param>
+          <type>const <ref refid="class_video_rendering_params" kindref="compound">VideoRenderingParams</ref> &amp;</type>
+          <declname>params</declname>
+        </param>
+        <briefdescription>
+<para>Set parameters of the Renderer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The Renderer owns the buffers that are used in the rendering process and this function sets the kind of buffers to use. The Renderer must be stopped when calling this function. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" line="75" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_render_backend_1afa7affb64dac0b52359d39ee4c59c5dc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void VideoRenderBackend::SetOperatingMode</definition>
+        <argsstring>(const VideoRenderWorker::OperatingMode &amp;mode)</argsstring>
+        <name>SetOperatingMode</name>
+        <param>
+          <type>const <ref refid="class_video_render_worker_1a50e833518e764516422da45430b3faeb" kindref="member">VideoRenderWorker::OperatingMode</ref> &amp;</type>
+          <declname>mode</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" line="77" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_render_backend_1a479c29e73679e5c0b458c6789476d1c0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void VideoRenderBackend::SetFrameGenerationParams</definition>
+        <argsstring>(int width, int height, const QMatrix4x4 &amp;matrix)</argsstring>
+        <name>SetFrameGenerationParams</name>
+        <param>
+          <type>int</type>
+          <declname>width</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>height</declname>
+        </param>
+        <param>
+          <type>const QMatrix4x4 &amp;</type>
+          <declname>matrix</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" line="79" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_render_backend_1a9af743ea4ec0100a6febe08408e90ada" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void VideoRenderBackend::SetOnlySignalLastFrameRequested</definition>
+        <argsstring>(bool enabled)</argsstring>
+        <name>SetOnlySignalLastFrameRequested</name>
+        <param>
+          <type>bool</type>
+          <declname>enabled</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" line="81" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_render_backend_1a5b8c4cddb65f4cef31b02aa8dc625093" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool VideoRenderBackend::IsRendered</definition>
+        <argsstring>(const rational &amp;time) const</argsstring>
+        <name>IsRendered</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" line="83" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_render_backend_1acd3ed7e12ae638db643c8d0e7a58e867" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void VideoRenderBackend::SetLimitCaching</definition>
+        <argsstring>(bool limit)</argsstring>
+        <name>SetLimitCaching</name>
+        <param>
+          <type>bool</type>
+          <declname>limit</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" line="85" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_render_backend_1a6875d8550355462182783ab63339a85e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>QString VideoRenderBackend::GetCachedFrame</definition>
+        <argsstring>(const rational &amp;time)</argsstring>
+        <name>GetCachedFrame</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" line="87" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_render_backend_1a7fe53ff5be67c9cc55514eead41a97d1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void VideoRenderBackend::UpdateLastRequestedTime</definition>
+        <argsstring>(const rational &amp;time)</argsstring>
+        <name>UpdateLastRequestedTime</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" line="89" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_render_backend_1ae966d965dace16b3f181ada83613bd50" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_video_render_frame_cache" kindref="compound">VideoRenderFrameCache</ref> *</type>
+        <definition>VideoRenderFrameCache* VideoRenderBackend::frame_cache</definition>
+        <argsstring>()</argsstring>
+        <name>frame_cache</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" line="91" column="25"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_render_backend_1a2d3de43cd2bb49c5c4869dc4b0cdf875" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="class_video_rendering_params" kindref="compound">VideoRenderingParams</ref> &amp;</type>
+        <definition>const VideoRenderingParams&amp; VideoRenderBackend::params</definition>
+        <argsstring>() const</argsstring>
+        <name>params</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" line="93" column="30"/>
+      </memberdef>
+      <memberdef kind="function" id="class_render_backend_1ac196d6d62bed682c306314d04bdba2e2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool RenderBackend::Init</definition>
+        <argsstring>()</argsstring>
+        <name>Init</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" line="58" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_render_backend_1a5c857925359abdfa33ee7bf0d262afb5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void RenderBackend::Close</definition>
+        <argsstring>()</argsstring>
+        <name>Close</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" line="60" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_render_backend_1a7b4b444ce45f638ab008c176f21669ec" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const QString &amp;</type>
+        <definition>const QString&amp; RenderBackend::GetError</definition>
+        <argsstring>() const</argsstring>
+        <name>GetError</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" line="62" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_render_backend_1a2acedf9ef4e04624eabffa5cfb85887d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void RenderBackend::SetViewerNode</definition>
+        <argsstring>(ViewerOutput *viewer_node)</argsstring>
+        <name>SetViewerNode</name>
+        <param>
+          <type><ref refid="class_viewer_output" kindref="compound">ViewerOutput</ref> *</type>
+          <declname>viewer_node</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" line="64" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_render_backend_1ae6d601152f9b9fa4d64ae4db925fd8e1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool RenderBackend::IsInitiated</definition>
+        <argsstring>()</argsstring>
+        <name>IsInitiated</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" line="66" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_render_backend_1a763aaa6fd8996a4858fb0f82f1931b50" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_viewer_output" kindref="compound">ViewerOutput</ref> *</type>
+        <definition>ViewerOutput* RenderBackend::viewer_node</definition>
+        <argsstring>() const</argsstring>
+        <name>viewer_node</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" line="68" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_render_backend_1a782e31403ea6e74befede705f9f66668" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void RenderBackend::CancelQueue</definition>
+        <argsstring>()</argsstring>
+        <name>CancelQueue</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" line="70" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_open_g_l_backend_1afbe306b549f59133fb5a1bbcaa56dbb0" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>bool</type>
+        <definition>virtual bool OpenGLBackend::InitInternal</definition>
+        <argsstring>() override</argsstring>
+        <name>InitInternal</name>
+        <reimplements refid="class_render_backend_1a2113e403df9954b9a022e6bcd382fcf5">InitInternal</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglbackend.h" line="60" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_backend_1aa753d0692136e954b97f17e5525f4950" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void OpenGLBackend::CloseInternal</definition>
+        <argsstring>() override</argsstring>
+        <name>CloseInternal</name>
+        <reimplements refid="class_render_backend_1a83f66adc655d1c85d7f503d9e1910ece">CloseInternal</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglbackend.h" line="62" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_backend_1ae786123ce56c9c26f30d434f063c0ddd" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void OpenGLBackend::ParamsChangedEvent</definition>
+        <argsstring>() override</argsstring>
+        <name>ParamsChangedEvent</name>
+        <reimplements refid="class_video_render_backend_1a08ff4476a488d085dc76efacfdb6a682">ParamsChangedEvent</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglbackend.h" line="64" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_render_backend_1a27df3647d1f7c06c8b6b921b88d8ab54" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void VideoRenderBackend::ConnectViewer</definition>
+        <argsstring>(ViewerOutput *node) override</argsstring>
+        <name>ConnectViewer</name>
+        <reimplements refid="class_render_backend_1ab5ce9756f839ae7b15f4698a4032248a">ConnectViewer</reimplements>
+        <param>
+          <type><ref refid="class_viewer_output" kindref="compound">ViewerOutput</ref> *</type>
+          <declname>node</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" line="101" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_render_backend_1a000bb75de16c498a3eaafa6cd76ae594" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void VideoRenderBackend::DisconnectViewer</definition>
+        <argsstring>(ViewerOutput *node) override</argsstring>
+        <name>DisconnectViewer</name>
+        <reimplements refid="class_render_backend_1a390c2aeb85570a7434c0324b20467625">DisconnectViewer</reimplements>
+        <param>
+          <type><ref refid="class_viewer_output" kindref="compound">ViewerOutput</ref> *</type>
+          <declname>node</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" line="103" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_render_backend_1a012ba862387ae234b70ecd5928337392" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+        <definition>virtual NodeInput* VideoRenderBackend::GetDependentInput</definition>
+        <argsstring>() override</argsstring>
+        <name>GetDependentInput</name>
+        <reimplements refid="class_render_backend_1a627afedd4acf3ac4505d89be8699198e">GetDependentInput</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" line="105" column="21"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_render_backend_1adbfffbda73790e8542ee49654b2232e2" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>bool</type>
+        <definition>virtual bool VideoRenderBackend::CanRender</definition>
+        <argsstring>() override</argsstring>
+        <name>CanRender</name>
+        <reimplements refid="class_render_backend_1a42644ded6c0be624b972478e12cf0e5b">CanRender</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" line="107" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_render_backend_1a2f66435c82bd26e84c03497b9fd8bf41" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="class_time_range" kindref="compound">TimeRange</ref></type>
+        <definition>virtual TimeRange VideoRenderBackend::PopNextFrameFromQueue</definition>
+        <argsstring>() override</argsstring>
+        <name>PopNextFrameFromQueue</name>
+        <reimplements refid="class_render_backend_1a836abac53246b13e62dea656d28c7341">PopNextFrameFromQueue</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" line="109" column="21"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_render_backend_1a51d6e5f5aedad9484452f86b196ac62d" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>bool</type>
+        <definition>virtual bool VideoRenderBackend::GenerateCacheIDInternal</definition>
+        <argsstring>(QCryptographicHash &amp;hash) override</argsstring>
+        <name>GenerateCacheIDInternal</name>
+        <reimplements refid="class_render_backend_1ab6aebcbd154ea1df291cfa304221a2c3">GenerateCacheIDInternal</reimplements>
+        <param>
+          <type>QCryptographicHash &amp;</type>
+          <declname>hash</declname>
+        </param>
+        <briefdescription>
+<para>Internal function for generating the cache ID. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" line="114" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_render_backend_1aa0ce17f3f964a36c07024258faa94a61" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void VideoRenderBackend::CacheIDChangedEvent</definition>
+        <argsstring>(const QString &amp;id) override</argsstring>
+        <name>CacheIDChangedEvent</name>
+        <reimplements refid="class_render_backend_1a5c228de27f30d4055c5ebd04738e781c">CacheIDChangedEvent</reimplements>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>id</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" line="116" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_render_backend_1a8682518d945dbf7b4d81bea9a11c508f" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void VideoRenderBackend::ConnectWorkerToThis</definition>
+        <argsstring>(RenderWorker *processor) override</argsstring>
+        <name>ConnectWorkerToThis</name>
+        <reimplements refid="class_render_backend_1a7ded0c6822a05a5ee487f4a51d8a9c74">ConnectWorkerToThis</reimplements>
+        <param>
+          <type><ref refid="class_render_worker" kindref="compound">RenderWorker</ref> *</type>
+          <declname>processor</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" line="118" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_render_backend_1a7c297c5c4941169ac87a9acc2418520b" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void VideoRenderBackend::InvalidateCacheInternal</definition>
+        <argsstring>(const rational &amp;start_range, const rational &amp;end_range) override</argsstring>
+        <name>InvalidateCacheInternal</name>
+        <reimplements refid="class_render_backend_1a872f52d0ca2198817acaa16dbbc2b235">InvalidateCacheInternal</reimplements>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>start_range</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>end_range</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" line="120" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_render_backend_1ae9f4d500cd83eb98c7b2d30e0be0f0a7" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void RenderBackend::RegenerateCacheID</definition>
+        <argsstring>()</argsstring>
+        <name>RegenerateCacheID</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" line="79" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_render_backend_1abbf6fc5c0585dad8328c740d4d71c877" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational RenderBackend::GetSequenceLength</definition>
+        <argsstring>()</argsstring>
+        <name>GetSequenceLength</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" line="89" column="12"/>
+      </memberdef>
+      <memberdef kind="function" id="class_render_backend_1ad5e2f60feb87a6cf4020578935ce7fa9" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const QVector&lt; QThread * &gt; &amp;</type>
+        <definition>const QVector&lt;QThread*&gt;&amp; RenderBackend::threads</definition>
+        <argsstring>()</argsstring>
+        <name>threads</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" line="91" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_render_backend_1a642973aa8dee0f2b842d1f7ac53949eb" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void RenderBackend::SetError</definition>
+        <argsstring>(const QString &amp;error)</argsstring>
+        <name>SetError</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>error</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" line="102" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_render_backend_1a45cef784d3a1c2a0c3558b143a9672c3" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void RenderBackend::CacheNext</definition>
+        <argsstring>()</argsstring>
+        <name>CacheNext</name>
+        <briefdescription>
+<para>Function called when there are frames in the queue to cache. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function is NOT thread-safe and should only be called in the main thread. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" line="112" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_render_backend_1a82d57e221b03442ad1d68e25e7f6fec8" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void RenderBackend::InitWorkers</definition>
+        <argsstring>()</argsstring>
+        <name>InitWorkers</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" line="114" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_render_backend_1a8921b2a4c609e42e9cfd8d2807626546" prot="protected" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool RenderBackend::ViewerIsConnected</definition>
+        <argsstring>() const</argsstring>
+        <name>ViewerIsConnected</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" line="120" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_render_backend_1ab9bd2867c0d057d22c4ca69f547d75b1" prot="protected" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const QString &amp;</type>
+        <definition>const QString&amp; RenderBackend::cache_id</definition>
+        <argsstring>() const</argsstring>
+        <name>cache_id</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" line="122" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_render_backend_1a4e0c76ee543a7812dd10f35d0e733cd1" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void RenderBackend::QueueValueUpdate</definition>
+        <argsstring>(NodeInput *from)</argsstring>
+        <name>QueueValueUpdate</name>
+        <param>
+          <type><ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+          <declname>from</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" line="124" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_render_backend_1aebf008600255c35351298441051eddbc" prot="protected" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool RenderBackend::AllProcessorsAreAvailable</definition>
+        <argsstring>() const</argsstring>
+        <name>AllProcessorsAreAvailable</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" line="126" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_render_backend_1a84f10f926be301256b12370f42362aad" prot="protected" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool RenderBackend::WorkerIsBusy</definition>
+        <argsstring>(RenderWorker *worker) const</argsstring>
+        <name>WorkerIsBusy</name>
+        <param>
+          <type><ref refid="class_render_worker" kindref="compound">RenderWorker</ref> *</type>
+          <declname>worker</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" line="127" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_render_backend_1a8cebd484402ce4b073cad650bb1e687e" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void RenderBackend::SetWorkerBusyState</definition>
+        <argsstring>(RenderWorker *worker, bool busy)</argsstring>
+        <name>SetWorkerBusyState</name>
+        <param>
+          <type><ref refid="class_render_worker" kindref="compound">RenderWorker</ref> *</type>
+          <declname>worker</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>busy</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" line="128" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="class_video_render_backend_1a186603a7acb73d6fa7964d7152ae4807" prot="protected" static="no" mutable="no">
+        <type><ref refid="class_video_render_worker_1a50e833518e764516422da45430b3faeb" kindref="member">VideoRenderWorker::OperatingMode</ref></type>
+        <definition>VideoRenderWorker::OperatingMode VideoRenderBackend::operating_mode_</definition>
+        <argsstring></argsstring>
+        <name>operating_mode_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" line="124" column="36" bodyfile="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" bodystart="124" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_render_backend_1a7dff934b35c0106145c946903db8ee9f" prot="protected" static="no" mutable="no">
+        <type><ref refid="class_time_range_list" kindref="compound">TimeRangeList</ref></type>
+        <definition>TimeRangeList RenderBackend::cache_queue_</definition>
+        <argsstring></argsstring>
+        <name>cache_queue_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" line="130" column="17" bodyfile="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" bodystart="130" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_render_backend_1a0bae7c7374ed9cc572a2abaea7d21e01" prot="protected" static="no" mutable="no">
+        <type>QVector&lt; <ref refid="class_render_worker" kindref="compound">RenderWorker</ref> * &gt;</type>
+        <definition>QVector&lt;RenderWorker*&gt; RenderBackend::processors_</definition>
+        <argsstring></argsstring>
+        <name>processors_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" line="132" column="11" bodyfile="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" bodystart="132" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_render_backend_1a0ce09070fd2ba99c5ff57a6ee3d318f0" prot="protected" static="no" mutable="no">
+        <type>QHash&lt; <ref refid="class_time_range" kindref="compound">TimeRange</ref>, qint64 &gt;</type>
+        <definition>QHash&lt;TimeRange, qint64&gt; RenderBackend::render_job_info_</definition>
+        <argsstring></argsstring>
+        <name>render_job_info_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" line="134" column="9" bodyfile="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" bodystart="134" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_render_backend_1a0d75c7b0788ebc7e78fed9dfc8ff7bee" prot="protected" static="no" mutable="no">
+        <type>QHash&lt; <ref refid="class_node" kindref="compound">Node</ref> *, <ref refid="class_node" kindref="compound">Node</ref> * &gt;</type>
+        <definition>QHash&lt;Node*, Node*&gt; RenderBackend::node_copy_map_</definition>
+        <argsstring></argsstring>
+        <name>node_copy_map_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" line="136" column="9" bodyfile="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" bodystart="136" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_render_backend_1a03c1f9633e09b51e2ee0e9b35587f91a" prot="protected" static="no" mutable="no">
+        <type><ref refid="class_node_graph" kindref="compound">NodeGraph</ref></type>
+        <definition>NodeGraph RenderBackend::copied_graph_</definition>
+        <argsstring></argsstring>
+        <name>copied_graph_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" line="138" column="13" bodyfile="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" bodystart="138" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_video_render_backend_1a80461e10a65b238f8c064e2cc05d898e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void VideoRenderBackend::CachedTimeReady</definition>
+        <argsstring>(const rational &amp;time, qint64 job_time)</argsstring>
+        <name>CachedTimeReady</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>time</declname>
+        </param>
+        <param>
+          <type>qint64</type>
+          <declname>job_time</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" line="127" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_video_render_backend_1a7be04fb7b41e5c972918446568380829" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void VideoRenderBackend::RangeInvalidated</definition>
+        <argsstring>(const TimeRange &amp;range)</argsstring>
+        <name>RangeInvalidated</name>
+        <param>
+          <type>const <ref refid="class_time_range" kindref="compound">TimeRange</ref> &amp;</type>
+          <declname>range</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" line="129" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_video_render_backend_1ade88ff3b53f9dedc444167ac0be6d37a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void VideoRenderBackend::GeneratedFrame</definition>
+        <argsstring>(FramePtr frame)</argsstring>
+        <name>GeneratedFrame</name>
+        <param>
+          <type><ref refid="frame_8h_1a2ae9a822fc1e331fa3b449797f717db6" kindref="member">FramePtr</ref></type>
+          <declname>frame</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" line="131" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_render_backend_1ab6c910e4bc0f2cb382b62f2729671e2f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void RenderBackend::QueueComplete</definition>
+        <argsstring>()</argsstring>
+        <name>QueueComplete</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" line="76" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_video_render_backend_1adb83d3710ceed0bb3d14d752349bd12e" prot="private" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool VideoRenderBackend::TimeIsQueued</definition>
+        <argsstring>(const TimeRange &amp;time) const</argsstring>
+        <name>TimeIsQueued</name>
+        <param>
+          <type>const <ref refid="class_time_range" kindref="compound">TimeRange</ref> &amp;</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" line="134" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_render_backend_1aea88e25a9e8ef6f796502c22bb435254" prot="private" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool VideoRenderBackend::JobIsCurrent</definition>
+        <argsstring>(const NodeDependency &amp;dep, const qint64 &amp;job_time) const</argsstring>
+        <name>JobIsCurrent</name>
+        <param>
+          <type>const <ref refid="class_node_dependency" kindref="compound">NodeDependency</ref> &amp;</type>
+          <declname>dep</declname>
+        </param>
+        <param>
+          <type>const qint64 &amp;</type>
+          <declname>job_time</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" line="136" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_render_backend_1a5ff6f9a53d0ace2f7865a88d5733244a" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool VideoRenderBackend::SetFrameHash</definition>
+        <argsstring>(const NodeDependency &amp;dep, const QByteArray &amp;hash, const qint64 &amp;job_time)</argsstring>
+        <name>SetFrameHash</name>
+        <param>
+          <type>const <ref refid="class_node_dependency" kindref="compound">NodeDependency</ref> &amp;</type>
+          <declname>dep</declname>
+        </param>
+        <param>
+          <type>const QByteArray &amp;</type>
+          <declname>hash</declname>
+        </param>
+        <param>
+          <type>const qint64 &amp;</type>
+          <declname>job_time</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" line="138" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_render_backend_1a1861430d560ae548f8636ca67d3b7a57" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void VideoRenderBackend::Requeue</definition>
+        <argsstring>()</argsstring>
+        <name>Requeue</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" line="140" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_render_backend_1a31b0692b55057cc3ca9a929f0100ee0e" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void RenderBackend::CopyNodeInputValue</definition>
+        <argsstring>(NodeInput *input)</argsstring>
+        <name>CopyNodeInputValue</name>
+        <param>
+          <type><ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+          <declname>input</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" line="141" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_render_backend_1a888d6e238f36d08101a45a6c0fd6b482" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+        <definition>Node* RenderBackend::CopyNodeConnections</definition>
+        <argsstring>(Node *src_node)</argsstring>
+        <name>CopyNodeConnections</name>
+        <param>
+          <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+          <declname>src_node</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" line="142" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_render_backend_1aff7ce4e56ce790e6cbb5dd5f937f45cf" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void RenderBackend::CopyNodeMakeConnection</definition>
+        <argsstring>(NodeInput *src_input, NodeInput *dst_input)</argsstring>
+        <name>CopyNodeMakeConnection</name>
+        <param>
+          <type><ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+          <declname>src_input</declname>
+        </param>
+        <param>
+          <type><ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+          <declname>dst_input</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" line="143" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_video_render_backend_1a8bcf66ab120e88e9c16f889c56058c9a" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void VideoRenderBackend::ThreadCompletedDownload</definition>
+        <argsstring>(NodeDependency dep, qint64 job_time, QByteArray hash, bool texture_existed)</argsstring>
+        <name>ThreadCompletedDownload</name>
+        <param>
+          <type><ref refid="class_node_dependency" kindref="compound">NodeDependency</ref></type>
+          <declname>dep</declname>
+        </param>
+        <param>
+          <type>qint64</type>
+          <declname>job_time</declname>
+        </param>
+        <param>
+          <type>QByteArray</type>
+          <declname>hash</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>texture_existed</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" line="157" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_video_render_backend_1aa4a96314bc1332494911886476043e24" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void VideoRenderBackend::ThreadSkippedFrame</definition>
+        <argsstring>(NodeDependency dep, qint64 job_time, QByteArray hash)</argsstring>
+        <name>ThreadSkippedFrame</name>
+        <param>
+          <type><ref refid="class_node_dependency" kindref="compound">NodeDependency</ref></type>
+          <declname>dep</declname>
+        </param>
+        <param>
+          <type>qint64</type>
+          <declname>job_time</declname>
+        </param>
+        <param>
+          <type>QByteArray</type>
+          <declname>hash</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" line="158" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_video_render_backend_1aa0ddafdd39a31796dc1b39645ee00bd4" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void VideoRenderBackend::ThreadHashAlreadyExists</definition>
+        <argsstring>(NodeDependency dep, qint64 job_time, QByteArray hash)</argsstring>
+        <name>ThreadHashAlreadyExists</name>
+        <param>
+          <type><ref refid="class_node_dependency" kindref="compound">NodeDependency</ref></type>
+          <declname>dep</declname>
+        </param>
+        <param>
+          <type>qint64</type>
+          <declname>job_time</declname>
+        </param>
+        <param>
+          <type>QByteArray</type>
+          <declname>hash</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" line="159" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_video_render_backend_1ac6db3f3dd05dc51ce397e95be82d2f0b" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void VideoRenderBackend::ThreadGeneratedFrame</definition>
+        <argsstring>()</argsstring>
+        <name>ThreadGeneratedFrame</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" line="160" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_video_render_backend_1a8c0bfea4cde562f95bc0824e54082e5d" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void VideoRenderBackend::TruncateFrameCacheLength</definition>
+        <argsstring>(const rational &amp;length)</argsstring>
+        <name>TruncateFrameCacheLength</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>length</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" line="162" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_video_render_backend_1a298db89c2eac30325167f2fdb0b14590" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void VideoRenderBackend::FrameRemovedFromDiskCache</definition>
+        <argsstring>(const QByteArray &amp;hash)</argsstring>
+        <name>FrameRemovedFromDiskCache</name>
+        <param>
+          <type>const QByteArray &amp;</type>
+          <declname>hash</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/videorenderbackend.h" line="164" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_render_backend_1a9db817f790f02f9b9f8813058cabec8d" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void RenderBackend::FootageUnavailable</definition>
+        <argsstring>(StreamPtr stream, Decoder::RetrieveState state, const TimeRange &amp;path, const rational &amp;stream_time)</argsstring>
+        <name>FootageUnavailable</name>
+        <param>
+          <type><ref refid="stream_8h_1a3ca5b414655d064180098adf46c1a2f1" kindref="member">StreamPtr</ref></type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type><ref refid="class_decoder_1aaf2969a042349edc13d9b054894d105f" kindref="member">Decoder::RetrieveState</ref></type>
+          <declname>state</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_time_range" kindref="compound">TimeRange</ref> &amp;</type>
+          <declname>path</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>stream_time</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" line="189" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_render_backend_1afc867ceff6d68e1d880fc45807a4644a" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void RenderBackend::IndexUpdated</definition>
+        <argsstring>(Stream *stream)</argsstring>
+        <name>IndexUpdated</name>
+        <param>
+          <type><ref refid="class_stream" kindref="compound">Stream</ref> *</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" line="191" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-slot">
+      <memberdef kind="slot" id="class_render_backend_1a17a0ef6e7d0d61d254e2f2a91409741b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void RenderBackend::InvalidateCache</definition>
+        <argsstring>(const TimeRange &amp;range, NodeInput *from)</argsstring>
+        <name>InvalidateCache</name>
+        <param>
+          <type>const <ref refid="class_time_range" kindref="compound">TimeRange</ref> &amp;</type>
+          <declname>range</declname>
+        </param>
+        <param>
+          <type><ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+          <declname>from</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/renderbackend.h" line="73" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>OpenGLBackend</label>
+        <link refid="class_open_g_l_backend"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>VideoRenderBackend</label>
+        <link refid="class_video_render_backend"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>RenderBackend</label>
+        <link refid="class_render_backend"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="9">
+        <label>NodeOutput</label>
+        <link refid="class_node_output"/>
+        <childnode refid="10" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>OpenGLBackend</label>
+        <link refid="class_open_g_l_backend"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="18" relation="usage">
+          <edgelabel>proxy_</edgelabel>
+        </childnode>
+      </node>
+      <node id="6">
+        <label>NodeGraph</label>
+        <link refid="class_node_graph"/>
+      </node>
+      <node id="4">
+        <label>RenderCancelDialog</label>
+        <link refid="class_render_cancel_dialog"/>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>VideoRenderBackend</label>
+        <link refid="class_video_render_backend"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+        <childnode refid="16" relation="usage">
+          <edgelabel>params_</edgelabel>
+        </childnode>
+        <childnode refid="15" relation="usage">
+          <edgelabel>invalidated_</edgelabel>
+        </childnode>
+        <childnode refid="12" relation="usage">
+          <edgelabel>last_time_requested_</edgelabel>
+        </childnode>
+        <childnode refid="17" relation="usage">
+          <edgelabel>frame_cache_</edgelabel>
+        </childnode>
+      </node>
+      <node id="21">
+        <label>OpenGLTextureCache</label>
+        <link refid="class_open_g_l_texture_cache"/>
+      </node>
+      <node id="13">
+        <label>AudioParams</label>
+        <link refid="class_audio_params"/>
+      </node>
+      <node id="18">
+        <label>OpenGLProxy</label>
+        <link refid="class_open_g_l_proxy"/>
+        <childnode refid="19" relation="usage">
+          <edgelabel>color_cache_</edgelabel>
+        </childnode>
+        <childnode refid="16" relation="usage">
+          <edgelabel>video_params_</edgelabel>
+        </childnode>
+        <childnode refid="20" relation="usage">
+          <edgelabel>shader_cache_</edgelabel>
+        </childnode>
+        <childnode refid="21" relation="usage">
+          <edgelabel>texture_cache_</edgelabel>
+        </childnode>
+        <childnode refid="22" relation="usage">
+          <edgelabel>still_image_cache_</edgelabel>
+        </childnode>
+        <childnode refid="23" relation="usage">
+          <edgelabel>buffer_</edgelabel>
+        </childnode>
+      </node>
+      <node id="22">
+        <label>RenderCache&lt; Stream *, OpenGLProxy::CachedStill &gt;</label>
+        <link refid="class_render_cache"/>
+      </node>
+      <node id="7">
+        <label>ViewerOutput</label>
+        <link refid="class_viewer_output"/>
+        <childnode refid="8" relation="public-inheritance">
+        </childnode>
+        <childnode refid="11" relation="usage">
+          <edgelabel>video_params_</edgelabel>
+        </childnode>
+        <childnode refid="12" relation="usage">
+          <edgelabel>timeline_length_</edgelabel>
+        </childnode>
+        <childnode refid="13" relation="usage">
+          <edgelabel>audio_params_</edgelabel>
+        </childnode>
+        <childnode refid="14" relation="usage">
+          <edgelabel>texture_input_</edgelabel>
+          <edgelabel>samples_input_</edgelabel>
+        </childnode>
+      </node>
+      <node id="12">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="5">
+        <label>ProgressDialog</label>
+        <link refid="class_progress_dialog"/>
+      </node>
+      <node id="8">
+        <label>Node</label>
+        <link refid="class_node"/>
+        <childnode refid="9" relation="usage">
+          <edgelabel>output_</edgelabel>
+        </childnode>
+      </node>
+      <node id="16">
+        <label>VideoRenderingParams</label>
+        <link refid="class_video_rendering_params"/>
+        <childnode refid="11" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>NodeInput</label>
+        <link refid="class_node_input"/>
+        <childnode refid="10" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>RenderBackend</label>
+        <link refid="class_render_backend"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>cancel_dialog_</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>copied_graph_</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>copied_viewer_node_</edgelabel>
+          <edgelabel>viewer_node_</edgelabel>
+        </childnode>
+        <childnode refid="15" relation="usage">
+          <edgelabel>cache_queue_</edgelabel>
+        </childnode>
+      </node>
+      <node id="15">
+        <label>TimeRangeList</label>
+        <link refid="class_time_range_list"/>
+      </node>
+      <node id="20">
+        <label>RenderCache&lt; QString, OpenGLShaderPtr &gt;</label>
+        <link refid="class_render_cache"/>
+      </node>
+      <node id="24">
+        <label>OpenGLTexture</label>
+        <link refid="class_open_g_l_texture"/>
+      </node>
+      <node id="10">
+        <label>NodeParam</label>
+        <link refid="class_node_param"/>
+      </node>
+      <node id="11">
+        <label>VideoParams</label>
+        <link refid="class_video_params"/>
+        <childnode refid="12" relation="usage">
+          <edgelabel>time_base_</edgelabel>
+        </childnode>
+      </node>
+      <node id="17">
+        <label>VideoRenderFrameCache</label>
+        <link refid="class_video_render_frame_cache"/>
+      </node>
+      <node id="23">
+        <label>OpenGLFramebuffer</label>
+        <link refid="class_open_g_l_framebuffer"/>
+        <childnode refid="24" relation="usage">
+          <edgelabel>texture_</edgelabel>
+        </childnode>
+      </node>
+      <node id="19">
+        <label>RenderCache&lt; QString, ColorProcessorPtr &gt;</label>
+        <link refid="class_render_cache"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglbackend.h" line="33" column="1" bodyfile="C:/Daten/Olive/olive/app/render/backend/opengl/openglbackend.h" bodystart="34" bodyend="51"/>
+    <listofallmembers>
+      <member refid="class_render_backend_1aebf008600255c35351298441051eddbc" prot="protected" virt="non-virtual"><scope>OpenGLBackend</scope><name>AllProcessorsAreAvailable</name></member>
+      <member refid="class_render_backend_1ab9bd2867c0d057d22c4ca69f547d75b1" prot="protected" virt="non-virtual"><scope>OpenGLBackend</scope><name>cache_id</name></member>
+      <member refid="class_render_backend_1ab1952491b0e3aa78785d89a5bd4bb6e2" prot="private" virt="non-virtual"><scope>OpenGLBackend</scope><name>cache_id_</name></member>
+      <member refid="class_render_backend_1a7dff934b35c0106145c946903db8ee9f" prot="protected" virt="non-virtual"><scope>OpenGLBackend</scope><name>cache_queue_</name></member>
+      <member refid="class_video_render_backend_1a80461e10a65b238f8c064e2cc05d898e" prot="public" virt="non-virtual"><scope>OpenGLBackend</scope><name>CachedTimeReady</name></member>
+      <member refid="class_video_render_backend_1aa0ce17f3f964a36c07024258faa94a61" prot="protected" virt="virtual"><scope>OpenGLBackend</scope><name>CacheIDChangedEvent</name></member>
+      <member refid="class_render_backend_1a45cef784d3a1c2a0c3558b143a9672c3" prot="protected" virt="non-virtual"><scope>OpenGLBackend</scope><name>CacheNext</name></member>
+      <member refid="class_render_backend_1aaaf6a5c8f5b29f9865f70149ebb9aa0a" prot="private" virt="non-virtual"><scope>OpenGLBackend</scope><name>cancel_dialog_</name></member>
+      <member refid="class_render_backend_1a782e31403ea6e74befede705f9f66668" prot="public" virt="non-virtual"><scope>OpenGLBackend</scope><name>CancelQueue</name></member>
+      <member refid="class_video_render_backend_1adbfffbda73790e8542ee49654b2232e2" prot="protected" virt="virtual"><scope>OpenGLBackend</scope><name>CanRender</name></member>
+      <member refid="class_render_backend_1a5c857925359abdfa33ee7bf0d262afb5" prot="public" virt="non-virtual"><scope>OpenGLBackend</scope><name>Close</name></member>
+      <member refid="class_open_g_l_backend_1aa753d0692136e954b97f17e5525f4950" prot="protected" virt="virtual"><scope>OpenGLBackend</scope><name>CloseInternal</name></member>
+      <member refid="class_video_render_backend_1a27df3647d1f7c06c8b6b921b88d8ab54" prot="protected" virt="virtual"><scope>OpenGLBackend</scope><name>ConnectViewer</name></member>
+      <member refid="class_video_render_backend_1a8682518d945dbf7b4d81bea9a11c508f" prot="protected" virt="virtual"><scope>OpenGLBackend</scope><name>ConnectWorkerToThis</name></member>
+      <member refid="class_render_backend_1a03c1f9633e09b51e2ee0e9b35587f91a" prot="protected" virt="non-virtual"><scope>OpenGLBackend</scope><name>copied_graph_</name></member>
+      <member refid="class_render_backend_1a357faf9309ff681fb96000626840728e" prot="private" virt="non-virtual"><scope>OpenGLBackend</scope><name>copied_viewer_node_</name></member>
+      <member refid="class_render_backend_1a888d6e238f36d08101a45a6c0fd6b482" prot="private" virt="non-virtual"><scope>OpenGLBackend</scope><name>CopyNodeConnections</name></member>
+      <member refid="class_render_backend_1a31b0692b55057cc3ca9a929f0100ee0e" prot="private" virt="non-virtual"><scope>OpenGLBackend</scope><name>CopyNodeInputValue</name></member>
+      <member refid="class_render_backend_1aff7ce4e56ce790e6cbb5dd5f937f45cf" prot="private" virt="non-virtual"><scope>OpenGLBackend</scope><name>CopyNodeMakeConnection</name></member>
+      <member refid="class_video_render_backend_1a000bb75de16c498a3eaafa6cd76ae594" prot="protected" virt="virtual"><scope>OpenGLBackend</scope><name>DisconnectViewer</name></member>
+      <member refid="class_render_backend_1a8f863f2f5cbfbcb6409614b6d6e9e3e6" prot="private" virt="non-virtual"><scope>OpenGLBackend</scope><name>error_</name></member>
+      <member refid="class_render_backend_1afb3a3ca2de00bbfdee8fab85d7683db5" prot="private" virt="non-virtual"><scope>OpenGLBackend</scope><name>footage_wait_info_</name></member>
+      <member refid="class_render_backend_1a9db817f790f02f9b9f8813058cabec8d" prot="private" virt="non-virtual"><scope>OpenGLBackend</scope><name>FootageUnavailable</name></member>
+      <member refid="class_video_render_backend_1ae966d965dace16b3f181ada83613bd50" prot="public" virt="non-virtual"><scope>OpenGLBackend</scope><name>frame_cache</name></member>
+      <member refid="class_video_render_backend_1aece856d61f80d8457a425f479bf4a4a8" prot="private" virt="non-virtual"><scope>OpenGLBackend</scope><name>frame_cache_</name></member>
+      <member refid="class_video_render_backend_1a298db89c2eac30325167f2fdb0b14590" prot="private" virt="non-virtual"><scope>OpenGLBackend</scope><name>FrameRemovedFromDiskCache</name></member>
+      <member refid="class_video_render_backend_1a51d6e5f5aedad9484452f86b196ac62d" prot="protected" virt="virtual"><scope>OpenGLBackend</scope><name>GenerateCacheIDInternal</name></member>
+      <member refid="class_video_render_backend_1ade88ff3b53f9dedc444167ac0be6d37a" prot="public" virt="non-virtual"><scope>OpenGLBackend</scope><name>GeneratedFrame</name></member>
+      <member refid="class_video_render_backend_1a6875d8550355462182783ab63339a85e" prot="public" virt="non-virtual"><scope>OpenGLBackend</scope><name>GetCachedFrame</name></member>
+      <member refid="class_video_render_backend_1a012ba862387ae234b70ecd5928337392" prot="protected" virt="virtual"><scope>OpenGLBackend</scope><name>GetDependentInput</name></member>
+      <member refid="class_render_backend_1a7b4b444ce45f638ab008c176f21669ec" prot="public" virt="non-virtual"><scope>OpenGLBackend</scope><name>GetError</name></member>
+      <member refid="class_render_backend_1abbf6fc5c0585dad8328c740d4d71c877" prot="protected" virt="non-virtual"><scope>OpenGLBackend</scope><name>GetSequenceLength</name></member>
+      <member refid="class_render_backend_1afc867ceff6d68e1d880fc45807a4644a" prot="private" virt="non-virtual"><scope>OpenGLBackend</scope><name>IndexUpdated</name></member>
+      <member refid="class_render_backend_1ac196d6d62bed682c306314d04bdba2e2" prot="public" virt="non-virtual"><scope>OpenGLBackend</scope><name>Init</name></member>
+      <member refid="class_open_g_l_backend_1afbe306b549f59133fb5a1bbcaa56dbb0" prot="protected" virt="virtual"><scope>OpenGLBackend</scope><name>InitInternal</name></member>
+      <member refid="class_render_backend_1a82d57e221b03442ad1d68e25e7f6fec8" prot="protected" virt="non-virtual"><scope>OpenGLBackend</scope><name>InitWorkers</name></member>
+      <member refid="class_render_backend_1a77b06fd7198b3320668d3dd4afb85e07" prot="private" virt="non-virtual"><scope>OpenGLBackend</scope><name>input_update_queued_</name></member>
+      <member refid="class_render_backend_1a17a0ef6e7d0d61d254e2f2a91409741b" prot="public" virt="non-virtual"><scope>OpenGLBackend</scope><name>InvalidateCache</name></member>
+      <member refid="class_video_render_backend_1a7c297c5c4941169ac87a9acc2418520b" prot="protected" virt="virtual"><scope>OpenGLBackend</scope><name>InvalidateCacheInternal</name></member>
+      <member refid="class_video_render_backend_1a512bd3c74cf6c1c773226c788fa5a52c" prot="private" virt="non-virtual"><scope>OpenGLBackend</scope><name>invalidated_</name></member>
+      <member refid="class_render_backend_1ae6d601152f9b9fa4d64ae4db925fd8e1" prot="public" virt="non-virtual"><scope>OpenGLBackend</scope><name>IsInitiated</name></member>
+      <member refid="class_video_render_backend_1a5b8c4cddb65f4cef31b02aa8dc625093" prot="public" virt="non-virtual"><scope>OpenGLBackend</scope><name>IsRendered</name></member>
+      <member refid="class_video_render_backend_1aea88e25a9e8ef6f796502c22bb435254" prot="private" virt="non-virtual"><scope>OpenGLBackend</scope><name>JobIsCurrent</name></member>
+      <member refid="class_video_render_backend_1a38e6a156440d270a386bf353aa56264a" prot="private" virt="non-virtual"><scope>OpenGLBackend</scope><name>last_time_requested_</name></member>
+      <member refid="class_video_render_backend_1a266f598290a10a1b514c10730f899868" prot="private" virt="non-virtual"><scope>OpenGLBackend</scope><name>limit_caching_</name></member>
+      <member refid="class_render_backend_1a0d75c7b0788ebc7e78fed9dfc8ff7bee" prot="protected" virt="non-virtual"><scope>OpenGLBackend</scope><name>node_copy_map_</name></member>
+      <member refid="class_video_render_backend_1a6a5242b5a51829f4e967a030430b154c" prot="private" virt="non-virtual"><scope>OpenGLBackend</scope><name>only_signal_last_frame_requested_</name></member>
+      <member refid="class_open_g_l_backend_1a6f7e23f3cffcaab8cb204d2be1e71688" prot="public" virt="non-virtual"><scope>OpenGLBackend</scope><name>OpenGLBackend</name></member>
+      <member refid="class_video_render_backend_1a186603a7acb73d6fa7964d7152ae4807" prot="protected" virt="non-virtual"><scope>OpenGLBackend</scope><name>operating_mode_</name></member>
+      <member refid="class_video_render_backend_1a2d3de43cd2bb49c5c4869dc4b0cdf875" prot="public" virt="non-virtual"><scope>OpenGLBackend</scope><name>params</name></member>
+      <member refid="class_video_render_backend_1a88ca8e5c2d57362a6c02452c530b9c8d" prot="private" virt="non-virtual"><scope>OpenGLBackend</scope><name>params_</name></member>
+      <member refid="class_open_g_l_backend_1ae786123ce56c9c26f30d434f063c0ddd" prot="protected" virt="virtual"><scope>OpenGLBackend</scope><name>ParamsChangedEvent</name></member>
+      <member refid="class_video_render_backend_1a178e061ffc4c90ea1c1d13d6f5a5a237" prot="private" virt="non-virtual"><scope>OpenGLBackend</scope><name>pop_toggle_</name></member>
+      <member refid="class_video_render_backend_1a2f66435c82bd26e84c03497b9fd8bf41" prot="protected" virt="virtual"><scope>OpenGLBackend</scope><name>PopNextFrameFromQueue</name></member>
+      <member refid="class_render_backend_1a1f4324a88f769e0f8b42617db4eba080" prot="private" virt="non-virtual"><scope>OpenGLBackend</scope><name>processor_busy_state_</name></member>
+      <member refid="class_render_backend_1a0bae7c7374ed9cc572a2abaea7d21e01" prot="protected" virt="non-virtual"><scope>OpenGLBackend</scope><name>processors_</name></member>
+      <member refid="class_open_g_l_backend_1a91a222a8a24f330c894a9537498bda99" prot="private" virt="non-virtual"><scope>OpenGLBackend</scope><name>proxy_</name></member>
+      <member refid="class_render_backend_1ab6c910e4bc0f2cb382b62f2729671e2f" prot="public" virt="non-virtual"><scope>OpenGLBackend</scope><name>QueueComplete</name></member>
+      <member refid="class_render_backend_1a4e0c76ee543a7812dd10f35d0e733cd1" prot="protected" virt="non-virtual"><scope>OpenGLBackend</scope><name>QueueValueUpdate</name></member>
+      <member refid="class_video_render_backend_1a7be04fb7b41e5c972918446568380829" prot="public" virt="non-virtual"><scope>OpenGLBackend</scope><name>RangeInvalidated</name></member>
+      <member refid="class_render_backend_1ae9f4d500cd83eb98c7b2d30e0be0f0a7" prot="protected" virt="non-virtual"><scope>OpenGLBackend</scope><name>RegenerateCacheID</name></member>
+      <member refid="class_render_backend_1a0ce09070fd2ba99c5ff57a6ee3d318f0" prot="protected" virt="non-virtual"><scope>OpenGLBackend</scope><name>render_job_info_</name></member>
+      <member refid="class_render_backend_1a669e1d0ebead6e3e7cc0dae6de9d1f2a" prot="public" virt="non-virtual"><scope>OpenGLBackend</scope><name>RenderBackend</name></member>
+      <member refid="class_video_render_backend_1a1861430d560ae548f8636ca67d3b7a57" prot="private" virt="non-virtual"><scope>OpenGLBackend</scope><name>Requeue</name></member>
+      <member refid="class_render_backend_1a642973aa8dee0f2b842d1f7ac53949eb" prot="protected" virt="non-virtual"><scope>OpenGLBackend</scope><name>SetError</name></member>
+      <member refid="class_video_render_backend_1a479c29e73679e5c0b458c6789476d1c0" prot="public" virt="non-virtual"><scope>OpenGLBackend</scope><name>SetFrameGenerationParams</name></member>
+      <member refid="class_video_render_backend_1a5ff6f9a53d0ace2f7865a88d5733244a" prot="private" virt="non-virtual"><scope>OpenGLBackend</scope><name>SetFrameHash</name></member>
+      <member refid="class_video_render_backend_1acd3ed7e12ae638db643c8d0e7a58e867" prot="public" virt="non-virtual"><scope>OpenGLBackend</scope><name>SetLimitCaching</name></member>
+      <member refid="class_video_render_backend_1a9af743ea4ec0100a6febe08408e90ada" prot="public" virt="non-virtual"><scope>OpenGLBackend</scope><name>SetOnlySignalLastFrameRequested</name></member>
+      <member refid="class_video_render_backend_1afa7affb64dac0b52359d39ee4c59c5dc" prot="public" virt="non-virtual"><scope>OpenGLBackend</scope><name>SetOperatingMode</name></member>
+      <member refid="class_video_render_backend_1ab67f086f19e2b8494a079677d9cd6633" prot="public" virt="non-virtual"><scope>OpenGLBackend</scope><name>SetParameters</name></member>
+      <member refid="class_render_backend_1a2acedf9ef4e04624eabffa5cfb85887d" prot="public" virt="non-virtual"><scope>OpenGLBackend</scope><name>SetViewerNode</name></member>
+      <member refid="class_render_backend_1a8cebd484402ce4b073cad650bb1e687e" prot="protected" virt="non-virtual"><scope>OpenGLBackend</scope><name>SetWorkerBusyState</name></member>
+      <member refid="class_render_backend_1a00aaeabc2791b719669d8c849ca055a3" prot="private" virt="non-virtual"><scope>OpenGLBackend</scope><name>started_</name></member>
+      <member refid="class_video_render_backend_1a8bcf66ab120e88e9c16f889c56058c9a" prot="private" virt="non-virtual"><scope>OpenGLBackend</scope><name>ThreadCompletedDownload</name></member>
+      <member refid="class_video_render_backend_1ac6db3f3dd05dc51ce397e95be82d2f0b" prot="private" virt="non-virtual"><scope>OpenGLBackend</scope><name>ThreadGeneratedFrame</name></member>
+      <member refid="class_video_render_backend_1aa0ddafdd39a31796dc1b39645ee00bd4" prot="private" virt="non-virtual"><scope>OpenGLBackend</scope><name>ThreadHashAlreadyExists</name></member>
+      <member refid="class_render_backend_1ad5e2f60feb87a6cf4020578935ce7fa9" prot="protected" virt="non-virtual"><scope>OpenGLBackend</scope><name>threads</name></member>
+      <member refid="class_render_backend_1af4261773acf9c1437b8f264d6833c500" prot="private" virt="non-virtual"><scope>OpenGLBackend</scope><name>threads_</name></member>
+      <member refid="class_video_render_backend_1aa4a96314bc1332494911886476043e24" prot="private" virt="non-virtual"><scope>OpenGLBackend</scope><name>ThreadSkippedFrame</name></member>
+      <member refid="class_video_render_backend_1adb83d3710ceed0bb3d14d752349bd12e" prot="private" virt="non-virtual"><scope>OpenGLBackend</scope><name>TimeIsQueued</name></member>
+      <member refid="class_video_render_backend_1a8c0bfea4cde562f95bc0824e54082e5d" prot="private" virt="non-virtual"><scope>OpenGLBackend</scope><name>TruncateFrameCacheLength</name></member>
+      <member refid="class_video_render_backend_1a7fe53ff5be67c9cc55514eead41a97d1" prot="public" virt="non-virtual"><scope>OpenGLBackend</scope><name>UpdateLastRequestedTime</name></member>
+      <member refid="class_video_render_backend_1ae112221233f7d81c83e5fee869cc1193" prot="public" virt="non-virtual"><scope>OpenGLBackend</scope><name>VideoRenderBackend</name></member>
+      <member refid="class_render_backend_1a763aaa6fd8996a4858fb0f82f1931b50" prot="public" virt="non-virtual"><scope>OpenGLBackend</scope><name>viewer_node</name></member>
+      <member refid="class_render_backend_1a54294cee614d25a23cc0f03ee17e995a" prot="private" virt="non-virtual"><scope>OpenGLBackend</scope><name>viewer_node_</name></member>
+      <member refid="class_render_backend_1a8921b2a4c609e42e9cfd8d2807626546" prot="protected" virt="non-virtual"><scope>OpenGLBackend</scope><name>ViewerIsConnected</name></member>
+      <member refid="class_render_backend_1a84f10f926be301256b12370f42362aad" prot="protected" virt="non-virtual"><scope>OpenGLBackend</scope><name>WorkerIsBusy</name></member>
+      <member refid="class_open_g_l_backend_1a0a89ab7d1fd3d1d7c3602c2f6abbb294" prot="public" virt="virtual"><scope>OpenGLBackend</scope><name>~OpenGLBackend</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

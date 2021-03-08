@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_aa88a6c3594f8ccabaff0f8287ab5b25" kind="dir">
+    <compoundname>item</compoundname>
+    <innerdir refid="dir_075b41072eb8a34a76195f29c5b6035e">folder</innerdir>
+    <innerdir refid="dir_223c5f9a46a1a026017adae942db3261">footage</innerdir>
+    <innerdir refid="dir_4e68295f9f402b167d5a5375cfb14eee">sequence</innerdir>
+    <innerfile refid="item_8h">item.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/project/item/"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_render_mode" kind="class" language="C++" prot="public">
+    <compoundname>RenderMode</compoundname>
+    <includes refid="rendermodes_8h" local="no">rendermodes.h</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="enum" id="class_render_mode_1aa8f6df8efdb14e18f324bf20a40e6a2b" prot="public" static="no" strong="no">
+        <type></type>
+        <name>Mode</name>
+        <enumvalue id="class_render_mode_1aa8f6df8efdb14e18f324bf20a40e6a2ba12292c11b96463484960e6c89c2e6360" prot="public">
+          <name>kOffline</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>This render is for realtime preview ONLY and does not need to be &quot;perfect&quot;. Nodes can use lower-accuracy functions to save performance when possible. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_render_mode_1aa8f6df8efdb14e18f324bf20a40e6a2ba38f23badc984c2ffc8512afa74f54fae" prot="public">
+          <name>kOnline</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>This render is some sort of export or master copy and Nodes should take time/bandwidth/system resources to produce a higher accuracy version. </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>The primary different &quot;modes&quot; the renderer can function in. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/rendermodes.h" line="51" column="3" bodyfile="C:/Daten/Olive/olive/app/render/rendermodes.h" bodystart="51" bodyend="63"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/render/rendermodes.h" line="28" column="1" bodyfile="C:/Daten/Olive/olive/app/render/rendermodes.h" bodystart="28" bodyend="46"/>
+    <listofallmembers>
+      <member refid="class_render_mode_1aa8f6df8efdb14e18f324bf20a40e6a2ba12292c11b96463484960e6c89c2e6360" prot="public" virt="non-virtual"><scope>RenderMode</scope><name>kOffline</name></member>
+      <member refid="class_render_mode_1aa8f6df8efdb14e18f324bf20a40e6a2ba38f23badc984c2ffc8512afa74f54fae" prot="public" virt="non-virtual"><scope>RenderMode</scope><name>kOnline</name></member>
+      <member refid="class_render_mode_1aa8f6df8efdb14e18f324bf20a40e6a2b" prot="public" virt="non-virtual"><scope>RenderMode</scope><name>Mode</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

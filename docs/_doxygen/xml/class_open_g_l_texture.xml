@@ -1,0 +1,434 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_open_g_l_texture" kind="class" language="C++" prot="public">
+    <compoundname>OpenGLTexture</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QObject</basecompoundref>
+    <includes refid="opengltexture_8h" local="no">opengltexture.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_open_g_l_texture_1a0db203615dd4d29d9e60516059bf81fb" prot="private" static="no" mutable="no">
+        <type>QOpenGLContext *</type>
+        <definition>QOpenGLContext* OpenGLTexture::created_ctx_</definition>
+        <argsstring></argsstring>
+        <name>created_ctx_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexture.h" line="91" column="18" bodyfile="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexture.h" bodystart="91" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_open_g_l_texture_1a4d5af6a1c4b60fd1993688bdbacfb4a3" prot="private" static="no" mutable="no">
+        <type>GLuint</type>
+        <definition>GLuint OpenGLTexture::texture_</definition>
+        <argsstring></argsstring>
+        <name>texture_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexture.h" line="93" column="10" bodyfile="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexture.h" bodystart="93" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_open_g_l_texture_1a6ebc3f0262e2efe3807f825e51c64e5b" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int OpenGLTexture::width_</definition>
+        <argsstring></argsstring>
+        <name>width_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexture.h" line="95" column="7" bodyfile="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexture.h" bodystart="95" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_open_g_l_texture_1abbed91bd65dfe540b78a3f5efeea3980" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int OpenGLTexture::height_</definition>
+        <argsstring></argsstring>
+        <name>height_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexture.h" line="97" column="7" bodyfile="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexture.h" bodystart="97" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_open_g_l_texture_1ab6d22239863b2dbb8e2651eadab2f458" prot="private" static="no" mutable="no">
+        <type><ref refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021" kindref="member">PixelFormat::Format</ref></type>
+        <definition>PixelFormat::Format OpenGLTexture::format_</definition>
+        <argsstring></argsstring>
+        <name>format_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexture.h" line="99" column="23" bodyfile="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexture.h" bodystart="99" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_open_g_l_texture_1ab3e52d6d7280b58ea59b44d0f25276ba" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>OpenGLTexture::OpenGLTexture</definition>
+        <argsstring>()</argsstring>
+        <name>OpenGLTexture</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexture.h" line="57" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_texture_1ad76f465ce261d78d660b8f406c587c59" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type></type>
+        <definition>virtual OpenGLTexture::~OpenGLTexture</definition>
+        <argsstring>() override</argsstring>
+        <name>~OpenGLTexture</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexture.h" line="58" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_texture_1a9e76edf620954349344ac2c370806de8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void OpenGLTexture::Create</definition>
+        <argsstring>(QOpenGLContext *ctx, int width, int height, const PixelFormat::Format &amp;format, const void *data, int linesize)</argsstring>
+        <name>Create</name>
+        <param>
+          <type>QOpenGLContext *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>width</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>height</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021" kindref="member">PixelFormat::Format</ref> &amp;</type>
+          <declname>format</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>linesize</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexture.h" line="62" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_texture_1a593d632a0979f58c457cb0dd3774aa75" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void OpenGLTexture::Create</definition>
+        <argsstring>(QOpenGLContext *ctx, int width, int height, const PixelFormat::Format &amp;format)</argsstring>
+        <name>Create</name>
+        <param>
+          <type>QOpenGLContext *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>width</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>height</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021" kindref="member">PixelFormat::Format</ref> &amp;</type>
+          <declname>format</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexture.h" line="63" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_texture_1af54e8853abe899fe9c08dd2bd030769e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void OpenGLTexture::Create</definition>
+        <argsstring>(QOpenGLContext *ctx, FramePtr frame)</argsstring>
+        <name>Create</name>
+        <param>
+          <type>QOpenGLContext *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type><ref refid="frame_8h_1a2ae9a822fc1e331fa3b449797f717db6" kindref="member">FramePtr</ref></type>
+          <declname>frame</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexture.h" line="64" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_texture_1a641283523b72c997def66c65ce03c83d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void OpenGLTexture::Create</definition>
+        <argsstring>(QOpenGLContext *ctx, Frame *frame)</argsstring>
+        <name>Create</name>
+        <param>
+          <type>QOpenGLContext *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type><ref refid="class_frame" kindref="compound">Frame</ref> *</type>
+          <declname>frame</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexture.h" line="65" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_texture_1aa298f872152c0b75786ebd5314d806c1" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool OpenGLTexture::IsCreated</definition>
+        <argsstring>() const</argsstring>
+        <name>IsCreated</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexture.h" line="67" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_texture_1a83e42404b1a78266092077d2b86ce550" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void OpenGLTexture::Bind</definition>
+        <argsstring>()</argsstring>
+        <name>Bind</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexture.h" line="69" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_texture_1a59fda6d942bb046f5a7a0e21bb2378cd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void OpenGLTexture::Release</definition>
+        <argsstring>()</argsstring>
+        <name>Release</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexture.h" line="71" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_texture_1ae90dca8c8c275bd76514cef8c0a9e933" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const int &amp;</type>
+        <definition>const int&amp; OpenGLTexture::width</definition>
+        <argsstring>() const</argsstring>
+        <name>width</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexture.h" line="73" column="13"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_texture_1a4053b5592c91605ca81e88f3498bbb6c" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const int &amp;</type>
+        <definition>const int&amp; OpenGLTexture::height</definition>
+        <argsstring>() const</argsstring>
+        <name>height</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexture.h" line="75" column="13"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_texture_1add18e4e2c7554037f8c54eace736a77a" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021" kindref="member">PixelFormat::Format</ref> &amp;</type>
+        <definition>const PixelFormat::Format&amp; OpenGLTexture::format</definition>
+        <argsstring>() const</argsstring>
+        <name>format</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexture.h" line="77" column="29"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_texture_1a95ea668c2900a7e58a7dc0c3b60e710c" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const GLuint &amp;</type>
+        <definition>const GLuint&amp; OpenGLTexture::texture</definition>
+        <argsstring>() const</argsstring>
+        <name>texture</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexture.h" line="79" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_texture_1a40346ba6ced9f391ed6786d53c1932a8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void OpenGLTexture::Upload</definition>
+        <argsstring>(FramePtr frame)</argsstring>
+        <name>Upload</name>
+        <param>
+          <type><ref refid="frame_8h_1a2ae9a822fc1e331fa3b449797f717db6" kindref="member">FramePtr</ref></type>
+          <declname>frame</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexture.h" line="81" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_texture_1a7009f89b68e31fe73d491f9b614366a0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void OpenGLTexture::Upload</definition>
+        <argsstring>(Frame *frame)</argsstring>
+        <name>Upload</name>
+        <param>
+          <type><ref refid="class_frame" kindref="compound">Frame</ref> *</type>
+          <declname>frame</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexture.h" line="82" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_texture_1a82cb5c7f01abfebd6851b97bf13f43dc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void OpenGLTexture::Upload</definition>
+        <argsstring>(const void *data, int linesize)</argsstring>
+        <name>Upload</name>
+        <param>
+          <type>const void *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>linesize</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexture.h" line="83" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-slot">
+      <memberdef kind="slot" id="class_open_g_l_texture_1a3b19abaf278659a7855e10aae27f3f9d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void OpenGLTexture::Destroy</definition>
+        <argsstring>()</argsstring>
+        <name>Destroy</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexture.h" line="86" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_open_g_l_texture_1a834ea54bf21fd7cecdb2c8c1eb62a014" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void OpenGLTexture::CreateInternal</definition>
+        <argsstring>(QOpenGLContext *create_ctx, GLuint *tex, const void *data, int linesize)</argsstring>
+        <name>CreateInternal</name>
+        <param>
+          <type>QOpenGLContext *</type>
+          <declname>create_ctx</declname>
+        </param>
+        <param>
+          <type>GLuint *</type>
+          <declname>tex</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>linesize</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexture.h" line="89" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A class wrapper around an OpenGL texture. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexture.h" line="35" column="1" bodyfile="C:/Daten/Olive/olive/app/render/backend/opengl/opengltexture.h" bodystart="36" bodyend="83"/>
+    <listofallmembers>
+      <member refid="class_open_g_l_texture_1a83e42404b1a78266092077d2b86ce550" prot="public" virt="non-virtual"><scope>OpenGLTexture</scope><name>Bind</name></member>
+      <member refid="class_open_g_l_texture_1a9e76edf620954349344ac2c370806de8" prot="public" virt="non-virtual"><scope>OpenGLTexture</scope><name>Create</name></member>
+      <member refid="class_open_g_l_texture_1a593d632a0979f58c457cb0dd3774aa75" prot="public" virt="non-virtual"><scope>OpenGLTexture</scope><name>Create</name></member>
+      <member refid="class_open_g_l_texture_1af54e8853abe899fe9c08dd2bd030769e" prot="public" virt="non-virtual"><scope>OpenGLTexture</scope><name>Create</name></member>
+      <member refid="class_open_g_l_texture_1a641283523b72c997def66c65ce03c83d" prot="public" virt="non-virtual"><scope>OpenGLTexture</scope><name>Create</name></member>
+      <member refid="class_open_g_l_texture_1a0db203615dd4d29d9e60516059bf81fb" prot="private" virt="non-virtual"><scope>OpenGLTexture</scope><name>created_ctx_</name></member>
+      <member refid="class_open_g_l_texture_1a834ea54bf21fd7cecdb2c8c1eb62a014" prot="private" virt="non-virtual"><scope>OpenGLTexture</scope><name>CreateInternal</name></member>
+      <member refid="class_open_g_l_texture_1a3b19abaf278659a7855e10aae27f3f9d" prot="public" virt="non-virtual"><scope>OpenGLTexture</scope><name>Destroy</name></member>
+      <member refid="class_open_g_l_texture_1add18e4e2c7554037f8c54eace736a77a" prot="public" virt="non-virtual"><scope>OpenGLTexture</scope><name>format</name></member>
+      <member refid="class_open_g_l_texture_1ab6d22239863b2dbb8e2651eadab2f458" prot="private" virt="non-virtual"><scope>OpenGLTexture</scope><name>format_</name></member>
+      <member refid="class_open_g_l_texture_1a4053b5592c91605ca81e88f3498bbb6c" prot="public" virt="non-virtual"><scope>OpenGLTexture</scope><name>height</name></member>
+      <member refid="class_open_g_l_texture_1abbed91bd65dfe540b78a3f5efeea3980" prot="private" virt="non-virtual"><scope>OpenGLTexture</scope><name>height_</name></member>
+      <member refid="class_open_g_l_texture_1aa298f872152c0b75786ebd5314d806c1" prot="public" virt="non-virtual"><scope>OpenGLTexture</scope><name>IsCreated</name></member>
+      <member refid="class_open_g_l_texture_1ab3e52d6d7280b58ea59b44d0f25276ba" prot="public" virt="non-virtual"><scope>OpenGLTexture</scope><name>OpenGLTexture</name></member>
+      <member refid="class_open_g_l_texture_1a59fda6d942bb046f5a7a0e21bb2378cd" prot="public" virt="non-virtual"><scope>OpenGLTexture</scope><name>Release</name></member>
+      <member refid="class_open_g_l_texture_1a95ea668c2900a7e58a7dc0c3b60e710c" prot="public" virt="non-virtual"><scope>OpenGLTexture</scope><name>texture</name></member>
+      <member refid="class_open_g_l_texture_1a4d5af6a1c4b60fd1993688bdbacfb4a3" prot="private" virt="non-virtual"><scope>OpenGLTexture</scope><name>texture_</name></member>
+      <member refid="class_open_g_l_texture_1a40346ba6ced9f391ed6786d53c1932a8" prot="public" virt="non-virtual"><scope>OpenGLTexture</scope><name>Upload</name></member>
+      <member refid="class_open_g_l_texture_1a7009f89b68e31fe73d491f9b614366a0" prot="public" virt="non-virtual"><scope>OpenGLTexture</scope><name>Upload</name></member>
+      <member refid="class_open_g_l_texture_1a82cb5c7f01abfebd6851b97bf13f43dc" prot="public" virt="non-virtual"><scope>OpenGLTexture</scope><name>Upload</name></member>
+      <member refid="class_open_g_l_texture_1ae90dca8c8c275bd76514cef8c0a9e933" prot="public" virt="non-virtual"><scope>OpenGLTexture</scope><name>width</name></member>
+      <member refid="class_open_g_l_texture_1a6ebc3f0262e2efe3807f825e51c64e5b" prot="private" virt="non-virtual"><scope>OpenGLTexture</scope><name>width_</name></member>
+      <member refid="class_open_g_l_texture_1ad76f465ce261d78d660b8f406c587c59" prot="public" virt="virtual"><scope>OpenGLTexture</scope><name>~OpenGLTexture</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

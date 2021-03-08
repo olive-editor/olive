@@ -1,0 +1,240 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_node_edge_add_command" kind="class" language="C++" prot="public">
+    <compoundname>NodeEdgeAddCommand</compoundname>
+    <basecompoundref refid="class_undo_command" prot="public" virt="non-virtual">UndoCommand</basecompoundref>
+    <includes refid="nodeviewundo_8h" local="no">nodeviewundo.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_node_edge_add_command_1ac49241a442d2cc8401d9dae24763c264" prot="private" static="no" mutable="no">
+        <type><ref refid="class_node_output" kindref="compound">NodeOutput</ref> *</type>
+        <definition>NodeOutput* NodeEdgeAddCommand::output_</definition>
+        <argsstring></argsstring>
+        <name>output_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewundo.h" line="67" column="14" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewundo.h" bodystart="67" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_edge_add_command_1ada348b71139e872df48f85d331d26eb1" prot="private" static="no" mutable="no">
+        <type><ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+        <definition>NodeInput* NodeEdgeAddCommand::input_</definition>
+        <argsstring></argsstring>
+        <name>input_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewundo.h" line="68" column="13" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewundo.h" bodystart="68" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_edge_add_command_1af329badf62e279a7a2c910c7a454d1b3" prot="private" static="no" mutable="no">
+        <type><ref refid="edge_8h_1a9eb6ae7d2b608077e13ab3571ea6b101" kindref="member">NodeEdgePtr</ref></type>
+        <definition>NodeEdgePtr NodeEdgeAddCommand::old_edge_</definition>
+        <argsstring></argsstring>
+        <name>old_edge_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewundo.h" line="70" column="15" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewundo.h" bodystart="70" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_edge_add_command_1ac7001238d7f31e90c50d53b049435584" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool NodeEdgeAddCommand::done_</definition>
+        <argsstring></argsstring>
+        <name>done_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewundo.h" line="72" column="8" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewundo.h" bodystart="72" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_undo_command_1a6c06f9c1b7bfeeff3c4724491945992b" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool UndoCommand::modified_</definition>
+        <argsstring></argsstring>
+        <name>modified_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="64" column="8" bodyfile="C:/Daten/Olive/olive/app/undo/undocommand.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_node_edge_add_command_1afdf14ed608e3b228e683b22bd8607ed5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>NodeEdgeAddCommand::NodeEdgeAddCommand</definition>
+        <argsstring>(NodeOutput *output, NodeInput *input, QUndoCommand *parent=nullptr)</argsstring>
+        <name>NodeEdgeAddCommand</name>
+        <param>
+          <type><ref refid="class_node_output" kindref="compound">NodeOutput</ref> *</type>
+          <declname>output</declname>
+        </param>
+        <param>
+          <type><ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type>QUndoCommand *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewundo.h" line="58" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_edge_add_command_1ab772dde38a3ed5af7f7cc3b44d843f01" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="class_project" kindref="compound">Project</ref> *</type>
+        <definition>virtual Project* NodeEdgeAddCommand::GetRelevantProject</definition>
+        <argsstring>() const override</argsstring>
+        <name>GetRelevantProject</name>
+        <reimplements refid="class_undo_command_1ab5c8967132833ea6be76a63dc5472f4f">GetRelevantProject</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewundo.h" line="60" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_undo_command_1a9907db368d01fb26f5082a36c6d90bd4" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void UndoCommand::redo</definition>
+        <argsstring>() override</argsstring>
+        <name>redo</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="54" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_undo_command_1a09d00f8a2e1c8b3c97d72d9585503030" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void UndoCommand::undo</definition>
+        <argsstring>() override</argsstring>
+        <name>undo</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="55" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_node_edge_add_command_1a918b9af405e871fd5092d27aecdb104b" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void NodeEdgeAddCommand::redo_internal</definition>
+        <argsstring>() override</argsstring>
+        <name>redo_internal</name>
+        <reimplements refid="class_undo_command_1ac8aa20d444a655cd36fa3c7dc01928b4">redo_internal</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewundo.h" line="63" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_edge_add_command_1a21ab43596dc0292023ff64eeededfa31" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void NodeEdgeAddCommand::undo_internal</definition>
+        <argsstring>() override</argsstring>
+        <name>undo_internal</name>
+        <reimplements refid="class_undo_command_1a871dbc8a1f95b58e641be13703563faa">undo_internal</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewundo.h" line="64" column="16"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>An undoable command for connecting two NodeParams together. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Can be considered a QUndoCommand wrapper for <ref refid="class_node_param_1ae1342ab9aa4847190582aad701674cd8" kindref="member">NodeParam::ConnectEdge()</ref>/ </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>NodeEdgeAddCommand</label>
+        <link refid="class_node_edge_add_command"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>UndoCommand</label>
+        <link refid="class_undo_command"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="5">
+        <label>NodeOutput</label>
+        <link refid="class_node_output"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>NodeEdgeAddCommand</label>
+        <link refid="class_node_edge_add_command"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>input_</edgelabel>
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>output_</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>NodeInput</label>
+        <link refid="class_node_input"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>NodeParam</label>
+        <link refid="class_node_param"/>
+      </node>
+      <node id="2">
+        <label>UndoCommand</label>
+        <link refid="class_undo_command"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewundo.h" line="38" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewundo.h" bodystart="38" bodyend="55"/>
+    <listofallmembers>
+      <member refid="class_node_edge_add_command_1ac7001238d7f31e90c50d53b049435584" prot="private" virt="non-virtual"><scope>NodeEdgeAddCommand</scope><name>done_</name></member>
+      <member refid="class_node_edge_add_command_1ab772dde38a3ed5af7f7cc3b44d843f01" prot="public" virt="virtual"><scope>NodeEdgeAddCommand</scope><name>GetRelevantProject</name></member>
+      <member refid="class_node_edge_add_command_1ada348b71139e872df48f85d331d26eb1" prot="private" virt="non-virtual"><scope>NodeEdgeAddCommand</scope><name>input_</name></member>
+      <member refid="class_undo_command_1a6c06f9c1b7bfeeff3c4724491945992b" prot="private" virt="non-virtual"><scope>NodeEdgeAddCommand</scope><name>modified_</name></member>
+      <member refid="class_node_edge_add_command_1afdf14ed608e3b228e683b22bd8607ed5" prot="public" virt="non-virtual"><scope>NodeEdgeAddCommand</scope><name>NodeEdgeAddCommand</name></member>
+      <member refid="class_node_edge_add_command_1af329badf62e279a7a2c910c7a454d1b3" prot="private" virt="non-virtual"><scope>NodeEdgeAddCommand</scope><name>old_edge_</name></member>
+      <member refid="class_node_edge_add_command_1ac49241a442d2cc8401d9dae24763c264" prot="private" virt="non-virtual"><scope>NodeEdgeAddCommand</scope><name>output_</name></member>
+      <member refid="class_undo_command_1a9907db368d01fb26f5082a36c6d90bd4" prot="public" virt="virtual"><scope>NodeEdgeAddCommand</scope><name>redo</name></member>
+      <member refid="class_node_edge_add_command_1a918b9af405e871fd5092d27aecdb104b" prot="protected" virt="virtual"><scope>NodeEdgeAddCommand</scope><name>redo_internal</name></member>
+      <member refid="class_undo_command_1a09d00f8a2e1c8b3c97d72d9585503030" prot="public" virt="virtual"><scope>NodeEdgeAddCommand</scope><name>undo</name></member>
+      <member refid="class_node_edge_add_command_1a21ab43596dc0292023ff64eeededfa31" prot="protected" virt="virtual"><scope>NodeEdgeAddCommand</scope><name>undo_internal</name></member>
+      <member refid="class_undo_command_1a5a07a6505a207cf7186c7c726ff9c5fa" prot="public" virt="non-virtual"><scope>NodeEdgeAddCommand</scope><name>UndoCommand</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

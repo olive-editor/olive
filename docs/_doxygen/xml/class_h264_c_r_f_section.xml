@@ -1,0 +1,113 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_h264_c_r_f_section" kind="class" language="C++" prot="public">
+    <compoundname>H264CRFSection</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QWidget</basecompoundref>
+    <includes refid="h264section_8h" local="no">h264section.h</includes>
+      <sectiondef kind="private-static-attrib">
+      <memberdef kind="variable" id="class_h264_c_r_f_section_1ac420f1aa5c6faabc3a7d19afa23460a1" prot="private" static="yes" mutable="no">
+        <type>const int</type>
+        <definition>const int H264CRFSection::kMinimumCRF</definition>
+        <argsstring></argsstring>
+        <name>kMinimumCRF</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/codec/h264section.h" line="58" column="20" bodyfile="C:/Daten/Olive/olive/app/dialog/export/codec/h264section.h" bodystart="58" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_h264_c_r_f_section_1a5e3cb619cf0c0ea4ba55ba9fe77a767e" prot="private" static="yes" mutable="no">
+        <type>const int</type>
+        <definition>const int H264CRFSection::kDefaultCRF</definition>
+        <argsstring></argsstring>
+        <name>kDefaultCRF</name>
+        <initializer>= 23</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/codec/h264section.h" line="60" column="20" bodyfile="C:/Daten/Olive/olive/app/dialog/export/codec/h264section.h" bodystart="60" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_h264_c_r_f_section_1ac3b8c66edebf3f6ad4a6dedf780ac84f" prot="private" static="yes" mutable="no">
+        <type>const int</type>
+        <definition>const int H264CRFSection::kMaximumCRF</definition>
+        <argsstring></argsstring>
+        <name>kMaximumCRF</name>
+        <initializer>= 51</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/codec/h264section.h" line="62" column="20" bodyfile="C:/Daten/Olive/olive/app/dialog/export/codec/h264section.h" bodystart="62" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_h264_c_r_f_section_1a02be5ce10ff4c033140bc2794d30fa67" prot="private" static="no" mutable="no">
+        <type>QSlider *</type>
+        <definition>QSlider* H264CRFSection::crf_slider_</definition>
+        <argsstring></argsstring>
+        <name>crf_slider_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/codec/h264section.h" line="64" column="11" bodyfile="C:/Daten/Olive/olive/app/dialog/export/codec/h264section.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_h264_c_r_f_section_1ad3c2e6d8bff5e3d8030758f69a11bad7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>H264CRFSection::H264CRFSection</definition>
+        <argsstring>(QWidget *parent=nullptr)</argsstring>
+        <name>H264CRFSection</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/codec/h264section.h" line="53" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_h264_c_r_f_section_1a937305cd898c3fbbf881597683be91f2" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int H264CRFSection::GetValue</definition>
+        <argsstring>() const</argsstring>
+        <name>GetValue</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/codec/h264section.h" line="55" column="7"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/dialog/export/codec/h264section.h" line="32" column="1" bodyfile="C:/Daten/Olive/olive/app/dialog/export/codec/h264section.h" bodystart="33" bodyend="48"/>
+    <listofallmembers>
+      <member refid="class_h264_c_r_f_section_1a02be5ce10ff4c033140bc2794d30fa67" prot="private" virt="non-virtual"><scope>H264CRFSection</scope><name>crf_slider_</name></member>
+      <member refid="class_h264_c_r_f_section_1a937305cd898c3fbbf881597683be91f2" prot="public" virt="non-virtual"><scope>H264CRFSection</scope><name>GetValue</name></member>
+      <member refid="class_h264_c_r_f_section_1ad3c2e6d8bff5e3d8030758f69a11bad7" prot="public" virt="non-virtual"><scope>H264CRFSection</scope><name>H264CRFSection</name></member>
+      <member refid="class_h264_c_r_f_section_1a5e3cb619cf0c0ea4ba55ba9fe77a767e" prot="private" virt="non-virtual"><scope>H264CRFSection</scope><name>kDefaultCRF</name></member>
+      <member refid="class_h264_c_r_f_section_1ac3b8c66edebf3f6ad4a6dedf780ac84f" prot="private" virt="non-virtual"><scope>H264CRFSection</scope><name>kMaximumCRF</name></member>
+      <member refid="class_h264_c_r_f_section_1ac420f1aa5c6faabc3a7d19afa23460a1" prot="private" virt="non-virtual"><scope>H264CRFSection</scope><name>kMinimumCRF</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,291 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="metareader_8h" kind="file" language="C++">
+    <compoundname>metareader.h</compoundname>
+    <includes local="no">QMap</includes>
+    <includes local="no">QString</includes>
+    <includes local="no">QXmlStreamReader</includes>
+    <includes refid="input_8h" local="yes">input.h</includes>
+    <includedby refid="externaltransition_8h" local="yes">externaltransition.h</includedby>
+    <includedby refid="external_8h" local="yes">external.h</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>QMap</label>
+      </node>
+      <node id="11">
+        <label>libavformat/avformat.h</label>
+      </node>
+      <node id="17">
+        <label>param.h</label>
+        <link refid="node_2param_8h"/>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+      </node>
+      <node id="18">
+        <label>QObject</label>
+      </node>
+      <node id="6">
+        <label>common/timerange.h</label>
+        <link refid="timerange_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>QXmlStreamReader</label>
+      </node>
+      <node id="15">
+        <label>QPointF</label>
+      </node>
+      <node id="13">
+        <label>keyframe.h</label>
+        <link refid="keyframe_8h"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>QMetaType</label>
+      </node>
+      <node id="22">
+        <label>QUndoCommand</label>
+      </node>
+      <node id="7">
+        <label>rational.h</label>
+        <link refid="rational_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="25">
+        <label>QMutex</label>
+      </node>
+      <node id="1">
+        <label>metareader.h</label>
+        <link refid="metareader_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>common/define.h</label>
+        <link refid="define_8h"/>
+      </node>
+      <node id="9">
+        <label>QDebug</label>
+      </node>
+      <node id="26">
+        <label>node/edge.h</label>
+        <link refid="edge_8h"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>QString</label>
+      </node>
+      <node id="8">
+        <label>iostream</label>
+      </node>
+      <node id="20">
+        <label>QXmlStreamWriter</label>
+      </node>
+      <node id="23">
+        <label>project/item/footage/stream.h</label>
+        <link refid="stream_8h"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>input.h</label>
+        <link refid="input_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>common/xmlutils.h</label>
+        <link refid="xmlutils_8h"/>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>QVariant</label>
+      </node>
+      <node id="14">
+        <label>memory</label>
+      </node>
+      <node id="19">
+        <label>QVector</label>
+      </node>
+      <node id="24">
+        <label>QCoreApplication</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>externaltransition.h</label>
+        <link refid="externaltransition_8h"/>
+      </node>
+      <node id="3">
+        <label>external.h</label>
+        <link refid="external_8h"/>
+      </node>
+      <node id="1">
+        <label>metareader.h</label>
+        <link refid="metareader_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="class_node_meta_reader" prot="public">NodeMetaReader</innerclass>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/***</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"></highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/><sp/>Olive<sp/>-<sp/>Non-Linear<sp/>Video<sp/>Editor</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/><sp/>Copyright<sp/>(C)<sp/>2019<sp/>Olive<sp/>Team</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"></highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/><sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/><sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/><sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"></highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/><sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/><sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/><sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"></highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/><sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/><sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"></highlight></codeline>
+<codeline lineno="19"><highlight class="comment">***/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>NODEMETAREADER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>NODEMETAREADER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QMap&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QString&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QXmlStreamReader&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="input_8h" kindref="compound">input.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><ref refid="define_8h_1a0472692dd1f22472ad63da20da919e8c" kindref="member">OLIVE_NAMESPACE_ENTER</ref></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="32" refid="class_node_meta_reader" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_node_meta_reader" kindref="compound">NodeMetaReader</ref></highlight></codeline>
+<codeline lineno="33"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><ref refid="class_node_meta_reader_1a41f4b4a979c67464028d57635c3acb56" kindref="member">NodeMetaReader</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/>xml_meta_filename);</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/>QString<sp/><ref refid="class_node_meta_reader_1a745cc1b6007a89bc4bccb6451a1e3d02" kindref="member">Name</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/>QString<sp/><ref refid="class_node_meta_reader_1a0f7545a20cb178e75015b1227a5dcdc7" kindref="member">ShortName</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/><ref refid="class_node_meta_reader_1a5e82bd83573a0a8918d40ae324aab3ac" kindref="member">id</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/>QString<sp/><ref refid="class_node_meta_reader_1aabb7e6c0ba715ec2c5efd7c22571da31" kindref="member">Category</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/>QString<sp/><ref refid="class_node_meta_reader_1a3f3a5ca71e38159df347631f93a8900c" kindref="member">Description</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/><ref refid="class_node_meta_reader_1ab6c505527c4099045178924defb52edf" kindref="member">filename</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/><ref refid="class_node_meta_reader_1aeba67d26224ae32fc7b54ec2da05ad34" kindref="member">frag_code</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/><ref refid="class_node_meta_reader_1a25c3814663babbdc13d1b2670722710b" kindref="member">vert_code</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">&amp;<sp/><ref refid="class_node_meta_reader_1a02f50d070b05cdf031dbdb9bf9831aea" kindref="member">iterations</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><ref refid="class_node_input" kindref="compound">NodeInput</ref>*<sp/><ref refid="class_node_meta_reader_1afc4da23e36bbd329a690a485374148d3" kindref="member">iteration_input</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QList&lt;NodeInput*&gt;&amp;<sp/><ref refid="class_node_meta_reader_1ac744661e837df570e518e4624aa62a8f" kindref="member">inputs</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53" refid="class_node_meta_reader_1a41f4b4a979c67464028d57635c3acb56" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_meta_reader_1a0e840fdf4c360156f61ae693d6484116" kindref="member">Retranslate</ref>();</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55" refid="class_node_meta_reader_1a745cc1b6007a89bc4bccb6451a1e3d02" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="56" refid="class_node_meta_reader_1a0f7545a20cb178e75015b1227a5dcdc7" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">using</highlight><highlight class="normal"><sp/><ref refid="class_node_meta_reader_1a6db4c048914a683a2a6b3d58bbe9bdd0" kindref="member">LanguageMap</ref><sp/>=<sp/>QMap&lt;QString,<sp/>QString&gt;;</highlight></codeline>
+<codeline lineno="57" refid="class_node_meta_reader_1a5e82bd83573a0a8918d40ae324aab3ac" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58" refid="class_node_meta_reader_1aabb7e6c0ba715ec2c5efd7c22571da31" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_meta_reader_1a0f01580fedfe7070e5da2de879d13780" kindref="member">XMLReadLanguageString</ref>(QXmlStreamReader*<sp/>reader,<sp/><ref refid="class_node_meta_reader_1a6db4c048914a683a2a6b3d58bbe9bdd0" kindref="member">LanguageMap</ref><sp/>*map);</highlight></codeline>
+<codeline lineno="59" refid="class_node_meta_reader_1a3f3a5ca71e38159df347631f93a8900c" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_meta_reader_1a016a4d1fb6e4775dd225d79d389bcc69" kindref="member">XMLReadEffect</ref>(QXmlStreamReader<sp/>*reader);</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_meta_reader_1a47915d59231211b6e6308d45f444495c" kindref="member">XMLReadIterations</ref>(QXmlStreamReader*<sp/>reader);</highlight></codeline>
+<codeline lineno="61" refid="class_node_meta_reader_1ab6c505527c4099045178924defb52edf" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_meta_reader_1a54e939dbe96120844685897d292af7f8" kindref="member">XMLReadParam</ref>(QXmlStreamReader*<sp/>reader);</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_node_meta_reader_1ad484844fb9e05ea9b450033b086de761" kindref="member">XMLReadShader</ref>(QXmlStreamReader*<sp/>reader,<sp/>QString&amp;<sp/>destination);</highlight></codeline>
+<codeline lineno="63" refid="class_node_meta_reader_1aeba67d26224ae32fc7b54ec2da05ad34" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64" refid="class_node_meta_reader_1a25c3814663babbdc13d1b2670722710b" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>QString<sp/><ref refid="class_node_meta_reader_1a044310a87a93a5d4b3b0d13a5926b451" kindref="member">GetStringForCurrentLanguage</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="class_node_meta_reader_1a6db4c048914a683a2a6b3d58bbe9bdd0" kindref="member">LanguageMap</ref><sp/>*language_map);</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66" refid="class_node_meta_reader_1a02f50d070b05cdf031dbdb9bf9831aea" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_node_input" kindref="compound">NodeInput</ref>*<sp/><ref refid="class_node_meta_reader_1aa2813d0ce687619623d6214260daffbb" kindref="member">GetInputWithID</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="67" refid="class_node_meta_reader_1afc4da23e36bbd329a690a485374148d3" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/>QString<sp/><ref refid="class_node_meta_reader_1a4d031a8e5c5a52da77b08ff598cac185" kindref="member">xml_filename_</ref>;</highlight></codeline>
+<codeline lineno="69" refid="class_node_meta_reader_1ac744661e837df570e518e4624aa62a8f" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><ref refid="class_node_meta_reader_1a6db4c048914a683a2a6b3d58bbe9bdd0" kindref="member">LanguageMap</ref><sp/><ref refid="class_node_meta_reader_1a822542f4b609a0f563fc4b82f07a0ee0" kindref="member">names_</ref>;</highlight></codeline>
+<codeline lineno="71" refid="class_node_meta_reader_1a0e840fdf4c360156f61ae693d6484116" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_node_meta_reader_1a6db4c048914a683a2a6b3d58bbe9bdd0" kindref="member">LanguageMap</ref><sp/><ref refid="class_node_meta_reader_1a6e231d56107de9686e45b1184fe1e4f8" kindref="member">short_names_</ref>;</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><ref refid="class_node_meta_reader_1a6db4c048914a683a2a6b3d58bbe9bdd0" kindref="member">LanguageMap</ref><sp/><ref refid="class_node_meta_reader_1a9ba2b735670204ea673e641cce4df077" kindref="member">descriptions_</ref>;</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><ref refid="class_node_meta_reader_1a6db4c048914a683a2a6b3d58bbe9bdd0" kindref="member">LanguageMap</ref><sp/><ref refid="class_node_meta_reader_1a665cd2c581a12b360c19825c611e01d3" kindref="member">categories_</ref>;</highlight></codeline>
+<codeline lineno="74" refid="class_node_meta_reader_1a6db4c048914a683a2a6b3d58bbe9bdd0" refkind="member"><highlight class="normal"><sp/><sp/>QMap&lt;QString,<sp/>LanguageMap<sp/>&gt;<sp/><ref refid="class_node_meta_reader_1a00a1e2646b8b57d89fef5581786d8b23" kindref="member">param_names_</ref>;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/>QMap&lt;QString,<sp/>QList&lt;LanguageMap&gt;<sp/>&gt;<sp/><ref refid="class_node_meta_reader_1acec7a7c41d13ade15daebb8591990568" kindref="member">combo_names_</ref>;</highlight></codeline>
+<codeline lineno="76" refid="class_node_meta_reader_1a0f01580fedfe7070e5da2de879d13780" refkind="member"><highlight class="normal"><sp/><sp/>QMap&lt;QString,<sp/>QList&lt;LanguageMap&gt;<sp/>&gt;<sp/><ref refid="class_node_meta_reader_1a29958d1808603f0c5eaec7dbe4112e77" kindref="member">combo_descriptions_</ref>;</highlight></codeline>
+<codeline lineno="77" refid="class_node_meta_reader_1a016a4d1fb6e4775dd225d79d389bcc69" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78" refid="class_node_meta_reader_1a47915d59231211b6e6308d45f444495c" refkind="member"><highlight class="normal"><sp/><sp/>QString<sp/><ref refid="class_node_meta_reader_1a95cf0a0ed8cdf5eb0c063732ef177660" kindref="member">id_</ref>;</highlight></codeline>
+<codeline lineno="79" refid="class_node_meta_reader_1a54e939dbe96120844685897d292af7f8" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80" refid="class_node_meta_reader_1ad484844fb9e05ea9b450033b086de761" refkind="member"><highlight class="normal"><sp/><sp/>QString<sp/><ref refid="class_node_meta_reader_1a7a37c72467bf79ecf78f7c87a62e0617" kindref="member">frag_code_</ref>;</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/>QString<sp/><ref refid="class_node_meta_reader_1a87be97c09364c5478e7c9188a9df7435" kindref="member">vert_code_</ref>;</highlight></codeline>
+<codeline lineno="82" refid="class_node_meta_reader_1a044310a87a93a5d4b3b0d13a5926b451" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="class_node_meta_reader_1a8f5acd31c483c4cd8dabafb4757ad67a" kindref="member">iterations_</ref>;</highlight></codeline>
+<codeline lineno="84" refid="class_node_meta_reader_1aa2813d0ce687619623d6214260daffbb" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="class_node_input" kindref="compound">NodeInput</ref>*<sp/><ref refid="class_node_meta_reader_1a2ba22861544129787162687c00c951a2" kindref="member">iteration_input_</ref>;</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86" refid="class_node_meta_reader_1a4d031a8e5c5a52da77b08ff598cac185" refkind="member"><highlight class="normal"><sp/><sp/>QList&lt;NodeInput*&gt;<sp/><ref refid="class_node_meta_reader_1ad1de14a7027bc98fdeae792a59fbda5d" kindref="member">inputs_</ref>;</highlight></codeline>
+<codeline lineno="87"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="88" refid="class_node_meta_reader_1a822542f4b609a0f563fc4b82f07a0ee0" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="89" refid="class_node_meta_reader_1a6e231d56107de9686e45b1184fe1e4f8" refkind="member"><highlight class="normal"><ref refid="define_8h_1abe3de0634d907ca0f5d1acf732c49dac" kindref="member">OLIVE_NAMESPACE_EXIT</ref></highlight></codeline>
+<codeline lineno="90" refid="class_node_meta_reader_1a9ba2b735670204ea673e641cce4df077" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91" refid="class_node_meta_reader_1a665cd2c581a12b360c19825c611e01d3" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//<sp/>NODEMETAREADER_H</highlight></codeline>
+    </programlisting>
+    <location file="C:/Daten/Olive/olive/app/node/metareader.h"/>
+  </compounddef>
+</doxygen>

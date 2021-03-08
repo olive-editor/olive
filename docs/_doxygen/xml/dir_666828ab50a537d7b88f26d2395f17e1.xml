@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_666828ab50a537d7b88f26d2395f17e1" kind="dir">
+    <compoundname>tabs</compoundname>
+    <innerfile refid="preferencesappearancetab_8h">preferencesappearancetab.h</innerfile>
+    <innerfile refid="preferencesaudiotab_8h">preferencesaudiotab.h</innerfile>
+    <innerfile refid="preferencesbehaviortab_8h">preferencesbehaviortab.h</innerfile>
+    <innerfile refid="preferencesdisktab_8h">preferencesdisktab.h</innerfile>
+    <innerfile refid="preferencesgeneraltab_8h">preferencesgeneraltab.h</innerfile>
+    <innerfile refid="preferenceskeyboardtab_8h">preferenceskeyboardtab.h</innerfile>
+    <innerfile refid="preferencesqualitytab_8h">preferencesqualitytab.h</innerfile>
+    <innerfile refid="preferencestab_8h">preferencestab.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/"/>
+  </compounddef>
+</doxygen>

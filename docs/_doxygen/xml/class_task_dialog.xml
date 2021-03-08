@@ -1,0 +1,248 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_task_dialog" kind="class" language="C++" prot="public">
+    <compoundname>TaskDialog</compoundname>
+    <basecompoundref refid="class_progress_dialog" prot="public" virt="non-virtual">ProgressDialog</basecompoundref>
+    <includes refid="dialog_2task_2task_8h" local="no">task.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_task_dialog_1a836ae096ce3d1f5d9ebec2d951974bf4" prot="private" static="no" mutable="no">
+        <type><ref refid="class_task" kindref="compound">Task</ref> *</type>
+        <definition>Task* TaskDialog::task_</definition>
+        <argsstring></argsstring>
+        <name>task_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/task/task.h" line="59" column="8" bodyfile="C:/Daten/Olive/olive/app/dialog/task/task.h" bodystart="59" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_task_dialog_1a0aeeffd3f376882b7b0a57572a32cd2e" prot="private" static="no" mutable="no">
+        <type>QThread *</type>
+        <definition>QThread* TaskDialog::thread_</definition>
+        <argsstring></argsstring>
+        <name>thread_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/task/task.h" line="61" column="11" bodyfile="C:/Daten/Olive/olive/app/dialog/task/task.h" bodystart="61" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_task_dialog_1a0866b14c1ee017dcb0aa5f7234eec35c" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool TaskDialog::task_failed_</definition>
+        <argsstring></argsstring>
+        <name>task_failed_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/task/task.h" line="63" column="8" bodyfile="C:/Daten/Olive/olive/app/dialog/task/task.h" bodystart="63" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_task_dialog_1a260772ff4e0570d3a89b1a6be5373304" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString TaskDialog::task_error_</definition>
+        <argsstring></argsstring>
+        <name>task_error_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/task/task.h" line="64" column="11" bodyfile="C:/Daten/Olive/olive/app/dialog/task/task.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_progress_dialog_1a795d20012b58df8a317041a814bfd213" prot="private" static="no" mutable="no">
+        <type>QProgressBar *</type>
+        <definition>QProgressBar* ProgressDialog::bar_</definition>
+        <argsstring></argsstring>
+        <name>bar_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/progress/progress.h" line="62" column="16" bodyfile="C:/Daten/Olive/olive/app/dialog/progress/progress.h" bodystart="62" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_task_dialog_1abc81c00306d7921e073de8f8bb15ca71" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>TaskDialog::TaskDialog</definition>
+        <argsstring>(Task *task, const QString &amp;title, QWidget *parent=nullptr)</argsstring>
+        <name>TaskDialog</name>
+        <param>
+          <type><ref refid="class_task" kindref="compound">Task</ref> *</type>
+          <declname>task</declname>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>title</declname>
+        </param>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/task/task.h" line="51" column="3"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_task_dialog_1aa38258c6f959e6e35e61c13c9d330a5d" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void TaskDialog::showEvent</definition>
+        <argsstring>(QShowEvent *e) override</argsstring>
+        <name>showEvent</name>
+        <param>
+          <type>QShowEvent *</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/task/task.h" line="54" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_task_dialog_1a9c801ff3af9cb9ae0ed541d216a3e93a" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void TaskDialog::closeEvent</definition>
+        <argsstring>(QCloseEvent *e) override</argsstring>
+        <name>closeEvent</name>
+        <param>
+          <type>QCloseEvent *</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/task/task.h" line="56" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_task_dialog_1a55c65e3af8555b10d7f55ddbb80ab295" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TaskDialog::TaskFailed</definition>
+        <argsstring>(const QString &amp;s)</argsstring>
+        <name>TaskFailed</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/task/task.h" line="67" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-slot">
+      <memberdef kind="slot" id="class_progress_dialog_1a2d511599a01abb01fbd6cbcbdc656e8d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProgressDialog::SetProgress</definition>
+        <argsstring>(int value)</argsstring>
+        <name>SetProgress</name>
+        <param>
+          <type>int</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/progress/progress.h" line="56" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_progress_dialog_1a3c512acc8f635b192f2194a775bb573a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProgressDialog::Cancelled</definition>
+        <argsstring>()</argsstring>
+        <name>Cancelled</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/progress/progress.h" line="59" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>TaskDialog</label>
+        <link refid="class_task_dialog"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>ProgressDialog</label>
+        <link refid="class_progress_dialog"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>TaskDialog</label>
+        <link refid="class_task_dialog"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>task_</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>ProgressDialog</label>
+        <link refid="class_progress_dialog"/>
+      </node>
+      <node id="4">
+        <label>CancelableObject</label>
+        <link refid="class_cancelable_object"/>
+      </node>
+      <node id="3">
+        <label>Task</label>
+        <link refid="class_task"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/dialog/task/task.h" line="29" column="1" bodyfile="C:/Daten/Olive/olive/app/dialog/task/task.h" bodystart="30" bodyend="51"/>
+    <listofallmembers>
+      <member refid="class_progress_dialog_1a795d20012b58df8a317041a814bfd213" prot="private" virt="non-virtual"><scope>TaskDialog</scope><name>bar_</name></member>
+      <member refid="class_progress_dialog_1a3c512acc8f635b192f2194a775bb573a" prot="public" virt="non-virtual"><scope>TaskDialog</scope><name>Cancelled</name></member>
+      <member refid="class_task_dialog_1a9c801ff3af9cb9ae0ed541d216a3e93a" prot="protected" virt="virtual"><scope>TaskDialog</scope><name>closeEvent</name></member>
+      <member refid="class_progress_dialog_1a04c65027b56dbac56a87f259c44fef04" prot="public" virt="non-virtual"><scope>TaskDialog</scope><name>ProgressDialog</name></member>
+      <member refid="class_progress_dialog_1a2d511599a01abb01fbd6cbcbdc656e8d" prot="public" virt="non-virtual"><scope>TaskDialog</scope><name>SetProgress</name></member>
+      <member refid="class_task_dialog_1aa38258c6f959e6e35e61c13c9d330a5d" prot="protected" virt="virtual"><scope>TaskDialog</scope><name>showEvent</name></member>
+      <member refid="class_task_dialog_1a836ae096ce3d1f5d9ebec2d951974bf4" prot="private" virt="non-virtual"><scope>TaskDialog</scope><name>task_</name></member>
+      <member refid="class_task_dialog_1a260772ff4e0570d3a89b1a6be5373304" prot="private" virt="non-virtual"><scope>TaskDialog</scope><name>task_error_</name></member>
+      <member refid="class_task_dialog_1a0866b14c1ee017dcb0aa5f7234eec35c" prot="private" virt="non-virtual"><scope>TaskDialog</scope><name>task_failed_</name></member>
+      <member refid="class_task_dialog_1abc81c00306d7921e073de8f8bb15ca71" prot="public" virt="non-virtual"><scope>TaskDialog</scope><name>TaskDialog</name></member>
+      <member refid="class_task_dialog_1a55c65e3af8555b10d7f55ddbb80ab295" prot="private" virt="non-virtual"><scope>TaskDialog</scope><name>TaskFailed</name></member>
+      <member refid="class_task_dialog_1a0aeeffd3f376882b7b0a57572a32cd2e" prot="private" virt="non-virtual"><scope>TaskDialog</scope><name>thread_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,275 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_f_fmpeg_frame_pool" kind="class" language="C++" prot="public">
+    <compoundname>FFmpegFramePool</compoundname>
+    <basecompoundref refid="class_memory_pool" prot="public" virt="non-virtual">MemoryPool&lt; uint8_t &gt;</basecompoundref>
+    <includes refid="ffmpegframepool_8h" local="no">ffmpegframepool.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_f_fmpeg_frame_pool_1acf78fc9a0ef698e539b548f417c4fa9b" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int FFmpegFramePool::width_</definition>
+        <argsstring></argsstring>
+        <name>width_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegframepool.h" line="62" column="7" bodyfile="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegframepool.h" bodystart="62" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_f_fmpeg_frame_pool_1a86e7d5cca8be93b2835d7168078ccf97" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int FFmpegFramePool::height_</definition>
+        <argsstring></argsstring>
+        <name>height_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegframepool.h" line="64" column="7" bodyfile="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegframepool.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_f_fmpeg_frame_pool_1abd7e9380fe7d0ba8014916ccf7dbddfe" prot="private" static="no" mutable="no">
+        <type>AVPixelFormat</type>
+        <definition>AVPixelFormat FFmpegFramePool::format_</definition>
+        <argsstring></argsstring>
+        <name>format_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegframepool.h" line="66" column="17" bodyfile="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegframepool.h" bodystart="66" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_memory_pool_1acebf2b6363304377df6c1deb2d96d50d" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int MemoryPool&lt; uint8_t  &gt;::element_count_</definition>
+        <argsstring></argsstring>
+        <name>element_count_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/memorypool.h" line="358" column="7" bodyfile="C:/Daten/Olive/olive/app/common/memorypool.h" bodystart="358" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_memory_pool_1a3230fbcdbd08255b093ce0dde9c880b9" prot="private" static="no" mutable="no">
+        <type>QLinkedList&lt; Arena * &gt;</type>
+        <definition>QLinkedList&lt;Arena*&gt; MemoryPool&lt; uint8_t  &gt;::arenas_</definition>
+        <argsstring></argsstring>
+        <name>arenas_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/memorypool.h" line="360" column="15" bodyfile="C:/Daten/Olive/olive/app/common/memorypool.h" bodystart="360" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_memory_pool_1a32fa09e9cf53cb3e125d0c7da9048de2" prot="private" static="no" mutable="no">
+        <type>QMutex</type>
+        <definition>QMutex MemoryPool&lt; uint8_t  &gt;::lock_</definition>
+        <argsstring></argsstring>
+        <name>lock_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/memorypool.h" line="362" column="10" bodyfile="C:/Daten/Olive/olive/app/common/memorypool.h" bodystart="362" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_f_fmpeg_frame_pool_1a0baaf687a362dc08f47ad04d8acfa6d6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>FFmpegFramePool::FFmpegFramePool</definition>
+        <argsstring>(int element_count, int width, int height, AVPixelFormat format)</argsstring>
+        <name>FFmpegFramePool</name>
+        <param>
+          <type>int</type>
+          <declname>element_count</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>width</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>height</declname>
+        </param>
+        <param>
+          <type>AVPixelFormat</type>
+          <declname>format</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegframepool.h" line="51" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_f_fmpeg_frame_pool_1ad969c5c5c4e87fd41439ef6a033f3be9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_memory_pool_1a3d5e5aa5207579a4316cd1e601ff079a" kindref="member">ElementPtr</ref></type>
+        <definition>ElementPtr FFmpegFramePool::Get</definition>
+        <argsstring>(AVFrame *copy)</argsstring>
+        <name>Get</name>
+        <param>
+          <type>AVFrame *</type>
+          <declname>copy</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegframepool.h" line="56" column="14"/>
+      </memberdef>
+      <memberdef kind="function" id="class_memory_pool_1a346ecbe08ab74076cd54cb93181ce080" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool MemoryPool&lt; uint8_t  &gt;::IsAllocated</definition>
+        <argsstring>() const</argsstring>
+        <name>IsAllocated</name>
+        <briefdescription>
+<para>Returns whether any arenas are successfully allocated. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/memorypool.h" line="94" column="15" bodyfile="C:/Daten/Olive/olive/app/common/memorypool.h" bodystart="94" bodyend="96"/>
+      </memberdef>
+      <memberdef kind="function" id="class_memory_pool_1aff0d4f986a674543beb42c1bad9d4c5b" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int MemoryPool&lt; uint8_t  &gt;::GetArenaCount</definition>
+        <argsstring>() const</argsstring>
+        <name>GetArenaCount</name>
+        <briefdescription>
+<para>Returns current number of allocated arenas. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/memorypool.h" line="101" column="14" bodyfile="C:/Daten/Olive/olive/app/common/memorypool.h" bodystart="101" bodyend="103"/>
+      </memberdef>
+      <memberdef kind="function" id="class_memory_pool_1a39389a86c5b985e4845069d7a2a835bf" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="class_memory_pool_1a3d5e5aa5207579a4316cd1e601ff079a" kindref="member">ElementPtr</ref></type>
+        <definition>ElementPtr MemoryPool&lt; uint8_t  &gt;::Get</definition>
+        <argsstring>()</argsstring>
+        <name>Get</name>
+        <briefdescription>
+<para>Retrieves an element from an available arena. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/memorypool.h" line="295" column="14" bodyfile="C:/Daten/Olive/olive/app/common/memorypool.h" bodystart="295" bodyend="335"/>
+      </memberdef>
+      <memberdef kind="function" id="class_memory_pool_1a29280d855714089b4d4c805a2b8cd4a6" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void MemoryPool&lt; uint8_t  &gt;::ArenaIsEmpty</definition>
+        <argsstring>(Arena *a)</argsstring>
+        <name>ArenaIsEmpty</name>
+        <param>
+          <type>Arena *</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/memorypool.h" line="337" column="8" bodyfile="C:/Daten/Olive/olive/app/common/memorypool.h" bodystart="337" bodyend="345"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_f_fmpeg_frame_pool_1ae0618e39a97d315ea83cb3751ee4a5e2" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>size_t</type>
+        <definition>virtual size_t FFmpegFramePool::GetElementSize</definition>
+        <argsstring>() override</argsstring>
+        <name>GetElementSize</name>
+        <reimplements refid="class_memory_pool_1a8a0b954ff1fb3308a10a07e006a16b27">GetElementSize</reimplements>
+        <briefdescription>
+<para>The size of each element. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Override this to use a custom size (e.g. a char array where T = char but the element size is &gt; 1) </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegframepool.h" line="59" column="18"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="class_memory_pool_1a3d5e5aa5207579a4316cd1e601ff079a" prot="public" static="no">
+        <type>std::shared_ptr&lt; Element &gt;</type>
+        <definition>using MemoryPool&lt; uint8_t  &gt;::ElementPtr =  std::shared_ptr&lt;Element&gt;</definition>
+        <argsstring></argsstring>
+        <name>ElementPtr</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/memorypool.h" line="183" column="3" bodyfile="C:/Daten/Olive/olive/app/common/memorypool.h" bodystart="183" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>MemoryPool&lt; uint8_t &gt;</label>
+        <link refid="class_memory_pool"/>
+      </node>
+      <node id="1">
+        <label>FFmpegFramePool</label>
+        <link refid="class_f_fmpeg_frame_pool"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>MemoryPool&lt; uint8_t &gt;</label>
+        <link refid="class_memory_pool"/>
+      </node>
+      <node id="1">
+        <label>FFmpegFramePool</label>
+        <link refid="class_f_fmpeg_frame_pool"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegframepool.h" line="30" column="1" bodyfile="C:/Daten/Olive/olive/app/codec/ffmpeg/ffmpegframepool.h" bodystart="31" bodyend="50"/>
+    <listofallmembers>
+      <member refid="class_memory_pool_1a29280d855714089b4d4c805a2b8cd4a6" prot="public" virt="non-virtual"><scope>FFmpegFramePool</scope><name>ArenaIsEmpty</name></member>
+      <member refid="class_memory_pool_1a3230fbcdbd08255b093ce0dde9c880b9" prot="private" virt="non-virtual"><scope>FFmpegFramePool</scope><name>arenas_</name></member>
+      <member refid="class_memory_pool_1acebf2b6363304377df6c1deb2d96d50d" prot="private" virt="non-virtual"><scope>FFmpegFramePool</scope><name>element_count_</name></member>
+      <member refid="class_memory_pool_1a3d5e5aa5207579a4316cd1e601ff079a" prot="public" virt="non-virtual"><scope>FFmpegFramePool</scope><name>ElementPtr</name></member>
+      <member refid="class_f_fmpeg_frame_pool_1a0baaf687a362dc08f47ad04d8acfa6d6" prot="public" virt="non-virtual"><scope>FFmpegFramePool</scope><name>FFmpegFramePool</name></member>
+      <member refid="class_f_fmpeg_frame_pool_1abd7e9380fe7d0ba8014916ccf7dbddfe" prot="private" virt="non-virtual"><scope>FFmpegFramePool</scope><name>format_</name></member>
+      <member refid="class_f_fmpeg_frame_pool_1ad969c5c5c4e87fd41439ef6a033f3be9" prot="public" virt="non-virtual"><scope>FFmpegFramePool</scope><name>Get</name></member>
+      <member refid="class_memory_pool_1a39389a86c5b985e4845069d7a2a835bf" prot="public" virt="non-virtual" ambiguityscope="MemoryPool&lt; uint8_t &gt;::"><scope>FFmpegFramePool</scope><name>Get</name></member>
+      <member refid="class_memory_pool_1aff0d4f986a674543beb42c1bad9d4c5b" prot="public" virt="non-virtual"><scope>FFmpegFramePool</scope><name>GetArenaCount</name></member>
+      <member refid="class_f_fmpeg_frame_pool_1ae0618e39a97d315ea83cb3751ee4a5e2" prot="protected" virt="virtual"><scope>FFmpegFramePool</scope><name>GetElementSize</name></member>
+      <member refid="class_f_fmpeg_frame_pool_1a86e7d5cca8be93b2835d7168078ccf97" prot="private" virt="non-virtual"><scope>FFmpegFramePool</scope><name>height_</name></member>
+      <member refid="class_memory_pool_1a346ecbe08ab74076cd54cb93181ce080" prot="public" virt="non-virtual"><scope>FFmpegFramePool</scope><name>IsAllocated</name></member>
+      <member refid="class_memory_pool_1a32fa09e9cf53cb3e125d0c7da9048de2" prot="private" virt="non-virtual"><scope>FFmpegFramePool</scope><name>lock_</name></member>
+      <member refid="class_memory_pool_1a6ead222f9821e90e6fe7cb6fc83137ac" prot="public" virt="non-virtual"><scope>FFmpegFramePool</scope><name>MemoryPool</name></member>
+      <member refid="class_f_fmpeg_frame_pool_1acf78fc9a0ef698e539b548f417c4fa9b" prot="private" virt="non-virtual"><scope>FFmpegFramePool</scope><name>width_</name></member>
+      <member refid="class_memory_pool_1ac5cd6735238f71e7f201dbe31f7ae5f4" prot="public" virt="virtual"><scope>FFmpegFramePool</scope><name>~MemoryPool</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

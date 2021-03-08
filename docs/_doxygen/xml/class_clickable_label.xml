@@ -1,0 +1,127 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_clickable_label" kind="class" language="C++" prot="public">
+    <compoundname>ClickableLabel</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QLabel</basecompoundref>
+    <includes refid="clickablelabel_8h" local="no">clickablelabel.h</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_clickable_label_1a72998aba9eaf50c9034abe0fc0948be2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>ClickableLabel::ClickableLabel</definition>
+        <argsstring>(const QString &amp;text, QWidget *parent=nullptr)</argsstring>
+        <name>ClickableLabel</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>text</declname>
+        </param>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/clickablelabel/clickablelabel.h" line="52" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_clickable_label_1ad9ae3203cbf6f6746312a1391c218951" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>ClickableLabel::ClickableLabel</definition>
+        <argsstring>(QWidget *parent=nullptr)</argsstring>
+        <name>ClickableLabel</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/clickablelabel/clickablelabel.h" line="53" column="3"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_clickable_label_1ab1443af191bfac2366087d7b3b69dd37" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void ClickableLabel::mouseReleaseEvent</definition>
+        <argsstring>(QMouseEvent *event) override</argsstring>
+        <name>mouseReleaseEvent</name>
+        <param>
+          <type>QMouseEvent *</type>
+          <declname>event</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/clickablelabel/clickablelabel.h" line="56" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_clickable_label_1a179c30533646d91fecb94e5f7e19ee8d" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void ClickableLabel::mouseDoubleClickEvent</definition>
+        <argsstring>(QMouseEvent *event) override</argsstring>
+        <name>mouseDoubleClickEvent</name>
+        <param>
+          <type>QMouseEvent *</type>
+          <declname>event</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/clickablelabel/clickablelabel.h" line="57" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_clickable_label_1adfab0dcfd58fe5e0d6b77cc24993a1f2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ClickableLabel::MouseClicked</definition>
+        <argsstring>()</argsstring>
+        <name>MouseClicked</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/clickablelabel/clickablelabel.h" line="60" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_clickable_label_1ac7d2dfd4ac6cd58cd1bb5cbc8dd6ba33" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ClickableLabel::MouseDoubleClicked</definition>
+        <argsstring>()</argsstring>
+        <name>MouseDoubleClicked</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/clickablelabel/clickablelabel.h" line="61" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/widget/clickablelabel/clickablelabel.h" line="30" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/clickablelabel/clickablelabel.h" bodystart="31" bodyend="45"/>
+    <listofallmembers>
+      <member refid="class_clickable_label_1a72998aba9eaf50c9034abe0fc0948be2" prot="public" virt="non-virtual"><scope>ClickableLabel</scope><name>ClickableLabel</name></member>
+      <member refid="class_clickable_label_1ad9ae3203cbf6f6746312a1391c218951" prot="public" virt="non-virtual"><scope>ClickableLabel</scope><name>ClickableLabel</name></member>
+      <member refid="class_clickable_label_1adfab0dcfd58fe5e0d6b77cc24993a1f2" prot="public" virt="non-virtual"><scope>ClickableLabel</scope><name>MouseClicked</name></member>
+      <member refid="class_clickable_label_1ac7d2dfd4ac6cd58cd1bb5cbc8dd6ba33" prot="public" virt="non-virtual"><scope>ClickableLabel</scope><name>MouseDoubleClicked</name></member>
+      <member refid="class_clickable_label_1a179c30533646d91fecb94e5f7e19ee8d" prot="protected" virt="virtual"><scope>ClickableLabel</scope><name>mouseDoubleClickEvent</name></member>
+      <member refid="class_clickable_label_1ab1443af191bfac2366087d7b3b69dd37" prot="protected" virt="virtual"><scope>ClickableLabel</scope><name>mouseReleaseEvent</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

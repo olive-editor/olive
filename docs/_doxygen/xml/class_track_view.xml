@@ -1,0 +1,293 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_track_view" kind="class" language="C++" prot="public">
+    <compoundname>TrackView</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QScrollArea</basecompoundref>
+    <includes refid="trackview_8h" local="no">trackview.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_track_view_1ae3ad68996de2c60503dd71e6731fd978" prot="private" static="no" mutable="no">
+        <type>QList&lt; <ref refid="class_track_view_item" kindref="compound">TrackViewItem</ref> * &gt;</type>
+        <definition>QList&lt;TrackViewItem*&gt; TrackView::items_</definition>
+        <argsstring></argsstring>
+        <name>items_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackview.h" line="65" column="9" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackview.h" bodystart="65" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_track_view_1a337374725c6e8862059929ac8df28b06" prot="private" static="no" mutable="no">
+        <type><ref refid="class_track_list" kindref="compound">TrackList</ref> *</type>
+        <definition>TrackList* TrackView::list_</definition>
+        <argsstring></argsstring>
+        <name>list_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackview.h" line="67" column="13" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackview.h" bodystart="67" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_track_view_1a270ab5925e33c3fd84d4a9ba51c0f062" prot="private" static="no" mutable="no">
+        <type><ref refid="class_track_view_splitter" kindref="compound">TrackViewSplitter</ref> *</type>
+        <definition>TrackViewSplitter* TrackView::splitter_</definition>
+        <argsstring></argsstring>
+        <name>splitter_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackview.h" line="69" column="21" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackview.h" bodystart="69" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_track_view_1a906cf53e333fa86204a6f20713f9040b" prot="private" static="no" mutable="no">
+        <type>Qt::Alignment</type>
+        <definition>Qt::Alignment TrackView::alignment_</definition>
+        <argsstring></argsstring>
+        <name>alignment_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackview.h" line="71" column="17" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackview.h" bodystart="71" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_track_view_1a42afd491213ca98e506a3c999b784cfe" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int TrackView::last_scrollbar_max_</definition>
+        <argsstring></argsstring>
+        <name>last_scrollbar_max_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackview.h" line="73" column="7" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackview.h" bodystart="73" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_track_view_1ac555abcca4c5b5bfa3795fd5523b9b30" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>TrackView::TrackView</definition>
+        <argsstring>(Qt::Alignment vertical_alignment=Qt::AlignTop, QWidget *parent=nullptr)</argsstring>
+        <name>TrackView</name>
+        <param>
+          <type>Qt::Alignment</type>
+          <declname>vertical_alignment</declname>
+          <defval>Qt::AlignTop</defval>
+        </param>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackview.h" line="55" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_track_view_1adb18000cec174ad3614c10e1f50bbbf2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TrackView::ConnectTrackList</definition>
+        <argsstring>(TrackList *list)</argsstring>
+        <name>ConnectTrackList</name>
+        <param>
+          <type><ref refid="class_track_list" kindref="compound">TrackList</ref> *</type>
+          <declname>list</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackview.h" line="58" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_track_view_1a6e4502c956e2fac3707af1f12d300498" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TrackView::DisconnectTrackList</definition>
+        <argsstring>()</argsstring>
+        <name>DisconnectTrackList</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackview.h" line="59" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_track_view_1a58f334de6a3deb679db2d093c1d510c5" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void TrackView::resizeEvent</definition>
+        <argsstring>(QResizeEvent *e) override</argsstring>
+        <name>resizeEvent</name>
+        <param>
+          <type>QResizeEvent *</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackview.h" line="62" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_track_view_1a3a98af016e5aecaf8c9630bc7eabfc98" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TrackView::ScrollbarRangeChanged</definition>
+        <argsstring>(int min, int max)</argsstring>
+        <name>ScrollbarRangeChanged</name>
+        <param>
+          <type>int</type>
+          <declname>min</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>max</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackview.h" line="76" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_track_view_1a1a696ba7f27ef4a0bb38d9b9370126f4" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TrackView::TrackHeightChanged</definition>
+        <argsstring>(int index, int height)</argsstring>
+        <name>TrackHeightChanged</name>
+        <param>
+          <type>int</type>
+          <declname>index</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>height</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackview.h" line="78" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_track_view_1ac0b775fbe058a133e42f84bb85dd8e53" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TrackView::InsertTrack</definition>
+        <argsstring>(TrackOutput *track)</argsstring>
+        <name>InsertTrack</name>
+        <param>
+          <type><ref refid="class_track_output" kindref="compound">TrackOutput</ref> *</type>
+          <declname>track</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackview.h" line="80" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_track_view_1ab19a8d054a99cec552893e7cb0552d45" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TrackView::RemoveTrack</definition>
+        <argsstring>(TrackOutput *track)</argsstring>
+        <name>RemoveTrack</name>
+        <param>
+          <type><ref refid="class_track_output" kindref="compound">TrackOutput</ref> *</type>
+          <declname>track</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackview.h" line="82" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="3">
+        <label>NodeInputArray</label>
+        <link refid="class_node_input_array"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="2">
+        <label>TrackList</label>
+        <link refid="class_track_list"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>track_input_</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>total_length_</edgelabel>
+        </childnode>
+      </node>
+      <node id="4">
+        <label>NodeInput</label>
+        <link refid="class_node_input"/>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>NodeParam</label>
+        <link refid="class_node_param"/>
+      </node>
+      <node id="7">
+        <label>TrackViewSplitter</label>
+        <link refid="class_track_view_splitter"/>
+      </node>
+      <node id="1">
+        <label>TrackView</label>
+        <link refid="class_track_view"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>list_</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>splitter_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackview.h" line="33" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackview.h" bodystart="34" bodyend="66"/>
+    <listofallmembers>
+      <member refid="class_track_view_1a906cf53e333fa86204a6f20713f9040b" prot="private" virt="non-virtual"><scope>TrackView</scope><name>alignment_</name></member>
+      <member refid="class_track_view_1adb18000cec174ad3614c10e1f50bbbf2" prot="public" virt="non-virtual"><scope>TrackView</scope><name>ConnectTrackList</name></member>
+      <member refid="class_track_view_1a6e4502c956e2fac3707af1f12d300498" prot="public" virt="non-virtual"><scope>TrackView</scope><name>DisconnectTrackList</name></member>
+      <member refid="class_track_view_1ac0b775fbe058a133e42f84bb85dd8e53" prot="private" virt="non-virtual"><scope>TrackView</scope><name>InsertTrack</name></member>
+      <member refid="class_track_view_1ae3ad68996de2c60503dd71e6731fd978" prot="private" virt="non-virtual"><scope>TrackView</scope><name>items_</name></member>
+      <member refid="class_track_view_1a42afd491213ca98e506a3c999b784cfe" prot="private" virt="non-virtual"><scope>TrackView</scope><name>last_scrollbar_max_</name></member>
+      <member refid="class_track_view_1a337374725c6e8862059929ac8df28b06" prot="private" virt="non-virtual"><scope>TrackView</scope><name>list_</name></member>
+      <member refid="class_track_view_1ab19a8d054a99cec552893e7cb0552d45" prot="private" virt="non-virtual"><scope>TrackView</scope><name>RemoveTrack</name></member>
+      <member refid="class_track_view_1a58f334de6a3deb679db2d093c1d510c5" prot="protected" virt="virtual"><scope>TrackView</scope><name>resizeEvent</name></member>
+      <member refid="class_track_view_1a3a98af016e5aecaf8c9630bc7eabfc98" prot="private" virt="non-virtual"><scope>TrackView</scope><name>ScrollbarRangeChanged</name></member>
+      <member refid="class_track_view_1a270ab5925e33c3fd84d4a9ba51c0f062" prot="private" virt="non-virtual"><scope>TrackView</scope><name>splitter_</name></member>
+      <member refid="class_track_view_1a1a696ba7f27ef4a0bb38d9b9370126f4" prot="private" virt="non-virtual"><scope>TrackView</scope><name>TrackHeightChanged</name></member>
+      <member refid="class_track_view_1ac555abcca4c5b5bfa3795fd5523b9b30" prot="public" virt="non-virtual"><scope>TrackView</scope><name>TrackView</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

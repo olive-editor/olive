@@ -1,0 +1,235 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_open_g_l_render_functions" kind="class" language="C++" prot="public">
+    <compoundname>OpenGLRenderFunctions</compoundname>
+    <includes refid="openglrenderfunctions_8h" local="no">openglrenderfunctions.h</includes>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="class_open_g_l_render_functions_1a5d4cada5a3b81f9d4710812e76908e1c" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void OpenGLRenderFunctions::Blit</definition>
+        <argsstring>(OpenGLShaderPtr pipeline, bool flipped=false, QMatrix4x4 matrix=QMatrix4x4())</argsstring>
+        <name>Blit</name>
+        <param>
+          <type><ref refid="openglshader_8h_1a99853974927ec0ae59c90cd3f1f618fe" kindref="member">OpenGLShaderPtr</ref></type>
+          <declname>pipeline</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>flipped</declname>
+          <defval>false</defval>
+        </param>
+        <param>
+          <type>QMatrix4x4</type>
+          <declname>matrix</declname>
+          <defval>QMatrix4x4()</defval>
+        </param>
+        <briefdescription>
+<para>Draw texture on screen. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pipeline</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Shader to use for the texture drawing</para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>flipped</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Draw the texture vertically flipped (defaults to FALSE)</para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>matrix</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Transformation matrix to use when drawing (defaults to no transform) </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglrenderfunctions.h" line="68" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_render_functions_1a1034bb8d48fb765f93307a5d650f9e95" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void OpenGLRenderFunctions::Blit</definition>
+        <argsstring>(OpenGLShader *pipeline, bool flipped=false, QMatrix4x4 matrix=QMatrix4x4())</argsstring>
+        <name>Blit</name>
+        <param>
+          <type><ref refid="class_open_g_l_shader" kindref="compound">OpenGLShader</ref> *</type>
+          <declname>pipeline</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>flipped</declname>
+          <defval>false</defval>
+        </param>
+        <param>
+          <type>QMatrix4x4</type>
+          <declname>matrix</declname>
+          <defval>QMatrix4x4()</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglrenderfunctions.h" line="69" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_render_functions_1a7c73c9b5a0e01c1ef6b934178b4745c9" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void OpenGLRenderFunctions::OCIOBlit</definition>
+        <argsstring>(OpenGLShaderPtr pipeline, GLuint lut, bool flipped=false, QMatrix4x4 matrix=QMatrix4x4())</argsstring>
+        <name>OCIOBlit</name>
+        <param>
+          <type><ref refid="openglshader_8h_1a99853974927ec0ae59c90cd3f1f618fe" kindref="member">OpenGLShaderPtr</ref></type>
+          <declname>pipeline</declname>
+        </param>
+        <param>
+          <type>GLuint</type>
+          <declname>lut</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>flipped</declname>
+          <defval>false</defval>
+        </param>
+        <param>
+          <type>QMatrix4x4</type>
+          <declname>matrix</declname>
+          <defval>QMatrix4x4()</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglrenderfunctions.h" line="71" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_render_functions_1a92a371de703a836318fb8c3350fad42b" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void OpenGLRenderFunctions::OCIOBlit</definition>
+        <argsstring>(OpenGLShader *pipeline, GLuint lut, bool flipped=false, QMatrix4x4 matrix=QMatrix4x4())</argsstring>
+        <name>OCIOBlit</name>
+        <param>
+          <type><ref refid="class_open_g_l_shader" kindref="compound">OpenGLShader</ref> *</type>
+          <declname>pipeline</declname>
+        </param>
+        <param>
+          <type>GLuint</type>
+          <declname>lut</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>flipped</declname>
+          <defval>false</defval>
+        </param>
+        <param>
+          <type>QMatrix4x4</type>
+          <declname>matrix</declname>
+          <defval>QMatrix4x4()</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglrenderfunctions.h" line="72" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_render_functions_1a22a95f920ab686875edcb74caffc543f" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void OpenGLRenderFunctions::PrepareToDraw</definition>
+        <argsstring>(QOpenGLFunctions *f)</argsstring>
+        <name>PrepareToDraw</name>
+        <param>
+          <type>QOpenGLFunctions *</type>
+          <declname>f</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglrenderfunctions.h" line="74" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_render_functions_1a88f838c4b1d330b59d48251c3fe697a2" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GLint</type>
+        <definition>static GLint OpenGLRenderFunctions::GetInternalFormat</definition>
+        <argsstring>(const PixelFormat::Format &amp;format)</argsstring>
+        <name>GetInternalFormat</name>
+        <param>
+          <type>const <ref refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021" kindref="member">PixelFormat::Format</ref> &amp;</type>
+          <declname>format</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglrenderfunctions.h" line="76" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_render_functions_1a38c63d364945d700577e7fc118a47ca8" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GLenum</type>
+        <definition>static GLenum OpenGLRenderFunctions::GetPixelFormat</definition>
+        <argsstring>(const PixelFormat::Format &amp;format)</argsstring>
+        <name>GetPixelFormat</name>
+        <param>
+          <type>const <ref refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021" kindref="member">PixelFormat::Format</ref> &amp;</type>
+          <declname>format</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglrenderfunctions.h" line="78" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_open_g_l_render_functions_1ad5b4f4c4e8c18094dc9a02a5d4c4e8da" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GLenum</type>
+        <definition>static GLenum OpenGLRenderFunctions::GetPixelType</definition>
+        <argsstring>(const PixelFormat::Format &amp;format)</argsstring>
+        <name>GetPixelType</name>
+        <param>
+          <type>const <ref refid="class_pixel_format_1a9bbd1f928ffb889a0bf5212038f6d021" kindref="member">PixelFormat::Format</ref> &amp;</type>
+          <declname>format</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglrenderfunctions.h" line="80" column="17"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/render/backend/opengl/openglrenderfunctions.h" line="33" column="1" bodyfile="C:/Daten/Olive/olive/app/render/backend/opengl/openglrenderfunctions.h" bodystart="33" bodyend="64"/>
+    <listofallmembers>
+      <member refid="class_open_g_l_render_functions_1a5d4cada5a3b81f9d4710812e76908e1c" prot="public" virt="non-virtual"><scope>OpenGLRenderFunctions</scope><name>Blit</name></member>
+      <member refid="class_open_g_l_render_functions_1a1034bb8d48fb765f93307a5d650f9e95" prot="public" virt="non-virtual"><scope>OpenGLRenderFunctions</scope><name>Blit</name></member>
+      <member refid="class_open_g_l_render_functions_1a88f838c4b1d330b59d48251c3fe697a2" prot="public" virt="non-virtual"><scope>OpenGLRenderFunctions</scope><name>GetInternalFormat</name></member>
+      <member refid="class_open_g_l_render_functions_1a38c63d364945d700577e7fc118a47ca8" prot="public" virt="non-virtual"><scope>OpenGLRenderFunctions</scope><name>GetPixelFormat</name></member>
+      <member refid="class_open_g_l_render_functions_1ad5b4f4c4e8c18094dc9a02a5d4c4e8da" prot="public" virt="non-virtual"><scope>OpenGLRenderFunctions</scope><name>GetPixelType</name></member>
+      <member refid="class_open_g_l_render_functions_1a7c73c9b5a0e01c1ef6b934178b4745c9" prot="public" virt="non-virtual"><scope>OpenGLRenderFunctions</scope><name>OCIOBlit</name></member>
+      <member refid="class_open_g_l_render_functions_1a92a371de703a836318fb8c3350fad42b" prot="public" virt="non-virtual"><scope>OpenGLRenderFunctions</scope><name>OCIOBlit</name></member>
+      <member refid="class_open_g_l_render_functions_1a22a95f920ab686875edcb74caffc543f" prot="public" virt="non-virtual"><scope>OpenGLRenderFunctions</scope><name>PrepareToDraw</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

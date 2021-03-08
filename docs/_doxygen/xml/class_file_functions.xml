@@ -1,0 +1,166 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_file_functions" kind="class" language="C++" prot="public">
+    <compoundname>FileFunctions</compoundname>
+    <includes refid="filefunctions_8h" local="no">filefunctions.h</includes>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="class_file_functions_1a0e73ff6a91a4894ffc228732b34c99fe" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool FileFunctions::IsPortable</definition>
+        <argsstring>()</argsstring>
+        <name>IsPortable</name>
+        <briefdescription>
+<para>Returns true if the application is running in portable mode. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>In portable mode, any persistent configuration files should be made in a path relative to the application rather than in the user&apos;s home folder. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/filefunctions.h" line="59" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_file_functions_1a4a170fd6133a047ff63dbae3fefe0562" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>static QString FileFunctions::GetUniqueFileIdentifier</definition>
+        <argsstring>(const QString &amp;filename)</argsstring>
+        <name>GetUniqueFileIdentifier</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>filename</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/filefunctions.h" line="61" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_file_functions_1a80a0ca55792173829ced1efe115dadea" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>static QString FileFunctions::GetMediaIndexLocation</definition>
+        <argsstring>()</argsstring>
+        <name>GetMediaIndexLocation</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/filefunctions.h" line="63" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_file_functions_1ac6772e63c561321717b02cc010b1b3e4" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>static QString FileFunctions::GetMediaIndexFilename</definition>
+        <argsstring>(const QString &amp;filename)</argsstring>
+        <name>GetMediaIndexFilename</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>filename</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/filefunctions.h" line="65" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_file_functions_1a6efc940e5eb87034ec2bf9497e44546b" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>static QString FileFunctions::GetMediaCacheLocation</definition>
+        <argsstring>()</argsstring>
+        <name>GetMediaCacheLocation</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/filefunctions.h" line="67" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_file_functions_1a78c7333f563846a504cea6d815234dc5" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>static QString FileFunctions::GetConfigurationLocation</definition>
+        <argsstring>()</argsstring>
+        <name>GetConfigurationLocation</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/filefunctions.h" line="69" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_file_functions_1ac68dc8534e6dc21a40c14aa5fd1dc8fa" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>static QString FileFunctions::GetApplicationPath</definition>
+        <argsstring>()</argsstring>
+        <name>GetApplicationPath</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/filefunctions.h" line="71" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_file_functions_1a269f7c1d93113fbbf21e3193219cc80d" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>static QString FileFunctions::GetTempFilePath</definition>
+        <argsstring>()</argsstring>
+        <name>GetTempFilePath</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/filefunctions.h" line="73" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_file_functions_1a04f108bf4cccd83e8d10bd52229eeaf5" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void FileFunctions::CopyDirectory</definition>
+        <argsstring>(const QString &amp;source, const QString &amp;dest, bool overwrite=false)</argsstring>
+        <name>CopyDirectory</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>source</declname>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>dest</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>overwrite</declname>
+          <defval>false</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/filefunctions.h" line="75" column="15"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A collection of static file and directory functions. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/common/filefunctions.h" line="33" column="1" bodyfile="C:/Daten/Olive/olive/app/common/filefunctions.h" bodystart="33" bodyend="59"/>
+    <listofallmembers>
+      <member refid="class_file_functions_1a04f108bf4cccd83e8d10bd52229eeaf5" prot="public" virt="non-virtual"><scope>FileFunctions</scope><name>CopyDirectory</name></member>
+      <member refid="class_file_functions_1ac68dc8534e6dc21a40c14aa5fd1dc8fa" prot="public" virt="non-virtual"><scope>FileFunctions</scope><name>GetApplicationPath</name></member>
+      <member refid="class_file_functions_1a78c7333f563846a504cea6d815234dc5" prot="public" virt="non-virtual"><scope>FileFunctions</scope><name>GetConfigurationLocation</name></member>
+      <member refid="class_file_functions_1a6efc940e5eb87034ec2bf9497e44546b" prot="public" virt="non-virtual"><scope>FileFunctions</scope><name>GetMediaCacheLocation</name></member>
+      <member refid="class_file_functions_1ac6772e63c561321717b02cc010b1b3e4" prot="public" virt="non-virtual"><scope>FileFunctions</scope><name>GetMediaIndexFilename</name></member>
+      <member refid="class_file_functions_1a80a0ca55792173829ced1efe115dadea" prot="public" virt="non-virtual"><scope>FileFunctions</scope><name>GetMediaIndexLocation</name></member>
+      <member refid="class_file_functions_1a269f7c1d93113fbbf21e3193219cc80d" prot="public" virt="non-virtual"><scope>FileFunctions</scope><name>GetTempFilePath</name></member>
+      <member refid="class_file_functions_1a4a170fd6133a047ff63dbae3fefe0562" prot="public" virt="non-virtual"><scope>FileFunctions</scope><name>GetUniqueFileIdentifier</name></member>
+      <member refid="class_file_functions_1a0e73ff6a91a4894ffc228732b34c99fe" prot="public" virt="non-virtual"><scope>FileFunctions</scope><name>IsPortable</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

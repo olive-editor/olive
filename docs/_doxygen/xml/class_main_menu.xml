@@ -1,0 +1,1869 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_main_menu" kind="class" language="C++" prot="public">
+    <compoundname>MainMenu</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QMenuBar</basecompoundref>
+    <includes refid="mainmenu_8h" local="no">mainmenu.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_main_menu_1ae625c7cdd737dec5ba5c882503a9c757" prot="private" static="no" mutable="no">
+        <type><ref refid="class_menu" kindref="compound">Menu</ref> *</type>
+        <definition>Menu* MainMenu::file_menu_</definition>
+        <argsstring></argsstring>
+        <name>file_menu_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="186" column="8" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="186" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1ae94a0dcee2c9a800da724bde8f28e7d7" prot="private" static="no" mutable="no">
+        <type><ref refid="class_menu" kindref="compound">Menu</ref> *</type>
+        <definition>Menu* MainMenu::file_new_menu_</definition>
+        <argsstring></argsstring>
+        <name>file_new_menu_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="187" column="8" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="187" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1a42a9c1f7e6bcd323431a9b1bbce3438b" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::file_open_item_</definition>
+        <argsstring></argsstring>
+        <name>file_open_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="188" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="188" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1a602ea07d953392e92979fe6b1fb68b04" prot="private" static="no" mutable="no">
+        <type><ref refid="class_menu" kindref="compound">Menu</ref> *</type>
+        <definition>Menu* MainMenu::file_open_recent_menu_</definition>
+        <argsstring></argsstring>
+        <name>file_open_recent_menu_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="189" column="8" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="189" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1a3f0821109ba6d0b9610863aa35b4858c" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::file_open_recent_separator_</definition>
+        <argsstring></argsstring>
+        <name>file_open_recent_separator_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="190" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="190" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1aedebd1eb3d9df0fc4aea6df288cb78c1" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::file_open_recent_clear_item_</definition>
+        <argsstring></argsstring>
+        <name>file_open_recent_clear_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="191" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="191" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1adb1d8c0d651300316b5ea51e9c9fb8e7" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::file_save_item_</definition>
+        <argsstring></argsstring>
+        <name>file_save_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="192" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="192" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1aaf2fde12679b10ebdcc587b9158b5ff1" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::file_save_as_item_</definition>
+        <argsstring></argsstring>
+        <name>file_save_as_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="193" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="193" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1a1992b73767af3d7e2e72d2e9ef8a1789" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::file_save_all_item_</definition>
+        <argsstring></argsstring>
+        <name>file_save_all_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="194" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="194" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1aeffe3e2994e4a4c3f025d56afa16ea22" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::file_import_item_</definition>
+        <argsstring></argsstring>
+        <name>file_import_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="195" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="195" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1af6a36a4eb30ac8ce958ff4a59beb3d6f" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::file_export_item_</definition>
+        <argsstring></argsstring>
+        <name>file_export_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="196" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="196" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1a45ad31a99969ceaa5140f3b6a86a56d8" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::file_project_properties_item_</definition>
+        <argsstring></argsstring>
+        <name>file_project_properties_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="197" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="197" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1a2ca36478d3626d94a42b27dc181165e3" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::file_close_project_item_</definition>
+        <argsstring></argsstring>
+        <name>file_close_project_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="198" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="198" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1ad68e1a510fd7b1407ea5efbe5fbc540b" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::file_close_all_projects_item_</definition>
+        <argsstring></argsstring>
+        <name>file_close_all_projects_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="199" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="199" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1a7035d7bf523368755aa89a6bb91c8bd6" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::file_close_all_except_item_</definition>
+        <argsstring></argsstring>
+        <name>file_close_all_except_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="200" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="200" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1a601a805c67cac64e4ef0b8e58febfe1d" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::file_exit_item_</definition>
+        <argsstring></argsstring>
+        <name>file_exit_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="201" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="201" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1acab6c0a104edd9af76a8550c1bd99986" prot="private" static="no" mutable="no">
+        <type><ref refid="class_menu" kindref="compound">Menu</ref> *</type>
+        <definition>Menu* MainMenu::edit_menu_</definition>
+        <argsstring></argsstring>
+        <name>edit_menu_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="203" column="8" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="203" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1a588355dcb9fda42bf3b3145e2f221b40" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::edit_undo_item_</definition>
+        <argsstring></argsstring>
+        <name>edit_undo_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="204" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="204" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1a10af7564f1ad9fe5c231724ee934e889" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::edit_redo_item_</definition>
+        <argsstring></argsstring>
+        <name>edit_redo_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="205" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="205" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1a0819005a701b98824fb1a070ab7b6e35" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::edit_select_all_item_</definition>
+        <argsstring></argsstring>
+        <name>edit_select_all_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="206" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="206" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1ac1b923da7d3eb4f40c48483c69485766" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::edit_deselect_all_item_</definition>
+        <argsstring></argsstring>
+        <name>edit_deselect_all_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="207" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="207" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1a1daae80a36d10d7f2a85a6cb4f3dd122" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::edit_insert_item_</definition>
+        <argsstring></argsstring>
+        <name>edit_insert_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="208" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="208" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1a77c7edcc7a2f6b3b9a3d70bf4b95b8bd" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::edit_overwrite_item_</definition>
+        <argsstring></argsstring>
+        <name>edit_overwrite_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="209" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="209" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1acae6b985afd810c7a2cb09cc1a43ae74" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::edit_ripple_to_in_item_</definition>
+        <argsstring></argsstring>
+        <name>edit_ripple_to_in_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="210" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="210" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1a8ed4749d166227e74c4aedecc7d98f74" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::edit_ripple_to_out_item_</definition>
+        <argsstring></argsstring>
+        <name>edit_ripple_to_out_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="211" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="211" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1aae0e83ef28cad3648ba4446b4276fb9a" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::edit_edit_to_in_item_</definition>
+        <argsstring></argsstring>
+        <name>edit_edit_to_in_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="212" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="212" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1ae2291c2726a0736ef46cfff9a0bffa99" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::edit_edit_to_out_item_</definition>
+        <argsstring></argsstring>
+        <name>edit_edit_to_out_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="213" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="213" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1abb96618cd4091dd32b3da29c10f29b23" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::edit_delete_inout_item_</definition>
+        <argsstring></argsstring>
+        <name>edit_delete_inout_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="214" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="214" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1a5ca7e5cc887894874ef3016867293184" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::edit_ripple_delete_inout_item_</definition>
+        <argsstring></argsstring>
+        <name>edit_ripple_delete_inout_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="215" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="215" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1a535e1f88836a7522b99d85f75e54a922" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::edit_set_marker_item_</definition>
+        <argsstring></argsstring>
+        <name>edit_set_marker_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="216" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="216" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1a2c3eb966ce4dcfc6af3a5579c4019ed4" prot="private" static="no" mutable="no">
+        <type><ref refid="class_menu" kindref="compound">Menu</ref> *</type>
+        <definition>Menu* MainMenu::view_menu_</definition>
+        <argsstring></argsstring>
+        <name>view_menu_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="218" column="8" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="218" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1a193880bf6368a91b0b2993d5005f0581" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::view_zoom_in_item_</definition>
+        <argsstring></argsstring>
+        <name>view_zoom_in_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="219" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="219" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1af8d1e477c2d4623663425c524688801c" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::view_zoom_out_item_</definition>
+        <argsstring></argsstring>
+        <name>view_zoom_out_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="220" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="220" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1af23751a2673e2a7730d41365a1246bd7" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::view_increase_track_height_item_</definition>
+        <argsstring></argsstring>
+        <name>view_increase_track_height_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="221" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="221" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1ae3ee462ea7a8a0bee7bb53ea30849e93" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::view_decrease_track_height_item_</definition>
+        <argsstring></argsstring>
+        <name>view_decrease_track_height_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="222" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="222" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1a51ebacaa09d76617ccc4eb6e60f985af" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::view_show_all_item_</definition>
+        <argsstring></argsstring>
+        <name>view_show_all_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="223" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="223" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1aba90181cbd895f0e850b8afef8b4ac50" prot="private" static="no" mutable="no">
+        <type>QActionGroup *</type>
+        <definition>QActionGroup* MainMenu::frame_view_mode_group_</definition>
+        <argsstring></argsstring>
+        <name>frame_view_mode_group_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="224" column="16" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="224" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1ad9b9730cf0ce5e143d57b4ff3674ece3" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::view_timecode_view_dropframe_item_</definition>
+        <argsstring></argsstring>
+        <name>view_timecode_view_dropframe_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="225" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="225" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1a8e30a22fadfe1938d57f2ff554661587" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::view_timecode_view_nondropframe_item_</definition>
+        <argsstring></argsstring>
+        <name>view_timecode_view_nondropframe_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="226" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="226" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1ac365cc03e04b6aad0a9eca2d1a70d8c2" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::view_timecode_view_seconds_item_</definition>
+        <argsstring></argsstring>
+        <name>view_timecode_view_seconds_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="227" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="227" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1a5e95a43c0ee52401dd34a6e6bb3d7045" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::view_timecode_view_frames_item_</definition>
+        <argsstring></argsstring>
+        <name>view_timecode_view_frames_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="228" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="228" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1a15fd7df2d3f108be96441418640615bf" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::view_timecode_view_milliseconds_item_</definition>
+        <argsstring></argsstring>
+        <name>view_timecode_view_milliseconds_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="229" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="229" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1a96b5986f7e56980a84ba75a547e318c4" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::view_full_screen_item_</definition>
+        <argsstring></argsstring>
+        <name>view_full_screen_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="230" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="230" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1abbe426760edbd22384b3f76b5e629f1c" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::view_full_screen_viewer_item_</definition>
+        <argsstring></argsstring>
+        <name>view_full_screen_viewer_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="231" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="231" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1ade7720bfb5f306f5f3eae79061312f5b" prot="private" static="no" mutable="no">
+        <type><ref refid="class_menu" kindref="compound">Menu</ref> *</type>
+        <definition>Menu* MainMenu::playback_menu_</definition>
+        <argsstring></argsstring>
+        <name>playback_menu_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="233" column="8" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="233" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1a103be250a6c16132584e06fe14f1de71" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::playback_gotostart_item_</definition>
+        <argsstring></argsstring>
+        <name>playback_gotostart_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="234" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="234" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1a0fddeeb9f297483cd871db61cec37192" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::playback_prevframe_item_</definition>
+        <argsstring></argsstring>
+        <name>playback_prevframe_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="235" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="235" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1ab4a9877cb173cb85262efab436d937c1" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::playback_playpause_item_</definition>
+        <argsstring></argsstring>
+        <name>playback_playpause_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="236" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="236" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1a71573c6f0aa7303c276ebd13895aa553" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::playback_playinout_item_</definition>
+        <argsstring></argsstring>
+        <name>playback_playinout_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="237" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="237" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1abd505500437f119b86d16c6c3da60109" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::playback_nextframe_item_</definition>
+        <argsstring></argsstring>
+        <name>playback_nextframe_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="238" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="238" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1a74dd2a4b1c7d389b8a66f2d49aa67af7" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::playback_gotoend_item_</definition>
+        <argsstring></argsstring>
+        <name>playback_gotoend_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="239" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="239" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1a2b46fccaf1c99b4835d50e779aa50bf2" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::playback_prevcut_item_</definition>
+        <argsstring></argsstring>
+        <name>playback_prevcut_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="240" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="240" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1ac01efe20907e386f22c5c0dc11ba67e9" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::playback_nextcut_item_</definition>
+        <argsstring></argsstring>
+        <name>playback_nextcut_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="241" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="241" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1ad16b490ae1cbf06808b6bd2704986bbe" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::playback_gotoin_item_</definition>
+        <argsstring></argsstring>
+        <name>playback_gotoin_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="242" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="242" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1a70c6b628287b367593224aa34829e5f7" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::playback_gotoout_item_</definition>
+        <argsstring></argsstring>
+        <name>playback_gotoout_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="243" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="243" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1acf704abddea5390546ce7c14c3b3701d" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::playback_shuttleleft_item_</definition>
+        <argsstring></argsstring>
+        <name>playback_shuttleleft_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="244" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="244" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1a717a515e819d1b0bee54c04e8c9a10f2" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::playback_shuttlestop_item_</definition>
+        <argsstring></argsstring>
+        <name>playback_shuttlestop_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="245" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="245" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1aa46c1cfab68b6c0a28e6f0a607164d70" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::playback_shuttleright_item_</definition>
+        <argsstring></argsstring>
+        <name>playback_shuttleright_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="246" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="246" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1a69613d2ccee18dabea4b9f39eee646f9" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::playback_loop_item_</definition>
+        <argsstring></argsstring>
+        <name>playback_loop_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="247" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="247" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1ade08cfb4b4f1449d6c873d22ae37d29f" prot="private" static="no" mutable="no">
+        <type><ref refid="class_menu" kindref="compound">Menu</ref> *</type>
+        <definition>Menu* MainMenu::window_menu_</definition>
+        <argsstring></argsstring>
+        <name>window_menu_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="249" column="8" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="249" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1af8ed38197a61811ead278875555d204a" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::window_menu_separator_</definition>
+        <argsstring></argsstring>
+        <name>window_menu_separator_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="250" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="250" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1ac24abc084b726389b03377128d41f418" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::window_maximize_panel_item_</definition>
+        <argsstring></argsstring>
+        <name>window_maximize_panel_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="251" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="251" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1a90f40dae339c44d32183bb65d5512967" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::window_lock_layout_item_</definition>
+        <argsstring></argsstring>
+        <name>window_lock_layout_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="252" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="252" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1a44e77100dd018ac3a7216b6a720cad1f" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::window_reset_layout_item_</definition>
+        <argsstring></argsstring>
+        <name>window_reset_layout_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="253" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="253" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1a5bc591f03e13a3c2bb19b8bc7ce6988d" prot="private" static="no" mutable="no">
+        <type><ref refid="class_menu" kindref="compound">Menu</ref> *</type>
+        <definition>Menu* MainMenu::tools_menu_</definition>
+        <argsstring></argsstring>
+        <name>tools_menu_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="255" column="8" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="255" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1a9e20a9d776d732db2fa2ec6d0b1c222a" prot="private" static="no" mutable="no">
+        <type>QActionGroup *</type>
+        <definition>QActionGroup* MainMenu::tools_group_</definition>
+        <argsstring></argsstring>
+        <name>tools_group_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="256" column="16" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="256" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1a6afc2ba38b247de9bffdf0179559e9c7" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::tools_pointer_item_</definition>
+        <argsstring></argsstring>
+        <name>tools_pointer_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="257" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="257" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1a48d1a3d6f527bea5f52b06e3ab693317" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::tools_edit_item_</definition>
+        <argsstring></argsstring>
+        <name>tools_edit_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="258" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="258" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1afe13f9bc27e32564d0e802078df7f8d0" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::tools_ripple_item_</definition>
+        <argsstring></argsstring>
+        <name>tools_ripple_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="259" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="259" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1a1c359b91bc168bb5b27c33ca82a8c7b9" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::tools_rolling_item_</definition>
+        <argsstring></argsstring>
+        <name>tools_rolling_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="260" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="260" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1a1ce751b363da2fee8e9f19574be773f2" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::tools_razor_item_</definition>
+        <argsstring></argsstring>
+        <name>tools_razor_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="261" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="261" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1ab6e59647218c02aa4755c0078c358e60" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::tools_slip_item_</definition>
+        <argsstring></argsstring>
+        <name>tools_slip_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="262" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="262" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1a01d62ba69f135d07fb4c4dfc8a6e93c0" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::tools_slide_item_</definition>
+        <argsstring></argsstring>
+        <name>tools_slide_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="263" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="263" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1a11cb612d562a47d50931b8998872baa3" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::tools_hand_item_</definition>
+        <argsstring></argsstring>
+        <name>tools_hand_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="264" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="264" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1ab90cacda53a22ce3b74b63de092aa192" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::tools_zoom_item_</definition>
+        <argsstring></argsstring>
+        <name>tools_zoom_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="265" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="265" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1a06205a44dd474d075561cbbed40321dc" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::tools_transition_item_</definition>
+        <argsstring></argsstring>
+        <name>tools_transition_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="266" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="266" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1a414ee0f93edb0b775f3272d7504fb895" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::tools_snapping_item_</definition>
+        <argsstring></argsstring>
+        <name>tools_snapping_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="267" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="267" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1a664948170ba41374e3ec89f8460a3ecb" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::tools_preferences_item_</definition>
+        <argsstring></argsstring>
+        <name>tools_preferences_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="268" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="268" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1a824c3f573e0606bb4f289ed6487c34d2" prot="private" static="no" mutable="no">
+        <type><ref refid="class_menu" kindref="compound">Menu</ref> *</type>
+        <definition>Menu* MainMenu::help_menu_</definition>
+        <argsstring></argsstring>
+        <name>help_menu_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="270" column="8" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="270" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1ac05626c7bfb2c7fb783dc746d37dc902" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::help_action_search_item_</definition>
+        <argsstring></argsstring>
+        <name>help_action_search_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="271" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="271" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_main_menu_1a240c975160aeec8202a4ec8c6b0292f0" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainMenu::help_about_item_</definition>
+        <argsstring></argsstring>
+        <name>help_about_item_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="272" column="11" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="272" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_main_menu_1ac983e029c7e13c5040a07ba99ca691e8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>MainMenu::MainMenu</definition>
+        <argsstring>(MainWindow *parent)</argsstring>
+        <name>MainMenu</name>
+        <param>
+          <type><ref refid="class_main_window" kindref="compound">MainWindow</ref> *</type>
+          <declname>parent</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="43" column="3"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_main_menu_1ae2b90f30ccf95f35f17da463bd9e11b6" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void MainMenu::changeEvent</definition>
+        <argsstring>(QEvent *e)</argsstring>
+        <name>changeEvent</name>
+        <param>
+          <type>QEvent *</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+<para>changeEvent </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Qt changeEvent override to catch a QEvent::LanguageEvent.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>e</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="53" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_main_menu_1a70fcd333c2d0e82b32353760750f40ea" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainMenu::ToolItemTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>ToolItemTriggered</name>
+        <briefdescription>
+<para>A slot for the <ref refid="class_tool" kindref="compound">Tool</ref> selection items. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Assumes a QAction* sender() and its data() is a member of enum <ref refid="class_tool_1aa5b3343d5a8a21b7473dfe74af2976cb" kindref="member">Tool::Item</ref>. Uses the data() to signal a <ref refid="class_tool" kindref="compound">Tool</ref> change throughout the rest of the application. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="62" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_menu_1a4a6c37ab6a328d26e341a78a04a24ebf" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainMenu::TimecodeDisplayTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>TimecodeDisplayTriggered</name>
+        <briefdescription>
+<para>A slot for the timecode display menu items. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Assumes a QAction* sender() and its data() is a member of enum <ref refid="class_timecode_1aff560b56df77be3eeec7a93c000ac4e5" kindref="member">Timecode::Display</ref>. Uses the data() to signal a timecode change throughout the rest of the application. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="70" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_menu_1aea423edebc45bb95a1b72fe5c4054619" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainMenu::FileMenuAboutToShow</definition>
+        <argsstring>()</argsstring>
+        <name>FileMenuAboutToShow</name>
+        <briefdescription>
+<para>Slot triggered just before the File menu shows. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="75" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_menu_1a14847076c3c75d07f09999dbb5bc9bb5" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainMenu::ViewMenuAboutToShow</definition>
+        <argsstring>()</argsstring>
+        <name>ViewMenuAboutToShow</name>
+        <briefdescription>
+<para>Slot triggered just before the View menu shows. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="80" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_menu_1a89ba1d6a0d38c43b9f34476f1e15f346" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainMenu::ToolsMenuAboutToShow</definition>
+        <argsstring>()</argsstring>
+        <name>ToolsMenuAboutToShow</name>
+        <briefdescription>
+<para>Slot triggered just before the Tools menu shows. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="85" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_menu_1a63c46361704c5986abfe057cac991f4f" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainMenu::PlaybackMenuAboutToShow</definition>
+        <argsstring>()</argsstring>
+        <name>PlaybackMenuAboutToShow</name>
+        <briefdescription>
+<para>PlaybackMenuAboutToShow. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="90" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_menu_1af53b2e78964c26f784ebe955a8d4e1b6" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainMenu::WindowMenuAboutToShow</definition>
+        <argsstring>()</argsstring>
+        <name>WindowMenuAboutToShow</name>
+        <briefdescription>
+<para>Slot triggered just before the Window menu shows. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="95" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_menu_1a8455c556b3c7c881d9522aa655e6107f" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainMenu::WindowMenuAboutToHide</definition>
+        <argsstring>()</argsstring>
+        <name>WindowMenuAboutToHide</name>
+        <briefdescription>
+<para>Slot triggered just before the Window menu hides. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="100" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_menu_1aec825f65f02950b086bee08c258b5a25" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainMenu::PopulateOpenRecent</definition>
+        <argsstring>()</argsstring>
+        <name>PopulateOpenRecent</name>
+        <briefdescription>
+<para>Adds items to open recent menu. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="105" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_menu_1abc9ee923abd2b89997a68b135880e066" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainMenu::CloseOpenRecentMenu</definition>
+        <argsstring>()</argsstring>
+        <name>CloseOpenRecentMenu</name>
+        <briefdescription>
+<para>Clears open recent items when menu closes. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="110" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_menu_1a1336f2de103ac87f89f793d70bd89b7e" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainMenu::ZoomInTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>ZoomInTriggered</name>
+        <briefdescription>
+<para>Slot for zooming in. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Finds the currently focused panel and sends it a &quot;zoom in&quot; signal </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="117" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_menu_1a9855821d1d31e43d85bd42e215534a01" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainMenu::ZoomOutTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>ZoomOutTriggered</name>
+        <briefdescription>
+<para>Slot for zooming out. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Finds the currently focused panel and sends it a &quot;zoom out&quot; signal </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="124" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_menu_1a7326c332b481222f4247b9b5e8de92d8" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainMenu::IncreaseTrackHeightTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>IncreaseTrackHeightTriggered</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="126" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_menu_1a2d5a3dc35360132980c18948dfa92665" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainMenu::DecreaseTrackHeightTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>DecreaseTrackHeightTriggered</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="127" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_menu_1aed42a858045ff14d2f56dffca548acd5" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainMenu::GoToStartTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>GoToStartTriggered</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="129" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_menu_1a35be93ac8f3072efb82c076c0fe3aec3" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainMenu::PrevFrameTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>PrevFrameTriggered</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="130" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_menu_1a704ad5f48e4500768f34657e38da3008" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainMenu::PlayPauseTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>PlayPauseTriggered</name>
+        <briefdescription>
+<para>Slot for play/pause. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Finds the currently focused panel and sends it a &quot;play/pause&quot; signal </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="137" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_menu_1a72d0bc62cd5f38f810157b9985b8ca34" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainMenu::PlayInToOutTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>PlayInToOutTriggered</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="139" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_menu_1a16de161857cf34bd4dcd661e6afdc485" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainMenu::LoopTriggered</definition>
+        <argsstring>(bool enabled)</argsstring>
+        <name>LoopTriggered</name>
+        <param>
+          <type>bool</type>
+          <declname>enabled</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="141" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_menu_1a8e07bb2830a55f3f1e29d1cc5909a474" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainMenu::NextFrameTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>NextFrameTriggered</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="143" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_menu_1abffc87cd310a4de1438c718f1c33b7cb" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainMenu::GoToEndTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>GoToEndTriggered</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="144" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_menu_1acca90a7f298e17fb5f5d824f1d73feb5" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainMenu::SelectAllTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>SelectAllTriggered</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="146" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_menu_1aca0ec8206d9f8dfd6142a27ee54fa457" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainMenu::DeselectAllTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>DeselectAllTriggered</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="147" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_menu_1a07fa52d456f2f1f269f1441ec5926d84" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainMenu::InsertTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>InsertTriggered</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="149" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_menu_1a33d57e8f436b6a76f33a9f4adee498e2" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainMenu::OverwriteTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>OverwriteTriggered</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="150" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_menu_1a78914dc41a5ce8053078df8cfdd1b956" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainMenu::RippleToInTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>RippleToInTriggered</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="152" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_menu_1ae2d8675e9b7e77edd2874889a02228fa" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainMenu::RippleToOutTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>RippleToOutTriggered</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="153" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_menu_1a7b9ad1731f881c52b007fade47537801" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainMenu::EditToInTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>EditToInTriggered</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="154" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_menu_1aa301c3d51d817a3fb59704ec63cbd146" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainMenu::EditToOutTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>EditToOutTriggered</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="155" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_menu_1a33c9cb97f01ff7130213c629996a0230" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainMenu::ActionSearchTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>ActionSearchTriggered</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="157" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_menu_1a5c1a8f1a774b2d69eb992aa527b5845e" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainMenu::ShuttleLeftTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>ShuttleLeftTriggered</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="159" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_menu_1aa44abfe7531aff89939fae5927681f10" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainMenu::ShuttleStopTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>ShuttleStopTriggered</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="160" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_menu_1a0cde82ff8e335fcdcd8681afaec4c19d" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainMenu::ShuttleRightTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>ShuttleRightTriggered</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="161" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_menu_1ad4666b9eb8086d2ea31e75c98a40a102" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainMenu::GoToPrevCutTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>GoToPrevCutTriggered</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="163" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_menu_1a7d31136a01b0210e943e73ba4cc986fc" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainMenu::GoToNextCutTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>GoToNextCutTriggered</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="164" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_menu_1a856b0f411c6fd95873d90b4bf1b417dc" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainMenu::SetMarkerTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>SetMarkerTriggered</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="166" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_menu_1af7e1930cc1df86c26fe2603ee3847ca0" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainMenu::FullScreenViewerTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>FullScreenViewerTriggered</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="168" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_menu_1a1da200e55a90d76107d736a3d24d8cf4" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainMenu::ToggleShowAllTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>ToggleShowAllTriggered</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="170" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_menu_1a4af9aceb0bc9528e3592f0b2a9591765" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainMenu::DeleteInOutTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>DeleteInOutTriggered</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="172" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_menu_1a52fb3465382e40ec3e4d75d96276008a" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainMenu::RippleDeleteInOutTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>RippleDeleteInOutTriggered</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="173" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_menu_1ae296b8132acbbccbd59e9ba0f6ba3f92" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainMenu::GoToInTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>GoToInTriggered</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="175" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_menu_1aacc3ebe4485b2e23a86860bf034d776a" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainMenu::GoToOutTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>GoToOutTriggered</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="176" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_main_menu_1a7669351eaed15d949ced2791643839b6" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainMenu::OpenRecentItemTriggered</definition>
+        <argsstring>()</argsstring>
+        <name>OpenRecentItemTriggered</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="178" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_main_menu_1a77fef2432273f72f37d2a3bc3e7b81ca" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainMenu::Retranslate</definition>
+        <argsstring>()</argsstring>
+        <name>Retranslate</name>
+        <briefdescription>
+<para>Set strings based on the current application language. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="184" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Olive&apos;s main menubar attached to its main window. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Responsible for creating the menu, connecting signals/slots, and retranslating the items on a language change. </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="2">
+        <label>Menu</label>
+        <link refid="class_menu"/>
+      </node>
+      <node id="1">
+        <label>MainMenu</label>
+        <link refid="class_main_menu"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>window_menu_</edgelabel>
+          <edgelabel>view_menu_</edgelabel>
+          <edgelabel>file_open_recent_menu_</edgelabel>
+          <edgelabel>tools_menu_</edgelabel>
+          <edgelabel>edit_menu_</edgelabel>
+          <edgelabel>file_new_menu_</edgelabel>
+          <edgelabel>playback_menu_</edgelabel>
+          <edgelabel>help_menu_</edgelabel>
+          <edgelabel>file_menu_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" line="39" column="1" bodyfile="C:/Daten/Olive/olive/app/window/mainwindow/mainmenu.h" bodystart="40" bodyend="274"/>
+    <listofallmembers>
+      <member refid="class_main_menu_1a33c9cb97f01ff7130213c629996a0230" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>ActionSearchTriggered</name></member>
+      <member refid="class_main_menu_1ae2b90f30ccf95f35f17da463bd9e11b6" prot="protected" virt="virtual"><scope>MainMenu</scope><name>changeEvent</name></member>
+      <member refid="class_main_menu_1abc9ee923abd2b89997a68b135880e066" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>CloseOpenRecentMenu</name></member>
+      <member refid="class_main_menu_1a2d5a3dc35360132980c18948dfa92665" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>DecreaseTrackHeightTriggered</name></member>
+      <member refid="class_main_menu_1a4af9aceb0bc9528e3592f0b2a9591765" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>DeleteInOutTriggered</name></member>
+      <member refid="class_main_menu_1aca0ec8206d9f8dfd6142a27ee54fa457" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>DeselectAllTriggered</name></member>
+      <member refid="class_main_menu_1abb96618cd4091dd32b3da29c10f29b23" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>edit_delete_inout_item_</name></member>
+      <member refid="class_main_menu_1ac1b923da7d3eb4f40c48483c69485766" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>edit_deselect_all_item_</name></member>
+      <member refid="class_main_menu_1aae0e83ef28cad3648ba4446b4276fb9a" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>edit_edit_to_in_item_</name></member>
+      <member refid="class_main_menu_1ae2291c2726a0736ef46cfff9a0bffa99" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>edit_edit_to_out_item_</name></member>
+      <member refid="class_main_menu_1a1daae80a36d10d7f2a85a6cb4f3dd122" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>edit_insert_item_</name></member>
+      <member refid="class_main_menu_1acab6c0a104edd9af76a8550c1bd99986" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>edit_menu_</name></member>
+      <member refid="class_main_menu_1a77c7edcc7a2f6b3b9a3d70bf4b95b8bd" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>edit_overwrite_item_</name></member>
+      <member refid="class_main_menu_1a10af7564f1ad9fe5c231724ee934e889" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>edit_redo_item_</name></member>
+      <member refid="class_main_menu_1a5ca7e5cc887894874ef3016867293184" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>edit_ripple_delete_inout_item_</name></member>
+      <member refid="class_main_menu_1acae6b985afd810c7a2cb09cc1a43ae74" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>edit_ripple_to_in_item_</name></member>
+      <member refid="class_main_menu_1a8ed4749d166227e74c4aedecc7d98f74" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>edit_ripple_to_out_item_</name></member>
+      <member refid="class_main_menu_1a0819005a701b98824fb1a070ab7b6e35" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>edit_select_all_item_</name></member>
+      <member refid="class_main_menu_1a535e1f88836a7522b99d85f75e54a922" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>edit_set_marker_item_</name></member>
+      <member refid="class_main_menu_1a588355dcb9fda42bf3b3145e2f221b40" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>edit_undo_item_</name></member>
+      <member refid="class_main_menu_1a7b9ad1731f881c52b007fade47537801" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>EditToInTriggered</name></member>
+      <member refid="class_main_menu_1aa301c3d51d817a3fb59704ec63cbd146" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>EditToOutTriggered</name></member>
+      <member refid="class_main_menu_1a7035d7bf523368755aa89a6bb91c8bd6" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>file_close_all_except_item_</name></member>
+      <member refid="class_main_menu_1ad68e1a510fd7b1407ea5efbe5fbc540b" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>file_close_all_projects_item_</name></member>
+      <member refid="class_main_menu_1a2ca36478d3626d94a42b27dc181165e3" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>file_close_project_item_</name></member>
+      <member refid="class_main_menu_1a601a805c67cac64e4ef0b8e58febfe1d" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>file_exit_item_</name></member>
+      <member refid="class_main_menu_1af6a36a4eb30ac8ce958ff4a59beb3d6f" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>file_export_item_</name></member>
+      <member refid="class_main_menu_1aeffe3e2994e4a4c3f025d56afa16ea22" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>file_import_item_</name></member>
+      <member refid="class_main_menu_1ae625c7cdd737dec5ba5c882503a9c757" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>file_menu_</name></member>
+      <member refid="class_main_menu_1ae94a0dcee2c9a800da724bde8f28e7d7" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>file_new_menu_</name></member>
+      <member refid="class_main_menu_1a42a9c1f7e6bcd323431a9b1bbce3438b" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>file_open_item_</name></member>
+      <member refid="class_main_menu_1aedebd1eb3d9df0fc4aea6df288cb78c1" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>file_open_recent_clear_item_</name></member>
+      <member refid="class_main_menu_1a602ea07d953392e92979fe6b1fb68b04" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>file_open_recent_menu_</name></member>
+      <member refid="class_main_menu_1a3f0821109ba6d0b9610863aa35b4858c" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>file_open_recent_separator_</name></member>
+      <member refid="class_main_menu_1a45ad31a99969ceaa5140f3b6a86a56d8" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>file_project_properties_item_</name></member>
+      <member refid="class_main_menu_1a1992b73767af3d7e2e72d2e9ef8a1789" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>file_save_all_item_</name></member>
+      <member refid="class_main_menu_1aaf2fde12679b10ebdcc587b9158b5ff1" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>file_save_as_item_</name></member>
+      <member refid="class_main_menu_1adb1d8c0d651300316b5ea51e9c9fb8e7" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>file_save_item_</name></member>
+      <member refid="class_main_menu_1aea423edebc45bb95a1b72fe5c4054619" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>FileMenuAboutToShow</name></member>
+      <member refid="class_main_menu_1aba90181cbd895f0e850b8afef8b4ac50" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>frame_view_mode_group_</name></member>
+      <member refid="class_main_menu_1af7e1930cc1df86c26fe2603ee3847ca0" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>FullScreenViewerTriggered</name></member>
+      <member refid="class_main_menu_1abffc87cd310a4de1438c718f1c33b7cb" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>GoToEndTriggered</name></member>
+      <member refid="class_main_menu_1ae296b8132acbbccbd59e9ba0f6ba3f92" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>GoToInTriggered</name></member>
+      <member refid="class_main_menu_1a7d31136a01b0210e943e73ba4cc986fc" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>GoToNextCutTriggered</name></member>
+      <member refid="class_main_menu_1aacc3ebe4485b2e23a86860bf034d776a" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>GoToOutTriggered</name></member>
+      <member refid="class_main_menu_1ad4666b9eb8086d2ea31e75c98a40a102" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>GoToPrevCutTriggered</name></member>
+      <member refid="class_main_menu_1aed42a858045ff14d2f56dffca548acd5" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>GoToStartTriggered</name></member>
+      <member refid="class_main_menu_1a240c975160aeec8202a4ec8c6b0292f0" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>help_about_item_</name></member>
+      <member refid="class_main_menu_1ac05626c7bfb2c7fb783dc746d37dc902" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>help_action_search_item_</name></member>
+      <member refid="class_main_menu_1a824c3f573e0606bb4f289ed6487c34d2" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>help_menu_</name></member>
+      <member refid="class_main_menu_1a7326c332b481222f4247b9b5e8de92d8" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>IncreaseTrackHeightTriggered</name></member>
+      <member refid="class_main_menu_1a07fa52d456f2f1f269f1441ec5926d84" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>InsertTriggered</name></member>
+      <member refid="class_main_menu_1a16de161857cf34bd4dcd661e6afdc485" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>LoopTriggered</name></member>
+      <member refid="class_main_menu_1ac983e029c7e13c5040a07ba99ca691e8" prot="public" virt="non-virtual"><scope>MainMenu</scope><name>MainMenu</name></member>
+      <member refid="class_main_menu_1a8e07bb2830a55f3f1e29d1cc5909a474" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>NextFrameTriggered</name></member>
+      <member refid="class_main_menu_1a7669351eaed15d949ced2791643839b6" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>OpenRecentItemTriggered</name></member>
+      <member refid="class_main_menu_1a33d57e8f436b6a76f33a9f4adee498e2" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>OverwriteTriggered</name></member>
+      <member refid="class_main_menu_1a74dd2a4b1c7d389b8a66f2d49aa67af7" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>playback_gotoend_item_</name></member>
+      <member refid="class_main_menu_1ad16b490ae1cbf06808b6bd2704986bbe" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>playback_gotoin_item_</name></member>
+      <member refid="class_main_menu_1a70c6b628287b367593224aa34829e5f7" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>playback_gotoout_item_</name></member>
+      <member refid="class_main_menu_1a103be250a6c16132584e06fe14f1de71" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>playback_gotostart_item_</name></member>
+      <member refid="class_main_menu_1a69613d2ccee18dabea4b9f39eee646f9" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>playback_loop_item_</name></member>
+      <member refid="class_main_menu_1ade7720bfb5f306f5f3eae79061312f5b" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>playback_menu_</name></member>
+      <member refid="class_main_menu_1ac01efe20907e386f22c5c0dc11ba67e9" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>playback_nextcut_item_</name></member>
+      <member refid="class_main_menu_1abd505500437f119b86d16c6c3da60109" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>playback_nextframe_item_</name></member>
+      <member refid="class_main_menu_1a71573c6f0aa7303c276ebd13895aa553" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>playback_playinout_item_</name></member>
+      <member refid="class_main_menu_1ab4a9877cb173cb85262efab436d937c1" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>playback_playpause_item_</name></member>
+      <member refid="class_main_menu_1a2b46fccaf1c99b4835d50e779aa50bf2" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>playback_prevcut_item_</name></member>
+      <member refid="class_main_menu_1a0fddeeb9f297483cd871db61cec37192" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>playback_prevframe_item_</name></member>
+      <member refid="class_main_menu_1acf704abddea5390546ce7c14c3b3701d" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>playback_shuttleleft_item_</name></member>
+      <member refid="class_main_menu_1aa46c1cfab68b6c0a28e6f0a607164d70" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>playback_shuttleright_item_</name></member>
+      <member refid="class_main_menu_1a717a515e819d1b0bee54c04e8c9a10f2" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>playback_shuttlestop_item_</name></member>
+      <member refid="class_main_menu_1a63c46361704c5986abfe057cac991f4f" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>PlaybackMenuAboutToShow</name></member>
+      <member refid="class_main_menu_1a72d0bc62cd5f38f810157b9985b8ca34" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>PlayInToOutTriggered</name></member>
+      <member refid="class_main_menu_1a704ad5f48e4500768f34657e38da3008" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>PlayPauseTriggered</name></member>
+      <member refid="class_main_menu_1aec825f65f02950b086bee08c258b5a25" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>PopulateOpenRecent</name></member>
+      <member refid="class_main_menu_1a35be93ac8f3072efb82c076c0fe3aec3" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>PrevFrameTriggered</name></member>
+      <member refid="class_main_menu_1a77fef2432273f72f37d2a3bc3e7b81ca" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>Retranslate</name></member>
+      <member refid="class_main_menu_1a52fb3465382e40ec3e4d75d96276008a" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>RippleDeleteInOutTriggered</name></member>
+      <member refid="class_main_menu_1a78914dc41a5ce8053078df8cfdd1b956" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>RippleToInTriggered</name></member>
+      <member refid="class_main_menu_1ae2d8675e9b7e77edd2874889a02228fa" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>RippleToOutTriggered</name></member>
+      <member refid="class_main_menu_1acca90a7f298e17fb5f5d824f1d73feb5" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>SelectAllTriggered</name></member>
+      <member refid="class_main_menu_1a856b0f411c6fd95873d90b4bf1b417dc" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>SetMarkerTriggered</name></member>
+      <member refid="class_main_menu_1a5c1a8f1a774b2d69eb992aa527b5845e" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>ShuttleLeftTriggered</name></member>
+      <member refid="class_main_menu_1a0cde82ff8e335fcdcd8681afaec4c19d" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>ShuttleRightTriggered</name></member>
+      <member refid="class_main_menu_1aa44abfe7531aff89939fae5927681f10" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>ShuttleStopTriggered</name></member>
+      <member refid="class_main_menu_1a4a6c37ab6a328d26e341a78a04a24ebf" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>TimecodeDisplayTriggered</name></member>
+      <member refid="class_main_menu_1a1da200e55a90d76107d736a3d24d8cf4" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>ToggleShowAllTriggered</name></member>
+      <member refid="class_main_menu_1a70fcd333c2d0e82b32353760750f40ea" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>ToolItemTriggered</name></member>
+      <member refid="class_main_menu_1a48d1a3d6f527bea5f52b06e3ab693317" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>tools_edit_item_</name></member>
+      <member refid="class_main_menu_1a9e20a9d776d732db2fa2ec6d0b1c222a" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>tools_group_</name></member>
+      <member refid="class_main_menu_1a11cb612d562a47d50931b8998872baa3" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>tools_hand_item_</name></member>
+      <member refid="class_main_menu_1a5bc591f03e13a3c2bb19b8bc7ce6988d" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>tools_menu_</name></member>
+      <member refid="class_main_menu_1a6afc2ba38b247de9bffdf0179559e9c7" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>tools_pointer_item_</name></member>
+      <member refid="class_main_menu_1a664948170ba41374e3ec89f8460a3ecb" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>tools_preferences_item_</name></member>
+      <member refid="class_main_menu_1a1ce751b363da2fee8e9f19574be773f2" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>tools_razor_item_</name></member>
+      <member refid="class_main_menu_1afe13f9bc27e32564d0e802078df7f8d0" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>tools_ripple_item_</name></member>
+      <member refid="class_main_menu_1a1c359b91bc168bb5b27c33ca82a8c7b9" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>tools_rolling_item_</name></member>
+      <member refid="class_main_menu_1a01d62ba69f135d07fb4c4dfc8a6e93c0" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>tools_slide_item_</name></member>
+      <member refid="class_main_menu_1ab6e59647218c02aa4755c0078c358e60" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>tools_slip_item_</name></member>
+      <member refid="class_main_menu_1a414ee0f93edb0b775f3272d7504fb895" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>tools_snapping_item_</name></member>
+      <member refid="class_main_menu_1a06205a44dd474d075561cbbed40321dc" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>tools_transition_item_</name></member>
+      <member refid="class_main_menu_1ab90cacda53a22ce3b74b63de092aa192" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>tools_zoom_item_</name></member>
+      <member refid="class_main_menu_1a89ba1d6a0d38c43b9f34476f1e15f346" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>ToolsMenuAboutToShow</name></member>
+      <member refid="class_main_menu_1ae3ee462ea7a8a0bee7bb53ea30849e93" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>view_decrease_track_height_item_</name></member>
+      <member refid="class_main_menu_1a96b5986f7e56980a84ba75a547e318c4" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>view_full_screen_item_</name></member>
+      <member refid="class_main_menu_1abbe426760edbd22384b3f76b5e629f1c" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>view_full_screen_viewer_item_</name></member>
+      <member refid="class_main_menu_1af23751a2673e2a7730d41365a1246bd7" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>view_increase_track_height_item_</name></member>
+      <member refid="class_main_menu_1a2c3eb966ce4dcfc6af3a5579c4019ed4" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>view_menu_</name></member>
+      <member refid="class_main_menu_1a51ebacaa09d76617ccc4eb6e60f985af" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>view_show_all_item_</name></member>
+      <member refid="class_main_menu_1ad9b9730cf0ce5e143d57b4ff3674ece3" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>view_timecode_view_dropframe_item_</name></member>
+      <member refid="class_main_menu_1a5e95a43c0ee52401dd34a6e6bb3d7045" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>view_timecode_view_frames_item_</name></member>
+      <member refid="class_main_menu_1a15fd7df2d3f108be96441418640615bf" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>view_timecode_view_milliseconds_item_</name></member>
+      <member refid="class_main_menu_1a8e30a22fadfe1938d57f2ff554661587" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>view_timecode_view_nondropframe_item_</name></member>
+      <member refid="class_main_menu_1ac365cc03e04b6aad0a9eca2d1a70d8c2" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>view_timecode_view_seconds_item_</name></member>
+      <member refid="class_main_menu_1a193880bf6368a91b0b2993d5005f0581" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>view_zoom_in_item_</name></member>
+      <member refid="class_main_menu_1af8d1e477c2d4623663425c524688801c" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>view_zoom_out_item_</name></member>
+      <member refid="class_main_menu_1a14847076c3c75d07f09999dbb5bc9bb5" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>ViewMenuAboutToShow</name></member>
+      <member refid="class_main_menu_1a90f40dae339c44d32183bb65d5512967" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>window_lock_layout_item_</name></member>
+      <member refid="class_main_menu_1ac24abc084b726389b03377128d41f418" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>window_maximize_panel_item_</name></member>
+      <member refid="class_main_menu_1ade08cfb4b4f1449d6c873d22ae37d29f" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>window_menu_</name></member>
+      <member refid="class_main_menu_1af8ed38197a61811ead278875555d204a" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>window_menu_separator_</name></member>
+      <member refid="class_main_menu_1a44e77100dd018ac3a7216b6a720cad1f" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>window_reset_layout_item_</name></member>
+      <member refid="class_main_menu_1a8455c556b3c7c881d9522aa655e6107f" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>WindowMenuAboutToHide</name></member>
+      <member refid="class_main_menu_1af53b2e78964c26f784ebe955a8d4e1b6" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>WindowMenuAboutToShow</name></member>
+      <member refid="class_main_menu_1a1336f2de103ac87f89f793d70bd89b7e" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>ZoomInTriggered</name></member>
+      <member refid="class_main_menu_1a9855821d1d31e43d85bd42e215534a01" prot="private" virt="non-virtual"><scope>MainMenu</scope><name>ZoomOutTriggered</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

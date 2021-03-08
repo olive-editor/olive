@@ -1,0 +1,96 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_style_descriptor" kind="class" language="C++" prot="public">
+    <compoundname>StyleDescriptor</compoundname>
+    <includes refid="style_8h" local="no">style.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_style_descriptor_1ac02c201f4a8e9cfbfdf0fb918e1874d1" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString StyleDescriptor::name_</definition>
+        <argsstring></argsstring>
+        <name>name_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/style/style.h" line="57" column="11" bodyfile="C:/Daten/Olive/olive/app/ui/style/style.h" bodystart="57" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_style_descriptor_1ab35d7426e9fdcdf28594094473821de0" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString StyleDescriptor::path_</definition>
+        <argsstring></argsstring>
+        <name>path_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/style/style.h" line="58" column="11" bodyfile="C:/Daten/Olive/olive/app/ui/style/style.h" bodystart="58" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_style_descriptor_1a63af21b753980f4a3beb6fccc20d6b33" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>StyleDescriptor::StyleDescriptor</definition>
+        <argsstring>(const QString &amp;name, const QString &amp;path)</argsstring>
+        <name>StyleDescriptor</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>name</declname>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>path</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/style/style.h" line="51" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_style_descriptor_1a760c8c6d0074f7f33d29cf25b99eae8a" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const QString &amp;</type>
+        <definition>const QString&amp; StyleDescriptor::name</definition>
+        <argsstring>() const</argsstring>
+        <name>name</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/style/style.h" line="53" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_style_descriptor_1ade95ed97e2a7f2b34c326401a5844a5e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const QString &amp;</type>
+        <definition>const QString&amp; StyleDescriptor::path</definition>
+        <argsstring>() const</argsstring>
+        <name>path</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/ui/style/style.h" line="54" column="17"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/ui/style/style.h" line="31" column="1" bodyfile="C:/Daten/Olive/olive/app/ui/style/style.h" bodystart="31" bodyend="41"/>
+    <listofallmembers>
+      <member refid="class_style_descriptor_1a760c8c6d0074f7f33d29cf25b99eae8a" prot="public" virt="non-virtual"><scope>StyleDescriptor</scope><name>name</name></member>
+      <member refid="class_style_descriptor_1ac02c201f4a8e9cfbfdf0fb918e1874d1" prot="private" virt="non-virtual"><scope>StyleDescriptor</scope><name>name_</name></member>
+      <member refid="class_style_descriptor_1ade95ed97e2a7f2b34c326401a5844a5e" prot="public" virt="non-virtual"><scope>StyleDescriptor</scope><name>path</name></member>
+      <member refid="class_style_descriptor_1ab35d7426e9fdcdf28594094473821de0" prot="private" virt="non-virtual"><scope>StyleDescriptor</scope><name>path_</name></member>
+      <member refid="class_style_descriptor_1a63af21b753980f4a3beb6fccc20d6b33" prot="public" virt="non-virtual"><scope>StyleDescriptor</scope><name>StyleDescriptor</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

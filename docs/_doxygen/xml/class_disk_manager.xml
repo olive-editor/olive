@@ -1,0 +1,301 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_disk_manager" kind="class" language="C++" prot="public">
+    <compoundname>DiskManager</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QObject</basecompoundref>
+    <includes refid="diskmanager_8h" local="no">diskmanager.h</includes>
+    <innerclass refid="struct_disk_manager_1_1_hash_time" prot="private">DiskManager::HashTime</innerclass>
+      <sectiondef kind="private-static-attrib">
+      <memberdef kind="variable" id="class_disk_manager_1a960ce8c04bfa96848093de20e6c5703f" prot="private" static="yes" mutable="no">
+        <type><ref refid="class_disk_manager" kindref="compound">DiskManager</ref> *</type>
+        <definition>DiskManager* DiskManager::instance_</definition>
+        <argsstring></argsstring>
+        <name>instance_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/diskmanager.h" line="75" column="22" bodyfile="C:/Daten/Olive/olive/app/render/diskmanager.h" bodystart="75" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_disk_manager_1a0d4c92ef80d00fbd975d14215263a60d" prot="private" static="no" mutable="no">
+        <type>QList&lt; <ref refid="struct_disk_manager_1_1_hash_time" kindref="compound">HashTime</ref> &gt;</type>
+        <definition>QList&lt;HashTime&gt; DiskManager::disk_data_</definition>
+        <argsstring></argsstring>
+        <name>disk_data_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/diskmanager.h" line="90" column="9" bodyfile="C:/Daten/Olive/olive/app/render/diskmanager.h" bodystart="90" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_disk_manager_1a69c3b3c4e5f4de49984f95dac3a2407b" prot="private" static="no" mutable="no">
+        <type>qint64</type>
+        <definition>qint64 DiskManager::consumption_</definition>
+        <argsstring></argsstring>
+        <name>consumption_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/diskmanager.h" line="92" column="10" bodyfile="C:/Daten/Olive/olive/app/render/diskmanager.h" bodystart="92" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_disk_manager_1ab93bc053a72aefdf0ba0e1894dc3bae9" prot="private" static="no" mutable="no">
+        <type>QMutex</type>
+        <definition>QMutex DiskManager::lock_</definition>
+        <argsstring></argsstring>
+        <name>lock_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/diskmanager.h" line="94" column="10" bodyfile="C:/Daten/Olive/olive/app/render/diskmanager.h" bodystart="94" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="class_disk_manager_1af582654cea13ff99b0d351c340760060" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void DiskManager::CreateInstance</definition>
+        <argsstring>()</argsstring>
+        <name>CreateInstance</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/diskmanager.h" line="53" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_disk_manager_1a51789ab34e608d7f7f705a0696091e7a" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void DiskManager::DestroyInstance</definition>
+        <argsstring>()</argsstring>
+        <name>DestroyInstance</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/diskmanager.h" line="55" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_disk_manager_1a9e663d35d6889f2bbe0fed2b5d10c4ab" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_disk_manager" kindref="compound">DiskManager</ref> *</type>
+        <definition>static DiskManager* DiskManager::instance</definition>
+        <argsstring>()</argsstring>
+        <name>instance</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/diskmanager.h" line="57" column="22"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_disk_manager_1a80dc8882d9dfcf8c7f18a5bb5d08d624" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void DiskManager::Accessed</definition>
+        <argsstring>(const QByteArray &amp;hash)</argsstring>
+        <name>Accessed</name>
+        <param>
+          <type>const QByteArray &amp;</type>
+          <declname>hash</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/diskmanager.h" line="59" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_disk_manager_1a9fe9ef13334d1ad450b1419d39100ec1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void DiskManager::Accessed</definition>
+        <argsstring>(const QString &amp;filename)</argsstring>
+        <name>Accessed</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>filename</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/diskmanager.h" line="61" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_disk_manager_1aac59214476214df8616a81046299733d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void DiskManager::CreatedFile</definition>
+        <argsstring>(const QString &amp;file_name, const QByteArray &amp;hash)</argsstring>
+        <name>CreatedFile</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>file_name</declname>
+        </param>
+        <param>
+          <type>const QByteArray &amp;</type>
+          <declname>hash</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/diskmanager.h" line="63" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_disk_manager_1a63fcfb8d36fef21ba7a141426ec882b6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool DiskManager::ClearDiskCache</definition>
+        <argsstring>(bool quick_delete)</argsstring>
+        <name>ClearDiskCache</name>
+        <param>
+          <type>bool</type>
+          <declname>quick_delete</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/diskmanager.h" line="65" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_disk_manager_1ab69dbff70d65b760125af27aec4a6ceb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void DiskManager::DeletedFrame</definition>
+        <argsstring>(const QByteArray &amp;hash)</argsstring>
+        <name>DeletedFrame</name>
+        <param>
+          <type>const QByteArray &amp;</type>
+          <declname>hash</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/diskmanager.h" line="68" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_disk_manager_1a51b8ebf5fe5098b1ecd5dafbbbf204da" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>DiskManager::DiskManager</definition>
+        <argsstring>()</argsstring>
+        <name>DiskManager</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/diskmanager.h" line="71" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_disk_manager_1aa926a4da1a570c7a21c84207e74a4afe" prot="private" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type></type>
+        <definition>virtual DiskManager::~DiskManager</definition>
+        <argsstring>() override</argsstring>
+        <name>~DiskManager</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/diskmanager.h" line="73" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_disk_manager_1a6ff4b68f6f2d2581dcd8d8559974c0c2" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QByteArray</type>
+        <definition>QByteArray DiskManager::DeleteLeastRecent</definition>
+        <argsstring>()</argsstring>
+        <name>DeleteLeastRecent</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/diskmanager.h" line="77" column="14"/>
+      </memberdef>
+      <memberdef kind="function" id="class_disk_manager_1afd2c7ceb12190565cadba26a7a930545" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>qint64</type>
+        <definition>qint64 DiskManager::DiskLimit</definition>
+        <argsstring>()</argsstring>
+        <name>DiskLimit</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/diskmanager.h" line="79" column="10"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-func">
+      <memberdef kind="function" id="class_disk_manager_1ade5cb0c12de778341ee45b6398ca1523" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>static QString DiskManager::GetCacheIndexFilename</definition>
+        <argsstring>()</argsstring>
+        <name>GetCacheIndexFilename</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/render/diskmanager.h" line="81" column="18"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>DiskManager</label>
+        <link refid="class_disk_manager"/>
+        <childnode refid="1" relation="usage">
+          <edgelabel>instance_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/render/diskmanager.h" line="31" column="1" bodyfile="C:/Daten/Olive/olive/app/render/diskmanager.h" bodystart="32" bodyend="78"/>
+    <listofallmembers>
+      <member refid="class_disk_manager_1a80dc8882d9dfcf8c7f18a5bb5d08d624" prot="public" virt="non-virtual"><scope>DiskManager</scope><name>Accessed</name></member>
+      <member refid="class_disk_manager_1a9fe9ef13334d1ad450b1419d39100ec1" prot="public" virt="non-virtual"><scope>DiskManager</scope><name>Accessed</name></member>
+      <member refid="class_disk_manager_1a63fcfb8d36fef21ba7a141426ec882b6" prot="public" virt="non-virtual"><scope>DiskManager</scope><name>ClearDiskCache</name></member>
+      <member refid="class_disk_manager_1a69c3b3c4e5f4de49984f95dac3a2407b" prot="private" virt="non-virtual"><scope>DiskManager</scope><name>consumption_</name></member>
+      <member refid="class_disk_manager_1aac59214476214df8616a81046299733d" prot="public" virt="non-virtual"><scope>DiskManager</scope><name>CreatedFile</name></member>
+      <member refid="class_disk_manager_1af582654cea13ff99b0d351c340760060" prot="public" virt="non-virtual"><scope>DiskManager</scope><name>CreateInstance</name></member>
+      <member refid="class_disk_manager_1ab69dbff70d65b760125af27aec4a6ceb" prot="public" virt="non-virtual"><scope>DiskManager</scope><name>DeletedFrame</name></member>
+      <member refid="class_disk_manager_1a6ff4b68f6f2d2581dcd8d8559974c0c2" prot="private" virt="non-virtual"><scope>DiskManager</scope><name>DeleteLeastRecent</name></member>
+      <member refid="class_disk_manager_1a51789ab34e608d7f7f705a0696091e7a" prot="public" virt="non-virtual"><scope>DiskManager</scope><name>DestroyInstance</name></member>
+      <member refid="class_disk_manager_1a0d4c92ef80d00fbd975d14215263a60d" prot="private" virt="non-virtual"><scope>DiskManager</scope><name>disk_data_</name></member>
+      <member refid="class_disk_manager_1afd2c7ceb12190565cadba26a7a930545" prot="private" virt="non-virtual"><scope>DiskManager</scope><name>DiskLimit</name></member>
+      <member refid="class_disk_manager_1a51b8ebf5fe5098b1ecd5dafbbbf204da" prot="private" virt="non-virtual"><scope>DiskManager</scope><name>DiskManager</name></member>
+      <member refid="class_disk_manager_1ade5cb0c12de778341ee45b6398ca1523" prot="private" virt="non-virtual"><scope>DiskManager</scope><name>GetCacheIndexFilename</name></member>
+      <member refid="class_disk_manager_1a9e663d35d6889f2bbe0fed2b5d10c4ab" prot="public" virt="non-virtual"><scope>DiskManager</scope><name>instance</name></member>
+      <member refid="class_disk_manager_1a960ce8c04bfa96848093de20e6c5703f" prot="private" virt="non-virtual"><scope>DiskManager</scope><name>instance_</name></member>
+      <member refid="class_disk_manager_1ab93bc053a72aefdf0ba0e1894dc3bae9" prot="private" virt="non-virtual"><scope>DiskManager</scope><name>lock_</name></member>
+      <member refid="class_disk_manager_1aa926a4da1a570c7a21c84207e74a4afe" prot="private" virt="virtual"><scope>DiskManager</scope><name>~DiskManager</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

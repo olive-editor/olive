@@ -1,0 +1,100 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_h264_file_size_section" kind="class" language="C++" prot="public">
+    <compoundname>H264FileSizeSection</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QWidget</basecompoundref>
+    <includes refid="h264section_8h" local="no">h264section.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_h264_file_size_section_1a27c5545764111ebc9b8df64f8463cb6d" prot="private" static="no" mutable="no">
+        <type><ref refid="class_float_slider" kindref="compound">FloatSlider</ref> *</type>
+        <definition>FloatSlider* H264FileSizeSection::file_size_</definition>
+        <argsstring></argsstring>
+        <name>file_size_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/codec/h264section.h" line="83" column="15" bodyfile="C:/Daten/Olive/olive/app/dialog/export/codec/h264section.h" bodystart="83" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_h264_file_size_section_1a4e3625eb0a505c9138869aa9951ecc6f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>H264FileSizeSection::H264FileSizeSection</definition>
+        <argsstring>(QWidget *parent=nullptr)</argsstring>
+        <name>H264FileSizeSection</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/codec/h264section.h" line="75" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_h264_file_size_section_1a3a09ae884bc322f50c4a1ee0d3758bb3" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int64_t</type>
+        <definition>int64_t H264FileSizeSection::GetFileSize</definition>
+        <argsstring>() const</argsstring>
+        <name>GetFileSize</name>
+        <briefdescription>
+<para>Returns file size in BITS. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/export/codec/h264section.h" line="80" column="11"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="2">
+        <label>FloatSlider</label>
+        <link refid="class_float_slider"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>SliderLabel</label>
+        <link refid="class_slider_label"/>
+      </node>
+      <node id="4">
+        <label>FocusableLineEdit</label>
+        <link refid="class_focusable_line_edit"/>
+      </node>
+      <node id="1">
+        <label>H264FileSizeSection</label>
+        <link refid="class_h264_file_size_section"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>file_size_</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>SliderBase</label>
+        <link refid="class_slider_base"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>editor_</edgelabel>
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>label_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/dialog/export/codec/h264section.h" line="72" column="1" bodyfile="C:/Daten/Olive/olive/app/dialog/export/codec/h264section.h" bodystart="73" bodyend="85"/>
+    <listofallmembers>
+      <member refid="class_h264_file_size_section_1a27c5545764111ebc9b8df64f8463cb6d" prot="private" virt="non-virtual"><scope>H264FileSizeSection</scope><name>file_size_</name></member>
+      <member refid="class_h264_file_size_section_1a3a09ae884bc322f50c4a1ee0d3758bb3" prot="public" virt="non-virtual"><scope>H264FileSizeSection</scope><name>GetFileSize</name></member>
+      <member refid="class_h264_file_size_section_1a4e3625eb0a505c9138869aa9951ecc6f" prot="public" virt="non-virtual"><scope>H264FileSizeSection</scope><name>H264FileSizeSection</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

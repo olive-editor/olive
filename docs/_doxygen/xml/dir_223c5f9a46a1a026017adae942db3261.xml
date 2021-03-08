@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_223c5f9a46a1a026017adae942db3261" kind="dir">
+    <compoundname>footage</compoundname>
+    <innerfile refid="audiostream_8h">audiostream.h</innerfile>
+    <innerfile refid="footage_8h">footage.h</innerfile>
+    <innerfile refid="imagestream_8h">imagestream.h</innerfile>
+    <innerfile refid="stream_8h">stream.h</innerfile>
+    <innerfile refid="videostream_8h">videostream.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/project/item/footage/"/>
+  </compounddef>
+</doxygen>

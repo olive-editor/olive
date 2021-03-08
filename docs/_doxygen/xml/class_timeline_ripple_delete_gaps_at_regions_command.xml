@@ -1,0 +1,269 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_timeline_ripple_delete_gaps_at_regions_command" kind="class" language="C++" prot="public">
+    <compoundname>TimelineRippleDeleteGapsAtRegionsCommand</compoundname>
+    <basecompoundref refid="class_undo_command" prot="public" virt="non-virtual">UndoCommand</basecompoundref>
+    <includes refid="undo_8h" local="no">undo.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_timeline_ripple_delete_gaps_at_regions_command_1a3087a1f332d11882fbed87c31f504959" prot="private" static="no" mutable="no">
+        <type><ref refid="class_viewer_output" kindref="compound">ViewerOutput</ref> *</type>
+        <definition>ViewerOutput* TimelineRippleDeleteGapsAtRegionsCommand::timeline_</definition>
+        <argsstring></argsstring>
+        <name>timeline_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="330" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="330" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_timeline_ripple_delete_gaps_at_regions_command_1a080e600645489a654b3a7b6e87896863" prot="private" static="no" mutable="no">
+        <type><ref refid="class_time_range_list" kindref="compound">TimeRangeList</ref></type>
+        <definition>TimeRangeList TimelineRippleDeleteGapsAtRegionsCommand::regions_</definition>
+        <argsstring></argsstring>
+        <name>regions_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="331" column="17" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="331" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_timeline_ripple_delete_gaps_at_regions_command_1abfa64cde677f67a5cf4f40541f9b1031" prot="private" static="no" mutable="no">
+        <type>QList&lt; <ref refid="class_undo_command" kindref="compound">UndoCommand</ref> * &gt;</type>
+        <definition>QList&lt;UndoCommand*&gt; TimelineRippleDeleteGapsAtRegionsCommand::commands_</definition>
+        <argsstring></argsstring>
+        <name>commands_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="333" column="9" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="333" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_undo_command_1a6c06f9c1b7bfeeff3c4724491945992b" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool UndoCommand::modified_</definition>
+        <argsstring></argsstring>
+        <name>modified_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="64" column="8" bodyfile="C:/Daten/Olive/olive/app/undo/undocommand.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_timeline_ripple_delete_gaps_at_regions_command_1a6a8faa36e08e95dca8200df508f1dc94" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>TimelineRippleDeleteGapsAtRegionsCommand::TimelineRippleDeleteGapsAtRegionsCommand</definition>
+        <argsstring>(ViewerOutput *vo, const TimeRangeList &amp;regions, QUndoCommand *parent=nullptr)</argsstring>
+        <name>TimelineRippleDeleteGapsAtRegionsCommand</name>
+        <param>
+          <type><ref refid="class_viewer_output" kindref="compound">ViewerOutput</ref> *</type>
+          <declname>vo</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_time_range_list" kindref="compound">TimeRangeList</ref> &amp;</type>
+          <declname>regions</declname>
+        </param>
+        <param>
+          <type>QUndoCommand *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="321" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_ripple_delete_gaps_at_regions_command_1ae9ff4316ea3505f0a71b5b99c863db7d" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="class_project" kindref="compound">Project</ref> *</type>
+        <definition>virtual Project* TimelineRippleDeleteGapsAtRegionsCommand::GetRelevantProject</definition>
+        <argsstring>() const override</argsstring>
+        <name>GetRelevantProject</name>
+        <reimplements refid="class_undo_command_1ab5c8967132833ea6be76a63dc5472f4f">GetRelevantProject</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="323" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_undo_command_1a9907db368d01fb26f5082a36c6d90bd4" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void UndoCommand::redo</definition>
+        <argsstring>() override</argsstring>
+        <name>redo</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="54" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_undo_command_1a09d00f8a2e1c8b3c97d72d9585503030" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void UndoCommand::undo</definition>
+        <argsstring>() override</argsstring>
+        <name>undo</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="55" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_timeline_ripple_delete_gaps_at_regions_command_1adefc708bf48e4e5d4bb9c9be5acd290b" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void TimelineRippleDeleteGapsAtRegionsCommand::redo_internal</definition>
+        <argsstring>() override</argsstring>
+        <name>redo_internal</name>
+        <reimplements refid="class_undo_command_1ac8aa20d444a655cd36fa3c7dc01928b4">redo_internal</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="326" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_ripple_delete_gaps_at_regions_command_1a129c49804a8acb438fb40c49bb11b080" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void TimelineRippleDeleteGapsAtRegionsCommand::undo_internal</definition>
+        <argsstring>() override</argsstring>
+        <name>undo_internal</name>
+        <reimplements refid="class_undo_command_1a871dbc8a1f95b58e641be13703563faa">undo_internal</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="327" column="16"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>TimelineRippleDeleteGapsAtRegionsCommand</label>
+        <link refid="class_timeline_ripple_delete_gaps_at_regions_command"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>UndoCommand</label>
+        <link refid="class_undo_command"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="5">
+        <label>NodeOutput</label>
+        <link refid="class_node_output"/>
+        <childnode refid="6" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>AudioParams</label>
+        <link refid="class_audio_params"/>
+      </node>
+      <node id="1">
+        <label>TimelineRippleDeleteGapsAtRegionsCommand</label>
+        <link refid="class_timeline_ripple_delete_gaps_at_regions_command"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>timeline_</edgelabel>
+        </childnode>
+        <childnode refid="11" relation="usage">
+          <edgelabel>regions_</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>ViewerOutput</label>
+        <link refid="class_viewer_output"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>video_params_</edgelabel>
+        </childnode>
+        <childnode refid="8" relation="usage">
+          <edgelabel>timeline_length_</edgelabel>
+        </childnode>
+        <childnode refid="9" relation="usage">
+          <edgelabel>audio_params_</edgelabel>
+        </childnode>
+        <childnode refid="10" relation="usage">
+          <edgelabel>texture_input_</edgelabel>
+          <edgelabel>samples_input_</edgelabel>
+        </childnode>
+      </node>
+      <node id="8">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="4">
+        <label>Node</label>
+        <link refid="class_node"/>
+        <childnode refid="5" relation="usage">
+          <edgelabel>output_</edgelabel>
+        </childnode>
+      </node>
+      <node id="10">
+        <label>NodeInput</label>
+        <link refid="class_node_input"/>
+        <childnode refid="6" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>TimeRangeList</label>
+        <link refid="class_time_range_list"/>
+      </node>
+      <node id="6">
+        <label>NodeParam</label>
+        <link refid="class_node_param"/>
+      </node>
+      <node id="7">
+        <label>VideoParams</label>
+        <link refid="class_video_params"/>
+        <childnode refid="8" relation="usage">
+          <edgelabel>time_base_</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>UndoCommand</label>
+        <link refid="class_undo_command"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="319" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="319" bodyend="335"/>
+    <listofallmembers>
+      <member refid="class_timeline_ripple_delete_gaps_at_regions_command_1abfa64cde677f67a5cf4f40541f9b1031" prot="private" virt="non-virtual"><scope>TimelineRippleDeleteGapsAtRegionsCommand</scope><name>commands_</name></member>
+      <member refid="class_timeline_ripple_delete_gaps_at_regions_command_1ae9ff4316ea3505f0a71b5b99c863db7d" prot="public" virt="virtual"><scope>TimelineRippleDeleteGapsAtRegionsCommand</scope><name>GetRelevantProject</name></member>
+      <member refid="class_undo_command_1a6c06f9c1b7bfeeff3c4724491945992b" prot="private" virt="non-virtual"><scope>TimelineRippleDeleteGapsAtRegionsCommand</scope><name>modified_</name></member>
+      <member refid="class_undo_command_1a9907db368d01fb26f5082a36c6d90bd4" prot="public" virt="virtual"><scope>TimelineRippleDeleteGapsAtRegionsCommand</scope><name>redo</name></member>
+      <member refid="class_timeline_ripple_delete_gaps_at_regions_command_1adefc708bf48e4e5d4bb9c9be5acd290b" prot="protected" virt="virtual"><scope>TimelineRippleDeleteGapsAtRegionsCommand</scope><name>redo_internal</name></member>
+      <member refid="class_timeline_ripple_delete_gaps_at_regions_command_1a080e600645489a654b3a7b6e87896863" prot="private" virt="non-virtual"><scope>TimelineRippleDeleteGapsAtRegionsCommand</scope><name>regions_</name></member>
+      <member refid="class_timeline_ripple_delete_gaps_at_regions_command_1a3087a1f332d11882fbed87c31f504959" prot="private" virt="non-virtual"><scope>TimelineRippleDeleteGapsAtRegionsCommand</scope><name>timeline_</name></member>
+      <member refid="class_timeline_ripple_delete_gaps_at_regions_command_1a6a8faa36e08e95dca8200df508f1dc94" prot="public" virt="non-virtual"><scope>TimelineRippleDeleteGapsAtRegionsCommand</scope><name>TimelineRippleDeleteGapsAtRegionsCommand</name></member>
+      <member refid="class_undo_command_1a09d00f8a2e1c8b3c97d72d9585503030" prot="public" virt="virtual"><scope>TimelineRippleDeleteGapsAtRegionsCommand</scope><name>undo</name></member>
+      <member refid="class_timeline_ripple_delete_gaps_at_regions_command_1a129c49804a8acb438fb40c49bb11b080" prot="protected" virt="virtual"><scope>TimelineRippleDeleteGapsAtRegionsCommand</scope><name>undo_internal</name></member>
+      <member refid="class_undo_command_1a5a07a6505a207cf7186c7c726ff9c5fa" prot="public" virt="non-virtual"><scope>TimelineRippleDeleteGapsAtRegionsCommand</scope><name>UndoCommand</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

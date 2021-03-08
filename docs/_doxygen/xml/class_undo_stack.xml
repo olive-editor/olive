@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_undo_stack" kind="class" language="C++" prot="public">
+    <compoundname>UndoStack</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QUndoStack</basecompoundref>
+    <includes refid="undostack_8h" local="no">undostack.h</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_undo_stack_1aff27a6cbeba15f5a26681e0fd8da020c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void UndoStack::pushIfHasChildren</definition>
+        <argsstring>(QUndoCommand *command)</argsstring>
+        <name>pushIfHasChildren</name>
+        <param>
+          <type>QUndoCommand *</type>
+          <declname>command</declname>
+        </param>
+        <briefdescription>
+<para>A wrapper for push() that either pushes if the command has children or deletes if not. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function takes ownership of <computeroutput>command</computeroutput>, and may delete it so it should never be accessed after this call. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undostack.h" line="55" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/undo/undostack.h" line="30" column="1" bodyfile="C:/Daten/Olive/olive/app/undo/undostack.h" bodystart="30" bodyend="38"/>
+    <listofallmembers>
+      <member refid="class_undo_stack_1aff27a6cbeba15f5a26681e0fd8da020c" prot="public" virt="non-virtual"><scope>UndoStack</scope><name>pushIfHasChildren</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

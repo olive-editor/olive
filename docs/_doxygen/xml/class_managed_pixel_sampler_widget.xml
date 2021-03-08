@@ -1,0 +1,111 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_managed_pixel_sampler_widget" kind="class" language="C++" prot="public">
+    <compoundname>ManagedPixelSamplerWidget</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QWidget</basecompoundref>
+    <includes refid="pixelsamplerwidget_8h" local="no">pixelsamplerwidget.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_managed_pixel_sampler_widget_1a0ef80354420096cf499249c04769cd33" prot="private" static="no" mutable="no">
+        <type><ref refid="class_pixel_sampler_widget" kindref="compound">PixelSamplerWidget</ref> *</type>
+        <definition>PixelSamplerWidget* ManagedPixelSamplerWidget::reference_view_</definition>
+        <argsstring></argsstring>
+        <name>reference_view_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/pixelsamplerwidget.h" line="60" column="22" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/pixelsamplerwidget.h" bodystart="60" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_managed_pixel_sampler_widget_1a50ecf3f886e729c2f0ba48626817b360" prot="private" static="no" mutable="no">
+        <type><ref refid="class_pixel_sampler_widget" kindref="compound">PixelSamplerWidget</ref> *</type>
+        <definition>PixelSamplerWidget* ManagedPixelSamplerWidget::display_view_</definition>
+        <argsstring></argsstring>
+        <name>display_view_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/pixelsamplerwidget.h" line="62" column="22" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/pixelsamplerwidget.h" bodystart="62" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_managed_pixel_sampler_widget_1aa7bf61d006065ccf05af1aac1291b09a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>ManagedPixelSamplerWidget::ManagedPixelSamplerWidget</definition>
+        <argsstring>(QWidget *parent=nullptr)</argsstring>
+        <name>ManagedPixelSamplerWidget</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/pixelsamplerwidget.h" line="54" column="3"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-slot">
+      <memberdef kind="slot" id="class_managed_pixel_sampler_widget_1ad4067349f231cfa00c005355377a71eb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ManagedPixelSamplerWidget::SetValues</definition>
+        <argsstring>(const Color &amp;reference, const Color &amp;display)</argsstring>
+        <name>SetValues</name>
+        <param>
+          <type>const <ref refid="class_color" kindref="compound">Color</ref> &amp;</type>
+          <declname>reference</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_color" kindref="compound">Color</ref> &amp;</type>
+          <declname>display</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/viewer/pixelsamplerwidget.h" line="57" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="2">
+        <label>PixelSamplerWidget</label>
+        <link refid="class_pixel_sampler_widget"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>color_</edgelabel>
+        </childnode>
+      </node>
+      <node id="1">
+        <label>ManagedPixelSamplerWidget</label>
+        <link refid="class_managed_pixel_sampler_widget"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>reference_view_</edgelabel>
+          <edgelabel>display_view_</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>Color</label>
+        <link refid="class_color"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/viewer/pixelsamplerwidget.h" line="50" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/viewer/pixelsamplerwidget.h" bodystart="51" bodyend="64"/>
+    <listofallmembers>
+      <member refid="class_managed_pixel_sampler_widget_1a50ecf3f886e729c2f0ba48626817b360" prot="private" virt="non-virtual"><scope>ManagedPixelSamplerWidget</scope><name>display_view_</name></member>
+      <member refid="class_managed_pixel_sampler_widget_1aa7bf61d006065ccf05af1aac1291b09a" prot="public" virt="non-virtual"><scope>ManagedPixelSamplerWidget</scope><name>ManagedPixelSamplerWidget</name></member>
+      <member refid="class_managed_pixel_sampler_widget_1a0ef80354420096cf499249c04769cd33" prot="private" virt="non-virtual"><scope>ManagedPixelSamplerWidget</scope><name>reference_view_</name></member>
+      <member refid="class_managed_pixel_sampler_widget_1ad4067349f231cfa00c005355377a71eb" prot="public" virt="non-virtual"><scope>ManagedPixelSamplerWidget</scope><name>SetValues</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

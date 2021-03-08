@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_fb641799e3db88a28f98d40390f57b36" kind="dir">
+    <compoundname>keyframeview</compoundname>
+    <innerfile refid="keyframeview_8h">keyframeview.h</innerfile>
+    <innerfile refid="keyframeviewbase_8h">keyframeviewbase.h</innerfile>
+    <innerfile refid="keyframeviewitem_8h">keyframeviewitem.h</innerfile>
+    <innerfile refid="keyframeviewundo_8h">keyframeviewundo.h</innerfile>
+    <innerfile refid="timetargetobject_8h">timetargetobject.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/widget/keyframeview/"/>
+  </compounddef>
+</doxygen>

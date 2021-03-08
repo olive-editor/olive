@@ -1,0 +1,910 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_node_param" kind="class" language="C++" prot="public" abstract="yes">
+    <compoundname>NodeParam</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QObject</basecompoundref>
+    <derivedcompoundref refid="class_node_input" prot="public" virt="non-virtual">NodeInput</derivedcompoundref>
+    <derivedcompoundref refid="class_node_output" prot="public" virt="non-virtual">NodeOutput</derivedcompoundref>
+    <includes refid="node_2param_8h" local="no">param.h</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="enum" id="class_node_param_1a57c2c5ab98ca8fd2c41cd1ebad045a00" prot="public" static="no" strong="no">
+        <type></type>
+        <name>Type</name>
+        <enumvalue id="class_node_param_1a57c2c5ab98ca8fd2c41cd1ebad045a00a4c2f2b4ab941ea52fdfe9c8525502184" prot="public">
+          <name>kInput</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_node_param_1a57c2c5ab98ca8fd2c41cd1ebad045a00a2d117f9409c1fbda96e1e044821f0ea0" prot="public">
+          <name>kOutput</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>The type of parameter this is. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/param.h" line="52" column="3" bodyfile="C:/Daten/Olive/olive/app/node/param.h" bodystart="52" bodyend="55"/>
+      </memberdef>
+      <memberdef kind="enum" id="class_node_param_1afcf9957577948de11f721af9ea6f3685" prot="public" static="no" strong="no">
+        <type></type>
+        <name>DataType</name>
+        <enumvalue id="class_node_param_1afcf9957577948de11f721af9ea6f3685a1baeded57b80a93290bd736b746719dd" prot="public">
+          <name>kNone</name>
+          <initializer>= 0x0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_node_param_1afcf9957577948de11f721af9ea6f3685a66cfc7fa3eae229689f44be1baea43ce" prot="public">
+          <name>kInt</name>
+          <initializer>= 0x1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>SPECIFIC IDENTIFIERS ****************************** Integer type</para>
+<para>Resolves to <computeroutput>int</computeroutput> (may resolve to <computeroutput>long</computeroutput> in the future). </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_node_param_1afcf9957577948de11f721af9ea6f3685a115621a0c558f2df034268fc07c70db6" prot="public">
+          <name>kFloat</name>
+          <initializer>= 0x2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Decimal (floating-point) type</para>
+<para>Resolves to <computeroutput>double</computeroutput>. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_node_param_1afcf9957577948de11f721af9ea6f3685af35433a7040339cc747390686c9c3146" prot="public">
+          <name>kRational</name>
+          <initializer>= 0x4</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Decimal (rational) type</para>
+<para>Resolves to <computeroutput>double</computeroutput>. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_node_param_1afcf9957577948de11f721af9ea6f3685a94df36b88a1427c769b462efb62109db" prot="public">
+          <name>kBoolean</name>
+          <initializer>= 0x8</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Boolean type</para>
+<para>Resolves to <computeroutput>bool</computeroutput>. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_node_param_1afcf9957577948de11f721af9ea6f3685a7e920de6d11fbe3e8d59758309d1e044" prot="public">
+          <name>kColor</name>
+          <initializer>= 0x10</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Floating-point type</para>
+<para>Resolves to <computeroutput><ref refid="class_color" kindref="compound">Color</ref></computeroutput>.</para>
+<para>Colors passed around the nodes should always be in reference space and preferably use </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_node_param_1afcf9957577948de11f721af9ea6f3685a75c0827846a7a229acb64987db18f24f" prot="public">
+          <name>kMatrix</name>
+          <initializer>= 0x20</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Matrix type</para>
+<para>Resolves to <computeroutput>QMatrix4x4</computeroutput>. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_node_param_1afcf9957577948de11f721af9ea6f3685a9a11ee98a04bbb73d35f22c8187ffd49" prot="public">
+          <name>kText</name>
+          <initializer>= 0x40</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Text type</para>
+<para>Resolves to <computeroutput>QString</computeroutput>. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_node_param_1afcf9957577948de11f721af9ea6f3685ab1184c6950262a516d0c00ca65467548" prot="public">
+          <name>kFont</name>
+          <initializer>= 0x80</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Font type</para>
+<para>Resolves to <computeroutput>QFont</computeroutput>. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_node_param_1afcf9957577948de11f721af9ea6f3685ac5a281c37d77009a085227f9574d0ab4" prot="public">
+          <name>kFile</name>
+          <initializer>= 0x100</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>File type</para>
+<para>Resolves to a <computeroutput>QString</computeroutput> containing an absolute file path. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_node_param_1afcf9957577948de11f721af9ea6f3685a2384c7a313fdf78ff1d7aac352196d9a" prot="public">
+          <name>kTexture</name>
+          <initializer>= 0x200</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Image buffer type</para>
+<para>True value type depends on the render engine used. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_node_param_1afcf9957577948de11f721af9ea6f3685a2feaffe0d7ab0c55bcb0c409670574e9" prot="public">
+          <name>kSamples</name>
+          <initializer>= 0x400</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Audio samples type</para>
+<para>Resolves to <computeroutput>SampleBufferPtr</computeroutput>. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_node_param_1afcf9957577948de11f721af9ea6f3685a76193c0fb2957e6520cbd74726a10614" prot="public">
+          <name>kFootage</name>
+          <initializer>= 0x800</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para><ref refid="class_footage" kindref="compound">Footage</ref> stream identifier type</para>
+<para>Resolves to <computeroutput>StreamPtr</computeroutput>. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_node_param_1afcf9957577948de11f721af9ea6f3685ae709ddcef29f0a8736bf5f87ff6b446e" prot="public">
+          <name>kVec2</name>
+          <initializer>= 0x1000</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Two-dimensional vector (XY) type</para>
+<para>Resolves to <computeroutput>QVector2D</computeroutput>. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_node_param_1afcf9957577948de11f721af9ea6f3685adb0524ac270ac3ef35c39e38d32cdbaf" prot="public">
+          <name>kVec3</name>
+          <initializer>= 0x2000</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Three-dimensional vector (XYZ) type</para>
+<para>Resolves to <computeroutput>QVector3D</computeroutput>. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_node_param_1afcf9957577948de11f721af9ea6f3685ab51736b829e1ff51807730298201e81a" prot="public">
+          <name>kVec4</name>
+          <initializer>= 0x4000</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Four-dimensional vector (XYZW) type</para>
+<para>Resolves to <computeroutput>QVector4D</computeroutput>. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_node_param_1afcf9957577948de11f721af9ea6f3685a34a9fd90ec0a398c7da1f50574421f78" prot="public">
+          <name>kCombo</name>
+          <initializer>= 0x8000</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>ComboBox type</para>
+<para>Resolves to <computeroutput>int</computeroutput> - the index currently selected </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_node_param_1afcf9957577948de11f721af9ea6f3685adefbc3098fc87aad4762770744f255ab" prot="public">
+          <name>kDecimal</name>
+          <initializer>= 0x6</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>BROAD IDENTIFIERS ****************************** Identifier for type that contains a decimal number</para>
+<para>Includes kFloat and kRational. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_node_param_1afcf9957577948de11f721af9ea6f3685a53ba8dccf21dfb79664cb23fff3c9670" prot="public">
+          <name>kNumber</name>
+          <initializer>= 0x7</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Identifier for type that contains a number of any kind (whole or decimal)</para>
+<para>Includes kInt, kFloat, and kRational. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_node_param_1afcf9957577948de11f721af9ea6f3685abd3c954aa0114df9a7b00f80f8796967" prot="public">
+          <name>kString</name>
+          <initializer>= 0x140</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Identifier for type that contains a text string of any kind.</para>
+<para>Includes kText and kFile. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_node_param_1afcf9957577948de11f721af9ea6f3685a5c923e3c53b1a36c8fa9b2cb8c5313c8" prot="public">
+          <name>kBuffer</name>
+          <initializer>= 0x600</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Identifier for type that contains a either an image or audio buffer</para>
+<para>Includes kTexture and kSamples. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_node_param_1afcf9957577948de11f721af9ea6f3685af9752194cb5d8f8945e3b5e1df31c5a6" prot="public">
+          <name>kVector</name>
+          <initializer>= 0x7010</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Identifier for type that contains a vector (two- to four-dimensional)</para>
+<para>Includes kVec2, kVec3, kVec4, and kColor. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_node_param_1afcf9957577948de11f721af9ea6f3685ac857e677145884d8edaab1e81810b229" prot="public">
+          <name>kAny</name>
+          <initializer>= 0xFFFFFFFF</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Identifier for any type</para>
+<para>Matches with all types except for kNone </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>The types of data that can be passed between Nodes. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/param.h" line="60" column="3" bodyfile="C:/Daten/Olive/olive/app/node/param.h" bodystart="60" bodyend="226"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="class_node_param_1ae84f46722f9b78a8a6888bc6ac2eaa2c" prot="protected" static="no" mutable="no">
+        <type>QVector&lt; <ref refid="edge_8h_1a9eb6ae7d2b608077e13ab3571ea6b101" kindref="member">NodeEdgePtr</ref> &gt;</type>
+        <definition>QVector&lt;NodeEdgePtr&gt; NodeParam::edges_</definition>
+        <argsstring></argsstring>
+        <name>edges_</name>
+        <briefdescription>
+<para>Internal list of edges. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/param.h" line="387" column="11" bodyfile="C:/Daten/Olive/olive/app/node/param.h" bodystart="387" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_param_1a8ebaa0e119307be334b02dc988d31382" prot="protected" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString NodeParam::name_</definition>
+        <argsstring></argsstring>
+        <name>name_</name>
+        <briefdescription>
+<para>Internal name string. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/param.h" line="392" column="11" bodyfile="C:/Daten/Olive/olive/app/node/param.h" bodystart="392" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_node_param_1afff1627710863f3ea758e0ef3060e238" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString NodeParam::id_</definition>
+        <argsstring></argsstring>
+        <name>id_</name>
+        <briefdescription>
+<para>Internal ID string. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/param.h" line="404" column="11" bodyfile="C:/Daten/Olive/olive/app/node/param.h" bodystart="404" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_param_1a4a678fcd6556be4df017af92f419e4a0" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool NodeParam::connectable_</definition>
+        <argsstring></argsstring>
+        <name>connectable_</name>
+        <briefdescription>
+<para>Internal connectable value. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/param.h" line="409" column="8" bodyfile="C:/Daten/Olive/olive/app/node/param.h" bodystart="409" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_node_param_1a535c413420b00fd325ab6f5d23358730" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>NodeParam::NodeParam</definition>
+        <argsstring>(const QString &amp;id)</argsstring>
+        <name>NodeParam</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>id</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="class_node_param" kindref="compound">NodeParam</ref> Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/param.h" line="231" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_param_1a18d884820e23311f2b9e9570386117b8" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type></type>
+        <definition>virtual NodeParam::~NodeParam</definition>
+        <argsstring>() override</argsstring>
+        <name>~NodeParam</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/param.h" line="233" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_param_1a570ab14dad3a8f85d19bdc9f00f97bcf" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>void</type>
+        <definition>virtual void NodeParam::Load</definition>
+        <argsstring>(QXmlStreamReader *reader, XMLNodeData &amp;xml_node_data, const QAtomicInt *cancelled)=0</argsstring>
+        <name>Load</name>
+        <reimplementedby refid="class_node_output_1a233e5512c49567954e7055a9edabcf46">Load</reimplementedby>
+        <reimplementedby refid="class_node_input_1a34ffdee36f86449718c684f03fdae488">Load</reimplementedby>
+        <param>
+          <type>QXmlStreamReader *</type>
+          <declname>reader</declname>
+        </param>
+        <param>
+          <type><ref refid="struct_x_m_l_node_data" kindref="compound">XMLNodeData</ref> &amp;</type>
+          <declname>xml_node_data</declname>
+        </param>
+        <param>
+          <type>const QAtomicInt *</type>
+          <declname>cancelled</declname>
+        </param>
+        <briefdescription>
+<para>Load function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/param.h" line="238" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_param_1ae65a0b6dfc80b0eaa4a02ee3c3496788" prot="public" static="no" const="yes" explicit="no" inline="no" virt="pure-virtual">
+        <type>void</type>
+        <definition>virtual void NodeParam::Save</definition>
+        <argsstring>(QXmlStreamWriter *writer) const =0</argsstring>
+        <name>Save</name>
+        <reimplementedby refid="class_node_output_1abf5adf4cfc87d9b40727fc67fc921c31">Save</reimplementedby>
+        <reimplementedby refid="class_node_input_1a04995e119d0972d93b6161eb8212dad3">Save</reimplementedby>
+        <param>
+          <type>QXmlStreamWriter *</type>
+          <declname>writer</declname>
+        </param>
+        <briefdescription>
+<para>Save function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/param.h" line="243" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_param_1aa9f43ddb9df8b4af36163c270c81016a" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const QString</type>
+        <definition>const QString NodeParam::id</definition>
+        <argsstring>() const</argsstring>
+        <name>id</name>
+        <briefdescription>
+<para>Return ID of this parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/param.h" line="248" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_param_1a29e4122ebc379ad17d5c74872265c2ef" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type><ref refid="class_node_param_1a57c2c5ab98ca8fd2c41cd1ebad045a00" kindref="member">Type</ref></type>
+        <definition>virtual Type NodeParam::type</definition>
+        <argsstring>()=0</argsstring>
+        <name>type</name>
+        <reimplementedby refid="class_node_output_1acc2b7933e3feb212e7b8fd506bf1441a">type</reimplementedby>
+        <reimplementedby refid="class_node_input_1aa50d2686b4ac0c47ec1bcf6a461dd693">type</reimplementedby>
+        <briefdescription>
+<para>The type of node parameter this is. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This must be set in subclasses, but most of the time you should probably subclass from <ref refid="class_node_input" kindref="compound">NodeInput</ref> and <ref refid="class_node_output" kindref="compound">NodeOutput</ref> anyway. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/param.h" line="256" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_param_1a64fa65a32a7dd22a146abe5242fb34ce" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>QString</type>
+        <definition>virtual QString NodeParam::name</definition>
+        <argsstring>()</argsstring>
+        <name>name</name>
+        <reimplementedby refid="class_node_output_1a59bc7be546d93d0378df8f2a6a18d5dc">name</reimplementedby>
+        <reimplementedby refid="class_node_input_1a2ba07a0684d22d2f13c16d24c233da56">name</reimplementedby>
+        <briefdescription>
+<para>Name of this parameter to be shown to the user. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/param.h" line="261" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_param_1aa5040fd97b21719eaaa00a5a53eb3563" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeParam::set_name</definition>
+        <argsstring>(const QString &amp;name)</argsstring>
+        <name>set_name</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>name</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/param.h" line="262" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_param_1a32cac55a103ed7d952b10ed7b2d9aed1" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+        <definition>Node* NodeParam::parentNode</definition>
+        <argsstring>() const</argsstring>
+        <name>parentNode</name>
+        <briefdescription>
+<para><ref refid="class_node" kindref="compound">Node</ref> parent object. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Nodes and NodeParams use the QObject parent-child system. This function is a convenience function for static_cast&lt;Node*&gt;(QObject::parent()) </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/param.h" line="270" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_param_1a25560ecb1313e0e26ed4b7b5df73bb58" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int NodeParam::index</definition>
+        <argsstring>()</argsstring>
+        <name>index</name>
+        <briefdescription>
+<para>Return the row index of this parameter in the parent node (primarily used for UI drawing functions) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/param.h" line="275" column="7"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_param_1a3695a762131f29be7986d1a89d4faf29" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool NodeParam::IsConnected</definition>
+        <argsstring>() const</argsstring>
+        <name>IsConnected</name>
+        <briefdescription>
+<para>Returns whether anything is connected to this parameter or not. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/param.h" line="280" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_param_1a87a378b342694e02dc4dd14197d5bcbb" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool NodeParam::IsConnectable</definition>
+        <argsstring>() const</argsstring>
+        <name>IsConnectable</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/param.h" line="282" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_param_1a6cb3c096a4f2d5350495a21d298197e3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeParam::SetConnectable</definition>
+        <argsstring>(bool connectable)</argsstring>
+        <name>SetConnectable</name>
+        <param>
+          <type>bool</type>
+          <declname>connectable</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/param.h" line="283" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_param_1a74b844f85f879943fa7dd91ad1f8e06c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const QVector&lt; <ref refid="edge_8h_1a9eb6ae7d2b608077e13ab3571ea6b101" kindref="member">NodeEdgePtr</ref> &gt; &amp;</type>
+        <definition>const QVector&lt;NodeEdgePtr&gt;&amp; NodeParam::edges</definition>
+        <argsstring>()</argsstring>
+        <name>edges</name>
+        <briefdescription>
+<para>Return a list of edges (aka connections to other nodes) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This list can&apos;t be modified directly. Use <ref refid="class_node_param_1ae1342ab9aa4847190582aad701674cd8" kindref="member">ConnectEdge()</ref> and <ref refid="class_node_param_1ab21fdca44d0da9490d7caea9a3d7a015" kindref="member">DisconnectEdge()</ref> instead for that. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/param.h" line="290" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_param_1a93193c54d0952d6b13d118ff94d28114" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeParam::DisconnectAll</definition>
+        <argsstring>()</argsstring>
+        <name>DisconnectAll</name>
+        <briefdescription>
+<para>Disconnect any edges connecting this parameter to other parameters. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/param.h" line="295" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="class_node_param_1ae1342ab9aa4847190582aad701674cd8" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="edge_8h_1a9eb6ae7d2b608077e13ab3571ea6b101" kindref="member">NodeEdgePtr</ref></type>
+        <definition>static NodeEdgePtr NodeParam::ConnectEdge</definition>
+        <argsstring>(NodeOutput *output, NodeInput *input)</argsstring>
+        <name>ConnectEdge</name>
+        <param>
+          <type><ref refid="class_node_output" kindref="compound">NodeOutput</ref> *</type>
+          <declname>output</declname>
+        </param>
+        <param>
+          <type><ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+          <declname>input</declname>
+        </param>
+        <briefdescription>
+<para>Connect an output parameter to an input parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function makes no attempt to check whether the two NodeParams have compatible data types. This should be done beforehand or behavior is undefined.</para>
+<para>If the input already has an edge connected and can&apos;t accept multiple edges, that edge is disconnected before an attempt at a new connection is made. This function returns the new <ref refid="class_node_edge" kindref="compound">NodeEdge</ref> created by this connection.</para>
+<para>If the input <emphasis>can</emphasis> accept multiple edges but is already connected to this output, no new connection is made (since the connection already exists). In this situation, nullptr is returned.</para>
+<para>This function emits <ref refid="class_node_param_1abe2ff8181554a0472fa5ba74985ff339" kindref="member">EdgeAdded()</ref>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/param.h" line="311" column="22"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_param_1ab21fdca44d0da9490d7caea9a3d7a015" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void NodeParam::DisconnectEdge</definition>
+        <argsstring>(NodeEdgePtr edge)</argsstring>
+        <name>DisconnectEdge</name>
+        <param>
+          <type><ref refid="edge_8h_1a9eb6ae7d2b608077e13ab3571ea6b101" kindref="member">NodeEdgePtr</ref></type>
+          <declname>edge</declname>
+        </param>
+        <briefdescription>
+<para>Disconnect an edge. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function emits <ref refid="class_node_param_1ac85a8528818da85fc99d4218804a5137" kindref="member">EdgeRemoved(NodeEdgePtr edge)</ref>.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>edge</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Edge to disconnect. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/param.h" line="322" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_param_1a764e57cce39a084677befdac6cd873b7" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void NodeParam::DisconnectEdge</definition>
+        <argsstring>(NodeOutput *output, NodeInput *input)</argsstring>
+        <name>DisconnectEdge</name>
+        <param>
+          <type><ref refid="class_node_output" kindref="compound">NodeOutput</ref> *</type>
+          <declname>output</declname>
+        </param>
+        <param>
+          <type><ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+          <declname>input</declname>
+        </param>
+        <briefdescription>
+<para>Disconnect an edge. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Sometimes this function is preferable if you don&apos;t know what the edge object is (or with undo commands where the edge object may change despite the connection being between the same parameters).</para>
+<para>This function emits <ref refid="class_node_param_1ac85a8528818da85fc99d4218804a5137" kindref="member">EdgeRemoved(NodeEdgePtr edge)</ref>.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>edge</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Edge to disconnect. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/param.h" line="336" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_param_1ad5392f1a640506378519601ada2e8294" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="edge_8h_1a9eb6ae7d2b608077e13ab3571ea6b101" kindref="member">NodeEdgePtr</ref></type>
+        <definition>static NodeEdgePtr NodeParam::DisconnectForNewOutput</definition>
+        <argsstring>(NodeInput *input)</argsstring>
+        <name>DisconnectForNewOutput</name>
+        <param>
+          <type><ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+          <declname>input</declname>
+        </param>
+        <briefdescription>
+<para>If an input has an edge and can&apos;t take multiple, this function disconnects them and returns the edge object. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This is used just before a connection is about to be made. If an input is already connected to an output, but can&apos;t take multiple inputs, that connection will need to be removed before the new connection can be made. This function check if it&apos;s necessary to remove the edge from an input before connecting a new edge, and removes and returns it if so.</para>
+<para>If the input does NOT have anything connected, or it does but the input CAN accept multiple connections, nothing is disconnected and nullptr is returned. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/param.h" line="349" column="22"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_param_1a00f9e3ff3fcecc3e4c992cd87a3d23ec" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>static QString NodeParam::GetDefaultDataTypeName</definition>
+        <argsstring>(const DataType &amp;type)</argsstring>
+        <name>GetDefaultDataTypeName</name>
+        <param>
+          <type>const <ref refid="class_node_param_1afcf9957577948de11f721af9ea6f3685" kindref="member">DataType</ref> &amp;</type>
+          <declname>type</declname>
+        </param>
+        <briefdescription>
+<para>Get a human-readable translated name for a certain data type. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/param.h" line="354" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_param_1aff39ec4c6614be99ca86107f566bc3dd" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QByteArray</type>
+        <definition>static QByteArray NodeParam::ValueToBytes</definition>
+        <argsstring>(const DataType &amp;type, const QVariant &amp;value)</argsstring>
+        <name>ValueToBytes</name>
+        <param>
+          <type>const <ref refid="class_node_param_1afcf9957577948de11f721af9ea6f3685" kindref="member">DataType</ref> &amp;</type>
+          <declname>type</declname>
+        </param>
+        <param>
+          <type>const QVariant &amp;</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+<para>Convert a value from a <ref refid="class_node_param" kindref="compound">NodeParam</ref> into bytes. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/param.h" line="359" column="21"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_param_1a827e34f3476b70fbcae6f1927220ebbe" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_node_param_1afcf9957577948de11f721af9ea6f3685" kindref="member">DataType</ref></type>
+        <definition>static DataType NodeParam::StringToDataType</definition>
+        <argsstring>(const QString &amp;s)</argsstring>
+        <name>StringToDataType</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Convert a string to a data type. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/param.h" line="364" column="19"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_node_param_1abe2ff8181554a0472fa5ba74985ff339" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeParam::EdgeAdded</definition>
+        <argsstring>(NodeEdgePtr edge)</argsstring>
+        <name>EdgeAdded</name>
+        <param>
+          <type><ref refid="edge_8h_1a9eb6ae7d2b608077e13ab3571ea6b101" kindref="member">NodeEdgePtr</ref></type>
+          <declname>edge</declname>
+        </param>
+        <briefdescription>
+<para>Signal emitted when an edge is added to this parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>See <ref refid="class_node_param_1ae1342ab9aa4847190582aad701674cd8" kindref="member">ConnectEdge()</ref> for usage. Only one of the two parameters needs to emit this signal when a connection is made, because otherwise two of exactly the same signal will be emitted. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/param.h" line="373" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_node_param_1ac85a8528818da85fc99d4218804a5137" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeParam::EdgeRemoved</definition>
+        <argsstring>(NodeEdgePtr edge)</argsstring>
+        <name>EdgeRemoved</name>
+        <param>
+          <type><ref refid="edge_8h_1a9eb6ae7d2b608077e13ab3571ea6b101" kindref="member">NodeEdgePtr</ref></type>
+          <declname>edge</declname>
+        </param>
+        <briefdescription>
+<para>Signal emitted when an edge is removed from this parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>See <ref refid="class_node_param_1ab21fdca44d0da9490d7caea9a3d7a015" kindref="member">DisconnectEdge()</ref> for usage. Only one of the two parameters needs to emit this signal when a connection is removed, because otherwise two of exactly the same signal will be emitted. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/param.h" line="381" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-func">
+      <memberdef kind="function" id="class_node_param_1ac8853b53f88f1089c6e26e1f684d2d50" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>QByteArray</type>
+        <definition>static QByteArray NodeParam::ValueToBytesInternal</definition>
+        <argsstring>(const QVariant &amp;v)</argsstring>
+        <name>ValueToBytesInternal</name>
+        <param>
+          <type>const QVariant &amp;</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+<para>Internal function for returning a value in the form of bytes. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/param.h" line="399" column="21"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A base parameter of a <ref refid="class_node" kindref="compound">Node</ref>. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>The main data points of a <ref refid="class_node" kindref="compound">Node</ref>. NodeParams are added to Nodes so that Node::Process() can use data acquired either directly as a value set by the user, or through the output of another <ref refid="class_node_param" kindref="compound">NodeParam</ref>.</para>
+<para>This is an abstract base class. In most cases you&apos;ll want <ref refid="class_node_input" kindref="compound">NodeInput</ref> or <ref refid="class_node_output" kindref="compound">NodeOutput</ref>. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="4">
+        <label>NodeOutput</label>
+        <link refid="class_node_output"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>NodeInputArray</label>
+        <link refid="class_node_input_array"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>NodeInput</label>
+        <link refid="class_node_input"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>NodeParam</label>
+        <link refid="class_node_param"/>
+      </node>
+    </inheritancegraph>
+    <location file="C:/Daten/Olive/olive/app/node/param.h" line="45" column="1" bodyfile="C:/Daten/Olive/olive/app/node/param.h" bodystart="46" bodyend="411"/>
+    <listofallmembers>
+      <member refid="class_node_param_1a4a678fcd6556be4df017af92f419e4a0" prot="private" virt="non-virtual"><scope>NodeParam</scope><name>connectable_</name></member>
+      <member refid="class_node_param_1ae1342ab9aa4847190582aad701674cd8" prot="public" virt="non-virtual"><scope>NodeParam</scope><name>ConnectEdge</name></member>
+      <member refid="class_node_param_1afcf9957577948de11f721af9ea6f3685" prot="public" virt="non-virtual"><scope>NodeParam</scope><name>DataType</name></member>
+      <member refid="class_node_param_1a93193c54d0952d6b13d118ff94d28114" prot="public" virt="non-virtual"><scope>NodeParam</scope><name>DisconnectAll</name></member>
+      <member refid="class_node_param_1ab21fdca44d0da9490d7caea9a3d7a015" prot="public" virt="non-virtual"><scope>NodeParam</scope><name>DisconnectEdge</name></member>
+      <member refid="class_node_param_1a764e57cce39a084677befdac6cd873b7" prot="public" virt="non-virtual"><scope>NodeParam</scope><name>DisconnectEdge</name></member>
+      <member refid="class_node_param_1ad5392f1a640506378519601ada2e8294" prot="public" virt="non-virtual"><scope>NodeParam</scope><name>DisconnectForNewOutput</name></member>
+      <member refid="class_node_param_1abe2ff8181554a0472fa5ba74985ff339" prot="public" virt="non-virtual"><scope>NodeParam</scope><name>EdgeAdded</name></member>
+      <member refid="class_node_param_1ac85a8528818da85fc99d4218804a5137" prot="public" virt="non-virtual"><scope>NodeParam</scope><name>EdgeRemoved</name></member>
+      <member refid="class_node_param_1a74b844f85f879943fa7dd91ad1f8e06c" prot="public" virt="non-virtual"><scope>NodeParam</scope><name>edges</name></member>
+      <member refid="class_node_param_1ae84f46722f9b78a8a6888bc6ac2eaa2c" prot="protected" virt="non-virtual"><scope>NodeParam</scope><name>edges_</name></member>
+      <member refid="class_node_param_1a00f9e3ff3fcecc3e4c992cd87a3d23ec" prot="public" virt="non-virtual"><scope>NodeParam</scope><name>GetDefaultDataTypeName</name></member>
+      <member refid="class_node_param_1aa9f43ddb9df8b4af36163c270c81016a" prot="public" virt="non-virtual"><scope>NodeParam</scope><name>id</name></member>
+      <member refid="class_node_param_1afff1627710863f3ea758e0ef3060e238" prot="private" virt="non-virtual"><scope>NodeParam</scope><name>id_</name></member>
+      <member refid="class_node_param_1a25560ecb1313e0e26ed4b7b5df73bb58" prot="public" virt="non-virtual"><scope>NodeParam</scope><name>index</name></member>
+      <member refid="class_node_param_1a87a378b342694e02dc4dd14197d5bcbb" prot="public" virt="non-virtual"><scope>NodeParam</scope><name>IsConnectable</name></member>
+      <member refid="class_node_param_1a3695a762131f29be7986d1a89d4faf29" prot="public" virt="non-virtual"><scope>NodeParam</scope><name>IsConnected</name></member>
+      <member refid="class_node_param_1afcf9957577948de11f721af9ea6f3685ac857e677145884d8edaab1e81810b229" prot="public" virt="non-virtual"><scope>NodeParam</scope><name>kAny</name></member>
+      <member refid="class_node_param_1afcf9957577948de11f721af9ea6f3685a94df36b88a1427c769b462efb62109db" prot="public" virt="non-virtual"><scope>NodeParam</scope><name>kBoolean</name></member>
+      <member refid="class_node_param_1afcf9957577948de11f721af9ea6f3685a5c923e3c53b1a36c8fa9b2cb8c5313c8" prot="public" virt="non-virtual"><scope>NodeParam</scope><name>kBuffer</name></member>
+      <member refid="class_node_param_1afcf9957577948de11f721af9ea6f3685a7e920de6d11fbe3e8d59758309d1e044" prot="public" virt="non-virtual"><scope>NodeParam</scope><name>kColor</name></member>
+      <member refid="class_node_param_1afcf9957577948de11f721af9ea6f3685a34a9fd90ec0a398c7da1f50574421f78" prot="public" virt="non-virtual"><scope>NodeParam</scope><name>kCombo</name></member>
+      <member refid="class_node_param_1afcf9957577948de11f721af9ea6f3685adefbc3098fc87aad4762770744f255ab" prot="public" virt="non-virtual"><scope>NodeParam</scope><name>kDecimal</name></member>
+      <member refid="class_node_param_1afcf9957577948de11f721af9ea6f3685ac5a281c37d77009a085227f9574d0ab4" prot="public" virt="non-virtual"><scope>NodeParam</scope><name>kFile</name></member>
+      <member refid="class_node_param_1afcf9957577948de11f721af9ea6f3685a115621a0c558f2df034268fc07c70db6" prot="public" virt="non-virtual"><scope>NodeParam</scope><name>kFloat</name></member>
+      <member refid="class_node_param_1afcf9957577948de11f721af9ea6f3685ab1184c6950262a516d0c00ca65467548" prot="public" virt="non-virtual"><scope>NodeParam</scope><name>kFont</name></member>
+      <member refid="class_node_param_1afcf9957577948de11f721af9ea6f3685a76193c0fb2957e6520cbd74726a10614" prot="public" virt="non-virtual"><scope>NodeParam</scope><name>kFootage</name></member>
+      <member refid="class_node_param_1a57c2c5ab98ca8fd2c41cd1ebad045a00a4c2f2b4ab941ea52fdfe9c8525502184" prot="public" virt="non-virtual"><scope>NodeParam</scope><name>kInput</name></member>
+      <member refid="class_node_param_1afcf9957577948de11f721af9ea6f3685a66cfc7fa3eae229689f44be1baea43ce" prot="public" virt="non-virtual"><scope>NodeParam</scope><name>kInt</name></member>
+      <member refid="class_node_param_1afcf9957577948de11f721af9ea6f3685a75c0827846a7a229acb64987db18f24f" prot="public" virt="non-virtual"><scope>NodeParam</scope><name>kMatrix</name></member>
+      <member refid="class_node_param_1afcf9957577948de11f721af9ea6f3685a1baeded57b80a93290bd736b746719dd" prot="public" virt="non-virtual"><scope>NodeParam</scope><name>kNone</name></member>
+      <member refid="class_node_param_1afcf9957577948de11f721af9ea6f3685a53ba8dccf21dfb79664cb23fff3c9670" prot="public" virt="non-virtual"><scope>NodeParam</scope><name>kNumber</name></member>
+      <member refid="class_node_param_1a57c2c5ab98ca8fd2c41cd1ebad045a00a2d117f9409c1fbda96e1e044821f0ea0" prot="public" virt="non-virtual"><scope>NodeParam</scope><name>kOutput</name></member>
+      <member refid="class_node_param_1afcf9957577948de11f721af9ea6f3685af35433a7040339cc747390686c9c3146" prot="public" virt="non-virtual"><scope>NodeParam</scope><name>kRational</name></member>
+      <member refid="class_node_param_1afcf9957577948de11f721af9ea6f3685a2feaffe0d7ab0c55bcb0c409670574e9" prot="public" virt="non-virtual"><scope>NodeParam</scope><name>kSamples</name></member>
+      <member refid="class_node_param_1afcf9957577948de11f721af9ea6f3685abd3c954aa0114df9a7b00f80f8796967" prot="public" virt="non-virtual"><scope>NodeParam</scope><name>kString</name></member>
+      <member refid="class_node_param_1afcf9957577948de11f721af9ea6f3685a9a11ee98a04bbb73d35f22c8187ffd49" prot="public" virt="non-virtual"><scope>NodeParam</scope><name>kText</name></member>
+      <member refid="class_node_param_1afcf9957577948de11f721af9ea6f3685a2384c7a313fdf78ff1d7aac352196d9a" prot="public" virt="non-virtual"><scope>NodeParam</scope><name>kTexture</name></member>
+      <member refid="class_node_param_1afcf9957577948de11f721af9ea6f3685ae709ddcef29f0a8736bf5f87ff6b446e" prot="public" virt="non-virtual"><scope>NodeParam</scope><name>kVec2</name></member>
+      <member refid="class_node_param_1afcf9957577948de11f721af9ea6f3685adb0524ac270ac3ef35c39e38d32cdbaf" prot="public" virt="non-virtual"><scope>NodeParam</scope><name>kVec3</name></member>
+      <member refid="class_node_param_1afcf9957577948de11f721af9ea6f3685ab51736b829e1ff51807730298201e81a" prot="public" virt="non-virtual"><scope>NodeParam</scope><name>kVec4</name></member>
+      <member refid="class_node_param_1afcf9957577948de11f721af9ea6f3685af9752194cb5d8f8945e3b5e1df31c5a6" prot="public" virt="non-virtual"><scope>NodeParam</scope><name>kVector</name></member>
+      <member refid="class_node_param_1a570ab14dad3a8f85d19bdc9f00f97bcf" prot="public" virt="pure-virtual"><scope>NodeParam</scope><name>Load</name></member>
+      <member refid="class_node_param_1a64fa65a32a7dd22a146abe5242fb34ce" prot="public" virt="virtual"><scope>NodeParam</scope><name>name</name></member>
+      <member refid="class_node_param_1a8ebaa0e119307be334b02dc988d31382" prot="protected" virt="non-virtual"><scope>NodeParam</scope><name>name_</name></member>
+      <member refid="class_node_param_1a535c413420b00fd325ab6f5d23358730" prot="public" virt="non-virtual"><scope>NodeParam</scope><name>NodeParam</name></member>
+      <member refid="class_node_param_1a32cac55a103ed7d952b10ed7b2d9aed1" prot="public" virt="non-virtual"><scope>NodeParam</scope><name>parentNode</name></member>
+      <member refid="class_node_param_1ae65a0b6dfc80b0eaa4a02ee3c3496788" prot="public" virt="pure-virtual"><scope>NodeParam</scope><name>Save</name></member>
+      <member refid="class_node_param_1aa5040fd97b21719eaaa00a5a53eb3563" prot="public" virt="non-virtual"><scope>NodeParam</scope><name>set_name</name></member>
+      <member refid="class_node_param_1a6cb3c096a4f2d5350495a21d298197e3" prot="public" virt="non-virtual"><scope>NodeParam</scope><name>SetConnectable</name></member>
+      <member refid="class_node_param_1a827e34f3476b70fbcae6f1927220ebbe" prot="public" virt="non-virtual"><scope>NodeParam</scope><name>StringToDataType</name></member>
+      <member refid="class_node_param_1a29e4122ebc379ad17d5c74872265c2ef" prot="public" virt="pure-virtual"><scope>NodeParam</scope><name>type</name></member>
+      <member refid="class_node_param_1a57c2c5ab98ca8fd2c41cd1ebad045a00" prot="public" virt="non-virtual"><scope>NodeParam</scope><name>Type</name></member>
+      <member refid="class_node_param_1aff39ec4c6614be99ca86107f566bc3dd" prot="public" virt="non-virtual"><scope>NodeParam</scope><name>ValueToBytes</name></member>
+      <member refid="class_node_param_1ac8853b53f88f1089c6e26e1f684d2d50" prot="private" virt="non-virtual"><scope>NodeParam</scope><name>ValueToBytesInternal</name></member>
+      <member refid="class_node_param_1a18d884820e23311f2b9e9570386117b8" prot="public" virt="virtual"><scope>NodeParam</scope><name>~NodeParam</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,297 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_keyframe_properties_dialog" kind="class" language="C++" prot="public">
+    <compoundname>KeyframePropertiesDialog</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QDialog</basecompoundref>
+    <includes refid="keyframeproperties_8h" local="no">keyframeproperties.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_keyframe_properties_dialog_1aaf39cb215a82722acf8bdd8c96073a78" prot="private" static="no" mutable="no">
+        <type>const QList&lt; <ref refid="keyframe_8h_1a741b7edf62813e254aba77dca9f281ea" kindref="member">NodeKeyframePtr</ref> &gt; &amp;</type>
+        <definition>const QList&lt;NodeKeyframePtr&gt;&amp; KeyframePropertiesDialog::keys_</definition>
+        <argsstring></argsstring>
+        <name>keys_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/keyframeproperties/keyframeproperties.h" line="64" column="15" bodyfile="C:/Daten/Olive/olive/app/dialog/keyframeproperties/keyframeproperties.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_keyframe_properties_dialog_1ad1b91e110365ba743669df6e6b08d4f8" prot="private" static="no" mutable="no">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational KeyframePropertiesDialog::timebase_</definition>
+        <argsstring></argsstring>
+        <name>timebase_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/keyframeproperties/keyframeproperties.h" line="66" column="12" bodyfile="C:/Daten/Olive/olive/app/dialog/keyframeproperties/keyframeproperties.h" bodystart="66" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_keyframe_properties_dialog_1af5108ff91da31191704357e0b2cecfd5" prot="private" static="no" mutable="no">
+        <type><ref refid="class_time_slider" kindref="compound">TimeSlider</ref> *</type>
+        <definition>TimeSlider* KeyframePropertiesDialog::time_slider_</definition>
+        <argsstring></argsstring>
+        <name>time_slider_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/keyframeproperties/keyframeproperties.h" line="68" column="14" bodyfile="C:/Daten/Olive/olive/app/dialog/keyframeproperties/keyframeproperties.h" bodystart="68" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_keyframe_properties_dialog_1a62e4dcfea4a2c71de07f3a825b90a7b0" prot="private" static="no" mutable="no">
+        <type>QComboBox *</type>
+        <definition>QComboBox* KeyframePropertiesDialog::type_select_</definition>
+        <argsstring></argsstring>
+        <name>type_select_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/keyframeproperties/keyframeproperties.h" line="70" column="13" bodyfile="C:/Daten/Olive/olive/app/dialog/keyframeproperties/keyframeproperties.h" bodystart="70" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_keyframe_properties_dialog_1a131704e43899b68d15beebd54ef08d61" prot="private" static="no" mutable="no">
+        <type>QGroupBox *</type>
+        <definition>QGroupBox* KeyframePropertiesDialog::bezier_group_</definition>
+        <argsstring></argsstring>
+        <name>bezier_group_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/keyframeproperties/keyframeproperties.h" line="72" column="13" bodyfile="C:/Daten/Olive/olive/app/dialog/keyframeproperties/keyframeproperties.h" bodystart="72" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_keyframe_properties_dialog_1a7082dbc38f0e8e8528164b603027475d" prot="private" static="no" mutable="no">
+        <type><ref refid="class_float_slider" kindref="compound">FloatSlider</ref> *</type>
+        <definition>FloatSlider* KeyframePropertiesDialog::bezier_in_x_slider_</definition>
+        <argsstring></argsstring>
+        <name>bezier_in_x_slider_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/keyframeproperties/keyframeproperties.h" line="74" column="15" bodyfile="C:/Daten/Olive/olive/app/dialog/keyframeproperties/keyframeproperties.h" bodystart="74" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_keyframe_properties_dialog_1abb6e1c86ec565325147b063fed3580cf" prot="private" static="no" mutable="no">
+        <type><ref refid="class_float_slider" kindref="compound">FloatSlider</ref> *</type>
+        <definition>FloatSlider* KeyframePropertiesDialog::bezier_in_y_slider_</definition>
+        <argsstring></argsstring>
+        <name>bezier_in_y_slider_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/keyframeproperties/keyframeproperties.h" line="76" column="15" bodyfile="C:/Daten/Olive/olive/app/dialog/keyframeproperties/keyframeproperties.h" bodystart="76" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_keyframe_properties_dialog_1afd631c357503dca3b819cd8bc18c341b" prot="private" static="no" mutable="no">
+        <type><ref refid="class_float_slider" kindref="compound">FloatSlider</ref> *</type>
+        <definition>FloatSlider* KeyframePropertiesDialog::bezier_out_x_slider_</definition>
+        <argsstring></argsstring>
+        <name>bezier_out_x_slider_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/keyframeproperties/keyframeproperties.h" line="78" column="15" bodyfile="C:/Daten/Olive/olive/app/dialog/keyframeproperties/keyframeproperties.h" bodystart="78" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_keyframe_properties_dialog_1a79688f4dfd9b991e00029eeb29b2bd8e" prot="private" static="no" mutable="no">
+        <type><ref refid="class_float_slider" kindref="compound">FloatSlider</ref> *</type>
+        <definition>FloatSlider* KeyframePropertiesDialog::bezier_out_y_slider_</definition>
+        <argsstring></argsstring>
+        <name>bezier_out_y_slider_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/keyframeproperties/keyframeproperties.h" line="80" column="15" bodyfile="C:/Daten/Olive/olive/app/dialog/keyframeproperties/keyframeproperties.h" bodystart="80" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_keyframe_properties_dialog_1a15b54a914dfc5d87d3ec0e013e353db7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>KeyframePropertiesDialog::KeyframePropertiesDialog</definition>
+        <argsstring>(const QList&lt; NodeKeyframePtr &gt; &amp;keys, const rational &amp;timebase, QWidget *parent=nullptr)</argsstring>
+        <name>KeyframePropertiesDialog</name>
+        <param>
+          <type>const QList&lt; <ref refid="keyframe_8h_1a741b7edf62813e254aba77dca9f281ea" kindref="member">NodeKeyframePtr</ref> &gt; &amp;</type>
+          <declname>keys</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>timebase</declname>
+        </param>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/keyframeproperties/keyframeproperties.h" line="56" column="3"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-slot">
+      <memberdef kind="slot" id="class_keyframe_properties_dialog_1a5c267f5045ffc2736d7caa58e6559e5f" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void KeyframePropertiesDialog::accept</definition>
+        <argsstring>() override</argsstring>
+        <name>accept</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/keyframeproperties/keyframeproperties.h" line="59" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_keyframe_properties_dialog_1ae87379df4b832f5ee9a1d871c8ecdb1f" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void KeyframePropertiesDialog::SetUpBezierSlider</definition>
+        <argsstring>(FloatSlider *slider, bool all_same, double value)</argsstring>
+        <name>SetUpBezierSlider</name>
+        <param>
+          <type><ref refid="class_float_slider" kindref="compound">FloatSlider</ref> *</type>
+          <declname>slider</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>all_same</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/keyframeproperties/keyframeproperties.h" line="62" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_keyframe_properties_dialog_1a495f0470ae4c22fa11664a209d7990fa" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void KeyframePropertiesDialog::KeyTypeChanged</definition>
+        <argsstring>(int index)</argsstring>
+        <name>KeyTypeChanged</name>
+        <param>
+          <type>int</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/keyframeproperties/keyframeproperties.h" line="83" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="8">
+        <label>FloatSlider</label>
+        <link refid="class_float_slider"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="6">
+        <label>SliderLabel</label>
+        <link refid="class_slider_label"/>
+      </node>
+      <node id="1">
+        <label>KeyframePropertiesDialog</label>
+        <link refid="class_keyframe_properties_dialog"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>time_slider_</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>timebase_</edgelabel>
+        </childnode>
+        <childnode refid="8" relation="usage">
+          <edgelabel>bezier_in_x_slider_</edgelabel>
+          <edgelabel>bezier_in_y_slider_</edgelabel>
+          <edgelabel>bezier_out_x_slider_</edgelabel>
+          <edgelabel>bezier_out_y_slider_</edgelabel>
+        </childnode>
+      </node>
+      <node id="5">
+        <label>FocusableLineEdit</label>
+        <link refid="class_focusable_line_edit"/>
+      </node>
+      <node id="3">
+        <label>IntegerSlider</label>
+        <link refid="class_integer_slider"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>TimeSlider</label>
+        <link refid="class_time_slider"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>timebase_</edgelabel>
+        </childnode>
+      </node>
+      <node id="4">
+        <label>SliderBase</label>
+        <link refid="class_slider_base"/>
+        <childnode refid="5" relation="usage">
+          <edgelabel>editor_</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>label_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/dialog/keyframeproperties/keyframeproperties.h" line="34" column="1" bodyfile="C:/Daten/Olive/olive/app/dialog/keyframeproperties/keyframeproperties.h" bodystart="35" bodyend="67"/>
+    <listofallmembers>
+      <member refid="class_keyframe_properties_dialog_1a5c267f5045ffc2736d7caa58e6559e5f" prot="public" virt="virtual"><scope>KeyframePropertiesDialog</scope><name>accept</name></member>
+      <member refid="class_keyframe_properties_dialog_1a131704e43899b68d15beebd54ef08d61" prot="private" virt="non-virtual"><scope>KeyframePropertiesDialog</scope><name>bezier_group_</name></member>
+      <member refid="class_keyframe_properties_dialog_1a7082dbc38f0e8e8528164b603027475d" prot="private" virt="non-virtual"><scope>KeyframePropertiesDialog</scope><name>bezier_in_x_slider_</name></member>
+      <member refid="class_keyframe_properties_dialog_1abb6e1c86ec565325147b063fed3580cf" prot="private" virt="non-virtual"><scope>KeyframePropertiesDialog</scope><name>bezier_in_y_slider_</name></member>
+      <member refid="class_keyframe_properties_dialog_1afd631c357503dca3b819cd8bc18c341b" prot="private" virt="non-virtual"><scope>KeyframePropertiesDialog</scope><name>bezier_out_x_slider_</name></member>
+      <member refid="class_keyframe_properties_dialog_1a79688f4dfd9b991e00029eeb29b2bd8e" prot="private" virt="non-virtual"><scope>KeyframePropertiesDialog</scope><name>bezier_out_y_slider_</name></member>
+      <member refid="class_keyframe_properties_dialog_1a15b54a914dfc5d87d3ec0e013e353db7" prot="public" virt="non-virtual"><scope>KeyframePropertiesDialog</scope><name>KeyframePropertiesDialog</name></member>
+      <member refid="class_keyframe_properties_dialog_1aaf39cb215a82722acf8bdd8c96073a78" prot="private" virt="non-virtual"><scope>KeyframePropertiesDialog</scope><name>keys_</name></member>
+      <member refid="class_keyframe_properties_dialog_1a495f0470ae4c22fa11664a209d7990fa" prot="private" virt="non-virtual"><scope>KeyframePropertiesDialog</scope><name>KeyTypeChanged</name></member>
+      <member refid="class_keyframe_properties_dialog_1ae87379df4b832f5ee9a1d871c8ecdb1f" prot="private" virt="non-virtual"><scope>KeyframePropertiesDialog</scope><name>SetUpBezierSlider</name></member>
+      <member refid="class_keyframe_properties_dialog_1af5108ff91da31191704357e0b2cecfd5" prot="private" virt="non-virtual"><scope>KeyframePropertiesDialog</scope><name>time_slider_</name></member>
+      <member refid="class_keyframe_properties_dialog_1ad1b91e110365ba743669df6e6b08d4f8" prot="private" virt="non-virtual"><scope>KeyframePropertiesDialog</scope><name>timebase_</name></member>
+      <member refid="class_keyframe_properties_dialog_1a62e4dcfea4a2c71de07f3a825b90a7b0" prot="private" virt="non-virtual"><scope>KeyframePropertiesDialog</scope><name>type_select_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

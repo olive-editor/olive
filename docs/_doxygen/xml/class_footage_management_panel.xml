@@ -1,0 +1,52 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_footage_management_panel" kind="class" language="C++" prot="public" abstract="yes">
+    <compoundname>FootageManagementPanel</compoundname>
+    <derivedcompoundref refid="class_footage_viewer_panel" prot="public" virt="non-virtual">FootageViewerPanel</derivedcompoundref>
+    <derivedcompoundref refid="class_project_panel" prot="public" virt="non-virtual">ProjectPanel</derivedcompoundref>
+    <includes refid="footagemanagementpanel_8h" local="no">footagemanagementpanel.h</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_footage_management_panel_1a3528914fdd0d9ae4dce1eacb0f73958e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="pure-virtual">
+        <type>QList&lt; <ref refid="class_footage" kindref="compound">Footage</ref> * &gt;</type>
+        <definition>virtual QList&lt;Footage*&gt; FootageManagementPanel::GetSelectedFootage</definition>
+        <argsstring>() const =0</argsstring>
+        <name>GetSelectedFootage</name>
+        <reimplementedby refid="class_footage_viewer_panel_1ace9f9b841f6d7b5184aa9c03ed98e2f6">GetSelectedFootage</reimplementedby>
+        <reimplementedby refid="class_project_panel_1a3ed3d18b3f021b7ad098cc8c5e1bd2db">GetSelectedFootage</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/panel/project/footagemanagementpanel.h" line="50" column="17"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="3">
+        <label>ProjectPanel</label>
+        <link refid="class_project_panel"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>FootageManagementPanel</label>
+        <link refid="class_footage_management_panel"/>
+      </node>
+      <node id="2">
+        <label>FootageViewerPanel</label>
+        <link refid="class_footage_viewer_panel"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <location file="C:/Daten/Olive/olive/app/panel/project/footagemanagementpanel.h" line="30" column="1" bodyfile="C:/Daten/Olive/olive/app/panel/project/footagemanagementpanel.h" bodystart="30" bodyend="33"/>
+    <listofallmembers>
+      <member refid="class_footage_management_panel_1a3528914fdd0d9ae4dce1eacb0f73958e" prot="public" virt="pure-virtual"><scope>FootageManagementPanel</scope><name>GetSelectedFootage</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

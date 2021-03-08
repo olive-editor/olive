@@ -1,0 +1,171 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_math_node_1_1_pairing_calculator" kind="class" language="C++" prot="private">
+    <compoundname>MathNode::PairingCalculator</compoundname>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_math_node_1_1_pairing_calculator_1a7416ce0e474180af933bef4f2c162f25" prot="private" static="no" mutable="no">
+        <type><ref refid="class_math_node_1af20f29b0bbaf7fc3c48f60a4871fe434" kindref="member">Pairing</ref></type>
+        <definition>Pairing MathNode::PairingCalculator::most_likely_pairing_</definition>
+        <argsstring></argsstring>
+        <name>most_likely_pairing_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/math/math/math.h" line="121" column="13" bodyfile="C:/Daten/Olive/olive/app/node/math/math/math.h" bodystart="121" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_math_node_1_1_pairing_calculator_1a1573450a1091a0228e013b2574095bf9" prot="private" static="no" mutable="no">
+        <type><ref refid="class_node_value" kindref="compound">NodeValue</ref></type>
+        <definition>NodeValue MathNode::PairingCalculator::most_likely_value_a_</definition>
+        <argsstring></argsstring>
+        <name>most_likely_value_a_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/math/math/math.h" line="123" column="15" bodyfile="C:/Daten/Olive/olive/app/node/math/math/math.h" bodystart="123" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_math_node_1_1_pairing_calculator_1a10450cefc35b686a017f639db8c54159" prot="private" static="no" mutable="no">
+        <type><ref refid="class_node_value" kindref="compound">NodeValue</ref></type>
+        <definition>NodeValue MathNode::PairingCalculator::most_likely_value_b_</definition>
+        <argsstring></argsstring>
+        <name>most_likely_value_b_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/math/math/math.h" line="125" column="15" bodyfile="C:/Daten/Olive/olive/app/node/math/math/math.h" bodystart="125" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_math_node_1_1_pairing_calculator_1a08c3eaabc4334cb68c9f15481d2040ce" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>MathNode::PairingCalculator::PairingCalculator</definition>
+        <argsstring>(const NodeValueTable &amp;table_a, const NodeValueTable &amp;table_b)</argsstring>
+        <name>PairingCalculator</name>
+        <param>
+          <type>const <ref refid="class_node_value_table" kindref="compound">NodeValueTable</ref> &amp;</type>
+          <declname>table_a</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_node_value_table" kindref="compound">NodeValueTable</ref> &amp;</type>
+          <declname>table_b</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/math/math/math.h" line="110" column="5"/>
+      </memberdef>
+      <memberdef kind="function" id="class_math_node_1_1_pairing_calculator_1a9cf7d17d85592b72ba15a049d3bdb26f" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool MathNode::PairingCalculator::FoundMostLikelyPairing</definition>
+        <argsstring>() const</argsstring>
+        <name>FoundMostLikelyPairing</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/math/math/math.h" line="112" column="10"/>
+      </memberdef>
+      <memberdef kind="function" id="class_math_node_1_1_pairing_calculator_1a15ff34b272b39372598a2ce153d70a8a" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_math_node_1af20f29b0bbaf7fc3c48f60a4871fe434" kindref="member">Pairing</ref></type>
+        <definition>Pairing MathNode::PairingCalculator::GetMostLikelyPairing</definition>
+        <argsstring>() const</argsstring>
+        <name>GetMostLikelyPairing</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/math/math/math.h" line="113" column="13"/>
+      </memberdef>
+      <memberdef kind="function" id="class_math_node_1_1_pairing_calculator_1a0c2f107e813e467531e3fa4d1793cb64" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="class_node_value" kindref="compound">NodeValue</ref> &amp;</type>
+        <definition>const NodeValue&amp; MathNode::PairingCalculator::GetMostLikelyValueA</definition>
+        <argsstring>() const</argsstring>
+        <name>GetMostLikelyValueA</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/math/math/math.h" line="115" column="21"/>
+      </memberdef>
+      <memberdef kind="function" id="class_math_node_1_1_pairing_calculator_1ab8992ca91485e91e9a632d1f913df3f0" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="class_node_value" kindref="compound">NodeValue</ref> &amp;</type>
+        <definition>const NodeValue&amp; MathNode::PairingCalculator::GetMostLikelyValueB</definition>
+        <argsstring>() const</argsstring>
+        <name>GetMostLikelyValueB</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/math/math/math.h" line="116" column="21"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-func">
+      <memberdef kind="function" id="class_math_node_1_1_pairing_calculator_1a230a525c1dd0ff538f5bc351af4bf2a1" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QVector&lt; int &gt;</type>
+        <definition>static QVector&lt;int&gt; MathNode::PairingCalculator::GetPairLikelihood</definition>
+        <argsstring>(const NodeValueTable &amp;table)</argsstring>
+        <name>GetPairLikelihood</name>
+        <param>
+          <type>const <ref refid="class_node_value_table" kindref="compound">NodeValueTable</ref> &amp;</type>
+          <declname>table</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/math/math/math.h" line="119" column="20"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="2">
+        <label>NodeValue</label>
+        <link refid="class_node_value"/>
+      </node>
+      <node id="1">
+        <label>MathNode::PairingCalculator</label>
+        <link refid="class_math_node_1_1_pairing_calculator"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>most_likely_value_b_</edgelabel>
+          <edgelabel>most_likely_value_a_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/node/math/math/math.h" line="108" column="3" bodyfile="C:/Daten/Olive/olive/app/node/math/math/math.h" bodystart="108" bodyend="127"/>
+    <listofallmembers>
+      <member refid="class_math_node_1_1_pairing_calculator_1a9cf7d17d85592b72ba15a049d3bdb26f" prot="public" virt="non-virtual"><scope>MathNode::PairingCalculator</scope><name>FoundMostLikelyPairing</name></member>
+      <member refid="class_math_node_1_1_pairing_calculator_1a15ff34b272b39372598a2ce153d70a8a" prot="public" virt="non-virtual"><scope>MathNode::PairingCalculator</scope><name>GetMostLikelyPairing</name></member>
+      <member refid="class_math_node_1_1_pairing_calculator_1a0c2f107e813e467531e3fa4d1793cb64" prot="public" virt="non-virtual"><scope>MathNode::PairingCalculator</scope><name>GetMostLikelyValueA</name></member>
+      <member refid="class_math_node_1_1_pairing_calculator_1ab8992ca91485e91e9a632d1f913df3f0" prot="public" virt="non-virtual"><scope>MathNode::PairingCalculator</scope><name>GetMostLikelyValueB</name></member>
+      <member refid="class_math_node_1_1_pairing_calculator_1a230a525c1dd0ff538f5bc351af4bf2a1" prot="private" virt="non-virtual"><scope>MathNode::PairingCalculator</scope><name>GetPairLikelihood</name></member>
+      <member refid="class_math_node_1_1_pairing_calculator_1a7416ce0e474180af933bef4f2c162f25" prot="private" virt="non-virtual"><scope>MathNode::PairingCalculator</scope><name>most_likely_pairing_</name></member>
+      <member refid="class_math_node_1_1_pairing_calculator_1a1573450a1091a0228e013b2574095bf9" prot="private" virt="non-virtual"><scope>MathNode::PairingCalculator</scope><name>most_likely_value_a_</name></member>
+      <member refid="class_math_node_1_1_pairing_calculator_1a10450cefc35b686a017f639db8c54159" prot="private" virt="non-virtual"><scope>MathNode::PairingCalculator</scope><name>most_likely_value_b_</name></member>
+      <member refid="class_math_node_1_1_pairing_calculator_1a08c3eaabc4334cb68c9f15481d2040ce" prot="public" virt="non-virtual"><scope>MathNode::PairingCalculator</scope><name>PairingCalculator</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

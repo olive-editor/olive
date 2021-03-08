@@ -1,0 +1,233 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_video_stream_properties_1_1_video_stream_change_command" kind="class" language="C++" prot="private">
+    <compoundname>VideoStreamProperties::VideoStreamChangeCommand</compoundname>
+    <basecompoundref refid="class_undo_command" prot="public" virt="non-virtual">UndoCommand</basecompoundref>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_video_stream_properties_1_1_video_stream_change_command_1aa46c72239b8a5d073686326c0b82b857" prot="private" static="no" mutable="no">
+        <type><ref refid="imagestream_8h_1a82a88e56101f71b0e232fd6f51310dcf" kindref="member">ImageStreamPtr</ref></type>
+        <definition>ImageStreamPtr VideoStreamProperties::VideoStreamChangeCommand::stream_</definition>
+        <argsstring></argsstring>
+        <name>stream_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" line="103" column="20" bodyfile="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" bodystart="103" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_video_stream_properties_1_1_video_stream_change_command_1ac5c5d3072bb4e5f8136412fa2d973784" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool VideoStreamProperties::VideoStreamChangeCommand::new_premultiplied_</definition>
+        <argsstring></argsstring>
+        <name>new_premultiplied_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" line="105" column="10" bodyfile="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" bodystart="105" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_video_stream_properties_1_1_video_stream_change_command_1a2a7a6abafbf01a10caf9d204b6dcd798" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString VideoStreamProperties::VideoStreamChangeCommand::new_colorspace_</definition>
+        <argsstring></argsstring>
+        <name>new_colorspace_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" line="106" column="13" bodyfile="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" bodystart="106" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_video_stream_properties_1_1_video_stream_change_command_1a3058ab9c2ee7475924608d117f684150" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool VideoStreamProperties::VideoStreamChangeCommand::old_premultiplied_</definition>
+        <argsstring></argsstring>
+        <name>old_premultiplied_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" line="108" column="10" bodyfile="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" bodystart="108" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_video_stream_properties_1_1_video_stream_change_command_1af6090f671112dd894384ae523174b63b" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString VideoStreamProperties::VideoStreamChangeCommand::old_colorspace_</definition>
+        <argsstring></argsstring>
+        <name>old_colorspace_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" line="109" column="13" bodyfile="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" bodystart="109" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_undo_command_1a6c06f9c1b7bfeeff3c4724491945992b" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool UndoCommand::modified_</definition>
+        <argsstring></argsstring>
+        <name>modified_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="64" column="8" bodyfile="C:/Daten/Olive/olive/app/undo/undocommand.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_video_stream_properties_1_1_video_stream_change_command_1a9aa4a99824e788bf102a0842aa0092fd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>VideoStreamProperties::VideoStreamChangeCommand::VideoStreamChangeCommand</definition>
+        <argsstring>(ImageStreamPtr stream, bool premultiplied, QString colorspace, QUndoCommand *parent=nullptr)</argsstring>
+        <name>VideoStreamChangeCommand</name>
+        <param>
+          <type><ref refid="imagestream_8h_1a82a88e56101f71b0e232fd6f51310dcf" kindref="member">ImageStreamPtr</ref></type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>premultiplied</declname>
+        </param>
+        <param>
+          <type>QString</type>
+          <declname>colorspace</declname>
+        </param>
+        <param>
+          <type>QUndoCommand *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" line="91" column="5"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_stream_properties_1_1_video_stream_change_command_1a63ba1baa061b0223082b6aab54d21b23" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="class_project" kindref="compound">Project</ref> *</type>
+        <definition>virtual Project* VideoStreamProperties::VideoStreamChangeCommand::GetRelevantProject</definition>
+        <argsstring>() const override</argsstring>
+        <name>GetRelevantProject</name>
+        <reimplements refid="class_undo_command_1ab5c8967132833ea6be76a63dc5472f4f">GetRelevantProject</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" line="96" column="21"/>
+      </memberdef>
+      <memberdef kind="function" id="class_undo_command_1a9907db368d01fb26f5082a36c6d90bd4" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void UndoCommand::redo</definition>
+        <argsstring>() override</argsstring>
+        <name>redo</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="54" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_undo_command_1a09d00f8a2e1c8b3c97d72d9585503030" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void UndoCommand::undo</definition>
+        <argsstring>() override</argsstring>
+        <name>undo</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="55" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_video_stream_properties_1_1_video_stream_change_command_1a905c359a16d0525d4e38786d4f5ec46d" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void VideoStreamProperties::VideoStreamChangeCommand::redo_internal</definition>
+        <argsstring>() override</argsstring>
+        <name>redo_internal</name>
+        <reimplements refid="class_undo_command_1ac8aa20d444a655cd36fa3c7dc01928b4">redo_internal</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" line="99" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_video_stream_properties_1_1_video_stream_change_command_1a85aedb76cfbfefa6e24670dbca83d455" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void VideoStreamProperties::VideoStreamChangeCommand::undo_internal</definition>
+        <argsstring>() override</argsstring>
+        <name>undo_internal</name>
+        <reimplements refid="class_undo_command_1a871dbc8a1f95b58e641be13703563faa">undo_internal</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" line="100" column="18"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>VideoStreamProperties::VideoStreamChangeCommand</label>
+        <link refid="class_video_stream_properties_1_1_video_stream_change_command"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>UndoCommand</label>
+        <link refid="class_undo_command"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>VideoStreamProperties::VideoStreamChangeCommand</label>
+        <link refid="class_video_stream_properties_1_1_video_stream_change_command"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>UndoCommand</label>
+        <link refid="class_undo_command"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" line="89" column="3" bodyfile="C:/Daten/Olive/olive/app/dialog/footageproperties/streamproperties/videostreamproperties.h" bodystart="89" bodyend="111"/>
+    <listofallmembers>
+      <member refid="class_video_stream_properties_1_1_video_stream_change_command_1a63ba1baa061b0223082b6aab54d21b23" prot="public" virt="virtual"><scope>VideoStreamProperties::VideoStreamChangeCommand</scope><name>GetRelevantProject</name></member>
+      <member refid="class_undo_command_1a6c06f9c1b7bfeeff3c4724491945992b" prot="private" virt="non-virtual"><scope>VideoStreamProperties::VideoStreamChangeCommand</scope><name>modified_</name></member>
+      <member refid="class_video_stream_properties_1_1_video_stream_change_command_1a2a7a6abafbf01a10caf9d204b6dcd798" prot="private" virt="non-virtual"><scope>VideoStreamProperties::VideoStreamChangeCommand</scope><name>new_colorspace_</name></member>
+      <member refid="class_video_stream_properties_1_1_video_stream_change_command_1ac5c5d3072bb4e5f8136412fa2d973784" prot="private" virt="non-virtual"><scope>VideoStreamProperties::VideoStreamChangeCommand</scope><name>new_premultiplied_</name></member>
+      <member refid="class_video_stream_properties_1_1_video_stream_change_command_1af6090f671112dd894384ae523174b63b" prot="private" virt="non-virtual"><scope>VideoStreamProperties::VideoStreamChangeCommand</scope><name>old_colorspace_</name></member>
+      <member refid="class_video_stream_properties_1_1_video_stream_change_command_1a3058ab9c2ee7475924608d117f684150" prot="private" virt="non-virtual"><scope>VideoStreamProperties::VideoStreamChangeCommand</scope><name>old_premultiplied_</name></member>
+      <member refid="class_undo_command_1a9907db368d01fb26f5082a36c6d90bd4" prot="public" virt="virtual"><scope>VideoStreamProperties::VideoStreamChangeCommand</scope><name>redo</name></member>
+      <member refid="class_video_stream_properties_1_1_video_stream_change_command_1a905c359a16d0525d4e38786d4f5ec46d" prot="protected" virt="virtual"><scope>VideoStreamProperties::VideoStreamChangeCommand</scope><name>redo_internal</name></member>
+      <member refid="class_video_stream_properties_1_1_video_stream_change_command_1aa46c72239b8a5d073686326c0b82b857" prot="private" virt="non-virtual"><scope>VideoStreamProperties::VideoStreamChangeCommand</scope><name>stream_</name></member>
+      <member refid="class_undo_command_1a09d00f8a2e1c8b3c97d72d9585503030" prot="public" virt="virtual"><scope>VideoStreamProperties::VideoStreamChangeCommand</scope><name>undo</name></member>
+      <member refid="class_video_stream_properties_1_1_video_stream_change_command_1a85aedb76cfbfefa6e24670dbca83d455" prot="protected" virt="virtual"><scope>VideoStreamProperties::VideoStreamChangeCommand</scope><name>undo_internal</name></member>
+      <member refid="class_undo_command_1a5a07a6505a207cf7186c7c726ff9c5fa" prot="public" virt="non-virtual"><scope>VideoStreamProperties::VideoStreamChangeCommand</scope><name>UndoCommand</name></member>
+      <member refid="class_video_stream_properties_1_1_video_stream_change_command_1a9aa4a99824e788bf102a0842aa0092fd" prot="public" virt="non-virtual"><scope>VideoStreamProperties::VideoStreamChangeCommand</scope><name>VideoStreamChangeCommand</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

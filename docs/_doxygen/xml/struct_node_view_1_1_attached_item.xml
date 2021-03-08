@@ -1,0 +1,98 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="struct_node_view_1_1_attached_item" kind="struct" language="C++" prot="private">
+    <compoundname>NodeView::AttachedItem</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="struct_node_view_1_1_attached_item_1a6b3626293bd89fe2320cd7b9018a587b" prot="public" static="no" mutable="no">
+        <type><ref refid="class_node_view_item" kindref="compound">NodeViewItem</ref> *</type>
+        <definition>NodeViewItem* NodeView::AttachedItem::item</definition>
+        <argsstring></argsstring>
+        <name>item</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeview.h" line="118" column="18" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeview.h" bodystart="118" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_node_view_1_1_attached_item_1a5da1adbfef7936cc14a6c8ab15b84aeb" prot="public" static="no" mutable="no">
+        <type>QPointF</type>
+        <definition>QPointF NodeView::AttachedItem::original_pos</definition>
+        <argsstring></argsstring>
+        <name>original_pos</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeview.h" line="119" column="13" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeview.h" bodystart="119" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="6">
+        <label>NodeOutput</label>
+        <link refid="class_node_output"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>NodeViewEdge</label>
+        <link refid="class_node_view_edge"/>
+      </node>
+      <node id="1">
+        <label>NodeView::AttachedItem</label>
+        <link refid="struct_node_view_1_1_attached_item"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>item</edgelabel>
+        </childnode>
+      </node>
+      <node id="5">
+        <label>Node</label>
+        <link refid="class_node"/>
+        <childnode refid="6" relation="usage">
+          <edgelabel>output_</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>NodeViewItem</label>
+        <link refid="class_node_view_item"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>drag_src_param_</edgelabel>
+          <edgelabel>drag_dest_param_</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>css_proxy_</edgelabel>
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>node_</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>dragging_edge_</edgelabel>
+        </childnode>
+        <childnode refid="2" relation="usage">
+          <edgelabel>cached_drop_item_</edgelabel>
+          <edgelabel>drag_source_</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>NodeParam</label>
+        <link refid="class_node_param"/>
+      </node>
+      <node id="4">
+        <label>NodeViewItemWidget</label>
+        <link refid="class_node_view_item_widget"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeview.h" line="117" column="3" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeview.h" bodystart="117" bodyend="120"/>
+    <listofallmembers>
+      <member refid="struct_node_view_1_1_attached_item_1a6b3626293bd89fe2320cd7b9018a587b" prot="public" virt="non-virtual"><scope>NodeView::AttachedItem</scope><name>item</name></member>
+      <member refid="struct_node_view_1_1_attached_item_1a5da1adbfef7936cc14a6c8ab15b84aeb" prot="public" virt="non-virtual"><scope>NodeView::AttachedItem</scope><name>original_pos</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

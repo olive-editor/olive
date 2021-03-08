@@ -1,0 +1,277 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_node_view_edge" kind="class" language="C++" prot="public">
+    <compoundname>NodeViewEdge</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QGraphicsPathItem</basecompoundref>
+    <includes refid="nodeviewedge_8h" local="no">nodeviewedge.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_node_view_edge_1a8c40fe8a08a6be930be5ae8654fc16d4" prot="private" static="no" mutable="no">
+        <type><ref refid="edge_8h_1a9eb6ae7d2b608077e13ab3571ea6b101" kindref="member">NodeEdgePtr</ref></type>
+        <definition>NodeEdgePtr NodeViewEdge::edge_</definition>
+        <argsstring></argsstring>
+        <name>edge_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewedge.h" line="114" column="15" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewedge.h" bodystart="114" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_view_edge_1a66d082085f7ecac08abd427ab038a488" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int NodeViewEdge::edge_width_</definition>
+        <argsstring></argsstring>
+        <name>edge_width_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewedge.h" line="116" column="7" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewedge.h" bodystart="116" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_view_edge_1ad00ffadbcc7596fd5b2ab7339fa58be5" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool NodeViewEdge::connected_</definition>
+        <argsstring></argsstring>
+        <name>connected_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewedge.h" line="118" column="8" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewedge.h" bodystart="118" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_view_edge_1a0b225d9c71b606be5b4ac6a3903f4be1" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool NodeViewEdge::highlighted_</definition>
+        <argsstring></argsstring>
+        <name>highlighted_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewedge.h" line="120" column="8" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewedge.h" bodystart="120" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_view_edge_1a3c91c583fbf187abe6257a2b58d60dfd" prot="private" static="no" mutable="no">
+        <type><ref refid="class_node_view_common_1a7718854113b8b4f38800f29a448944b2" kindref="member">NodeViewCommon::FlowDirection</ref></type>
+        <definition>NodeViewCommon::FlowDirection NodeViewEdge::flow_dir_</definition>
+        <argsstring></argsstring>
+        <name>flow_dir_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewedge.h" line="122" column="33" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewedge.h" bodystart="122" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_node_view_edge_1a4170b11900cdd6b3827c4edb9b297533" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>NodeViewEdge::NodeViewEdge</definition>
+        <argsstring>(QGraphicsItem *parent=nullptr)</argsstring>
+        <name>NodeViewEdge</name>
+        <param>
+          <type>QGraphicsItem *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewedge.h" line="58" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_edge_1ae33ac0103bcb8c382c0b28b40ae3af4d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeViewEdge::SetEdge</definition>
+        <argsstring>(NodeEdgePtr edge)</argsstring>
+        <name>SetEdge</name>
+        <param>
+          <type><ref refid="edge_8h_1a9eb6ae7d2b608077e13ab3571ea6b101" kindref="member">NodeEdgePtr</ref></type>
+          <declname>edge</declname>
+        </param>
+        <briefdescription>
+<para>Set the edge that this item corresponds to. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This can be changed at any time (but under most circumstances won&apos;t be). Calling this will automatically call <ref refid="class_node_view_edge_1a04f5235986d08bef177e4d980a186409" kindref="member">Adjust()</ref> to move this item into the correct position. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewedge.h" line="66" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_edge_1a56e92f7f3b28ebb3180a63d4901ac8d8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="edge_8h_1a9eb6ae7d2b608077e13ab3571ea6b101" kindref="member">NodeEdgePtr</ref></type>
+        <definition>NodeEdgePtr NodeViewEdge::edge</definition>
+        <argsstring>()</argsstring>
+        <name>edge</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewedge.h" line="67" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_edge_1a04f5235986d08bef177e4d980a186409" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeViewEdge::Adjust</definition>
+        <argsstring>()</argsstring>
+        <name>Adjust</name>
+        <briefdescription>
+<para>Moves/updates this line to visually connect between the two corresponding NodeViewItems. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Using the attached edge (see <ref refid="class_node_view_edge_1ae33ac0103bcb8c382c0b28b40ae3af4d" kindref="member">SetEdge()</ref>), this function retrieves the NodeViewItems representing the two nodes that this edge connects. It uses their positions to determine where the line should visually connect and sets it accordingly.</para>
+<para>This should be set any time the <ref refid="class_node_edge" kindref="compound">NodeEdge</ref> changes (see <ref refid="class_node_view_edge_1ae33ac0103bcb8c382c0b28b40ae3af4d" kindref="member">SetEdge()</ref>), and any time the nodes move in the <ref refid="class_node_graph" kindref="compound">NodeGraph</ref> (see <ref refid="class_node_view_1af59c9492a5fff83b47f4cf65fbf8e059" kindref="member">NodeView::ItemsChanged()</ref>). This will keep the nodes visually connected at all times. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewedge.h" line="79" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_edge_1ae3da9c855972e996907b0428e2ac7b57" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeViewEdge::SetConnected</definition>
+        <argsstring>(bool c)</argsstring>
+        <name>SetConnected</name>
+        <param>
+          <type>bool</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+<para>Set the connected state of this line. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>When the edge is not connected, it visually depicts this by coloring the line grey. When an edge is connected or a potential connection is valid, the line is colored white. This function sets whether the line should be grey (false) or white (true).</para>
+<para>Using <ref refid="class_node_view_edge_1ae33ac0103bcb8c382c0b28b40ae3af4d" kindref="member">SetEdge()</ref> automatically sets this to true. Under most circumstances this should be left alone, and only be set when an edge is being created/dragged. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewedge.h" line="91" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_edge_1a08f33df49383b799f6a2e173d8ec2b4f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeViewEdge::SetHighlighted</definition>
+        <argsstring>(bool e)</argsstring>
+        <name>SetHighlighted</name>
+        <param>
+          <type>bool</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+<para>Set highlighted state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Changes color of edge. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewedge.h" line="98" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_edge_1a914c96dc587d4a6f3ed56912330d99d8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeViewEdge::SetPoints</definition>
+        <argsstring>(const QPointF &amp;start, const QPointF &amp;end, bool input_is_expanded)</argsstring>
+        <name>SetPoints</name>
+        <param>
+          <type>const QPointF &amp;</type>
+          <declname>start</declname>
+        </param>
+        <param>
+          <type>const QPointF &amp;</type>
+          <declname>end</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>input_is_expanded</declname>
+        </param>
+        <briefdescription>
+<para>Set points to create curve from. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewedge.h" line="103" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_view_edge_1a3ebe8bfc38d53abba7a9fb62b5acd173" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeViewEdge::SetFlowDirection</definition>
+        <argsstring>(NodeViewCommon::FlowDirection dir)</argsstring>
+        <name>SetFlowDirection</name>
+        <param>
+          <type><ref refid="class_node_view_common_1a7718854113b8b4f38800f29a448944b2" kindref="member">NodeViewCommon::FlowDirection</ref></type>
+          <declname>dir</declname>
+        </param>
+        <briefdescription>
+<para>Sets the direction nodes are flowing. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewedge.h" line="108" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_node_view_edge_1a935c02a51ffa01e2d09b793347788b86" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void NodeViewEdge::paint</definition>
+        <argsstring>(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget=nullptr) override</argsstring>
+        <name>paint</name>
+        <param>
+          <type>QPainter *</type>
+          <declname>painter</declname>
+        </param>
+        <param>
+          <type>const QStyleOptionGraphicsItem *</type>
+          <declname>option</declname>
+        </param>
+        <param>
+          <type>QWidget *</type>
+          <declname>widget</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewedge.h" line="111" column="16"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A graphical representation of a <ref refid="class_node_edge" kindref="compound">NodeEdge</ref> to be used in <ref refid="class_node_view" kindref="compound">NodeView</ref>. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>A fairly simple line widget use to visualize a connection between two node parameters (a <ref refid="class_node_edge" kindref="compound">NodeEdge</ref>). </para>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewedge.h" line="37" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/nodeview/nodeviewedge.h" bodystart="38" bodyend="106"/>
+    <listofallmembers>
+      <member refid="class_node_view_edge_1a04f5235986d08bef177e4d980a186409" prot="public" virt="non-virtual"><scope>NodeViewEdge</scope><name>Adjust</name></member>
+      <member refid="class_node_view_edge_1ad00ffadbcc7596fd5b2ab7339fa58be5" prot="private" virt="non-virtual"><scope>NodeViewEdge</scope><name>connected_</name></member>
+      <member refid="class_node_view_edge_1a56e92f7f3b28ebb3180a63d4901ac8d8" prot="public" virt="non-virtual"><scope>NodeViewEdge</scope><name>edge</name></member>
+      <member refid="class_node_view_edge_1a8c40fe8a08a6be930be5ae8654fc16d4" prot="private" virt="non-virtual"><scope>NodeViewEdge</scope><name>edge_</name></member>
+      <member refid="class_node_view_edge_1a66d082085f7ecac08abd427ab038a488" prot="private" virt="non-virtual"><scope>NodeViewEdge</scope><name>edge_width_</name></member>
+      <member refid="class_node_view_edge_1a3c91c583fbf187abe6257a2b58d60dfd" prot="private" virt="non-virtual"><scope>NodeViewEdge</scope><name>flow_dir_</name></member>
+      <member refid="class_node_view_edge_1a0b225d9c71b606be5b4ac6a3903f4be1" prot="private" virt="non-virtual"><scope>NodeViewEdge</scope><name>highlighted_</name></member>
+      <member refid="class_node_view_edge_1a4170b11900cdd6b3827c4edb9b297533" prot="public" virt="non-virtual"><scope>NodeViewEdge</scope><name>NodeViewEdge</name></member>
+      <member refid="class_node_view_edge_1a935c02a51ffa01e2d09b793347788b86" prot="protected" virt="virtual"><scope>NodeViewEdge</scope><name>paint</name></member>
+      <member refid="class_node_view_edge_1ae3da9c855972e996907b0428e2ac7b57" prot="public" virt="non-virtual"><scope>NodeViewEdge</scope><name>SetConnected</name></member>
+      <member refid="class_node_view_edge_1ae33ac0103bcb8c382c0b28b40ae3af4d" prot="public" virt="non-virtual"><scope>NodeViewEdge</scope><name>SetEdge</name></member>
+      <member refid="class_node_view_edge_1a3ebe8bfc38d53abba7a9fb62b5acd173" prot="public" virt="non-virtual"><scope>NodeViewEdge</scope><name>SetFlowDirection</name></member>
+      <member refid="class_node_view_edge_1a08f33df49383b799f6a2e173d8ec2b4f" prot="public" virt="non-virtual"><scope>NodeViewEdge</scope><name>SetHighlighted</name></member>
+      <member refid="class_node_view_edge_1a914c96dc587d4a6f3ed56912330d99d8" prot="public" virt="non-virtual"><scope>NodeViewEdge</scope><name>SetPoints</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

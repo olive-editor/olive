@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_aefcb0dd47805ab9847f9c454a49951a" kind="dir">
+    <compoundname>nodeparamview</compoundname>
+    <innerfile refid="nodeparamview_8h">nodeparamview.h</innerfile>
+    <innerfile refid="nodeparamviewconnectedlabel_8h">nodeparamviewconnectedlabel.h</innerfile>
+    <innerfile refid="nodeparamviewitem_8h">nodeparamviewitem.h</innerfile>
+    <innerfile refid="nodeparamviewkeyframecontrol_8h">nodeparamviewkeyframecontrol.h</innerfile>
+    <innerfile refid="nodeparamviewundo_8h">nodeparamviewundo.h</innerfile>
+    <innerfile refid="nodeparamviewwidgetbridge_8h">nodeparamviewwidgetbridge.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/"/>
+  </compounddef>
+</doxygen>

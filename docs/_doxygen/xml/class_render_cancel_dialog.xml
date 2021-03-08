@@ -1,0 +1,251 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_render_cancel_dialog" kind="class" language="C++" prot="public">
+    <compoundname>RenderCancelDialog</compoundname>
+    <basecompoundref refid="class_progress_dialog" prot="public" virt="non-virtual">ProgressDialog</basecompoundref>
+    <includes refid="rendercancel_8h" local="no">rendercancel.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_render_cancel_dialog_1abc5b8e6d6e5cc152b6ce4e23434d931d" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int RenderCancelDialog::busy_workers_</definition>
+        <argsstring></argsstring>
+        <name>busy_workers_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/rendercancel/rendercancel.h" line="67" column="7" bodyfile="C:/Daten/Olive/olive/app/dialog/rendercancel/rendercancel.h" bodystart="67" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_render_cancel_dialog_1a622ecc96c06e49ce0596ea2e2ab0ed66" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int RenderCancelDialog::total_workers_</definition>
+        <argsstring></argsstring>
+        <name>total_workers_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/rendercancel/rendercancel.h" line="69" column="7" bodyfile="C:/Daten/Olive/olive/app/dialog/rendercancel/rendercancel.h" bodystart="69" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_render_cancel_dialog_1a2023073d177a6aa55d0e0644b1e068df" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int RenderCancelDialog::waiting_workers_</definition>
+        <argsstring></argsstring>
+        <name>waiting_workers_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/rendercancel/rendercancel.h" line="71" column="7" bodyfile="C:/Daten/Olive/olive/app/dialog/rendercancel/rendercancel.h" bodystart="71" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_progress_dialog_1a795d20012b58df8a317041a814bfd213" prot="private" static="no" mutable="no">
+        <type>QProgressBar *</type>
+        <definition>QProgressBar* ProgressDialog::bar_</definition>
+        <argsstring></argsstring>
+        <name>bar_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/progress/progress.h" line="62" column="16" bodyfile="C:/Daten/Olive/olive/app/dialog/progress/progress.h" bodystart="62" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_render_cancel_dialog_1a41ce8fe134f78637c163f20188ad7b3b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>RenderCancelDialog::RenderCancelDialog</definition>
+        <argsstring>(QWidget *parent=nullptr)</argsstring>
+        <name>RenderCancelDialog</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/rendercancel/rendercancel.h" line="50" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_render_cancel_dialog_1aaa7b900dd71db42076844d689b1ce750" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void RenderCancelDialog::RunIfWorkersAreBusy</definition>
+        <argsstring>()</argsstring>
+        <name>RunIfWorkersAreBusy</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/rendercancel/rendercancel.h" line="52" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_render_cancel_dialog_1a4087e7c0750999e9b25c45476f0a27cd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void RenderCancelDialog::SetWorkerCount</definition>
+        <argsstring>(int count)</argsstring>
+        <name>SetWorkerCount</name>
+        <param>
+          <type>int</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/rendercancel/rendercancel.h" line="54" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_render_cancel_dialog_1a8d3067255eb70d9c41cd0f9bfb62fb40" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void RenderCancelDialog::WorkerStarted</definition>
+        <argsstring>()</argsstring>
+        <name>WorkerStarted</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/rendercancel/rendercancel.h" line="56" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-slot">
+      <memberdef kind="slot" id="class_render_cancel_dialog_1aeeda6df1d3cca8495ee35745c47eb45e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void RenderCancelDialog::WorkerDone</definition>
+        <argsstring>()</argsstring>
+        <name>WorkerDone</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/rendercancel/rendercancel.h" line="59" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_progress_dialog_1a2d511599a01abb01fbd6cbcbdc656e8d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProgressDialog::SetProgress</definition>
+        <argsstring>(int value)</argsstring>
+        <name>SetProgress</name>
+        <param>
+          <type>int</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/progress/progress.h" line="56" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_render_cancel_dialog_1ae3671859e4120daf52de8b68a2977628" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void RenderCancelDialog::showEvent</definition>
+        <argsstring>(QShowEvent *event) override</argsstring>
+        <name>showEvent</name>
+        <param>
+          <type>QShowEvent *</type>
+          <declname>event</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/rendercancel/rendercancel.h" line="62" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_render_cancel_dialog_1acdca57d9415b51d356284ab9d03d84b2" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void RenderCancelDialog::UpdateProgress</definition>
+        <argsstring>()</argsstring>
+        <name>UpdateProgress</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/rendercancel/rendercancel.h" line="65" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_progress_dialog_1a3c512acc8f635b192f2194a775bb573a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ProgressDialog::Cancelled</definition>
+        <argsstring>()</argsstring>
+        <name>Cancelled</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/progress/progress.h" line="59" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>RenderCancelDialog</label>
+        <link refid="class_render_cancel_dialog"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>ProgressDialog</label>
+        <link refid="class_progress_dialog"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>RenderCancelDialog</label>
+        <link refid="class_render_cancel_dialog"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>ProgressDialog</label>
+        <link refid="class_progress_dialog"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/dialog/rendercancel/rendercancel.h" line="28" column="1" bodyfile="C:/Daten/Olive/olive/app/dialog/rendercancel/rendercancel.h" bodystart="29" bodyend="55"/>
+    <listofallmembers>
+      <member refid="class_progress_dialog_1a795d20012b58df8a317041a814bfd213" prot="private" virt="non-virtual"><scope>RenderCancelDialog</scope><name>bar_</name></member>
+      <member refid="class_render_cancel_dialog_1abc5b8e6d6e5cc152b6ce4e23434d931d" prot="private" virt="non-virtual"><scope>RenderCancelDialog</scope><name>busy_workers_</name></member>
+      <member refid="class_progress_dialog_1a3c512acc8f635b192f2194a775bb573a" prot="public" virt="non-virtual"><scope>RenderCancelDialog</scope><name>Cancelled</name></member>
+      <member refid="class_progress_dialog_1a04c65027b56dbac56a87f259c44fef04" prot="public" virt="non-virtual"><scope>RenderCancelDialog</scope><name>ProgressDialog</name></member>
+      <member refid="class_render_cancel_dialog_1a41ce8fe134f78637c163f20188ad7b3b" prot="public" virt="non-virtual"><scope>RenderCancelDialog</scope><name>RenderCancelDialog</name></member>
+      <member refid="class_render_cancel_dialog_1aaa7b900dd71db42076844d689b1ce750" prot="public" virt="non-virtual"><scope>RenderCancelDialog</scope><name>RunIfWorkersAreBusy</name></member>
+      <member refid="class_progress_dialog_1a2d511599a01abb01fbd6cbcbdc656e8d" prot="public" virt="non-virtual"><scope>RenderCancelDialog</scope><name>SetProgress</name></member>
+      <member refid="class_render_cancel_dialog_1a4087e7c0750999e9b25c45476f0a27cd" prot="public" virt="non-virtual"><scope>RenderCancelDialog</scope><name>SetWorkerCount</name></member>
+      <member refid="class_render_cancel_dialog_1ae3671859e4120daf52de8b68a2977628" prot="protected" virt="virtual"><scope>RenderCancelDialog</scope><name>showEvent</name></member>
+      <member refid="class_render_cancel_dialog_1a622ecc96c06e49ce0596ea2e2ab0ed66" prot="private" virt="non-virtual"><scope>RenderCancelDialog</scope><name>total_workers_</name></member>
+      <member refid="class_render_cancel_dialog_1acdca57d9415b51d356284ab9d03d84b2" prot="private" virt="non-virtual"><scope>RenderCancelDialog</scope><name>UpdateProgress</name></member>
+      <member refid="class_render_cancel_dialog_1a2023073d177a6aa55d0e0644b1e068df" prot="private" virt="non-virtual"><scope>RenderCancelDialog</scope><name>waiting_workers_</name></member>
+      <member refid="class_render_cancel_dialog_1aeeda6df1d3cca8495ee35745c47eb45e" prot="public" virt="non-virtual"><scope>RenderCancelDialog</scope><name>WorkerDone</name></member>
+      <member refid="class_render_cancel_dialog_1a8d3067255eb70d9c41cd0f9bfb62fb40" prot="public" virt="non-virtual"><scope>RenderCancelDialog</scope><name>WorkerStarted</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

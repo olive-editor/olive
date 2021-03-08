@@ -1,0 +1,163 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="menushared_8h" kind="file" language="C++">
+    <compoundname>menushared.h</compoundname>
+    <includes refid="menu_8h" local="yes">widget/menu/menu.h</includes>
+    <incdepgraph>
+      <node id="4">
+        <label>QMenu</label>
+      </node>
+      <node id="3">
+        <label>QMenuBar</label>
+      </node>
+      <node id="1">
+        <label>menushared.h</label>
+        <link refid="menushared_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>common/define.h</label>
+        <link refid="define_8h"/>
+      </node>
+      <node id="2">
+        <label>widget/menu/menu.h</label>
+        <link refid="menu_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>QMetaMethod</label>
+      </node>
+    </incdepgraph>
+    <innerclass refid="class_menu_shared" prot="public">MenuShared</innerclass>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/***</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"></highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/><sp/>Olive<sp/>-<sp/>Non-Linear<sp/>Video<sp/>Editor</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/><sp/>Copyright<sp/>(C)<sp/>2019<sp/>Olive<sp/>Team</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"></highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/><sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/><sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/><sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"></highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/><sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/><sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/><sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"></highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/><sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/><sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"></highlight></codeline>
+<codeline lineno="19"><highlight class="comment">***/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>MENUSHARED_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>MENUSHARED_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="menu_8h" kindref="compound">widget/menu/menu.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><ref refid="define_8h_1a0472692dd1f22472ad63da20da919e8c" kindref="member">OLIVE_NAMESPACE_ENTER</ref></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31" refid="class_menu_shared" refkind="compound"><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_menu_shared" kindref="compound">MenuShared</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>QObject<sp/>{</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/>Q_OBJECT</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><ref refid="class_menu_shared_1a295f19e346ae524dae4e84dc01a1ef1b" kindref="member">MenuShared</ref>();</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_menu_shared_1a65100ec5f7b33ed5f83260bc294d1bf3" kindref="member">CreateInstance</ref>();</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_menu_shared_1a0edf3d48b635c30f3635c654894df46f" kindref="member">DestroyInstance</ref>();</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_menu_shared_1a351babdcc4dacb82a50c6c0881a10c85" kindref="member">Retranslate</ref>();</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_menu_shared_1a0c65465bcedbfeef0863dd95d1f5a01c" kindref="member">AddItemsForNewMenu</ref>(<ref refid="class_menu" kindref="compound">Menu</ref>*<sp/>m);</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_menu_shared_1ac25400a4ba13cd73e56d9b756694f12b" kindref="member">AddItemsForEditMenu</ref>(<ref refid="class_menu" kindref="compound">Menu</ref>*<sp/>m,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>for_clips);</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_menu_shared_1a2129e956f1d7b8989fd6150068b24946" kindref="member">AddItemsForInOutMenu</ref>(<ref refid="class_menu" kindref="compound">Menu</ref>*<sp/>m);</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_menu_shared_1aa838ff3733b957ec8176d87f0593719a" kindref="member">AddItemsForClipEditMenu</ref>(<ref refid="class_menu" kindref="compound">Menu</ref>*<sp/>m);</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="class_menu_shared" kindref="compound">MenuShared</ref>*<sp/><ref refid="class_menu_shared_1a1bf8bb4c9f873cc9018066009c43fa45" kindref="member">instance</ref>();</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>&quot;New&quot;<sp/>menu<sp/>shared<sp/>items</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_menu_shared_1ac10a44d111a8ffdabe144d99ec8567d7" kindref="member">new_project_item_</ref>;</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_menu_shared_1a866feed6b8e26f77eb1b663ccae17b04" kindref="member">new_sequence_item_</ref>;</highlight></codeline>
+<codeline lineno="52" refid="class_menu_shared_1a295f19e346ae524dae4e84dc01a1ef1b" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_menu_shared_1a2092157ff95a8c134dfe383570cb3239" kindref="member">new_folder_item_</ref>;</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54" refid="class_menu_shared_1a65100ec5f7b33ed5f83260bc294d1bf3" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>&quot;Edit&quot;<sp/>menu<sp/>shared<sp/>items</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="55" refid="class_menu_shared_1a0edf3d48b635c30f3635c654894df46f" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_menu_shared_1a99de6b449fcf4f3a82be41adce67a020" kindref="member">edit_cut_item_</ref>;</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_menu_shared_1af99fc7e7becf3793b11e8b22391b3ef2" kindref="member">edit_copy_item_</ref>;</highlight></codeline>
+<codeline lineno="57" refid="class_menu_shared_1a351babdcc4dacb82a50c6c0881a10c85" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_menu_shared_1af64ad39e7ccc12f6356354f760408e08" kindref="member">edit_paste_item_</ref>;</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_menu_shared_1aa606969e2171106ba5f27b3721ab565e" kindref="member">edit_paste_insert_item_</ref>;</highlight></codeline>
+<codeline lineno="59" refid="class_menu_shared_1a0c65465bcedbfeef0863dd95d1f5a01c" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_menu_shared_1a23537ab4c452ab53d4d79ebad0bb53c1" kindref="member">edit_duplicate_item_</ref>;</highlight></codeline>
+<codeline lineno="60" refid="class_menu_shared_1ac25400a4ba13cd73e56d9b756694f12b" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_menu_shared_1abfac73ad546d150edce4802836d94dd5" kindref="member">edit_delete_item_</ref>;</highlight></codeline>
+<codeline lineno="61" refid="class_menu_shared_1a2129e956f1d7b8989fd6150068b24946" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_menu_shared_1ae9a7df3543fc91fa70a23b549424d221" kindref="member">edit_ripple_delete_item_</ref>;</highlight></codeline>
+<codeline lineno="62" refid="class_menu_shared_1aa838ff3733b957ec8176d87f0593719a" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_menu_shared_1a5f62f79d6d90d811e56332fb1a3d2794" kindref="member">edit_split_item_</ref>;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64" refid="class_menu_shared_1a1bf8bb4c9f873cc9018066009c43fa45" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>&quot;In/Out&quot;<sp/>menu<sp/>shared<sp/>items</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_menu_shared_1a36fb7cd61d291f76ab5a8dd3ba408dfc" kindref="member">inout_set_in_item_</ref>;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_menu_shared_1a86f070c1c50f2fbb21ebf3379c069536" kindref="member">inout_set_out_item_</ref>;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_menu_shared_1a9f6902787e5448ee9f18eb6135e51128" kindref="member">inout_reset_in_item_</ref>;</highlight></codeline>
+<codeline lineno="68" refid="class_menu_shared_1ac10a44d111a8ffdabe144d99ec8567d7" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_menu_shared_1a55259387b833443a89365106d6975c49" kindref="member">inout_reset_out_item_</ref>;</highlight></codeline>
+<codeline lineno="69" refid="class_menu_shared_1a866feed6b8e26f77eb1b663ccae17b04" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_menu_shared_1aa621298b4ed6b9c21ca304e329cc60fb" kindref="member">inout_clear_inout_item_</ref>;</highlight></codeline>
+<codeline lineno="70" refid="class_menu_shared_1a2092157ff95a8c134dfe383570cb3239" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>&quot;Clip<sp/>Edit&quot;<sp/>menu<sp/>shared<sp/>items</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_menu_shared_1aa9e32fcfc95eb32af501d33ce53f0900" kindref="member">clip_add_default_transition_item_</ref>;</highlight></codeline>
+<codeline lineno="73" refid="class_menu_shared_1a99de6b449fcf4f3a82be41adce67a020" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_menu_shared_1aec82655ad74ad3076316fe5851a28d72" kindref="member">clip_link_unlink_item_</ref>;</highlight></codeline>
+<codeline lineno="74" refid="class_menu_shared_1af99fc7e7becf3793b11e8b22391b3ef2" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_menu_shared_1a78909c107384641a2b2c28b3d6a6fc46" kindref="member">clip_enable_disable_item_</ref>;</highlight></codeline>
+<codeline lineno="75" refid="class_menu_shared_1af64ad39e7ccc12f6356354f760408e08" refkind="member"><highlight class="normal"><sp/><sp/>QAction*<sp/><ref refid="class_menu_shared_1ad3ceafc848fb59038a327687d38fa796" kindref="member">clip_nest_item_</ref>;</highlight></codeline>
+<codeline lineno="76" refid="class_menu_shared_1aa606969e2171106ba5f27b3721ab565e" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77" refid="class_menu_shared_1a23537ab4c452ab53d4d79ebad0bb53c1" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="class_menu_shared" kindref="compound">MenuShared</ref>*<sp/><ref refid="class_menu_shared_1a3754beeb12db90c8eeafcb33b8e04d73" kindref="member">instance_</ref>;</highlight></codeline>
+<codeline lineno="78" refid="class_menu_shared_1abfac73ad546d150edce4802836d94dd5" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="79" refid="class_menu_shared_1ae9a7df3543fc91fa70a23b549424d221" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal"><sp/>slots:</highlight></codeline>
+<codeline lineno="80" refid="class_menu_shared_1a5f62f79d6d90d811e56332fb1a3d2794" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_menu_shared_1a514bc2bf5a0739535edb4d5ceaa1c34e" kindref="member">SplitAtPlayheadTriggered</ref>();</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_menu_shared_1adea47efb1061c6f943d503c0fcd8ddb5" kindref="member">DeleteSelectedTriggered</ref>();</highlight></codeline>
+<codeline lineno="83" refid="class_menu_shared_1a36fb7cd61d291f76ab5a8dd3ba408dfc" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84" refid="class_menu_shared_1a86f070c1c50f2fbb21ebf3379c069536" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_menu_shared_1a8a9e829d0f22e22461b9d9b0c17e09c7" kindref="member">RippleDeleteTriggered</ref>();</highlight></codeline>
+<codeline lineno="85" refid="class_menu_shared_1a9f6902787e5448ee9f18eb6135e51128" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86" refid="class_menu_shared_1a55259387b833443a89365106d6975c49" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_menu_shared_1ad53c0543bf3e29e97162feafbf252a28" kindref="member">SetInTriggered</ref>();</highlight></codeline>
+<codeline lineno="87" refid="class_menu_shared_1aa621298b4ed6b9c21ca304e329cc60fb" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_menu_shared_1a1b8159a74e96c777bc66516de6c94782" kindref="member">SetOutTriggered</ref>();</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90" refid="class_menu_shared_1aa9e32fcfc95eb32af501d33ce53f0900" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_menu_shared_1abdaa92c4cabf341b5fc484c797fc9647" kindref="member">ResetInTriggered</ref>();</highlight></codeline>
+<codeline lineno="91" refid="class_menu_shared_1aec82655ad74ad3076316fe5851a28d72" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92" refid="class_menu_shared_1a78909c107384641a2b2c28b3d6a6fc46" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_menu_shared_1aa992030c0c94446d72332168642af67c" kindref="member">ResetOutTriggered</ref>();</highlight></codeline>
+<codeline lineno="93" refid="class_menu_shared_1ad3ceafc848fb59038a327687d38fa796" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_menu_shared_1a56153efcc3b68a195d214fe5c451f7da" kindref="member">ClearInOutTriggered</ref>();</highlight></codeline>
+<codeline lineno="95" refid="class_menu_shared_1a3754beeb12db90c8eeafcb33b8e04d73" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_menu_shared_1acd4a84f69691101e3a3ef0404cec551f" kindref="member">ToggleLinksTriggered</ref>();</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="98" refid="class_menu_shared_1a514bc2bf5a0739535edb4d5ceaa1c34e" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_menu_shared_1af91a30c709887c6162d0f0bbef4b4733" kindref="member">CutTriggered</ref>();</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100" refid="class_menu_shared_1adea47efb1061c6f943d503c0fcd8ddb5" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_menu_shared_1a367db9415a4aae23bfc11cb81f3aff8d" kindref="member">CopyTriggered</ref>();</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102" refid="class_menu_shared_1a8a9e829d0f22e22461b9d9b0c17e09c7" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_menu_shared_1a07a882b8f6afe07e4051704a23c42dcf" kindref="member">PasteTriggered</ref>();</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104" refid="class_menu_shared_1ad53c0543bf3e29e97162feafbf252a28" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_menu_shared_1a918ddaca44b380c3ea2c5ff2c33a0ee8" kindref="member">PasteInsertTriggered</ref>();</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106" refid="class_menu_shared_1a1b8159a74e96c777bc66516de6c94782" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_menu_shared_1a0666fec4af23579dd402e607fa9bbb71" kindref="member">DuplicateTriggered</ref>();</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108" refid="class_menu_shared_1abdaa92c4cabf341b5fc484c797fc9647" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_menu_shared_1a67673e4f7b0ff93320d96c155d19579f" kindref="member">EnableDisableTriggered</ref>();</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight></codeline>
+<codeline lineno="110" refid="class_menu_shared_1aa992030c0c94446d72332168642af67c" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_menu_shared_1a8625750e908dffda38f8f019a28e7307" kindref="member">NestTriggered</ref>();</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="112" refid="class_menu_shared_1a56153efcc3b68a195d214fe5c451f7da" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_menu_shared_1aea71d65436f00e944133c091b8afdf23" kindref="member">DefaultTransitionTriggered</ref>();</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight></codeline>
+<codeline lineno="114" refid="class_menu_shared_1acd4a84f69691101e3a3ef0404cec551f" refkind="member"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116" refid="class_menu_shared_1af91a30c709887c6162d0f0bbef4b4733" refkind="member"><highlight class="normal"><ref refid="define_8h_1abe3de0634d907ca0f5d1acf732c49dac" kindref="member">OLIVE_NAMESPACE_EXIT</ref></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight></codeline>
+<codeline lineno="118" refid="class_menu_shared_1a367db9415a4aae23bfc11cb81f3aff8d" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//<sp/>MENUSHARED_H</highlight></codeline>
+    </programlisting>
+    <location file="C:/Daten/Olive/olive/app/widget/menu/menushared.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,217 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_memory_pool_1_1_element" kind="class" language="C++" prot="public">
+    <compoundname>MemoryPool::Element</compoundname>
+    <includes refid="memorypool_8h" local="no">memorypool.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_memory_pool_1_1_element_1aa1679ba37afaf646222236c33f4d4ea0" prot="private" static="no" mutable="no">
+        <type><ref refid="class_memory_pool_1_1_arena" kindref="compound">Arena</ref> *</type>
+        <definition>Arena* MemoryPool&lt; T &gt;::Element::parent_</definition>
+        <argsstring></argsstring>
+        <name>parent_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/memorypool.h" line="173" column="11" bodyfile="C:/Daten/Olive/olive/app/common/memorypool.h" bodystart="173" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_memory_pool_1_1_element_1a63eb9e22210913803ad8e667d7f2f62b" prot="private" static="no" mutable="no">
+        <type>T *</type>
+        <definition>T* MemoryPool&lt; T &gt;::Element::data_</definition>
+        <argsstring></argsstring>
+        <name>data_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/memorypool.h" line="175" column="7" bodyfile="C:/Daten/Olive/olive/app/common/memorypool.h" bodystart="175" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_memory_pool_1_1_element_1a086abb608886d12452335b818d9ecc2d" prot="private" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t MemoryPool&lt; T &gt;::Element::timestamp_</definition>
+        <argsstring></argsstring>
+        <name>timestamp_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/memorypool.h" line="177" column="13" bodyfile="C:/Daten/Olive/olive/app/common/memorypool.h" bodystart="177" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_memory_pool_1_1_element_1a34cdd215e1dd28c0328d25543bbfb1f8" prot="private" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t MemoryPool&lt; T &gt;::Element::accessed_</definition>
+        <argsstring></argsstring>
+        <name>accessed_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/memorypool.h" line="179" column="13" bodyfile="C:/Daten/Olive/olive/app/common/memorypool.h" bodystart="179" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_memory_pool_1_1_element_1a8b25f942bdae2a231f3ec5174d311872" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>MemoryPool&lt; T &gt;::Element::Element</definition>
+        <argsstring>(Arena *parent, T *data)</argsstring>
+        <name>Element</name>
+        <param>
+          <type><ref refid="class_memory_pool_1_1_arena" kindref="compound">Arena</ref> *</type>
+          <declname>parent</declname>
+        </param>
+        <param>
+          <type>T *</type>
+          <declname>data</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="class_memory_pool_1_1_element" kindref="compound">Element</ref> Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>There is no need to use this outside of the memory pool&apos;s internal functions. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/memorypool.h" line="121" column="5" bodyfile="C:/Daten/Olive/olive/app/common/memorypool.h" bodystart="121" bodyend="125"/>
+      </memberdef>
+      <memberdef kind="function" id="class_memory_pool_1_1_element_1aa9b2e0b0d91705962314cd18d2c9483a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>MemoryPool&lt; T &gt;::Element::~Element</definition>
+        <argsstring>()</argsstring>
+        <name>~Element</name>
+        <briefdescription>
+<para><ref refid="class_memory_pool_1_1_element" kindref="compound">Element</ref> Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Automatically releases this element&apos;s memory back to the arena it was retrieved from. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/memorypool.h" line="132" column="5" bodyfile="C:/Daten/Olive/olive/app/common/memorypool.h" bodystart="132" bodyend="134"/>
+      </memberdef>
+      <memberdef kind="function" id="class_memory_pool_1_1_element_1af9eae2e5d3c8351ea61017e86a50ec90" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>T *</type>
+        <definition>T* MemoryPool&lt; T &gt;::Element::data</definition>
+        <argsstring>() const</argsstring>
+        <name>data</name>
+        <briefdescription>
+<para>Access data represented in the pool. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/memorypool.h" line="141" column="14" bodyfile="C:/Daten/Olive/olive/app/common/memorypool.h" bodystart="141" bodyend="143"/>
+      </memberdef>
+      <memberdef kind="function" id="class_memory_pool_1_1_element_1aeeee75b773fb96c82c49c77e92fb26da" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>const int64_t &amp;</type>
+        <definition>const int64_t&amp; MemoryPool&lt; T &gt;::Element::timestamp</definition>
+        <argsstring>() const</argsstring>
+        <name>timestamp</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/memorypool.h" line="145" column="26" bodyfile="C:/Daten/Olive/olive/app/common/memorypool.h" bodystart="145" bodyend="147"/>
+      </memberdef>
+      <memberdef kind="function" id="class_memory_pool_1_1_element_1a99f0457a522b66bc50e0267ee0a8f9d8" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void MemoryPool&lt; T &gt;::Element::set_timestamp</definition>
+        <argsstring>(const int64_t &amp;timestamp)</argsstring>
+        <name>set_timestamp</name>
+        <param>
+          <type>const int64_t &amp;</type>
+          <declname>timestamp</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/memorypool.h" line="149" column="17" bodyfile="C:/Daten/Olive/olive/app/common/memorypool.h" bodystart="149" bodyend="151"/>
+      </memberdef>
+      <memberdef kind="function" id="class_memory_pool_1_1_element_1a2d8ab8426a6d16c366398eb59b90d2cd" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void MemoryPool&lt; T &gt;::Element::access</definition>
+        <argsstring>()</argsstring>
+        <name>access</name>
+        <briefdescription>
+<para>Register that this element has been accessed. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="see"><para><ref refid="class_memory_pool_1_1_element_1a83181850b8ceee135ef1c5d0d4133bc1" kindref="member">last_accessed()</ref> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/memorypool.h" line="158" column="17" bodyfile="C:/Daten/Olive/olive/app/common/memorypool.h" bodystart="158" bodyend="160"/>
+      </memberdef>
+      <memberdef kind="function" id="class_memory_pool_1_1_element_1a83181850b8ceee135ef1c5d0d4133bc1" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>const int64_t &amp;</type>
+        <definition>const int64_t&amp; MemoryPool&lt; T &gt;::Element::last_accessed</definition>
+        <argsstring>() const</argsstring>
+        <name>last_accessed</name>
+        <briefdescription>
+<para>Returns the last time <computeroutput><ref refid="class_memory_pool_1_1_element_1a2d8ab8426a6d16c366398eb59b90d2cd" kindref="member">access()</ref></computeroutput> was called on this function. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Useful for determining the relative age of an element (i.e. if it hasn&apos;t been accessed for a certain amount of time, it can probably be freed back into the pool). This requires all usages to call <computeroutput><ref refid="class_memory_pool_1_1_element_1a2d8ab8426a6d16c366398eb59b90d2cd" kindref="member">access()</ref></computeroutput>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/memorypool.h" line="168" column="26" bodyfile="C:/Daten/Olive/olive/app/common/memorypool.h" bodystart="168" bodyend="170"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A handle for a chunk of memory in an arena. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Calling <ref refid="class_memory_pool_1a39389a86c5b985e4845069d7a2a835bf" kindref="member">Get()</ref> on the pool or arena will return a shared pointer to an element which will contain a pointer to the desired object/data in <ref refid="class_memory_pool_1_1_element_1af9eae2e5d3c8351ea61017e86a50ec90" kindref="member">data()</ref>. When <ref refid="class_memory_pool_1_1_element" kindref="compound">Element</ref> is destroyed (i.e. when ElementPtr goes out of scope), the memory is released back into the pool so it can be used by another class. </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="2">
+        <label>MemoryPool&lt; T &gt;::Arena</label>
+        <link refid="class_memory_pool_1_1_arena"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>parent_</edgelabel>
+        </childnode>
+      </node>
+      <node id="1">
+        <label>MemoryPool&lt; T &gt;::Element</label>
+        <link refid="class_memory_pool_1_1_element"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>parent_</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>MemoryPool&lt; T &gt;</label>
+        <link refid="class_memory_pool"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/common/memorypool.h" line="114" column="3" bodyfile="C:/Daten/Olive/olive/app/common/memorypool.h" bodystart="114" bodyend="181"/>
+    <listofallmembers>
+      <member refid="class_memory_pool_1_1_element_1a2d8ab8426a6d16c366398eb59b90d2cd" prot="public" virt="non-virtual"><scope>MemoryPool::Element</scope><name>access</name></member>
+      <member refid="class_memory_pool_1_1_element_1a34cdd215e1dd28c0328d25543bbfb1f8" prot="private" virt="non-virtual"><scope>MemoryPool::Element</scope><name>accessed_</name></member>
+      <member refid="class_memory_pool_1_1_element_1af9eae2e5d3c8351ea61017e86a50ec90" prot="public" virt="non-virtual"><scope>MemoryPool::Element</scope><name>data</name></member>
+      <member refid="class_memory_pool_1_1_element_1a63eb9e22210913803ad8e667d7f2f62b" prot="private" virt="non-virtual"><scope>MemoryPool::Element</scope><name>data_</name></member>
+      <member refid="class_memory_pool_1_1_element_1a8b25f942bdae2a231f3ec5174d311872" prot="public" virt="non-virtual"><scope>MemoryPool::Element</scope><name>Element</name></member>
+      <member refid="class_memory_pool_1_1_element_1a83181850b8ceee135ef1c5d0d4133bc1" prot="public" virt="non-virtual"><scope>MemoryPool::Element</scope><name>last_accessed</name></member>
+      <member refid="class_memory_pool_1_1_element_1aa1679ba37afaf646222236c33f4d4ea0" prot="private" virt="non-virtual"><scope>MemoryPool::Element</scope><name>parent_</name></member>
+      <member refid="class_memory_pool_1_1_element_1a99f0457a522b66bc50e0267ee0a8f9d8" prot="public" virt="non-virtual"><scope>MemoryPool::Element</scope><name>set_timestamp</name></member>
+      <member refid="class_memory_pool_1_1_element_1aeeee75b773fb96c82c49c77e92fb26da" prot="public" virt="non-virtual"><scope>MemoryPool::Element</scope><name>timestamp</name></member>
+      <member refid="class_memory_pool_1_1_element_1a086abb608886d12452335b818d9ecc2d" prot="private" virt="non-virtual"><scope>MemoryPool::Element</scope><name>timestamp_</name></member>
+      <member refid="class_memory_pool_1_1_element_1aa9b2e0b0d91705962314cd18d2c9483a" prot="public" virt="non-virtual"><scope>MemoryPool::Element</scope><name>~Element</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

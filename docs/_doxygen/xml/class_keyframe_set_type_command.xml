@@ -1,0 +1,202 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_keyframe_set_type_command" kind="class" language="C++" prot="public">
+    <compoundname>KeyframeSetTypeCommand</compoundname>
+    <basecompoundref refid="class_undo_command" prot="public" virt="non-virtual">UndoCommand</basecompoundref>
+    <includes refid="keyframeviewundo_8h" local="no">keyframeviewundo.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_keyframe_set_type_command_1adeecdca6caf626e2243373d66b0d63f8" prot="private" static="no" mutable="no">
+        <type><ref refid="keyframe_8h_1a741b7edf62813e254aba77dca9f281ea" kindref="member">NodeKeyframePtr</ref></type>
+        <definition>NodeKeyframePtr KeyframeSetTypeCommand::key_</definition>
+        <argsstring></argsstring>
+        <name>key_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/keyframeviewundo.h" line="58" column="19" bodyfile="C:/Daten/Olive/olive/app/widget/keyframeview/keyframeviewundo.h" bodystart="58" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_keyframe_set_type_command_1a1bb8d4315df6d630d9286f7f0e239db8" prot="private" static="no" mutable="no">
+        <type><ref refid="class_node_keyframe_1a4de19ec74164e01bcec63749da35f7f6" kindref="member">NodeKeyframe::Type</ref></type>
+        <definition>NodeKeyframe::Type KeyframeSetTypeCommand::old_type_</definition>
+        <argsstring></argsstring>
+        <name>old_type_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/keyframeviewundo.h" line="60" column="22" bodyfile="C:/Daten/Olive/olive/app/widget/keyframeview/keyframeviewundo.h" bodystart="60" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_keyframe_set_type_command_1a79c0835867f6548556a3656e0236cab8" prot="private" static="no" mutable="no">
+        <type><ref refid="class_node_keyframe_1a4de19ec74164e01bcec63749da35f7f6" kindref="member">NodeKeyframe::Type</ref></type>
+        <definition>NodeKeyframe::Type KeyframeSetTypeCommand::new_type_</definition>
+        <argsstring></argsstring>
+        <name>new_type_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/keyframeviewundo.h" line="62" column="22" bodyfile="C:/Daten/Olive/olive/app/widget/keyframeview/keyframeviewundo.h" bodystart="62" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_undo_command_1a6c06f9c1b7bfeeff3c4724491945992b" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool UndoCommand::modified_</definition>
+        <argsstring></argsstring>
+        <name>modified_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="64" column="8" bodyfile="C:/Daten/Olive/olive/app/undo/undocommand.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_keyframe_set_type_command_1aa7d951b68a983bde359181af42b20c37" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>KeyframeSetTypeCommand::KeyframeSetTypeCommand</definition>
+        <argsstring>(NodeKeyframePtr key, NodeKeyframe::Type type, QUndoCommand *parent=nullptr)</argsstring>
+        <name>KeyframeSetTypeCommand</name>
+        <param>
+          <type><ref refid="keyframe_8h_1a741b7edf62813e254aba77dca9f281ea" kindref="member">NodeKeyframePtr</ref></type>
+          <declname>key</declname>
+        </param>
+        <param>
+          <type><ref refid="class_node_keyframe_1a4de19ec74164e01bcec63749da35f7f6" kindref="member">NodeKeyframe::Type</ref></type>
+          <declname>type</declname>
+        </param>
+        <param>
+          <type>QUndoCommand *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/keyframeviewundo.h" line="49" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_keyframe_set_type_command_1a1e8f832c308d749ee56cc93d601d8add" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="class_project" kindref="compound">Project</ref> *</type>
+        <definition>virtual Project* KeyframeSetTypeCommand::GetRelevantProject</definition>
+        <argsstring>() const override</argsstring>
+        <name>GetRelevantProject</name>
+        <reimplements refid="class_undo_command_1ab5c8967132833ea6be76a63dc5472f4f">GetRelevantProject</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/keyframeviewundo.h" line="51" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_undo_command_1a9907db368d01fb26f5082a36c6d90bd4" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void UndoCommand::redo</definition>
+        <argsstring>() override</argsstring>
+        <name>redo</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="54" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_undo_command_1a09d00f8a2e1c8b3c97d72d9585503030" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void UndoCommand::undo</definition>
+        <argsstring>() override</argsstring>
+        <name>undo</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="55" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_keyframe_set_type_command_1abde24928ce754586a64061a37912cef4" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void KeyframeSetTypeCommand::redo_internal</definition>
+        <argsstring>() override</argsstring>
+        <name>redo_internal</name>
+        <reimplements refid="class_undo_command_1ac8aa20d444a655cd36fa3c7dc01928b4">redo_internal</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/keyframeviewundo.h" line="54" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_keyframe_set_type_command_1a7d3f1cdb927f9543acefa778ba8f76b3" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void KeyframeSetTypeCommand::undo_internal</definition>
+        <argsstring>() override</argsstring>
+        <name>undo_internal</name>
+        <reimplements refid="class_undo_command_1a871dbc8a1f95b58e641be13703563faa">undo_internal</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/keyframeview/keyframeviewundo.h" line="55" column="16"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>UndoCommand</label>
+        <link refid="class_undo_command"/>
+      </node>
+      <node id="1">
+        <label>KeyframeSetTypeCommand</label>
+        <link refid="class_keyframe_set_type_command"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>UndoCommand</label>
+        <link refid="class_undo_command"/>
+      </node>
+      <node id="1">
+        <label>KeyframeSetTypeCommand</label>
+        <link refid="class_keyframe_set_type_command"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/keyframeview/keyframeviewundo.h" line="29" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/keyframeview/keyframeviewundo.h" bodystart="29" bodyend="46"/>
+    <listofallmembers>
+      <member refid="class_keyframe_set_type_command_1a1e8f832c308d749ee56cc93d601d8add" prot="public" virt="virtual"><scope>KeyframeSetTypeCommand</scope><name>GetRelevantProject</name></member>
+      <member refid="class_keyframe_set_type_command_1adeecdca6caf626e2243373d66b0d63f8" prot="private" virt="non-virtual"><scope>KeyframeSetTypeCommand</scope><name>key_</name></member>
+      <member refid="class_keyframe_set_type_command_1aa7d951b68a983bde359181af42b20c37" prot="public" virt="non-virtual"><scope>KeyframeSetTypeCommand</scope><name>KeyframeSetTypeCommand</name></member>
+      <member refid="class_undo_command_1a6c06f9c1b7bfeeff3c4724491945992b" prot="private" virt="non-virtual"><scope>KeyframeSetTypeCommand</scope><name>modified_</name></member>
+      <member refid="class_keyframe_set_type_command_1a79c0835867f6548556a3656e0236cab8" prot="private" virt="non-virtual"><scope>KeyframeSetTypeCommand</scope><name>new_type_</name></member>
+      <member refid="class_keyframe_set_type_command_1a1bb8d4315df6d630d9286f7f0e239db8" prot="private" virt="non-virtual"><scope>KeyframeSetTypeCommand</scope><name>old_type_</name></member>
+      <member refid="class_undo_command_1a9907db368d01fb26f5082a36c6d90bd4" prot="public" virt="virtual"><scope>KeyframeSetTypeCommand</scope><name>redo</name></member>
+      <member refid="class_keyframe_set_type_command_1abde24928ce754586a64061a37912cef4" prot="protected" virt="virtual"><scope>KeyframeSetTypeCommand</scope><name>redo_internal</name></member>
+      <member refid="class_undo_command_1a09d00f8a2e1c8b3c97d72d9585503030" prot="public" virt="virtual"><scope>KeyframeSetTypeCommand</scope><name>undo</name></member>
+      <member refid="class_keyframe_set_type_command_1a7d3f1cdb927f9543acefa778ba8f76b3" prot="protected" virt="virtual"><scope>KeyframeSetTypeCommand</scope><name>undo_internal</name></member>
+      <member refid="class_undo_command_1a5a07a6505a207cf7186c7c726ff9c5fa" prot="public" virt="non-virtual"><scope>KeyframeSetTypeCommand</scope><name>UndoCommand</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

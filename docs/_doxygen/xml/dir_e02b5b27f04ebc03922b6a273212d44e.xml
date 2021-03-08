@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_e02b5b27f04ebc03922b6a273212d44e" kind="dir">
+    <compoundname>track</compoundname>
+    <innerfile refid="track_8h">track.h</innerfile>
+    <innerfile refid="tracklist_8h">tracklist.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/node/output/track/"/>
+  </compounddef>
+</doxygen>

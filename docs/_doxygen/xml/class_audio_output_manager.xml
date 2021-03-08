@@ -1,0 +1,338 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_audio_output_manager" kind="class" language="C++" prot="public">
+    <compoundname>AudioOutputManager</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QObject</basecompoundref>
+    <includes refid="outputmanager_8h" local="no">outputmanager.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_audio_output_manager_1aa3d2110112386876852f2371d5bfa5e3" prot="private" static="no" mutable="no">
+        <type>QAudioOutput *</type>
+        <definition>QAudioOutput* AudioOutputManager::output_</definition>
+        <argsstring></argsstring>
+        <name>output_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/outputmanager.h" line="89" column="16" bodyfile="C:/Daten/Olive/olive/app/audio/outputmanager.h" bodystart="89" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_audio_output_manager_1a8e6bbb8deb3cee7c3ef7e31acd5e3e99" prot="private" static="no" mutable="no">
+        <type>QIODevice *</type>
+        <definition>QIODevice* AudioOutputManager::push_device_</definition>
+        <argsstring></argsstring>
+        <name>push_device_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/outputmanager.h" line="90" column="13" bodyfile="C:/Daten/Olive/olive/app/audio/outputmanager.h" bodystart="90" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_audio_output_manager_1a6ca0e0cfe2ac3badbac0b9f41f19c688" prot="private" static="no" mutable="no">
+        <type>QMutex</type>
+        <definition>QMutex AudioOutputManager::push_sample_lock_</definition>
+        <argsstring></argsstring>
+        <name>push_sample_lock_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/outputmanager.h" line="92" column="10" bodyfile="C:/Daten/Olive/olive/app/audio/outputmanager.h" bodystart="92" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_audio_output_manager_1a4ce56705e45ec40f42a836ee55ec76e5" prot="private" static="no" mutable="no">
+        <type>QByteArray</type>
+        <definition>QByteArray AudioOutputManager::push_samples_</definition>
+        <argsstring></argsstring>
+        <name>push_samples_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/outputmanager.h" line="93" column="14" bodyfile="C:/Daten/Olive/olive/app/audio/outputmanager.h" bodystart="93" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_audio_output_manager_1ad4efdcf9033381669b08b86ada51a3e3" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int AudioOutputManager::push_sample_index_</definition>
+        <argsstring></argsstring>
+        <name>push_sample_index_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/outputmanager.h" line="94" column="7" bodyfile="C:/Daten/Olive/olive/app/audio/outputmanager.h" bodystart="94" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_audio_output_manager_1a8f0173e2cad05338f0d56ef917cf1f6f" prot="private" static="no" mutable="no">
+        <type><ref refid="class_audio_output_device_proxy" kindref="compound">AudioOutputDeviceProxy</ref></type>
+        <definition>AudioOutputDeviceProxy AudioOutputManager::device_proxy_</definition>
+        <argsstring></argsstring>
+        <name>device_proxy_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/outputmanager.h" line="96" column="26" bodyfile="C:/Daten/Olive/olive/app/audio/outputmanager.h" bodystart="96" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_audio_output_manager_1a9be39eae3fb8f4c41594845b980eded2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>AudioOutputManager::AudioOutputManager</definition>
+        <argsstring>(QObject *parent=nullptr)</argsstring>
+        <name>AudioOutputManager</name>
+        <param>
+          <type>QObject *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/outputmanager.h" line="57" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_output_manager_1a5e18c746c574a025c02f78eae820a7c3" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type></type>
+        <definition>virtual AudioOutputManager::~AudioOutputManager</definition>
+        <argsstring>() override</argsstring>
+        <name>~AudioOutputManager</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/outputmanager.h" line="59" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_audio_output_manager_1a3327983c271f3d997310b1166e826023" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AudioOutputManager::Push</definition>
+        <argsstring>(const QByteArray &amp;samples)</argsstring>
+        <name>Push</name>
+        <param>
+          <type>const QByteArray &amp;</type>
+          <declname>samples</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/outputmanager.h" line="62" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-slot">
+      <memberdef kind="slot" id="class_audio_output_manager_1aaafc11874c96a2b2115f20bdb223f052" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AudioOutputManager::SetOutputDevice</definition>
+        <argsstring>(QAudioDeviceInfo info, QAudioFormat format)</argsstring>
+        <name>SetOutputDevice</name>
+        <param>
+          <type>QAudioDeviceInfo</type>
+          <declname>info</declname>
+        </param>
+        <param>
+          <type>QAudioFormat</type>
+          <declname>format</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/outputmanager.h" line="66" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_audio_output_manager_1a1a1b0fd53c40270066e09b27063e1ba7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AudioOutputManager::PullFromDevice</definition>
+        <argsstring>(const QString &amp;filename, qint64 offset, int playback_speed)</argsstring>
+        <name>PullFromDevice</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>filename</declname>
+        </param>
+        <param>
+          <type>qint64</type>
+          <declname>offset</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>playback_speed</declname>
+        </param>
+        <briefdescription>
+<para>Connect a QIODevice (e.g. QFile) to start sending to the audio output. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This will clear any pushed samples or QIODevices currently being read and will start reading from this next time the audio output requests data. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/outputmanager.h" line="74" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_audio_output_manager_1a09f073b1c462a5e07b6aee68f3c75f02" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AudioOutputManager::ResetToPushMode</definition>
+        <argsstring>()</argsstring>
+        <name>ResetToPushMode</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/outputmanager.h" line="77" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_audio_output_manager_1a8f863c35d9d245e1c6898fe422fed572" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AudioOutputManager::SetParameters</definition>
+        <argsstring>(OLIVE_NAMESPACE::AudioRenderingParams params)</argsstring>
+        <name>SetParameters</name>
+        <param>
+          <type>OLIVE_NAMESPACE::AudioRenderingParams</type>
+          <declname>params</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/outputmanager.h" line="80" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_audio_output_manager_1a1cb33792a505094f81349c60a78e060e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AudioOutputManager::Close</definition>
+        <argsstring>()</argsstring>
+        <name>Close</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/outputmanager.h" line="83" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_audio_output_manager_1a8b331da419def6f6b15ed24fbe4b8195" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AudioOutputManager::OutputNotified</definition>
+        <argsstring>()</argsstring>
+        <name>OutputNotified</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/outputmanager.h" line="86" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_audio_output_manager_1a5b0c9c0aabd7d483409ccc6191464b0e" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AudioOutputManager::PushMoreSamples</definition>
+        <argsstring>()</argsstring>
+        <name>PushMoreSamples</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/outputmanager.h" line="99" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_audio_output_manager_1acc6d63c25acf1899c1c3363a03efdb40" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AudioOutputManager::OutputStateChanged</definition>
+        <argsstring>(QAudio::State state)</argsstring>
+        <name>OutputStateChanged</name>
+        <param>
+          <type>QAudio::State</type>
+          <declname>state</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/audio/outputmanager.h" line="101" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>AudioOutputManager</label>
+        <link refid="class_audio_output_manager"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>device_proxy_</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>AudioOutputDeviceProxy</label>
+        <link refid="class_audio_output_device_proxy"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>tempo_processor_</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>params_</edgelabel>
+        </childnode>
+      </node>
+      <node id="5">
+        <label>AudioParams</label>
+        <link refid="class_audio_params"/>
+      </node>
+      <node id="4">
+        <label>AudioRenderingParams</label>
+        <link refid="class_audio_rendering_params"/>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>TempoProcessor</label>
+        <link refid="class_tempo_processor"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>params_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/audio/outputmanager.h" line="35" column="1" bodyfile="C:/Daten/Olive/olive/app/audio/outputmanager.h" bodystart="36" bodyend="85"/>
+    <listofallmembers>
+      <member refid="class_audio_output_manager_1a9be39eae3fb8f4c41594845b980eded2" prot="public" virt="non-virtual"><scope>AudioOutputManager</scope><name>AudioOutputManager</name></member>
+      <member refid="class_audio_output_manager_1a1cb33792a505094f81349c60a78e060e" prot="public" virt="non-virtual"><scope>AudioOutputManager</scope><name>Close</name></member>
+      <member refid="class_audio_output_manager_1a8f0173e2cad05338f0d56ef917cf1f6f" prot="private" virt="non-virtual"><scope>AudioOutputManager</scope><name>device_proxy_</name></member>
+      <member refid="class_audio_output_manager_1aa3d2110112386876852f2371d5bfa5e3" prot="private" virt="non-virtual"><scope>AudioOutputManager</scope><name>output_</name></member>
+      <member refid="class_audio_output_manager_1a8b331da419def6f6b15ed24fbe4b8195" prot="public" virt="non-virtual"><scope>AudioOutputManager</scope><name>OutputNotified</name></member>
+      <member refid="class_audio_output_manager_1acc6d63c25acf1899c1c3363a03efdb40" prot="private" virt="non-virtual"><scope>AudioOutputManager</scope><name>OutputStateChanged</name></member>
+      <member refid="class_audio_output_manager_1a1a1b0fd53c40270066e09b27063e1ba7" prot="public" virt="non-virtual"><scope>AudioOutputManager</scope><name>PullFromDevice</name></member>
+      <member refid="class_audio_output_manager_1a3327983c271f3d997310b1166e826023" prot="public" virt="non-virtual"><scope>AudioOutputManager</scope><name>Push</name></member>
+      <member refid="class_audio_output_manager_1a8e6bbb8deb3cee7c3ef7e31acd5e3e99" prot="private" virt="non-virtual"><scope>AudioOutputManager</scope><name>push_device_</name></member>
+      <member refid="class_audio_output_manager_1ad4efdcf9033381669b08b86ada51a3e3" prot="private" virt="non-virtual"><scope>AudioOutputManager</scope><name>push_sample_index_</name></member>
+      <member refid="class_audio_output_manager_1a6ca0e0cfe2ac3badbac0b9f41f19c688" prot="private" virt="non-virtual"><scope>AudioOutputManager</scope><name>push_sample_lock_</name></member>
+      <member refid="class_audio_output_manager_1a4ce56705e45ec40f42a836ee55ec76e5" prot="private" virt="non-virtual"><scope>AudioOutputManager</scope><name>push_samples_</name></member>
+      <member refid="class_audio_output_manager_1a5b0c9c0aabd7d483409ccc6191464b0e" prot="private" virt="non-virtual"><scope>AudioOutputManager</scope><name>PushMoreSamples</name></member>
+      <member refid="class_audio_output_manager_1a09f073b1c462a5e07b6aee68f3c75f02" prot="public" virt="non-virtual"><scope>AudioOutputManager</scope><name>ResetToPushMode</name></member>
+      <member refid="class_audio_output_manager_1aaafc11874c96a2b2115f20bdb223f052" prot="public" virt="non-virtual"><scope>AudioOutputManager</scope><name>SetOutputDevice</name></member>
+      <member refid="class_audio_output_manager_1a8f863c35d9d245e1c6898fe422fed572" prot="public" virt="non-virtual"><scope>AudioOutputManager</scope><name>SetParameters</name></member>
+      <member refid="class_audio_output_manager_1a5e18c746c574a025c02f78eae820a7c3" prot="public" virt="virtual"><scope>AudioOutputManager</scope><name>~AudioOutputManager</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

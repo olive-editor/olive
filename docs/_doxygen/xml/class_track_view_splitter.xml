@@ -1,0 +1,236 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_track_view_splitter" kind="class" language="C++" prot="public">
+    <compoundname>TrackViewSplitter</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QSplitter</basecompoundref>
+    <includes refid="trackviewsplitter_8h" local="no">trackviewsplitter.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_track_view_splitter_1a73a2d1ade8c33914da5f756697b9109f" prot="private" static="no" mutable="no">
+        <type>Qt::Alignment</type>
+        <definition>Qt::Alignment TrackViewSplitter::alignment_</definition>
+        <argsstring></argsstring>
+        <name>alignment_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackviewsplitter.h" line="74" column="17" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackviewsplitter.h" bodystart="74" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_track_view_splitter_1ad5574f36089339acf007f7a098811292" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int TrackViewSplitter::spacer_height_</definition>
+        <argsstring></argsstring>
+        <name>spacer_height_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackviewsplitter.h" line="76" column="7" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackviewsplitter.h" bodystart="76" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_track_view_splitter_1a145ade3e5f150dabb2bbbd516bedecd0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>TrackViewSplitter::TrackViewSplitter</definition>
+        <argsstring>(Qt::Alignment vertical_alignment, QWidget *parent=nullptr)</argsstring>
+        <name>TrackViewSplitter</name>
+        <param>
+          <type>Qt::Alignment</type>
+          <declname>vertical_alignment</declname>
+        </param>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackviewsplitter.h" line="53" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_track_view_splitter_1aaf0a7a49739d3698aa06d1d6bdd35fdd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TrackViewSplitter::HandleReceiver</definition>
+        <argsstring>(TrackViewSplitterHandle *h, int diff)</argsstring>
+        <name>HandleReceiver</name>
+        <param>
+          <type><ref refid="class_track_view_splitter_handle" kindref="compound">TrackViewSplitterHandle</ref> *</type>
+          <declname>h</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>diff</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackviewsplitter.h" line="55" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_track_view_splitter_1addba3cf2660ef34c3e28155160b80079" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TrackViewSplitter::SetHeightWithSizes</definition>
+        <argsstring>(QList&lt; int &gt; sizes)</argsstring>
+        <name>SetHeightWithSizes</name>
+        <param>
+          <type>QList&lt; int &gt;</type>
+          <declname>sizes</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackviewsplitter.h" line="57" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_track_view_splitter_1a75e0a378760535fda23d219f34d3bdcb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TrackViewSplitter::Insert</definition>
+        <argsstring>(int index, int height, QWidget *item)</argsstring>
+        <name>Insert</name>
+        <param>
+          <type>int</type>
+          <declname>index</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>height</declname>
+        </param>
+        <param>
+          <type>QWidget *</type>
+          <declname>item</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackviewsplitter.h" line="59" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_track_view_splitter_1a8b0e9303f24b6560c88ca696003b9271" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TrackViewSplitter::Remove</definition>
+        <argsstring>(int index)</argsstring>
+        <name>Remove</name>
+        <param>
+          <type>int</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackviewsplitter.h" line="60" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_track_view_splitter_1ada7f95c9cedf3c2e490e810833249842" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TrackViewSplitter::SetSpacerHeight</definition>
+        <argsstring>(int height)</argsstring>
+        <name>SetSpacerHeight</name>
+        <param>
+          <type>int</type>
+          <declname>height</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackviewsplitter.h" line="62" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-slot">
+      <memberdef kind="slot" id="class_track_view_splitter_1a1588a8aa4beccce1d6eae66a733e5e11" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TrackViewSplitter::SetTrackHeight</definition>
+        <argsstring>(int index, int h)</argsstring>
+        <name>SetTrackHeight</name>
+        <param>
+          <type>int</type>
+          <declname>index</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>h</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackviewsplitter.h" line="65" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_track_view_splitter_1acc4e23e619c3388e9097d8e53581dae8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TrackViewSplitter::TrackHeightChanged</definition>
+        <argsstring>(int index, int height)</argsstring>
+        <name>TrackHeightChanged</name>
+        <param>
+          <type>int</type>
+          <declname>index</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>height</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackviewsplitter.h" line="68" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_track_view_splitter_1ac5f2d785293436ed21be9f47e3638e1c" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>QSplitterHandle *</type>
+        <definition>virtual QSplitterHandle* TrackViewSplitter::createHandle</definition>
+        <argsstring>() override</argsstring>
+        <name>createHandle</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackviewsplitter.h" line="71" column="27"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackviewsplitter.h" line="49" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/trackview/trackviewsplitter.h" bodystart="50" bodyend="78"/>
+    <listofallmembers>
+      <member refid="class_track_view_splitter_1a73a2d1ade8c33914da5f756697b9109f" prot="private" virt="non-virtual"><scope>TrackViewSplitter</scope><name>alignment_</name></member>
+      <member refid="class_track_view_splitter_1ac5f2d785293436ed21be9f47e3638e1c" prot="protected" virt="virtual"><scope>TrackViewSplitter</scope><name>createHandle</name></member>
+      <member refid="class_track_view_splitter_1aaf0a7a49739d3698aa06d1d6bdd35fdd" prot="public" virt="non-virtual"><scope>TrackViewSplitter</scope><name>HandleReceiver</name></member>
+      <member refid="class_track_view_splitter_1a75e0a378760535fda23d219f34d3bdcb" prot="public" virt="non-virtual"><scope>TrackViewSplitter</scope><name>Insert</name></member>
+      <member refid="class_track_view_splitter_1a8b0e9303f24b6560c88ca696003b9271" prot="public" virt="non-virtual"><scope>TrackViewSplitter</scope><name>Remove</name></member>
+      <member refid="class_track_view_splitter_1addba3cf2660ef34c3e28155160b80079" prot="public" virt="non-virtual"><scope>TrackViewSplitter</scope><name>SetHeightWithSizes</name></member>
+      <member refid="class_track_view_splitter_1ada7f95c9cedf3c2e490e810833249842" prot="public" virt="non-virtual"><scope>TrackViewSplitter</scope><name>SetSpacerHeight</name></member>
+      <member refid="class_track_view_splitter_1a1588a8aa4beccce1d6eae66a733e5e11" prot="public" virt="non-virtual"><scope>TrackViewSplitter</scope><name>SetTrackHeight</name></member>
+      <member refid="class_track_view_splitter_1ad5574f36089339acf007f7a098811292" prot="private" virt="non-virtual"><scope>TrackViewSplitter</scope><name>spacer_height_</name></member>
+      <member refid="class_track_view_splitter_1acc4e23e619c3388e9097d8e53581dae8" prot="public" virt="non-virtual"><scope>TrackViewSplitter</scope><name>TrackHeightChanged</name></member>
+      <member refid="class_track_view_splitter_1a145ade3e5f150dabb2bbbd516bedecd0" prot="public" virt="non-virtual"><scope>TrackViewSplitter</scope><name>TrackViewSplitter</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

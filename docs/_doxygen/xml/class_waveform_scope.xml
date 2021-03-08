@@ -1,0 +1,732 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_waveform_scope" kind="class" language="C++" prot="public">
+    <compoundname>WaveformScope</compoundname>
+    <basecompoundref refid="class_managed_display_widget" prot="public" virt="non-virtual">ManagedDisplayWidget</basecompoundref>
+    <includes refid="waveform_8h" local="no">waveform.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_waveform_scope_1ae488d737354ea59edf12b66dc1b7b0e4" prot="private" static="no" mutable="no">
+        <type><ref refid="openglshader_8h_1a99853974927ec0ae59c90cd3f1f618fe" kindref="member">OpenGLShaderPtr</ref></type>
+        <definition>OpenGLShaderPtr WaveformScope::pipeline_</definition>
+        <argsstring></argsstring>
+        <name>pipeline_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/scope/waveform/waveform.h" line="72" column="19" bodyfile="C:/Daten/Olive/olive/app/widget/scope/waveform/waveform.h" bodystart="72" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_waveform_scope_1ae4b4524f8cdaea047eadf0eeb78e5fa9" prot="private" static="no" mutable="no">
+        <type><ref refid="class_open_g_l_texture" kindref="compound">OpenGLTexture</ref></type>
+        <definition>OpenGLTexture WaveformScope::texture_</definition>
+        <argsstring></argsstring>
+        <name>texture_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/scope/waveform/waveform.h" line="74" column="17" bodyfile="C:/Daten/Olive/olive/app/widget/scope/waveform/waveform.h" bodystart="74" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_waveform_scope_1af8980ec071e6d883ea1453fdef22ed53" prot="private" static="no" mutable="no">
+        <type><ref refid="class_open_g_l_texture" kindref="compound">OpenGLTexture</ref></type>
+        <definition>OpenGLTexture WaveformScope::managed_tex_</definition>
+        <argsstring></argsstring>
+        <name>managed_tex_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/scope/waveform/waveform.h" line="76" column="17" bodyfile="C:/Daten/Olive/olive/app/widget/scope/waveform/waveform.h" bodystart="76" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_waveform_scope_1a64d54d531f02793dc24b61e544cb19c2" prot="private" static="no" mutable="no">
+        <type><ref refid="class_open_g_l_framebuffer" kindref="compound">OpenGLFramebuffer</ref></type>
+        <definition>OpenGLFramebuffer WaveformScope::framebuffer_</definition>
+        <argsstring></argsstring>
+        <name>framebuffer_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/scope/waveform/waveform.h" line="78" column="21" bodyfile="C:/Daten/Olive/olive/app/widget/scope/waveform/waveform.h" bodystart="78" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_waveform_scope_1ac38d4ae564bdc043edad720824a8f060" prot="private" static="no" mutable="no">
+        <type><ref refid="class_frame" kindref="compound">Frame</ref> *</type>
+        <definition>Frame* WaveformScope::buffer_</definition>
+        <argsstring></argsstring>
+        <name>buffer_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/scope/waveform/waveform.h" line="80" column="9" bodyfile="C:/Daten/Olive/olive/app/widget/scope/waveform/waveform.h" bodystart="80" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_managed_display_widget_1a0d9523a422da118a0258dfc0b35d0367" prot="private" static="no" mutable="no">
+        <type><ref refid="class_color_manager" kindref="compound">ColorManager</ref> *</type>
+        <definition>ColorManager* ManagedDisplayWidget::color_manager_</definition>
+        <argsstring></argsstring>
+        <name>color_manager_</name>
+        <briefdescription>
+<para>Connected color manager. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/manageddisplay/manageddisplay.h" line="147" column="16" bodyfile="C:/Daten/Olive/olive/app/widget/manageddisplay/manageddisplay.h" bodystart="147" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_managed_display_widget_1a0270a45065f9d67b79f8e94109f265b9" prot="private" static="no" mutable="no">
+        <type><ref refid="openglcolorprocessor_8h_1adbd01a7d0ec2e2c2ccb318c7c1cce161" kindref="member">OpenGLColorProcessorPtr</ref></type>
+        <definition>OpenGLColorProcessorPtr ManagedDisplayWidget::color_service_</definition>
+        <argsstring></argsstring>
+        <name>color_service_</name>
+        <briefdescription>
+<para><ref refid="class_color" kindref="compound">Color</ref> management service. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/manageddisplay/manageddisplay.h" line="152" column="27" bodyfile="C:/Daten/Olive/olive/app/widget/manageddisplay/manageddisplay.h" bodystart="152" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_managed_display_widget_1a072154a5bfef0c0764dbf59e677c03d9" prot="private" static="no" mutable="no">
+        <type><ref refid="class_color_transform" kindref="compound">ColorTransform</ref></type>
+        <definition>ColorTransform ManagedDisplayWidget::color_transform_</definition>
+        <argsstring></argsstring>
+        <name>color_transform_</name>
+        <briefdescription>
+<para>Internal color transform storage. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/manageddisplay/manageddisplay.h" line="157" column="18" bodyfile="C:/Daten/Olive/olive/app/widget/manageddisplay/manageddisplay.h" bodystart="157" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_waveform_scope_1ac887e3771730449e40fc5baf98632b22" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>WaveformScope::WaveformScope</definition>
+        <argsstring>(QWidget *parent=nullptr)</argsstring>
+        <name>WaveformScope</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/scope/waveform/waveform.h" line="55" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_waveform_scope_1a21c84ac5f5cd16b0fcdeb3ea0d57c2ae" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type></type>
+        <definition>virtual WaveformScope::~WaveformScope</definition>
+        <argsstring>() override</argsstring>
+        <name>~WaveformScope</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/scope/waveform/waveform.h" line="57" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_managed_display_widget_1afb36dfc21b92bb662afbfd59d700d210" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ManagedDisplayWidget::DisconnectColorManager</definition>
+        <argsstring>()</argsstring>
+        <name>DisconnectColorManager</name>
+        <briefdescription>
+<para>Disconnect a <ref refid="class_color_manager" kindref="compound">ColorManager</ref> (equivalent to ConnectColorManager(nullptr)) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/manageddisplay/manageddisplay.h" line="61" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_managed_display_widget_1acccd28b317662d3dbf00731ddbb31be9" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_color_manager" kindref="compound">ColorManager</ref> *</type>
+        <definition>ColorManager* ManagedDisplayWidget::color_manager</definition>
+        <argsstring>() const</argsstring>
+        <name>color_manager</name>
+        <briefdescription>
+<para>Access currently connected <ref refid="class_color_manager" kindref="compound">ColorManager</ref> (nullptr if none) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/manageddisplay/manageddisplay.h" line="66" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_managed_display_widget_1a83b5ed5103c7b40a3f322435b7d56536" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="class_color_transform" kindref="compound">ColorTransform</ref> &amp;</type>
+        <definition>const ColorTransform&amp; ManagedDisplayWidget::GetColorTransform</definition>
+        <argsstring>() const</argsstring>
+        <name>GetColorTransform</name>
+        <briefdescription>
+<para>Get current color transform. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/manageddisplay/manageddisplay.h" line="71" column="24"/>
+      </memberdef>
+      <memberdef kind="function" id="class_managed_display_widget_1ab04551d4cd903b12880d92485057a393" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_menu" kindref="compound">Menu</ref> *</type>
+        <definition>Menu* ManagedDisplayWidget::GetDisplayMenu</definition>
+        <argsstring>(QMenu *parent, bool auto_connect=true)</argsstring>
+        <name>GetDisplayMenu</name>
+        <param>
+          <type>QMenu *</type>
+          <declname>parent</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>auto_connect</declname>
+          <defval>true</defval>
+        </param>
+        <briefdescription>
+<para>Get menu that can be used to select the display transform. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/manageddisplay/manageddisplay.h" line="76" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_managed_display_widget_1a47377d23f8014b9dc5a80c97db66241b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_menu" kindref="compound">Menu</ref> *</type>
+        <definition>Menu* ManagedDisplayWidget::GetViewMenu</definition>
+        <argsstring>(QMenu *parent, bool auto_connect=true)</argsstring>
+        <name>GetViewMenu</name>
+        <param>
+          <type>QMenu *</type>
+          <declname>parent</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>auto_connect</declname>
+          <defval>true</defval>
+        </param>
+        <briefdescription>
+<para>Get menu that can be used to select the view transform. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/manageddisplay/manageddisplay.h" line="81" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_managed_display_widget_1abc4a55055932e14dbfe1b8558e0d59cb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_menu" kindref="compound">Menu</ref> *</type>
+        <definition>Menu* ManagedDisplayWidget::GetLookMenu</definition>
+        <argsstring>(QMenu *parent, bool auto_connect=true)</argsstring>
+        <name>GetLookMenu</name>
+        <param>
+          <type>QMenu *</type>
+          <declname>parent</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>auto_connect</declname>
+          <defval>true</defval>
+        </param>
+        <briefdescription>
+<para>Get menu that can be used to select the look transform. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/manageddisplay/manageddisplay.h" line="86" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-slot">
+      <memberdef kind="slot" id="class_waveform_scope_1a6f3017b0f8c394c9d71caa28558d4f69" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void WaveformScope::SetBuffer</definition>
+        <argsstring>(Frame *frame)</argsstring>
+        <name>SetBuffer</name>
+        <param>
+          <type><ref refid="class_frame" kindref="compound">Frame</ref> *</type>
+          <declname>frame</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/scope/waveform/waveform.h" line="60" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_managed_display_widget_1a20886b032fb02f717af5141ad2ddf920" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ManagedDisplayWidget::SetColorTransform</definition>
+        <argsstring>(const ColorTransform &amp;transform)</argsstring>
+        <name>SetColorTransform</name>
+        <param>
+          <type>const <ref refid="class_color_transform" kindref="compound">ColorTransform</ref> &amp;</type>
+          <declname>transform</declname>
+        </param>
+        <briefdescription>
+<para>Replaces the color transform with a new one. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/manageddisplay/manageddisplay.h" line="92" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_managed_display_widget_1a2b51f4037d3cfac1d94282138b3ab572" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ManagedDisplayWidget::ConnectColorManager</definition>
+        <argsstring>(ColorManager *color_manager)</argsstring>
+        <name>ConnectColorManager</name>
+        <param>
+          <type><ref refid="class_color_manager" kindref="compound">ColorManager</ref> *</type>
+          <declname>color_manager</declname>
+        </param>
+        <briefdescription>
+<para>Connect a <ref refid="class_color_manager" kindref="compound">ColorManager</ref> (ColorManagers usually belong to the <ref refid="class_project" kindref="compound">Project</ref>) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/manageddisplay/manageddisplay.h" line="97" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_waveform_scope_1a2bc740318e60f96c3d78ca9817efd46b" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void WaveformScope::initializeGL</definition>
+        <argsstring>() override</argsstring>
+        <name>initializeGL</name>
+        <reimplements refid="class_managed_display_widget_1ad5cd6caf710329c291e816ba5ed36ed9">initializeGL</reimplements>
+        <briefdescription>
+<para>Override when setting up OpenGL context. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/scope/waveform/waveform.h" line="63" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_waveform_scope_1a798d0908f89f49e302a9b09acc19d583" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void WaveformScope::paintGL</definition>
+        <argsstring>() override</argsstring>
+        <name>paintGL</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/scope/waveform/waveform.h" line="65" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_waveform_scope_1a87219ddb85409529fc51c2dbda6f65c6" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void WaveformScope::showEvent</definition>
+        <argsstring>(QShowEvent *e) override</argsstring>
+        <name>showEvent</name>
+        <param>
+          <type>QShowEvent *</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/scope/waveform/waveform.h" line="67" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_managed_display_widget_1a715af539ce53f51985bb4fe453fdf65c" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="openglcolorprocessor_8h_1adbd01a7d0ec2e2c2ccb318c7c1cce161" kindref="member">OpenGLColorProcessorPtr</ref></type>
+        <definition>OpenGLColorProcessorPtr ManagedDisplayWidget::color_service</definition>
+        <argsstring>()</argsstring>
+        <name>color_service</name>
+        <briefdescription>
+<para>Provides access to the color processor (nullptr if none is set) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/manageddisplay/manageddisplay.h" line="114" column="27"/>
+      </memberdef>
+      <memberdef kind="function" id="class_managed_display_widget_1ab54c9534c7ec1c1ea519c562740298d0" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ManagedDisplayWidget::EnableDefaultContextMenu</definition>
+        <argsstring>()</argsstring>
+        <name>EnableDefaultContextMenu</name>
+        <briefdescription>
+<para>Enables a context menu that allows simple access to the DVL pipeline. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/manageddisplay/manageddisplay.h" line="124" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_managed_display_widget_1a4f73c220e6fdc8181bb63ebf8b09793b" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void ManagedDisplayWidget::ColorProcessorChangedEvent</definition>
+        <argsstring>()</argsstring>
+        <name>ColorProcessorChangedEvent</name>
+        <reimplementedby refid="class_histogram_scope_1aac6aa37fb101c545e7190336d4fd8ee7">ColorProcessorChangedEvent</reimplementedby>
+        <briefdescription>
+<para>Function called whenever the processor changes. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Default functionality is just to call update() </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/manageddisplay/manageddisplay.h" line="131" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_waveform_scope_1a68f2fd9048fe97785b62c342b88a7f40" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void WaveformScope::UploadTextureFromBuffer</definition>
+        <argsstring>()</argsstring>
+        <name>UploadTextureFromBuffer</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/scope/waveform/waveform.h" line="70" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_managed_display_widget_1a20308b1f27526799ddf3e15aba4ff8c2" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ManagedDisplayWidget::SetupColorProcessor</definition>
+        <argsstring>()</argsstring>
+        <name>SetupColorProcessor</name>
+        <briefdescription>
+<para>Call this if this user has selected a different display/view/look to recreate the processor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/manageddisplay/manageddisplay.h" line="137" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_managed_display_widget_1a4be07d10d0750eea2ce7dcdd8eaf786a" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ManagedDisplayWidget::ClearOCIOLutTexture</definition>
+        <argsstring>()</argsstring>
+        <name>ClearOCIOLutTexture</name>
+        <briefdescription>
+<para>Cleanup function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/manageddisplay/manageddisplay.h" line="142" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_waveform_scope_1a1d73810c472002eca5625153ea9d8af0" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void WaveformScope::CleanUp</definition>
+        <argsstring>()</argsstring>
+        <name>CleanUp</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/scope/waveform/waveform.h" line="83" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_managed_display_widget_1abd324c35bf6d4008419b75efda3179d4" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ManagedDisplayWidget::ColorConfigChanged</definition>
+        <argsstring>()</argsstring>
+        <name>ColorConfigChanged</name>
+        <briefdescription>
+<para>Sets all color settings to the defaults pertaining to this configuration. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/manageddisplay/manageddisplay.h" line="163" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_managed_display_widget_1a0d405a6bde2686a3c1806e6769866510" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ManagedDisplayWidget::ContextCleanup</definition>
+        <argsstring>()</argsstring>
+        <name>ContextCleanup</name>
+        <briefdescription>
+<para>Cleans up resources if context is about to be destroyed. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/manageddisplay/manageddisplay.h" line="168" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_managed_display_widget_1a5bffe9fab9aa4eef1c0dece06c7f93b4" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ManagedDisplayWidget::ShowDefaultContextMenu</definition>
+        <argsstring>()</argsstring>
+        <name>ShowDefaultContextMenu</name>
+        <briefdescription>
+<para>The default context menu shown. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/manageddisplay/manageddisplay.h" line="173" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_managed_display_widget_1a8f1b932e1f904d89f7af556717febc4f" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ManagedDisplayWidget::MenuDisplaySelect</definition>
+        <argsstring>(QAction *action)</argsstring>
+        <name>MenuDisplaySelect</name>
+        <param>
+          <type>QAction *</type>
+          <declname>action</declname>
+        </param>
+        <briefdescription>
+<para>If <ref refid="class_managed_display_widget_1ab04551d4cd903b12880d92485057a393" kindref="member">GetDisplayMenu()</ref> is called with <computeroutput>auto_connect</computeroutput> set to true, it will be connected to this. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/manageddisplay/manageddisplay.h" line="178" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_managed_display_widget_1a9b119224bc62c9f54350e23cacfd9841" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ManagedDisplayWidget::MenuViewSelect</definition>
+        <argsstring>(QAction *action)</argsstring>
+        <name>MenuViewSelect</name>
+        <param>
+          <type>QAction *</type>
+          <declname>action</declname>
+        </param>
+        <briefdescription>
+<para>If <ref refid="class_managed_display_widget_1a47377d23f8014b9dc5a80c97db66241b" kindref="member">GetViewMenu()</ref> is called with <computeroutput>auto_connect</computeroutput> set to true, it will be connected to this. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/manageddisplay/manageddisplay.h" line="183" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_managed_display_widget_1ab3ebeea38481edbab41b0c383a0c5304" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ManagedDisplayWidget::MenuLookSelect</definition>
+        <argsstring>(QAction *action)</argsstring>
+        <name>MenuLookSelect</name>
+        <param>
+          <type>QAction *</type>
+          <declname>action</declname>
+        </param>
+        <briefdescription>
+<para>If <ref refid="class_managed_display_widget_1abc4a55055932e14dbfe1b8558e0d59cb" kindref="member">GetLookMenu()</ref> is called with <computeroutput>auto_connect</computeroutput> set to true, it will be connected to this. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/manageddisplay/manageddisplay.h" line="188" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_managed_display_widget_1a5ebcee703053133f17e29d9931c0b371" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ManagedDisplayWidget::ColorProcessorChanged</definition>
+        <argsstring>(ColorProcessorPtr processor)</argsstring>
+        <name>ColorProcessorChanged</name>
+        <param>
+          <type><ref refid="colorprocessor_8h_1ae3985029dcc28a9f9f42fc726d1a9471" kindref="member">ColorProcessorPtr</ref></type>
+          <declname>processor</declname>
+        </param>
+        <briefdescription>
+<para>Emitted when the color processor changes. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/manageddisplay/manageddisplay.h" line="103" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_managed_display_widget_1a2ea503981fd13dbdd9d9b993d47a2dd9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ManagedDisplayWidget::ColorManagerChanged</definition>
+        <argsstring>(ColorManager *color_manager)</argsstring>
+        <name>ColorManagerChanged</name>
+        <param>
+          <type><ref refid="class_color_manager" kindref="compound">ColorManager</ref> *</type>
+          <declname>color_manager</declname>
+        </param>
+        <briefdescription>
+<para>Emitted when a new color manager is connected. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/manageddisplay/manageddisplay.h" line="108" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>ManagedDisplayWidget</label>
+        <link refid="class_managed_display_widget"/>
+      </node>
+      <node id="1">
+        <label>WaveformScope</label>
+        <link refid="class_waveform_scope"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>ManagedDisplayWidget</label>
+        <link refid="class_managed_display_widget"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>color_manager_</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>color_transform_</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>ColorManager</label>
+        <link refid="class_color_manager"/>
+      </node>
+      <node id="9">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="1">
+        <label>WaveformScope</label>
+        <link refid="class_waveform_scope"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>texture_</edgelabel>
+          <edgelabel>managed_tex_</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>buffer_</edgelabel>
+        </childnode>
+        <childnode refid="10" relation="usage">
+          <edgelabel>framebuffer_</edgelabel>
+        </childnode>
+      </node>
+      <node id="7">
+        <label>VideoRenderingParams</label>
+        <link refid="class_video_rendering_params"/>
+        <childnode refid="8" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>OpenGLTexture</label>
+        <link refid="class_open_g_l_texture"/>
+      </node>
+      <node id="6">
+        <label>Frame</label>
+        <link refid="class_frame"/>
+        <childnode refid="7" relation="usage">
+          <edgelabel>params_</edgelabel>
+        </childnode>
+        <childnode refid="9" relation="usage">
+          <edgelabel>sample_aspect_ratio_</edgelabel>
+          <edgelabel>timestamp_</edgelabel>
+        </childnode>
+      </node>
+      <node id="8">
+        <label>VideoParams</label>
+        <link refid="class_video_params"/>
+        <childnode refid="9" relation="usage">
+          <edgelabel>time_base_</edgelabel>
+        </childnode>
+      </node>
+      <node id="4">
+        <label>ColorTransform</label>
+        <link refid="class_color_transform"/>
+      </node>
+      <node id="10">
+        <label>OpenGLFramebuffer</label>
+        <link refid="class_open_g_l_framebuffer"/>
+        <childnode refid="5" relation="usage">
+          <edgelabel>texture_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/scope/waveform/waveform.h" line="33" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/scope/waveform/waveform.h" bodystart="34" bodyend="67"/>
+    <listofallmembers>
+      <member refid="class_waveform_scope_1ac38d4ae564bdc043edad720824a8f060" prot="private" virt="non-virtual"><scope>WaveformScope</scope><name>buffer_</name></member>
+      <member refid="class_waveform_scope_1a1d73810c472002eca5625153ea9d8af0" prot="private" virt="non-virtual"><scope>WaveformScope</scope><name>CleanUp</name></member>
+      <member refid="class_managed_display_widget_1a4be07d10d0750eea2ce7dcdd8eaf786a" prot="private" virt="non-virtual"><scope>WaveformScope</scope><name>ClearOCIOLutTexture</name></member>
+      <member refid="class_managed_display_widget_1acccd28b317662d3dbf00731ddbb31be9" prot="public" virt="non-virtual"><scope>WaveformScope</scope><name>color_manager</name></member>
+      <member refid="class_managed_display_widget_1a0d9523a422da118a0258dfc0b35d0367" prot="private" virt="non-virtual"><scope>WaveformScope</scope><name>color_manager_</name></member>
+      <member refid="class_managed_display_widget_1a715af539ce53f51985bb4fe453fdf65c" prot="protected" virt="non-virtual"><scope>WaveformScope</scope><name>color_service</name></member>
+      <member refid="class_managed_display_widget_1a0270a45065f9d67b79f8e94109f265b9" prot="private" virt="non-virtual"><scope>WaveformScope</scope><name>color_service_</name></member>
+      <member refid="class_managed_display_widget_1a072154a5bfef0c0764dbf59e677c03d9" prot="private" virt="non-virtual"><scope>WaveformScope</scope><name>color_transform_</name></member>
+      <member refid="class_managed_display_widget_1abd324c35bf6d4008419b75efda3179d4" prot="private" virt="non-virtual"><scope>WaveformScope</scope><name>ColorConfigChanged</name></member>
+      <member refid="class_managed_display_widget_1a2ea503981fd13dbdd9d9b993d47a2dd9" prot="public" virt="non-virtual"><scope>WaveformScope</scope><name>ColorManagerChanged</name></member>
+      <member refid="class_managed_display_widget_1a5ebcee703053133f17e29d9931c0b371" prot="public" virt="non-virtual"><scope>WaveformScope</scope><name>ColorProcessorChanged</name></member>
+      <member refid="class_managed_display_widget_1a4f73c220e6fdc8181bb63ebf8b09793b" prot="protected" virt="virtual"><scope>WaveformScope</scope><name>ColorProcessorChangedEvent</name></member>
+      <member refid="class_managed_display_widget_1a2b51f4037d3cfac1d94282138b3ab572" prot="public" virt="non-virtual"><scope>WaveformScope</scope><name>ConnectColorManager</name></member>
+      <member refid="class_managed_display_widget_1a0d405a6bde2686a3c1806e6769866510" prot="private" virt="non-virtual"><scope>WaveformScope</scope><name>ContextCleanup</name></member>
+      <member refid="class_managed_display_widget_1afb36dfc21b92bb662afbfd59d700d210" prot="public" virt="non-virtual"><scope>WaveformScope</scope><name>DisconnectColorManager</name></member>
+      <member refid="class_managed_display_widget_1ab54c9534c7ec1c1ea519c562740298d0" prot="protected" virt="non-virtual"><scope>WaveformScope</scope><name>EnableDefaultContextMenu</name></member>
+      <member refid="class_waveform_scope_1a64d54d531f02793dc24b61e544cb19c2" prot="private" virt="non-virtual"><scope>WaveformScope</scope><name>framebuffer_</name></member>
+      <member refid="class_managed_display_widget_1a83b5ed5103c7b40a3f322435b7d56536" prot="public" virt="non-virtual"><scope>WaveformScope</scope><name>GetColorTransform</name></member>
+      <member refid="class_managed_display_widget_1ab04551d4cd903b12880d92485057a393" prot="public" virt="non-virtual"><scope>WaveformScope</scope><name>GetDisplayMenu</name></member>
+      <member refid="class_managed_display_widget_1abc4a55055932e14dbfe1b8558e0d59cb" prot="public" virt="non-virtual"><scope>WaveformScope</scope><name>GetLookMenu</name></member>
+      <member refid="class_managed_display_widget_1a47377d23f8014b9dc5a80c97db66241b" prot="public" virt="non-virtual"><scope>WaveformScope</scope><name>GetViewMenu</name></member>
+      <member refid="class_waveform_scope_1a2bc740318e60f96c3d78ca9817efd46b" prot="protected" virt="virtual"><scope>WaveformScope</scope><name>initializeGL</name></member>
+      <member refid="class_waveform_scope_1af8980ec071e6d883ea1453fdef22ed53" prot="private" virt="non-virtual"><scope>WaveformScope</scope><name>managed_tex_</name></member>
+      <member refid="class_managed_display_widget_1a433e5e458bb942bc62e9e02fd8af9cd3" prot="public" virt="non-virtual"><scope>WaveformScope</scope><name>ManagedDisplayWidget</name></member>
+      <member refid="class_managed_display_widget_1a8f1b932e1f904d89f7af556717febc4f" prot="private" virt="non-virtual"><scope>WaveformScope</scope><name>MenuDisplaySelect</name></member>
+      <member refid="class_managed_display_widget_1ab3ebeea38481edbab41b0c383a0c5304" prot="private" virt="non-virtual"><scope>WaveformScope</scope><name>MenuLookSelect</name></member>
+      <member refid="class_managed_display_widget_1a9b119224bc62c9f54350e23cacfd9841" prot="private" virt="non-virtual"><scope>WaveformScope</scope><name>MenuViewSelect</name></member>
+      <member refid="class_waveform_scope_1a798d0908f89f49e302a9b09acc19d583" prot="protected" virt="virtual"><scope>WaveformScope</scope><name>paintGL</name></member>
+      <member refid="class_waveform_scope_1ae488d737354ea59edf12b66dc1b7b0e4" prot="private" virt="non-virtual"><scope>WaveformScope</scope><name>pipeline_</name></member>
+      <member refid="class_waveform_scope_1a6f3017b0f8c394c9d71caa28558d4f69" prot="public" virt="non-virtual"><scope>WaveformScope</scope><name>SetBuffer</name></member>
+      <member refid="class_managed_display_widget_1a20886b032fb02f717af5141ad2ddf920" prot="public" virt="non-virtual"><scope>WaveformScope</scope><name>SetColorTransform</name></member>
+      <member refid="class_managed_display_widget_1a20308b1f27526799ddf3e15aba4ff8c2" prot="private" virt="non-virtual"><scope>WaveformScope</scope><name>SetupColorProcessor</name></member>
+      <member refid="class_managed_display_widget_1a5bffe9fab9aa4eef1c0dece06c7f93b4" prot="private" virt="non-virtual"><scope>WaveformScope</scope><name>ShowDefaultContextMenu</name></member>
+      <member refid="class_waveform_scope_1a87219ddb85409529fc51c2dbda6f65c6" prot="protected" virt="virtual"><scope>WaveformScope</scope><name>showEvent</name></member>
+      <member refid="class_waveform_scope_1ae4b4524f8cdaea047eadf0eeb78e5fa9" prot="private" virt="non-virtual"><scope>WaveformScope</scope><name>texture_</name></member>
+      <member refid="class_waveform_scope_1a68f2fd9048fe97785b62c342b88a7f40" prot="private" virt="non-virtual"><scope>WaveformScope</scope><name>UploadTextureFromBuffer</name></member>
+      <member refid="class_waveform_scope_1ac887e3771730449e40fc5baf98632b22" prot="public" virt="non-virtual"><scope>WaveformScope</scope><name>WaveformScope</name></member>
+      <member refid="class_managed_display_widget_1a292ee606e3c05f68aa5975f9a1fe6ecd" prot="public" virt="virtual"><scope>WaveformScope</scope><name>~ManagedDisplayWidget</name></member>
+      <member refid="class_waveform_scope_1a21c84ac5f5cd16b0fcdeb3ea0d57c2ae" prot="public" virt="virtual"><scope>WaveformScope</scope><name>~WaveformScope</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

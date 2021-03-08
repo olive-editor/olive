@@ -1,0 +1,149 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_timeline_playhead" kind="class" language="C++" prot="public">
+    <compoundname>TimelinePlayhead</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QWidget</basecompoundref>
+    <includes refid="timelineplayhead_8h" local="no">timelineplayhead.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_timeline_playhead_1a71e7bcf63d7a9d584d8a4d0f4c6fb17d" prot="private" static="no" mutable="no">
+        <type>QColor</type>
+        <definition>QColor TimelinePlayhead::playhead_color_</definition>
+        <argsstring></argsstring>
+        <name>playhead_color_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineplayhead.h" line="66" column="10" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineplayhead.h" bodystart="66" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_timeline_playhead_1ac33c927160a581fdf557bef50a648aab" prot="private" static="no" mutable="no">
+        <type>QColor</type>
+        <definition>QColor TimelinePlayhead::playhead_highlight_color_</definition>
+        <argsstring></argsstring>
+        <name>playhead_highlight_color_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineplayhead.h" line="67" column="10" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineplayhead.h" bodystart="67" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_timeline_playhead_1a64e2f5410a4625575181155377adad71" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>TimelinePlayhead::TimelinePlayhead</definition>
+        <argsstring>()=default</argsstring>
+        <name>TimelinePlayhead</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineplayhead.h" line="55" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_playhead_1a36756537c72403e546b3e9f5f4f7494f" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const QColor &amp;</type>
+        <definition>const QColor&amp; TimelinePlayhead::GetPlayheadColor</definition>
+        <argsstring>() const</argsstring>
+        <name>GetPlayheadColor</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineplayhead.h" line="57" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_playhead_1a5c2a2931a533d34322e92f172a866936" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const QColor &amp;</type>
+        <definition>const QColor&amp; TimelinePlayhead::GetPlayheadHighlightColor</definition>
+        <argsstring>() const</argsstring>
+        <name>GetPlayheadHighlightColor</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineplayhead.h" line="58" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_playhead_1a49408d27ac9605172d4db8635c08e77c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimelinePlayhead::SetPlayheadColor</definition>
+        <argsstring>(QColor c)</argsstring>
+        <name>SetPlayheadColor</name>
+        <param>
+          <type>QColor</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineplayhead.h" line="60" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_playhead_1a7824c9feabb95f5f67e5fab83680e5b1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimelinePlayhead::SetPlayheadHighlightColor</definition>
+        <argsstring>(QColor c)</argsstring>
+        <name>SetPlayheadHighlightColor</name>
+        <param>
+          <type>QColor</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineplayhead.h" line="61" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_timeline_playhead_1a0d22e1c1ea602b624d3f075953c37dbe" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TimelinePlayhead::Draw</definition>
+        <argsstring>(QPainter *painter, const QRectF &amp;rect) const</argsstring>
+        <name>Draw</name>
+        <param>
+          <type>QPainter *</type>
+          <declname>painter</declname>
+        </param>
+        <param>
+          <type>const QRectF &amp;</type>
+          <declname>rect</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineplayhead.h" line="63" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A QWidget proxy for <ref refid="class_time_ruler" kindref="compound">TimeRuler</ref> and TimelinePlayheadItem to allow them to share CSS values. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>To allow Qt CSS customization (which is only available to QWidgets) to be accessed by <ref refid="class_time_ruler" kindref="compound">TimeRuler</ref> </para>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineplayhead.h" line="31" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/view/timelineplayhead.h" bodystart="32" bodyend="50"/>
+    <listofallmembers>
+      <member refid="class_timeline_playhead_1a0d22e1c1ea602b624d3f075953c37dbe" prot="public" virt="non-virtual"><scope>TimelinePlayhead</scope><name>Draw</name></member>
+      <member refid="class_timeline_playhead_1a36756537c72403e546b3e9f5f4f7494f" prot="public" virt="non-virtual"><scope>TimelinePlayhead</scope><name>GetPlayheadColor</name></member>
+      <member refid="class_timeline_playhead_1a5c2a2931a533d34322e92f172a866936" prot="public" virt="non-virtual"><scope>TimelinePlayhead</scope><name>GetPlayheadHighlightColor</name></member>
+      <member refid="class_timeline_playhead_1a71e7bcf63d7a9d584d8a4d0f4c6fb17d" prot="private" virt="non-virtual"><scope>TimelinePlayhead</scope><name>playhead_color_</name></member>
+      <member refid="class_timeline_playhead_1ac33c927160a581fdf557bef50a648aab" prot="private" virt="non-virtual"><scope>TimelinePlayhead</scope><name>playhead_highlight_color_</name></member>
+      <member refid="class_timeline_playhead_1a49408d27ac9605172d4db8635c08e77c" prot="public" virt="non-virtual"><scope>TimelinePlayhead</scope><name>SetPlayheadColor</name></member>
+      <member refid="class_timeline_playhead_1a7824c9feabb95f5f67e5fab83680e5b1" prot="public" virt="non-virtual"><scope>TimelinePlayhead</scope><name>SetPlayheadHighlightColor</name></member>
+      <member refid="class_timeline_playhead_1a64e2f5410a4625575181155377adad71" prot="public" virt="non-virtual"><scope>TimelinePlayhead</scope><name>TimelinePlayhead</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,576 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_track_place_block_command" kind="class" language="C++" prot="public">
+    <compoundname>TrackPlaceBlockCommand</compoundname>
+    <basecompoundref refid="class_track_ripple_remove_area_command" prot="public" virt="non-virtual">TrackRippleRemoveAreaCommand</basecompoundref>
+    <includes refid="undo_8h" local="no">undo.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_track_place_block_command_1a1d537f3004ee2274e0a55a1f4681054f" prot="private" static="no" mutable="no">
+        <type><ref refid="class_track_list" kindref="compound">TrackList</ref> *</type>
+        <definition>TrackList* TrackPlaceBlockCommand::timeline_</definition>
+        <argsstring></argsstring>
+        <name>timeline_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="211" column="13" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="211" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_track_place_block_command_1ae4685f9b5f451f31a5ba1cad9d3bc3d8" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int TrackPlaceBlockCommand::track_index_</definition>
+        <argsstring></argsstring>
+        <name>track_index_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="212" column="7" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="212" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_track_place_block_command_1a1dfd0dba573c4ed4d06515e7e7cea62b" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool TrackPlaceBlockCommand::append_</definition>
+        <argsstring></argsstring>
+        <name>append_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="213" column="8" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="213" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_track_place_block_command_1a8c5a983cb2511145c35b9bbee21b6f08" prot="private" static="no" mutable="no">
+        <type><ref refid="class_gap_block" kindref="compound">GapBlock</ref> *</type>
+        <definition>GapBlock* TrackPlaceBlockCommand::gap_</definition>
+        <argsstring></argsstring>
+        <name>gap_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="214" column="12" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="214" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_track_place_block_command_1a6a8a452afa85bef6186bf34ccd6fe7ff" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int TrackPlaceBlockCommand::added_track_count_</definition>
+        <argsstring></argsstring>
+        <name>added_track_count_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="215" column="7" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="215" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_undo_command_1a6c06f9c1b7bfeeff3c4724491945992b" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool UndoCommand::modified_</definition>
+        <argsstring></argsstring>
+        <name>modified_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="64" column="8" bodyfile="C:/Daten/Olive/olive/app/undo/undocommand.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_track_place_block_command_1acaafdf3217e26c6ce563a1fe98b793cb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>TrackPlaceBlockCommand::TrackPlaceBlockCommand</definition>
+        <argsstring>(TrackList *timeline, int track, Block *block, rational in, QUndoCommand *parent=nullptr)</argsstring>
+        <name>TrackPlaceBlockCommand</name>
+        <param>
+          <type><ref refid="class_track_list" kindref="compound">TrackList</ref> *</type>
+          <declname>timeline</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>track</declname>
+        </param>
+        <param>
+          <type><ref refid="class_block" kindref="compound">Block</ref> *</type>
+          <declname>block</declname>
+        </param>
+        <param>
+          <type><ref refid="classrational" kindref="compound">rational</ref></type>
+          <declname>in</declname>
+        </param>
+        <param>
+          <type>QUndoCommand *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="204" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_track_ripple_remove_area_command_1a2084787b7653838ca155aa338568a22b" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="class_project" kindref="compound">Project</ref> *</type>
+        <definition>virtual Project* TrackRippleRemoveAreaCommand::GetRelevantProject</definition>
+        <argsstring>() const override</argsstring>
+        <name>GetRelevantProject</name>
+        <reimplements refid="class_undo_command_1ab5c8967132833ea6be76a63dc5472f4f">GetRelevantProject</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="162" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_track_ripple_remove_area_command_1af5a5c47133af3d21167364bcbe72dd4f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TrackRippleRemoveAreaCommand::SetInsert</definition>
+        <argsstring>(Block *insert)</argsstring>
+        <name>SetInsert</name>
+        <param>
+          <type><ref refid="class_block" kindref="compound">Block</ref> *</type>
+          <declname>insert</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="164" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_undo_command_1a9907db368d01fb26f5082a36c6d90bd4" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void UndoCommand::redo</definition>
+        <argsstring>() override</argsstring>
+        <name>redo</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="54" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_undo_command_1a09d00f8a2e1c8b3c97d72d9585503030" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void UndoCommand::undo</definition>
+        <argsstring>() override</argsstring>
+        <name>undo</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/undo/undocommand.h" line="55" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_track_place_block_command_1a984552279b738c98a6064d27da980be1" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void TrackPlaceBlockCommand::redo_internal</definition>
+        <argsstring>() override</argsstring>
+        <name>redo_internal</name>
+        <reimplements refid="class_track_ripple_remove_area_command_1a02809ef79493e539e4b365774a2d61ca">redo_internal</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="207" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_track_place_block_command_1a7911207d1c6cb81b9bb38d38b1d1d4d1" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void TrackPlaceBlockCommand::undo_internal</definition>
+        <argsstring>() override</argsstring>
+        <name>undo_internal</name>
+        <reimplements refid="class_track_ripple_remove_area_command_1ac7f7efe77d20efdf2f8db32355b27f30">undo_internal</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="208" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="class_track_ripple_remove_area_command_1abef7f61c5736fbd28a62314e9fa03f1b" prot="protected" static="no" mutable="no">
+        <type><ref refid="class_track_output" kindref="compound">TrackOutput</ref> *</type>
+        <definition>TrackOutput* TrackRippleRemoveAreaCommand::track_</definition>
+        <argsstring></argsstring>
+        <name>track_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="171" column="15" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="171" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_track_ripple_remove_area_command_1a6e9e7fd1cd5934c127388def7abe8bc0" prot="protected" static="no" mutable="no">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational TrackRippleRemoveAreaCommand::in_</definition>
+        <argsstring></argsstring>
+        <name>in_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="172" column="12" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="172" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_track_ripple_remove_area_command_1a069dcf9c106dfb7736c55852ad1a2226" prot="protected" static="no" mutable="no">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational TrackRippleRemoveAreaCommand::out_</definition>
+        <argsstring></argsstring>
+        <name>out_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="173" column="12" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="173" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_track_ripple_remove_area_command_1a62c104d109eeb7e367c51e0bf7ecb521" prot="protected" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool TrackRippleRemoveAreaCommand::splice_</definition>
+        <argsstring></argsstring>
+        <name>splice_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="175" column="8" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="175" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_track_ripple_remove_area_command_1a400247c5af2c3d7b380288e981820bb8" prot="protected" static="no" mutable="no">
+        <type><ref refid="class_block" kindref="compound">Block</ref> *</type>
+        <definition>Block* TrackRippleRemoveAreaCommand::trim_out_</definition>
+        <argsstring></argsstring>
+        <name>trim_out_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="177" column="9" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="177" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_track_ripple_remove_area_command_1a5fc02f305621a00a4478995aaf5b9ef8" prot="protected" static="no" mutable="no">
+        <type><ref refid="class_block" kindref="compound">Block</ref> *</type>
+        <definition>Block* TrackRippleRemoveAreaCommand::trim_in_</definition>
+        <argsstring></argsstring>
+        <name>trim_in_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="178" column="9" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="178" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_track_ripple_remove_area_command_1ae74472ca8b50fde95510f889810ff599" prot="protected" static="no" mutable="no">
+        <type>QVector&lt; <ref refid="class_block" kindref="compound">Block</ref> * &gt;</type>
+        <definition>QVector&lt;Block*&gt; TrackRippleRemoveAreaCommand::removed_blocks_</definition>
+        <argsstring></argsstring>
+        <name>removed_blocks_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="179" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="179" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_track_ripple_remove_area_command_1a273bf05af8f5910212235c1d5f8b820b" prot="protected" static="no" mutable="no">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational TrackRippleRemoveAreaCommand::trim_in_old_length_</definition>
+        <argsstring></argsstring>
+        <name>trim_in_old_length_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="181" column="12" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="181" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_track_ripple_remove_area_command_1a029c05f6d39b0f9b312a40ca41a5dc3e" prot="protected" static="no" mutable="no">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational TrackRippleRemoveAreaCommand::trim_out_old_length_</definition>
+        <argsstring></argsstring>
+        <name>trim_out_old_length_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="182" column="12" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="182" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_track_ripple_remove_area_command_1a75f8c010ad0ad1c4a01a3c20462ae813" prot="protected" static="no" mutable="no">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational TrackRippleRemoveAreaCommand::trim_in_new_length_</definition>
+        <argsstring></argsstring>
+        <name>trim_in_new_length_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="184" column="12" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="184" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_track_ripple_remove_area_command_1aa3b46720de79be1a63c0c0a870a8c0a7" prot="protected" static="no" mutable="no">
+        <type><ref refid="classrational" kindref="compound">rational</ref></type>
+        <definition>rational TrackRippleRemoveAreaCommand::trim_out_new_length_</definition>
+        <argsstring></argsstring>
+        <name>trim_out_new_length_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="185" column="12" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="185" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_track_ripple_remove_area_command_1a645a795d71682d913c6f42e619028928" prot="protected" static="no" mutable="no">
+        <type><ref refid="class_block" kindref="compound">Block</ref> *</type>
+        <definition>Block* TrackRippleRemoveAreaCommand::insert_</definition>
+        <argsstring></argsstring>
+        <name>insert_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="187" column="9" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="187" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_track_ripple_remove_area_command_1a2bb81541b13b5928d60198cca348abc7" prot="protected" static="no" mutable="no">
+        <type>QObject</type>
+        <definition>QObject TrackRippleRemoveAreaCommand::memory_manager_</definition>
+        <argsstring></argsstring>
+        <name>memory_manager_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="189" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="189" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_track_ripple_remove_area_command_1aae2a28fd06c508918aeb33d914b5d04b" prot="protected" static="no" mutable="no">
+        <type>QList&lt; <ref refid="class_undo_command" kindref="compound">UndoCommand</ref> * &gt;</type>
+        <definition>QList&lt;UndoCommand*&gt; TrackRippleRemoveAreaCommand::remove_block_commands_</definition>
+        <argsstring></argsstring>
+        <name>remove_block_commands_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="191" column="9" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="191" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Destructively places <computeroutput>block</computeroutput> at the in point <computeroutput>start</computeroutput> </para>
+    </briefdescription>
+    <detaileddescription>
+<para>The <ref refid="class_block" kindref="compound">Block</ref> is guaranteed to be placed at the starting point specified. If there are Blocks in this area, they are either trimmed or removed to make space for this <ref refid="class_block" kindref="compound">Block</ref>. Additionally, if the <ref refid="class_block" kindref="compound">Block</ref> is placed beyond the end of the <ref refid="class_sequence" kindref="compound">Sequence</ref>, a <ref refid="class_gap_block" kindref="compound">GapBlock</ref> is inserted to compensate. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>TrackRippleRemoveAreaCommand</label>
+        <link refid="class_track_ripple_remove_area_command"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>TrackPlaceBlockCommand</label>
+        <link refid="class_track_place_block_command"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>UndoCommand</label>
+        <link refid="class_undo_command"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>TrackRippleRemoveAreaCommand</label>
+        <link refid="class_track_ripple_remove_area_command"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>trim_in_new_length_</edgelabel>
+          <edgelabel>out_</edgelabel>
+          <edgelabel>trim_out_old_length_</edgelabel>
+          <edgelabel>in_</edgelabel>
+          <edgelabel>trim_out_new_length_</edgelabel>
+          <edgelabel>trim_in_old_length_</edgelabel>
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>insert_</edgelabel>
+          <edgelabel>trim_in_</edgelabel>
+          <edgelabel>trim_out_</edgelabel>
+        </childnode>
+        <childnode refid="10" relation="usage">
+          <edgelabel>track_</edgelabel>
+        </childnode>
+      </node>
+      <node id="7">
+        <label>NodeOutput</label>
+        <link refid="class_node_output"/>
+        <childnode refid="8" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>Block</label>
+        <link refid="class_block"/>
+        <childnode refid="6" relation="public-inheritance">
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>in_point_</edgelabel>
+          <edgelabel>out_point_</edgelabel>
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>next_</edgelabel>
+          <edgelabel>previous_</edgelabel>
+        </childnode>
+        <childnode refid="9" relation="usage">
+          <edgelabel>enabled_input_</edgelabel>
+          <edgelabel>speed_input_</edgelabel>
+          <edgelabel>media_in_input_</edgelabel>
+          <edgelabel>name_input_</edgelabel>
+          <edgelabel>length_input_</edgelabel>
+        </childnode>
+      </node>
+      <node id="11">
+        <label>NodeInputArray</label>
+        <link refid="class_node_input_array"/>
+        <childnode refid="9" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="1">
+        <label>TrackPlaceBlockCommand</label>
+        <link refid="class_track_place_block_command"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="12" relation="usage">
+          <edgelabel>gap_</edgelabel>
+        </childnode>
+        <childnode refid="13" relation="usage">
+          <edgelabel>timeline_</edgelabel>
+        </childnode>
+      </node>
+      <node id="6">
+        <label>Node</label>
+        <link refid="class_node"/>
+        <childnode refid="7" relation="usage">
+          <edgelabel>output_</edgelabel>
+        </childnode>
+      </node>
+      <node id="12">
+        <label>GapBlock</label>
+        <link refid="class_gap_block"/>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>TrackList</label>
+        <link refid="class_track_list"/>
+        <childnode refid="11" relation="usage">
+          <edgelabel>track_input_</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>total_length_</edgelabel>
+        </childnode>
+      </node>
+      <node id="9">
+        <label>NodeInput</label>
+        <link refid="class_node_input"/>
+        <childnode refid="8" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>TrackOutput</label>
+        <link refid="class_track_output"/>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+        <childnode refid="11" relation="usage">
+          <edgelabel>block_input_</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>track_length_</edgelabel>
+        </childnode>
+        <childnode refid="9" relation="usage">
+          <edgelabel>muted_input_</edgelabel>
+        </childnode>
+      </node>
+      <node id="8">
+        <label>NodeParam</label>
+        <link refid="class_node_param"/>
+      </node>
+      <node id="3">
+        <label>UndoCommand</label>
+        <link refid="class_undo_command"/>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" line="202" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/timelinewidget/undo/undo.h" bodystart="202" bodyend="216"/>
+    <listofallmembers>
+      <member refid="class_track_place_block_command_1a6a8a452afa85bef6186bf34ccd6fe7ff" prot="private" virt="non-virtual"><scope>TrackPlaceBlockCommand</scope><name>added_track_count_</name></member>
+      <member refid="class_track_place_block_command_1a1dfd0dba573c4ed4d06515e7e7cea62b" prot="private" virt="non-virtual"><scope>TrackPlaceBlockCommand</scope><name>append_</name></member>
+      <member refid="class_track_place_block_command_1a8c5a983cb2511145c35b9bbee21b6f08" prot="private" virt="non-virtual"><scope>TrackPlaceBlockCommand</scope><name>gap_</name></member>
+      <member refid="class_track_ripple_remove_area_command_1a2084787b7653838ca155aa338568a22b" prot="public" virt="virtual"><scope>TrackPlaceBlockCommand</scope><name>GetRelevantProject</name></member>
+      <member refid="class_track_ripple_remove_area_command_1a6e9e7fd1cd5934c127388def7abe8bc0" prot="protected" virt="non-virtual"><scope>TrackPlaceBlockCommand</scope><name>in_</name></member>
+      <member refid="class_track_ripple_remove_area_command_1a645a795d71682d913c6f42e619028928" prot="protected" virt="non-virtual"><scope>TrackPlaceBlockCommand</scope><name>insert_</name></member>
+      <member refid="class_track_ripple_remove_area_command_1a2bb81541b13b5928d60198cca348abc7" prot="protected" virt="non-virtual"><scope>TrackPlaceBlockCommand</scope><name>memory_manager_</name></member>
+      <member refid="class_undo_command_1a6c06f9c1b7bfeeff3c4724491945992b" prot="private" virt="non-virtual"><scope>TrackPlaceBlockCommand</scope><name>modified_</name></member>
+      <member refid="class_track_ripple_remove_area_command_1a069dcf9c106dfb7736c55852ad1a2226" prot="protected" virt="non-virtual"><scope>TrackPlaceBlockCommand</scope><name>out_</name></member>
+      <member refid="class_undo_command_1a9907db368d01fb26f5082a36c6d90bd4" prot="public" virt="virtual"><scope>TrackPlaceBlockCommand</scope><name>redo</name></member>
+      <member refid="class_track_place_block_command_1a984552279b738c98a6064d27da980be1" prot="protected" virt="virtual"><scope>TrackPlaceBlockCommand</scope><name>redo_internal</name></member>
+      <member refid="class_track_ripple_remove_area_command_1aae2a28fd06c508918aeb33d914b5d04b" prot="protected" virt="non-virtual"><scope>TrackPlaceBlockCommand</scope><name>remove_block_commands_</name></member>
+      <member refid="class_track_ripple_remove_area_command_1ae74472ca8b50fde95510f889810ff599" prot="protected" virt="non-virtual"><scope>TrackPlaceBlockCommand</scope><name>removed_blocks_</name></member>
+      <member refid="class_track_ripple_remove_area_command_1af5a5c47133af3d21167364bcbe72dd4f" prot="public" virt="non-virtual"><scope>TrackPlaceBlockCommand</scope><name>SetInsert</name></member>
+      <member refid="class_track_ripple_remove_area_command_1a62c104d109eeb7e367c51e0bf7ecb521" prot="protected" virt="non-virtual"><scope>TrackPlaceBlockCommand</scope><name>splice_</name></member>
+      <member refid="class_track_place_block_command_1a1d537f3004ee2274e0a55a1f4681054f" prot="private" virt="non-virtual"><scope>TrackPlaceBlockCommand</scope><name>timeline_</name></member>
+      <member refid="class_track_ripple_remove_area_command_1abef7f61c5736fbd28a62314e9fa03f1b" prot="protected" virt="non-virtual"><scope>TrackPlaceBlockCommand</scope><name>track_</name></member>
+      <member refid="class_track_place_block_command_1ae4685f9b5f451f31a5ba1cad9d3bc3d8" prot="private" virt="non-virtual"><scope>TrackPlaceBlockCommand</scope><name>track_index_</name></member>
+      <member refid="class_track_place_block_command_1acaafdf3217e26c6ce563a1fe98b793cb" prot="public" virt="non-virtual"><scope>TrackPlaceBlockCommand</scope><name>TrackPlaceBlockCommand</name></member>
+      <member refid="class_track_ripple_remove_area_command_1a2d516dc6d21e690a52471ae4dd825941" prot="public" virt="non-virtual"><scope>TrackPlaceBlockCommand</scope><name>TrackRippleRemoveAreaCommand</name></member>
+      <member refid="class_track_ripple_remove_area_command_1a5fc02f305621a00a4478995aaf5b9ef8" prot="protected" virt="non-virtual"><scope>TrackPlaceBlockCommand</scope><name>trim_in_</name></member>
+      <member refid="class_track_ripple_remove_area_command_1a75f8c010ad0ad1c4a01a3c20462ae813" prot="protected" virt="non-virtual"><scope>TrackPlaceBlockCommand</scope><name>trim_in_new_length_</name></member>
+      <member refid="class_track_ripple_remove_area_command_1a273bf05af8f5910212235c1d5f8b820b" prot="protected" virt="non-virtual"><scope>TrackPlaceBlockCommand</scope><name>trim_in_old_length_</name></member>
+      <member refid="class_track_ripple_remove_area_command_1a400247c5af2c3d7b380288e981820bb8" prot="protected" virt="non-virtual"><scope>TrackPlaceBlockCommand</scope><name>trim_out_</name></member>
+      <member refid="class_track_ripple_remove_area_command_1aa3b46720de79be1a63c0c0a870a8c0a7" prot="protected" virt="non-virtual"><scope>TrackPlaceBlockCommand</scope><name>trim_out_new_length_</name></member>
+      <member refid="class_track_ripple_remove_area_command_1a029c05f6d39b0f9b312a40ca41a5dc3e" prot="protected" virt="non-virtual"><scope>TrackPlaceBlockCommand</scope><name>trim_out_old_length_</name></member>
+      <member refid="class_undo_command_1a09d00f8a2e1c8b3c97d72d9585503030" prot="public" virt="virtual"><scope>TrackPlaceBlockCommand</scope><name>undo</name></member>
+      <member refid="class_track_place_block_command_1a7911207d1c6cb81b9bb38d38b1d1d4d1" prot="protected" virt="virtual"><scope>TrackPlaceBlockCommand</scope><name>undo_internal</name></member>
+      <member refid="class_undo_command_1a5a07a6505a207cf7186c7c726ff9c5fa" prot="public" virt="non-virtual"><scope>TrackPlaceBlockCommand</scope><name>UndoCommand</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

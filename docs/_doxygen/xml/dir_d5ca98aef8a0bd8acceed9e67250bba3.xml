@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_d5ca98aef8a0bd8acceed9e67250bba3" kind="dir">
+    <compoundname>widget</compoundname>
+    <innerdir refid="dir_52f66653d3bef83ca315a795b661f951">audiomonitor</innerdir>
+    <innerdir refid="dir_4ac8ba3326714af1a7e7be3371c2fcdc">clickablelabel</innerdir>
+    <innerdir refid="dir_60ecfb7f6dc845da9fae0c06a45867c6">collapsebutton</innerdir>
+    <innerdir refid="dir_1380c273212a0c1ecaf07d5b7220d6e5">colorbutton</innerdir>
+    <innerdir refid="dir_d5b045df1ec5d5420526ea17f76ca1a7">colorwheel</innerdir>
+    <innerdir refid="dir_447d00506b8d08e8dbc7323b9c6ebdf0">columnedgridlayout</innerdir>
+    <innerdir refid="dir_a6674ac32f3d4ebfa68d3c5399c7e4e5">curvewidget</innerdir>
+    <innerdir refid="dir_e288f5541ed38dfa4d9019e67d54ec78">flowlayout</innerdir>
+    <innerdir refid="dir_de88e31d4ecc15abc64328018d256e4f">focusablelineedit</innerdir>
+    <innerdir refid="dir_c437d48bdb8ddef516d4c3f4fe5af9b0">footagecombobox</innerdir>
+    <innerdir refid="dir_fb641799e3db88a28f98d40390f57b36">keyframeview</innerdir>
+    <innerdir refid="dir_96817b0fa89f43281518d6a67137c8ee">manageddisplay</innerdir>
+    <innerdir refid="dir_d9f8288a6d260c8605457f3cd07170a8">menu</innerdir>
+    <innerdir refid="dir_285876359a1008bc3122e6821bc31c2d">nodecopypaste</innerdir>
+    <innerdir refid="dir_aefcb0dd47805ab9847f9c454a49951a">nodeparamview</innerdir>
+    <innerdir refid="dir_51b311ea2757d47e295dedab75c08853">nodeview</innerdir>
+    <innerdir refid="dir_486938271782690ec8fde21bca63cdf8">panel</innerdir>
+    <innerdir refid="dir_cfa5bbeafef904bd3e47bbb1c643b83f">playbackcontrols</innerdir>
+    <innerdir refid="dir_c83ccd4a5c73d92ee82be1e923285e8f">projectexplorer</innerdir>
+    <innerdir refid="dir_876e2be5c4285b7a4d7e049cfcf05c11">projecttoolbar</innerdir>
+    <innerdir refid="dir_d797b3883145a70bb88ea65087014365">resizablescrollbar</innerdir>
+    <innerdir refid="dir_187daba3bcc90ed01f6481c4193bc096">scope</innerdir>
+    <innerdir refid="dir_1b112268fb4f3a3e74d9bd014828f84a">slider</innerdir>
+    <innerdir refid="dir_5d4b4ed1418ab07cb9b0f23046be58b4">taskview</innerdir>
+    <innerdir refid="dir_c81f61d22fd3f72c212029f24a617cdc">timebased</innerdir>
+    <innerdir refid="dir_4cbaa119d9e65714446ea2df659b8b18">timelinewidget</innerdir>
+    <innerdir refid="dir_68614c2b33d3815a21d08d56088d70fb">timeruler</innerdir>
+    <innerdir refid="dir_166613a2d158dbdd71c17b6dc99a844a">toolbar</innerdir>
+    <innerdir refid="dir_8f423f48a6ff3333758ec89c77d0bb26">viewer</innerdir>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/widget/"/>
+  </compounddef>
+</doxygen>

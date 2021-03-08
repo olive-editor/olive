@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_b2cba7ccf2004496148df13e27b7a58b" kind="dir">
+    <compoundname>viewer</compoundname>
+    <innerfile refid="panel_2viewer_2viewer_8h">panel/viewer/viewer.h</innerfile>
+    <innerfile refid="viewerbase_8h">viewerbase.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/panel/viewer/"/>
+  </compounddef>
+</doxygen>

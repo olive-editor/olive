@@ -1,0 +1,353 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_node_param_view_item_body" kind="class" language="C++" prot="public">
+    <compoundname>NodeParamViewItemBody</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QWidget</basecompoundref>
+    <includes refid="nodeparamviewitem_8h" local="no">nodeparamviewitem.h</includes>
+    <innerclass refid="struct_node_param_view_item_body_1_1_input_u_i" prot="private">NodeParamViewItemBody::InputUI</innerclass>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_node_param_view_item_body_1a65a054b1988f3b78b34d8edc52e2336a" prot="private" static="no" mutable="no">
+        <type>QMap&lt; <ref refid="class_node_input" kindref="compound">NodeInput</ref> *, <ref refid="struct_node_param_view_item_body_1_1_input_u_i" kindref="compound">InputUI</ref> &gt;</type>
+        <definition>QMap&lt;NodeInput*, InputUI&gt; NodeParamViewItemBody::input_ui_map_</definition>
+        <argsstring></argsstring>
+        <name>input_ui_map_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewitem.h" line="85" column="8" bodyfile="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewitem.h" bodystart="85" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_param_view_item_body_1a0e4a5579b4493e0f74701754bb597ceb" prot="private" static="no" mutable="no">
+        <type>QVector&lt; <ref refid="class_node_param_view_item_body" kindref="compound">NodeParamViewItemBody</ref> * &gt;</type>
+        <definition>QVector&lt;NodeParamViewItemBody*&gt; NodeParamViewItemBody::sub_bodies_</definition>
+        <argsstring></argsstring>
+        <name>sub_bodies_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewitem.h" line="87" column="11" bodyfile="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewitem.h" bodystart="87" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_node_param_view_item_body_1a00a83a2612b4fc1f6c636174faa57746" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>NodeParamViewItemBody::NodeParamViewItemBody</definition>
+        <argsstring>(const QVector&lt; NodeInput * &gt; &amp;inputs, QWidget *parent=nullptr)</argsstring>
+        <name>NodeParamViewItemBody</name>
+        <param>
+          <type>const QVector&lt; <ref refid="class_node_input" kindref="compound">NodeInput</ref> * &gt; &amp;</type>
+          <declname>inputs</declname>
+        </param>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewitem.h" line="50" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_param_view_item_body_1ae7fbd26d10e630aaae816c2d438fb99f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeParamViewItemBody::SetTimeTarget</definition>
+        <argsstring>(Node *target)</argsstring>
+        <name>SetTimeTarget</name>
+        <param>
+          <type><ref refid="class_node" kindref="compound">Node</ref> *</type>
+          <declname>target</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewitem.h" line="52" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_param_view_item_body_1ab8b191f407e6cffb4b43686274e94bff" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeParamViewItemBody::SetTime</definition>
+        <argsstring>(const rational &amp;time)</argsstring>
+        <name>SetTime</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewitem.h" line="54" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_param_view_item_body_1ae8d9cb896a425ae26d3a6fc263a349a0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeParamViewItemBody::Retranslate</definition>
+        <argsstring>()</argsstring>
+        <name>Retranslate</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewitem.h" line="56" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_param_view_item_body_1af2dcf72a45f74bfab798001b6e40ca76" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeParamViewItemBody::SignalAllKeyframes</definition>
+        <argsstring>()</argsstring>
+        <name>SignalAllKeyframes</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewitem.h" line="58" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_node_param_view_item_body_1aa18639859bebeba487f43c790739a2c6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeParamViewItemBody::KeyframeAdded</definition>
+        <argsstring>(NodeKeyframePtr key, int y)</argsstring>
+        <name>KeyframeAdded</name>
+        <param>
+          <type><ref refid="keyframe_8h_1a741b7edf62813e254aba77dca9f281ea" kindref="member">NodeKeyframePtr</ref></type>
+          <declname>key</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewitem.h" line="61" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_node_param_view_item_body_1a2f0ce513f58eff3302b613e88e31012b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeParamViewItemBody::KeyframeRemoved</definition>
+        <argsstring>(NodeKeyframePtr key)</argsstring>
+        <name>KeyframeRemoved</name>
+        <param>
+          <type><ref refid="keyframe_8h_1a741b7edf62813e254aba77dca9f281ea" kindref="member">NodeKeyframePtr</ref></type>
+          <declname>key</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewitem.h" line="63" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_node_param_view_item_body_1ab9049405a4c339c5396acc0a6fb2e498" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeParamViewItemBody::RequestSetTime</definition>
+        <argsstring>(const rational &amp;time)</argsstring>
+        <name>RequestSetTime</name>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewitem.h" line="65" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_node_param_view_item_body_1adee5b50db1a299f61aaa81d53106c8da" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeParamViewItemBody::InputDoubleClicked</definition>
+        <argsstring>(NodeInput *input)</argsstring>
+        <name>InputDoubleClicked</name>
+        <param>
+          <type><ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+          <declname>input</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewitem.h" line="67" column="8"/>
+      </memberdef>
+      <memberdef kind="signal" id="class_node_param_view_item_body_1a675fa25b416336d54c8d6f288fc5467e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeParamViewItemBody::RequestSelectNode</definition>
+        <argsstring>(const QList&lt; Node * &gt; &amp;node)</argsstring>
+        <name>RequestSelectNode</name>
+        <param>
+          <type>const QList&lt; <ref refid="class_node" kindref="compound">Node</ref> * &gt; &amp;</type>
+          <declname>node</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewitem.h" line="69" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_node_param_view_item_body_1a151c67560baecc9f611e0ab3e9366171" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeParamViewItemBody::UpdateUIForEdgeConnection</definition>
+        <argsstring>(NodeInput *input)</argsstring>
+        <name>UpdateUIForEdgeConnection</name>
+        <param>
+          <type><ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+          <declname>input</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewitem.h" line="72" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_param_view_item_body_1a7e5b6c5a804c5ac5194a33f70e8d293e" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeParamViewItemBody::InputAddedKeyframeInternal</definition>
+        <argsstring>(NodeInput *input, NodeKeyframePtr keyframe)</argsstring>
+        <name>InputAddedKeyframeInternal</name>
+        <param>
+          <type><ref refid="class_node_input" kindref="compound">NodeInput</ref> *</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type><ref refid="keyframe_8h_1a741b7edf62813e254aba77dca9f281ea" kindref="member">NodeKeyframePtr</ref></type>
+          <declname>keyframe</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewitem.h" line="74" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_node_param_view_item_body_1a7e5cb81a6862116fbe829e2031ef8a22" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeParamViewItemBody::EdgeChanged</definition>
+        <argsstring>()</argsstring>
+        <name>EdgeChanged</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewitem.h" line="90" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_node_param_view_item_body_1aa5b0c0857d2c2d847d1da37cf02b1003" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeParamViewItemBody::InputKeyframeEnableChanged</definition>
+        <argsstring>(bool e)</argsstring>
+        <name>InputKeyframeEnableChanged</name>
+        <param>
+          <type>bool</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewitem.h" line="92" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_node_param_view_item_body_1aa7677f49fc8af549667c3eb251a5d988" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeParamViewItemBody::InputAddedKeyframe</definition>
+        <argsstring>(NodeKeyframePtr key)</argsstring>
+        <name>InputAddedKeyframe</name>
+        <param>
+          <type><ref refid="keyframe_8h_1a741b7edf62813e254aba77dca9f281ea" kindref="member">NodeKeyframePtr</ref></type>
+          <declname>key</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewitem.h" line="94" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_node_param_view_item_body_1a1abcb2e22532093f8e83242a1bd5b968" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeParamViewItemBody::LabelDoubleClicked</definition>
+        <argsstring>()</argsstring>
+        <name>LabelDoubleClicked</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewitem.h" line="96" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_node_param_view_item_body_1a7316ebe262c764ac7adeef4195bfdfaf" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void NodeParamViewItemBody::ConnectionClicked</definition>
+        <argsstring>()</argsstring>
+        <name>ConnectionClicked</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewitem.h" line="98" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewitem.h" line="47" column="1" bodyfile="C:/Daten/Olive/olive/app/widget/nodeparamview/nodeparamviewitem.h" bodystart="47" bodyend="100"/>
+    <listofallmembers>
+      <member refid="class_node_param_view_item_body_1a7316ebe262c764ac7adeef4195bfdfaf" prot="private" virt="non-virtual"><scope>NodeParamViewItemBody</scope><name>ConnectionClicked</name></member>
+      <member refid="class_node_param_view_item_body_1a7e5cb81a6862116fbe829e2031ef8a22" prot="private" virt="non-virtual"><scope>NodeParamViewItemBody</scope><name>EdgeChanged</name></member>
+      <member refid="class_node_param_view_item_body_1a65a054b1988f3b78b34d8edc52e2336a" prot="private" virt="non-virtual"><scope>NodeParamViewItemBody</scope><name>input_ui_map_</name></member>
+      <member refid="class_node_param_view_item_body_1aa7677f49fc8af549667c3eb251a5d988" prot="private" virt="non-virtual"><scope>NodeParamViewItemBody</scope><name>InputAddedKeyframe</name></member>
+      <member refid="class_node_param_view_item_body_1a7e5b6c5a804c5ac5194a33f70e8d293e" prot="private" virt="non-virtual"><scope>NodeParamViewItemBody</scope><name>InputAddedKeyframeInternal</name></member>
+      <member refid="class_node_param_view_item_body_1adee5b50db1a299f61aaa81d53106c8da" prot="public" virt="non-virtual"><scope>NodeParamViewItemBody</scope><name>InputDoubleClicked</name></member>
+      <member refid="class_node_param_view_item_body_1aa5b0c0857d2c2d847d1da37cf02b1003" prot="private" virt="non-virtual"><scope>NodeParamViewItemBody</scope><name>InputKeyframeEnableChanged</name></member>
+      <member refid="class_node_param_view_item_body_1aa18639859bebeba487f43c790739a2c6" prot="public" virt="non-virtual"><scope>NodeParamViewItemBody</scope><name>KeyframeAdded</name></member>
+      <member refid="class_node_param_view_item_body_1a2f0ce513f58eff3302b613e88e31012b" prot="public" virt="non-virtual"><scope>NodeParamViewItemBody</scope><name>KeyframeRemoved</name></member>
+      <member refid="class_node_param_view_item_body_1a1abcb2e22532093f8e83242a1bd5b968" prot="private" virt="non-virtual"><scope>NodeParamViewItemBody</scope><name>LabelDoubleClicked</name></member>
+      <member refid="class_node_param_view_item_body_1a00a83a2612b4fc1f6c636174faa57746" prot="public" virt="non-virtual"><scope>NodeParamViewItemBody</scope><name>NodeParamViewItemBody</name></member>
+      <member refid="class_node_param_view_item_body_1a675fa25b416336d54c8d6f288fc5467e" prot="public" virt="non-virtual"><scope>NodeParamViewItemBody</scope><name>RequestSelectNode</name></member>
+      <member refid="class_node_param_view_item_body_1ab9049405a4c339c5396acc0a6fb2e498" prot="public" virt="non-virtual"><scope>NodeParamViewItemBody</scope><name>RequestSetTime</name></member>
+      <member refid="class_node_param_view_item_body_1ae8d9cb896a425ae26d3a6fc263a349a0" prot="public" virt="non-virtual"><scope>NodeParamViewItemBody</scope><name>Retranslate</name></member>
+      <member refid="class_node_param_view_item_body_1ab8b191f407e6cffb4b43686274e94bff" prot="public" virt="non-virtual"><scope>NodeParamViewItemBody</scope><name>SetTime</name></member>
+      <member refid="class_node_param_view_item_body_1ae7fbd26d10e630aaae816c2d438fb99f" prot="public" virt="non-virtual"><scope>NodeParamViewItemBody</scope><name>SetTimeTarget</name></member>
+      <member refid="class_node_param_view_item_body_1af2dcf72a45f74bfab798001b6e40ca76" prot="public" virt="non-virtual"><scope>NodeParamViewItemBody</scope><name>SignalAllKeyframes</name></member>
+      <member refid="class_node_param_view_item_body_1a0e4a5579b4493e0f74701754bb597ceb" prot="private" virt="non-virtual"><scope>NodeParamViewItemBody</scope><name>sub_bodies_</name></member>
+      <member refid="class_node_param_view_item_body_1a151c67560baecc9f611e0ab3e9366171" prot="private" virt="non-virtual"><scope>NodeParamViewItemBody</scope><name>UpdateUIForEdgeConnection</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

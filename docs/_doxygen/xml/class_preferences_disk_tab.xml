@@ -1,0 +1,244 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_preferences_disk_tab" kind="class" language="C++" prot="public">
+    <compoundname>PreferencesDiskTab</compoundname>
+    <basecompoundref refid="class_preferences_tab" prot="public" virt="non-virtual">PreferencesTab</basecompoundref>
+    <includes refid="preferencesdisktab_8h" local="no">preferencesdisktab.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_preferences_disk_tab_1a1301e1ca36e074864769b65b9012441f" prot="private" static="no" mutable="no">
+        <type>QLineEdit *</type>
+        <definition>QLineEdit* PreferencesDiskTab::disk_cache_location_</definition>
+        <argsstring></argsstring>
+        <name>disk_cache_location_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesdisktab.h" line="60" column="13" bodyfile="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesdisktab.h" bodystart="60" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_preferences_disk_tab_1a7e96f7a6be60c306ddf9e6295d70aa3f" prot="private" static="no" mutable="no">
+        <type><ref refid="class_float_slider" kindref="compound">FloatSlider</ref> *</type>
+        <definition>FloatSlider* PreferencesDiskTab::maximum_cache_slider_</definition>
+        <argsstring></argsstring>
+        <name>maximum_cache_slider_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesdisktab.h" line="62" column="15" bodyfile="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesdisktab.h" bodystart="62" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_preferences_disk_tab_1aabdfdb2a2e086863013adfeb058189d0" prot="private" static="no" mutable="no">
+        <type><ref refid="class_float_slider" kindref="compound">FloatSlider</ref> *</type>
+        <definition>FloatSlider* PreferencesDiskTab::cache_ahead_slider_</definition>
+        <argsstring></argsstring>
+        <name>cache_ahead_slider_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesdisktab.h" line="64" column="15" bodyfile="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesdisktab.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_preferences_disk_tab_1a2162294f05651795a9041892d2b5bf91" prot="private" static="no" mutable="no">
+        <type><ref refid="class_float_slider" kindref="compound">FloatSlider</ref> *</type>
+        <definition>FloatSlider* PreferencesDiskTab::cache_behind_slider_</definition>
+        <argsstring></argsstring>
+        <name>cache_behind_slider_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesdisktab.h" line="66" column="15" bodyfile="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesdisktab.h" bodystart="66" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_preferences_disk_tab_1a9add463de05caa1d62aad115e7a2b127" prot="private" static="no" mutable="no">
+        <type>QCheckBox *</type>
+        <definition>QCheckBox* PreferencesDiskTab::clear_disk_cache_</definition>
+        <argsstring></argsstring>
+        <name>clear_disk_cache_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesdisktab.h" line="68" column="13" bodyfile="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesdisktab.h" bodystart="68" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_preferences_disk_tab_1afccada1f62a47cb644d36f7dc3744e08" prot="private" static="no" mutable="no">
+        <type>QPushButton *</type>
+        <definition>QPushButton* PreferencesDiskTab::clear_cache_btn_</definition>
+        <argsstring></argsstring>
+        <name>clear_cache_btn_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesdisktab.h" line="70" column="15" bodyfile="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesdisktab.h" bodystart="70" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_preferences_disk_tab_1a97362f8c6c3a82d424697e81dff86160" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>PreferencesDiskTab::PreferencesDiskTab</definition>
+        <argsstring>()</argsstring>
+        <name>PreferencesDiskTab</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesdisktab.h" line="55" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_preferences_disk_tab_1a70da934e84cc615e647e60c72f5c2073" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void PreferencesDiskTab::Accept</definition>
+        <argsstring>() override</argsstring>
+        <name>Accept</name>
+        <reimplements refid="class_preferences_tab_1ac68d2c1754ce85450eed3fb0920163f2">Accept</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesdisktab.h" line="57" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_preferences_tab_1aefad5e89125f7a19d26a18ab3931ddfb" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>bool</type>
+        <definition>virtual bool PreferencesTab::Validate</definition>
+        <argsstring>()</argsstring>
+        <name>Validate</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencestab.h" line="53" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_preferences_disk_tab_1af7b1c16ef464dca13dedc78a066f6880" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PreferencesDiskTab::DiskCacheLineEditChanged</definition>
+        <argsstring>()</argsstring>
+        <name>DiskCacheLineEditChanged</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesdisktab.h" line="73" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_preferences_disk_tab_1ae117d38a0b736843bf7aae5c446c413c" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PreferencesDiskTab::BrowseDiskCachePath</definition>
+        <argsstring>()</argsstring>
+        <name>BrowseDiskCachePath</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesdisktab.h" line="75" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_preferences_disk_tab_1a0542eb5dd2d6dedff6833057621a35dd" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PreferencesDiskTab::ClearDiskCache</definition>
+        <argsstring>()</argsstring>
+        <name>ClearDiskCache</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesdisktab.h" line="77" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>PreferencesTab</label>
+        <link refid="class_preferences_tab"/>
+      </node>
+      <node id="1">
+        <label>PreferencesDiskTab</label>
+        <link refid="class_preferences_disk_tab"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="3">
+        <label>FloatSlider</label>
+        <link refid="class_float_slider"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>SliderLabel</label>
+        <link refid="class_slider_label"/>
+      </node>
+      <node id="2">
+        <label>PreferencesTab</label>
+        <link refid="class_preferences_tab"/>
+      </node>
+      <node id="5">
+        <label>FocusableLineEdit</label>
+        <link refid="class_focusable_line_edit"/>
+      </node>
+      <node id="4">
+        <label>SliderBase</label>
+        <link refid="class_slider_base"/>
+        <childnode refid="5" relation="usage">
+          <edgelabel>editor_</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>label_</edgelabel>
+        </childnode>
+      </node>
+      <node id="1">
+        <label>PreferencesDiskTab</label>
+        <link refid="class_preferences_disk_tab"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>cache_ahead_slider_</edgelabel>
+          <edgelabel>cache_behind_slider_</edgelabel>
+          <edgelabel>maximum_cache_slider_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesdisktab.h" line="33" column="1" bodyfile="C:/Daten/Olive/olive/app/dialog/preferences/tabs/preferencesdisktab.h" bodystart="34" bodyend="61"/>
+    <listofallmembers>
+      <member refid="class_preferences_disk_tab_1a70da934e84cc615e647e60c72f5c2073" prot="public" virt="virtual"><scope>PreferencesDiskTab</scope><name>Accept</name></member>
+      <member refid="class_preferences_disk_tab_1ae117d38a0b736843bf7aae5c446c413c" prot="private" virt="non-virtual"><scope>PreferencesDiskTab</scope><name>BrowseDiskCachePath</name></member>
+      <member refid="class_preferences_disk_tab_1aabdfdb2a2e086863013adfeb058189d0" prot="private" virt="non-virtual"><scope>PreferencesDiskTab</scope><name>cache_ahead_slider_</name></member>
+      <member refid="class_preferences_disk_tab_1a2162294f05651795a9041892d2b5bf91" prot="private" virt="non-virtual"><scope>PreferencesDiskTab</scope><name>cache_behind_slider_</name></member>
+      <member refid="class_preferences_disk_tab_1afccada1f62a47cb644d36f7dc3744e08" prot="private" virt="non-virtual"><scope>PreferencesDiskTab</scope><name>clear_cache_btn_</name></member>
+      <member refid="class_preferences_disk_tab_1a9add463de05caa1d62aad115e7a2b127" prot="private" virt="non-virtual"><scope>PreferencesDiskTab</scope><name>clear_disk_cache_</name></member>
+      <member refid="class_preferences_disk_tab_1a0542eb5dd2d6dedff6833057621a35dd" prot="private" virt="non-virtual"><scope>PreferencesDiskTab</scope><name>ClearDiskCache</name></member>
+      <member refid="class_preferences_disk_tab_1a1301e1ca36e074864769b65b9012441f" prot="private" virt="non-virtual"><scope>PreferencesDiskTab</scope><name>disk_cache_location_</name></member>
+      <member refid="class_preferences_disk_tab_1af7b1c16ef464dca13dedc78a066f6880" prot="private" virt="non-virtual"><scope>PreferencesDiskTab</scope><name>DiskCacheLineEditChanged</name></member>
+      <member refid="class_preferences_disk_tab_1a7e96f7a6be60c306ddf9e6295d70aa3f" prot="private" virt="non-virtual"><scope>PreferencesDiskTab</scope><name>maximum_cache_slider_</name></member>
+      <member refid="class_preferences_disk_tab_1a97362f8c6c3a82d424697e81dff86160" prot="public" virt="non-virtual"><scope>PreferencesDiskTab</scope><name>PreferencesDiskTab</name></member>
+      <member refid="class_preferences_tab_1a5330b203f9973201f677b0daf642f30e" prot="public" virt="non-virtual"><scope>PreferencesDiskTab</scope><name>PreferencesTab</name></member>
+      <member refid="class_preferences_tab_1aefad5e89125f7a19d26a18ab3931ddfb" prot="public" virt="virtual"><scope>PreferencesDiskTab</scope><name>Validate</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

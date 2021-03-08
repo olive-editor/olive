@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_10cd5c5232524e5819e2140299689091" kind="dir">
+    <compoundname>sequence</compoundname>
+    <innerfile refid="dialog_2sequence_2sequence_8h">dialog/sequence/sequence.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/dialog/sequence/"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,398 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_panel_manager" kind="class" language="C++" prot="public">
+    <compoundname>PanelManager</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QObject</basecompoundref>
+    <includes refid="panelmanager_8h" local="no">panelmanager.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_panel_manager_1af4e499266cf024cb5158afffb45adea2" prot="private" static="no" mutable="no">
+        <type>QList&lt; <ref refid="class_panel_widget" kindref="compound">PanelWidget</ref> * &gt;</type>
+        <definition>QList&lt;PanelWidget*&gt; PanelManager::focus_history_</definition>
+        <argsstring></argsstring>
+        <name>focus_history_</name>
+        <briefdescription>
+<para>History array for traversing through (see <ref refid="class_panel_manager_1af27397084a6fc5cdd512208ce2de5320" kindref="member">MostRecentlyFocused()</ref>) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/panel/panelmanager.h" line="164" column="9" bodyfile="C:/Daten/Olive/olive/app/panel/panelmanager.h" bodystart="164" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_panel_manager_1a7c5818e029237873965a55cc846fe50d" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool PanelManager::locked_</definition>
+        <argsstring></argsstring>
+        <name>locked_</name>
+        <briefdescription>
+<para>Internal panel movement is locked value. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/panel/panelmanager.h" line="169" column="8" bodyfile="C:/Daten/Olive/olive/app/panel/panelmanager.h" bodystart="169" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_panel_manager_1a245bf84336e502190ce0608d61122045" prot="private" static="no" mutable="no">
+        <type><ref refid="class_panel_widget" kindref="compound">PanelWidget</ref> *</type>
+        <definition>PanelWidget* PanelManager::last_focused_panel_</definition>
+        <argsstring></argsstring>
+        <name>last_focused_panel_</name>
+        <briefdescription>
+<para>The last panel that was focused. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Stored to prevent emitting <ref refid="class_panel_manager_1a6bbac5970f6c210790d3918af3f2ad0b" kindref="member">FocusedPanelChanged()</ref> multiple times for the same panel </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/panel/panelmanager.h" line="181" column="15" bodyfile="C:/Daten/Olive/olive/app/panel/panelmanager.h" bodystart="181" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-attrib">
+      <memberdef kind="variable" id="class_panel_manager_1aba898c3b2b7257235228416eeebf80ea" prot="private" static="yes" mutable="no">
+        <type><ref refid="class_panel_manager" kindref="compound">PanelManager</ref> *</type>
+        <definition>PanelManager* PanelManager::instance_</definition>
+        <argsstring></argsstring>
+        <name>instance_</name>
+        <briefdescription>
+<para><ref refid="class_panel_manager" kindref="compound">PanelManager</ref> singleton instance. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/panel/panelmanager.h" line="174" column="23" bodyfile="C:/Daten/Olive/olive/app/panel/panelmanager.h" bodystart="174" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_panel_manager_1a101ef1633be73244a48fc6e4b35088e6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>PanelManager::PanelManager</definition>
+        <argsstring>(QObject *parent=nullptr)</argsstring>
+        <name>PanelManager</name>
+        <param>
+          <type>QObject *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/panel/panelmanager.h" line="67" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_manager_1a0bb12a845475eaaf780c414099f7bc6a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PanelManager::DeleteAllPanels</definition>
+        <argsstring>()</argsstring>
+        <name>DeleteAllPanels</name>
+        <briefdescription>
+<para>Destroy all panels. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Should only be used on application exit to cleanly free all panels. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/panel/panelmanager.h" line="74" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_manager_1a9056b2701228a7cec23df356a6a498d1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const QList&lt; <ref refid="class_panel_widget" kindref="compound">PanelWidget</ref> * &gt; &amp;</type>
+        <definition>const QList&lt;PanelWidget*&gt;&amp; PanelManager::panels</definition>
+        <argsstring>()</argsstring>
+        <name>panels</name>
+        <briefdescription>
+<para>Get a list of all existing panels. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Panels are ordered from most recently focused to least recently focused. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/panel/panelmanager.h" line="81" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_manager_1ab17ba28a716b92e93b10f488d1c6a0bd" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_panel_widget" kindref="compound">PanelWidget</ref> *</type>
+        <definition>PanelWidget* PanelManager::CurrentlyFocused</definition>
+        <argsstring>() const</argsstring>
+        <name>CurrentlyFocused</name>
+        <briefdescription>
+<para>Return the currently focused widget, or nullptr if nothing is focused. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This result == <ref refid="class_panel_manager_1ab17ba28a716b92e93b10f488d1c6a0bd" kindref="member">CurrentlyFocused()</ref> if HoverFocus is true </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/panel/panelmanager.h" line="88" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_manager_1a032e58c37bf592dc97d587e0d10f2b38" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_panel_widget" kindref="compound">PanelWidget</ref> *</type>
+        <definition>PanelWidget* PanelManager::CurrentlyHovered</definition>
+        <argsstring>() const</argsstring>
+        <name>CurrentlyHovered</name>
+        <briefdescription>
+<para>Return the widget that the mouse is currently hovering over, or nullptr if nothing is hovered over. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This result == <ref refid="class_panel_manager_1ab17ba28a716b92e93b10f488d1c6a0bd" kindref="member">CurrentlyFocused()</ref> if HoverFocus is true </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/panel/panelmanager.h" line="95" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_manager_1af27397084a6fc5cdd512208ce2de5320" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T *</type>
+        <definition>T * PanelManager::MostRecentlyFocused</definition>
+        <argsstring>()</argsstring>
+        <name>MostRecentlyFocused</name>
+        <briefdescription>
+<para>Get most recently focused panel of a certain type. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para></para>
+</simplesect>
+The most recently focused panel of the specified type, or nullptr if none exists </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/panel/panelmanager.h" line="105" column="5" bodyfile="C:/Daten/Olive/olive/app/panel/panelmanager.h" bodystart="202" bodyend="215"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_manager_1ab5533cfd8249bf0badfefefadbde681b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T *</type>
+        <definition>T * PanelManager::CreatePanel</definition>
+        <argsstring>(QWidget *parent)</argsstring>
+        <name>CreatePanel</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+        </param>
+        <briefdescription>
+<para>Create a panel. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/panel/panelmanager.h" line="111" column="5" bodyfile="C:/Daten/Olive/olive/app/panel/panelmanager.h" bodystart="174" bodyend="199"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_manager_1aae3f720aaee69fbe478b20559ab6e63c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool PanelManager::ArePanelsLocked</definition>
+        <argsstring>()</argsstring>
+        <name>ArePanelsLocked</name>
+        <briefdescription>
+<para>Get whether panels are currently prevented from moving. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/panel/panelmanager.h" line="116" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_manager_1a0b1f35d2c013bfa7971ee42c9021eb5a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>QList&lt; T * &gt;</type>
+        <definition>QList&lt; T * &gt; PanelManager::GetPanelsOfType</definition>
+        <argsstring>()</argsstring>
+        <name>GetPanelsOfType</name>
+        <briefdescription>
+<para>Get a list of panels of a certain type. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/panel/panelmanager.h" line="139" column="9" bodyfile="C:/Daten/Olive/olive/app/panel/panelmanager.h" bodystart="218" bodyend="233"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="class_panel_manager_1a9a99e0915d729f5d76d9425401a2b84d" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void PanelManager::CreateInstance</definition>
+        <argsstring>()</argsstring>
+        <name>CreateInstance</name>
+        <briefdescription>
+<para>Create <ref refid="class_panel_manager" kindref="compound">PanelManager</ref> singleton instance. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/panel/panelmanager.h" line="121" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_manager_1a3d92dbae00f6cef14a14c27518f1afde" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void PanelManager::DestroyInstance</definition>
+        <argsstring>()</argsstring>
+        <name>DestroyInstance</name>
+        <briefdescription>
+<para>Destroy <ref refid="class_panel_manager" kindref="compound">PanelManager</ref> singleton instance. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If no <ref refid="class_panel_manager" kindref="compound">PanelManager</ref> was created, this is a no-op. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/panel/panelmanager.h" line="128" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_panel_manager_1a1d813deaa9d7ddf90a37e5689928fa07" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_panel_manager" kindref="compound">PanelManager</ref> *</type>
+        <definition>static PanelManager* PanelManager::instance</definition>
+        <argsstring>()</argsstring>
+        <name>instance</name>
+        <briefdescription>
+<para>Access to <ref refid="class_panel_manager" kindref="compound">PanelManager</ref> singleton instance. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/panel/panelmanager.h" line="133" column="23"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-slot">
+      <memberdef kind="slot" id="class_panel_manager_1af5f051337476ea9e845b999b73e277df" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PanelManager::FocusChanged</definition>
+        <argsstring>(QWidget *old, QWidget *now)</argsstring>
+        <name>FocusChanged</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>old</declname>
+        </param>
+        <param>
+          <type>QWidget *</type>
+          <declname>now</declname>
+        </param>
+        <briefdescription>
+<para>Connect this to a QApplication&apos;s SIGNAL(focusChanged()) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Interprets focus information to determine the currently focused panel </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/panel/panelmanager.h" line="147" column="8"/>
+      </memberdef>
+      <memberdef kind="slot" id="class_panel_manager_1a31744d050f810106a383cf52694f012b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PanelManager::SetPanelsLocked</definition>
+        <argsstring>(bool locked)</argsstring>
+        <name>SetPanelsLocked</name>
+        <param>
+          <type>bool</type>
+          <declname>locked</declname>
+        </param>
+        <briefdescription>
+<para>Sets whether panels should be prevented from moving. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/panel/panelmanager.h" line="152" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="class_panel_manager_1a6bbac5970f6c210790d3918af3f2ad0b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PanelManager::FocusedPanelChanged</definition>
+        <argsstring>(PanelWidget *panel)</argsstring>
+        <name>FocusedPanelChanged</name>
+        <param>
+          <type><ref refid="class_panel_widget" kindref="compound">PanelWidget</ref> *</type>
+          <declname>panel</declname>
+        </param>
+        <briefdescription>
+<para>Signal emitted when the currently focused panel changes. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/panel/panelmanager.h" line="158" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="class_panel_manager_1adb311de98bec11445d4dce519bf4cccb" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void PanelManager::PanelDestroyed</definition>
+        <argsstring>()</argsstring>
+        <name>PanelDestroyed</name>
+        <briefdescription>
+<para>Processing if a panel gets deleted. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/panel/panelmanager.h" line="187" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>The PanelFocusManager class. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>This object keeps track of which panel is focused at any given time.</para>
+<para>Sometimes a function (specifically a keyboard-triggered one, e.g. Delete) may have different purposes depending on which panel is &quot;focused&quot; at any given time. Pressing Delete on the <ref refid="class_timeline" kindref="compound">Timeline</ref> is not the same as pressing Delete in the <ref refid="class_project" kindref="compound">Project</ref> panel, for example. This kind of &quot;focus&quot; is slightly different from standard QWidget focus, since it aims to be less specific than a single QPushButton or QLineEdit, and rather specific to the panel widgets like that belong to.</para>
+<para>PanelFocusManager&apos;s SLOT(FocusChanged()) connects to the QApplication instance&apos;s SIGNAL(focusChanged()) so that it always knows when focus has changed within the application. </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="2">
+        <label>PanelWidget</label>
+        <link refid="class_panel_widget"/>
+      </node>
+      <node id="1">
+        <label>PanelManager</label>
+        <link refid="class_panel_manager"/>
+        <childnode refid="1" relation="usage">
+          <edgelabel>instance_</edgelabel>
+        </childnode>
+        <childnode refid="2" relation="usage">
+          <edgelabel>last_focused_panel_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/panel/panelmanager.h" line="45" column="1" bodyfile="C:/Daten/Olive/olive/app/panel/panelmanager.h" bodystart="46" bodyend="171"/>
+    <listofallmembers>
+      <member refid="class_panel_manager_1aae3f720aaee69fbe478b20559ab6e63c" prot="public" virt="non-virtual"><scope>PanelManager</scope><name>ArePanelsLocked</name></member>
+      <member refid="class_panel_manager_1a9a99e0915d729f5d76d9425401a2b84d" prot="public" virt="non-virtual"><scope>PanelManager</scope><name>CreateInstance</name></member>
+      <member refid="class_panel_manager_1ab5533cfd8249bf0badfefefadbde681b" prot="public" virt="non-virtual"><scope>PanelManager</scope><name>CreatePanel</name></member>
+      <member refid="class_panel_manager_1ab17ba28a716b92e93b10f488d1c6a0bd" prot="public" virt="non-virtual"><scope>PanelManager</scope><name>CurrentlyFocused</name></member>
+      <member refid="class_panel_manager_1a032e58c37bf592dc97d587e0d10f2b38" prot="public" virt="non-virtual"><scope>PanelManager</scope><name>CurrentlyHovered</name></member>
+      <member refid="class_panel_manager_1a0bb12a845475eaaf780c414099f7bc6a" prot="public" virt="non-virtual"><scope>PanelManager</scope><name>DeleteAllPanels</name></member>
+      <member refid="class_panel_manager_1a3d92dbae00f6cef14a14c27518f1afde" prot="public" virt="non-virtual"><scope>PanelManager</scope><name>DestroyInstance</name></member>
+      <member refid="class_panel_manager_1af4e499266cf024cb5158afffb45adea2" prot="private" virt="non-virtual"><scope>PanelManager</scope><name>focus_history_</name></member>
+      <member refid="class_panel_manager_1af5f051337476ea9e845b999b73e277df" prot="public" virt="non-virtual"><scope>PanelManager</scope><name>FocusChanged</name></member>
+      <member refid="class_panel_manager_1a6bbac5970f6c210790d3918af3f2ad0b" prot="public" virt="non-virtual"><scope>PanelManager</scope><name>FocusedPanelChanged</name></member>
+      <member refid="class_panel_manager_1a0b1f35d2c013bfa7971ee42c9021eb5a" prot="public" virt="non-virtual"><scope>PanelManager</scope><name>GetPanelsOfType</name></member>
+      <member refid="class_panel_manager_1a1d813deaa9d7ddf90a37e5689928fa07" prot="public" virt="non-virtual"><scope>PanelManager</scope><name>instance</name></member>
+      <member refid="class_panel_manager_1aba898c3b2b7257235228416eeebf80ea" prot="private" virt="non-virtual"><scope>PanelManager</scope><name>instance_</name></member>
+      <member refid="class_panel_manager_1a245bf84336e502190ce0608d61122045" prot="private" virt="non-virtual"><scope>PanelManager</scope><name>last_focused_panel_</name></member>
+      <member refid="class_panel_manager_1a7c5818e029237873965a55cc846fe50d" prot="private" virt="non-virtual"><scope>PanelManager</scope><name>locked_</name></member>
+      <member refid="class_panel_manager_1af27397084a6fc5cdd512208ce2de5320" prot="public" virt="non-virtual"><scope>PanelManager</scope><name>MostRecentlyFocused</name></member>
+      <member refid="class_panel_manager_1adb311de98bec11445d4dce519bf4cccb" prot="private" virt="non-virtual"><scope>PanelManager</scope><name>PanelDestroyed</name></member>
+      <member refid="class_panel_manager_1a101ef1633be73244a48fc6e4b35088e6" prot="public" virt="non-virtual"><scope>PanelManager</scope><name>PanelManager</name></member>
+      <member refid="class_panel_manager_1a9056b2701228a7cec23df356a6a498d1" prot="public" virt="non-virtual"><scope>PanelManager</scope><name>panels</name></member>
+      <member refid="class_panel_manager_1a31744d050f810106a383cf52694f012b" prot="public" virt="non-virtual"><scope>PanelManager</scope><name>SetPanelsLocked</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

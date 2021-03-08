@@ -1,0 +1,653 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_item" kind="class" language="C++" prot="public" abstract="yes">
+    <compoundname>Item</compoundname>
+    <derivedcompoundref refid="class_folder" prot="public" virt="non-virtual">Folder</derivedcompoundref>
+    <derivedcompoundref refid="class_footage" prot="public" virt="non-virtual">Footage</derivedcompoundref>
+    <derivedcompoundref refid="class_sequence" prot="public" virt="non-virtual">Sequence</derivedcompoundref>
+    <includes refid="item_8h" local="no">item.h</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="enum" id="class_item_1a6b718f9918eb7a5b2d4572cc1a231005" prot="public" static="no" strong="no">
+        <type></type>
+        <name>Type</name>
+        <enumvalue id="class_item_1a6b718f9918eb7a5b2d4572cc1a231005aa4fcf77d2c7c47c166fc0245da1dc08c" prot="public">
+          <name>kFolder</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_item_1a6b718f9918eb7a5b2d4572cc1a231005aa14553d7a7d33a1378710b3b318c7944" prot="public">
+          <name>kFootage</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="class_item_1a6b718f9918eb7a5b2d4572cc1a231005ab757135607183f4629addfb931535c4c" prot="public">
+          <name>kSequence</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="52" column="3" bodyfile="C:/Daten/Olive/olive/app/project/item/item.h" bodystart="52" bodyend="56"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_item_1aee53eec8a56a22ef69b3925e84c7c1a8" prot="private" static="no" mutable="no">
+        <type>QList&lt; <ref refid="item_8h_1ab17f9c749f423747869d900d2418ffde" kindref="member">ItemPtr</ref> &gt;</type>
+        <definition>QList&lt;ItemPtr&gt; Item::children_</definition>
+        <argsstring></argsstring>
+        <name>children_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="114" column="9" bodyfile="C:/Daten/Olive/olive/app/project/item/item.h" bodystart="114" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_item_1a655e3d9269d60cbb26780cdfa45257b6" prot="private" static="no" mutable="no">
+        <type><ref refid="class_item" kindref="compound">Item</ref> *</type>
+        <definition>Item* Item::parent_</definition>
+        <argsstring></argsstring>
+        <name>parent_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="116" column="8" bodyfile="C:/Daten/Olive/olive/app/project/item/item.h" bodystart="116" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_item_1afef9389b234df33c55597ecbc62a80b9" prot="private" static="no" mutable="no">
+        <type><ref refid="class_project" kindref="compound">Project</ref> *</type>
+        <definition>Project* Item::project_</definition>
+        <argsstring></argsstring>
+        <name>project_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="118" column="11" bodyfile="C:/Daten/Olive/olive/app/project/item/item.h" bodystart="118" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_item_1a73965e7a2042be6cd3234afe29e7c1c6" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString Item::name_</definition>
+        <argsstring></argsstring>
+        <name>name_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="120" column="11" bodyfile="C:/Daten/Olive/olive/app/project/item/item.h" bodystart="120" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_item_1a6f3e200519e34b43514937404c39a83d" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString Item::tooltip_</definition>
+        <argsstring></argsstring>
+        <name>tooltip_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="122" column="11" bodyfile="C:/Daten/Olive/olive/app/project/item/item.h" bodystart="122" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_item_1a297720c02984eab37332ae795d22189d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Item::Item</definition>
+        <argsstring>()</argsstring>
+        <name>Item</name>
+        <briefdescription>
+<para><ref refid="class_item" kindref="compound">Item</ref> constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="61" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_item_1a33cc9c0bc556b5a33a9d0d58d37c602b" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type></type>
+        <definition>virtual Item::~Item</definition>
+        <argsstring>()</argsstring>
+        <name>~Item</name>
+        <briefdescription>
+<para>Required virtual <ref refid="class_item" kindref="compound">Item</ref> destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="66" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_item_1a43781a013fa174fe62978d80cb159cd0" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>void</type>
+        <definition>virtual void Item::Load</definition>
+        <argsstring>(QXmlStreamReader *reader, XMLNodeData &amp;xml_node_data, const QAtomicInt *cancelled)=0</argsstring>
+        <name>Load</name>
+        <reimplementedby refid="class_sequence_1a3020a1ad58fc581345d2ead5a265b848">Load</reimplementedby>
+        <reimplementedby refid="class_folder_1af775813c97d7ad3cf815beb5fe76b1f3">Load</reimplementedby>
+        <reimplementedby refid="class_footage_1aa33c7dd2a44ca672ccea3a0f51ab9c42">Load</reimplementedby>
+        <param>
+          <type>QXmlStreamReader *</type>
+          <declname>reader</declname>
+        </param>
+        <param>
+          <type><ref refid="struct_x_m_l_node_data" kindref="compound">XMLNodeData</ref> &amp;</type>
+          <declname>xml_node_data</declname>
+        </param>
+        <param>
+          <type>const QAtomicInt *</type>
+          <declname>cancelled</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="70" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_item_1a504a01f0db485e9a53a1ee3e65247398" prot="public" static="no" const="yes" explicit="no" inline="no" virt="pure-virtual">
+        <type>void</type>
+        <definition>virtual void Item::Save</definition>
+        <argsstring>(QXmlStreamWriter *writer) const =0</argsstring>
+        <name>Save</name>
+        <reimplementedby refid="class_sequence_1aa33391ba43d46fd49472eb01eb58af4f">Save</reimplementedby>
+        <reimplementedby refid="class_folder_1acc868e8df9a8cbde236980d44b7d319e">Save</reimplementedby>
+        <reimplementedby refid="class_footage_1aa23a0724328eac6b500f22e99d2d390c">Save</reimplementedby>
+        <param>
+          <type>QXmlStreamWriter *</type>
+          <declname>writer</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="72" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_item_1a0947b2b16652d156b325968265bb12b8" prot="public" static="no" const="yes" explicit="no" inline="no" virt="pure-virtual">
+        <type><ref refid="class_item_1a6b718f9918eb7a5b2d4572cc1a231005" kindref="member">Type</ref></type>
+        <definition>virtual Type Item::type</definition>
+        <argsstring>() const =0</argsstring>
+        <name>type</name>
+        <reimplementedby refid="class_folder_1ae1cbf56912106baf49c720d15f4a5bbf">type</reimplementedby>
+        <reimplementedby refid="class_sequence_1a6b32cfe0c67dc61aa3edf542b19c9628">type</reimplementedby>
+        <reimplementedby refid="class_footage_1a0d40fc85af3c0d4dfe057f1339824c3f">type</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="74" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_item_1a4b8de93849c7502a91d50cea72c23757" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Item::add_child</definition>
+        <argsstring>(ItemPtr c)</argsstring>
+        <name>add_child</name>
+        <param>
+          <type><ref refid="item_8h_1ab17f9c749f423747869d900d2418ffde" kindref="member">ItemPtr</ref></type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="76" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_item_1a0fafbd7347fba4d8a044e1901b0cd1aa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Item::remove_child</definition>
+        <argsstring>(Item *c)</argsstring>
+        <name>remove_child</name>
+        <param>
+          <type><ref refid="class_item" kindref="compound">Item</ref> *</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="77" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_item_1a968887e70566a5f75b089c4ae8dafadc" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int Item::child_count</definition>
+        <argsstring>() const</argsstring>
+        <name>child_count</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="78" column="7"/>
+      </memberdef>
+      <memberdef kind="function" id="class_item_1a434ef98c160ffcc7ce03929eaabd3e21" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_item" kindref="compound">Item</ref> *</type>
+        <definition>Item* Item::child</definition>
+        <argsstring>(int i) const</argsstring>
+        <name>child</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="79" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_item_1ada3ee063d7280904ef6ac0f3f2713c7d" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const QList&lt; <ref refid="item_8h_1ab17f9c749f423747869d900d2418ffde" kindref="member">ItemPtr</ref> &gt; &amp;</type>
+        <definition>const QList&lt;ItemPtr&gt;&amp; Item::children</definition>
+        <argsstring>() const</argsstring>
+        <name>children</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="80" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="class_item_1a1be88d478ec143b3d27a653935e684b4" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="item_8h_1ab17f9c749f423747869d900d2418ffde" kindref="member">ItemPtr</ref></type>
+        <definition>ItemPtr Item::get_shared_ptr</definition>
+        <argsstring>() const</argsstring>
+        <name>get_shared_ptr</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="82" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_item_1a6442dac193a2e96ce0c40a1467684569" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const QString &amp;</type>
+        <definition>const QString&amp; Item::name</definition>
+        <argsstring>() const</argsstring>
+        <name>name</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="84" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_item_1a12bcb63d6aa838a43e8078811afdd242" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Item::set_name</definition>
+        <argsstring>(const QString &amp;n)</argsstring>
+        <name>set_name</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="85" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_item_1afbf394c9b9476a4dee65516e59bbe756" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const QString &amp;</type>
+        <definition>const QString&amp; Item::tooltip</definition>
+        <argsstring>() const</argsstring>
+        <name>tooltip</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="87" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_item_1acfde985eaf2c1d393710a2295e58b74c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Item::set_tooltip</definition>
+        <argsstring>(const QString &amp;t)</argsstring>
+        <name>set_tooltip</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="88" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_item_1a4744a05ca511b0613a00c0f5f312eb90" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>QIcon</type>
+        <definition>virtual QIcon Item::icon</definition>
+        <argsstring>()=0</argsstring>
+        <name>icon</name>
+        <reimplementedby refid="class_sequence_1acf354a42a734b19e8f5fc6843a7d03e1">icon</reimplementedby>
+        <reimplementedby refid="class_folder_1ae6247370c495ae24208a5f4cc16ccdb8">icon</reimplementedby>
+        <reimplementedby refid="class_footage_1ae62396afd7b62842b34067311e021672">icon</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="90" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_item_1a23926f6113edf285b17d9903d32aa453" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>QString</type>
+        <definition>virtual QString Item::duration</definition>
+        <argsstring>()</argsstring>
+        <name>duration</name>
+        <reimplementedby refid="class_sequence_1a29d2f5177faba43c1e1ccab92e38fd67">duration</reimplementedby>
+        <reimplementedby refid="class_footage_1a1e1ded77c038e357bfbdf271df8b440f">duration</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="92" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_item_1a5e0a125de92f5fd5d7e2abd63a1fae17" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>QString</type>
+        <definition>virtual QString Item::rate</definition>
+        <argsstring>()</argsstring>
+        <name>rate</name>
+        <reimplementedby refid="class_sequence_1a014a32928d52b673e35098db121a39d0">rate</reimplementedby>
+        <reimplementedby refid="class_footage_1ae3097dabcf271869e5fb5c59a1c6b1ab">rate</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="94" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="class_item_1aaa36e9db0505be6b3cac7a6e3d429ef7" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_item" kindref="compound">Item</ref> *</type>
+        <definition>Item* Item::parent</definition>
+        <argsstring>() const</argsstring>
+        <name>parent</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="96" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_item_1a857b863010848fb782d740249aeeff55" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="class_item" kindref="compound">Item</ref> *</type>
+        <definition>const Item* Item::root</definition>
+        <argsstring>() const</argsstring>
+        <name>root</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="97" column="14"/>
+      </memberdef>
+      <memberdef kind="function" id="class_item_1ac29b8b0d2362b7f44f4033f1d3f38f05" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_project" kindref="compound">Project</ref> *</type>
+        <definition>Project* Item::project</definition>
+        <argsstring>() const</argsstring>
+        <name>project</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="99" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="class_item_1a85c2c4608db041e2b517d6e1d6cce59e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Item::set_project</definition>
+        <argsstring>(Project *project)</argsstring>
+        <name>set_project</name>
+        <param>
+          <type><ref refid="class_project" kindref="compound">Project</ref> *</type>
+          <declname>project</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="100" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_item_1ac1c89b75c08014f6b365613a0c25f6db" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QList&lt; <ref refid="item_8h_1ab17f9c749f423747869d900d2418ffde" kindref="member">ItemPtr</ref> &gt;</type>
+        <definition>QList&lt;ItemPtr&gt; Item::get_children_of_type</definition>
+        <argsstring>(Type type, bool recursive) const</argsstring>
+        <name>get_children_of_type</name>
+        <param>
+          <type><ref refid="class_item_1a6b718f9918eb7a5b2d4572cc1a231005" kindref="member">Type</ref></type>
+          <declname>type</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>recursive</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="102" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="class_item_1a5b829b0154f084b9771365bdfde325a3" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type>bool</type>
+        <definition>virtual bool Item::CanHaveChildren</definition>
+        <argsstring>() const</argsstring>
+        <name>CanHaveChildren</name>
+        <reimplementedby refid="class_folder_1ab6d627819c20f3d3a9751a225704bed6">CanHaveChildren</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="104" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="class_item_1ae723219aa2bb4ed029abd95a419f4e8e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Item::ChildExistsWithName</definition>
+        <argsstring>(const QString &amp;name)</argsstring>
+        <name>ChildExistsWithName</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>name</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="106" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="class_item_1aa5f6d39b034860063fda047b3c2f2de4" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void Item::NameChangedEvent</definition>
+        <argsstring>(const QString &amp;name)</argsstring>
+        <name>NameChangedEvent</name>
+        <reimplementedby refid="class_sequence_1aad0c5145f9d9ff7dcb252b32b754b810">NameChangedEvent</reimplementedby>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>name</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="109" column="16"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_item_1a674105de1ecd7ca5ba53c8dcb71b14ea" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Item::ChildExistsWithNameInternal</definition>
+        <argsstring>(const QString &amp;name, Item *folder)</argsstring>
+        <name>ChildExistsWithNameInternal</name>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>name</declname>
+        </param>
+        <param>
+          <type><ref refid="class_item" kindref="compound">Item</ref> *</type>
+          <declname>folder</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="112" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A base-class representing any element in a <ref refid="class_project" kindref="compound">Project</ref>. </para>
+    </briefdescription>
+    <detaileddescription>
+<para><ref refid="class_project" kindref="compound">Project</ref> objects implement a parent-child hierarchy of Items that can be used throughout the <ref refid="class_project" kindref="compound">Project</ref>. The <ref refid="class_item" kindref="compound">Item</ref> class itself is abstract and will need to be subclassed to be used in a <ref refid="class_project" kindref="compound">Project</ref>. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="4">
+        <label>Sequence</label>
+        <link refid="class_sequence"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>Item</label>
+        <link refid="class_item"/>
+      </node>
+      <node id="2">
+        <label>Folder</label>
+        <link refid="class_folder"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>Footage</label>
+        <link refid="class_footage"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="3">
+        <label>ColorManager</label>
+        <link refid="class_color_manager"/>
+      </node>
+      <node id="1">
+        <label>Item</label>
+        <link refid="class_item"/>
+        <childnode refid="1" relation="usage">
+          <edgelabel>parent_</edgelabel>
+        </childnode>
+        <childnode refid="2" relation="usage">
+          <edgelabel>project_</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>Project</label>
+        <link refid="class_project"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>color_manager_</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>root_</edgelabel>
+        </childnode>
+      </node>
+      <node id="4">
+        <label>Folder</label>
+        <link refid="class_folder"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/project/item/item.h" line="49" column="1" bodyfile="C:/Daten/Olive/olive/app/project/item/item.h" bodystart="50" bodyend="124"/>
+    <listofallmembers>
+      <member refid="class_item_1a4b8de93849c7502a91d50cea72c23757" prot="public" virt="non-virtual"><scope>Item</scope><name>add_child</name></member>
+      <member refid="class_item_1a5b829b0154f084b9771365bdfde325a3" prot="public" virt="virtual"><scope>Item</scope><name>CanHaveChildren</name></member>
+      <member refid="class_item_1a434ef98c160ffcc7ce03929eaabd3e21" prot="public" virt="non-virtual"><scope>Item</scope><name>child</name></member>
+      <member refid="class_item_1a968887e70566a5f75b089c4ae8dafadc" prot="public" virt="non-virtual"><scope>Item</scope><name>child_count</name></member>
+      <member refid="class_item_1ae723219aa2bb4ed029abd95a419f4e8e" prot="public" virt="non-virtual"><scope>Item</scope><name>ChildExistsWithName</name></member>
+      <member refid="class_item_1a674105de1ecd7ca5ba53c8dcb71b14ea" prot="private" virt="non-virtual"><scope>Item</scope><name>ChildExistsWithNameInternal</name></member>
+      <member refid="class_item_1ada3ee063d7280904ef6ac0f3f2713c7d" prot="public" virt="non-virtual"><scope>Item</scope><name>children</name></member>
+      <member refid="class_item_1aee53eec8a56a22ef69b3925e84c7c1a8" prot="private" virt="non-virtual"><scope>Item</scope><name>children_</name></member>
+      <member refid="class_item_1a23926f6113edf285b17d9903d32aa453" prot="public" virt="virtual"><scope>Item</scope><name>duration</name></member>
+      <member refid="class_item_1ac1c89b75c08014f6b365613a0c25f6db" prot="public" virt="non-virtual"><scope>Item</scope><name>get_children_of_type</name></member>
+      <member refid="class_item_1a1be88d478ec143b3d27a653935e684b4" prot="public" virt="non-virtual"><scope>Item</scope><name>get_shared_ptr</name></member>
+      <member refid="class_item_1a4744a05ca511b0613a00c0f5f312eb90" prot="public" virt="pure-virtual"><scope>Item</scope><name>icon</name></member>
+      <member refid="class_item_1a297720c02984eab37332ae795d22189d" prot="public" virt="non-virtual"><scope>Item</scope><name>Item</name></member>
+      <member refid="class_item_1a6b718f9918eb7a5b2d4572cc1a231005aa4fcf77d2c7c47c166fc0245da1dc08c" prot="public" virt="non-virtual"><scope>Item</scope><name>kFolder</name></member>
+      <member refid="class_item_1a6b718f9918eb7a5b2d4572cc1a231005aa14553d7a7d33a1378710b3b318c7944" prot="public" virt="non-virtual"><scope>Item</scope><name>kFootage</name></member>
+      <member refid="class_item_1a6b718f9918eb7a5b2d4572cc1a231005ab757135607183f4629addfb931535c4c" prot="public" virt="non-virtual"><scope>Item</scope><name>kSequence</name></member>
+      <member refid="class_item_1a43781a013fa174fe62978d80cb159cd0" prot="public" virt="pure-virtual"><scope>Item</scope><name>Load</name></member>
+      <member refid="class_item_1a6442dac193a2e96ce0c40a1467684569" prot="public" virt="non-virtual"><scope>Item</scope><name>name</name></member>
+      <member refid="class_item_1a73965e7a2042be6cd3234afe29e7c1c6" prot="private" virt="non-virtual"><scope>Item</scope><name>name_</name></member>
+      <member refid="class_item_1aa5f6d39b034860063fda047b3c2f2de4" prot="protected" virt="virtual"><scope>Item</scope><name>NameChangedEvent</name></member>
+      <member refid="class_item_1aaa36e9db0505be6b3cac7a6e3d429ef7" prot="public" virt="non-virtual"><scope>Item</scope><name>parent</name></member>
+      <member refid="class_item_1a655e3d9269d60cbb26780cdfa45257b6" prot="private" virt="non-virtual"><scope>Item</scope><name>parent_</name></member>
+      <member refid="class_item_1ac29b8b0d2362b7f44f4033f1d3f38f05" prot="public" virt="non-virtual"><scope>Item</scope><name>project</name></member>
+      <member refid="class_item_1afef9389b234df33c55597ecbc62a80b9" prot="private" virt="non-virtual"><scope>Item</scope><name>project_</name></member>
+      <member refid="class_item_1a5e0a125de92f5fd5d7e2abd63a1fae17" prot="public" virt="virtual"><scope>Item</scope><name>rate</name></member>
+      <member refid="class_item_1a0fafbd7347fba4d8a044e1901b0cd1aa" prot="public" virt="non-virtual"><scope>Item</scope><name>remove_child</name></member>
+      <member refid="class_item_1a857b863010848fb782d740249aeeff55" prot="public" virt="non-virtual"><scope>Item</scope><name>root</name></member>
+      <member refid="class_item_1a504a01f0db485e9a53a1ee3e65247398" prot="public" virt="pure-virtual"><scope>Item</scope><name>Save</name></member>
+      <member refid="class_item_1a12bcb63d6aa838a43e8078811afdd242" prot="public" virt="non-virtual"><scope>Item</scope><name>set_name</name></member>
+      <member refid="class_item_1a85c2c4608db041e2b517d6e1d6cce59e" prot="public" virt="non-virtual"><scope>Item</scope><name>set_project</name></member>
+      <member refid="class_item_1acfde985eaf2c1d393710a2295e58b74c" prot="public" virt="non-virtual"><scope>Item</scope><name>set_tooltip</name></member>
+      <member refid="class_item_1afbf394c9b9476a4dee65516e59bbe756" prot="public" virt="non-virtual"><scope>Item</scope><name>tooltip</name></member>
+      <member refid="class_item_1a6f3e200519e34b43514937404c39a83d" prot="private" virt="non-virtual"><scope>Item</scope><name>tooltip_</name></member>
+      <member refid="class_item_1a6b718f9918eb7a5b2d4572cc1a231005" prot="public" virt="non-virtual"><scope>Item</scope><name>Type</name></member>
+      <member refid="class_item_1a0947b2b16652d156b325968265bb12b8" prot="public" virt="pure-virtual"><scope>Item</scope><name>type</name></member>
+      <member refid="class_item_1a33cc9c0bc556b5a33a9d0d58d37c602b" prot="public" virt="virtual"><scope>Item</scope><name>~Item</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

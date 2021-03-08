@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="dir_d422163b96683743ed3963d4aac17747" kind="dir">
+    <compoundname>app</compoundname>
+    <innerdir refid="dir_2d63573edd2effe3e36a7dbc7f06c916">audio</innerdir>
+    <innerdir refid="dir_d734278c4fd45090890f07e27dfb4606">cli</innerdir>
+    <innerdir refid="dir_52453a4e16a8e9ce4aeefe61e1df2674">codec</innerdir>
+    <innerdir refid="dir_4a9513260508d5894bea9849c69369f8">common</innerdir>
+    <innerdir refid="dir_aea9893897cc10308ef9329a16217ee4">config</innerdir>
+    <innerdir refid="dir_986cfcba01095c6b68ba14d846ee16b7">dialog</innerdir>
+    <innerdir refid="dir_6e60b580ff18158916342cc16f02edda">node</innerdir>
+    <innerdir refid="dir_f348bdef230042a0e1ad1923bfbc14e5">packaging</innerdir>
+    <innerdir refid="dir_9a54bea2c918a5ee08f4cd4f9f1b2514">panel</innerdir>
+    <innerdir refid="dir_14b0d018d1975c5dcf81c52279c3d72b">project</innerdir>
+    <innerdir refid="dir_364370753f3c0e27b80c476caf69e0e2">render</innerdir>
+    <innerdir refid="dir_60bbfe61adb9c41fd892454fccd2d8ed">task</innerdir>
+    <innerdir refid="dir_a7550bfcdab9d9137591fc6d8284f295">timeline</innerdir>
+    <innerdir refid="dir_a9534badf44e8e60ceae244414ea840e">tool</innerdir>
+    <innerdir refid="dir_13afdf92fb9a33accbc7148825ac76fe">ui</innerdir>
+    <innerdir refid="dir_1e8daa9850aa28c9e0dc5b9049aa07b3">undo</innerdir>
+    <innerdir refid="dir_d5ca98aef8a0bd8acceed9e67250bba3">widget</innerdir>
+    <innerdir refid="dir_9597b6f1a0cc7f5e81957cdbeae980bb">window</innerdir>
+    <innerfile refid="core_8h">core.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/"/>
+  </compounddef>
+</doxygen>

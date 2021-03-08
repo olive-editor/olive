@@ -1,0 +1,144 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_bezier" kind="class" language="C++" prot="public">
+    <compoundname>Bezier</compoundname>
+    <includes refid="bezier_8h" local="no">bezier.h</includes>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="class_bezier_1a027e6421a0b8bd5ab007e6f1a5ed9a74" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>static double Bezier::QuadraticXtoT</definition>
+        <argsstring>(double x, double a, double b, double c)</argsstring>
+        <name>QuadraticXtoT</name>
+        <param>
+          <type>double</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/bezier.h" line="49" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_bezier_1ae9f3dc94a4e000688e530a9bc6a6740e" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>static double Bezier::QuadraticTtoY</definition>
+        <argsstring>(double a, double b, double c, double t)</argsstring>
+        <name>QuadraticTtoY</name>
+        <param>
+          <type>double</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/bezier.h" line="51" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_bezier_1aecbfd04ed37eb44539225eae93cbfa5d" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>static double Bezier::CubicXtoT</definition>
+        <argsstring>(double x_target, double a, double b, double c, double d)</argsstring>
+        <name>CubicXtoT</name>
+        <param>
+          <type>double</type>
+          <declname>x_target</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/bezier.h" line="53" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="class_bezier_1a70bd20b1515b87ed8506c995d220ef1e" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>static double Bezier::CubicTtoY</definition>
+        <argsstring>(double a, double b, double c, double d, double t)</argsstring>
+        <name>CubicTtoY</name>
+        <param>
+          <type>double</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>d</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/common/bezier.h" line="55" column="17"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Daten/Olive/olive/app/common/bezier.h" line="28" column="1" bodyfile="C:/Daten/Olive/olive/app/common/bezier.h" bodystart="29" bodyend="38"/>
+    <listofallmembers>
+      <member refid="class_bezier_1a70bd20b1515b87ed8506c995d220ef1e" prot="public" virt="non-virtual"><scope>Bezier</scope><name>CubicTtoY</name></member>
+      <member refid="class_bezier_1aecbfd04ed37eb44539225eae93cbfa5d" prot="public" virt="non-virtual"><scope>Bezier</scope><name>CubicXtoT</name></member>
+      <member refid="class_bezier_1ae9f3dc94a4e000688e530a9bc6a6740e" prot="public" virt="non-virtual"><scope>Bezier</scope><name>QuadraticTtoY</name></member>
+      <member refid="class_bezier_1a027e6421a0b8bd5ab007e6f1a5ed9a74" prot="public" virt="non-virtual"><scope>Bezier</scope><name>QuadraticXtoT</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

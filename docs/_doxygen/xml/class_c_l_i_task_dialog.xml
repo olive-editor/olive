@@ -1,0 +1,145 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_c_l_i_task_dialog" kind="class" language="C++" prot="public">
+    <compoundname>CLITaskDialog</compoundname>
+    <basecompoundref refid="class_c_l_i_progress_dialog" prot="public" virt="non-virtual">CLIProgressDialog</basecompoundref>
+    <includes refid="clitaskdialog_8h" local="no">clitaskdialog.h</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_c_l_i_task_dialog_1a122fa4329bbf1c5a2e8747d3415b8fbe" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>CLITaskDialog::CLITaskDialog</definition>
+        <argsstring>(Task *task, QObject *parent=nullptr)</argsstring>
+        <name>CLITaskDialog</name>
+        <param>
+          <type><ref refid="class_task" kindref="compound">Task</ref> *</type>
+          <declname>task</declname>
+        </param>
+        <param>
+          <type>QObject *</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/cli/clitask/clitaskdialog.h" line="50" column="3"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_c_l_i_progress_dialog_1a573d93965260aa33fa23e317cb2d5790" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString CLIProgressDialog::title_</definition>
+        <argsstring></argsstring>
+        <name>title_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/cli/cliprogress/cliprogressdialog.h" line="60" column="11" bodyfile="C:/Daten/Olive/olive/app/cli/cliprogress/cliprogressdialog.h" bodystart="60" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_c_l_i_progress_dialog_1a65ebefb1c201546dc766f5b28743f04f" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int CLIProgressDialog::progress_</definition>
+        <argsstring></argsstring>
+        <name>progress_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/cli/cliprogress/cliprogressdialog.h" line="62" column="7" bodyfile="C:/Daten/Olive/olive/app/cli/cliprogress/cliprogressdialog.h" bodystart="62" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_c_l_i_progress_dialog_1a8c0211118461e4c0706cc70bf25cad24" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool CLIProgressDialog::drawn_</definition>
+        <argsstring></argsstring>
+        <name>drawn_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/cli/cliprogress/cliprogressdialog.h" line="64" column="8" bodyfile="C:/Daten/Olive/olive/app/cli/cliprogress/cliprogressdialog.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-slot">
+      <memberdef kind="slot" id="class_c_l_i_progress_dialog_1aecd0f0022ccce4850397c96729ca0902" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void CLIProgressDialog::SetProgress</definition>
+        <argsstring>(int p)</argsstring>
+        <name>SetProgress</name>
+        <param>
+          <type>int</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/cli/cliprogress/cliprogressdialog.h" line="55" column="8"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="class_c_l_i_progress_dialog_1a9b13c2cdfec9bd3fa2feb97fab6a7ab4" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void CLIProgressDialog::Update</definition>
+        <argsstring>()</argsstring>
+        <name>Update</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/cli/cliprogress/cliprogressdialog.h" line="58" column="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>CLIProgressDialog</label>
+        <link refid="class_c_l_i_progress_dialog"/>
+      </node>
+      <node id="1">
+        <label>CLITaskDialog</label>
+        <link refid="class_c_l_i_task_dialog"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>CLIProgressDialog</label>
+        <link refid="class_c_l_i_progress_dialog"/>
+      </node>
+      <node id="1">
+        <label>CLITaskDialog</label>
+        <link refid="class_c_l_i_task_dialog"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/cli/clitask/clitaskdialog.h" line="29" column="1" bodyfile="C:/Daten/Olive/olive/app/cli/clitask/clitaskdialog.h" bodystart="30" bodyend="34"/>
+    <listofallmembers>
+      <member refid="class_c_l_i_progress_dialog_1ad7eae0ceb31bf158a210bef5bf510891" prot="public" virt="non-virtual"><scope>CLITaskDialog</scope><name>CLIProgressDialog</name></member>
+      <member refid="class_c_l_i_task_dialog_1a122fa4329bbf1c5a2e8747d3415b8fbe" prot="public" virt="non-virtual"><scope>CLITaskDialog</scope><name>CLITaskDialog</name></member>
+      <member refid="class_c_l_i_progress_dialog_1a8c0211118461e4c0706cc70bf25cad24" prot="private" virt="non-virtual"><scope>CLITaskDialog</scope><name>drawn_</name></member>
+      <member refid="class_c_l_i_progress_dialog_1a65ebefb1c201546dc766f5b28743f04f" prot="private" virt="non-virtual"><scope>CLITaskDialog</scope><name>progress_</name></member>
+      <member refid="class_c_l_i_progress_dialog_1aecd0f0022ccce4850397c96729ca0902" prot="public" virt="non-virtual"><scope>CLITaskDialog</scope><name>SetProgress</name></member>
+      <member refid="class_c_l_i_progress_dialog_1a573d93965260aa33fa23e317cb2d5790" prot="private" virt="non-virtual"><scope>CLITaskDialog</scope><name>title_</name></member>
+      <member refid="class_c_l_i_progress_dialog_1a9b13c2cdfec9bd3fa2feb97fab6a7ab4" prot="private" virt="non-virtual"><scope>CLITaskDialog</scope><name>Update</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

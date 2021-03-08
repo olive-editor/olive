@@ -1,0 +1,154 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="projecttoolbar_8h" kind="file" language="C++">
+    <compoundname>projecttoolbar.h</compoundname>
+    <includes local="no">QWidget</includes>
+    <includes local="no">QLineEdit</includes>
+    <includes local="no">QPushButton</includes>
+    <includes refid="define_8h" local="yes">common/define.h</includes>
+    <includedby refid="projectexplorer_8h" local="yes">projectexplorer.h</includedby>
+    <incdepgraph>
+      <node id="1">
+        <label>projecttoolbar.h</label>
+        <link refid="projecttoolbar_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>common/define.h</label>
+        <link refid="define_8h"/>
+      </node>
+      <node id="2">
+        <label>QWidget</label>
+      </node>
+      <node id="3">
+        <label>QLineEdit</label>
+      </node>
+      <node id="4">
+        <label>QPushButton</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="1">
+        <label>projecttoolbar.h</label>
+        <link refid="projecttoolbar_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>mainwindow.h</label>
+        <link refid="mainwindow_8h"/>
+      </node>
+      <node id="3">
+        <label>project.h</label>
+        <link refid="panel_2project_2project_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>projectexplorer.h</label>
+        <link refid="projectexplorer_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="class_project_toolbar" prot="public">ProjectToolbar</innerclass>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/***</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"></highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/><sp/>Olive<sp/>-<sp/>Non-Linear<sp/>Video<sp/>Editor</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/><sp/>Copyright<sp/>(C)<sp/>2019<sp/>Olive<sp/>Team</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"></highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/><sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/><sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/><sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"></highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/><sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/><sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/><sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/><sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"></highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/><sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/><sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"></highlight></codeline>
+<codeline lineno="19"><highlight class="comment">***/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>PROJECTTOOLBAR_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>PROJECTTOOLBAR_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QWidget&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QLineEdit&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QPushButton&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="define_8h" kindref="compound">common/define.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><ref refid="define_8h_1a0472692dd1f22472ad63da20da919e8c" kindref="member">OLIVE_NAMESPACE_ENTER</ref></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40" refid="class_project_toolbar" refkind="compound"><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_project_toolbar" kindref="compound">ProjectToolbar</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>QWidget</highlight></codeline>
+<codeline lineno="41"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/>Q_OBJECT</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><ref refid="class_project_toolbar_1a8f8adca46d4c2598cddf05e700326161" kindref="member">ProjectToolbar</ref>(QWidget*<sp/>parent);</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/><ref refid="class_project_toolbar_1adbc3fb60d3a7ee54280945c2c76ad2a5" kindref="member">ViewType</ref><sp/>{</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_project_toolbar_1adbc3fb60d3a7ee54280945c2c76ad2a5a036a8161f76a4e54194cd8f3d7919f15" kindref="member">TreeView</ref>,</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_project_toolbar_1adbc3fb60d3a7ee54280945c2c76ad2a5ac656f8541a8994965ddd7c020b181eb7" kindref="member">ListView</ref>,</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="class_project_toolbar_1adbc3fb60d3a7ee54280945c2c76ad2a5a8d8fecc567091a6368a1ba12b9067ffc" kindref="member">IconView</ref></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>slots:</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_project_toolbar_1af6087196e948c85d26cacb15a5ad5e89" kindref="member">SetView</ref>(<ref refid="class_project_toolbar_1adbc3fb60d3a7ee54280945c2c76ad2a5" kindref="member">ViewType</ref><sp/>type);</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_project_toolbar_1a9c7921b32b2f2e81588b8f21a93afc75" kindref="member">changeEvent</ref>(QEvent<sp/>*)<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal">signals:</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_project_toolbar_1a2323bf81c276f78e0b7c4421062c66a0" kindref="member">NewClicked</ref>();</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_project_toolbar_1a46ee9b6ba52d451ef855b11b0e68a291" kindref="member">OpenClicked</ref>();</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_project_toolbar_1ad07280e479837aeb749c9a6c9d58e40b" kindref="member">SaveClicked</ref>();</highlight></codeline>
+<codeline lineno="62" refid="class_project_toolbar_1a8f8adca46d4c2598cddf05e700326161" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_project_toolbar_1a82b03a721b599dabfe3dcfe05c51bef7" kindref="member">UndoClicked</ref>();</highlight></codeline>
+<codeline lineno="64" refid="class_project_toolbar_1adbc3fb60d3a7ee54280945c2c76ad2a5" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_project_toolbar_1a00a5de314fb55cd05f3ebcca23511985" kindref="member">RedoClicked</ref>();</highlight></codeline>
+<codeline lineno="65" refid="class_project_toolbar_1adbc3fb60d3a7ee54280945c2c76ad2a5a036a8161f76a4e54194cd8f3d7919f15" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66" refid="class_project_toolbar_1adbc3fb60d3a7ee54280945c2c76ad2a5ac656f8541a8994965ddd7c020b181eb7" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_project_toolbar_1a9e44a66b5c7d5a1c68af52b6b40c2783" kindref="member">SearchChanged</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;);</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight></codeline>
+<codeline lineno="68" refid="class_project_toolbar_1adbc3fb60d3a7ee54280945c2c76ad2a5a8d8fecc567091a6368a1ba12b9067ffc" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_project_toolbar_1aa1879a8da2c3e99756e0e83279c1d98d" kindref="member">ViewChanged</ref>(<ref refid="class_project_toolbar_1adbc3fb60d3a7ee54280945c2c76ad2a5" kindref="member">ViewType</ref><sp/>type);</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="71" refid="class_project_toolbar_1af6087196e948c85d26cacb15a5ad5e89" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_project_toolbar_1a4a7148edddc8437a3f2703d7e995a521" kindref="member">Retranslate</ref>();</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_project_toolbar_1a0ec9427bb0582c634545bd2a07243a40" kindref="member">UpdateIcons</ref>();</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74" refid="class_project_toolbar_1a9c7921b32b2f2e81588b8f21a93afc75" refkind="member"><highlight class="normal"><sp/><sp/>QPushButton*<sp/><ref refid="class_project_toolbar_1a9a28877611a64b491fcebd173b8700e6" kindref="member">new_button_</ref>;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/>QPushButton*<sp/><ref refid="class_project_toolbar_1a2604b12beca87961278eda2b055279a5" kindref="member">open_button_</ref>;</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/>QPushButton*<sp/><ref refid="class_project_toolbar_1a30cf787e808d29558b2c23300b1a8f4d" kindref="member">save_button_</ref>;</highlight></codeline>
+<codeline lineno="77" refid="class_project_toolbar_1a2323bf81c276f78e0b7c4421062c66a0" refkind="member"><highlight class="normal"><sp/><sp/>QPushButton*<sp/><ref refid="class_project_toolbar_1a546fa401fb809f4a69b67e1b62879e1c" kindref="member">undo_button_</ref>;</highlight></codeline>
+<codeline lineno="78" refid="class_project_toolbar_1a46ee9b6ba52d451ef855b11b0e68a291" refkind="member"><highlight class="normal"><sp/><sp/>QPushButton*<sp/><ref refid="class_project_toolbar_1af8a6836e20631e4076a01d79a0f64406" kindref="member">redo_button_</ref>;</highlight></codeline>
+<codeline lineno="79" refid="class_project_toolbar_1ad07280e479837aeb749c9a6c9d58e40b" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/>QLineEdit*<sp/><ref refid="class_project_toolbar_1ad31afe7a226b5b650d2dc8c9df40a86b" kindref="member">search_field_</ref>;</highlight></codeline>
+<codeline lineno="81" refid="class_project_toolbar_1a82b03a721b599dabfe3dcfe05c51bef7" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82" refid="class_project_toolbar_1a00a5de314fb55cd05f3ebcca23511985" refkind="member"><highlight class="normal"><sp/><sp/>QPushButton*<sp/><ref refid="class_project_toolbar_1aee4ffbd162326f494f27af003c1b29e7" kindref="member">tree_button_</ref>;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/>QPushButton*<sp/><ref refid="class_project_toolbar_1a67ca0529a842339c30de64fd60061a30" kindref="member">list_button_</ref>;</highlight></codeline>
+<codeline lineno="84" refid="class_project_toolbar_1a9e44a66b5c7d5a1c68af52b6b40c2783" refkind="member"><highlight class="normal"><sp/><sp/>QPushButton*<sp/><ref refid="class_project_toolbar_1aadaf2ecf2754c7894d7010534443c626" kindref="member">icon_button_</ref>;</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86" refid="class_project_toolbar_1aa1879a8da2c3e99756e0e83279c1d98d" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal"><sp/>slots:</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_project_toolbar_1a832c8c339a37eeac8e9d2cd1efceb5d9" kindref="member">ViewButtonClicked</ref>();</highlight></codeline>
+<codeline lineno="88"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="89" refid="class_project_toolbar_1a4a7148edddc8437a3f2703d7e995a521" refkind="member"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90" refid="class_project_toolbar_1a0ec9427bb0582c634545bd2a07243a40" refkind="member"><highlight class="normal"><ref refid="define_8h_1abe3de0634d907ca0f5d1acf732c49dac" kindref="member">OLIVE_NAMESPACE_EXIT</ref></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92" refid="class_project_toolbar_1a9a28877611a64b491fcebd173b8700e6" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//<sp/>PROJECTTOOLBAR_H</highlight></codeline>
+    </programlisting>
+    <location file="C:/Daten/Olive/olive/app/widget/projecttoolbar/projecttoolbar.h"/>
+  </compounddef>
+</doxygen>

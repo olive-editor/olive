@@ -1,0 +1,206 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.18">
+  <compounddef id="class_node_dependency" kind="class" language="C++" prot="public">
+    <compoundname>NodeDependency</compoundname>
+    <includes refid="dependency_8h" local="no">dependency.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_node_dependency_1ad888c01e0650ee88d1fc77de3b501ca9" prot="private" static="no" mutable="no">
+        <type>const <ref refid="class_node" kindref="compound">Node</ref> *</type>
+        <definition>const Node* NodeDependency::node_</definition>
+        <argsstring></argsstring>
+        <name>node_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/dependency.h" line="44" column="14" bodyfile="C:/Daten/Olive/olive/app/node/dependency.h" bodystart="44" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_node_dependency_1a8944041290b55e02892d4cb55263a367" prot="private" static="no" mutable="no">
+        <type><ref refid="class_time_range" kindref="compound">TimeRange</ref></type>
+        <definition>TimeRange NodeDependency::range_</definition>
+        <argsstring></argsstring>
+        <name>range_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/dependency.h" line="45" column="13" bodyfile="C:/Daten/Olive/olive/app/node/dependency.h" bodystart="45" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_node_dependency_1aa8532c3268ba2f229adcad74e4753a07" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>NodeDependency::NodeDependency</definition>
+        <argsstring>()</argsstring>
+        <name>NodeDependency</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/dependency.h" line="34" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_dependency_1a6a278952e9dd8e0bb599c5d6f38592c0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>NodeDependency::NodeDependency</definition>
+        <argsstring>(const Node *node, const TimeRange &amp;range)</argsstring>
+        <name>NodeDependency</name>
+        <param>
+          <type>const <ref refid="class_node" kindref="compound">Node</ref> *</type>
+          <declname>node</declname>
+        </param>
+        <param>
+          <type>const <ref refid="class_time_range" kindref="compound">TimeRange</ref> &amp;</type>
+          <declname>range</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/dependency.h" line="35" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_dependency_1a022af99cd8d3805257dd81707bdf4f44" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>NodeDependency::NodeDependency</definition>
+        <argsstring>(const Node *node, const rational &amp;in, const rational &amp;out)</argsstring>
+        <name>NodeDependency</name>
+        <param>
+          <type>const <ref refid="class_node" kindref="compound">Node</ref> *</type>
+          <declname>node</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>in</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+          <declname>out</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/dependency.h" line="36" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_dependency_1a07cd2f7dfce7fb9cd549ac31430c9393" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="class_node" kindref="compound">Node</ref> *</type>
+        <definition>const Node* NodeDependency::node</definition>
+        <argsstring>() const</argsstring>
+        <name>node</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/dependency.h" line="38" column="14"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_dependency_1afea3ee20e7e28fe29e14ae64db1a9119" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+        <definition>const rational&amp; NodeDependency::in</definition>
+        <argsstring>() const</argsstring>
+        <name>in</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/dependency.h" line="39" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_dependency_1a868118fb4ef5e98fb024a364d16ac096" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="classrational" kindref="compound">rational</ref> &amp;</type>
+        <definition>const rational&amp; NodeDependency::out</definition>
+        <argsstring>() const</argsstring>
+        <name>out</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/dependency.h" line="40" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="class_node_dependency_1a5e668cc8e1acb54d82e08065e1748ae0" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="class_time_range" kindref="compound">TimeRange</ref> &amp;</type>
+        <definition>const TimeRange&amp; NodeDependency::range</definition>
+        <argsstring>() const</argsstring>
+        <name>range</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Daten/Olive/olive/app/node/dependency.h" line="41" column="19"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="3">
+        <label>NodeOutput</label>
+        <link refid="class_node_output"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>NodeDependency</label>
+        <link refid="class_node_dependency"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>node_</edgelabel>
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>range_</edgelabel>
+        </childnode>
+      </node>
+      <node id="6">
+        <label>rational</label>
+        <link refid="classrational"/>
+      </node>
+      <node id="2">
+        <label>Node</label>
+        <link refid="class_node"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>output_</edgelabel>
+        </childnode>
+      </node>
+      <node id="4">
+        <label>NodeParam</label>
+        <link refid="class_node_param"/>
+      </node>
+      <node id="5">
+        <label>TimeRange</label>
+        <link refid="class_time_range"/>
+        <childnode refid="6" relation="usage">
+          <edgelabel>out_</edgelabel>
+          <edgelabel>in_</edgelabel>
+          <edgelabel>length_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="C:/Daten/Olive/olive/app/node/dependency.h" line="32" column="1" bodyfile="C:/Daten/Olive/olive/app/node/dependency.h" bodystart="32" bodyend="46"/>
+    <listofallmembers>
+      <member refid="class_node_dependency_1afea3ee20e7e28fe29e14ae64db1a9119" prot="public" virt="non-virtual"><scope>NodeDependency</scope><name>in</name></member>
+      <member refid="class_node_dependency_1a07cd2f7dfce7fb9cd549ac31430c9393" prot="public" virt="non-virtual"><scope>NodeDependency</scope><name>node</name></member>
+      <member refid="class_node_dependency_1ad888c01e0650ee88d1fc77de3b501ca9" prot="private" virt="non-virtual"><scope>NodeDependency</scope><name>node_</name></member>
+      <member refid="class_node_dependency_1aa8532c3268ba2f229adcad74e4753a07" prot="public" virt="non-virtual"><scope>NodeDependency</scope><name>NodeDependency</name></member>
+      <member refid="class_node_dependency_1a6a278952e9dd8e0bb599c5d6f38592c0" prot="public" virt="non-virtual"><scope>NodeDependency</scope><name>NodeDependency</name></member>
+      <member refid="class_node_dependency_1a022af99cd8d3805257dd81707bdf4f44" prot="public" virt="non-virtual"><scope>NodeDependency</scope><name>NodeDependency</name></member>
+      <member refid="class_node_dependency_1a868118fb4ef5e98fb024a364d16ac096" prot="public" virt="non-virtual"><scope>NodeDependency</scope><name>out</name></member>
+      <member refid="class_node_dependency_1a5e668cc8e1acb54d82e08065e1748ae0" prot="public" virt="non-virtual"><scope>NodeDependency</scope><name>range</name></member>
+      <member refid="class_node_dependency_1a8944041290b55e02892d4cb55263a367" prot="private" virt="non-virtual"><scope>NodeDependency</scope><name>range_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>
