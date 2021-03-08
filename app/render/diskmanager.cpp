@@ -224,6 +224,10 @@ bool DiskCacheFolder::ClearCache()
 
 void DiskCacheFolder::Accessed(const QByteArray &hash)
 {
+  if (!disk_data_.contains(hash)) {
+    return;
+  }
+
   disk_data_[hash].access_time = QDateTime::currentMSecsSinceEpoch();
 }
 
@@ -306,7 +310,7 @@ QByteArray DiskCacheFolder::DeleteLeastRecent()
   auto hash_to_delete = disk_data_.begin();
 
   for (auto it=disk_data_.begin()+1; it!=disk_data_.end(); it++) {
-    if (hash_to_delete.value().access_time > it.value().access_time) {
+    if (it->access_time < hash_to_delete->access_time) {
       hash_to_delete = it;
     }
   }
@@ -314,6 +318,8 @@ QByteArray DiskCacheFolder::DeleteLeastRecent()
   QByteArray hash = hash_to_delete.key();
   HashTime ht = hash_to_delete.value();
   disk_data_.erase(hash_to_delete);
+
+  QFile::remove(ht.file_name);
 
   consumption_ -= ht.file_size;
 
