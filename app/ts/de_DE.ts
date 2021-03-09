@@ -447,7 +447,7 @@
     <message>
         <location filename="../dialog/about/about.cpp" line="51"/>
         <source>Olive is a non-linear video editor. This software is free and protected by the GNU GPL.</source>
-        <translation>Olive ist ein nicht-linearer Videoeditor. Das Programm ist Freie Software und wird von der GNU GPL-Lizenz beschützt.</translation>
+        <translation>Olive ist ein nicht-linearer Videoeditor. Das Programm ist Freie Software und wird von der GNU GPL-Lizenz geschützt.</translation>
     </message>
     <message>
         <location filename="../dialog/about/about.cpp" line="53"/>
@@ -2038,7 +2038,7 @@ Es sollte sichergestellt werden, dass eine Sequenz geladen und mit einer Vorscha
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="295"/>
         <source>Close All Except &apos;%1&apos;</source>
-        <translation>Alles schließen außer &apos;%1&apos;</translation>
+        <translation>Alle schließen außer &apos;%1&apos;</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="297"/>
@@ -2278,17 +2278,17 @@ Es sollte sichergestellt werden, dass eine Sequenz geladen und mit einer Vorscha
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="653"/>
         <source>Shuttle Left</source>
-        <translation>Shuttle nach links</translation>
+        <translation>Nach links gleiten</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="654"/>
         <source>Shuttle Stop</source>
-        <translation>Shuttle Stoppen</translation>
+        <translation>Gleiten stoppen</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="655"/>
         <source>Shuttle Right</source>
-        <translation>Shuttle nach rechts</translation>
+        <translation>Nach rechts gleiten</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="656"/>
@@ -3541,7 +3541,8 @@ Mit diesem Treiber gibt es bekannte Stabilitäts- und Performanceprobleme. Es wi
     <message>
         <location filename="../dialog/preferences/tabs/preferencesgeneraltab.cpp" line="92"/>
         <source>Default Still Image Length:</source>
-        <translation>Standardmäßige Dauer für Bilder:</translation>
+        <translatorcomment>/Standbilderzz</translatorcomment>
+        <translation>Standardmäßige Dauer für Fotos:</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesgeneraltab.cpp" line="96"/>
@@ -4595,7 +4596,7 @@ Soll es wirklich gelöscht werden?</translation>
     <message>
         <location filename="../widget/toolbar/toolbar.cpp" line="105"/>
         <source>Transition Tool</source>
-        <translation>Übergangs-Werkzeug</translation>
+        <translation>Übergang-Werkzeug</translation>
     </message>
     <message>
         <location filename="../widget/toolbar/toolbar.cpp" line="106"/>
