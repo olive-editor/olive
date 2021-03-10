@@ -65,6 +65,7 @@
 #include "widget/menu/menushared.h"
 #include "widget/taskview/taskviewitem.h"
 #include "widget/viewer/viewer.h"
+#include "window/mainwindow/mainstatusbar.h"
 #include "window/mainwindow/mainwindow.h"
 
 namespace olive {
@@ -934,6 +935,11 @@ bool Core::SaveProject(Project* p)
 
     return true;
   }
+}
+
+void Core::ShowStatusBarMessage(const QString &s)
+{
+  main_window_->statusBar()->showMessage(s);
 }
 
 bool Core::SaveProjectAs(Project* p)

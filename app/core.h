@@ -291,6 +291,13 @@ public:
    */
   bool SaveProject(Project *p);
 
+  /**
+   * @brief Show message in main window's status bar
+   *
+   * Shorthand for Core::instance()->main_window()->statusBar()->showMessage();
+   */
+  void ShowStatusBarMessage(const QString& s);
+
   static const uint kProjectVersion;
 
 public slots:
