@@ -410,6 +410,8 @@ void ViewerWidget::UpdateTextureFromNode(const rational& time)
     // We still run the playback queue even when FrameExistsAtTime returns false because we might be
     // playing backwards and about to start showing frames, so the queue should be prepared for
     // that.
+    bool popped = false;
+
     while (!playback_queue_.empty()) {
 
       const ViewerPlaybackFrame& pf = playback_queue_.front();
@@ -424,6 +426,11 @@ void ViewerWidget::UpdateTextureFromNode(const rational& time)
 
         // Skip this frame
         PopOldestFrameFromPlaybackQueue();
+        if (popped) {
+          // We've already popped a frame in this loop, meaning a frame has been skipped
+          display_widget_->SetSkippedFrames(display_widget_->GetSkippedFrames()+1);
+        }
+        popped = true;
 
       }
     }
@@ -485,6 +492,7 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
 
   playback_speed_ = speed;
   play_in_to_out_only_ = in_to_out_only;
+  display_widget_->SetSkippedFrames(0);
 
   playback_queue_next_frame_ = ruler()->GetTime();
 
@@ -651,6 +659,7 @@ void ViewerWidget::FinishPlayPreprocess()
                                         playback_speed_);
 
   playback_timer_.Start(playback_start_time, playback_speed_, timebase_dbl());
+  display_widget_->ResetFPSTimer();
 
   foreach (ViewerWindow* window, windows_) {
     window->Play(playback_start_time, playback_speed_, timebase());
@@ -945,6 +954,13 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
     show_waveform_action->setChecked(stack_->currentWidget() == waveform_view_);
     show_waveform_action->setEnabled(!ShouldForceWaveform());
     connect(show_waveform_action, &QAction::triggered, this, &ViewerWidget::ManualSwitchToWaveform);
+  }
+
+  {
+    QAction* show_fps_action = menu.addAction(tr("Show FPS"));
+    show_fps_action->setCheckable(true);
+    show_fps_action->setChecked(display_widget_->GetShowFPS());
+    connect(show_fps_action, &QAction::triggered, display_widget_, &ViewerDisplayWidget::SetShowFPS);
   }
 
   menu.exec(static_cast<QWidget*>(sender())->mapToGlobal(pos));

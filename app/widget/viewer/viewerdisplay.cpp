@@ -45,7 +45,9 @@ ViewerDisplayWidget::ViewerDisplayWidget(QWidget *parent) :
   gizmo_click_(false),
   last_loaded_buffer_(nullptr),
   hand_dragging_(false),
-  deinterlace_(false)
+  deinterlace_(false),
+  show_fps_(false),
+  frames_skipped_(0)
 {
   connect(Core::instance(), &Core::ToolChanged, this, &ViewerDisplayWidget::UpdateCursor);
 
@@ -179,6 +181,12 @@ QPoint ViewerDisplayWidget::TransformViewerSpaceToBufferSpace(QPoint pos)
   * which I think should never happen.
   */
   return pos * GenerateGizmoTransform().inverted();
+}
+
+void ViewerDisplayWidget::ResetFPSTimer()
+{
+  fps_timer_start_ = QDateTime::currentMSecsSinceEpoch();
+  fps_timer_update_count_ = 0;
 }
 
 void ViewerDisplayWidget::mousePressEvent(QMouseEvent *event)
@@ -348,6 +356,25 @@ void ViewerDisplayWidget::OnPaint()
 
     p.drawLines(lines, 2);
   }
+
+  if (show_fps_) {
+    QPainter p(inner_widget());
+    fps_timer_update_count_++;
+    qint64 now = QDateTime::currentMSecsSinceEpoch();
+    double frame_rate;
+    if (now == fps_timer_start_) {
+      // This will cause a divide by zero, so we do nothing here
+      frame_rate = 0;
+    } else {
+      frame_rate = double(fps_timer_update_count_) / double((now - fps_timer_start_)/1000.0);
+    }
+    DrawTextWithCrudeShadow(&p, inner_widget()->rect(), tr("%1 FPS").arg(QString::number(frame_rate, 'f', 2)));
+
+    if (frames_skipped_ > 0) {
+      DrawTextWithCrudeShadow(&p, inner_widget()->rect().adjusted(0, p.fontMetrics().height(), 0, 0),
+                              tr("%1 frames skipped").arg(frames_skipped_));
+    }
+  }
 }
 
 void ViewerDisplayWidget::OnDestroy()
@@ -371,6 +398,14 @@ QPointF ViewerDisplayWidget::GetTexturePosition(const double &x, const double &y
 {
   return QPointF(x / gizmo_params_.width(),
                  y / gizmo_params_.height());
+}
+
+void ViewerDisplayWidget::DrawTextWithCrudeShadow(QPainter *painter, const QRect &rect, const QString &text)
+{
+  painter->setPen(Qt::black);
+  painter->drawText(rect.adjusted(1, 1, 0, 0), text);
+  painter->setPen(Qt::white);
+  painter->drawText(rect, text);
 }
 
 rational ViewerDisplayWidget::GetGizmoTime()
@@ -442,6 +477,13 @@ void ViewerDisplayWidget::EmitColorAtCursor(QMouseEvent *e)
 
     emit CursorColor(reference, display);
   }
+}
+
+void ViewerDisplayWidget::SetShowFPS(bool e)
+{
+  show_fps_ = e;
+
+  update();
 }
 
 }

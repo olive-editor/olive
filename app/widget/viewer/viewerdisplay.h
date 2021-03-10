@@ -84,6 +84,23 @@ public:
     return deinterlace_;
   }
 
+  void ResetFPSTimer();
+
+  bool GetShowFPS() const
+  {
+    return show_fps_;
+  }
+
+  int GetSkippedFrames() const
+  {
+    return frames_skipped_;
+  }
+
+  void SetSkippedFrames(int i)
+  {
+    frames_skipped_ = i;
+  }
+
 public slots:
   /**
    * @brief Set the transformation matrix to draw with
@@ -124,6 +141,8 @@ public slots:
    * @brief Enables/disables a basic deinterlace on the viewer
    */
   void SetDeinterlacing(bool e);
+
+  void SetShowFPS(bool e);
 
 signals:
   /**
@@ -167,6 +186,7 @@ protected:
    */
   virtual void mouseReleaseEvent(QMouseEvent* event) override;
 
+protected slots:
   /**
    * @brief Paint function to display the texture (received in SetTexture()) on screen.
    *
@@ -180,6 +200,8 @@ private:
   QPointF GetTexturePosition(const QPoint& screen_pos);
   QPointF GetTexturePosition(const QSize& size);
   QPointF GetTexturePosition(const double& x, const double& y);
+
+  static void DrawTextWithCrudeShadow(QPainter* painter, const QRect& rect, const QString& text);
 
   rational GetGizmoTime();
 
@@ -244,6 +266,12 @@ private:
   bool hand_dragging_;
 
   bool deinterlace_;
+
+  qint64 fps_timer_start_;
+  qint64 fps_timer_update_count_;
+
+  bool show_fps_;
+  int frames_skipped_;
 
 private slots:
   void EmitColorAtCursor(QMouseEvent* e);
