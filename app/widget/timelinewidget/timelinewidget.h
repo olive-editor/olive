@@ -345,6 +345,8 @@ private slots:
 
   void ToolChanged();
 
+  void SetViewWaveformsEnabled(bool e);
+
 };
 
 }

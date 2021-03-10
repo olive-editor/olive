@@ -41,7 +41,8 @@ TimelineView::TimelineView(Qt::Alignment vertical_alignment, QWidget *parent) :
   selections_(nullptr),
   ghosts_(nullptr),
   show_beam_cursor_(false),
-  connected_track_list_(nullptr)
+  connected_track_list_(nullptr),
+  show_waveforms_(true)
 {
   Q_ASSERT(vertical_alignment == Qt::AlignTop || vertical_alignment == Qt::AlignBottom);
   setAlignment(Qt::AlignLeft | vertical_alignment);
@@ -450,9 +451,11 @@ void TimelineView::DrawBlocks(QPainter *painter, bool foreground)
           painter->drawRect(r);
 
           // Draw waveform
-          QRect waveform_rect = r.adjusted(0, text_total_height, 0, 0).toRect();
-          painter->setPen(shadow_color);
-          AudioVisualWaveform::DrawWaveform(painter, waveform_rect, this->GetScale(), track->waveform(), SceneToTime(block_left));
+          if (show_waveforms_) {
+            QRect waveform_rect = r.adjusted(0, text_total_height, 0, 0).toRect();
+            painter->setPen(shadow_color);
+            AudioVisualWaveform::DrawWaveform(painter, waveform_rect, this->GetScale(), track->waveform(), SceneToTime(block_left));
+          }
         }
 
       }

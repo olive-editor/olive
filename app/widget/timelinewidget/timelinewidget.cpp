@@ -952,6 +952,11 @@ void TimelineWidget::ShowContextMenu()
     toggle_audio_units->setChecked(use_audio_time_units_);
     connect(toggle_audio_units, &QAction::triggered, this, &TimelineWidget::SetUseAudioTimeUnits);
 
+    QAction* show_waveforms = menu.addAction(tr("Show Waveforms"));
+    show_waveforms->setCheckable(true);
+    show_waveforms->setChecked(views_.first()->view()->GetShowWaveforms());
+    connect(show_waveforms, &QAction::triggered, this, &TimelineWidget::SetViewWaveformsEnabled);
+
     menu.addSeparator();
 
     QAction* properties_action = menu.addAction(tr("Properties"));
@@ -1018,6 +1023,13 @@ void TimelineWidget::ViewTimestampChanged(int64_t ts)
 void TimelineWidget::ToolChanged()
 {
   HideSnaps();
+}
+
+void TimelineWidget::SetViewWaveformsEnabled(bool e)
+{
+  foreach (TimelineAndTrackView* tview, views_) {
+    tview->view()->SetShowWaveforms(e);
+  }
 }
 
 void TimelineWidget::AddGhost(TimelineViewGhostItem *ghost)
