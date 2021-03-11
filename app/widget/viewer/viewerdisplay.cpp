@@ -357,9 +357,9 @@ void ViewerDisplayWidget::OnPaint()
     p.drawLines(lines, 2);
   }
 
+  fps_timer_update_count_++;
   if (show_fps_) {
     QPainter p(inner_widget());
-    fps_timer_update_count_++;
     qint64 now = QDateTime::currentMSecsSinceEpoch();
     double frame_rate;
     if (now == fps_timer_start_) {
