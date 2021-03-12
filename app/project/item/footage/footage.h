@@ -27,7 +27,6 @@
 #include "common/rational.h"
 #include "footagedescription.h"
 #include "node/node.h"
-#include "project/item/item.h"
 #include "render/audioparams.h"
 #include "render/videoparams.h"
 #include "stream.h"
@@ -42,7 +41,7 @@ namespace olive {
  * Footage objects store a list of Stream objects which store the majority of video/audio metadata. These streams
  * are identical to the stream data in the files.
  */
-class Footage : public Item, public TimelinePoints
+class Footage : public Node, public TimelinePoints
 {
   Q_OBJECT
 public:
@@ -263,9 +262,14 @@ public:
 
   virtual QIcon icon() const override;
 
-  virtual QString duration() override;
+  virtual QString duration() const override;
 
-  virtual QString rate() override;
+  virtual QString rate() const override;
+
+  virtual bool IsItem() const override
+  {
+    return true;
+  }
 
   bool HasEnabledVideoStreams() const;
   bool HasEnabledAudioStreams() const;

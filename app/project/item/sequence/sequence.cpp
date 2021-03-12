@@ -46,10 +46,9 @@ const QString Sequence::kTrackInputFormat = QStringLiteral("track_in_%1");
 
 const uint64_t Sequence::kVideoParamEditMask = VideoParamEdit::kWidthHeight | VideoParamEdit::kInterlacing | VideoParamEdit::kFrameRate | VideoParamEdit::kPixelAspect;
 
-#define super Item
+#define super Node
 
 Sequence::Sequence(bool viewer_only_mode) :
-  Item(!viewer_only_mode, true),
   video_frame_cache_(this),
   audio_playback_cache_(this),
   operation_stack_(0)
@@ -104,7 +103,7 @@ QIcon Sequence::icon() const
   return icon::Sequence;
 }
 
-QString Sequence::duration()
+QString Sequence::duration() const
 {
   rational timeline_length = GetLength();
 
@@ -113,7 +112,7 @@ QString Sequence::duration()
   return Timecode::timestamp_to_timecode(timestamp, video_params().time_base(), Core::instance()->GetTimecodeDisplay());
 }
 
-QString Sequence::rate()
+QString Sequence::rate() const
 {
   return tr("%1 FPS").arg(video_params().time_base().flipped().toDouble());
 }
@@ -341,7 +340,7 @@ void Sequence::InvalidateCache(const TimeRange& range, const QString& from, int 
   super::InvalidateCache(range, from, element, job_time);
 }
 
-rational Sequence::GetLength()
+const rational& Sequence::GetLength() const
 {
   return last_length_;
 }

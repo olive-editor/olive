@@ -22,7 +22,6 @@
 #define FOLDER_H
 
 #include "node/node.h"
-#include "project/item/item.h"
 
 namespace olive {
 
@@ -32,7 +31,7 @@ namespace olive {
  * The Item base class already has support for children, but this functionality is disabled by default
  * (see CanHaveChildren() override). The Folder is a specific type that enables this functionality.
  */
-class Folder : public Item
+class Folder : public Node
 {
   Q_OBJECT
 public:
@@ -65,6 +64,8 @@ public:
 
   virtual QIcon icon() const override;
 
+  virtual void Retranslate() override;
+
   bool ChildExistsWithName(const QString& s) const;
 
   int item_child_count() const
@@ -72,14 +73,19 @@ public:
     return item_children_.size();
   }
 
-  Item* item_child(int i) const
+  Node* item_child(int i) const
   {
     return item_children_.at(i);
   }
 
-  const QVector<Item*>& children() const
+  const QVector<Node*>& children() const
   {
     return item_children_;
+  }
+
+  virtual bool IsItem() const override
+  {
+    return true;
   }
 
   /**
@@ -95,24 +101,28 @@ public:
     return list;
   }
 
-  int index_of_child(Item* item) const
+  int index_of_child(Node* item) const
   {
     return item_children_.indexOf(item);
   }
 
+  int index_of_child_in_array(Node* item) const;
+
+  static const QString kChildInput;
+
 signals:
-  void BeginInsertItem(Item* n, int index);
+  void BeginInsertItem(Node* n, int index);
 
   void EndInsertItem();
 
-  void BeginRemoveItem(Item* n, int index);
+  void BeginRemoveItem(Node* n, int index);
 
   void EndRemoveItem();
 
 protected:
-  virtual void OutputConnectedEvent(const QString& output, const NodeInput& input) override;
+  virtual void InputConnectedEvent(const QString& input, int element, const NodeOutput& output) override;
 
-  virtual void OutputDisconnectedEvent(const QString& output, const NodeInput& input) override;
+  virtual void InputDisconnectedEvent(const QString& input, int element, const NodeOutput& output) override;
 
 private:
   template<typename T>
@@ -140,7 +150,30 @@ private:
     }
   }
 
-  QVector<Item*> item_children_;
+  QVector<Node*> item_children_;
+  QVector<int> item_element_index_;
+
+};
+
+class FolderAddChild : public UndoCommand
+{
+public:
+  FolderAddChild(Folder* folder, Node* child, bool autoposition = true);
+
+  virtual Project * GetRelevantProject() const override;
+
+  virtual void redo() override;
+
+  virtual void undo() override;
+
+private:
+  Folder* folder_;
+
+  Node* child_;
+
+  bool autoposition_;
+
+  QPointF old_position_;
 
 };
 

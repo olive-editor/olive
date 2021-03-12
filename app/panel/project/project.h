@@ -44,7 +44,7 @@ public:
 
   void set_root(Folder* item);
 
-  QVector<Item *> SelectedItems() const;
+  QVector<Node *> SelectedItems() const;
 
   Folder* GetSelectedFolder() const;
 
@@ -61,7 +61,7 @@ public:
   virtual void DeleteSelected() override;
 
 public slots:
-  void Edit(Item *item);
+  void Edit(Node *item);
 
 signals:
   void ProjectNameChanged();
@@ -72,7 +72,7 @@ private:
   ProjectExplorer* explorer_;
 
 private slots:
-  void ItemDoubleClickSlot(Item* item);
+  void ItemDoubleClickSlot(Node *item);
 
   void ShowNewMenu();
 

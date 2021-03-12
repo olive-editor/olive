@@ -46,6 +46,7 @@
 namespace olive {
 
 class NodeGraph;
+class Folder;
 
 /**
  * @brief A single processing unit that can be connected with others to create intricate processing systems
@@ -155,12 +156,31 @@ public:
    */
   virtual QString Description() const;
 
+  const QString& ToolTip() const
+  {
+    return tooltip_;
+  }
+
+  Folder* folder() const
+  {
+    return folder_;
+  }
+
+  virtual bool IsItem() const
+  {
+    return false;
+  }
+
   /**
    * @brief Function called to retranslate parameter names (should be overridden in derivatives)
    */
   virtual void Retranslate();
 
   virtual QIcon icon() const;
+
+  virtual QString duration() const {return QString();}
+
+  virtual QString rate() const {return QString();}
 
   const QVector<QString>& inputs() const
   {
@@ -718,6 +738,11 @@ public:
   static bool Unlink(Node* a, Node* b);
   static bool AreLinked(Node* a, Node* b);
 
+  void SetFolder(Folder* folder)
+  {
+    folder_ = folder;
+  }
+
   static const QString kDefaultOutput;
 
 protected:
@@ -818,6 +843,11 @@ protected:
   virtual void OutputDisconnectedEvent(const QString& output, const NodeInput& input);
 
   virtual void childEvent(QChildEvent *event) override;
+
+  void SetToolTip(const QString& s)
+  {
+    tooltip_ = s;
+  }
 
 signals:
   /**
@@ -1136,6 +1166,10 @@ private:
   OutputConnections output_connections_;
 
   qint64 last_change_time_;
+
+  QString tooltip_;
+
+  Folder* folder_;
 
 private slots:
   /**

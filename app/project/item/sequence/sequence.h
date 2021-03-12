@@ -31,7 +31,6 @@
 #include "node/output/track/tracklist.h"
 #include "node/traverser.h"
 #include "project/item/footage/footage.h"
-#include "project/item/item.h"
 #include "render/audioparams.h"
 #include "render/audioplaybackcache.h"
 #include "render/framehashcache.h"
@@ -46,7 +45,7 @@ namespace olive {
 /**
  * @brief The main timeline object, an graph of edited clips that forms a complete edit
  */
-class Sequence : public Item, public TimelinePoints
+class Sequence : public Node, public TimelinePoints
 {
   Q_OBJECT
 public:
@@ -83,8 +82,8 @@ public:
 
   virtual QIcon icon() const override;
 
-  virtual QString duration() override;
-  virtual QString rate() override;
+  virtual QString duration() const override;
+  virtual QString rate() const override;
 
   void set_default_parameters();
 
@@ -136,7 +135,7 @@ public:
     SetStandardValue(kAudioParamsInput, QVariant::fromValue(audio));
   }
 
-  rational GetLength();
+  const rational &GetLength() const;
 
   virtual void Retranslate() override;
 
@@ -171,6 +170,11 @@ public:
   const QUuid& uuid() const
   {
     return uuid_;
+  }
+
+  virtual bool IsItem() const override
+  {
+    return true;
   }
 
 signals:

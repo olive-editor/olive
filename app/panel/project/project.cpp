@@ -115,7 +115,7 @@ void ProjectPanel::set_root(Folder *item)
   Retranslate();
 }
 
-QVector<Item *> ProjectPanel::SelectedItems() const
+QVector<Node *> ProjectPanel::SelectedItems() const
 {
   return explorer_->SelectedItems();
 }
@@ -163,7 +163,7 @@ void ProjectPanel::DeleteSelected()
   explorer_->DeleteSelected();
 }
 
-void ProjectPanel::Edit(Item* item)
+void ProjectPanel::Edit(Node* item)
 {
   explorer_->Edit(item);
 }
@@ -179,7 +179,7 @@ void ProjectPanel::Retranslate()
   UpdateSubtitle();
 }
 
-void ProjectPanel::ItemDoubleClickSlot(Item *item)
+void ProjectPanel::ItemDoubleClickSlot(Node *item)
 {
   if (item == nullptr) {
     // If the user double clicks on empty space, show the import dialog
@@ -215,7 +215,7 @@ void ProjectPanel::UpdateSubtitle()
       do {
         folder_path.prepend(QStringLiteral("/%1").arg(item->GetLabel()));
 
-        item = item->item_parent();
+        item = item->folder();
       } while (item != project()->root());
 
       project_title.append(folder_path);
@@ -234,10 +234,10 @@ void ProjectPanel::SaveConnectedProject()
 
 QVector<Footage *> ProjectPanel::GetSelectedFootage() const
 {
-  QVector<Item*> items = SelectedItems();
+  QVector<Node*> items = SelectedItems();
   QVector<Footage*> footage;
 
-  foreach (Item* i, items) {
+  foreach (Node* i, items) {
     if (dynamic_cast<Footage*>(i)) {
       footage.append(static_cast<Footage*>(i));
     }

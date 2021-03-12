@@ -20,7 +20,5 @@ add_subdirectory(sequence)
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  project/item/item.h
-  project/item/item.cpp
   PARENT_SCOPE
 )

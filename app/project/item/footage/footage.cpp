@@ -38,10 +38,9 @@ namespace olive {
 const QString Footage::kFilenameInput = QStringLiteral("file_in");
 const QString Footage::kStreamPropertiesFormat = QStringLiteral("stream_properties:%1");
 
-#define super Item
+#define super Node
 
 Footage::Footage(const QString &filename) :
-  super(true, false),
   cancelled_(nullptr)
 {
   AddInput(kFilenameInput, NodeValue::kFile, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
@@ -381,7 +380,7 @@ QIcon Footage::icon() const
   return icon::Error;
 }
 
-QString Footage::duration()
+QString Footage::duration() const
 {
   // Try video first
   VideoParams video = GetFirstEnabledVideoStream();
@@ -420,7 +419,7 @@ QString Footage::duration()
   return QString();
 }
 
-QString Footage::rate()
+QString Footage::rate() const
 {
   if (inputs_for_stream_properties_.isEmpty()) {
     return QString();
@@ -431,12 +430,12 @@ QString Footage::rate()
     VideoParams video_stream = GetFirstEnabledVideoStream();
 
     if (video_stream.video_type() != VideoParams::kVideoTypeStill) {
-      return QCoreApplication::translate("Footage", "%1 FPS").arg(video_stream.frame_rate().toDouble());
+      return tr("%1 FPS").arg(video_stream.frame_rate().toDouble());
     }
   } else if (HasEnabledAudioStreams()) {
     // No video streams, return audio
     AudioParams audio_stream = GetFirstEnabledAudioStream();
-    return QCoreApplication::translate("Footage", "%1 Hz").arg(audio_stream.sample_rate());
+    return tr("%1 Hz").arg(audio_stream.sample_rate());
   }
 
   return QString();
@@ -620,7 +619,7 @@ QString Footage::GetStreamTypeName(Stream::Type type)
 void Footage::UpdateTooltip()
 {
   if (valid_) {
-    QString tip = QCoreApplication::translate("Footage", "Filename: %1").arg(filename());
+    QString tip = tr("Filename: %1").arg(filename());
 
     for (auto it=inputs_for_stream_properties_.cbegin(); it!=inputs_for_stream_properties_.cend(); it++) {
       if (it.key().type() == Stream::kVideo) {
@@ -640,9 +639,9 @@ void Footage::UpdateTooltip()
       }
     }
 
-    set_tooltip(tip);
+    SetToolTip(tip);
   } else {
-    set_tooltip(QCoreApplication::translate("Footage", "This footage is not valid for use"));
+    SetToolTip(tr("This footage is not valid for use"));
   }
 }
 

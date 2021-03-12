@@ -22,7 +22,6 @@
 #define NODEGRAPH_H
 
 #include "node/node.h"
-#include "project/item/item.h"
 
 namespace olive {
 

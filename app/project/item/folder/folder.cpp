@@ -27,13 +27,25 @@
 
 namespace olive {
 
+#define super Node
+
+const QString Folder::kChildInput = QStringLiteral("child_in");
+
 Folder::Folder()
 {
+  AddInput(kChildInput, NodeValue::kNone, InputFlags(kInputFlagArray | kInputFlagNotKeyframable));
 }
 
 QIcon Folder::icon() const
 {
   return icon::Folder;
+}
+
+void Folder::Retranslate()
+{
+  super::Retranslate();
+
+  SetInputName(kChildInput, tr("Children"));
 }
 
 bool ChildExistsWithNameInternal(const Folder* n, const QString& s)
@@ -60,33 +72,69 @@ bool Folder::ChildExistsWithName(const QString &s) const
   return ChildExistsWithNameInternal(this, s);
 }
 
-void Folder::OutputConnectedEvent(const QString &output, const NodeInput &input)
+int Folder::index_of_child_in_array(Node *item) const
 {
-  Q_UNUSED(output)
+  int index_of_item = item_children_.indexOf(item);
 
-  Item* item = dynamic_cast<Item*>(input.node());
+  if (index_of_item == -1) {
+    return -1;
+  }
 
-  if (item) {
+  return item_element_index_.at(index_of_item);
+}
+
+void Folder::InputConnectedEvent(const QString &input, int element, const NodeOutput &output)
+{
+  if (input == kChildInput && element != -1) {
+    Node* item = output.node();
+
     // The insert index is always our "count" because we only support appending in our internal
     // model. For sorting/organizing, a QSortFilterProxyModel is used instead.
     emit BeginInsertItem(item, item_child_count());
     item_children_.append(item);
+    item_element_index_.append(element);
+    item->SetFolder(this);
     emit EndInsertItem();
   }
 }
 
-void Folder::OutputDisconnectedEvent(const QString &output, const NodeInput &input)
+void Folder::InputDisconnectedEvent(const QString &input, int element, const NodeOutput &output)
 {
-  Q_UNUSED(output)
+  if (input == kChildInput && element != -1) {
+    Node* item = output.node();
 
-  Item* item = dynamic_cast<Item*>(input.node());
-
-  if (item) {
     int child_index = item_children_.indexOf(item);
     emit BeginRemoveItem(item, child_index);
     item_children_.removeAt(child_index);
+    item_element_index_.removeAt(child_index);
+    item->SetFolder(nullptr);
     emit EndRemoveItem();
   }
+}
+
+FolderAddChild::FolderAddChild(Folder *folder, Node *child, bool autoposition) :
+  folder_(folder),
+  child_(child),
+  autoposition_(autoposition)
+{
+}
+
+Project *FolderAddChild::GetRelevantProject() const
+{
+  return folder_->project();
+}
+
+void FolderAddChild::redo()
+{
+  int array_index = folder_->InputArraySize(Folder::kChildInput);
+  folder_->InputArrayAppend(Folder::kChildInput, false);
+  Node::ConnectEdge(child_, NodeInput(folder_, Folder::kChildInput, array_index));
+}
+
+void FolderAddChild::undo()
+{
+  Node::DisconnectEdge(child_, NodeInput(folder_, Folder::kChildInput, folder_->InputArraySize(Folder::kChildInput)-1));
+  folder_->InputArrayRemoveLast(Folder::kChildInput);
 }
 
 }

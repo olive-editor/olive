@@ -180,9 +180,25 @@ void NodeParamSetStandardValueCommand::undo()
   ref_.input().node()->SetSplitStandardValueOnTrack(ref_, old_value_);
 }
 
-Project *NodeParamArrayInsertCommand::GetRelevantProject() const
+NodeParamArrayAppendCommand::NodeParamArrayAppendCommand(Node *node, const QString &input) :
+  node_(node),
+  input_(input)
 {
-  return input_.node()->project();
+}
+
+Project *NodeParamArrayAppendCommand::GetRelevantProject() const
+{
+  return node_->project();
+}
+
+void NodeParamArrayAppendCommand::redo()
+{
+  node_->InputArrayAppend(input_, false);
+}
+
+void NodeParamArrayAppendCommand::undo()
+{
+  node_->InputArrayRemoveLast(input_, false);
 }
 
 }

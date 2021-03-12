@@ -102,7 +102,7 @@ public:
   /**
    * @brief Convenience function for creating QModelIndexes from an Item object
    */
-  QModelIndex CreateIndexFromItem(Item* item, int column = 0);
+  QModelIndex CreateIndexFromItem(Node *item, int column = 0);
 
 private:
   /**
@@ -115,36 +115,36 @@ private:
    *
    * Index of the specified item, or -1 if the item is root (in which case it has no parent).
    */
-  int IndexOfChild(Item* item) const;
+  int IndexOfChild(Node* item) const;
 
   /**
    * @brief Retrieves the Item object from a given index
    *
    * A convenience function for retrieving Item objects. If the index is not valid, this returns the root Item.
    */
-  Item* GetItemObjectFromIndex(const QModelIndex& index) const;
+  Node* GetItemObjectFromIndex(const QModelIndex& index) const;
 
   /**
    * @brief Check if an Item is a parent of a Child
    *
    * Checks entire "parent hierarchy" of `child` to see if `parent` is one of its parents.
    */
-  bool ItemIsParentOfChild(Item* parent, Item* child) const;
+  bool ItemIsParentOfChild(Folder *parent, Node* child) const;
 
-  void ConnectItem(Item* n);
+  void ConnectItem(Node* n);
 
-  void DisconnectItem(Item* n);
+  void DisconnectItem(Node *n);
 
   Project* project_;
 
   QVector<ColumnType> columns_;
 
 private slots:
-  void FolderBeginInsertItem(Item* n, int insert_index);
+  void FolderBeginInsertItem(Node *n, int insert_index);
 
   void FolderEndInsertItem();
 
-  void FolderBeginRemoveItem(Item* n, int child_index);
+  void FolderBeginRemoveItem(Node* n, int child_index);
 
   void FolderEndRemoveItem();
 

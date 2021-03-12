@@ -46,7 +46,8 @@ const QString Node::kDefaultOutput = QStringLiteral("output");
 Node::Node(bool create_default_output) :
   can_be_deleted_(true),
   override_color_(-1),
-  last_change_time_(0)
+  last_change_time_(0),
+  folder_(nullptr)
 {
   if (create_default_output) {
     AddOutput();
@@ -1126,7 +1127,7 @@ Node *Node::CopyNodeAndDependencyGraphMinusItemsInternal(QMap<const Node*, Node*
     Node* connected = output.node();
     Node* connected_copy;
 
-    if (dynamic_cast<Item*>(connected)) {
+    if (connected->IsItem()) {
       // This is an item and we avoid copying those and just connect to them directly
       connected_copy = connected;
     } else {
@@ -1529,7 +1530,7 @@ void GetDependenciesRecursively(QVector<Node*>& list, const Node* node, bool tra
     Node* connected_node = it->second.node();
 
     if (!exclusive_only
-        || (connected_node->outputs().size() == 1 && !dynamic_cast<Item*>(connected_node))) {
+        || (connected_node->outputs().size() == 1 && !connected_node->IsItem())) {
       if (!list.contains(connected_node)) {
         list.append(connected_node);
 

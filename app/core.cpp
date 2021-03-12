@@ -65,6 +65,7 @@
 #include "widget/menu/menushared.h"
 #include "widget/taskview/taskviewitem.h"
 #include "widget/viewer/viewer.h"
+#include "widget/nodeparamview/nodeparamviewundo.h"
 #include "window/mainwindow/mainstatusbar.h"
 #include "window/mainwindow/mainwindow.h"
 
@@ -370,7 +371,7 @@ void Core::CreateNewFolder()
   MultiUndoCommand* command = new MultiUndoCommand();
 
   command->add_child(new NodeAddCommand(active_project, new_folder));
-  command->add_child(new NodeEdgeAddCommand(folder, NodeInput(new_folder, Item::kParentInput)));
+  command->add_child(new FolderAddChild(folder, new_folder));
 
   Core::instance()->undo_stack()->push(command);
 
@@ -405,7 +406,7 @@ void Core::CreateNewSequence()
     MultiUndoCommand* command = new MultiUndoCommand();
 
     command->add_child(new NodeAddCommand(active_project, new_sequence));
-    command->add_child(new NodeEdgeAddCommand(GetSelectedFolderInActiveProject(), NodeInput(new_sequence, Item::kParentInput)));
+    command->add_child(new FolderAddChild(GetSelectedFolderInActiveProject(), new_sequence));
 
     // Create and connect default nodes to new sequence
     new_sequence->add_default_nodes(command);

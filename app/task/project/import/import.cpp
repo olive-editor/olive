@@ -102,7 +102,7 @@ void ProjectImportTask::Import(Folder *folder, QFileInfoList import, int &counte
 
         // Create undoable command that adds the items to the model
         parent_command->add_child(new NodeAddCommand(folder->parent(), f));
-        parent_command->add_child(new NodeEdgeAddCommand(folder, NodeInput(f, Item::kParentInput)));
+        parent_command->add_child(new FolderAddChild(folder, f));
 
         // Recursively follow this path
         Import(f, entry_list, counter, parent_command);
@@ -123,7 +123,7 @@ void ProjectImportTask::Import(Folder *folder, QFileInfoList import, int &counte
 
         // Create undoable command that adds the items to the model
         parent_command->add_child(new NodeAddCommand(folder->parent(), footage));
-        parent_command->add_child(new NodeEdgeAddCommand(folder, NodeInput(footage, Item::kParentInput)));
+        parent_command->add_child(new FolderAddChild(folder, footage));
       } else {
         // Add to list so we can tell the user about it later
         invalid_files_.append(file_info.absoluteFilePath());

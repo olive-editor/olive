@@ -122,7 +122,7 @@ void ProjectExplorer::set_view_type(ProjectToolbar::ViewType type)
   }
 }
 
-void ProjectExplorer::Edit(Item *item)
+void ProjectExplorer::Edit(Node *item)
 {
   CurrentView()->edit(sort_model_.mapFromSource(model_.CreateIndexFromItem(item)));
 }
@@ -199,7 +199,7 @@ void ProjectExplorer::ItemDoubleClickedSlot(const QModelIndex &index)
   rename_timer_.stop();
 
   // Retrieve source item from index
-  Item* i = static_cast<Item*>(sort_model_.mapToSource(index).internalPointer());
+  Node* i = static_cast<Node*>(sort_model_.mapToSource(index).internalPointer());
 
   // If the item is a folder, browse to it
   if (dynamic_cast<Folder*>(i) && (view_type() == ProjectToolbar::ListView || view_type() == ProjectToolbar::IconView)) {
@@ -264,7 +264,7 @@ void ProjectExplorer::ShowContextMenu()
 
     // Actions to add when only one item is selected
     if (context_menu_items_.size() == 1) {
-      Item* context_menu_item = context_menu_items_.first();
+      Node* context_menu_item = context_menu_items_.first();
 
       if (dynamic_cast<Folder*>(context_menu_item)) {
 
@@ -298,7 +298,7 @@ void ProjectExplorer::ShowContextMenu()
     bool all_items_have_video_streams = true;
     bool all_items_are_footage_or_sequence = true;
 
-    foreach (Item* i, context_menu_items_) {
+    foreach (Node* i, context_menu_items_) {
       Footage* footage_cast_test = dynamic_cast<Footage*>(i);
       Sequence* sequence_cast_test = dynamic_cast<Sequence*>(i);
 
@@ -349,7 +349,7 @@ void ProjectExplorer::ShowContextMenu()
 
 void ProjectExplorer::ShowItemPropertiesDialog()
 {
-  Item* sel = context_menu_items_.first();
+  Node* sel = context_menu_items_.first();
 
   // FIXME: Support for multiple items
   if (dynamic_cast<Footage*>(sel)) {
@@ -408,7 +408,7 @@ void ProjectExplorer::ContextMenuStartProxy(QAction *a)
   Sequence* sequence = Node::ValueToPtr<Sequence>(a->data());
 
   // To get here, the `context_menu_items_` must be all kFootage
-  foreach (Item* i, context_menu_items_) {
+  foreach (Node* i, context_menu_items_) {
     Footage* f = static_cast<Footage*>(i);
 
     QVector<VideoParams> enabled_streams = f->GetEnabledVideoStreams();
@@ -444,18 +444,18 @@ void ProjectExplorer::set_root(Folder *item)
   tree_view_->setRootIndex(index);
 }
 
-QVector<Item *> ProjectExplorer::SelectedItems() const
+QVector<Node *> ProjectExplorer::SelectedItems() const
 {
   // Determine which view is active and get its selected indexes
   QModelIndexList index_list = CurrentView()->selectionModel()->selectedRows();
 
   // Convert indexes to item objects
-  QVector<Item*> selected_items;
+  QVector<Node*> selected_items;
 
   for (int i=0;i<index_list.size();i++) {
     QModelIndex index = sort_model_.mapToSource(index_list.at(i));
 
-    Item* item = static_cast<Item*>(index.internalPointer());
+    Node* item = static_cast<Node*>(index.internalPointer());
 
     selected_items.append(item);
   }
@@ -472,7 +472,7 @@ Folder *ProjectExplorer::GetSelectedFolder() const
   Folder* folder = nullptr;
 
   // Get the selected items from the panel
-  QVector<Item*> selected_items = SelectedItems();
+  QVector<Node*> selected_items = SelectedItems();
 
   // Heuristic for finding the selected folder:
   //
@@ -482,11 +482,11 @@ Folder *ProjectExplorer::GetSelectedFolder() const
   // - If more than one folder is found, we play it safe and import into the root folder
 
   for (int i=0;i<selected_items.size();i++) {
-    Item* sel_item = selected_items.at(i);
+    Node* sel_item = selected_items.at(i);
 
     // If this item is not a folder, presumably it's parent is
     if (!dynamic_cast<Folder*>(sel_item)) {
-      sel_item = sel_item->item_parent();
+      sel_item = sel_item->folder();
     }
 
     if (folder == nullptr) {
@@ -525,7 +525,7 @@ void ProjectExplorer::DeselectAll()
 
 void ProjectExplorer::DeleteSelected()
 {
-  QVector<Item*> selected = SelectedItems();
+  QVector<Node*> selected = SelectedItems();
 
   if (selected.isEmpty()) {
     return;
@@ -535,7 +535,7 @@ void ProjectExplorer::DeleteSelected()
 
   bool dont_confirm_footage_in_use = false;
 
-  foreach (Item* item, selected) {
+  foreach (Node* item, selected) {
     // Verify whether this item is in use anywhere
     Footage* footage_cast_test = dynamic_cast<Footage*>(item);
     Sequence* sequence_cast_test = dynamic_cast<Sequence*>(item);

@@ -59,7 +59,7 @@ public:
 
   void set_root(Folder *item);
 
-  QVector<Item *> SelectedItems() const;
+  QVector<Node *> SelectedItems() const;
 
   /**
    * @brief Use a heuristic to determine which (if any) folder is selected
@@ -89,7 +89,7 @@ public:
 public slots:
   void set_view_type(ProjectToolbar::ViewType type);
 
-  void Edit(Item* item);
+  void Edit(Node* item);
 
 signals:
   /**
@@ -99,7 +99,7 @@ signals:
    *
    * The Item that was double clicked, or nullptr if empty area was double clicked
    */
-  void DoubleClickedItem(Item* item);
+  void DoubleClickedItem(Node* item);
 
 private:
   /**
@@ -153,7 +153,7 @@ private:
 
   QTimer rename_timer_;
 
-  QVector<Item*> context_menu_items_;
+  QVector<Node*> context_menu_items_;
 
 private slots:
   void ItemClickedSlot(const QModelIndex& index);

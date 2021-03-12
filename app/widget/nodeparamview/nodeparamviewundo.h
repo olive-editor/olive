@@ -139,30 +139,21 @@ private:
 
 };
 
-class NodeParamArrayInsertCommand : public UndoCommand
+class NodeParamArrayAppendCommand : public UndoCommand
 {
 public:
-  NodeParamArrayInsertCommand(const NodeInput& input, int index) :
-    input_(input),
-    index_(index)
-  {
-  }
+  NodeParamArrayAppendCommand(Node* node, const QString& input);
 
   virtual Project* GetRelevantProject() const override;
 
-  virtual void redo() override
-  {
-    input_.node()->InputArrayInsert(input_.input(), index_);
-  }
+  virtual void redo() override;
 
-  virtual void undo() override
-  {
-    input_.node()->InputArrayRemove(input_.input(), index_);
-  }
+  virtual void undo() override;
 
 private:
-  NodeInput input_;
-  int index_;
+  Node* node_;
+
+  QString input_;
 
 };
 

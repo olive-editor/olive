@@ -47,9 +47,7 @@ bool SaveOTIOTask::Run()
 
   std::vector<opentimelineio::v1_0::SerializableObject*> serialized;
 
-  foreach (Item* item, sequences) {
-    Sequence* seq = static_cast<Sequence*>(item);
-
+  foreach (Sequence* seq, sequences) {
     auto otio_timeline = SerializeTimeline(seq);
 
     if (otio_timeline) {

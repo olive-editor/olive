@@ -29,7 +29,6 @@
 namespace olive {
 
 class Block;
-class Item;
 class Node;
 class NodeInput;
 
@@ -51,7 +50,6 @@ struct XMLNodeData {
   QHash<quintptr, Node*> node_ptrs;
   QList<SerializedConnection> desired_connections;
   QList<BlockLink> block_links;
-  QHash<quintptr, Item*> item_ptrs;
 
 };
 

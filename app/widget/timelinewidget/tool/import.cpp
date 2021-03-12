@@ -92,7 +92,7 @@ void ImportTool::DragEnter(TimelineViewMouseEvent *event)
       stream >> enabled_streams >> item_ptr;
 
       // Get Item object
-      Item* item = reinterpret_cast<Item*>(item_ptr);
+      Node* item = reinterpret_cast<Node*>(item_ptr);
 
       // Check if Item is Footage
       if (dynamic_cast<Footage*>(item)) {
@@ -390,7 +390,7 @@ void ImportTool::DropGhosts(bool insert)
           dst_graph = Core::instance()->GetActiveProject();
 
           command->add_child(new NodeAddCommand(dst_graph, new_sequence));
-          command->add_child(new NodeEdgeAddCommand(Core::instance()->GetSelectedFolderInActiveProject(), NodeInput(new_sequence, Item::kParentInput)));
+          command->add_child(new FolderAddChild(Core::instance()->GetSelectedFolderInActiveProject(), new_sequence));
           new_sequence->add_default_nodes(command);
 
           FootageToGhosts(0, dragged_footage_, new_sequence->video_params().time_base(), 0);
