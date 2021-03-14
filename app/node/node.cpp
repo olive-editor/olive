@@ -1805,12 +1805,14 @@ const QPointF &Node::GetPosition() const
 
 void Node::SetPosition(const QPointF &pos, bool move_dependencies_relatively_too)
 {
+  QPointF old_pos = position_;
+
   position_ = pos;
 
   emit PositionChanged(position_);
 
   if (move_dependencies_relatively_too) {
-    QPointF difference = pos - GetPosition();
+    QPointF difference = pos - old_pos;
 
     for (auto it=input_connections_.cbegin(); it!=input_connections_.cend(); it++) {
       Node* c = it->second.node();
