@@ -329,7 +329,7 @@ void MainWindow::ProjectOpen(Project *p)
 void MainWindow::ProjectClose(Project *p)
 {
   // Close any open sequences from project
-  QVector<Sequence*> open_sequences = p->root()->ListOutputsOfType<Sequence>();
+  QVector<Sequence*> open_sequences = p->root()->ListChildrenOfType<Sequence>();
 
   foreach (Sequence* seq, open_sequences) {
     if (IsSequenceOpen(seq)) {
@@ -338,7 +338,7 @@ void MainWindow::ProjectClose(Project *p)
   }
 
   // Close any open footage in footage viewer
-  QVector<Footage*> footage_in_project = p->root()->ListOutputsOfType<Footage>();
+  QVector<Footage*> footage_in_project = p->root()->ListChildrenOfType<Footage>();
   QVector<Footage*> footage_in_viewer = footage_viewer_panel_->GetSelectedFootage();
 
   if (!footage_in_viewer.isEmpty()) {

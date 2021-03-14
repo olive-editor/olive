@@ -88,25 +88,28 @@ public:
     return true;
   }
 
-  /**
-   * @brief Returns a list of nodes that are of a certain type that this node outputs to
-   */
-  template <typename T>
-  QVector<T*> ListOutputsOfType(bool recursive = true) const
-  {
-    QVector<T *> list;
-
-    ListOutputsOfTypeInternal(this, list, recursive);
-
-    return list;
-  }
-
   int index_of_child(Node* item) const
   {
     return item_children_.indexOf(item);
   }
 
   int index_of_child_in_array(Node* item) const;
+
+  template <typename T>
+  QVector<T*> ListChildrenOfType() const
+  {
+    QVector<T*> list;
+
+    foreach (Node* node, item_children_) {
+      T* cast_test = dynamic_cast<T*>(node);
+
+      if (cast_test) {
+        list.append(cast_test);
+      }
+    }
+
+    return list;
+  }
 
   static const QString kChildInput;
 

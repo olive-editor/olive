@@ -38,7 +38,7 @@ SaveOTIOTask::SaveOTIOTask(Project *project) :
 
 bool SaveOTIOTask::Run()
 {
-  QVector<Sequence*> sequences = project_->root()->ListOutputsOfType<Sequence>();
+  QVector<Sequence*> sequences = project_->root()->ListChildrenOfType<Sequence>();
 
   if (sequences.isEmpty()) {
     SetError(tr("Project contains no sequences to export."));

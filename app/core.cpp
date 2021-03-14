@@ -1293,7 +1293,7 @@ void Core::CacheActiveSequence(bool in_out_only)
 
 bool Core::ValidateFootageInLoadedProject(Project* project, const QString& project_saved_url)
 {
-  QVector<Footage*> project_footage = project->root()->ListOutputsOfType<Footage>();
+  QVector<Footage*> project_footage = project->root()->ListChildrenOfType<Footage>();
   QVector<Footage*> footage_we_couldnt_validate;
 
   foreach (Footage* footage, project_footage) {

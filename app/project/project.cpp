@@ -283,7 +283,7 @@ void Project::ColorManagerValueChanged(const NodeInput &input, const TimeRange &
 {
   Q_UNUSED(range)
 
-  QVector<Footage*> footage = root()->ListOutputsOfType<Footage>();
+  QVector<Footage*> footage = root()->ListChildrenOfType<Footage>();
 
   foreach (Footage* item, footage) {
     item->InvalidateAll(QString());

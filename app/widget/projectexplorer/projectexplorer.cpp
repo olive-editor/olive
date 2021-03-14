@@ -319,7 +319,7 @@ void ProjectExplorer::ShowContextMenu()
       Menu* proxy_menu = new Menu(tr("Pre-Cache"), &menu);
       menu.addMenu(proxy_menu);
 
-      QVector<Sequence*> sequences = project()->root()->ListOutputsOfType<Sequence>();
+      QVector<Sequence*> sequences = project()->root()->ListChildrenOfType<Sequence>();
 
       if (sequences.isEmpty()) {
         QAction* a = proxy_menu->addAction(tr("No sequences exist in project"));
