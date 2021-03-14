@@ -429,6 +429,7 @@ void ImportTool::DropGhosts(bool insert)
       clip->set_length_and_media_out(ghost->GetLength());
       clip->SetLabel(footage_stream.footage->GetLabel());
       command->add_child(new NodeAddCommand(dst_graph, clip));
+      command->add_child(new NodeSetPositionToOffsetOfAnotherNodeCommand(clip, footage_stream.footage, QPointF(2, 0)));
 
       switch (footage_stream.footage->GetTypeFromOutput(footage_stream.output)) {
       case Stream::kVideo:
@@ -438,6 +439,7 @@ void ImportTool::DropGhosts(bool insert)
 
         command->add_child(new NodeEdgeAddCommand(corresponding_output, NodeInput(transform, TransformDistortNode::kTextureInput)));
         command->add_child(new NodeEdgeAddCommand(transform, NodeInput(clip, ClipBlock::kBufferIn)));
+        command->add_child(new NodeSetPositionToOffsetOfAnotherNodeCommand(transform, clip, QPointF(-1, 0)));
         break;
       }
       case Stream::kAudio:
@@ -447,6 +449,7 @@ void ImportTool::DropGhosts(bool insert)
 
         command->add_child(new NodeEdgeAddCommand(corresponding_output, NodeInput(volume_node, VolumeNode::kSamplesInput)));
         command->add_child(new NodeEdgeAddCommand(volume_node, NodeInput(clip, ClipBlock::kBufferIn)));
+        command->add_child(new NodeSetPositionToOffsetOfAnotherNodeCommand(volume_node, clip, QPointF(-1, 0)));
         break;
       }
       default:

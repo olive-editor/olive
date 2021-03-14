@@ -1469,6 +1469,7 @@ public:
   {
     delete ripple_remove_command_;
     qDeleteAll(add_track_commands_);
+    qDeleteAll(position_commands_);
   }
 
   virtual Project* GetRelevantProject() const override
@@ -1511,20 +1512,41 @@ public:
       }
 
       track->AppendBlock(insert_);
+
+      if (position_commands_.isEmpty()) {
+        // Create position commands for insert and gap if necessary
+        if (gap_) {
+          position_commands_.append(new NodeSetPositionAsChildCommand(gap_, track, gap_->index(), track->Blocks().size(), true));
+        }
+        position_commands_.append(new NodeSetPositionAsChildCommand(insert_, track, insert_->index(), track->Blocks().size(), true));
+      }
     } else {
       // Place the Block at this point
       if (!ripple_remove_command_) {
         ripple_remove_command_ = new TrackRippleRemoveAreaCommand(track,
                                                                   TimeRange(in_, in_ + insert_->length()));
+
       }
 
       ripple_remove_command_->redo();
       track->InsertBlockAfter(insert_, ripple_remove_command_->GetInsertionIndex());
+
+      if (position_commands_.isEmpty()) {
+        position_commands_.append(new NodeSetPositionAsChildCommand(insert_, track, insert_->index(), track->Blocks().size(), true));
+      }
+    }
+
+    for (int i=0; i<position_commands_.size(); i++) {
+      position_commands_.at(i)->redo();
     }
   }
 
   virtual void undo() override
   {
+    for (int i=position_commands_.size()-1; i>=0; i--) {
+      position_commands_.at(i)->undo();
+    }
+
     Track* t = timeline_->GetTrackAt(track_index_);
 
     // Firstly, remove our insert
@@ -1553,6 +1575,7 @@ private:
   QVector<TimelineAddTrackCommand*> add_track_commands_;
   QObject memory_manager_;
   TrackRippleRemoveAreaCommand* ripple_remove_command_;
+  QVector<NodeSetPositionAsChildCommand*> position_commands_;
 
 };
 

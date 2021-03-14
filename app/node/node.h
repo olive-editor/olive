@@ -1395,6 +1395,37 @@ private:
 
 };
 
+class NodeSetPositionToOffsetOfAnotherNodeCommand : public UndoCommand
+{
+public:
+  NodeSetPositionToOffsetOfAnotherNodeCommand(Node* node, Node* other_node, const QPointF& offset) :
+    node_(node),
+    other_node_(other_node),
+    offset_(offset)
+  {}
+
+  virtual Project * GetRelevantProject() const override
+  {
+    return node_->project();
+  }
+
+  virtual void redo() override
+  {
+    node_->SetPosition(other_node_->GetPosition() + offset_);
+  }
+
+  virtual void undo() override
+  {
+    node_->SetPosition(other_node_->GetPosition() - offset_);
+  }
+
+private:
+  Node* node_;
+  Node* other_node_;
+  QPointF offset_;
+
+};
+
 }
 
 #endif // NODE_H
