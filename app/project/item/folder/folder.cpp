@@ -115,8 +115,14 @@ void Folder::InputDisconnectedEvent(const QString &input, int element, const Nod
 FolderAddChild::FolderAddChild(Folder *folder, Node *child, bool autoposition) :
   folder_(folder),
   child_(child),
-  autoposition_(autoposition)
+  autoposition_(autoposition),
+  position_command_(nullptr)
 {
+}
+
+FolderAddChild::~FolderAddChild()
+{
+  delete position_command_;
 }
 
 Project *FolderAddChild::GetRelevantProject() const
@@ -129,10 +135,22 @@ void FolderAddChild::redo()
   int array_index = folder_->InputArraySize(Folder::kChildInput);
   folder_->InputArrayAppend(Folder::kChildInput, false);
   Node::ConnectEdge(child_, NodeInput(folder_, Folder::kChildInput, array_index));
+
+  if (autoposition_) {
+    old_position_ = child_->GetPosition();
+    if (!position_command_) {
+      position_command_ = new NodeSetPositionAsChildCommand(child_, folder_, array_index, array_index+1, true);
+    }
+    position_command_->redo();
+  }
 }
 
 void FolderAddChild::undo()
 {
+  if (position_command_) {
+    position_command_->undo();
+  }
+
   Node::DisconnectEdge(child_, NodeInput(folder_, Folder::kChildInput, folder_->InputArraySize(Folder::kChildInput)-1));
   folder_->InputArrayRemoveLast(Folder::kChildInput);
 }

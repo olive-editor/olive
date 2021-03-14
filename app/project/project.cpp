@@ -39,16 +39,20 @@ Project::Project() :
   // Adds a color manager "node" to this project so that it synchronizes
   color_manager_ = new ColorManager();
   color_manager_->setParent(this);
+  color_manager_->SetPosition(QPointF(1, 0));
   AddDefaultNode(color_manager_);
 
   // Same with project settings
   settings_ = new ProjectSettingsNode();
   settings_->setParent(this);
+  settings_->SetPosition(QPointF(2, 0));
   AddDefaultNode(settings_);
 
   // Viewer node for connecting with the footage viewer
   footage_viewer_ = new ViewerOutput();
   footage_viewer_->setParent(this);
+  footage_viewer_->SetLabel(tr("Footage Viewer"));
+  footage_viewer_->SetPosition(QPointF(3, 0));
   AddDefaultNode(footage_viewer_);
 
   // Folder root for project

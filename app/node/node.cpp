@@ -1803,11 +1803,20 @@ const QPointF &Node::GetPosition() const
   return position_;
 }
 
-void Node::SetPosition(const QPointF &pos)
+void Node::SetPosition(const QPointF &pos, bool move_dependencies_relatively_too)
 {
   position_ = pos;
 
   emit PositionChanged(position_);
+
+  if (move_dependencies_relatively_too) {
+    QPointF difference = pos - GetPosition();
+
+    for (auto it=input_connections_.cbegin(); it!=input_connections_.cend(); it++) {
+      Node* c = it->second.node();
+      c->SetPosition(c->GetPosition() + difference, true);
+    }
+  }
 }
 
 void Node::ParameterValueChanged(const QString& input, int element, const TimeRange& range)
@@ -2250,6 +2259,39 @@ Project *Node::ArrayRemoveCommand::GetRelevantProject() const
 Project *Node::ArrayResizeCommand::GetRelevantProject() const
 {
   return node_->project();
+}
+
+void NodeSetPositionAndShiftSurroundingsCommand::redo()
+{
+  if (commands_.isEmpty()) {
+    // Move first node
+    NodeSetPositionCommand* set_pos_command = new NodeSetPositionCommand(node_, position_, move_dependencies_);
+    set_pos_command->redo();
+    commands_.append(set_pos_command);
+
+    // Get bounding rect
+    QRectF bounding_rect(position_.x() - 0.5, position_.y() - 0.5, 1, 1);
+
+    // Start moving other nodes
+    foreach (Node* surrounding, node_->parent()->nodes()) {
+      if (bounding_rect.contains(surrounding->GetPosition()) && surrounding != node_) {
+        QPointF new_pos = surrounding->GetPosition();
+        if (surrounding->GetPosition().y() > position_.y()) {
+          new_pos.setY(new_pos.y() + 0.5);
+        } else {
+          new_pos.setY(new_pos.y() - 0.5);
+        }
+
+        auto sur_command = new NodeSetPositionAndShiftSurroundingsCommand(surrounding, new_pos, true);
+        sur_command->redo();
+        commands_.append(sur_command);
+      }
+    }
+  } else {
+    for (int i=0; i<commands_.size(); i++) {
+      commands_.at(i)->redo();
+    }
+  }
 }
 
 }

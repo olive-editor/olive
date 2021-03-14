@@ -160,6 +160,8 @@ class FolderAddChild : public UndoCommand
 public:
   FolderAddChild(Folder* folder, Node* child, bool autoposition = true);
 
+  virtual ~FolderAddChild() override;
+
   virtual Project * GetRelevantProject() const override;
 
   virtual void redo() override;
@@ -174,6 +176,8 @@ private:
   bool autoposition_;
 
   QPointF old_position_;
+
+  NodeSetPositionAsChildCommand* position_command_;
 
 };
 

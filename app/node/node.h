@@ -707,7 +707,7 @@ public:
 
   const QPointF& GetPosition() const;
 
-  void SetPosition(const QPointF& pos);
+  void SetPosition(const QPointF& pos, bool move_dependencies_relatively_too = false);
 
   virtual bool HasGizmos() const;
 
@@ -1256,6 +1256,144 @@ QVector<T *> Node::FindOutputNode()
 }
 
 using NodePtr = std::shared_ptr<Node>;
+
+class NodeSetPositionCommand : public UndoCommand
+{
+public:
+  NodeSetPositionCommand(Node* node, const QPointF& position, bool move_dependencies_relatively) :
+    node_(node),
+    new_pos_(position),
+    move_deps_(move_dependencies_relatively)
+  {
+  }
+
+  virtual Project * GetRelevantProject() const override
+  {
+    return node_->project();
+  }
+
+  virtual void redo() override
+  {
+    old_pos_ = node_->GetPosition();
+    node_->SetPosition(new_pos_, move_deps_);
+  }
+
+  virtual void undo() override
+  {
+    node_->SetPosition(old_pos_, move_deps_);
+  }
+
+private:
+  Node* node_;
+
+  QPointF new_pos_;
+  QPointF old_pos_;
+
+  bool move_deps_;
+
+};
+
+class NodeSetPositionAndShiftSurroundingsCommand : public UndoCommand
+{
+public:
+  NodeSetPositionAndShiftSurroundingsCommand(Node* node, const QPointF& pos, bool move_dependencies_relatively) :
+    node_(node),
+    position_(pos),
+    move_dependencies_(move_dependencies_relatively)
+  {}
+
+  virtual ~NodeSetPositionAndShiftSurroundingsCommand() override
+  {
+    qDeleteAll(commands_);
+  }
+
+  virtual Project * GetRelevantProject() const override
+  {
+    return node_->project();
+  }
+
+  virtual void redo() override;
+
+  virtual void undo() override
+  {
+    for (int i=commands_.size()-1; i>=0; i--) {
+      commands_.at(i)->undo();
+    }
+  }
+
+private:
+  Node* node_;
+
+  QPointF position_;
+
+  bool move_dependencies_;
+
+  QVector<UndoCommand*> commands_;
+
+};
+
+class NodeSetPositionAsChildCommand : public UndoCommand
+{
+public:
+  NodeSetPositionAsChildCommand(Node* node, Node* parent, int this_index, int child_count, bool shift_surroundings) :
+    node_(node),
+    parent_(parent),
+    this_index_(this_index),
+    child_count_(child_count),
+    shift_surroundings_(shift_surroundings),
+    sub_command_(nullptr)
+  {
+  }
+
+  virtual ~NodeSetPositionAsChildCommand() override
+  {
+    delete sub_command_;
+  }
+
+  virtual Project * GetRelevantProject() const override
+  {
+    return node_->project();
+  }
+
+  virtual void redo() override
+  {
+    if (!sub_command_) {
+      // Calculate position of node
+      QPointF pos = parent_->GetPosition();
+
+      // This is a dependency, so we'll place it one X before
+      pos.setX(pos.x() - 1);
+
+      // The Y will be calculated using the index and child count
+      pos.setY(pos.y() - (double(child_count_)*0.5) + this_index_ + 0.5);
+
+      if (shift_surroundings_) {
+        sub_command_ = new NodeSetPositionAndShiftSurroundingsCommand(node_, pos, true);
+      } else {
+        sub_command_ = new NodeSetPositionCommand(node_, pos, true);
+      }
+    }
+
+    sub_command_->redo();
+  }
+
+  virtual void undo() override
+  {
+    sub_command_->undo();
+  }
+
+private:
+  Node* node_;
+  Node* parent_;
+
+  int this_index_;
+  int child_count_;
+
+  bool shift_surroundings_;
+
+  UndoCommand* sub_command_;
+
+};
 
 }
 

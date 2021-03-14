@@ -1309,7 +1309,8 @@ private:
 class TimelineAddTrackCommand : public UndoCommand {
 public:
   TimelineAddTrackCommand(TrackList *timeline) :
-    timeline_(timeline)
+    timeline_(timeline),
+    position_command_(nullptr)
   {
     track_ = new Track();
     track_->setParent(&memory_manager_);
@@ -1330,6 +1331,11 @@ public:
     }
   }
 
+  virtual ~TimelineAddTrackCommand() override
+  {
+    delete position_command_;
+  }
+
   Track* track() const
   {
     return track_;
@@ -1345,6 +1351,11 @@ public:
     // Add track
     track_->setParent(timeline_->GetParentGraph());
     timeline_->ArrayAppend();
+    int track_total_index = timeline_->parent()->GetTracks().size();
+    if (!position_command_) {
+      position_command_ = new NodeSetPositionAsChildCommand(track_, timeline_->parent(), track_total_index, track_total_index + 1, true);
+    }
+    position_command_->redo();
     Node::ConnectEdge(track_, timeline_->track_input(timeline_->ArraySize() - 1));
 
     // Add merge if applicable
@@ -1414,6 +1425,7 @@ public:
 
     // Remove track
     Node::DisconnectEdge(track_, timeline_->track_input(timeline_->ArraySize() - 1));
+    position_command_->undo();
     timeline_->ArrayRemoveLast();
     track_->setParent(&memory_manager_);
   }
@@ -1427,6 +1439,8 @@ private:
   NodeInput blend_;
 
   NodeInput direct_;
+
+  NodeSetPositionAsChildCommand* position_command_;
 
   QObject memory_manager_;
 
