@@ -148,6 +148,13 @@ void SliderBase::SetDefaultValue(const QVariant &v)
   default_value_ = v;
 }
 
+void SliderBase::SetOffset(const QVariant &v)
+{
+  offset_ = v;
+
+  UpdateLabel(value_);
+}
+
 void SliderBase::SetMinimumInternal(const QVariant &v)
 {
   min_value_ = v;

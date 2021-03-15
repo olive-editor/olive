@@ -48,6 +48,11 @@ void IntegerSlider::SetMaximum(const int64_t &d)
   SetMaximumInternal(QVariant::fromValue(d));
 }
 
+QString IntegerSlider::ValueToString(const QVariant &v)
+{
+  return QString::number(v.toLongLong() + GetOffset().toLongLong());
+}
+
 QVariant IntegerSlider::StringToValue(const QString &s, bool *ok)
 {
   bool valid;
@@ -58,6 +63,8 @@ QVariant IntegerSlider::StringToValue(const QString &s, bool *ok)
   if (ok) {
     *ok = valid;
   }
+
+  decimal_val -= GetOffset().toLongLong();
 
   if (valid) {
     // But for an integer, we round it

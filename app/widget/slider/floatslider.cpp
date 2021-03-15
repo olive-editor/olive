@@ -122,7 +122,7 @@ QString FloatSlider::ValueToString(double val, FloatSlider::DisplayType display,
 
 QString FloatSlider::ValueToString(const QVariant &v)
 {
-  return ValueToString(v.toDouble(), display_type_, decimal_places_, autotrim_decimal_places_);
+  return ValueToString(v.toDouble() + GetOffset().toDouble(), display_type_, decimal_places_, autotrim_decimal_places_);
 }
 
 QVariant FloatSlider::StringToValue(const QString &s, bool *ok)
@@ -166,7 +166,7 @@ QVariant FloatSlider::StringToValue(const QString &s, bool *ok)
   }
 
   // Just try to convert the string to a double
-  return s.toDouble(ok);
+  return s.toDouble(ok) - GetOffset().toDouble();
 }
 
 double FloatSlider::AdjustDragDistanceInternal(const double &start, const double &drag)

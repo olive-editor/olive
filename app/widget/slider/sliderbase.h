@@ -48,6 +48,13 @@ public:
 
   void SetDefaultValue(const QVariant& v);
 
+  const QVariant& GetOffset() const
+  {
+    return offset_;
+  }
+
+  void SetOffset(const QVariant& v);
+
   bool IsTristate() const;
   void SetTristate();
 
@@ -110,6 +117,8 @@ private:
   double dragged_diff_;
 
   QVariant temp_dragged_value_;
+
+  QVariant offset_;
 
   bool require_valid_input_;
 
