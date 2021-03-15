@@ -428,9 +428,12 @@ void ViewerWidget::UpdateTextureFromNode(const rational& time)
         PopOldestFrameFromPlaybackQueue();
         if (popped) {
           // We've already popped a frame in this loop, meaning a frame has been skipped
-          display_widget_->SetSkippedFrames(display_widget_->GetSkippedFrames()+1);
+          display_widget_->IncrementSkippedFrames();
+        } else {
+          // Shown a frame and progressed to the next one
+          display_widget_->IncrementFrameCount();
+          popped = true;
         }
-        popped = true;
 
       }
     }
@@ -492,7 +495,6 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
 
   playback_speed_ = speed;
   play_in_to_out_only_ = in_to_out_only;
-  display_widget_->SetSkippedFrames(0);
 
   playback_queue_next_frame_ = ruler()->GetTime();
 

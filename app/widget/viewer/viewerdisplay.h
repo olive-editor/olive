@@ -91,14 +91,14 @@ public:
     return show_fps_;
   }
 
-  int GetSkippedFrames() const
+  void IncrementSkippedFrames()
   {
-    return frames_skipped_;
+    frames_skipped_++;
   }
 
-  void SetSkippedFrames(int i)
+  void IncrementFrameCount()
   {
-    frames_skipped_ = i;
+    fps_timer_update_count_++;
   }
 
 public slots:
@@ -268,10 +268,13 @@ private:
   bool deinterlace_;
 
   qint64 fps_timer_start_;
-  qint64 fps_timer_update_count_;
+  int fps_timer_update_count_;
 
   bool show_fps_;
   int frames_skipped_;
+
+  QVector<double> frame_rate_averages_;
+  int frame_rate_average_count_;
 
 private slots:
   void EmitColorAtCursor(QMouseEvent* e);

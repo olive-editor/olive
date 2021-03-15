@@ -55,6 +55,9 @@ ViewerDisplayWidget::ViewerDisplayWidget(QWidget *parent) :
 
   // Initializes cursor based on tool
   UpdateCursor();
+
+  const int kFrameRateAverageCount = 8;
+  frame_rate_averages_.resize(kFrameRateAverageCount);
 }
 
 ViewerDisplayWidget::~ViewerDisplayWidget()
@@ -187,6 +190,8 @@ void ViewerDisplayWidget::ResetFPSTimer()
 {
   fps_timer_start_ = QDateTime::currentMSecsSinceEpoch();
   fps_timer_update_count_ = 0;
+  frames_skipped_ = 0;
+  frame_rate_average_count_ = 0;
 }
 
 void ViewerDisplayWidget::mousePressEvent(QMouseEvent *event)
@@ -357,22 +362,36 @@ void ViewerDisplayWidget::OnPaint()
     p.drawLines(lines, 2);
   }
 
-  fps_timer_update_count_++;
   if (show_fps_) {
-    QPainter p(inner_widget());
-    qint64 now = QDateTime::currentMSecsSinceEpoch();
-    double frame_rate;
-    if (now == fps_timer_start_) {
-      // This will cause a divide by zero, so we do nothing here
-      frame_rate = 0;
-    } else {
-      frame_rate = double(fps_timer_update_count_) / double((now - fps_timer_start_)/1000.0);
-    }
-    DrawTextWithCrudeShadow(&p, inner_widget()->rect(), tr("%1 FPS").arg(QString::number(frame_rate, 'f', 2)));
+    {
+      qint64 now = QDateTime::currentMSecsSinceEpoch();
+      double frame_rate;
+      if (now == fps_timer_start_) {
+        // This will cause a divide by zero, so we do nothing here
+        frame_rate = 0;
+      } else {
+        frame_rate = double(fps_timer_update_count_) / double((now - fps_timer_start_)/1000.0);
+      }
 
-    if (frames_skipped_ > 0) {
-      DrawTextWithCrudeShadow(&p, inner_widget()->rect().adjusted(0, p.fontMetrics().height(), 0, 0),
-                              tr("%1 frames skipped").arg(frames_skipped_));
+      frame_rate_averages_[frame_rate_average_count_%frame_rate_averages_.size()] = frame_rate;
+      frame_rate_average_count_++;
+    }
+
+    if (frame_rate_average_count_ >= frame_rate_averages_.size()) {
+      QPainter p(inner_widget());
+
+      double average = 0.0;
+      for (int i=0; i<frame_rate_averages_.size(); i++) {
+        average += frame_rate_averages_[i];
+      }
+      average /= double(frame_rate_averages_.size());
+
+      DrawTextWithCrudeShadow(&p, inner_widget()->rect(), tr("%1 FPS").arg(QString::number(average, 'f', 1)));
+
+      if (frames_skipped_ > 0) {
+        DrawTextWithCrudeShadow(&p, inner_widget()->rect().adjusted(0, p.fontMetrics().height(), 0, 0),
+                                tr("%1 frames skipped").arg(frames_skipped_));
+      }
     }
   }
 }
