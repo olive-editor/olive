@@ -40,7 +40,6 @@ namespace olive {
 
 inline bool NodeCanBeRemoved(Node* n)
 {
-  //return n->edges().isEmpty() && n->GetExclusiveDependencies().isEmpty();
   return n->output_connections().empty();
 }
 
@@ -490,13 +489,15 @@ public:
     block_(block),
     new_block_(nullptr),
     point_(point),
-    reconnect_tree_command_(nullptr)
+    reconnect_tree_command_(nullptr),
+    position_command_(nullptr)
   {
   }
 
   virtual ~BlockSplitCommand() override
   {
     delete reconnect_tree_command_;
+    delete position_command_;
   }
 
   virtual Project* GetRelevantProject() const override
@@ -540,6 +541,12 @@ public:
     // Insert new block
     track->InsertBlockAfter(new_block(), block_);
 
+    // Position the block
+    if (!position_command_) {
+      position_command_ = new NodeSetPositionAsChildCommand(new_block(), track, new_block()->index(), track->Blocks().size(), true);
+    }
+    position_command_->redo();
+
     // If the block had an out transition, we move it to the new block
     moved_transition_ = NodeInput();
 
@@ -569,6 +576,8 @@ public:
       Node::ConnectEdge(block_, moved_transition_);
     }
 
+    position_command_->undo();
+
     block_->set_length_and_media_out(old_length_);
     track->RippleRemoveBlock(new_block());
 
@@ -588,6 +597,8 @@ private:
   MultiUndoCommand* reconnect_tree_command_;
 
   NodeInput moved_transition_;
+
+  NodeSetPositionAsChildCommand* position_command_;
 
 };
 
