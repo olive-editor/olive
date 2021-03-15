@@ -84,9 +84,9 @@ protected:
 
   virtual double AdjustDragDistanceInternal(const double& start, const double& drag);
 
-  virtual QString ValueToString(const QVariant &v);
+  virtual QString ValueToString(const QVariant &v) = 0;
 
-  virtual QVariant StringToValue(const QString& s, bool* ok);
+  virtual QVariant StringToValue(const QString& s, bool* ok) = 0;
 
   virtual void changeEvent(QEvent* e) override;
 

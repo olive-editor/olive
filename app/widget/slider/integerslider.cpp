@@ -25,6 +25,8 @@ namespace olive {
 IntegerSlider::IntegerSlider(QWidget* parent) :
   SliderBase(kInteger, parent)
 {
+  SetValue(0);
+
   connect(this, SIGNAL(ValueChanged(QVariant)), this, SLOT(ConvertValue(QVariant)));
 }
 

@@ -29,6 +29,7 @@ TimeSlider::TimeSlider(QWidget *parent) :
   IntegerSlider(parent)
 {
   SetMinimum(0);
+  SetValue(0);
 
   connect(Core::instance(), &Core::TimecodeDisplayChanged, this, &TimeSlider::TimecodeDisplayChanged);
 }

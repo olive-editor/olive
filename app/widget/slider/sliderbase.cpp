@@ -62,12 +62,10 @@ SliderBase::SliderBase(Mode mode, QWidget *parent) :
   switch (mode_) {
   case kString:
     setCursor(Qt::PointingHandCursor);
-    SetValue(QString());
     break;
   case kInteger:
   case kFloat:
     setCursor(Qt::SizeHorCursor);
-    SetValue(0);
     break;
   }
 }

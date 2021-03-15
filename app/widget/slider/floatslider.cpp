@@ -32,6 +32,8 @@ FloatSlider::FloatSlider(QWidget *parent) :
   decimal_places_(1),
   autotrim_decimal_places_(false)
 {
+  SetValue(0.0);
+
   connect(this, SIGNAL(ValueChanged(QVariant)), this, SLOT(ConvertValue(QVariant)));
 }
 
