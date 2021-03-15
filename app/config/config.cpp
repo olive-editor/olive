@@ -92,6 +92,7 @@ void Config::SetDefaults()
   SetEntryInternal(QStringLiteral("SplitClipsCopyNodes"), NodeValue::kBoolean, true);
   SetEntryInternal(QStringLiteral("UseGradients"), NodeValue::kBoolean, true);
   SetEntryInternal(QStringLiteral("AutoMergeTracks"), NodeValue::kBoolean, true);
+  SetEntryInternal(QStringLiteral("UseSliderLadders"), NodeValue::kBoolean, true);
 
   SetEntryInternal(QStringLiteral("AutoCacheDelay"), NodeValue::kInt, 1000);
 

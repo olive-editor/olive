@@ -92,8 +92,6 @@ private:
 
   QString GetFormat() const;
 
-  void RepositionLadder();
-
   SliderLabel* label_;
 
   FocusableLineEdit* editor_;
@@ -139,6 +137,9 @@ private slots:
   void LineEditCancelled();
 
   void ResetValue();
+
+  void RepositionLadder();
+
 };
 
 }

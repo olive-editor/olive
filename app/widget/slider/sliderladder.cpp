@@ -32,12 +32,13 @@
 
 #include "common/clamp.h"
 #include "common/lerp.h"
+#include "common/qtutils.h"
+#include "config/config.h"
 
 namespace olive {
 
 SliderLadder::SliderLadder(double drag_multiplier, int nb_outer_values, QWidget* parent) :
-  QFrame(parent, Qt::Popup),
-  y_mobility_(0)
+  QFrame(parent, Qt::Popup)
 {
   QVBoxLayout* layout = new QVBoxLayout(this);
   layout->setMargin(0);
@@ -45,6 +46,10 @@ SliderLadder::SliderLadder(double drag_multiplier, int nb_outer_values, QWidget*
 
   setFrameShape(QFrame::Box);
   setLineWidth(1);
+
+  if (!Config::Current()[QStringLiteral("UseSliderLadders")].toBool()) {
+    nb_outer_values = 0;
+  }
 
   for (int i=nb_outer_values-1;i>=0;i--) {
     elements_.append(new SliderLadderElement(qPow(10, i + 1) * drag_multiplier));
@@ -71,25 +76,36 @@ SliderLadder::SliderLadder(double drag_multiplier, int nb_outer_values, QWidget*
   drag_timer_.setInterval(10);
   connect(&drag_timer_, &QTimer::timeout, this, &SliderLadder::TimerUpdate);
 
+  if (Config::Current()[QStringLiteral("UseSliderLadders")].toBool()) {
+    drag_start_x_ = -1;
+  } else {
 #if defined(Q_OS_MAC)
-  CGAssociateMouseAndMouseCursorPosition(false);
-  CGDisplayHideCursor(kCGDirectMainDisplay);
-  CGGetLastMouseDelta(nullptr, nullptr);
+    CGAssociateMouseAndMouseCursorPosition(false);
+    CGDisplayHideCursor(kCGDirectMainDisplay);
+    CGGetLastMouseDelta(nullptr, nullptr);
 #else
-  drag_start_ = QCursor::pos();
+    drag_start_x_ = QCursor::pos().x();
+    drag_start_y_ = QCursor::pos().y();
 
-  static_cast<QGuiApplication*>(QApplication::instance())->setOverrideCursor(Qt::BlankCursor);
+    static_cast<QGuiApplication*>(QApplication::instance())->setOverrideCursor(Qt::BlankCursor);
 #endif
+  }
+
+  QMetaObject::invokeMethod(this, "UpdatePosition", Qt::QueuedConnection);
 }
 
 SliderLadder::~SliderLadder()
 {
+  if (Config::Current()[QStringLiteral("UseSliderLadders")].toBool()) {
+
+  } else {
 #if defined(Q_OS_MAC)
-  CGAssociateMouseAndMouseCursorPosition(true);
-  CGDisplayShowCursor(kCGDirectMainDisplay);
+    CGAssociateMouseAndMouseCursorPosition(true);
+    CGDisplayShowCursor(kCGDirectMainDisplay);
 #else
-  static_cast<QGuiApplication*>(QApplication::instance())->restoreOverrideCursor();
+    static_cast<QGuiApplication*>(QApplication::instance())->restoreOverrideCursor();
 #endif
+  }
 }
 
 void SliderLadder::SetValue(const QString &s)
@@ -124,54 +140,91 @@ void SliderLadder::closeEvent(QCloseEvent *event)
 
 void SliderLadder::TimerUpdate()
 {
-  int32_t x_mvmt, y_mvmt;
+  int ladder_left = this->x();
+  int ladder_right = this->x() + this->width() - 1;
+  int now_pos = QCursor::pos().x();
 
-  // Keep cursor in the same position
+  if (Config::Current()[QStringLiteral("UseSliderLadders")].toBool()) {
+
+    bool is_under_mouse = (now_pos >= ladder_left && now_pos <= ladder_right);
+
+    if (drag_start_x_ != -1 && (is_under_mouse
+        || (drag_start_x_ < ladder_left && now_pos > ladder_right)
+        || (drag_start_x_ > ladder_right && now_pos < ladder_left))) {
+      // We're ending a drag, try to return the value back to its beginning
+      int anchor;
+
+      if (drag_start_x_ < ladder_left) {
+        anchor = ladder_left;
+      } else {
+        anchor = ladder_right;
+      }
+
+      int makeup_value = anchor - drag_start_x_;
+      emit DraggedByValue(makeup_value, elements_.at(active_element_)->GetMultiplier());
+
+      drag_start_x_ = -1;
+    }
+
+    if (is_under_mouse) {
+
+      // Determine which element is currently active
+      for (int i=0; i<elements_.size(); i++) {
+        if (elements_.at(i)->underMouse()) {
+          if (i != active_element_) {
+            elements_.at(active_element_)->SetHighlighted(false);
+            active_element_ = i;
+            elements_.at(active_element_)->SetHighlighted(true);
+          }
+
+          break;
+        }
+      }
+
+    } else {
+
+      if (drag_start_x_ == -1) {
+        // Drag is a new leave from the ladder, calculate origin
+        if (now_pos < ladder_left) {
+          drag_start_x_ = ladder_left;
+        } else {
+          drag_start_x_ = ladder_right;
+        }
+      }
+
+      emit DraggedByValue(now_pos - drag_start_x_, elements_.at(active_element_)->GetMultiplier());
+      drag_start_x_ = now_pos;
+
+    }
+
+  } else {
+    int32_t x_mvmt, y_mvmt;
+
+    // Keep cursor in the same position
 #if defined(Q_OS_MAC)
-  CGGetLastMouseDelta(&x_mvmt, &y_mvmt);
+    CGGetLastMouseDelta(&x_mvmt, &y_mvmt);
 #else
-  QPoint current_pos = QCursor::pos();
+    QPoint current_pos = QCursor::pos();
 
-  x_mvmt = current_pos.x() - drag_start_.x();
-  y_mvmt = current_pos.y() - drag_start_.y();
+    x_mvmt = current_pos.x() - drag_start_x_;
+    y_mvmt = current_pos.y() - drag_start_y_;
 
-  QCursor::setPos(drag_start_);
+    QCursor::setPos(QPoint(drag_start_x_, drag_start_y_));
 #endif
 
-  if (!x_mvmt && !y_mvmt) {
-    return;
-  }
+    if (x_mvmt || y_mvmt) {
+      double multiplier = 1.0;
 
-  if (qApp->keyboardModifiers() & Qt::ControlModifier) {
-    // Movement is vertical
-    y_mobility_ += y_mvmt;
-
-    if (qAbs(y_mobility_) > fontMetrics().height()) {
-      int new_active_element;
-
-      if (y_mvmt < 0) {
-        // Movement is UP
-        new_active_element = active_element_ - 1;
-      } else {
-        // Movement is DOWN
-        new_active_element = active_element_ + 1;
+      if (qApp->keyboardModifiers() & Qt::ControlModifier) {
+        multiplier *= 0.1;
       }
 
-      // Check if the proposed element is valid
-      if (new_active_element >= 0 && new_active_element < elements_.size()) {
-        elements_.at(active_element_)->SetHighlighted(false);
-
-        active_element_ = new_active_element;
-
-        elements_.at(active_element_)->SetHighlighted(true);
+      if (qApp->keyboardModifiers() & Qt::ShiftModifier) {
+        multiplier *= 0.1;
       }
 
-      y_mobility_ = 0;
+      emit DraggedByValue(x_mvmt + y_mvmt, multiplier);
     }
-  } else {
-    y_mobility_ = 0;
-
-    emit DraggedByValue(x_mvmt + y_mvmt, elements_.at(active_element_)->GetMultiplier());
   }
 }
 
@@ -185,6 +238,7 @@ SliderLadderElement::SliderLadderElement(const double &multiplier, QWidget *pare
 
   label_ = new QLabel();
   label_->setAlignment(Qt::AlignCenter);
+  label_->setFixedWidth(QtUtils::QFontMetricsWidth(label_->fontMetrics(), QStringLiteral("0000000")));
   layout->addWidget(label_);
 
   QPalette p = palette();

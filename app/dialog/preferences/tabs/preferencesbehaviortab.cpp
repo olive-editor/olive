@@ -46,6 +46,9 @@ PreferencesBehaviorTab::PreferencesBehaviorTab()
           QStringLiteral("ScrollZooms"),
           tr("Holding CTRL while using Olive toggles this setting"),
           general_group);
+  AddItem(tr("Enable slider ladder"),
+          QStringLiteral("UseSliderLadders"),
+          general_group);
 
   QTreeWidgetItem* audio_group = AddParent(tr("Audio"));
   AddItem(tr("Enable audio scrubbing"),
