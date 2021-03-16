@@ -50,6 +50,10 @@ MainWindow::MainWindow(QWidget *parent) :
   taskbar_interface_ = nullptr;
 #endif
 
+#ifdef Q_OS_LINUX
+  checked_graphics_vendor_ = false;
+#endif
+
   // Create empty central widget - we don't actually want a central widget (so we set its maximum
   // size to 0,0) but some of Qt's docking/undocking fails without it
   QWidget* centralWidget = new QWidget(this);
@@ -632,16 +636,20 @@ void MainWindow::showEvent(QShowEvent *e)
   QMainWindow::showEvent(e);
 
 #ifdef Q_OS_LINUX
-  // Check for nouveau since that driver really doesn't work with Olive
-  QOffscreenSurface surface;
-  surface.create();
-  QOpenGLContext context;
-  context.create();
-  context.makeCurrent(&surface);
-  const char* vendor = reinterpret_cast<const char*>(context.functions()->glGetString(GL_VENDOR));
-  qDebug() << "Using graphics driver:" << vendor;
-  if (!strcmp(vendor, "nouveau")) {
-    QMetaObject::invokeMethod(this, "ShowNouveauWarning", Qt::QueuedConnection);
+  if (!checked_graphics_vendor_) {
+    // Check for nouveau since that driver really doesn't work with Olive
+    QOffscreenSurface surface;
+    surface.create();
+    QOpenGLContext context;
+    context.create();
+    context.makeCurrent(&surface);
+    const char* vendor = reinterpret_cast<const char*>(context.functions()->glGetString(GL_VENDOR));
+    qDebug() << "Using graphics driver:" << vendor;
+    if (!strcmp(vendor, "nouveau")) {
+      QMetaObject::invokeMethod(this, "ShowNouveauWarning", Qt::QueuedConnection);
+    }
+
+    checked_graphics_vendor_ = true;
   }
 #endif
 }

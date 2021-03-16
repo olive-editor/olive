@@ -156,6 +156,10 @@ private:
   ITaskbarList3* taskbar_interface_;
 #endif
 
+#ifdef Q_OS_LINUX
+  bool checked_graphics_vendor_;
+#endif
+
 private slots:
   void FocusedPanelChanged(PanelWidget* panel);
 
