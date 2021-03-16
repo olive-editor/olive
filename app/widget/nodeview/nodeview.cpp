@@ -34,6 +34,8 @@
 
 namespace olive {
 
+const double NodeView::kMinimumScale = 0.1;
+
 NodeView::NodeView(QWidget *parent) :
   HandMovableView(parent),
   graph_(nullptr),
@@ -328,6 +330,16 @@ void NodeView::SetColorLabel(int index)
   }
 }
 
+void NodeView::ZoomIn()
+{
+  ZoomFromKeyboard(1.25);
+}
+
+void NodeView::ZoomOut()
+{
+  ZoomFromKeyboard(0.8);
+}
+
 void NodeView::keyPressEvent(QKeyEvent *event)
 {
   super::keyPressEvent(event);
@@ -565,26 +577,14 @@ void NodeView::wheelEvent(QWheelEvent *event)
   if (TimeBasedView::WheelEventIsAZoomEvent(event)) {
     qreal multiplier = 1.0 + (static_cast<qreal>(event->angleDelta().x() + event->angleDelta().y()) * 0.001);
 
-    double test_scale = scale_ * multiplier;
-
-    if (test_scale > 0.1) {
-      QPointF cursor_pos;
+    QPointF cursor_pos;
 #if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
-      cursor_pos = event->position();
+    cursor_pos = event->position();
 #else
-      cursor_pos = event->posF();
+    cursor_pos = event->posF();
 #endif
 
-      int anchor_x = qRound(double(cursor_pos.x() + horizontalScrollBar()->value()) / scale_ * test_scale - cursor_pos.x());
-      int anchor_y = qRound(double(cursor_pos.y() + verticalScrollBar()->value()) / scale_ * test_scale - cursor_pos.y());
-
-      scale(multiplier, multiplier);
-
-      this->horizontalScrollBar()->setValue(anchor_x);
-      this->verticalScrollBar()->setValue(anchor_y);
-
-      scale_ = test_scale;
-    }
+    ZoomIntoCursorPosition(multiplier, cursor_pos);
   } else {
     QWidget::wheelEvent(event);
   }
@@ -805,6 +805,35 @@ void NodeView::ConnectSelectionChangedSignal()
 void NodeView::DisconnectSelectionChangedSignal()
 {
   disconnect(&scene_, &QGraphicsScene::selectionChanged, this, &NodeView::UpdateSelectionCache);
+}
+
+void NodeView::ZoomIntoCursorPosition(double multiplier, const QPointF& cursor_pos)
+{
+  double test_scale = scale_ * multiplier;
+
+  if (test_scale > kMinimumScale) {
+    int anchor_x = qRound(double(cursor_pos.x() + horizontalScrollBar()->value()) / scale_ * test_scale - cursor_pos.x());
+    int anchor_y = qRound(double(cursor_pos.y() + verticalScrollBar()->value()) / scale_ * test_scale - cursor_pos.y());
+
+    scale(multiplier, multiplier);
+
+    this->horizontalScrollBar()->setValue(anchor_x);
+    this->verticalScrollBar()->setValue(anchor_y);
+
+    scale_ = test_scale;
+  }
+}
+
+void NodeView::ZoomFromKeyboard(double multiplier)
+{
+  QPoint cursor_pos = mapFromGlobal(QCursor::pos());
+
+  // If the cursor is not currently within the widget, zoom into the center
+  if (!rect().contains(cursor_pos)) {
+    cursor_pos = QPoint(width()/2, height()/2);
+  }
+
+  ZoomIntoCursorPosition(multiplier, cursor_pos);
 }
 
 }

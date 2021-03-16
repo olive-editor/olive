@@ -85,6 +85,16 @@ public:
     node_view_->SetColorLabel(index);
   }
 
+  virtual void ZoomIn() override
+  {
+    node_view_->ZoomIn();
+  }
+
+  virtual void ZoomOut() override
+  {
+    node_view_->ZoomOut();
+  }
+
 public slots:
   void Select(const QVector<Node*>& nodes)
   {

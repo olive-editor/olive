@@ -74,6 +74,10 @@ public:
 
   void SetColorLabel(int index);
 
+  void ZoomIn();
+
+  void ZoomOut();
+
 signals:
   void NodesSelected(const QVector<Node*>& nodes);
 
@@ -101,6 +105,10 @@ private:
 
   void ConnectSelectionChangedSignal();
   void DisconnectSelectionChangedSignal();
+
+  void ZoomIntoCursorPosition(double multiplier, const QPointF &cursor_pos);
+
+  void ZoomFromKeyboard(double multiplier);
 
   NodeGraph* graph_;
 
@@ -134,6 +142,8 @@ private:
   FilterMode filter_mode_;
 
   double scale_;
+
+  static const double kMinimumScale;
 
 private slots:
   /**
