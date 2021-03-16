@@ -1633,8 +1633,14 @@ public:
     block_(block),
     existing_gap_(nullptr),
     existing_merged_gap_(nullptr),
-    our_gap_(nullptr)
+    our_gap_(nullptr),
+    position_command_(nullptr)
   {
+  }
+
+  virtual ~TrackReplaceBlockWithGapCommand() override
+  {
+    delete position_command_;
   }
 
   virtual Project* GetRelevantProject() const override
@@ -1691,6 +1697,11 @@ public:
 
         our_gap_->setParent(track_->parent());
         track_->ReplaceBlock(block_, our_gap_);
+
+        if (!position_command_) {
+          position_command_ = new NodeSetPositionAsChildCommand(our_gap_, track_, our_gap_->index(), track_->Blocks().size(), true);
+        }
+        position_command_->redo();
       }
 
     } else {
@@ -1723,6 +1734,8 @@ public:
       // We made this gap, simply swap our gap back
       track_->ReplaceBlock(our_gap_, block_);
       our_gap_->setParent(&memory_manager_);
+
+      position_command_->undo();
 
     } else if (existing_gap_) {
 
@@ -1779,6 +1792,8 @@ private:
   GapBlock* existing_merged_gap_;
   bool existing_gap_precedes_;
   GapBlock* our_gap_;
+
+  NodeSetPositionAsChildCommand* position_command_;
 
   QObject memory_manager_;
 
