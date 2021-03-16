@@ -43,6 +43,24 @@ private:
 
 };
 
+class CloseSequenceCommand : public UndoCommand
+{
+public:
+  CloseSequenceCommand(Sequence* sequence) :
+    sequence_(sequence)
+  {}
+
+  virtual void redo() override;
+
+  virtual void undo() override;
+
+  virtual Project* GetRelevantProject() const override {return nullptr;}
+
+private:
+  Sequence* sequence_;
+
+};
+
 }
 
 #endif // MAINWINDOWUNDO_H

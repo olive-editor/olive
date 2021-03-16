@@ -131,6 +131,12 @@ private:
    */
   void BrowseToFolder(const QModelIndex& index);
 
+  int ConfirmItemDeletion(Node *item);
+
+  bool DeleteItemsInternal(const QVector<Node *> &selected, bool &check_if_item_is_in_use, MultiUndoCommand *command);
+
+  static QString GetHumanReadableNodeName(Node* node);
+
   /**
    * @brief Get the currently active QAbstractItemView
    */

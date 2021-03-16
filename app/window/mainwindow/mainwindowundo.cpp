@@ -35,4 +35,14 @@ void OpenSequenceCommand::undo()
   Core::instance()->main_window()->CloseSequence(sequence_);
 }
 
+void CloseSequenceCommand::redo()
+{
+  Core::instance()->main_window()->CloseSequence(sequence_);
+}
+
+void CloseSequenceCommand::undo()
+{
+  Core::instance()->main_window()->OpenSequence(sequence_);
+}
+
 }

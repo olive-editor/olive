@@ -37,8 +37,9 @@
 #include "widget/menu/menu.h"
 #include "widget/menu/menushared.h"
 #include "window/mainwindow/mainwindow.h"
-#include "widget/timelinewidget/timelinewidget.h"
+#include "window/mainwindow/mainwindowundo.h"
 #include "widget/nodeview/nodeviewundo.h"
+#include "widget/timelinewidget/timelinewidget.h"
 
 namespace olive {
 
@@ -157,6 +158,85 @@ void ProjectExplorer::BrowseToFolder(const QModelIndex &index)
 
   // Set directory up enabled button based on whether we're in root or not
   nav_bar_->set_dir_up_enabled(index.isValid());
+}
+
+int ProjectExplorer::ConfirmItemDeletion(Node* item)
+{
+  QMessageBox msgbox(this);
+  msgbox.setWindowTitle(tr("Confirm Item Deletion"));
+  msgbox.setIcon(QMessageBox::Warning);
+
+  QStringList connected_nodes_names;
+  foreach (const Node::OutputConnection& connected, item->output_connections()) {
+    if (!dynamic_cast<Folder*>(connected.second.node())) {
+      connected_nodes_names.append(GetHumanReadableNodeName(connected.second.node()));
+    }
+  }
+
+  msgbox.setText(tr("The item \"%1\" is currently connected to the following nodes:\n\n"
+                    "%2\n\n"
+                    "Are you sure you wish to delete this footage?")
+                 .arg(GetHumanReadableNodeName(item), connected_nodes_names.join('\n')));
+
+  // Set up buttons
+  msgbox.addButton(QMessageBox::Yes);
+  msgbox.addButton(QMessageBox::YesToAll);
+  msgbox.addButton(QMessageBox::No);
+  msgbox.addButton(QMessageBox::Cancel);
+
+  // Run messagebox
+  return msgbox.exec();
+}
+
+bool ProjectExplorer::DeleteItemsInternal(const QVector<Node*>& selected, bool& check_if_item_is_in_use, MultiUndoCommand* command)
+{
+  for (int i=0; i<selected.size(); i++) {
+    // Delete sequences first
+    Node* node = selected.at(i);
+
+    bool can_delete_item = true;
+
+    if (check_if_item_is_in_use) {
+      foreach (const Node::OutputConnection& oc, node->output_connections()) {
+        Folder* folder_test = dynamic_cast<Folder*>(oc.second.node());
+        if (!folder_test) {
+          // This sequence outputs to SOMETHING, confirm the user if they want to delete this
+          int r = ConfirmItemDeletion(node);
+
+          switch (r) {
+          case QMessageBox::No:
+            can_delete_item = false;
+            break;
+          case QMessageBox::Cancel:
+            return false;
+          case QMessageBox::YesToAll:
+            check_if_item_is_in_use = false;
+            break;
+          }
+        }
+      }
+    }
+
+    if (can_delete_item) {
+      Sequence* sequence = dynamic_cast<Sequence*>(node);
+      if (sequence && Core::instance()->main_window()->IsSequenceOpen(sequence)) {
+        command->add_child(new CloseSequenceCommand(sequence));
+      }
+
+      command->add_child(new NodeRemoveWithExclusiveDependenciesAndDisconnect(node));
+    }
+  }
+
+  return true;
+}
+
+QString ProjectExplorer::GetHumanReadableNodeName(Node *node)
+{
+  if (node->GetLabel().isEmpty()) {
+    return node->Name();
+  } else {
+    return tr("%1 (%2)").arg(node->GetLabel(), node->Name());
+  }
 }
 
 QAbstractItemView *ProjectExplorer::CurrentView() const
@@ -533,81 +613,13 @@ void ProjectExplorer::DeleteSelected()
 
   MultiUndoCommand* command = new MultiUndoCommand();
 
-  bool dont_confirm_footage_in_use = false;
+  bool check_if_item_is_in_use = true;
 
-  foreach (Node* item, selected) {
-    // Verify whether this item is in use anywhere
-    Footage* footage_cast_test = dynamic_cast<Footage*>(item);
-    Sequence* sequence_cast_test = dynamic_cast<Sequence*>(item);
-
-    bool cleared_to_delete = true;
-
-    if (sequence_cast_test) {
-      if (Core::instance()->main_window()->IsSequenceOpen(sequence_cast_test)) {
-        Core::instance()->main_window()->CloseSequence(sequence_cast_test);
-      }
-    } else if (footage_cast_test) {
-      if (!footage_cast_test->output_connections().empty() && !dont_confirm_footage_in_use) {
-        // Footage outputs to other nodes, warn the user
-        QMessageBox msgbox(this);
-        msgbox.setWindowTitle(tr("Confirm Footage Deletion"));
-        msgbox.setIcon(QMessageBox::Warning);
-
-        QStringList connected_nodes;
-        foreach (const Node::OutputConnection& c, footage_cast_test->output_connections()) {
-          Node* connected = c.second.node();
-
-          if (connected->GetLabel().isEmpty()) {
-            connected_nodes.append(connected->Name());
-          } else {
-            connected_nodes.append(QStringLiteral("%1 (%2)").arg(connected->GetLabel(), connected->Name()));
-          }
-        }
-
-        msgbox.setText(tr("The footage \"%1\" is currently connected to the following nodes:\n\n"
-                          "%2\n\n"
-                          "Are you sure you wish to delete this footage?")
-                       .arg(footage_cast_test->filename(), connected_nodes.join('\n')));
-
-
-        // Set up buttons
-        msgbox.addButton(QMessageBox::Yes);
-        msgbox.addButton(QMessageBox::YesToAll);
-        msgbox.addButton(QMessageBox::No);
-        msgbox.addButton(QMessageBox::Cancel);
-
-        // Run messagebox
-        int r = msgbox.exec();
-
-        switch (r) {
-        case QMessageBox::Cancel:
-          // Stop this entire function
-          delete command;
-          return;
-        case QMessageBox::No:
-          cleared_to_delete = false;
-          break;
-        case QMessageBox::YesToAll:
-          dont_confirm_footage_in_use = true;
-          break;
-        }
-      }
-
-      if (cleared_to_delete) {
-        // Close footage if currently open in footage panel
-        FootageViewerPanel* footage_panel = PanelManager::instance()->GetPanelsOfType<FootageViewerPanel>().first();
-        if (footage_panel->GetSelectedFootage().contains(footage_cast_test)) {
-          footage_panel->SetFootage(nullptr);
-        }
-      }
-    }
-
-    if (cleared_to_delete) {
-      command->add_child(new NodeRemoveAndDisconnectCommand(reinterpret_cast<Node*>(item)));
-    }
+  if (DeleteItemsInternal(selected, check_if_item_is_in_use, command)) {
+    Core::instance()->undo_stack()->pushIfHasChildren(command);
+  } else {
+    delete command;
   }
-
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
 }
