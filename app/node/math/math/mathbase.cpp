@@ -260,7 +260,7 @@ NodeValueTable MathNodeBase::ValueInternal(NodeValueDatabase &value, Operation o
     for (int i=0;i<mixed_samples->audio_params().channel_count();i++) {
       // Mix samples that are in both buffers
       for (int j=0;j<min_samples;j++) {
-        mixed_samples->data()[i][j] = PerformAll<float, float>(operation, samples_a->data()[i][j], samples_b->data()[i][j]);
+        mixed_samples->data(i)[j] = PerformAll<float, float>(operation, samples_a->data(i)[j], samples_b->data(i)[j]);
       }
     }
 
@@ -271,8 +271,8 @@ NodeValueTable MathNodeBase::ValueInternal(NodeValueDatabase &value, Operation o
       SampleBufferPtr larger_buffer = (max_samples == samples_a->sample_count()) ? samples_a : samples_b;
 
       for (int i=0;i<mixed_samples->audio_params().channel_count();i++) {
-        memcpy(&mixed_samples->data()[i][min_samples],
-               &larger_buffer->data()[i][min_samples],
+        memcpy(&mixed_samples->data(i)[min_samples],
+               &larger_buffer->data(i)[min_samples],
                remainder * sizeof(float));
       }
     }
@@ -354,7 +354,7 @@ NodeValueTable MathNodeBase::ValueInternal(NodeValueDatabase &value, Operation o
         if (!NumberIsNoOp(operation, number)) {
           for (int i=0;i<job.samples()->audio_params().channel_count();i++) {
             for (int j=0;j<job.samples()->sample_count();j++) {
-              job.samples()->data()[i][j] = PerformAll(operation, job.samples()->data()[i][j], number);
+              job.samples()->data(i)[j] = PerformAll(operation, job.samples()->data(i)[j], number);
             }
           }
         }
@@ -391,7 +391,7 @@ void MathNodeBase::ProcessSamplesInternal(NodeValueDatabase &values, MathNodeBas
   float number_flt = RetrieveNumber(number_val);
 
   for (int i=0;i<output->audio_params().channel_count();i++) {
-    output->data()[i][index] = PerformAll<float, float>(operation, input->data()[i][index], number_flt);
+    output->data(i)[index] = PerformAll<float, float>(operation, input->data(i)[index], number_flt);
   }
 }
 

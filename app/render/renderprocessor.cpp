@@ -236,7 +236,9 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const Track *track, const Tim
       int copy_length = qMin(max_dest_sz, samples_from_this_block->sample_count());
 
       // Copy samples into destination buffer
-      block_range_buffer->set(samples_from_this_block->const_data(), destination_offset, copy_length);
+      for (int i=0; i<samples_from_this_block->audio_params().channel_count(); i++) {
+        block_range_buffer->set(i, samples_from_this_block->data(i), destination_offset, copy_length);
+      }
 
       NodeValueTable::Merge({merged_table, table});
     }

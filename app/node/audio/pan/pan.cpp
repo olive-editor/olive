@@ -103,13 +103,13 @@ void PanNode::ProcessSamples(NodeValueDatabase &values, const SampleBufferPtr in
   float pan_val = values[kPanningInput].Get(NodeValue::kFloat).toFloat();
 
   for (int i=0;i<input->audio_params().channel_count();i++) {
-    output->data()[i][index] = input->data()[i][index];
+    output->data(i)[index] = input->data(i)[index];
   }
 
   if (pan_val > 0) {
-    output->data()[0][index] *= (1.0F - pan_val);
+    output->data(0)[index] *= (1.0F - pan_val);
   } else if (pan_val < 0) {
-    output->data()[1][index] *= (1.0F - qAbs(pan_val));
+    output->data(1)[index] *= (1.0F - qAbs(pan_val));
   }
 }
 
