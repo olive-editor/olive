@@ -50,6 +50,7 @@ public:
   {
     lbl_->setText(s);
     lbl_->setToolTip(s);
+    lbl_->setMinimumWidth(1);
   }
 
 signals:
