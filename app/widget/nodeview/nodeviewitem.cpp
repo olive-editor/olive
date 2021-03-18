@@ -236,8 +236,8 @@ void NodeViewItem::ToggleExpanded()
 
 void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *)
 {
-  // HACK for getting the main QWidget palette color (the `widget`'s palette uses the NodeView color instead which we
-  // don't want here)
+  // Use main window palette since the palette passed in `widget` is the NodeView palette which
+  // has been slightly modified
   QPalette app_pal = Core::instance()->main_window()->palette();
 
   // Draw background rect if expanded
@@ -272,70 +272,33 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
 
     painter->setPen(app_pal.color(QPalette::Text));
 
-    QString node_label;
+    QString node_label = node_->GetLabel();
+    QString node_shortname = node_->ShortName();
 
-    if (!node_->GetLabel().isEmpty()) {
-      // Use label directly if node has one
-      node_label = node_->GetLabel();
-    } else {
-      Track* track = dynamic_cast<Track*>(node_);
-
-      if (track) {
-        // Exception for tracks
-        node_label = Track::GetDefaultTrackName(track->type(), track->Index());
-      } else {
-        // Otherwise, just use the node's short name
-        node_label = node_->ShortName();
+    if (node_label.isEmpty()) {
+      // If this is a track and has no user-supplied label, generate an automatic one
+      Track* track_cast_test = dynamic_cast<Track*>(node_);
+      if (track_cast_test) {
+        node_label = Track::GetDefaultTrackName(track_cast_test->type(), track_cast_test->Index());
       }
     }
 
-    QFont f;
-    QFontMetrics fm(f);
-
-    // Draw right or down arrow based on expanded state
-    int icon_size = fm.height() / 2;
-    int icon_padding = title_bar_rect_.height() / 2 - icon_size / 2;
-    int icon_full_size = icon_size + icon_padding * 2;
-    const QIcon& expand_icon = IsExpanded() ? icon::TriDown : icon::TriRight;
-    expand_icon.paint(painter, QRect(title_bar_rect_.x() + icon_padding,
-                                     title_bar_rect_.y() + icon_padding,
-                                     icon_size,
-                                     icon_size));
-
-    // Calculate how much space we have for text
-    int item_width = title_bar_rect_.width();
-    int max_text_width = item_width - DefaultTextPadding() * 2 - icon_full_size;
-    int label_width = QtUtils::QFontMetricsWidth(fm, node_label);
-
-    // Concatenate text if necessary (adds a "..." to the end and removes characters until the
-    // string fits in the bounds)
-    if (label_width > max_text_width) {
-      QString concatenated;
-
-      do {
-        node_label.chop(1);
-        concatenated = QCoreApplication::translate("NodeViewItem", "%1...").arg(node_label);
-      } while ((label_width = QtUtils::QFontMetricsWidth(fm, concatenated)) > max_text_width);
-
-      node_label = concatenated;
+    if (node_label.isEmpty()) {
+      // Draw shortname only
+      DrawNodeTitle(painter, node_shortname, title_bar_rect_, Qt::AlignVCenter);
+    } else {
+      int text_pad = DefaultTextPadding()/2;
+      QRectF safe_label_bounds = title_bar_rect_.adjusted(text_pad, text_pad, -text_pad, -text_pad);
+      QFont f;
+      qreal font_sz = f.pointSizeF();
+      f.setPointSizeF(font_sz * 0.8);
+      painter->setFont(f);
+      DrawNodeTitle(painter, node_label, safe_label_bounds, Qt::AlignTop);
+      f.setPointSizeF(font_sz * 0.6);
+      painter->setFont(f);
+      DrawNodeTitle(painter, node_shortname, safe_label_bounds, Qt::AlignBottom);
     }
 
-    // Determine the text color (automatically calculate from node background color)
-    painter->setPen(ColorCoding::GetUISelectorColor(node_->color()));
-
-    // Determine X position (favors horizontal centering unless it'll overrun the arrow)
-    QRectF text_rect = title_bar_rect_;
-    Qt::Alignment text_align = Qt::AlignCenter;
-    int likely_x = item_width / 2 - label_width / 2;
-    if (likely_x < icon_full_size) {
-      text_rect.adjust(icon_full_size, 0, 0, 0);
-      text_align = Qt::AlignLeft | Qt::AlignVCenter;
-    }
-
-    // Draw the text in a rect (the rect is sized around text already in the constructor)
-    painter->drawText(text_rect,
-                      text_align,
-                      node_label);
   }
 
   // Draw final border
@@ -402,6 +365,56 @@ void NodeViewItem::ReadjustAllEdges()
   foreach (NodeViewEdge* edge, edges_) {
     edge->Adjust();
   }
+}
+
+void NodeViewItem::DrawNodeTitle(QPainter* painter, QString text, const QRectF& rect, Qt::Alignment vertical_align)
+{
+  QFontMetrics fm = painter->fontMetrics();
+
+  // Draw right or down arrow based on expanded state
+  int icon_size = fm.height() / 2;
+  int icon_padding = title_bar_rect_.height() / 2 - icon_size / 2;
+  int icon_full_size = icon_size + icon_padding * 2;
+  const QIcon& expand_icon = IsExpanded() ? icon::TriDown : icon::TriRight;
+  expand_icon.paint(painter, QRect(title_bar_rect_.x() + icon_padding,
+                                   title_bar_rect_.y() + icon_padding,
+                                   icon_size,
+                                   icon_size));
+
+  // Calculate how much space we have for text
+  int item_width = title_bar_rect_.width();
+  int max_text_width = item_width - DefaultTextPadding() * 2 - icon_full_size;
+  int label_width = QtUtils::QFontMetricsWidth(fm, text);
+
+  // Concatenate text if necessary (adds a "..." to the end and removes characters until the
+  // string fits in the bounds)
+  if (label_width > max_text_width) {
+    QString concatenated;
+
+    do {
+      text.chop(1);
+      concatenated = QCoreApplication::translate("NodeViewItem", "%1...").arg(text);
+    } while ((label_width = QtUtils::QFontMetricsWidth(fm, concatenated)) > max_text_width);
+
+    text = concatenated;
+  }
+
+  // Determine the text color (automatically calculate from node background color)
+  painter->setPen(ColorCoding::GetUISelectorColor(node_->color()));
+
+  // Determine X position (favors horizontal centering unless it'll overrun the arrow)
+  QRectF text_rect = rect;
+  Qt::Alignment text_align = Qt::AlignHCenter | vertical_align;
+  int likely_x = item_width / 2 - label_width / 2;
+  if (likely_x < icon_full_size) {
+    text_rect.adjust(icon_full_size, 0, 0, 0);
+    text_align = Qt::AlignLeft | vertical_align;
+  }
+
+  // Draw the text in a rect (the rect is sized around text already in the constructor)
+  painter->drawText(text_rect,
+                    text_align,
+                    text);
 }
 
 void NodeViewItem::SetHighlightedIndex(int index)
