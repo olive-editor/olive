@@ -210,8 +210,8 @@ void NodeView::Select(QVector<Node *> nodes)
   //               then handle them all at the end.
   DisconnectSelectionChangedSignal();
 
-  QVector<Node*> deselections_ = selected_nodes_;
-  QVector<Node*> new_selections_;
+  QVector<Node*> deselections = selected_nodes_;
+  QVector<Node*> new_selections;
 
   scene_.DeselectAll();
 
@@ -229,23 +229,23 @@ void NodeView::Select(QVector<Node *> nodes)
 
     item->setSelected(true);
 
-    if (deselections_.contains(n)) {
-      deselections_.removeOne(n);
+    if (deselections.contains(n)) {
+      deselections.removeOne(n);
     } else {
-      new_selections_.append(n);
+      new_selections.append(n);
     }
   }
 
   ConnectSelectionChangedSignal();
 
   // Emit deselect signal for any nodes that weren't in the list
-  if (!deselections_.isEmpty()) {
-    emit NodesDeselected(deselections_);
+  if (!deselections.isEmpty()) {
+    emit NodesDeselected(deselections);
   }
 
   // Emit select signal for any nodes that weren't in the list
-  if (!new_selections_.isEmpty()) {
-    emit NodesSelected(new_selections_);
+  if (!new_selections.isEmpty()) {
+    emit NodesSelected(new_selections);
   }
 
   // Update selected list to the list we received
