@@ -137,19 +137,22 @@ NodeParamView::NodeParamView(QWidget *parent) :
 
 void NodeParamView::SelectNodes(const QVector<Node *> &nodes)
 {
-  active_nodes_.append(nodes);
-
-  bool changes_made = false;
+  int original_node_count = items_.size();
 
   foreach (Node* n, nodes) {
-    if (!pinned_nodes_.contains(n))  {
-      AddNode(n);
-
-      changes_made = true;
+    // If we've already added this node (either a duplicate or a pinned node), don't add another
+    if (items_.contains(n)) {
+      continue;
     }
+
+    // Add to "active" list to represent currently selected node
+    active_nodes_.append(n);
+
+    // Create node UI
+    AddNode(n);
   }
 
-  if (changes_made) {
+  if (items_.size() > original_node_count ) {
     UpdateItemTime(GetTimestamp());
 
     // Re-arrange keyframes
@@ -162,23 +165,26 @@ void NodeParamView::SelectNodes(const QVector<Node *> &nodes)
 void NodeParamView::DeselectNodes(const QVector<Node *> &nodes)
 {
   // Remove item from map and delete the widget
-  bool changes_made = false;
+  int original_node_count = items_.size();
 
   foreach (Node* n, nodes) {
+    // Filter out duplicates
+    if (!items_.contains(n)) {
+      continue;
+    }
+
     if (!pinned_nodes_.contains(n)) {
       // Store expanded state
       node_expanded_state_.insert(n, items_.value(n)->IsExpanded());
 
       // Remove all keyframes from this node
       RemoveNode(n);
-
-      changes_made = true;
     }
 
     active_nodes_.removeOne(n);
   }
 
-  if (changes_made) {
+  if (items_.size() < original_node_count) {
     // Re-arrange keyframes
     QueueKeyframePositionUpdate();
 
