@@ -49,6 +49,7 @@ public:
   void SetText(const QString& s)
   {
     lbl_->setText(s);
+    lbl_->setToolTip(s);
   }
 
 signals:
