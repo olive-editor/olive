@@ -106,11 +106,11 @@ public slots:
     node_view_->SelectWithDependencies(nodes);
   }
 
-  void SelectBlocks(const QVector<Block*>& nodes)
+  void SelectBlocks(const QVector<Block*>& blocks)
   {
-    Q_UNUSED(nodes)
-    qDebug() << "Stub";
-    //node_view_->SelectBlocks(nodes);
+    QVector<Node*> nodes(blocks.size());
+    memcpy(nodes.data(), blocks.constData(), blocks.size() * sizeof(Block*));
+    node_view_->SelectWithDependencies(nodes);
   }
 
   void DeselectBlocks(const QVector<Block*>& nodes)

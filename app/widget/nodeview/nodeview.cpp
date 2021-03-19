@@ -236,6 +236,9 @@ void NodeView::Select(QVector<Node *> nodes)
     }
   }
 
+  // Center on something
+  centerOn(scene_.NodeToUIObject(nodes.first()));
+
   ConnectSelectionChangedSignal();
 
   // Emit deselect signal for any nodes that weren't in the list
