@@ -62,7 +62,7 @@ void AudioPlaybackCache::WritePCM(const TimeRange &range, SampleBufferPtr sample
     return;
   }
 
-  // Determine if we have enough segments to pull this off
+  // Ensure if we have enough segments to write this data, creating more if not
   qint64 length_diff = params_.time_to_bytes(range.out()) - playlist_.GetLength();
   while (length_diff > 0) {
     qint64 seg_sz = qMin(kDefaultSegmentSize, length_diff);
@@ -70,9 +70,9 @@ void AudioPlaybackCache::WritePCM(const TimeRange &range, SampleBufferPtr sample
     length_diff -= seg_sz;
   }
 
+  // Convert to packed data, which is what we store on disk so it can be played back easily
   QByteArray a;
   if (samples) {
-    // Convert to packed data, which is what we store on disk
     a = samples->toPackedData();
   }
 
@@ -158,6 +158,8 @@ void AudioPlaybackCache::ShiftEvent(const rational &from_in_time, const rational
     // Nothing to be done
     return;
   }
+
+  qDebug() << "Shifting" << from_in_time << "to" << to_in_time;
 
   qint64 to = params_.time_to_bytes(to_in_time);
   qint64 from = params_.time_to_bytes(from_in_time);
