@@ -4,37 +4,37 @@
 <context>
     <name>AudioParams</name>
     <message>
-        <location filename="../render/audioparams.cpp" line="226"/>
+        <location filename="../render/audioparams.cpp" line="229"/>
         <source>%1 Hz</source>
         <translation>%1 Hz</translation>
     </message>
     <message>
-        <location filename="../render/audioparams.cpp" line="233"/>
+        <location filename="../render/audioparams.cpp" line="236"/>
         <source>Mono</source>
         <translation>Mono</translation>
     </message>
     <message>
-        <location filename="../render/audioparams.cpp" line="235"/>
+        <location filename="../render/audioparams.cpp" line="238"/>
         <source>Stereo</source>
         <translation>Stereo</translation>
     </message>
     <message>
-        <location filename="../render/audioparams.cpp" line="237"/>
+        <location filename="../render/audioparams.cpp" line="240"/>
         <source>2.1</source>
         <translation>2.1</translation>
     </message>
     <message>
-        <location filename="../render/audioparams.cpp" line="239"/>
+        <location filename="../render/audioparams.cpp" line="242"/>
         <source>5.1</source>
         <translation>5.1</translation>
     </message>
     <message>
-        <location filename="../render/audioparams.cpp" line="241"/>
+        <location filename="../render/audioparams.cpp" line="244"/>
         <source>7.1</source>
         <translation>7.1</translation>
     </message>
     <message>
-        <location filename="../render/audioparams.cpp" line="243"/>
+        <location filename="../render/audioparams.cpp" line="246"/>
         <source>Unknown (0x%1)</source>
         <translation>Unbekannt (0x%1)</translation>
     </message>
@@ -42,12 +42,12 @@
 <context>
     <name>Config</name>
     <message>
-        <location filename="../config/config.cpp" line="199"/>
+        <location filename="../config/config.cpp" line="200"/>
         <source>Error loading settings</source>
         <translation>Fehler beim Laden der Einstellungen</translation>
     </message>
     <message>
-        <location filename="../config/config.cpp" line="200"/>
+        <location filename="../config/config.cpp" line="201"/>
         <source>Failed to load application settings. This session will use defaults.
 
 %1</source>
@@ -56,12 +56,12 @@
 %1</translation>
     </message>
     <message>
-        <location filename="../config/config.cpp" line="218"/>
+        <location filename="../config/config.cpp" line="219"/>
         <source>Error saving settings</source>
         <translation>Fehler beim Speichern der Einstellungen</translation>
     </message>
     <message>
-        <location filename="../config/config.cpp" line="219"/>
+        <location filename="../config/config.cpp" line="220"/>
         <source>Failed to save application settings. The application may lack write permissions for this location.</source>
         <translation>Fehler beim Speichern der Programm-Einstellungen. Vermutlich hat die Anwendung keinen Schreibzugriff auf dieses Verzeichnis.</translation>
     </message>
@@ -69,24 +69,20 @@
 <context>
     <name>Footage</name>
     <message>
-        <location filename="../project/item/footage/footage.cpp" line="434"/>
         <source>%1 FPS</source>
-        <translation>%1 FPS</translation>
+        <translation type="vanished">%1 FPS</translation>
     </message>
     <message>
-        <location filename="../project/item/footage/footage.cpp" line="439"/>
         <source>%1 Hz</source>
-        <translation>%1 Hz</translation>
+        <translation type="vanished">%1 Hz</translation>
     </message>
     <message>
-        <location filename="../project/item/footage/footage.cpp" line="623"/>
         <source>Filename: %1</source>
-        <translation>Dateiname: %1</translation>
+        <translation type="vanished">Dateiname: %1</translation>
     </message>
     <message>
-        <location filename="../project/item/footage/footage.cpp" line="645"/>
         <source>This footage is not valid for use</source>
-        <translation>Dieses Material ist nicht verwendbar</translation>
+        <translation type="vanished">Dieses Material ist nicht verwendbar</translation>
     </message>
 </context>
 <context>
@@ -234,7 +230,7 @@
 <context>
     <name>NodeViewItem</name>
     <message>
-        <location filename="../widget/nodeview/nodeviewitem.cpp" line="317"/>
+        <location filename="../widget/nodeview/nodeviewitem.cpp" line="396"/>
         <source>%1...</source>
         <translation>%1...</translation>
     </message>
@@ -803,117 +799,117 @@
 <context>
     <name>olive::Core</name>
     <message>
-        <location filename="../core.cpp" line="211"/>
+        <location filename="../core.cpp" line="213"/>
         <source>Import error</source>
         <translation>Import fehlgeschlagen</translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="211"/>
+        <location filename="../core.cpp" line="213"/>
         <source>Nothing to import</source>
         <translation>Nichts zu importieren</translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="223"/>
+        <location filename="../core.cpp" line="225"/>
         <source>Importing...</source>
         <translation>Importieren...</translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="308"/>
+        <location filename="../core.cpp" line="310"/>
         <source>Import footage...</source>
         <translatorcomment>Video-/Bildmaterial</translatorcomment>
         <translation>Material importieren...</translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="319"/>
+        <location filename="../core.cpp" line="321"/>
         <source>Failed to import footage</source>
         <translation>Material konnte nicht importiert werden</translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="319"/>
+        <location filename="../core.cpp" line="321"/>
         <source>Failed to find active Project panel</source>
         <translation>Es konnte kein aktives Projekt-Panel gefunden werden</translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="355"/>
+        <location filename="../core.cpp" line="357"/>
         <source>Failed to create new folder</source>
         <translation>Es konnte kein neuer Ordner erstellt werden</translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="355"/>
-        <location filename="../core.cpp" line="385"/>
+        <location filename="../core.cpp" line="357"/>
+        <location filename="../core.cpp" line="387"/>
         <source>Failed to find active project</source>
         <translation>Es konnte kein aktives Projekt gefunden werden</translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="366"/>
+        <location filename="../core.cpp" line="368"/>
         <source>New Folder</source>
         <translation>Neuer Ordner</translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="385"/>
+        <location filename="../core.cpp" line="387"/>
         <source>Failed to create new sequence</source>
         <translation>Es konnte keine neue Sequenz erstellt werden</translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="482"/>
+        <location filename="../core.cpp" line="484"/>
         <source>Possible image sequence detected</source>
         <translation>Mögliche Bildsequenz erkannt</translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="483"/>
+        <location filename="../core.cpp" line="485"/>
         <source>The file &apos;%1&apos; looks like it might be part of an image sequence. Would you like to import it as such?</source>
         <translation>Die Datei &apos;%1&apos; wirkt, wie wenn sie Teil einer Bildsequenz ist. Soll sie als solche importiert werden?</translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="518"/>
+        <location filename="../core.cpp" line="520"/>
         <source>You must specify a project file to export</source>
         <translation>Zum Export muss eine Projektdatei angegeben werden</translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="523"/>
+        <location filename="../core.cpp" line="525"/>
         <source>Specified project does not exist</source>
         <translation>Das angegebene Projekt gibt es nicht</translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="609"/>
+        <location filename="../core.cpp" line="611"/>
         <source>Failed to open startup file</source>
         <translation>Die Start-Datei konnte nicht geöffnet werden</translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="610"/>
+        <location filename="../core.cpp" line="612"/>
         <source>The project &quot;%1&quot; doesn&apos;t exist. A new project will be started instead.</source>
         <translation>Das Projekt &quot;%1&quot; gibt es nicht, also wird stattdessen ein neues Projekt gestartet.</translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="698"/>
-        <location filename="../core.cpp" line="1002"/>
+        <location filename="../core.cpp" line="700"/>
+        <location filename="../core.cpp" line="1009"/>
         <source>Missing OpenTimelineIO Libraries</source>
         <translation>OpenTimelineIO-Anwendungsbibliotheken fehlen</translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="699"/>
-        <location filename="../core.cpp" line="1003"/>
+        <location filename="../core.cpp" line="701"/>
+        <location filename="../core.cpp" line="1010"/>
         <source>This build was compiled without OpenTimelineIO and therefore cannot open OpenTimelineIO files.</source>
         <translation>Dieser Build wurde ohne OpenTimeLineIO-Unterstützung erstellt, deshalb können keine OpenTimelineIO-Dateien geöffnet werden.</translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="707"/>
+        <location filename="../core.cpp" line="709"/>
         <source>Save Project</source>
         <translation>Projekt speichern</translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="728"/>
-        <location filename="../core.cpp" line="736"/>
+        <location filename="../core.cpp" line="730"/>
+        <location filename="../core.cpp" line="738"/>
         <source>Error</source>
         <translation>Fehler</translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="729"/>
+        <location filename="../core.cpp" line="731"/>
         <source>This Sequence is empty. There is nothing to export.</source>
         <translation>Diese Sequenz ist leer. Es gibt nichts, was exportiert werden könnte.</translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="737"/>
+        <location filename="../core.cpp" line="739"/>
         <source>No valid sequence detected.
 
 Make sure a sequence is loaded and it has a connected Viewer node.</source>
@@ -922,93 +918,93 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
 Es sollte sichergestellt werden, dass eine Sequenz geladen und mit einer Vorschau-Node verknüpft ist.</translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="891"/>
+        <location filename="../core.cpp" line="893"/>
         <source>Olive Project</source>
         <translation>Olive-Projekt</translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="894"/>
+        <location filename="../core.cpp" line="896"/>
         <source>OpenTimelineIO</source>
         <translation>OpenTimelineIO</translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="941"/>
+        <location filename="../core.cpp" line="948"/>
         <source>Save Project As</source>
         <translation>Projekt speichern unter</translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="1012"/>
+        <location filename="../core.cpp" line="1019"/>
         <source>Load Project</source>
         <translation>Projekt laden</translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="1077"/>
+        <location filename="../core.cpp" line="1084"/>
         <source>Label Node</source>
         <translatorcomment>?</translatorcomment>
         <translation>Node beschriften</translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="1078"/>
+        <location filename="../core.cpp" line="1085"/>
         <source>Set node label</source>
         <translation>Den Text der Node ändern</translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="1102"/>
+        <location filename="../core.cpp" line="1109"/>
         <source>Sequence %1</source>
         <translation>Sequenz %1</translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="1117"/>
+        <location filename="../core.cpp" line="1124"/>
         <source>Cannot open recent project</source>
         <translation>Das zuletzt geladene Projekt ist nicht auffindbar</translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="1118"/>
+        <location filename="../core.cpp" line="1125"/>
         <source>The project &quot;%1&quot; doesn&apos;t exist. Would you like to remove this file from the recent list?</source>
         <translation>Das Projekt &quot;%1&quot; gibt es nicht. Soll es aus der Liste der zuletzt geöffneten Projekte entfernt werden?</translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="1146"/>
+        <location filename="../core.cpp" line="1153"/>
         <source>Unsaved Changes</source>
         <translation>Nicht gespeicherte Änderungen</translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="1147"/>
+        <location filename="../core.cpp" line="1154"/>
         <source>The project &apos;%1&apos; has unsaved changes. Would you like to save them?</source>
         <translation>Das Projekt &apos;%1&apos; hat nicht gespeicherte Änderungen. Sollen sie gespeichert werden?</translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="1150"/>
+        <location filename="../core.cpp" line="1157"/>
         <source>Save</source>
         <translation>Speichern</translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="1156"/>
+        <location filename="../core.cpp" line="1163"/>
         <source>Save All</source>
         <translation>Speichern für alle</translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="1159"/>
+        <location filename="../core.cpp" line="1166"/>
         <source>Don&apos;t Save</source>
         <translation>Nicht speichern</translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="1165"/>
+        <location filename="../core.cpp" line="1172"/>
         <source>Don&apos;t Save All</source>
         <translation>Nicht speichern für alle</translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="1280"/>
+        <location filename="../core.cpp" line="1287"/>
         <source>Failed to cache sequence</source>
         <translation>Die Sequenz konnte nicht in den Zwischenspeicher geladen werden</translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="1281"/>
+        <location filename="../core.cpp" line="1288"/>
         <source>No active viewer found with this sequence.</source>
         <translation>Es konnte keine aktive Vorschau mit dieser Sequenz gefunden werden.</translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="1351"/>
+        <location filename="../core.cpp" line="1358"/>
         <source>Open Project</source>
         <translation>Projekt öffnen</translation>
     </message>
@@ -1104,12 +1100,12 @@ Es sollte sichergestellt werden, dass eine Sequenz geladen und mit einer Vorscha
         <translation>Übergang</translation>
     </message>
     <message>
-        <location filename="../node/distort/crop/cropdistortnode.h" line="43"/>
+        <location filename="../node/distort/crop/cropdistortnode.h" line="44"/>
         <source>Crop</source>
         <translation>Zuschneiden</translation>
     </message>
     <message>
-        <location filename="../node/distort/crop/cropdistortnode.h" line="58"/>
+        <location filename="../node/distort/crop/cropdistortnode.h" line="59"/>
         <source>Crop the edges of an image.</source>
         <translation>Das Bild zuschneiden.</translation>
     </message>
@@ -1702,17 +1698,17 @@ Es sollte sichergestellt werden, dass eine Sequenz geladen und mit einer Vorscha
 <context>
     <name>olive::FloatSlider</name>
     <message>
-        <location filename="../widget/slider/floatslider.cpp" line="74"/>
+        <location filename="../widget/slider/floatslider.cpp" line="76"/>
         <source>%1 dB</source>
         <translation>%1 dB</translation>
     </message>
     <message>
-        <location filename="../widget/slider/floatslider.cpp" line="77"/>
+        <location filename="../widget/slider/floatslider.cpp" line="79"/>
         <source>%1%</source>
         <translation>%1%</translation>
     </message>
     <message>
-        <location filename="../widget/slider/floatslider.cpp" line="100"/>
+        <location filename="../widget/slider/floatslider.cpp" line="102"/>
         <source>∞</source>
         <translation>∞</translation>
     </message>
@@ -1720,78 +1716,103 @@ Es sollte sichergestellt werden, dass eine Sequenz geladen und mit einer Vorscha
 <context>
     <name>olive::Folder</name>
     <message>
-        <location filename="../project/item/folder/folder.h" line="48"/>
+        <location filename="../project/item/folder/folder.h" line="47"/>
         <source>Folder</source>
         <translation>Ordner</translation>
     </message>
     <message>
-        <location filename="../project/item/folder/folder.h" line="63"/>
+        <location filename="../project/item/folder/folder.h" line="62"/>
         <source>Organize several items into a single collection.</source>
         <translatorcomment>/gruppieren</translatorcomment>
         <translation>Einzelne Objekte in Gruppen einteilen.</translation>
+    </message>
+    <message>
+        <location filename="../project/item/folder/folder.cpp" line="48"/>
+        <source>Children</source>
+        <translation>Dateien</translation>
     </message>
 </context>
 <context>
     <name>olive::Footage</name>
     <message>
-        <location filename="../project/item/footage/footage.cpp" line="58"/>
+        <location filename="../project/item/footage/footage.cpp" line="57"/>
         <source>Filename</source>
         <translation>Dateiname</translation>
     </message>
     <message>
-        <location filename="../project/item/footage/footage.cpp" line="458"/>
+        <location filename="../project/item/footage/footage.cpp" line="433"/>
+        <source>%1 FPS</source>
+        <translation>%1 FPS</translation>
+    </message>
+    <message>
+        <location filename="../project/item/footage/footage.cpp" line="438"/>
+        <source>%1 Hz</source>
+        <translation>%1 Hz</translation>
+    </message>
+    <message>
+        <location filename="../project/item/footage/footage.cpp" line="457"/>
         <source>%1: Image - %2x%3</source>
         <translation>%1: Bild - %2x%3</translation>
     </message>
     <message>
-        <location filename="../project/item/footage/footage.cpp" line="462"/>
+        <location filename="../project/item/footage/footage.cpp" line="461"/>
         <source>%1: Video - %2x%3</source>
         <translation>%1: Video - %2x%3</translation>
     </message>
     <message>
-        <location filename="../project/item/footage/footage.cpp" line="470"/>
+        <location filename="../project/item/footage/footage.cpp" line="469"/>
         <source>%1: Audio - %2 Channel(s), %3Hz</source>
         <translation>%1: Audio - %2 Kanäle, %3Hz</translation>
     </message>
     <message>
-        <location filename="../project/item/footage/footage.cpp" line="604"/>
+        <location filename="../project/item/footage/footage.cpp" line="603"/>
         <source>Video</source>
         <translation>Video</translation>
     </message>
     <message>
-        <location filename="../project/item/footage/footage.cpp" line="606"/>
+        <location filename="../project/item/footage/footage.cpp" line="605"/>
         <source>Audio</source>
         <translation>Audio</translation>
     </message>
     <message>
-        <location filename="../project/item/footage/footage.cpp" line="608"/>
+        <location filename="../project/item/footage/footage.cpp" line="607"/>
         <source>Subtitle</source>
         <translation>Untertitel</translation>
     </message>
     <message>
-        <location filename="../project/item/footage/footage.cpp" line="610"/>
+        <location filename="../project/item/footage/footage.cpp" line="609"/>
         <source>Data</source>
         <translatorcomment>?</translatorcomment>
         <translation>Daten</translation>
     </message>
     <message>
-        <location filename="../project/item/footage/footage.cpp" line="612"/>
+        <location filename="../project/item/footage/footage.cpp" line="611"/>
         <source>Attachment</source>
         <translatorcomment>?</translatorcomment>
         <translation></translation>
     </message>
     <message>
-        <location filename="../project/item/footage/footage.cpp" line="617"/>
+        <location filename="../project/item/footage/footage.cpp" line="616"/>
         <source>Unknown</source>
         <translation>Unbekannt</translation>
     </message>
     <message>
-        <location filename="../project/item/footage/footage.h" line="61"/>
+        <location filename="../project/item/footage/footage.cpp" line="622"/>
+        <source>Filename: %1</source>
+        <translation>Dateiname: %1</translation>
+    </message>
+    <message>
+        <location filename="../project/item/footage/footage.cpp" line="644"/>
+        <source>This footage is not valid for use</source>
+        <translation>Dieses Material ist nicht verwendbar</translation>
+    </message>
+    <message>
+        <location filename="../project/item/footage/footage.h" line="60"/>
         <source>Footage</source>
         <translation>Material</translation>
     </message>
     <message>
-        <location filename="../project/item/footage/footage.h" line="76"/>
+        <location filename="../project/item/footage/footage.h" line="75"/>
         <source>Import video, audio, or still image files into the composition.</source>
         <translation>Video-, Audio- oder Bildmaterial importieren und arrangieren.</translation>
     </message>
@@ -1939,9 +1960,8 @@ Es sollte sichergestellt werden, dass eine Sequenz geladen und mit einer Vorscha
 <context>
     <name>olive::Item</name>
     <message>
-        <location filename="../project/item/item.cpp" line="69"/>
         <source>Folder</source>
-        <translation>Ordner</translation>
+        <translation type="vanished">Ordner</translation>
     </message>
 </context>
 <context>
@@ -2435,12 +2455,12 @@ Es sollte sichergestellt werden, dass eine Sequenz geladen und mit einer Vorscha
 <context>
     <name>olive::MainWindow</name>
     <message>
-        <location filename="../window/mainwindow/mainwindow.cpp" line="451"/>
+        <location filename="../window/mainwindow/mainwindow.cpp" line="455"/>
         <source>Driver Warning</source>
         <translation>Treiber-Warnung</translation>
     </message>
     <message>
-        <location filename="../window/mainwindow/mainwindow.cpp" line="452"/>
+        <location filename="../window/mainwindow/mainwindow.cpp" line="456"/>
         <source>Olive has detected your system is using the Nouveau graphics driver.
 
 This driver is known to have stability and performance issues with Olive. It is highly recommended you install the proprietary NVIDIA driver before continuing to use Olive.</source>
@@ -2783,69 +2803,69 @@ Mit diesem Treiber gibt es bekannte Stabilitäts- und Performanceprobleme. Es wi
 <context>
     <name>olive::Node</name>
     <message>
-        <location filename="../node/node.cpp" line="1661"/>
+        <location filename="../node/node.cpp" line="1727"/>
         <source>Input</source>
         <translation>Eingang</translation>
     </message>
     <message>
-        <location filename="../node/node.cpp" line="1663"/>
+        <location filename="../node/node.cpp" line="1729"/>
         <source>Output</source>
         <translation>Ausgang</translation>
     </message>
     <message>
-        <location filename="../node/node.cpp" line="1665"/>
+        <location filename="../node/node.cpp" line="1731"/>
         <source>General</source>
         <translation>Allgemein</translation>
     </message>
     <message>
-        <location filename="../node/node.cpp" line="1667"/>
+        <location filename="../node/node.cpp" line="1733"/>
         <source>Distort</source>
         <translation>Geometrie</translation>
     </message>
     <message>
-        <location filename="../node/node.cpp" line="1669"/>
+        <location filename="../node/node.cpp" line="1735"/>
         <source>Math</source>
         <translation>Mathematik</translation>
     </message>
     <message>
-        <location filename="../node/node.cpp" line="1671"/>
+        <location filename="../node/node.cpp" line="1737"/>
         <source>Color</source>
         <translation>Farbe</translation>
     </message>
     <message>
-        <location filename="../node/node.cpp" line="1673"/>
+        <location filename="../node/node.cpp" line="1739"/>
         <source>Filter</source>
         <translation>Filter</translation>
     </message>
     <message>
-        <location filename="../node/node.cpp" line="1675"/>
+        <location filename="../node/node.cpp" line="1741"/>
         <source>Timeline</source>
         <translation>Zeitleiste</translation>
     </message>
     <message>
-        <location filename="../node/node.cpp" line="1677"/>
+        <location filename="../node/node.cpp" line="1743"/>
         <source>Generator</source>
         <translatorcomment>klingt extrem komisch</translatorcomment>
         <translation>Erzeuger</translation>
     </message>
     <message>
-        <location filename="../node/node.cpp" line="1679"/>
+        <location filename="../node/node.cpp" line="1745"/>
         <source>Channel</source>
         <translatorcomment>ich denke das trifft es vom Kontext am besten, aber Kanal bzw. Kanäle ginge schon auch...</translatorcomment>
         <translation>Audio</translation>
     </message>
     <message>
-        <location filename="../node/node.cpp" line="1681"/>
+        <location filename="../node/node.cpp" line="1747"/>
         <source>Transition</source>
         <translation>Übergang</translation>
     </message>
     <message>
-        <location filename="../node/node.cpp" line="1683"/>
+        <location filename="../node/node.cpp" line="1749"/>
         <source>Project</source>
         <translation>Projekt</translation>
     </message>
     <message>
-        <location filename="../node/node.cpp" line="1689"/>
+        <location filename="../node/node.cpp" line="1755"/>
         <source>Uncategorized</source>
         <translation>Verschiedenes</translation>
     </message>
@@ -2853,7 +2873,7 @@ Mit diesem Treiber gibt es bekannte Stabilitäts- und Performanceprobleme. Es wi
 <context>
     <name>olive::NodePanel</name>
     <message>
-        <location filename="../panel/node/node.h" line="121"/>
+        <location filename="../panel/node/node.h" line="131"/>
         <source>Node Editor</source>
         <translation>Node-Graph</translation>
     </message>
@@ -3302,118 +3322,123 @@ Mit diesem Treiber gibt es bekannte Stabilitäts- und Performanceprobleme. Es wi
         <translation>STRG gedrückt halten. um während der Benutzung den Modus zu wechseln</translation>
     </message>
     <message>
-        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="50"/>
+        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="49"/>
+        <source>Enable slider ladder</source>
+        <translation>Schieberegler aktivieren</translation>
+    </message>
+    <message>
+        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="53"/>
         <source>Audio</source>
         <translation>Audio</translation>
     </message>
     <message>
-        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="51"/>
+        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="54"/>
         <source>Enable audio scrubbing</source>
         <translatorcomment>schwer elegant zu übersetzten</translatorcomment>
         <translation>Audio beim Verschieben wiedergeben</translation>
     </message>
     <message>
-        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="55"/>
+        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="58"/>
         <source>Timeline</source>
         <translation>Zeitleiste</translation>
     </message>
     <message>
-        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="56"/>
+        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="59"/>
         <source>Auto-Seek to Imported Clips</source>
         <translation>Automatisch zu neu importierten Clips springen</translation>
     </message>
     <message>
-        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="59"/>
+        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="62"/>
         <source>Edit Tool Also Seeks</source>
         <translation>Bearbeitungs-Werkzeug spielt beim Verschieben auch ab</translation>
     </message>
     <message>
-        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="62"/>
+        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="65"/>
         <source>Edit Tool Selects Links</source>
         <translatorcomment>?</translatorcomment>
         <translation>Bearbeitungs-Werkzeug wählt Verlinkungen aus</translation>
     </message>
     <message>
-        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="65"/>
+        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="68"/>
         <source>Enable Drag Files to Timeline</source>
         <translation>Dateien auf die Zeitleiste ziehen erlauben</translation>
     </message>
     <message>
-        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="68"/>
+        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="71"/>
         <source>Invert Timeline Scroll Axes</source>
         <translatorcomment>?</translatorcomment>
         <translation>Steuerung der Bildlauf-Achsen der Zeitleiste umkehren</translation>
     </message>
     <message>
-        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="70"/>
+        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="73"/>
         <source>Hold ALT on any UI element to switch scrolling axes</source>
         <translatorcomment>?</translatorcomment>
         <translation>ALT gedrückt halten, um die Steuerung der Bildlauf-Achsen bei irgendeinem UI-Element umzukehren</translation>
     </message>
     <message>
-        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="72"/>
+        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="75"/>
         <source>Seek Also Selects</source>
         <translation>Beim Durchsuchen auch auswählen</translation>
     </message>
     <message>
-        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="75"/>
+        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="78"/>
         <source>Seek to the End of Pastes</source>
         <translation>Zum Ende von eingefügten Clips springen</translation>
     </message>
     <message>
-        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="78"/>
+        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="81"/>
         <source>Selecting Also Seeks</source>
         <translation>Beim Auswählen auch durchsuchen</translation>
     </message>
     <message>
-        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="82"/>
+        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="85"/>
         <source>Playback</source>
         <translation>Wiedergabe</translation>
     </message>
     <message>
-        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="83"/>
+        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="86"/>
         <source>Ask For Name When Setting Marker</source>
         <translation>Nach Name fragen, wenn Marker gesetzt wird</translation>
     </message>
     <message>
-        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="86"/>
+        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="89"/>
         <source>Automatically rewind at the end of a sequence</source>
         <translation>Automatisch wieder von Vorne beginnen, wenn ein Clip zu Ende ist</translation>
     </message>
     <message>
-        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="90"/>
+        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="93"/>
         <source>Project</source>
         <translation>Projekt</translation>
     </message>
     <message>
-        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="91"/>
+        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="94"/>
         <source>Drop Files on Media to Replace</source>
         <translatorcomment>kling noch eher suboptimal...</translatorcomment>
         <translation>Dateien über bestehende Medien ziehen ersetzt</translation>
     </message>
     <message>
-        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="95"/>
+        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="98"/>
         <source>Nodes</source>
         <translation>Nodes</translation>
     </message>
     <message>
-        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="96"/>
+        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="99"/>
         <source>Add Default Effects to New Clips</source>
         <translation>Standard-Effekte automatisch zu neuen Clips hinzufügen</translation>
     </message>
     <message>
-        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="99"/>
+        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="102"/>
         <source>Auto-Scale By Default</source>
         <translatorcomment>(Standardmäßig)</translatorcomment>
         <translation>Automatische Skalierung</translation>
     </message>
     <message>
-        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="102"/>
+        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="105"/>
         <source>Splitting Clips Copies Dependencies</source>
         <translation>Trennen von Clips dupliziert die verbundenen Nodes</translation>
     </message>
     <message>
-        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="104"/>
+        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="107"/>
         <source>Multiple clips can share the same nodes. Disable this to automatically share node dependencies among clips when copying or splitting them.</source>
         <translation>Mehrere Clips können sich die selben Nodes teilen. Wenn diese Option deaktiviert werden beim Kopieren von Nodes die neuen Verbindungen automatisch zu den bestehenden Nodes gelegt.</translation>
     </message>
@@ -3650,13 +3675,18 @@ Mit diesem Treiber gibt es bekannte Stabilitäts- und Performanceprobleme. Es wi
 <context>
     <name>olive::Project</name>
     <message>
-        <location filename="../project/project.cpp" line="57"/>
+        <location filename="../project/project.cpp" line="54"/>
+        <source>Footage Viewer</source>
+        <translation>Quellvorschau</translation>
+    </message>
+    <message>
+        <location filename="../project/project.cpp" line="61"/>
         <source>Root</source>
         <translation>Ursprung</translation>
     </message>
     <message>
-        <location filename="../project/project.cpp" line="183"/>
-        <location filename="../project/project.cpp" line="199"/>
+        <location filename="../project/project.cpp" line="187"/>
+        <location filename="../project/project.cpp" line="203"/>
         <source>(untitled)</source>
         <translation>(Unbenannt)</translation>
     </message>
@@ -3664,74 +3694,95 @@ Mit diesem Treiber gibt es bekannte Stabilitäts- und Performanceprobleme. Es wi
 <context>
     <name>olive::ProjectExplorer</name>
     <message>
-        <location filename="../widget/projectexplorer/projectexplorer.cpp" line="256"/>
+        <location filename="../widget/projectexplorer/projectexplorer.cpp" line="166"/>
+        <source>Confirm Item Deletion</source>
+        <translation>Objekt löschen bestätigen</translation>
+    </message>
+    <message>
+        <location filename="../widget/projectexplorer/projectexplorer.cpp" line="176"/>
+        <source>The item &quot;%1&quot; is currently connected to the following nodes:
+
+%2
+
+Are you sure you wish to delete this footage?</source>
+        <translation>Das Objekt &quot;%1&quot; ist derzeit mit den folgenden Nodes verbunden:
+
+%2
+
+Soll dieses Material wirklich entfernt werden?</translation>
+    </message>
+    <message>
+        <location filename="../widget/projectexplorer/projectexplorer.cpp" line="238"/>
+        <source>%1 (%2)</source>
+        <translation>%1 (%2)</translation>
+    </message>
+    <message>
+        <location filename="../widget/projectexplorer/projectexplorer.cpp" line="336"/>
         <source>&amp;New</source>
         <translation>&amp;Neu</translation>
     </message>
     <message>
-        <location filename="../widget/projectexplorer/projectexplorer.cpp" line="261"/>
+        <location filename="../widget/projectexplorer/projectexplorer.cpp" line="341"/>
         <source>&amp;Import...</source>
         <translation>&amp;Importieren...</translation>
     </message>
     <message>
-        <location filename="../widget/projectexplorer/projectexplorer.cpp" line="271"/>
+        <location filename="../widget/projectexplorer/projectexplorer.cpp" line="351"/>
         <source>Open in New Tab</source>
         <translation>In neuem Tab öffnen</translation>
     </message>
     <message>
-        <location filename="../widget/projectexplorer/projectexplorer.cpp" line="274"/>
+        <location filename="../widget/projectexplorer/projectexplorer.cpp" line="354"/>
         <source>Open in New Window</source>
         <translation>In neuem Fenster öffnen</translation>
     </message>
     <message>
-        <location filename="../widget/projectexplorer/projectexplorer.cpp" line="282"/>
+        <location filename="../widget/projectexplorer/projectexplorer.cpp" line="362"/>
         <source>Reveal in Explorer</source>
         <translation>Im Explorer anzeigen</translation>
     </message>
     <message>
-        <location filename="../widget/projectexplorer/projectexplorer.cpp" line="284"/>
+        <location filename="../widget/projectexplorer/projectexplorer.cpp" line="364"/>
         <source>Reveal in Finder</source>
         <translation>Im Finder anzeigen</translation>
     </message>
     <message>
-        <location filename="../widget/projectexplorer/projectexplorer.cpp" line="286"/>
+        <location filename="../widget/projectexplorer/projectexplorer.cpp" line="366"/>
         <source>Reveal in File Manager</source>
         <translation>Im Datei-Manager anzeigen</translation>
     </message>
     <message>
-        <location filename="../widget/projectexplorer/projectexplorer.cpp" line="319"/>
+        <location filename="../widget/projectexplorer/projectexplorer.cpp" line="399"/>
         <source>Pre-Cache</source>
         <translation>Vorladen</translation>
     </message>
     <message>
-        <location filename="../widget/projectexplorer/projectexplorer.cpp" line="325"/>
+        <location filename="../widget/projectexplorer/projectexplorer.cpp" line="405"/>
         <source>No sequences exist in project</source>
         <translation>Das Projekt enthält keine Sequenzen</translation>
     </message>
     <message>
-        <location filename="../widget/projectexplorer/projectexplorer.cpp" line="329"/>
+        <location filename="../widget/projectexplorer/projectexplorer.cpp" line="409"/>
         <source>For &quot;%1&quot;</source>
         <translatorcomment>?</translatorcomment>
         <translation>Für &quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../widget/projectexplorer/projectexplorer.cpp" line="342"/>
+        <location filename="../widget/projectexplorer/projectexplorer.cpp" line="422"/>
         <source>P&amp;roperties</source>
         <translation>&amp;Eigenschaften</translation>
     </message>
     <message>
-        <location filename="../widget/projectexplorer/projectexplorer.cpp" line="553"/>
         <source>Confirm Footage Deletion</source>
-        <translation>Material löschen bestätigen</translation>
+        <translation type="vanished">Material löschen bestätigen</translation>
     </message>
     <message>
-        <location filename="../widget/projectexplorer/projectexplorer.cpp" line="567"/>
         <source>The footage &quot;%1&quot; is currently connected to the following nodes:
 
 %2
 
 Are you sure you wish to delete this footage?</source>
-        <translation>Das Quellmaterial &quot;%1&quot; ist derzeit mit folgenden Nodes verbunden:
+        <translation type="vanished">Das Quellmaterial &quot;%1&quot; ist derzeit mit folgenden Nodes verbunden:
 
 %2
 
@@ -3930,22 +3981,22 @@ Soll es wirklich gelöscht werden?</translation>
 <context>
     <name>olive::ProjectViewModel</name>
     <message>
-        <location filename="../project/projectviewmodel.cpp" line="173"/>
+        <location filename="../project/projectviewmodel.cpp" line="174"/>
         <source>Name</source>
         <translation>Name</translation>
     </message>
     <message>
-        <location filename="../project/projectviewmodel.cpp" line="175"/>
+        <location filename="../project/projectviewmodel.cpp" line="176"/>
         <source>Duration</source>
         <translation>Dauer</translation>
     </message>
     <message>
-        <location filename="../project/projectviewmodel.cpp" line="177"/>
+        <location filename="../project/projectviewmodel.cpp" line="178"/>
         <source>Rate</source>
         <translation>Frequenz</translation>
     </message>
     <message>
-        <location filename="../project/projectviewmodel.cpp" line="326"/>
+        <location filename="../project/projectviewmodel.cpp" line="327"/>
         <source>Move Items</source>
         <translation>Elemente verschieben</translation>
     </message>
@@ -4069,7 +4120,7 @@ Soll es wirklich gelöscht werden?</translation>
         <translation>Das Projekt enthält keine exportierbaren Sequenzen.</translation>
     </message>
     <message>
-        <location filename="../task/project/saveotio/saveotio.cpp" line="65"/>
+        <location filename="../task/project/saveotio/saveotio.cpp" line="63"/>
         <source>Failed to serialize sequence &quot;%1&quot;</source>
         <translation>Die Sequenez &quot;%1&quot; konnte nicht serialisiert werden</translation>
     </message>
@@ -4096,52 +4147,52 @@ Soll es wirklich gelöscht werden?</translation>
 <context>
     <name>olive::Sequence</name>
     <message>
-        <location filename="../project/item/sequence/sequence.cpp" line="118"/>
+        <location filename="../project/item/sequence/sequence.cpp" line="117"/>
         <source>%1 FPS</source>
         <translation>%1 FPS</translation>
     </message>
     <message>
-        <location filename="../project/item/sequence/sequence.cpp" line="199"/>
+        <location filename="../project/item/sequence/sequence.cpp" line="198"/>
         <source>Video Parameters</source>
         <translation>Video-Parameter</translation>
     </message>
     <message>
-        <location filename="../project/item/sequence/sequence.cpp" line="200"/>
+        <location filename="../project/item/sequence/sequence.cpp" line="199"/>
         <source>Audio Parameters</source>
         <translation>Audio-Parameter</translation>
     </message>
     <message>
-        <location filename="../project/item/sequence/sequence.cpp" line="202"/>
+        <location filename="../project/item/sequence/sequence.cpp" line="201"/>
         <source>Texture</source>
         <translation>Textur</translation>
     </message>
     <message>
-        <location filename="../project/item/sequence/sequence.cpp" line="203"/>
+        <location filename="../project/item/sequence/sequence.cpp" line="202"/>
         <source>Samples</source>
         <translation>Samples</translation>
     </message>
     <message>
-        <location filename="../project/item/sequence/sequence.cpp" line="210"/>
+        <location filename="../project/item/sequence/sequence.cpp" line="209"/>
         <source>Video Tracks</source>
         <translation>Video-Spuren</translation>
     </message>
     <message>
-        <location filename="../project/item/sequence/sequence.cpp" line="213"/>
+        <location filename="../project/item/sequence/sequence.cpp" line="212"/>
         <source>Audio Tracks</source>
         <translation>Audio-Spuren</translation>
     </message>
     <message>
-        <location filename="../project/item/sequence/sequence.cpp" line="216"/>
+        <location filename="../project/item/sequence/sequence.cpp" line="215"/>
         <source>Subtitle Tracks</source>
         <translation>Untertitel-Spuren</translation>
     </message>
     <message>
-        <location filename="../project/item/sequence/sequence.h" line="64"/>
+        <location filename="../project/item/sequence/sequence.h" line="63"/>
         <source>Sequence</source>
         <translation>Sequenz</translation>
     </message>
     <message>
-        <location filename="../project/item/sequence/sequence.h" line="79"/>
+        <location filename="../project/item/sequence/sequence.h" line="78"/>
         <source>A series of cuts that result in an edited video. Also called a timeline.</source>
         <translation>Eine Abfolge von geschnittenen Medien, aus denen ein Video zusammengesetzt ist. Auch bekannt als Zeitleiste.</translation>
     </message>
@@ -4311,12 +4362,12 @@ Soll es wirklich gelöscht werden?</translation>
 <context>
     <name>olive::SliderBase</name>
     <message>
-        <location filename="../widget/slider/sliderbase.cpp" line="365"/>
+        <location filename="../widget/slider/sliderbase.cpp" line="357"/>
         <source>Invalid Value</source>
         <translation>Unzulässiger Wert</translation>
     </message>
     <message>
-        <location filename="../widget/slider/sliderbase.cpp" line="366"/>
+        <location filename="../widget/slider/sliderbase.cpp" line="358"/>
         <source>The entered value is not valid for this field.</source>
         <translation>Der eingegebene Wert ist in diesem Feld nicht zulässig.</translation>
     </message>
@@ -4342,7 +4393,7 @@ Soll es wirklich gelöscht werden?</translation>
 <context>
     <name>olive::StringSlider</name>
     <message>
-        <location filename="../widget/slider/stringslider.cpp" line="44"/>
+        <location filename="../widget/slider/stringslider.cpp" line="46"/>
         <source>(none)</source>
         <translation>(nichts)</translation>
     </message>
@@ -4527,7 +4578,7 @@ Soll es wirklich gelöscht werden?</translation>
     <name>olive::TimelineWidget</name>
     <message>
         <location filename="../widget/timelinewidget/timelinewidget.cpp" line="935"/>
-        <location filename="../widget/timelinewidget/timelinewidget.cpp" line="957"/>
+        <location filename="../widget/timelinewidget/timelinewidget.cpp" line="962"/>
         <source>Properties</source>
         <translation>Eigenschaften</translation>
     </message>
@@ -4535,6 +4586,11 @@ Soll es wirklich gelöscht werden?</translation>
         <location filename="../widget/timelinewidget/timelinewidget.cpp" line="950"/>
         <source>Use Audio Time Units</source>
         <translation>Audio-Zeiteinheiten verwenden</translation>
+    </message>
+    <message>
+        <location filename="../widget/timelinewidget/timelinewidget.cpp" line="955"/>
+        <source>Show Waveforms</source>
+        <translation>Audio-Wellenform anzeigen</translation>
     </message>
 </context>
 <context>
@@ -4964,6 +5020,19 @@ Soll es wirklich gelöscht werden?</translation>
     </message>
 </context>
 <context>
+    <name>olive::ViewerDisplayWidget</name>
+    <message>
+        <location filename="../widget/viewer/viewerdisplay.cpp" line="389"/>
+        <source>%1 FPS</source>
+        <translation>%1 FPS</translation>
+    </message>
+    <message>
+        <location filename="../widget/viewer/viewerdisplay.cpp" line="393"/>
+        <source>%1 frames skipped</source>
+        <translation>%1 Einzelbilder übersprungen</translation>
+    </message>
+</context>
+<context>
     <name>olive::ViewerOutput</name>
     <message>
         <location filename="../node/output/viewer/viewer.cpp" line="39"/>
@@ -4998,92 +5067,97 @@ Soll es wirklich gelöscht werden?</translation>
         <translation>Es gibt keine Anfangs-/Endpunkte zum Puffern.</translation>
     </message>
     <message>
-        <location filename="../widget/viewer/viewer.cpp" line="734"/>
-        <location filename="../widget/viewer/viewer.cpp" line="920"/>
+        <location filename="../widget/viewer/viewer.cpp" line="745"/>
+        <location filename="../widget/viewer/viewer.cpp" line="931"/>
         <source>Safe Margins</source>
         <translation>Sichere Bereiche</translation>
     </message>
     <message>
-        <location filename="../widget/viewer/viewer.cpp" line="828"/>
+        <location filename="../widget/viewer/viewer.cpp" line="839"/>
         <source>Zoom</source>
         <translation>Zoom</translation>
     </message>
     <message>
-        <location filename="../widget/viewer/viewer.cpp" line="832"/>
+        <location filename="../widget/viewer/viewer.cpp" line="843"/>
         <source>Fit</source>
         <translation>Einpassen</translation>
     </message>
     <message>
-        <location filename="../widget/viewer/viewer.cpp" line="834"/>
+        <location filename="../widget/viewer/viewer.cpp" line="845"/>
         <source>%1%</source>
         <translation>%1%</translation>
     </message>
     <message>
-        <location filename="../widget/viewer/viewer.cpp" line="842"/>
+        <location filename="../widget/viewer/viewer.cpp" line="853"/>
         <source>Full Screen</source>
         <translation>Vollbild</translation>
     </message>
     <message>
-        <location filename="../widget/viewer/viewer.cpp" line="848"/>
+        <location filename="../widget/viewer/viewer.cpp" line="859"/>
         <source>Screen %1: %2x%3</source>
         <translatorcomment>Bildschirm</translatorcomment>
         <translation>Display %1:%2x%3</translation>
     </message>
     <message>
-        <location filename="../widget/viewer/viewer.cpp" line="861"/>
+        <location filename="../widget/viewer/viewer.cpp" line="872"/>
         <source>Deinterlace</source>
         <translation>Zeilenentflechtung</translation>
     </message>
     <message>
-        <location filename="../widget/viewer/viewer.cpp" line="872"/>
+        <location filename="../widget/viewer/viewer.cpp" line="883"/>
         <source>Scopes</source>
         <translation>Bereiche</translation>
     </message>
     <message>
-        <location filename="../widget/viewer/viewer.cpp" line="886"/>
+        <location filename="../widget/viewer/viewer.cpp" line="897"/>
         <source>Cache</source>
         <translation>Puffer</translation>
     </message>
     <message>
-        <location filename="../widget/viewer/viewer.cpp" line="890"/>
+        <location filename="../widget/viewer/viewer.cpp" line="901"/>
         <source>Auto-Cache</source>
         <translation>Automatisches Vorladen</translation>
     </message>
     <message>
-        <location filename="../widget/viewer/viewer.cpp" line="898"/>
+        <location filename="../widget/viewer/viewer.cpp" line="909"/>
         <source>Pause Auto-Cache During Playback</source>
         <translatorcomment>/dem Abspielen</translatorcomment>
         <translation>Automatisches Puffern während der Wiedergabe pausieren</translation>
     </message>
     <message>
-        <location filename="../widget/viewer/viewer.cpp" line="908"/>
+        <location filename="../widget/viewer/viewer.cpp" line="919"/>
         <source>Cache Entire Sequence</source>
         <translation>Komplette Sequenz vorladen</translation>
     </message>
     <message>
-        <location filename="../widget/viewer/viewer.cpp" line="912"/>
+        <location filename="../widget/viewer/viewer.cpp" line="923"/>
         <source>Cache Sequence In/Out</source>
         <translation>Sequenz von Anfangs- bis Endpunkt vorladen</translation>
     </message>
     <message>
-        <location filename="../widget/viewer/viewer.cpp" line="923"/>
+        <location filename="../widget/viewer/viewer.cpp" line="934"/>
         <source>Off</source>
         <translation>Aus</translation>
     </message>
     <message>
-        <location filename="../widget/viewer/viewer.cpp" line="928"/>
+        <location filename="../widget/viewer/viewer.cpp" line="939"/>
         <source>On</source>
         <translation>An</translation>
     </message>
     <message>
-        <location filename="../widget/viewer/viewer.cpp" line="933"/>
+        <location filename="../widget/viewer/viewer.cpp" line="944"/>
         <source>Custom Aspect</source>
         <translation>Individuelle Ansicht</translation>
     </message>
     <message>
-        <location filename="../widget/viewer/viewer.cpp" line="943"/>
+        <location filename="../widget/viewer/viewer.cpp" line="954"/>
         <source>Show Audio Waveform</source>
         <translation>Audio-Wellenform anzeigen</translation>
+    </message>
+    <message>
+        <location filename="../widget/viewer/viewer.cpp" line="962"/>
+        <source>Show FPS</source>
+        <translation>FPS anzeigen</translation>
     </message>
 </context>
 <context>
