@@ -65,6 +65,7 @@ bool AudioParams::operator==(const AudioParams &other) const
 {
   return (format() == other.format()
           && sample_rate() == other.sample_rate()
+          && time_base() == other.time_base()
           && channel_layout() == other.channel_layout());
 }
 
@@ -102,7 +103,9 @@ qint64 AudioParams::time_to_samples(const double &time) const
 {
   Q_ASSERT(is_valid());
 
-  return qRound64(time * sample_rate());
+  // NOTE: Not sure if we should round or ceil, but I've gotten better results with ceil.
+  //       Specifically, we seem to occasionally get straggler ranges that never cache with round.
+  return qCeil(time_base().flipped().toDouble() * time);
 }
 
 qint64 AudioParams::time_to_samples(const rational &time) const
@@ -119,7 +122,7 @@ qint64 AudioParams::samples_to_bytes(const qint64 &samples) const
 
 rational AudioParams::samples_to_time(const qint64 &samples) const
 {
-  return rational(samples, sample_rate());
+  return time_base() * samples;
 }
 
 qint64 AudioParams::bytes_to_samples(const qint64 &bytes) const
@@ -169,7 +172,7 @@ int AudioParams::bits_per_sample() const
 
 bool AudioParams::is_valid() const
 {
-  return (sample_rate() > 0
+  return (!time_base().isNull()
           && channel_layout() > 0
           && format_ > kFormatInvalid
           && format_ < kFormatCount);
