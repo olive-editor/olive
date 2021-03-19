@@ -93,6 +93,8 @@ void PlaybackCache::Shift(const rational &from, const rational &to)
     return;
   }
 
+  qDebug() << "FIXME: 0 job time may cause cache desyncs";
+
   // An region between `from` and `to` will be inserted or spliced out
   TimeRangeList ranges_to_shift = invalidated_.Intersects(TimeRange(from, RATIONAL_MAX));
 
@@ -101,7 +103,7 @@ void PlaybackCache::Shift(const rational &from, const rational &to)
   RemoveRangeFromJobs(remove_range);
   Validate(remove_range);
 
-  // Shift everything in our ranges to shift list
+  // Shift invalidated ranges
   // (`diff` is POSITIVE when moving forward -> and NEGATIVE when moving backward <-)
   rational diff = to - from;
   foreach (const TimeRange& r, ranges_to_shift) {
