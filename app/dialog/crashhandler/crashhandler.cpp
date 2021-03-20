@@ -108,8 +108,9 @@ void CrashHandlerDialog::GenerateReport()
   stackwalk_filename.append(QStringLiteral(".exe"));
 #endif
 
-  QString stackwalk_bin = QDir(qApp->applicationDirPath()).filePath(stackwalk_filename);
-  p->start(stackwalk_bin, {report_filename_, QDir(qApp->applicationDirPath()).filePath(QStringLiteral("symbols"))});
+  QDir app_path(qApp->applicationDirPath());
+  QString stackwalk_bin = app_path.filePath(stackwalk_filename);
+  p->start(stackwalk_bin, {report_filename_, app_path.filePath(QStringLiteral("symbols"))});
   crash_report_->setText(QStringLiteral("Trying to run: %1").arg(stackwalk_bin));
 }
 
@@ -192,16 +193,53 @@ void CrashHandlerDialog::SendErrorReport()
   desc_part.setBody(summary_edit_->toPlainText().toUtf8());
   multipart->append(desc_part);
 
-  // Create file section
-  QHttpPart file_part;
-  file_part.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/octet-stream"));
-  file_part.setHeader(QNetworkRequest::ContentDispositionHeader, QStringLiteral("form-data; name=\"upload_file_minidump\"; filename=\"%1\"")
+  // Create report section
+  QHttpPart desc_part;
+  desc_part.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("text/plain"));
+  desc_part.setHeader(QNetworkRequest::ContentDispositionHeader, QStringLiteral("form-data; name=\"report\""));
+  desc_part.setBody(report_data_.toUtf8());
+  multipart->append(desc_part);
+
+  // Create commit section
+  QHttpPart desc_part;
+  desc_part.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("text/plain"));
+  desc_part.setHeader(QNetworkRequest::ContentDispositionHeader, QStringLiteral("form-data; name=\"commit\""));
+  desc_part.setBody(GITHASH);
+  multipart->append(desc_part);
+
+  // Create dump section
+  QHttpPart dump_part;
+  dump_part.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/octet-stream"));
+  dump_part.setHeader(QNetworkRequest::ContentDispositionHeader, QStringLiteral("form-data; name=\"dump\"; filename=\"%1\"")
                       .arg(QFileInfo(report_filename_).fileName()));
-  QFile* file = new QFile(report_filename_);
-  file->open(QFile::ReadOnly);
-  file_part.setBodyDevice(file);
-  file->setParent(multipart); // Delete file with multipart
-  multipart->append(file_part);
+  QFile* dump_file = new QFile(report_filename_);
+  dump_file->open(QFile::ReadOnly);
+  dump_part.setBodyDevice(dump_file);
+  dump_file->setParent(multipart); // Delete file with multipart
+  multipart->append(dump_part);
+
+  // Find symbol file
+  QDir symbol_dir(QDir(qApp->applicationDirPath()).filePath(QStringLiteral("symbols")));
+#ifdef Q_OS_WINDOWS
+  symbol_dir = QDir(symbol_dir.filePath(QStringLiteral("olive-editor.pdb")));
+#else
+  symbol_dir = QDir(symbol_dir.filePath(QStringLiteral("olive-editor")));
+#endif
+  // Assume that the first folder we find is the one with the symbols in it
+  symbol_dir = QDir(symbol_dir.filePath(symbol_dir.entryList(QDir::NoDotAndDotDot).first()));
+
+  // Create sym section
+  QString symbol_filename = QStringLiteral("olive-editor.sym");
+  QString symbol_full_path = symbol_dir.filePath(symbol_filename);
+  QHttpPart sym_part;
+  sym_part.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/octet-stream"));
+  sym_part.setHeader(QNetworkRequest::ContentDispositionHeader, QStringLiteral("form-data; name=\"sym\"; filename=\"%1\"")
+                      .arg(symbol_filename));
+  QFile* sym_file = new QFile(symbol_full_path);
+  sym_file->open(QFile::ReadOnly);
+  sym_part.setBodyDevice(sym_file);
+  sym_file->setParent(multipart); // Delete file with multipart
+  multipart->append(sym_part);
 
   manager->post(request, multipart);
 }

@@ -216,7 +216,7 @@ jobs:
         working-directory: ${{ runner.workspace }}/build
         shell: bash
         run: |
-          $DOWNLOAD_TOOL https://github.com/google/breakpad/blob/master/src/tools/windows/binaries/dump_syms.exe?raw=true
+          curl -fLSs https://github.com/google/breakpad/blob/master/src/tools/windows/binaries/dump_syms.exe?raw=true > dump_syms.exe
           ./dump_syms app/olive-editor.pdb > olive-editor.sym
           SYM_HEADER=($(head -n 1 olive-editor.sym)) # Read first line of symbol file
           SYM_DIR=olive-editor/symbols/olive-editor.pdb/${SYM_HEADER[3]}
