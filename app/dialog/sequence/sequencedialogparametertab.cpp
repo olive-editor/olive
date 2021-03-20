@@ -7,8 +7,6 @@
 
 #include "core.h"
 
-#include "widget//slider/rationalslider.h"
-
 namespace olive {
 
 SequenceDialogParameterTab::SequenceDialogParameterTab(Sequence* sequence, QWidget* parent) :
