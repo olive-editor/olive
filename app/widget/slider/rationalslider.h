@@ -46,7 +46,7 @@ public:
     kFloat
   };
 
-  RationalSlider(rational timebase, QWidget* parent = nullptr);
+  RationalSlider(QWidget* parent = nullptr);
 
   /**
    * @brief Returns the sliders value as a rational
@@ -62,6 +62,11 @@ public:
    * @brief Sets the sliders default value
    */
   void SetDefaultValue(const rational& r);
+
+    /**
+   * @brief Sets the sliders default value
+   */
+  void SetDefaultValue(const QVariant& v);
 
   /**
    * @brief Sets the sliders minimum value

@@ -331,9 +331,7 @@ void SliderBase::LadderDragged(int value, double multiplier)
   {
     double old_dragged_diff = dragged_diff_;
     dragged_diff_ += value * drag_multiplier_ * multiplier;
-
     double drag_val = AdjustDragDistanceInternal(value_.value<rational>().toDouble(), dragged_diff_);
-
     rational d_v;
     d_v = rational::fromDouble(drag_val);
     temp_dragged_value_.setValue(d_v);
@@ -341,13 +339,16 @@ void SliderBase::LadderDragged(int value, double multiplier)
     QVariant clamped = ClampValue(temp_dragged_value_);
     if (clamped.value<rational>() != temp_dragged_value_.value<rational>()) {
       temp_dragged_value_ = clamped;
-      dragged_diff_ = old_dragged_diff;
+      dragged_diff_ = (temp_dragged_value_.value<rational>() - value_.value<rational>()).toDouble();
     }
 
     UpdateLabel(temp_dragged_value_);
 
     drag_ladder_->SetValue(ValueToString(temp_dragged_value_));
-    RepositionLadder();
+    
+    if (!Config::Current()[QStringLiteral("UseSliderLadders")].toBool()) {
+      RepositionLadder();
+    }
 
     emit ValueChanged(temp_dragged_value_);
     break;

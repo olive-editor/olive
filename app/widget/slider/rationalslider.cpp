@@ -20,12 +20,12 @@
 
 namespace olive {
 
-RationalSlider::RationalSlider(rational timebase, QWidget *parent) :
+RationalSlider::RationalSlider(QWidget *parent) :
   SliderBase(SliderBase::kRational, parent),
   display_type_(kTimecode),
   decimal_places_(2),
   autotrim_decimal_places_(false),
-  timebase_(timebase),
+  timebase_(rational(1,24)),
   lock_display_type_(false)
 {
   connect(this, SIGNAL(ValueChanged(QVariant)), this, SLOT(ConvertValue(QVariant)));
@@ -33,6 +33,8 @@ RationalSlider::RationalSlider(rational timebase, QWidget *parent) :
   connect(Core::instance(), &Core::TimecodeDisplayChanged, this, &RationalSlider::ChangeTimecodeDisplayType);
 
   SetDisplayType(display_type_);
+
+  SetValue(rational(0, 0));
 }
 
 rational RationalSlider::GetValue()
@@ -48,6 +50,11 @@ void RationalSlider::SetValue(const rational &d)
 void RationalSlider::SetDefaultValue(const rational &r)
 {
   SliderBase::SetDefaultValue(QVariant::fromValue(r));
+}
+
+void RationalSlider::SetDefaultValue(const QVariant &v) {
+  rational r = v.value<rational>();
+  SetDefaultValue(r);
 }
 
 void RationalSlider::SetMinimum(const rational &d)
@@ -111,7 +118,7 @@ bool RationalSlider::LockDisplayType()
 
 QString RationalSlider::ValueToString(const QVariant &v)
 {
-  double time = v.value<rational>().toDouble();
+  double time = v.value<rational>().toDouble() + GetOffset().value<rational>().toDouble();
 
   switch (display_type_) {
     case kTimecode:
@@ -165,7 +172,7 @@ QVariant RationalSlider::StringToValue(const QString &s, bool *ok)
       break;
   }
 
-  return QVariant::fromValue(r);
+  return QVariant::fromValue(r - GetOffset().value<rational>());
 }
 
 double RationalSlider::AdjustDragDistanceInternal(const double &start, const double &drag)
