@@ -197,7 +197,7 @@ void CrashHandlerDialog::SendErrorReport()
   QHttpPart report_part;
   report_part.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("text/plain"));
   report_part.setHeader(QNetworkRequest::ContentDispositionHeader, QStringLiteral("form-data; name=\"report\""));
-  report_part.setBody(report_data_.toUtf8());
+  report_part.setBody(report_data_);
   multipart->append(report_part);
 
   // Create commit section
