@@ -194,18 +194,18 @@ void CrashHandlerDialog::SendErrorReport()
   multipart->append(desc_part);
 
   // Create report section
-  QHttpPart desc_part;
-  desc_part.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("text/plain"));
-  desc_part.setHeader(QNetworkRequest::ContentDispositionHeader, QStringLiteral("form-data; name=\"report\""));
-  desc_part.setBody(report_data_.toUtf8());
-  multipart->append(desc_part);
+  QHttpPart report_part;
+  report_part.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("text/plain"));
+  report_part.setHeader(QNetworkRequest::ContentDispositionHeader, QStringLiteral("form-data; name=\"report\""));
+  report_part.setBody(report_data_.toUtf8());
+  multipart->append(report_part);
 
   // Create commit section
-  QHttpPart desc_part;
-  desc_part.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("text/plain"));
-  desc_part.setHeader(QNetworkRequest::ContentDispositionHeader, QStringLiteral("form-data; name=\"commit\""));
-  desc_part.setBody(GITHASH);
-  multipart->append(desc_part);
+  QHttpPart commit_part;
+  commit_part.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("text/plain"));
+  commit_part.setHeader(QNetworkRequest::ContentDispositionHeader, QStringLiteral("form-data; name=\"commit\""));
+  commit_part.setBody(GITHASH);
+  multipart->append(commit_part);
 
   // Create dump section
   QHttpPart dump_part;
