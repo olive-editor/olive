@@ -102,16 +102,14 @@ void CrashHandlerDialog::GenerateReport()
           this, &CrashHandlerDialog::ReadProcessFinished);
   connect(p, &QProcess::readyReadStandardOutput, this, &CrashHandlerDialog::ReadProcessHasData);
 
-  QString stackwalk_filename;
+  QString stackwalk_filename = QStringLiteral("minidump_stackwalk");
 
 #if defined(OS_WIN)
-  stackwalk_filename = QStringLiteral("minidump_stackwalk.exe");
-#else
-  stackwalk_filename = QStringLiteral("minidump_stackwalk");
+  stackwalk_filename.append(QStringLiteral(".exe"));
 #endif
 
   QString stackwalk_bin = QDir(qApp->applicationDirPath()).filePath(stackwalk_filename);
-  p->start(stackwalk_bin, {report_filename_});
+  p->start(stackwalk_bin, {report_filename_, QDir(qApp->applicationDirPath()).filePath(QStringLiteral("symbols"))});
   crash_report_->setText(QStringLiteral("Trying to run: %1").arg(stackwalk_bin));
 }
 

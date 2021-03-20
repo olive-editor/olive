@@ -212,6 +212,17 @@ jobs:
           cp $(cygpath $GITHUB_WORKSPACE)/out/Default/crashpad_handler.exe olive-editor
           cp $(cygpath $GITHUB_WORKSPACE)/breakpad/bin/* olive-editor
 
+      - name: Export Crashpad symbols
+        working-directory: ${{ runner.workspace }}/build
+        shell: bash
+        run: |
+          $DOWNLOAD_TOOL https://github.com/google/breakpad/blob/master/src/tools/windows/binaries/dump_syms.exe?raw=true
+          ./dump_syms app/olive-editor.pdb > olive-editor.sym
+          SYM_HEADER=($(head -n 1 olive-editor.sym)) # Read first line of symbol file
+          SYM_DIR=olive-editor/symbols/olive-editor.pdb/${SYM_HEADER[3]}
+          mkdir -p "$SYM_DIR"
+          mv olive-editor.sym "$SYM_DIR"
+
       - name: Deploy Packages
         working-directory: ${{ runner.workspace }}/build
         shell: bash
@@ -260,21 +271,6 @@ jobs:
             -F time="$(git -C $GITHUB_WORKSPACE show -s --format=%ct)" \
             -F comment="$(git -C $GITHUB_WORKSPACE show -s --format=%B)" \
             https://ci.olivevideoeditor.org/push.php
-
-      - name: Export Crashpad Symbols and Upload To Server
-        working-directory: ${{ runner.workspace }}/build
-        shell: bash
-        env:
-          GH_AUTH_KEY: ${{ secrets.GH_AUTH_KEY }}
-        if: github.event_name == 'push'
-        run: |
-          curl -fLSs --retry 2 --retry-delay 60 \
-            https://github.com/google/breakpad/blob/master/src/tools/windows/binaries/dump_syms.exe?raw=true > dump_syms.exe
-          ./dump_syms app/olive-editor.pdb > olive-editor.sym
-          curl -X POST \
-            -F symfile=@olive-editor.sym \
-            -F key="$GH_AUTH_KEY" \
-            https://olivevideoeditor.org/crashpad/symbols.php
 
   macos:
     strategy:
