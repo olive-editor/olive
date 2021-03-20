@@ -258,6 +258,8 @@ if (GoogleCrashpad_FOUND)
     ${CRASHPAD_LIBRARIES}
   )
 
+  target_compile_definitions(${OLIVE_CRASH_TARGET} PRIVATE ${OLIVE_DEFINITIONS})
+
   set(CRASHPAD_HANDLER "crashpad_handler${CMAKE_EXECUTABLE_SUFFIX}")
   set(MINIDUMP_STACKWALK "minidump_stackwalk${CMAKE_EXECUTABLE_SUFFIX}")
 
