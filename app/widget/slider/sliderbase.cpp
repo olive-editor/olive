@@ -329,7 +329,6 @@ void SliderBase::LadderDragged(int value, double multiplier)
   
   case kRational:
   {
-    double old_dragged_diff = dragged_diff_;
     dragged_diff_ += value * drag_multiplier_ * multiplier;
     double drag_val = AdjustDragDistanceInternal(value_.value<rational>().toDouble(), dragged_diff_);
     rational d_v;
