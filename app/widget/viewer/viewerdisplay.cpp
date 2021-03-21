@@ -282,6 +282,10 @@ void ViewerDisplayWidget::OnPaint()
 
   // We only draw if we have a pipeline
   if (last_loaded_buffer_ && color_service()) {
+    if (!texture_) {
+      // If no texture, create it now
+      SetImage(last_loaded_buffer_);
+    }
 
     TexturePtr texture_to_draw = texture_;
 
