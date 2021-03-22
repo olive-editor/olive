@@ -21,6 +21,7 @@
 #include "graphview.h"
 
 #include <QPainter>
+#include <QPainterPath>
 #include <QMouseEvent>
 #include <QtMath>
 #include <cfloat>
