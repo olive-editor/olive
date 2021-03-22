@@ -20,6 +20,7 @@
 
 #include "text.h"
 
+#include <QAbstractTextDocumentLayout>
 #include <QTextDocument>
 
 namespace olive {
@@ -156,7 +157,9 @@ void TextGenerator::GenerateFrame(FramePtr frame, const GenerateJob& job) const
     break;
   }
 
-  text_doc.drawContents(&p);
+  QAbstractTextDocumentLayout::PaintContext ctx;
+  ctx.palette.setColor(QPalette::Text, Qt::white);
+  text_doc.documentLayout()->draw(&p, ctx);
 
   // Transplant alpha channel to frame
   Color rgb = job.GetValue(kColorInput).data().value<Color>();
