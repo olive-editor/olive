@@ -397,14 +397,16 @@ void NodeParamViewItemBody::EdgeChanged(const NodeOutput& output, const NodeInpu
 void NodeParamViewItemBody::UpdateUIForEdgeConnection(const NodeInput& input)
 {
   // Show/hide bridge widgets
-  const InputUI& ui_objects = input_ui_map_[input];
+  if (input_ui_map_.contains(input)) {
+    const InputUI& ui_objects = input_ui_map_[input];
 
-  foreach (QWidget* w, ui_objects.widget_bridge->widgets()) {
-    w->setVisible(!input.IsConnected());
+    foreach (QWidget* w, ui_objects.widget_bridge->widgets()) {
+      w->setVisible(!input.IsConnected());
+    }
+
+    // Show/hide connection label
+    ui_objects.connected_label->setVisible(input.IsConnected());
   }
-
-  // Show/hide connection label
-  ui_objects.connected_label->setVisible(input.IsConnected());
 }
 
 void NodeParamViewItemBody::ArrayCollapseBtnPressed(bool checked)
