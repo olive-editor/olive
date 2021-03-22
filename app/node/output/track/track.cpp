@@ -99,7 +99,9 @@ TimeRange Track::InputTimeAdjustment(const QString& input, int element, const Ti
   if (input == kBlockInput && element >= 0) {
     int cache_index = GetCacheIndexFromArrayIndex(element);
 
-    return TransformRangeForBlock(blocks_.at(cache_index), input_time);
+    if (cache_index > -1) {
+      return TransformRangeForBlock(blocks_.at(cache_index), input_time);
+    }
   }
 
   return Node::InputTimeAdjustment(input, element, input_time);
@@ -109,9 +111,12 @@ TimeRange Track::OutputTimeAdjustment(const QString& input, int element, const T
 {
   if (input == kBlockInput && element >= 0) {
     int cache_index = GetCacheIndexFromArrayIndex(element);
-    const rational& block_in = blocks_.at(cache_index)->in();
 
-    return input_time + block_in;
+    if (cache_index > -1) {
+      const rational& block_in = blocks_.at(cache_index)->in();
+
+      return input_time + block_in;
+    }
   }
 
   return Node::OutputTimeAdjustment(input, element, input_time);
