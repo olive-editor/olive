@@ -107,6 +107,8 @@ void AddTool::MouseRelease(TimelineViewMouseEvent *event)
                                                     clip,
                                                     ghost_->GetAdjustedIn()));
 
+      QPointF extra_node_offset(-1, 0);
+
       switch (Core::instance()->GetSelectedAddableObject()) {
       case olive::Tool::kAddableEmpty:
         // Empty, nothing to be done
@@ -119,6 +121,7 @@ void AddTool::MouseRelease(TimelineViewMouseEvent *event)
                                               solid));
 
         command->add_child(new NodeEdgeAddCommand(solid, NodeInput(clip, ClipBlock::kBufferIn)));
+        command->add_child(new NodeSetPositionToOffsetOfAnotherNodeCommand(solid, clip, extra_node_offset));
         break;
       }
       case olive::Tool::kAddableTitle:
@@ -129,6 +132,7 @@ void AddTool::MouseRelease(TimelineViewMouseEvent *event)
                                               text));
 
         command->add_child(new NodeEdgeAddCommand(text, NodeInput(clip, ClipBlock::kBufferIn)));
+        command->add_child(new NodeSetPositionToOffsetOfAnotherNodeCommand(text, clip, extra_node_offset));
         break;
       }
       case olive::Tool::kAddableBars:
