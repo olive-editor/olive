@@ -85,6 +85,8 @@ private:
 
   void IncrementRunningTickets();
 
+  void StartTicket(const QByteArray &hash, QThread *watcher_thread, ColorManager *manager, const rational &time, RenderMode::Mode mode, FrameHashCache *cache, const QSize &force_size, const QMatrix4x4 &force_matrix, VideoParams::Format force_format, ColorProcessorPtr force_color_output);
+
   Sequence* viewer_;
 
   VideoParams video_params_;
