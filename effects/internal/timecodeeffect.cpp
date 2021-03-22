@@ -25,6 +25,7 @@
 #include <QOpenGLTexture>
 #include <QTextEdit>
 #include <QPainter>
+#include <QPainterPath>
 #include <QPushButton>
 #include <QColorDialog>
 #include <QFontDatabase>
