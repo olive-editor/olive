@@ -457,6 +457,7 @@ void Sequence::InputValueChangedEvent(const QString &input, int element)
     emit VideoParamsChanged();
 
     cached_video_params_ = video_params();
+    video_frame_cache_.InvalidateAll();
 
   } else if (input == kAudioParamsInput) {
 
