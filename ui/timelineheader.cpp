@@ -21,6 +21,7 @@
 #include "timelineheader.h"
 
 #include <QPainter>
+#include <QPainterPath>
 #include <QMouseEvent>
 #include <QScrollBar>
 #include <QtMath>
