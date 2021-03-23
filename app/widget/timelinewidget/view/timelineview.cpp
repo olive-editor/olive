@@ -401,7 +401,7 @@ void TimelineView::DrawBlocks(QPainter *painter, bool foreground)
     Block* block = track->NearestBlockBeforeOrAt(start_time);
 
     while (block) {
-      if (block->type() == Block::kClip) {
+      if (block->type() == Block::kClip || block->type() == Block::kTransition) {
 
         qreal block_left = qMax(left_bound, TimeToScene(block->in()));
         qreal block_right = qMin(right_bound, TimeToScene(block->out())) - 1;
