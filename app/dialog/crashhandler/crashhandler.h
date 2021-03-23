@@ -59,6 +59,11 @@ private:
 
   QByteArray report_data_;
 
+  bool waiting_for_upload_;
+
+protected:
+  virtual void closeEvent(QCloseEvent* e) override;
+
 private slots:
   void ReplyFinished(QNetworkReply *reply);
 

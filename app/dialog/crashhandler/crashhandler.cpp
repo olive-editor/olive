@@ -21,6 +21,7 @@
 #include "crashhandler.h"
 
 #include <QApplication>
+#include <QCloseEvent>
 #include <QDir>
 #include <QFile>
 #include <QFontDatabase>
@@ -46,6 +47,7 @@ CrashHandlerDialog::CrashHandlerDialog(const char *report_dir, const char* crash
 
   crash_time_ = QString(crash_time).toULongLong();
   report_dir_ = report_dir;
+  waiting_for_upload_ = false;
 
   QVBoxLayout* layout = new QVBoxLayout(this);
 
@@ -127,6 +129,8 @@ void CrashHandlerDialog::GenerateReport()
 
 void CrashHandlerDialog::ReplyFinished(QNetworkReply* reply)
 {
+  waiting_for_upload_ = false;
+
   if (reply->error() == QNetworkReply::NoError) {
     // Close dialog
     QDialog::accept();
@@ -259,16 +263,39 @@ void CrashHandlerDialog::SendErrorReport()
   QHttpPart sym_part;
   sym_part.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/octet-stream"));
   sym_part.setHeader(QNetworkRequest::ContentDispositionHeader, QStringLiteral("form-data; name=\"sym\"; filename=\"%1\"")
-                      .arg(symbol_filename));
-  QFile* sym_file = new QFile(symbol_full_path);
-  sym_file->open(QFile::ReadOnly);
-  sym_part.setBodyDevice(sym_file);
-  sym_file->setParent(multipart); // Delete file with multipart
+                     .arg(symbol_filename));
+  QFile sym_file(symbol_full_path);
+
+  if (!sym_file.open(QFile::ReadOnly)) {
+    QMessageBox::critical(this, tr("Failed to send report"), tr("Failed to open symbol file. You may not have "
+                                                                "permission to access it."));
+    return;
+  }
+
+  QByteArray symbol_data = qCompress(sym_file.readAll(), 9);
+  sym_file.close();
+
+  sym_part.setBody(symbol_data);
   multipart->append(sym_part);
 
   manager->post(request, multipart);
 
   SetGUIObjectsEnabled(false);
+  waiting_for_upload_ = true;
+}
+
+void CrashHandlerDialog::closeEvent(QCloseEvent* e)
+{
+  if (waiting_for_upload_
+      && QMessageBox::warning(this,
+                              tr("Confirm Close"),
+                              tr("Crash report is still uploading. Closing now may result in no "
+                                 "report being sent. Are you sure you wish to close?"),
+                              QMessageBox::Ok | QMessageBox::Cancel) == QMessageBox::Cancel) {
+    e->ignore();
+  } else {
+    e->accept();
+  }
 }
 
 }
