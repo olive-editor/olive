@@ -26,6 +26,17 @@ find_path(CRASHPAD_CLIENT_INCLUDE_DIR
 )
 list(APPEND CRASHPAD_INCLUDE_DIRS ${CRASHPAD_CLIENT_INCLUDE_DIR})
 
+find_path(CRASHPAD_BUILD_INCLUDE_DIR
+    build/chromeos_buildflags.h
+  HINTS
+    "${CRASHPAD_LOCATION}"
+    "$ENV{CRASHPAD_LOCATION}"
+    "${CRASHPAD_BASE_DIR}"
+  PATH_SUFFIXES
+    "out/Default/gen"
+)
+list(APPEND CRASHPAD_INCLUDE_DIRS ${CRASHPAD_BUILD_INCLUDE_DIR})
+
 find_path(CRASHPAD_BASE_INCLUDE_DIR
     base/files/file_path.h
   HINTS
@@ -89,7 +100,7 @@ HINTS
   "$ENV{BREAKPAD_LOCATION}"
   "${BREAKPAD_BASE_DIR}"
 PATH_SUFFIXES
-  breakpad/bin
+  bin
 )
 
 find_package_handle_standard_args(GoogleCrashpad
@@ -98,6 +109,7 @@ find_package_handle_standard_args(GoogleCrashpad
     CRASHPAD_UTIL_LIB
     CRASHPAD_BASE_LIB
     BREAKPAD_BIN_DIR
+    CRASHPAD_BUILD_INCLUDE_DIR
     CRASHPAD_CLIENT_INCLUDE_DIR
     CRASHPAD_BASE_INCLUDE_DIR
 )
