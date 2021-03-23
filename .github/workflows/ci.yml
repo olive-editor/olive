@@ -206,7 +206,7 @@ jobs:
           windeployqt olive-editor/olive-crashhandler.exe
           windeployqt olive-editor/olive-editor.exe
           cp $(cygpath $DEP_LOCATION)/bin/*.dll olive-editor
-          cp $(cygpath $DEP_LOCATION)/out/Default/crashpad_handler.exe olive-editor
+          cp $(cygpath $DEP_LOCATION)/crashpad/out/Default/crashpad_handler.exe olive-editor
           cp $(cygpath $DEP_LOCATION)/bin/minidump_stackwalk.exe olive-editor
 
       - name: Export Crashpad symbols
