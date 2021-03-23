@@ -225,7 +225,7 @@ jobs:
           cp $(cygpath $GITHUB_WORKSPACE)/LICENSE .
           $DOWNLOAD_TOOL https://nsis.sourceforge.io/mediawiki/images/c/c7/ShellExecAsUser.zip
           7z x ShellExecAsUser.zip ShellExecAsUser.dll
-          makensis -V4 -DX64 "-XOutFile $PKGNAME.exe" "-X!AddPluginDir $(pwd)" olive.nsi
+          makensis -V4 -DX64 "-XOutFile $PKGNAME.exe" "-X!AddPluginDir $(pwd -W)" olive.nsi
 
           # Create Portable ZIP
           echo -n > olive-editor/portable
