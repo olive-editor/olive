@@ -275,7 +275,7 @@ jobs:
             os-name: macOS
             os-arch: x86_64
             os: macos-latest
-            cmake-gen: Unix Makefiles
+            cmake-gen: Ninja
     env:
       EXTRACT_TOOL: sudo unzip -d /usr/local -o
     name: |
@@ -348,6 +348,7 @@ jobs:
         shell: bash
         working-directory: ${{ runner.workspace }}/build
         run: |
+          brew install ninja
           PATH=$GITHUB_WORKSPACE:$PATH \
             cmake $GITHUB_WORKSPACE -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}"
 
