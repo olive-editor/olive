@@ -30,6 +30,7 @@
 #include <QNetworkAccessManager>
 #include <QProcess>
 #include <QScrollBar>
+#include <QSplitter>
 #include <QThread>
 #include <QTimer>
 #include <QVBoxLayout>
@@ -51,18 +52,28 @@ CrashHandlerDialog::CrashHandlerDialog(const char *report_dir, const char* crash
   layout->addWidget(new QLabel(tr("We're sorry, Olive has crashed. Please help us fix it by "
                                   "sending an error report.")));
 
+  QSplitter* splitter = new QSplitter(Qt::Vertical);
+  splitter->setChildrenCollapsible(false);
+  layout->addWidget(splitter);
+
   summary_edit_ = new QTextEdit();
   summary_edit_->setPlaceholderText(tr("Describe what you were doing in as much detail as "
                                        "possible. If you can, provide steps to reproduce this crash."));
 
-  layout->addWidget(summary_edit_);
+  splitter->addWidget(summary_edit_);
 
-  layout->addWidget(new QLabel(tr("Crash Report:")));
+  QWidget* crash_widget = new QWidget();
+  QVBoxLayout* crash_widget_layout = new QVBoxLayout(crash_widget);
+  crash_widget_layout->setMargin(0);
+
+  crash_widget_layout->addWidget(new QLabel(tr("Crash Report:")));
 
   crash_report_ = new QTextEdit();
   crash_report_->setReadOnly(true);
   crash_report_->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
-  layout->addWidget(crash_report_);
+  crash_widget_layout->addWidget(crash_report_);
+
+  splitter->addWidget(crash_widget);
 
   QHBoxLayout* btn_layout = new QHBoxLayout();
   btn_layout->setMargin(0);
@@ -174,8 +185,6 @@ void CrashHandlerDialog::SendErrorReport()
     }
   }
 
-  SetGUIObjectsEnabled(false);
-
   QNetworkAccessManager* manager = new QNetworkAccessManager();
   connect(manager, &QNetworkAccessManager::finished, this, &CrashHandlerDialog::ReplyFinished);
 
@@ -225,8 +234,24 @@ void CrashHandlerDialog::SendErrorReport()
 #else
   symbol_dir = QDir(symbol_dir.filePath(QStringLiteral("olive-editor")));
 #endif
-  // Assume that the first folder we find is the one with the symbols in it
-  symbol_dir = QDir(symbol_dir.filePath(symbol_dir.entryList(QDir::NoDotAndDotDot).first()));
+  QStringList folders_in_symbol_path = symbol_dir.entryList();
+
+  bool found = false;
+  foreach (const QString& symbol_folder, folders_in_symbol_path) {
+    if (!symbol_folder.startsWith('.')) {
+      // Assume that the first folder we find is the one with the symbols in it
+      symbol_dir = QDir(symbol_dir.filePath(symbol_folder));
+      found = true;
+      break;
+    }
+  }
+
+  if (!found) {
+    QMessageBox::critical(this, tr("Failed to send report"), tr("Failed to find symbols necessary to send report. "
+                                                                "This is a packaging issue. Please notify "
+                                                                "the maintainers of this package."));
+    return;
+  }
 
   // Create sym section
   QString symbol_filename = QStringLiteral("olive-editor.sym");
@@ -242,6 +267,8 @@ void CrashHandlerDialog::SendErrorReport()
   multipart->append(sym_part);
 
   manager->post(request, multipart);
+
+  SetGUIObjectsEnabled(false);
 }
 
 }
