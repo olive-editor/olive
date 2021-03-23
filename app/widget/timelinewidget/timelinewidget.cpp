@@ -1425,7 +1425,9 @@ void TimelineWidget::AddSelection(const TimeRange &time, const Track::Reference 
 
 void TimelineWidget::AddSelection(Block *item)
 {
-  AddSelection(item->range(), item->track()->ToReference());
+  if (item->track()) {
+    AddSelection(item->range(), item->track()->ToReference());
+  }
 }
 
 void TimelineWidget::RemoveSelection(const TimeRange &time, const Track::Reference &track)
@@ -1437,7 +1439,9 @@ void TimelineWidget::RemoveSelection(const TimeRange &time, const Track::Referen
 
 void TimelineWidget::RemoveSelection(Block *item)
 {
-  RemoveSelection(item->range(), item->track()->ToReference());
+  if (item->track()) {
+    RemoveSelection(item->range(), item->track()->ToReference());
+  }
 }
 
 void TimelineWidget::SetSelections(const TimelineWidgetSelections &s)
