@@ -90,8 +90,6 @@ SliderLadder::SliderLadder(double drag_multiplier, int nb_outer_values, QWidget*
     static_cast<QGuiApplication*>(QApplication::instance())->setOverrideCursor(Qt::BlankCursor);
 #endif
   }
-
-  QMetaObject::invokeMethod(this, "UpdatePosition", Qt::QueuedConnection);
 }
 
 SliderLadder::~SliderLadder()
