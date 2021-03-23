@@ -50,7 +50,6 @@ find_package(Qt5 5.6 REQUIRED
   Gui
   Widgets
   Multimedia
-  OpenGL
   Svg
   LinguistTools
   Concurrent
