@@ -223,7 +223,9 @@ jobs:
           $DOWNLOAD_TOOL https://download.microsoft.com/download/3/2/2/3224B87F-CFA0-4E70-BDA3-3DE650EFEBA5/vcredist_x64.exe
           cp $(cygpath $GITHUB_WORKSPACE)/app/packaging/windows/nsis/* .
           cp $(cygpath $GITHUB_WORKSPACE)/LICENSE .
-          makensis -V4 -DX64 "-XOutFile $PKGNAME.exe" olive.nsi
+          $DOWNLOAD_TOOL https://nsis.sourceforge.io/mediawiki/images/c/c7/ShellExecAsUser.zip
+          7z x ShellExecAsUser.zip ShellExecAsUser.dll
+          makensis -V4 -DX64 "-XOutFile $PKGNAME.exe" "-X!AddPluginDir $(pwd)" olive.nsi
 
           # Create Portable ZIP
           echo -n > olive-editor/portable
