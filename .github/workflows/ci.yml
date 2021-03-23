@@ -160,11 +160,6 @@ jobs:
       - name: Enable Developer Command Prompt (Windows)
         uses: ilammy/msvc-dev-cmd@v1
 
-      - name: Acquire Qt
-        uses: jurplel/install-qt-action@v2
-        with:
-          version: 5.15.1
-
       - name: Acquire Dependencies
         shell: bash
         working-directory: ${{ runner.workspace }}
