@@ -47,7 +47,9 @@ NodeViewEdge::NodeViewEdge(const NodeOutput &output, const NodeInput &input,
 }
 
 NodeViewEdge::NodeViewEdge(QGraphicsItem *parent) :
-  QGraphicsPathItem(parent)
+  QGraphicsPathItem(parent),
+  from_item_(nullptr),
+  to_item_(nullptr)
 {
   Init();
 }
