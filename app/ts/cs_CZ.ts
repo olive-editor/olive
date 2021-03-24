@@ -52,6 +52,10 @@
     </message>
     <message>
         <source>Failed to save application settings. The application may lack write permissions to this location.</source>
+        <translation type="vanished">Nepodařilo se uložit nastavení programu. Program může postrádat oprávnění k zápisu do tohoto umístění.</translation>
+    </message>
+    <message>
+        <source>Failed to save application settings. The application may lack write permissions for this location.</source>
         <translation>Nepodařilo se uložit nastavení programu. Program může postrádat oprávnění k zápisu do tohoto umístění.</translation>
     </message>
 </context>
@@ -59,19 +63,19 @@
     <name>Footage</name>
     <message>
         <source>%1 FPS</source>
-        <translation>%1 FPS</translation>
+        <translation type="vanished">%1 FPS</translation>
     </message>
     <message>
         <source>%1 Hz</source>
-        <translation>%1 Hz</translation>
+        <translation type="vanished">%1 Hz</translation>
     </message>
     <message>
         <source>Filename: %1</source>
-        <translation>Název souboru: %1</translation>
+        <translation type="vanished">Název souboru: %1</translation>
     </message>
     <message>
         <source>This footage is not valid for use</source>
-        <translation>Tento záznam není platný pro použití</translation>
+        <translation type="vanished">Tento záznam není platný pro použití</translation>
     </message>
 </context>
 <context>
@@ -101,7 +105,7 @@
     <name>MoveItemCommand</name>
     <message>
         <source>Move Item</source>
-        <translation>Přesunout položku</translation>
+        <translation type="vanished">Přesunout položku</translation>
     </message>
 </context>
 <context>
@@ -120,6 +124,81 @@
     <message>
         <source>None</source>
         <translation>Žádný</translation>
+    </message>
+</context>
+<context>
+    <name>NodeValue</name>
+    <message>
+        <source>None</source>
+        <translation>Žádný</translation>
+    </message>
+    <message>
+        <source>Integer</source>
+        <translation>Celé číslo</translation>
+    </message>
+    <message>
+        <source>Float</source>
+        <translation>Pohyblivá desetinná čárka</translation>
+    </message>
+    <message>
+        <source>Rational</source>
+        <translation>Racionální</translation>
+    </message>
+    <message>
+        <source>Boolean</source>
+        <translation>Booleánská</translation>
+    </message>
+    <message>
+        <source>Color</source>
+        <translation>Barva</translation>
+    </message>
+    <message>
+        <source>Matrix</source>
+        <translation>Matice</translation>
+    </message>
+    <message>
+        <source>Text</source>
+        <translation>Text</translation>
+    </message>
+    <message>
+        <source>Font</source>
+        <translation>Písmo</translation>
+    </message>
+    <message>
+        <source>File</source>
+        <translation>Soubor</translation>
+    </message>
+    <message>
+        <source>Texture</source>
+        <translation>Povrch</translation>
+    </message>
+    <message>
+        <source>Samples</source>
+        <translation>Vzorky</translation>
+    </message>
+    <message>
+        <source>Vector 2D</source>
+        <translation>Vektor 2D</translation>
+    </message>
+    <message>
+        <source>Vector 3D</source>
+        <translation>Vektor 3D</translation>
+    </message>
+    <message>
+        <source>Vector 4D</source>
+        <translation>Vektor 4D</translation>
+    </message>
+    <message>
+        <source>Video Parameters</source>
+        <translation>Parametry obrazu</translation>
+    </message>
+    <message>
+        <source>Audio Parameters</source>
+        <translation>Parametry zvuku</translation>
+    </message>
+    <message>
+        <source>Unknown</source>
+        <translation>Neznámý</translation>
     </message>
 </context>
 <context>
@@ -175,33 +254,33 @@
     <name>RenameItemCommand</name>
     <message>
         <source>Rename Item</source>
-        <translation>Přejmenovat položku</translation>
+        <translation type="vanished">Přejmenovat položku</translation>
     </message>
 </context>
 <context>
     <name>Sequence</name>
     <message>
         <source>%1 FPS</source>
-        <translation>%1 FPS</translation>
+        <translation type="vanished">%1 FPS</translation>
     </message>
 </context>
 <context>
     <name>Stream</name>
     <message>
         <source>%1: Audio - %2 Channels, %3Hz</source>
-        <translation>%1: Zvuk - %2 kanály, %3 Hz</translation>
+        <translation type="vanished">%1: Zvuk - %2 kanály, %3 Hz</translation>
     </message>
     <message>
         <source>%1: Unknown</source>
-        <translation>%1: Neznámý</translation>
+        <translation type="vanished">%1: Neznámý</translation>
     </message>
     <message>
         <source>%1: Image - %2x%3</source>
-        <translation>%1: Obrázek - %2x%3</translation>
+        <translation type="vanished">%1: Obrázek - %2x%3</translation>
     </message>
     <message>
         <source>%1: Video - %2x%3</source>
-        <translation>%1: Obraz - %2x%3</translation>
+        <translation type="vanished">%1: Obraz - %2x%3</translation>
     </message>
 </context>
 <context>
@@ -212,7 +291,7 @@
 In: %2
 Out: %3
 Length: %4</source>
-        <translation>%1
+        <translation type="vanished">%1
 
 Začátek: %2
 Konec: %3
@@ -244,6 +323,17 @@ Délka: %4</translation>
     <message>
         <source>Unknown</source>
         <translation>Neznámý</translation>
+    </message>
+</context>
+<context>
+    <name>UndoStack</name>
+    <message>
+        <source>Undo %1</source>
+        <translation>Zpět %1</translation>
+    </message>
+    <message>
+        <source>Redo %1</source>
+        <translation>Znovu %1</translation>
     </message>
 </context>
 <context>
@@ -354,15 +444,15 @@ Délka: %4</translation>
     <name>olive::AudioInput</name>
     <message>
         <source>Audio Input</source>
-        <translation>Vstup zvuku</translation>
+        <translation type="vanished">Vstup zvuku</translation>
     </message>
     <message>
         <source>Audio</source>
-        <translation>Zvuk</translation>
+        <translation type="vanished">Zvuk</translation>
     </message>
     <message>
         <source>Import an audio footage stream.</source>
-        <translation>Zavést zvukový záznam.</translation>
+        <translation type="vanished">Zavést zvukový záznam.</translation>
     </message>
 </context>
 <context>
@@ -450,10 +540,119 @@ Délka: %4</translation>
     </message>
 </context>
 <context>
+    <name>olive::ColorCoding</name>
+    <message>
+        <source>Red</source>
+        <translation>Červená</translation>
+    </message>
+    <message>
+        <source>Maroon</source>
+        <translation>Kaštanová hněď</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>Oranžová</translation>
+    </message>
+    <message>
+        <source>Brown</source>
+        <translation>Hnědá</translation>
+    </message>
+    <message>
+        <source>Yellow</source>
+        <translation>Žlutá</translation>
+    </message>
+    <message>
+        <source>Olive</source>
+        <translation>Olivová zeleň</translation>
+    </message>
+    <message>
+        <source>Lime</source>
+        <translation>Světle zelená - limetková</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Zelená</translation>
+    </message>
+    <message>
+        <source>Cyan</source>
+        <translation>Modrozelená</translation>
+    </message>
+    <message>
+        <source>Teal</source>
+        <translation>Tmavě modrozelená</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Modrá</translation>
+    </message>
+    <message>
+        <source>Navy</source>
+        <translation>Tmavomodrá</translation>
+    </message>
+    <message>
+        <source>Pink</source>
+        <translation>Růžová</translation>
+    </message>
+    <message>
+        <source>Purple</source>
+        <translation>Purpurová</translation>
+    </message>
+    <message>
+        <source>Silver</source>
+        <translation>Stříbrná</translation>
+    </message>
+    <message>
+        <source>Gray</source>
+        <translation>Šedá</translation>
+    </message>
+</context>
+<context>
     <name>olive::ColorDialog</name>
     <message>
         <source>Select Color</source>
         <translation>Vybrat barvu</translation>
+    </message>
+</context>
+<context>
+    <name>olive::ColorLabelMenu</name>
+    <message>
+        <source>Color</source>
+        <translation>Barva</translation>
+    </message>
+</context>
+<context>
+    <name>olive::ColorManager</name>
+    <message>
+        <source>Configuration</source>
+        <translation>Nastavení</translation>
+    </message>
+    <message>
+        <source>Default Input</source>
+        <translation>Výchozí vstup</translation>
+    </message>
+    <message>
+        <source>Reference Space</source>
+        <translation>Referenční prostor</translation>
+    </message>
+    <message>
+        <source>Scene Linear</source>
+        <translation>Lineární scéna</translation>
+    </message>
+    <message>
+        <source>Compositing Log</source>
+        <translation>Záznam o skladbě</translation>
+    </message>
+    <message>
+        <source>(built-in)</source>
+        <translation>(vestavěno)</translation>
+    </message>
+    <message>
+        <source>Color Manager</source>
+        <translation>Správce barev</translation>
+    </message>
+    <message>
+        <source>Color management configuration for project.</source>
+        <translation>Nastavení správy barev pro projekt.</translation>
     </message>
 </context>
 <context>
@@ -556,11 +755,11 @@ Délka: %4</translation>
     </message>
     <message>
         <source>No Active Project</source>
-        <translation>Žádný činný projekt</translation>
+        <translation type="vanished">Žádný činný projekt</translation>
     </message>
     <message>
         <source>No project is currently open to set the properties for</source>
-        <translation>V současnosti není otevřen projekt, pro nějž by se daly nastavit vlastnosti</translation>
+        <translation type="vanished">V současnosti není otevřen projekt, pro nějž by se daly nastavit vlastnosti</translation>
     </message>
     <message>
         <source>Failed to create new folder</source>
@@ -596,31 +795,31 @@ Délka: %4</translation>
     </message>
     <message>
         <source>Project contains no sequences, nothing to export</source>
-        <translation>Projekt neobsahuje žádné úryvky, není co vyvést</translation>
+        <translation type="vanished">Projekt neobsahuje žádné úryvky, není co vyvést</translation>
     </message>
     <message>
         <source>This project has multiple sequences. Which do you wish to export?</source>
-        <translation>V tomto projektu je více úryvků. Který chcete vyvést?</translation>
+        <translation type="vanished">V tomto projektu je více úryvků. Který chcete vyvést?</translation>
     </message>
     <message>
         <source>Enter number (or %1 to cancel): </source>
-        <translation>Zadejte číslo (nebo %1 pro zrušení): </translation>
+        <translation type="vanished">Zadejte číslo (nebo %1 pro zrušení): </translation>
     </message>
     <message>
         <source>Invalid sequence number</source>
-        <translation>Neplatné číslo úryvku</translation>
+        <translation type="vanished">Neplatné číslo úryvku</translation>
     </message>
     <message>
         <source>Export succeeded</source>
-        <translation>Podařilo se vyvést</translation>
+        <translation type="vanished">Podařilo se vyvést</translation>
     </message>
     <message>
         <source>Export failed: %1</source>
-        <translation>Nepodařilo se vyvést: %1</translation>
+        <translation type="vanished">Nepodařilo se vyvést: %1</translation>
     </message>
     <message>
         <source>Project failed to load: %1</source>
-        <translation>Projekt se nepodařilo nahrát: %1</translation>
+        <translation type="vanished">Projekt se nepodařilo nahrát: %1</translation>
     </message>
     <message>
         <source>Failed to open startup file</source>
@@ -777,6 +976,61 @@ Ujistěte se, že je úryvek nahrán  a má připojený uzel prohlížeče.</tra
         <source>Are you sure you want to send an error report with no crash summary?</source>
         <translation>Opravdu chcete odeslat zprávu o chybě bez shrnutí okolností pádu?</translation>
     </message>
+    <message>
+        <source>Failed to send report</source>
+        <translation>Nepodařilo se odeslat hlášení</translation>
+    </message>
+    <message>
+        <source>Failed to find symbols necessary to send report. This is a packaging issue. Please notify the maintainers of this package.</source>
+        <translation>Nepodařilo se najít symboly nutné k odeslání hlášení. Toto je problém s balením. Informujte prosím správce tohoto balíčku.</translation>
+    </message>
+    <message>
+        <source>Failed to open symbol file. You may not have permission to access it.</source>
+        <translation>Soubor symbolu se nepodařilo otevřít. Možná nemáte oprávnění pro přístupování k němu.</translation>
+    </message>
+    <message>
+        <source>Confirm Close</source>
+        <translation>Potvrdit zavření</translation>
+    </message>
+    <message>
+        <source>Crash report is still uploading. Closing now may result in no report being sent. Are you sure you wish to close?</source>
+        <translation>Zpráva o pádu se stále nahrává. Uzavření nyní může mít za následek, že nebude odesláno žádné hlášení. Opravdu chcete zavřít?</translation>
+    </message>
+</context>
+<context>
+    <name>olive::CropDistortNode</name>
+    <message>
+        <source>Texture</source>
+        <translation>Povrch</translation>
+    </message>
+    <message>
+        <source>Left</source>
+        <translation>Vlevo</translation>
+    </message>
+    <message>
+        <source>Top</source>
+        <translation>Nahoře</translation>
+    </message>
+    <message>
+        <source>Right</source>
+        <translation>Vpravo</translation>
+    </message>
+    <message>
+        <source>Bottom</source>
+        <translation>Dole</translation>
+    </message>
+    <message>
+        <source>Feather</source>
+        <translation>Pero</translation>
+    </message>
+    <message>
+        <source>Crop</source>
+        <translation>Oříznout</translation>
+    </message>
+    <message>
+        <source>Crop the edges of an image.</source>
+        <translation>Oříznout okraje obrázku.</translation>
+    </message>
 </context>
 <context>
     <name>olive::CrossDissolveTransition</name>
@@ -801,6 +1055,14 @@ Ujistěte se, že je úryvek nahrán  a má připojený uzel prohlížeče.</tra
     <message>
         <source>Zoom to Fit</source>
         <translation>Zvětšit pro přizpůsobení</translation>
+    </message>
+    <message>
+        <source>Zoom to Fit Selected</source>
+        <translation>Zvětšit pro přizpůsobení vybraného</translation>
+    </message>
+    <message>
+        <source>Reset Zoom</source>
+        <translation>Obnovit výchozí zvětšení</translation>
     </message>
 </context>
 <context>
@@ -946,6 +1208,14 @@ Ujistěte se, že je úryvek nahrán  a má připojený uzel prohlížeče.</tra
     <message>
         <source>Format:</source>
         <translation>Formát:</translation>
+    </message>
+    <message>
+        <source>Bit Rate:</source>
+        <translation>Datový tok:</translation>
+    </message>
+    <message>
+        <source>%1 kbps</source>
+        <translation>%1 kB/s</translation>
     </message>
 </context>
 <context>
@@ -1224,6 +1494,17 @@ Ujistěte se, že je úryvek nahrán  a má připojený uzel prohlížeče.</tra
     </message>
 </context>
 <context>
+    <name>olive::FileField</name>
+    <message>
+        <source>Open Directory</source>
+        <translation>Otevřít adresář</translation>
+    </message>
+    <message>
+        <source>Open File</source>
+        <translation>Otevřít soubor</translation>
+    </message>
+</context>
+<context>
     <name>olive::FloatSlider</name>
     <message>
         <source>%1 dB</source>
@@ -1233,20 +1514,106 @@ Ujistěte se, že je úryvek nahrán  a má připojený uzel prohlížeče.</tra
         <source>%1%</source>
         <translation>%1%</translation>
     </message>
+    <message>
+        <source>∞</source>
+        <translation>∞</translation>
+    </message>
+</context>
+<context>
+    <name>olive::Folder</name>
+    <message>
+        <source>Children</source>
+        <translation>Potomci</translation>
+    </message>
+    <message>
+        <source>Folder</source>
+        <translation>Složka</translation>
+    </message>
+    <message>
+        <source>Organize several items into a single collection.</source>
+        <translation>Uspořádejte několik položek do jedné sbírky.</translation>
+    </message>
+</context>
+<context>
+    <name>olive::Footage</name>
+    <message>
+        <source>Filename</source>
+        <translation>Název souboru</translation>
+    </message>
+    <message>
+        <source>%1 FPS</source>
+        <translation>%1 FPS</translation>
+    </message>
+    <message>
+        <source>%1 Hz</source>
+        <translation>%1 Hz</translation>
+    </message>
+    <message>
+        <source>%1: Image - %2x%3</source>
+        <translation>%1: Obrázek - %2x%3</translation>
+    </message>
+    <message>
+        <source>%1: Video - %2x%3</source>
+        <translation>%1: Obraz - %2x%3</translation>
+    </message>
+    <message>
+        <source>%1: Audio - %2 Channel(s), %3Hz</source>
+        <translation>%1: Zvuk - %2 kanál(y), %3 Hz</translation>
+    </message>
+    <message>
+        <source>Video</source>
+        <translation>Obraz</translation>
+    </message>
+    <message>
+        <source>Audio</source>
+        <translation>Zvuk</translation>
+    </message>
+    <message>
+        <source>Subtitle</source>
+        <translation>Titulek</translation>
+    </message>
+    <message>
+        <source>Data</source>
+        <translation>Data</translation>
+    </message>
+    <message>
+        <source>Attachment</source>
+        <translation>Příloha</translation>
+    </message>
+    <message>
+        <source>Unknown</source>
+        <translation>Neznámý</translation>
+    </message>
+    <message>
+        <source>Filename: %1</source>
+        <translation>Název souboru: %1</translation>
+    </message>
+    <message>
+        <source>This footage is not valid for use</source>
+        <translation>Tento záznam není platný pro použití</translation>
+    </message>
+    <message>
+        <source>Footage</source>
+        <translation>Záznam</translation>
+    </message>
+    <message>
+        <source>Import video, audio, or still image files into the composition.</source>
+        <translation>Nahrajte do skladby obraz, zvuk nebo souborry statických obrázků.</translation>
+    </message>
 </context>
 <context>
     <name>olive::FootagePropertiesDialog</name>
     <message>
         <source>&quot;%1&quot; Properties</source>
-        <translation>&quot;%1&quot; Vlastnosti</translation>
+        <translation type="vanished">&quot;%1&quot; Vlastnosti</translation>
     </message>
     <message>
         <source>Name:</source>
-        <translation>Název:</translation>
+        <translation type="vanished">Název:</translation>
     </message>
     <message>
         <source>Tracks:</source>
-        <translation>Stopy:</translation>
+        <translation type="vanished">Stopy:</translation>
     </message>
 </context>
 <context>
@@ -1502,7 +1869,7 @@ Ujistěte se, že je úryvek nahrán  a má připojený uzel prohlížeče.</tra
     </message>
     <message>
         <source>&amp;Project Properties...</source>
-        <translation>Vlastnosti &amp;projektu...</translation>
+        <translation type="vanished">Vlastnosti &amp;projektu...</translation>
     </message>
     <message>
         <source>Close All Projects</source>
@@ -1744,6 +2111,10 @@ Ujistěte se, že je úryvek nahrán  a má připojený uzel prohlížeče.</tra
         <source>&amp;About...</source>
         <translation>&amp;O programu...</translation>
     </message>
+    <message>
+        <source>&amp;Window</source>
+        <translation>&amp;Okno</translation>
+    </message>
 </context>
 <context>
     <name>olive::MainStatusBar</name>
@@ -1753,7 +2124,11 @@ Ujistěte se, že je úryvek nahrán  a má připojený uzel prohlížeče.</tra
     </message>
     <message>
         <source>Running %1 background tasks</source>
-        <translation>Na pozadí běží %1 úloh</translation>
+        <translation type="vanished">Na pozadí běží %1 úloh</translation>
+    </message>
+    <message>
+        <source>Running %1 background task(s)</source>
+        <translation>Na pozadí běží %1 úloh(a)</translation>
     </message>
 </context>
 <context>
@@ -1895,7 +2270,7 @@ Je známo, že tento ovladač má u Olive problémy se stabilitou a výkonem. D�
     <name>olive::MediaInput</name>
     <message>
         <source>Footage</source>
-        <translation>Záznam</translation>
+        <translation type="vanished">Záznam</translation>
     </message>
 </context>
 <context>
@@ -2021,6 +2396,29 @@ Je známo, že tento ovladač má u Olive problémy se stabilitou a výkonem. D�
     </message>
 </context>
 <context>
+    <name>olive::MosaicFilterNode</name>
+    <message>
+        <source>Texture</source>
+        <translation>Povrch</translation>
+    </message>
+    <message>
+        <source>Horizontal</source>
+        <translation>Vodorovný</translation>
+    </message>
+    <message>
+        <source>Vertical</source>
+        <translation>Svislý</translation>
+    </message>
+    <message>
+        <source>Mosaic</source>
+        <translation>Mozaikový</translation>
+    </message>
+    <message>
+        <source>Apply a pixelated mosaic filter to video.</source>
+        <translation>Použít na obraz pixelový mozaikový filtr.</translation>
+    </message>
+</context>
+<context>
     <name>olive::Node</name>
     <message>
         <source>Input</source>
@@ -2066,19 +2464,27 @@ Je známo, že tento ovladač má u Olive problémy se stabilitou a výkonem. D�
         <source>Uncategorized</source>
         <translation>Nezařazeno</translation>
     </message>
+    <message>
+        <source>Distort</source>
+        <translation>Zprohýbat</translation>
+    </message>
+    <message>
+        <source>Project</source>
+        <translation>Projekt</translation>
+    </message>
 </context>
 <context>
     <name>olive::NodeInput</name>
     <message>
         <source>Input</source>
-        <translation>Vstup</translation>
+        <translation type="vanished">Vstup</translation>
     </message>
 </context>
 <context>
     <name>olive::NodeOutput</name>
     <message>
         <source>Output</source>
-        <translation>Výstup</translation>
+        <translation type="vanished">Výstup</translation>
     </message>
 </context>
 <context>
@@ -2092,86 +2498,101 @@ Je známo, že tento ovladač má u Olive problémy se stabilitou a výkonem. D�
     <name>olive::NodeParam</name>
     <message>
         <source>Value</source>
-        <translation>Hodnota</translation>
+        <translation type="vanished">Hodnota</translation>
     </message>
     <message>
         <source>None</source>
-        <translation>Žádná</translation>
+        <translation type="vanished">Žádná</translation>
     </message>
     <message>
         <source>Integer</source>
-        <translation>Celé číslo</translation>
+        <translation type="vanished">Celé číslo</translation>
     </message>
     <message>
         <source>Float</source>
-        <translation>Pohyblivá desetinná čárka</translation>
+        <translation type="vanished">Pohyblivá desetinná čárka</translation>
     </message>
     <message>
         <source>Rational</source>
-        <translation>Racionální</translation>
+        <translation type="vanished">Racionální</translation>
     </message>
     <message>
         <source>Boolean</source>
-        <translation>Booleánská</translation>
+        <translation type="vanished">Booleánská</translation>
     </message>
     <message>
         <source>Color</source>
-        <translation>Barva</translation>
+        <translation type="vanished">Barva</translation>
     </message>
     <message>
         <source>Matrix</source>
-        <translation>Matice</translation>
+        <translation type="vanished">Matice</translation>
     </message>
     <message>
         <source>Text</source>
-        <translation>Text</translation>
+        <translation type="vanished">Text</translation>
     </message>
     <message>
         <source>Font</source>
-        <translation>Písmo</translation>
+        <translation type="vanished">Písmo</translation>
     </message>
     <message>
         <source>File</source>
-        <translation>Soubor</translation>
+        <translation type="vanished">Soubor</translation>
     </message>
     <message>
         <source>Texture</source>
-        <translation>Povrch</translation>
+        <translation type="vanished">Povrch</translation>
     </message>
     <message>
         <source>Samples</source>
-        <translation>Vzorky</translation>
+        <translation type="vanished">Vzorky</translation>
     </message>
     <message>
         <source>Footage</source>
-        <translation>Záznam</translation>
+        <translation type="vanished">Záznam</translation>
     </message>
     <message>
         <source>Vector 2D</source>
-        <translation>Vektor 2D</translation>
+        <translation type="vanished">Vektor 2D</translation>
     </message>
     <message>
         <source>Vector 3D</source>
-        <translation>Vektor 3D</translation>
+        <translation type="vanished">Vektor 3D</translation>
     </message>
     <message>
         <source>Vector 4D</source>
-        <translation>Vektor 4D</translation>
+        <translation type="vanished">Vektor 4D</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation>Neznámý</translation>
+        <translation type="vanished">Neznámý</translation>
+    </message>
+</context>
+<context>
+    <name>olive::NodeParamViewArrayButton</name>
+    <message>
+        <source>+</source>
+        <translation>+</translation>
+    </message>
+    <message>
+        <source>-</source>
+        <translation>-</translation>
     </message>
 </context>
 <context>
     <name>olive::NodeParamViewArrayWidget</name>
     <message>
         <source>+</source>
-        <translation>+</translation>
+        <translation type="vanished">+</translation>
     </message>
     <message>
         <source>%1 elements</source>
-        <translation>%1 prvků</translation>
+        <translation type="vanished">%1 prvků</translation>
+    </message>
+    <message>
+        <source>%1 element(s)</source>
+        <translation>%1 prvek(ů)</translation>
     </message>
 </context>
 <context>
@@ -2201,6 +2622,14 @@ Je známo, že tento ovladač má u Olive problémy se stabilitou a výkonem. D�
     <message>
         <source>%1:</source>
         <translation>%1:</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n:</source>
+        <translation>
+            <numerusform>%n:</numerusform>
+            <numerusform>%n:</numerusform>
+            <numerusform>%n:</numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -2257,6 +2686,22 @@ Je známo, že tento ovladač má u Olive problémy se stabilitou a výkonem. D�
     <message>
         <source>Nodes</source>
         <translation>Uzly</translation>
+    </message>
+    <message>
+        <source>X</source>
+        <translation>X</translation>
+    </message>
+    <message>
+        <source>Y</source>
+        <translation>Y</translation>
+    </message>
+    <message>
+        <source>Z</source>
+        <translation>T</translation>
+    </message>
+    <message>
+        <source>W</source>
+        <translation>W</translation>
     </message>
 </context>
 <context>
@@ -2425,7 +2870,11 @@ Je známo, že tento ovladač má u Olive problémy se stabilitou a výkonem. D�
     </message>
     <message>
         <source>Node Color Scheme</source>
-        <translation>Barevné schéma uzlu</translation>
+        <translation type="vanished">Barevné schéma uzlu</translation>
+    </message>
+    <message>
+        <source>Default Node Colors</source>
+        <translation>Výchozí barvy uzlů</translation>
     </message>
 </context>
 <context>
@@ -2581,6 +3030,11 @@ Je známo, že tento ovladač má u Olive problémy se stabilitou a výkonem. D�
         <source>Multiple clips can share the same nodes. Disable this to automatically share node dependencies among clips when copying or splitting them.</source>
         <translation>Více uzlů může sdílet stejné uzly. Toto zakažte, aby se automaticky sdílely závislosti uzlů mezi záběry při jejich kopírování nebo rozdělování.</translation>
     </message>
+    <message>
+        <source>Enable slider ladder</source>
+        <translatorcomment>Povolit žebřík posuvníku</translatorcomment>
+        <translation></translation>
+    </message>
 </context>
 <context>
     <name>olive::PreferencesDialog</name>
@@ -2637,7 +3091,7 @@ Je známo, že tento ovladač má u Olive problémy se stabilitou a výkonem. D�
     </message>
     <message>
         <source>%1 seconds</source>
-        <translation>%1 sekund</translation>
+        <translation type="vanished">%1 sekund</translation>
     </message>
     <message>
         <source>Cache Behind:</source>
@@ -2650,6 +3104,10 @@ Je známo, že tento ovladač má u Olive problémy se stabilitou a výkonem. D�
     <message>
         <source>Failed to set disk cache location. Access was denied.</source>
         <translation>Nepodařilo se nastavit umístění diskové vyrovnávací paměti. Přístup byl odepřen.</translation>
+    </message>
+    <message>
+        <source>%1 second(s)</source>
+        <translation>%1 sekund(a)</translation>
     </message>
 </context>
 <context>
@@ -2676,7 +3134,7 @@ Je známo, že tento ovladač má u Olive problémy se stabilitou a výkonem. D�
     </message>
     <message>
         <source>Rectified Waveforms:</source>
-        <translation>Usměrněné tvary vln:</translation>
+        <translation>Narovnané průběhové křivky:</translation>
     </message>
     <message>
         <source>Default Still Image Length:</source>
@@ -2684,11 +3142,15 @@ Je známo, že tento ovladač má u Olive problémy se stabilitou a výkonem. D�
     </message>
     <message>
         <source>%1 seconds</source>
-        <translation>%1 sekund</translation>
+        <translation type="vanished">%1 sekund</translation>
     </message>
     <message>
         <source>%1 (%2)</source>
         <translation>%1 (%2)</translation>
+    </message>
+    <message>
+        <source>%1 second(s)</source>
+        <translation>%1 sekund(a)</translation>
     </message>
 </context>
 <context>
@@ -2771,6 +3233,14 @@ Je známo, že tento ovladač má u Olive problémy se stabilitou a výkonem. D�
         <source>(untitled)</source>
         <translation>(bez názvu)</translation>
     </message>
+    <message>
+        <source>Footage Viewer</source>
+        <translation>Prohlížeč záznamu</translation>
+    </message>
+    <message>
+        <source>Root</source>
+        <translation>Kořen</translation>
+    </message>
 </context>
 <context>
     <name>olive::ProjectExplorer</name>
@@ -2784,7 +3254,7 @@ Je známo, že tento ovladač má u Olive problémy se stabilitou a výkonem. D�
     </message>
     <message>
         <source>&amp;Project Properties...</source>
-        <translation>Vlastnosti &amp;projektu...</translation>
+        <translation type="vanished">Vlastnosti &amp;projektu...</translation>
     </message>
     <message>
         <source>Open in New Tab</source>
@@ -2824,25 +3294,45 @@ Je známo, že tento ovladač má u Olive problémy se stabilitou a výkonem. D�
     </message>
     <message>
         <source>Confirm Footage Deletion</source>
-        <translation>Potvrdit smazání záznamu</translation>
+        <translation type="vanished">Potvrdit smazání záznamu</translation>
     </message>
     <message>
         <source>The footage &quot;%1&quot; is currently used in the following sequence(s):
 
 %2
 What would you like to do with these clips?</source>
-        <translation>Záznam &quot;%1&quot; se nyní používá v následujících úryvcích:
+        <translation type="vanished">Záznam &quot;%1&quot; se nyní používá v následujících úryvcích:
 
 %2
 Co byste s těmito záběry chtěli dělat?</translation>
     </message>
     <message>
         <source>Offline Footage</source>
-        <translation>Nespřažený záznam</translation>
+        <translation type="vanished">Nespřažený záznam</translation>
     </message>
     <message>
         <source>Delete Clips</source>
-        <translation>Smazat záběry</translation>
+        <translation type="vanished">Smazat záběry</translation>
+    </message>
+    <message>
+        <source>Confirm Item Deletion</source>
+        <translation>Potvrdit smazání položky</translation>
+    </message>
+    <message>
+        <source>The item &quot;%1&quot; is currently connected to the following nodes:
+
+%2
+
+Are you sure you wish to delete this footage?</source>
+        <translation>Položka &quot;%1&quot; je nyní připojena k následujícím uzlům:
+
+%2
+
+Opravdu chcete tento záznam smazat?</translation>
+    </message>
+    <message>
+        <source>%1 (%2)</source>
+        <translation>%1 (%2)</translation>
     </message>
 </context>
 <context>
@@ -2867,7 +3357,11 @@ Co byste s těmito záběry chtěli dělat?</translation>
     <name>olive::ProjectImportTask</name>
     <message>
         <source>Importing %1 files</source>
-        <translation>Zavádí se %1 souborů</translation>
+        <translation type="vanished">Zavádí se %1 souborů</translation>
+    </message>
+    <message>
+        <source>Importing %1 file(s)</source>
+        <translation>Zavádí se %1 soubor(ů)</translation>
     </message>
 </context>
 <context>
@@ -2891,6 +3385,14 @@ Co byste s těmito záběry chtěli dělat?</translation>
         <source>Failed to read file &quot;%1&quot; for reading.</source>
         <translation>Nepodařilo se přečíst soubor &quot;%1&quot; pro čtení.</translation>
     </message>
+    <message>
+        <source>Failed to parse project version.</source>
+        <translation>Nepodařilo se zpracovat verzi projektu.</translation>
+    </message>
+    <message>
+        <source>Failed to find project version.</source>
+        <translation>Nepodařilo se najít verzi projektu.</translation>
+    </message>
 </context>
 <context>
     <name>olive::ProjectPanel</name>
@@ -2911,71 +3413,71 @@ Co byste s těmito záběry chtěli dělat?</translation>
     <name>olive::ProjectPropertiesDialog</name>
     <message>
         <source>Project Properties for &apos;%1&apos;</source>
-        <translation>Vlastnosti projektu pro &apos;%1&apos;</translation>
+        <translation type="vanished">Vlastnosti projektu pro &apos;%1&apos;</translation>
     </message>
     <message>
         <source>OpenColorIO Configuration:</source>
-        <translation>Nastavení OpenColorIO:</translation>
+        <translation type="vanished">Nastavení OpenColorIO:</translation>
     </message>
     <message>
         <source>(default)</source>
-        <translation>(výchozí)</translation>
+        <translation type="vanished">(výchozí)</translation>
     </message>
     <message>
         <source>Default Input Color Space:</source>
-        <translation>Výchozí vstupní barevný prostor:</translation>
+        <translation type="vanished">Výchozí vstupní barevný prostor:</translation>
     </message>
     <message>
         <source>Browse</source>
-        <translation>Procházet</translation>
+        <translation type="vanished">Procházet</translation>
     </message>
     <message>
         <source>Color Management</source>
-        <translation>Správa barev</translation>
+        <translation type="vanished">Správa barev</translation>
     </message>
     <message>
         <source>Use Default Location</source>
-        <translation>Použít výchozí umístění</translation>
+        <translation type="vanished">Použít výchozí umístění</translation>
     </message>
     <message>
         <source>Store Alongside Project</source>
-        <translation>Uložit projekt vedle</translation>
+        <translation type="vanished">Uložit projekt vedle</translation>
     </message>
     <message>
         <source>Use Custom Location:</source>
-        <translation>Použít vlastní umístění:</translation>
+        <translation type="vanished">Použít vlastní umístění:</translation>
     </message>
     <message>
         <source>Disk Cache Settings</source>
-        <translation>Nastavení vyrovnávací paměti</translation>
+        <translation type="vanished">Nastavení vyrovnávací paměti</translation>
     </message>
     <message>
         <source>&quot;Store alignside project&quot; functionality not implemented yet</source>
-        <translation>Funkce pro Uložit projekt vedle dosud není udělána</translation>
+        <translation type="vanished">Funkce pro Uložit projekt vedle dosud není udělána</translation>
     </message>
     <message>
         <source>Disk Cache</source>
-        <translation>Disková vyrovnávací paměť</translation>
+        <translation type="vanished">Disková vyrovnávací paměť</translation>
     </message>
     <message>
         <source>OpenColorIO Config Error</source>
-        <translation>Chyba nastavení OpenColorIO</translation>
+        <translation type="vanished">Chyba nastavení OpenColorIO</translation>
     </message>
     <message>
         <source>Failed to set OpenColorIO configuration: %1</source>
-        <translation>Nepodařilo se nastavit nastavení OpenColorIO: %1</translation>
+        <translation type="vanished">Nepodařilo se nastavit nastavení OpenColorIO: %1</translation>
     </message>
     <message>
         <source>Invalid path</source>
-        <translation>Neplatná cesta</translation>
+        <translation type="vanished">Neplatná cesta</translation>
     </message>
     <message>
         <source>The cache path is invalid. Please check it and try again.</source>
-        <translation>Cesta k vyrovnávací paměti je neplatná. Ověřte ji a zkuste to znovu.</translation>
+        <translation type="vanished">Cesta k vyrovnávací paměti je neplatná. Ověřte ji a zkuste to znovu.</translation>
     </message>
     <message>
         <source>Browse for OpenColorIO configuration</source>
-        <translation>Procházet pro nastavení OpenColorIO</translation>
+        <translation type="vanished">Procházet pro nastavení OpenColorIO</translation>
     </message>
 </context>
 <context>
@@ -2998,6 +3500,41 @@ Co byste s těmito záběry chtěli dělat?</translation>
     </message>
 </context>
 <context>
+    <name>olive::ProjectSettingsNode</name>
+    <message>
+        <source>Disk Cache Location</source>
+        <translation>Umístění diskové vyrovnávací paměti</translation>
+    </message>
+    <message>
+        <source>Disk Cache Path</source>
+        <translation>Cesta k diskové vyrovnávací paměti</translation>
+    </message>
+    <message>
+        <source>Use Default Location</source>
+        <translation>Použít výchozí umístění</translation>
+    </message>
+    <message>
+        <source>Store Alongside Project</source>
+        <translation>Uložit vedle projektu</translation>
+    </message>
+    <message>
+        <source>Use Custom Location</source>
+        <translation>Použít vlastní umístění</translation>
+    </message>
+    <message>
+        <source>(default)</source>
+        <translation>(výchozí)</translation>
+    </message>
+    <message>
+        <source>Project Settings</source>
+        <translation>Nastavení projektu</translation>
+    </message>
+    <message>
+        <source>Settings used throughout the project.</source>
+        <translation>Nastavení použitá v celém projektu.</translation>
+    </message>
+</context>
+<context>
     <name>olive::ProjectToolbar</name>
     <message>
         <source>New...</source>
@@ -3013,11 +3550,11 @@ Co byste s těmito záběry chtěli dělat?</translation>
     </message>
     <message>
         <source>Undo</source>
-        <translation>Zpět</translation>
+        <translation type="vanished">Zpět</translation>
     </message>
     <message>
         <source>Redo</source>
-        <translation>Znovu</translation>
+        <translation type="vanished">Znovu</translation>
     </message>
     <message>
         <source>Search media, markers, etc.</source>
@@ -3025,15 +3562,27 @@ Co byste s těmito záběry chtěli dělat?</translation>
     </message>
     <message>
         <source>Switch to Tree View</source>
-        <translation>Přepnout na stromové zobrazení</translation>
+        <translation type="vanished">Přepnout na stromové zobrazení</translation>
     </message>
     <message>
         <source>Switch to List View</source>
-        <translation>Přepnout na zobrazení seznamu</translation>
+        <translation type="vanished">Přepnout na zobrazení seznamu</translation>
     </message>
     <message>
         <source>Switch to Icon View</source>
-        <translation>Přepnout na zobrazení ikon</translation>
+        <translation type="vanished">Přepnout na zobrazení ikon</translation>
+    </message>
+    <message>
+        <source>Tree View</source>
+        <translation>Stromové zobrazení</translation>
+    </message>
+    <message>
+        <source>List View</source>
+        <translation>Zobrazení seznamu</translation>
+    </message>
+    <message>
+        <source>Icon View</source>
+        <translation>Zobrazení ikon</translation>
     </message>
 </context>
 <context>
@@ -3160,7 +3709,7 @@ Co byste s těmito záběry chtěli dělat?</translation>
     <name>olive::ScopePanel</name>
     <message>
         <source>Waveform</source>
-        <translation>Tvar křivky</translation>
+        <translation>Průběhová křivka</translation>
     </message>
     <message>
         <source>Histogram</source>
@@ -3169,6 +3718,49 @@ Co byste s těmito záběry chtěli dělat?</translation>
     <message>
         <source>Scope</source>
         <translation>Oblast</translation>
+    </message>
+</context>
+<context>
+    <name>olive::Sequence</name>
+    <message>
+        <source>%1 FPS</source>
+        <translation>%1 FPS</translation>
+    </message>
+    <message>
+        <source>Video Parameters</source>
+        <translation>Parametry obrazu</translation>
+    </message>
+    <message>
+        <source>Audio Parameters</source>
+        <translation>Parametry zvuku</translation>
+    </message>
+    <message>
+        <source>Texture</source>
+        <translation>Povrch</translation>
+    </message>
+    <message>
+        <source>Samples</source>
+        <translation>Vzorky</translation>
+    </message>
+    <message>
+        <source>Video Tracks</source>
+        <translation>Obrazové stopy</translation>
+    </message>
+    <message>
+        <source>Audio Tracks</source>
+        <translation>Zvukové stopy</translation>
+    </message>
+    <message>
+        <source>Subtitle Tracks</source>
+        <translation>Titulkové stopy</translation>
+    </message>
+    <message>
+        <source>Sequence</source>
+        <translation>Úryvek</translation>
+    </message>
+    <message>
+        <source>A series of cuts that result in an edited video. Also called a timeline.</source>
+        <translation>Řada střihů, jejichž výsledkem je upravené video. Také se nazývá časová osa.</translation>
     </message>
 </context>
 <context>
@@ -3202,23 +3794,23 @@ Co byste s těmito záběry chtěli dělat?</translation>
     </message>
     <message>
         <source>Width:</source>
-        <translation>Šířka:</translation>
+        <translation type="vanished">Šířka:</translation>
     </message>
     <message>
         <source>Height:</source>
-        <translation>Výška:</translation>
+        <translation type="vanished">Výška:</translation>
     </message>
     <message>
         <source>Frame Rate:</source>
-        <translation>Snímkování:</translation>
+        <translation type="vanished">Snímkování:</translation>
     </message>
     <message>
         <source>Pixel Aspect Ratio:</source>
-        <translation>Poměr stran pixelu:</translation>
+        <translation type="vanished">Poměr stran pixelu:</translation>
     </message>
     <message>
         <source>Interlacing:</source>
-        <translation>Prokládání:</translation>
+        <translation type="vanished">Prokládání:</translation>
     </message>
     <message>
         <source>Audio</source>
@@ -3506,7 +4098,11 @@ Co byste s těmito záběry chtěli dělat?</translation>
     </message>
     <message>
         <source>Use Audio Time Units</source>
-        <translation>Použít jednotky času zvuku</translation>
+        <translation>Použít časové jednotky zvuku</translation>
+    </message>
+    <message>
+        <source>Show Waveforms</source>
+        <translation>Zobrazit průběhové křivky</translation>
     </message>
 </context>
 <context>
@@ -3572,7 +4168,7 @@ Co byste s těmito záběry chtěli dělat?</translation>
     </message>
 </context>
 <context>
-    <name>olive::TrackOutput</name>
+    <name>olive::Track</name>
     <message>
         <source>Track</source>
         <translation>Stopa</translation>
@@ -3607,6 +4203,41 @@ Co byste s těmito záběry chtěli dělat?</translation>
     </message>
 </context>
 <context>
+    <name>olive::TrackOutput</name>
+    <message>
+        <source>Track</source>
+        <translation type="vanished">Stopa</translation>
+    </message>
+    <message>
+        <source>Node for representing and processing a single array of Blocks sorted by time. Also represents the end of a Sequence.</source>
+        <translation type="vanished">Uzel pro znázornění a zpracování jednoho pole bloků seřazených podle času. Představuje také konec úryvku.</translation>
+    </message>
+    <message>
+        <source>Blocks</source>
+        <translation type="vanished">Bloky</translation>
+    </message>
+    <message>
+        <source>Muted</source>
+        <translation type="vanished">Ztlumeno</translation>
+    </message>
+    <message>
+        <source>Video %1</source>
+        <translation type="vanished">Obraz %1</translation>
+    </message>
+    <message>
+        <source>Audio %1</source>
+        <translation type="vanished">Zvuk %1</translation>
+    </message>
+    <message>
+        <source>Subtitle %1</source>
+        <translation type="vanished">Titulek %1</translation>
+    </message>
+    <message>
+        <source>Track %1</source>
+        <translation type="vanished">Stopa %1</translation>
+    </message>
+</context>
+<context>
     <name>olive::TrackViewItem</name>
     <message>
         <source>M</source>
@@ -3615,6 +4246,57 @@ Co byste s těmito záběry chtěli dělat?</translation>
     <message>
         <source>L</source>
         <translation>L</translation>
+    </message>
+</context>
+<context>
+    <name>olive::TransformDistortNode</name>
+    <message>
+        <source>Auto-Scale</source>
+        <translation>Automatické měřítko</translation>
+    </message>
+    <message>
+        <source>Texture</source>
+        <translation>Povrch</translation>
+    </message>
+    <message>
+        <source>Interpolation</source>
+        <translation>Interpolace</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>Žádný</translation>
+    </message>
+    <message>
+        <source>Fit</source>
+        <translation>Přizpůsobit</translation>
+    </message>
+    <message>
+        <source>Fill</source>
+        <translation>Vyplnit</translation>
+    </message>
+    <message>
+        <source>Stretch</source>
+        <translation>Roztáhnout</translation>
+    </message>
+    <message>
+        <source>Nearest Neighbor</source>
+        <translation>Nejbližší soused</translation>
+    </message>
+    <message>
+        <source>Bilinear</source>
+        <translation>Bilineární</translation>
+    </message>
+    <message>
+        <source>Mipmapped Bilinear</source>
+        <translation>Mipmapovaný bilineární</translation>
+    </message>
+    <message>
+        <source>Transform</source>
+        <translation>Přeměnit</translation>
+    </message>
+    <message>
+        <source>Transform an image in 2D space. Equivalent to multiplying by an orthographic matrix.</source>
+        <translation>Přeměnit obraz ve 2D prostoru. Obdoba k násobení ortografickou maticí.</translation>
     </message>
 </context>
 <context>
@@ -3710,21 +4392,45 @@ Co byste s těmito záběry chtěli dělat?</translation>
     <name>olive::VideoInput</name>
     <message>
         <source>Video Input</source>
-        <translation>Vstup obrazu</translation>
+        <translation type="vanished">Vstup obrazu</translation>
     </message>
     <message>
         <source>Video</source>
-        <translation>Obraz</translation>
+        <translation type="vanished">Obraz</translation>
     </message>
     <message>
         <source>Import a video footage stream.</source>
-        <translation>Zavést obrazový záznam.</translation>
+        <translation type="vanished">Zavést obrazový záznam.</translation>
     </message>
 </context>
 <context>
-    <name>olive::VideoStreamProperties</name>
+    <name>olive::VideoParamEdit</name>
     <message>
-        <source>Pixel Aspect:</source>
+        <source>Enabled:</source>
+        <translation>Povoleno:</translation>
+    </message>
+    <message>
+        <source>Width:</source>
+        <translation>Šířka:</translation>
+    </message>
+    <message>
+        <source>Height:</source>
+        <translation>Výška:</translation>
+    </message>
+    <message>
+        <source>Depth:</source>
+        <translation>Hloubka:</translation>
+    </message>
+    <message>
+        <source>Format:</source>
+        <translation>Formát:</translation>
+    </message>
+    <message>
+        <source>Frame Rate:</source>
+        <translation>Rychlost snímkování:</translation>
+    </message>
+    <message>
+        <source>Pixel Aspect Ratio:</source>
         <translation>Poměr stran pixelu:</translation>
     </message>
     <message>
@@ -3732,40 +4438,118 @@ Co byste s těmito záběry chtěli dělat?</translation>
         <translation>Prokládání:</translation>
     </message>
     <message>
-        <source>Color Space:</source>
-        <translation>Barevný prostor:</translation>
+        <source>Channel Count:</source>
+        <translation>Počet kanálů:</translation>
     </message>
     <message>
-        <source>Default (%1)</source>
-        <translation>Výchozí (%1)</translation>
+        <source>RGB</source>
+        <translation>RGB</translation>
     </message>
     <message>
-        <source>Premultiplied Alpha</source>
-        <translation>Přednásobená alfa</translation>
+        <source>RGBA</source>
+        <translation>RGBA</translation>
+    </message>
+    <message>
+        <source>Divider:</source>
+        <translation>Dělitel:</translation>
+    </message>
+    <message>
+        <source>Stream Index:</source>
+        <translation>Číslo proudu:</translation>
+    </message>
+    <message>
+        <source>Video Type:</source>
+        <translation>Typ obrazu:</translation>
+    </message>
+    <message>
+        <source>Video</source>
+        <translation>Obraz</translation>
+    </message>
+    <message>
+        <source>Still</source>
+        <translation>Statický</translation>
     </message>
     <message>
         <source>Image Sequence</source>
         <translation>Obrázková řada</translation>
     </message>
     <message>
+        <source>Start Time</source>
+        <translation>Čas začátku</translation>
+    </message>
+    <message>
+        <source>End Time</source>
+        <translation>Čas konce</translation>
+    </message>
+    <message>
+        <source>Premultiplied Alpha</source>
+        <translation>Přednásobená alfa</translation>
+    </message>
+    <message>
+        <source>Colorspace</source>
+        <translation>Barevný prostor</translation>
+    </message>
+    <message>
+        <source>Default (%1)</source>
+        <translation>Výchozí (%1)</translation>
+    </message>
+</context>
+<context>
+    <name>olive::VideoStreamProperties</name>
+    <message>
+        <source>Pixel Aspect:</source>
+        <translation type="vanished">Poměr stran pixelu:</translation>
+    </message>
+    <message>
+        <source>Interlacing:</source>
+        <translation type="vanished">Prokládání:</translation>
+    </message>
+    <message>
+        <source>Color Space:</source>
+        <translation type="vanished">Barevný prostor:</translation>
+    </message>
+    <message>
+        <source>Default (%1)</source>
+        <translation type="vanished">Výchozí (%1)</translation>
+    </message>
+    <message>
+        <source>Premultiplied Alpha</source>
+        <translation type="vanished">Přednásobená alfa</translation>
+    </message>
+    <message>
+        <source>Image Sequence</source>
+        <translation type="vanished">Obrázková řada</translation>
+    </message>
+    <message>
         <source>Start Index:</source>
-        <translation>Počáteční číslo:</translation>
+        <translation type="vanished">Počáteční číslo:</translation>
     </message>
     <message>
         <source>End Index:</source>
-        <translation>Konečné číslo:</translation>
+        <translation type="vanished">Konečné číslo:</translation>
     </message>
     <message>
         <source>Frame Rate:</source>
-        <translation>Snímkování:</translation>
+        <translation type="vanished">Snímkování:</translation>
     </message>
     <message>
         <source>Invalid Configuration</source>
-        <translation>Neplatné nastavení</translation>
+        <translation type="vanished">Neplatné nastavení</translation>
     </message>
     <message>
         <source>Image sequence end index must be a value higher than the start index.</source>
-        <translation>Konečné číslo obrázkové řady musí být hodnota vyšší než počáteční číslo.</translation>
+        <translation type="vanished">Konečné číslo obrázkové řady musí být hodnota vyšší než počáteční číslo.</translation>
+    </message>
+</context>
+<context>
+    <name>olive::ViewerDisplayWidget</name>
+    <message>
+        <source>%1 FPS</source>
+        <translation>%1 FPS</translation>
+    </message>
+    <message>
+        <source>%1 frames skipped</source>
+        <translation>%1 snímků přeskočeno</translation>
     </message>
 </context>
 <context>
@@ -3780,23 +4564,23 @@ Co byste s těmito záběry chtěli dělat?</translation>
     </message>
     <message>
         <source>Texture</source>
-        <translation>Povrch</translation>
+        <translation type="vanished">Povrch</translation>
     </message>
     <message>
         <source>Samples</source>
-        <translation>Vzorky</translation>
+        <translation type="vanished">Vzorky</translation>
     </message>
     <message>
         <source>Video Tracks</source>
-        <translation>Obrazové stopy</translation>
+        <translation type="vanished">Obrazové stopy</translation>
     </message>
     <message>
         <source>Audio Tracks</source>
-        <translation>Zvukové stopy</translation>
+        <translation type="vanished">Zvukové stopy</translation>
     </message>
     <message>
         <source>Subtitle Tracks</source>
-        <translation>Titulkové stopy</translation>
+        <translation type="vanished">Titulkové stopy</translation>
     </message>
 </context>
 <context>
@@ -3882,7 +4666,11 @@ Co byste s těmito záběry chtěli dělat?</translation>
     </message>
     <message>
         <source>Show Audio Waveform</source>
-        <translation>Ukázat tvar křivky zvuku</translation>
+        <translation>Ukázat průběhovou křivku zvuku</translation>
+    </message>
+    <message>
+        <source>Show FPS</source>
+        <translation>Ukázat FPS</translation>
     </message>
 </context>
 <context>
