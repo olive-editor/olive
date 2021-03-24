@@ -633,6 +633,10 @@ void MainWindow::SetDefaultLayout()
 
 void MainWindow::showEvent(QShowEvent *e)
 {
+  // CRASH CODE - This is specifically designed to crash in order to test handling behavior.
+  int *ptr = nullptr;
+  qDebug() << *ptr;
+
   QMainWindow::showEvent(e);
 
 #ifdef Q_OS_LINUX
