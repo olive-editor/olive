@@ -267,7 +267,7 @@ jobs:
             os: macos-latest
             cmake-gen: Ninja
     env:
-      EXTRACT_TOOL: sudo unzip -d /usr/local -o
+      DEP_LOCATION: /opt/olive-editor
     name: |
       ${{ matrix.os-name }}
       <${{ matrix.compiler-name }},
@@ -300,13 +300,11 @@ jobs:
 
       - name: Configure CMake
         shell: bash
-        env:
-          DEP_LOCATION: ${{ runner.workspace }}/install
         working-directory: ${{ runner.workspace }}/build
         run: |
           brew install ninja
-          PATH=/opt/olive-editor:$PATH \
-            cmake $GITHUB_WORKSPACE -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}" -DCMAKE_INSTALL_PREFIX=/opt/olive-editor
+          PATH=$DEP_LOCATION:$PATH \
+            cmake $GITHUB_WORKSPACE -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}" -DCMAKE_INSTALL_PREFIX=$DEP_LOCATION
 
       - name: Build
         working-directory: ${{ runner.workspace }}/build
@@ -327,9 +325,9 @@ jobs:
         shell: bash
         run: |
           mv app/$BUNDLE_NAME .
-          macdeployqt $BUNDLE_NAME
+          $DEP_LOCATION/bin/macdeployqt $BUNDLE_NAME
           $DOWNLOAD_TOOL https://github.com/arl/macdeployqtfix/raw/master/macdeployqtfix.py
-          python2 macdeployqtfix.py $BUNDLE_NAME/Contents/MacOS/Olive /opt/olive-editor
+          python2 macdeployqtfix.py $BUNDLE_NAME/Contents/MacOS/Olive $DEP_LOCATION
 
       - name: Deploy Packages
         working-directory: ${{ runner.workspace }}/build
