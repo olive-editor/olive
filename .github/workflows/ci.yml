@@ -36,26 +36,20 @@ jobs:
             compiler-name: GCC 9.3.1
             cmake-gen: Ninja
             os-name: Linux (CentOS 7)
-            vfx-cy: 2021
-            ci-common-version: 2
           - build-type: RelWithDebInfo
             cc-compiler: clang
             cxx-compiler: clang++
             compiler-name: Clang 10.0.0
             cmake-gen: Ninja
             os-name: Linux (CentOS 7)
-            vfx-cy: 2021
-            ci-common-version: 2
     name: |
       ${{ matrix.os-name }}
       <${{ matrix.compiler-name }},
        ${{ matrix.build-type }},
-       ${{ matrix.cmake-gen }},
-       VFX CY${{ matrix.vfx-cy }},
-       CI Common Version ${{ matrix.ci-common-version }}>
+       ${{ matrix.cmake-gen }}>
     runs-on: ubuntu-latest
     container:
-      image: olivevideoeditor/ci-olive:${{ matrix.vfx-cy }}.${{ matrix.ci-common-version }}
+      image: olivevideoeditor/ci-olive:2021.3
     if: >-
       !contains(github.event.head_commit.message, '[skip ci]')
 

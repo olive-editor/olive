@@ -27,14 +27,14 @@ docker pull olivevideoeditor/ci-package-otio
 docker pull olivevideoeditor/ci-package-crashpad
 docker pull olivevideoeditor/ci-package-ffmpeg:4.2.4
 docker pull olivevideoeditor/ci-package-ocio:2021-2.0.0
-docker pull olivevideoeditor/ci-olive:2021.2
+docker pull olivevideoeditor/ci-olive:2021.3
 ```
 
 Use `ci-olive` image as local build container, by mounting working copy at
 `~/olive` into guest system at `/opt/olive/olive`:
 
 ```bash
-docker run --rm -it -v ~/olive:/opt/olive/olive olivevideoeditor/ci-olive:2021.2
+docker run --rm -it -v ~/olive:/opt/olive/olive olivevideoeditor/ci-olive:2021.3
 mkdir build
 cd build
 cmake .. -G Ninja
@@ -50,8 +50,12 @@ docker build -t olivevideoeditor/ci-package-otio -f ci-otio/Dockerfile .
 docker build -t olivevideoeditor/ci-package-crashpad -f ci-crashpad/Dockerfile .
 docker build -t olivevideoeditor/ci-package-ffmpeg:4.2.4 -f ci-ffmpeg/Dockerfile .
 docker build -t olivevideoeditor/ci-package-ocio:2021-2.0.0 -f ci-ocio/Dockerfile .
-docker build -t olivevideoeditor/ci-olive:2021.2 -f ci-olive/Dockerfile .
+docker build -t olivevideoeditor/ci-olive:2021.3 -f ci-olive/Dockerfile .
 ```
+
+Note that `2021` in `ci-olive:2021.3` stands for the
+[VFX Reference Platform](http://vfxplatform.com/) calendar year and `3` for the
+build image revision (should be incremented each time a new image is published).
 
 Publish images:
 
@@ -61,5 +65,5 @@ docker push olivevideoeditor/ci-package-otio
 docker push olivevideoeditor/ci-package-crashpad
 docker push olivevideoeditor/ci-package-ffmpeg:4.2.4
 docker push olivevideoeditor/ci-package-ocio:2021-2.0.0
-docker push olivevideoeditor/ci-olive:2021.2
+docker push olivevideoeditor/ci-olive:2021.3
 ```
