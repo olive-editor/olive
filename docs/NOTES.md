@@ -1,3 +1,6 @@
+# Notes
+
+## Sphinx Setup
 
 - Assuming Python 3 (check with `python --version`),
   e.g. `choco install python3`
@@ -42,6 +45,55 @@
   sphinx-quickstart
   ```
 
+- Install breathe (Sphinx bridge for doxygen)
+
+  ```
+  python -m pip install breathe
+  ```
+
+## Theme Setup
+
+To use RTD Neo theme, adjust `conf.py`:
+
+```py
+html_theme = 'neo_rtd_theme'
+import sphinx_theme
+html_theme_path = [sphinx_theme.get_html_theme_path()]
+```
+
+Install the theme:
+
+```
+python -m pip install sphinx-theme
+```
+
+## Dependency Management
+
+Automated installation of extensions/themes via pip's `requirements.txt`:
+
+```
+Sphinx ~= 3.0.3
+sphinx_rtd_theme ~= 0.4.3
+breathe ~= 4.18.0
+sphinx-tabs ~= 2.1.0
+```
+
+https://pip.pypa.io/en/stable/reference/pip_install/#example-requirements-file
+
+Install:
+
+```
+pip install -r requirements.txt
+```
+
+Upgrade:
+
+```
+pip install -r requirements.txt --upgrade
+```
+
+## Building
+
 - Build HTML documentation
 
   ```
@@ -51,62 +103,16 @@
   which is a shorthand for
 
   ```
-  sphinx-build . _build -b html
+  sphinx-build . _build/html -b html
   ```
 
   TODO: How to use HTML5 translator? (seems to be just HTML currently).
-  -b html5 does not work.
+  `-b html5` does not work.
 
 - Serve HTML at http://localhost:8000/
 
   ```
   python -m http.server --directory _build\html
-  ```
-
-- Use RTD Neo theme.
-
-  In `conf.py`:
-
-  ```py
-  html_theme = 'neo_rtd_theme'
-  import sphinx_theme
-  html_theme_path = [sphinx_theme.get_html_theme_path()]
-  ```
-
-  Install the theme:
-
-  ```
-  python -m pip install sphinx-theme
-  ```
-
-  TODO: Automate installation of extensions/themes (via pip = requirements.txt?)
-
-  `requirements.txt`:
-
-  ```
-  Sphinx ~= 3.0.3
-  sphinx_rtd_theme ~= 0.4.3
-  breathe ~= 4.18.0
-  ```
-
-  https://pip.pypa.io/en/stable/reference/pip_install/#example-requirements-file
-
-  Install:
-
-  ```
-  pip install -r requirements.txt
-  ```
-
-  Upgrade
-
-  ```
-  pip install -r requirements.txt --upgrade
-  ```
-
-- Install breathe (Sphinx bridge for doxygen)
-
-  ```
-  python -m pip install breathe
   ```
 
 - Generate code documentation
@@ -125,4 +131,3 @@
   ```
 
   Alternative: https://github.com/svenevs/exhale
-
