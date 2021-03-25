@@ -378,7 +378,6 @@ void PreviewAutoCacher::ClearHashQueue(bool wait)
       (*it)->waitForFinished();
     }
   }
-  hash_tasks_.clear();
 }
 
 void PreviewAutoCacher::ClearVideoQueue(bool wait)
@@ -396,7 +395,6 @@ void PreviewAutoCacher::ClearVideoQueue(bool wait)
     }
   }
 
-  video_tasks_.clear();
   has_changed_ = true;
   use_custom_range_ = false;
 }
@@ -415,7 +413,6 @@ void PreviewAutoCacher::ClearAudioQueue(bool wait)
       it.key()->WaitForFinished();
     }
   }
-  audio_tasks_.clear();
 }
 
 void PreviewAutoCacher::ClearVideoDownloadQueue(bool wait)
@@ -432,7 +429,6 @@ void PreviewAutoCacher::ClearVideoDownloadQueue(bool wait)
       it.key()->WaitForFinished();
     }
   }
-  video_download_tasks_.clear();
 }
 
 void PreviewAutoCacher::NodeAdded(Node *node)
