@@ -43,36 +43,21 @@ Target audience: independent filmmakers
 
 .. toctree::
    :maxdepth: 2
-   :caption: Users
+   :caption: Test
    :hidden:
 
    sub/sample
    sub/other
-   get-started/display-languages
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Users
+   :hidden:
+
    get-started/index
-   get-started/key-bindings
-   get-started/preferences
-   get-started/themes
-   get-started/tips-and-tricks
-   get-started/user-interface
-   get-started/video-tutorials
-   guides/basic-editing
-   guides/cache
-   guides/command-line
-   guides/curve-editor
-   guides/export
-   guides/footage-viewer
-   guides/import
    guides/index
-   guides/node-viewer
-   guides/projects
-   guides/sequence-viewer
-   guides/timeline
    setup/index
-   community/channels
-   community/code-of-conduct
-   community/contribute
-   community/resources
+   community/index
 
 .. toctree::
    :maxdepth: 2
