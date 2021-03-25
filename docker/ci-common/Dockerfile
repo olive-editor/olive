@@ -68,3 +68,4 @@ RUN export DOWNLOADS_DIR=/tmp/downloads && \
     /tmp/install_cmake.sh && \
 #   /tmp/patchup.sh && \
     rm -rf /tmp/downloads
+# TODO: Remove scripts from /tmp ?
