@@ -308,49 +308,22 @@ jobs:
         with:
           version: 5.15.1
 
-      - name: Acquire FFmpeg
+      - name: Acquire Dependencies
         shell: bash
+        working-directory: ${{ runner.workspace }}
         run: |
-          $DOWNLOAD_TOOL https://olivevideoeditor.org/deps/ffmpeg-mac.zip
-          $EXTRACT_TOOL ffmpeg-mac.zip
-
-      - name: Acquire OpenColorIO
-        shell: bash
-        run: |
-          $DOWNLOAD_TOOL https://olivevideoeditor.org/deps/ocio-mac.zip
-          $EXTRACT_TOOL ocio-mac.zip
-
-      - name: Acquire OpenTimelineIO
-        shell: bash
-        run: |
-          $DOWNLOAD_TOOL https://olivevideoeditor.org/deps/otio-mac.zip
-          $EXTRACT_TOOL otio-mac.zip
-
-      - name: Acquire OpenEXR
-        shell: bash
-        run: |
-          $DOWNLOAD_TOOL https://olivevideoeditor.org/deps/openexr-mac.zip
-          $EXTRACT_TOOL openexr-mac.zip
-
-      - name: Acquire OpenImageIO
-        shell: bash
-        run: |
-          $DOWNLOAD_TOOL https://olivevideoeditor.org/deps/oiio-mac.zip
-          $EXTRACT_TOOL oiio-mac.zip
-
-      - name: Acquire Crashpad
-        shell: bash
-        run: |
-          $DOWNLOAD_TOOL https://olivevideoeditor.org/deps/crashpad-mac.zip
-          $EXTRACT_TOOL crashpad-mac.zip
+          $DOWNLOAD_TOOL https://github.com/olive-editor/dependencies/releases/download/continuous/olive-dep-mac-x86_64.tar.gz
+          sudo tar xzf olive-dep-mac-x86_64.tar.gz -C /
 
       - name: Configure CMake
         shell: bash
+        env:
+          DEP_LOCATION: ${{ runner.workspace }}/install
         working-directory: ${{ runner.workspace }}/build
         run: |
           brew install ninja
-          PATH=$GITHUB_WORKSPACE:$PATH \
-            cmake $GITHUB_WORKSPACE -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}"
+          PATH=/opt/olive-editor:$PATH \
+            cmake $GITHUB_WORKSPACE -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}" -DCMAKE_INSTALL_PREFIX=/opt/olive-editor
 
       - name: Build
         working-directory: ${{ runner.workspace }}/build
@@ -366,14 +339,11 @@ jobs:
 
       - name: Create Package
         working-directory: ${{ runner.workspace }}/build
+        env:
+          BUNDLE_NAME: "Olive.app"
         shell: bash
         run: |
-          export BUNDLE_NAME=Olive.app
           mv app/$BUNDLE_NAME .
-
-          # HACK: OCIO doesn't link it's library properly so we need to manually correct
-          install_name_tool -change libOpenColorIO.1.dylib @rpath/libOpenColorIO.1.dylib $BUNDLE_NAME/Contents/MacOS/Olive
-
           macdeployqt $BUNDLE_NAME
           $DOWNLOAD_TOOL https://github.com/arl/macdeployqtfix/raw/master/macdeployqtfix.py
           python2 macdeployqtfix.py $BUNDLE_NAME/Contents/MacOS/Olive /usr/local/Cellar/qt5/5.*/
