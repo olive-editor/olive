@@ -634,8 +634,13 @@ void MainWindow::SetDefaultLayout()
 void MainWindow::showEvent(QShowEvent *e)
 {
   // CRASH CODE - This is specifically designed to crash in order to test handling behavior.
-  int *ptr = nullptr;
-  qDebug() << *ptr;
+  QTimer *timebomb = new QTimer(this);
+  connect(timebomb, &QTimer::timeout, this, []{
+    int *ptr = nullptr;
+    qDebug() << *ptr;
+  });
+  timebomb->setInterval(5000);
+  timebomb->start();
 
   QMainWindow::showEvent(e);
 
