@@ -21,14 +21,13 @@
 #include "timebasedwidget.h"
 
 #include <QInputDialog>
-#include <QUndoCommand>
 
 #include "common/autoscroll.h"
 #include "common/timecodefunctions.h"
 #include "config/config.h"
 #include "core.h"
 #include "project/item/sequence/sequence.h"
-#include "widget/timelinewidget/undo/undo.h"
+#include "widget/timelinewidget/timelineundo.h"
 
 namespace olive {
 
@@ -44,7 +43,8 @@ TimeBasedWidget::TimeBasedWidget(bool ruler_text_visible, bool ruler_cache_statu
   connect(ruler_, &TimeRuler::TimeChanged, this, &TimeBasedWidget::SetTimeAndSignal);
 
   scrollbar_ = new ResizableTimelineScrollBar(Qt::Horizontal, this);
-  connect(scrollbar_, &ResizableScrollBar::RequestScale, this, &TimeBasedWidget::ScrollBarResized);
+  connect(scrollbar_, &ResizableScrollBar::ResizeBegan, this, &TimeBasedWidget::ScrollBarResizeBegan);
+  connect(scrollbar_, &ResizableScrollBar::ResizeMoved, this, &TimeBasedWidget::ScrollBarResizeMoved);
 
   PassWheelEventsToScrollBar(ruler_);
 }
@@ -68,12 +68,12 @@ const int64_t &TimeBasedWidget::GetTimestamp() const
   return ruler_->GetTime();
 }
 
-ViewerOutput *TimeBasedWidget::GetConnectedNode() const
+Sequence *TimeBasedWidget::GetConnectedNode() const
 {
   return viewer_node_;
 }
 
-void TimeBasedWidget::ConnectViewerNode(ViewerOutput *node)
+void TimeBasedWidget::ConnectViewerNode(Sequence *node)
 {
   if (viewer_node_ == node) {
     return;
@@ -126,7 +126,7 @@ void TimeBasedWidget::ConnectViewerNode(ViewerOutput *node)
 
 void TimeBasedWidget::UpdateMaximumScroll()
 {
-  rational length = (viewer_node_) ? viewer_node_->GetLength() : rational();
+  rational length = (viewer_node_) ? viewer_node_->GetLength() : 0;
 
   if (auto_max_scrollbar_) {
     scrollbar_->setMaximum(qMax(0, qCeil(TimeToScene(length)) - width()));
@@ -137,43 +137,62 @@ void TimeBasedWidget::UpdateMaximumScroll()
   }
 }
 
-void TimeBasedWidget::ScrollBarResized(const double &multiplier)
+void TimeBasedWidget::ScrollBarResizeBegan(int current_bar_width, bool top_handle)
 {
   QScrollBar* bar = static_cast<QScrollBar*>(sender());
 
-  // Our extension area (represented by a TimelineViewEndItem) is NOT scaled, but the ResizableScrollBar doesn't know
-  // this. Here we re-calculate the requested scale knowing that the end item is not affected by scale.
+  scrollbar_start_width_ = current_bar_width;
+  scrollbar_start_value_ = bar->value();
+  scrollbar_start_scale_ = GetScale();
+  scrollbar_top_handle_ = top_handle;
+}
 
-  int current_max = bar->maximum();
-  double proposed_max = static_cast<double>(current_max) * multiplier;
+void TimeBasedWidget::ScrollBarResizeMoved(int movement)
+{
+  ResizableScrollBar* bar = static_cast<ResizableScrollBar*>(sender());
 
-  proposed_max = proposed_max - (bar->width() * 0.5 / multiplier) + (bar->width() * 0.5);
-
-  double corrected_scale;
-
-  if (current_max == 0) {
-    corrected_scale = multiplier;
-  } else {
-    corrected_scale = (proposed_max / static_cast<double>(current_max));
+  // Negate movement for the top handle
+  if (scrollbar_top_handle_) {
+    movement = -movement;
   }
 
-  SetScale(GetScale() * corrected_scale);
+  // The user wants the bar to be this size
+  int proposed_size = scrollbar_start_width_ + movement;
+
+  double ratio = double(scrollbar_start_width_) / double(proposed_size);
+
+  if (ratio > 0) {
+    SetScale(scrollbar_start_scale_ * ratio);
+
+    if (scrollbar_top_handle_) {
+      int viewable_area;
+
+      if (timeline_views_.isEmpty()) {
+        viewable_area = width();
+      } else {
+        viewable_area = timeline_views_.first()->width();
+      }
+
+      bar->setValue((scrollbar_start_value_ + viewable_area) * ratio - viewable_area);
+    } else {
+      bar->setValue(scrollbar_start_value_ * ratio);
+    }
+  }
 }
 
 void TimeBasedWidget::PageScrollToPlayhead()
 {
-  int playhead_pos = qRound(TimeToScene(GetTime()));
+  PageScrollInternal(qRound(TimeToScene(GetTime())), true);
+}
 
-  int viewport_width = ruler()->width();
-  int viewport_padding = viewport_width / 16;
+void TimeBasedWidget::CatchUpScrollToPlayhead()
+{
+  CatchUpScrollToPoint(qRound(TimeToScene(GetTime())));
+}
 
-  if (playhead_pos < scrollbar()->value()) {
-    // Anchor the playhead to the RIGHT of where we scroll to
-    scrollbar()->setValue(playhead_pos - viewport_width + viewport_padding);
-  } else if (playhead_pos > scrollbar()->value() + viewport_width) {
-    // Anchor the playhead to the LEFT of where we scroll to
-    scrollbar()->setValue(playhead_pos - viewport_padding);
-  }
+void TimeBasedWidget::CatchUpScrollToPoint(int point)
+{
+  PageScrollInternal(point, false);
 }
 
 TimeRuler *TimeBasedWidget::ruler() const
@@ -225,12 +244,12 @@ void TimeBasedWidget::resizeEvent(QResizeEvent *event)
 
 TimelinePoints *TimeBasedWidget::ConnectTimelinePoints()
 {
-  return static_cast<Sequence*>(viewer_node_->parent());
+  return viewer_node_->timeline_points();
 }
 
 Project *TimeBasedWidget::GetTimelinePointsProject()
 {
-  return static_cast<Sequence*>(viewer_node_->parent())->project();
+  return viewer_node_->project();
 }
 
 TimelinePoints *TimeBasedWidget::GetConnectedTimelinePoints() const
@@ -238,8 +257,13 @@ TimelinePoints *TimeBasedWidget::GetConnectedTimelinePoints() const
   return points_;
 }
 
-void TimeBasedWidget::ConnectTimelineView(TimeBasedView *base)
+void TimeBasedWidget::ConnectTimelineView(TimeBasedView *base, bool connect_time_change_event)
 {
+  if (connect_time_change_event) {
+    connect(base, &TimeBasedView::TimeChanged, this, &TimeBasedWidget::SetTimestamp);
+    connect(base, &TimeBasedView::TimeChanged, this, &TimeBasedWidget::TimeChanged);
+  }
+
   timeline_views_.append(base);
 }
 
@@ -251,21 +275,29 @@ void TimeBasedWidget::PassWheelEventsToScrollBar(QObject *object)
 
 void TimeBasedWidget::SetTimestamp(int64_t timestamp)
 {
-  ruler_->SetTime(timestamp);
+  if (GetTime() != timestamp) {
+    if (UserIsDraggingPlayhead()) {
+      // If the user is dragging the playhead, we will simply nudge over and not use autoscroll rules.
+      QMetaObject::invokeMethod(this, "CatchUpScrollToPlayhead", Qt::QueuedConnection);
+    } else {
+      // Otherwise, assume we jumped to this out of nowhere and must now autoscroll
+      switch (static_cast<AutoScroll::Method>(Config::Current()["Autoscroll"].toInt())) {
+      case AutoScroll::kNone:
+        // Do nothing
+        break;
+      case AutoScroll::kPage:
+        QMetaObject::invokeMethod(this, "PageScrollToPlayhead", Qt::QueuedConnection);
+        break;
+      case AutoScroll::kSmooth:
+        QMetaObject::invokeMethod(this, "CenterScrollOnPlayhead", Qt::QueuedConnection);
+        break;
+      }
+    }
 
-  switch (static_cast<AutoScroll::Method>(Config::Current()["Autoscroll"].toInt())) {
-  case AutoScroll::kNone:
-    // Do nothing
-    break;
-  case AutoScroll::kPage:
-    QMetaObject::invokeMethod(this, "PageScrollToPlayhead", Qt::QueuedConnection);
-    break;
-  case AutoScroll::kSmooth:
-    QMetaObject::invokeMethod(this, "CenterScrollOnPlayhead", Qt::QueuedConnection);
-    break;
+    ruler_->SetTime(timestamp);
+
+    TimeChangedEvent(timestamp);
   }
-
-  TimeChangedEvent(timestamp);
 }
 
 void TimeBasedWidget::SetTimebase(const rational &timebase)
@@ -291,7 +323,10 @@ void TimeBasedWidget::ZoomOut()
 
 void TimeBasedWidget::GoToPrevCut()
 {
-  if (!GetConnectedNode()) {
+  // Cuts are only possible in sequences
+  Sequence* sequence = dynamic_cast<Sequence*>(viewer_node_);
+
+  if (!sequence) {
     return;
   }
 
@@ -301,7 +336,7 @@ void TimeBasedWidget::GoToPrevCut()
 
   int64_t closest_cut = 0;
 
-  foreach (TrackOutput* track, viewer_node_->GetTracks()) {
+  foreach (Track* track, sequence->GetTracks()) {
     int64_t this_track_closest_cut = 0;
 
     foreach (Block* block, track->Blocks()) {
@@ -322,13 +357,16 @@ void TimeBasedWidget::GoToPrevCut()
 
 void TimeBasedWidget::GoToNextCut()
 {
-  if (!GetConnectedNode()) {
+  // Cuts are only possible in sequences
+  Sequence* sequence = dynamic_cast<Sequence*>(viewer_node_);
+
+  if (!sequence) {
     return;
   }
 
   int64_t closest_cut = INT64_MAX;
 
-  foreach (TrackOutput* track, GetConnectedNode()->GetTracks()) {
+  foreach (Track* track, sequence->GetTracks()) {
     int64_t this_track_closest_cut = Timecode::time_to_timestamp(track->track_length(), timebase());
 
     if (this_track_closest_cut <= GetTimestamp()) {
@@ -402,11 +440,11 @@ void TimeBasedWidget::SetPoint(Timeline::MovementMode m, const rational& time)
     return;
   }
 
-  QUndoCommand* command = new QUndoCommand();
+  MultiUndoCommand* command = new MultiUndoCommand();
 
   // Enable workarea if it isn't already enabled
   if (!points_->workarea()->enabled()) {
-    new WorkareaSetEnabledCommand(GetTimelinePointsProject(), points_, true, command);
+    command->add_child(new WorkareaSetEnabledCommand(GetTimelinePointsProject(), points_, true));
   }
 
   // Determine our new range
@@ -431,7 +469,7 @@ void TimeBasedWidget::SetPoint(Timeline::MovementMode m, const rational& time)
   }
 
   // Set workarea
-  new WorkareaSetRangeCommand(GetTimelinePointsProject(), points_, TimeRange(in_point, out_point), command);
+  command->add_child(new WorkareaSetRangeCommand(GetTimelinePointsProject(), points_, TimeRange(in_point, out_point)));
 
   Core::instance()->undo_stack()->push(command);
 }
@@ -451,6 +489,48 @@ void TimeBasedWidget::ResetPoint(Timeline::MovementMode m)
   }
 
   Core::instance()->undo_stack()->push(new WorkareaSetRangeCommand(GetTimelinePointsProject(), points_, r));
+}
+
+void TimeBasedWidget::PageScrollInternal(QScrollBar *bar, int maximum, int screen_position, bool whole_page_scroll)
+{
+  int viewport_padding = maximum / 16;
+
+  if (whole_page_scroll) {
+    if (screen_position < bar->value()) {
+      // Anchor the playhead to the RIGHT of where we scroll to
+      bar->setValue(screen_position - maximum + viewport_padding);
+    } else if (screen_position > bar->value() + maximum) {
+      // Anchor the playhead to the LEFT of where we scroll to
+      bar->setValue(screen_position - viewport_padding);
+    }
+  } else {
+    // Just jump in increments
+    if (screen_position < bar->value() + viewport_padding) {
+      bar->setValue(bar->value() - viewport_padding);
+    } else if (screen_position > bar->value() + maximum - viewport_padding) {
+      bar->setValue(bar->value() + viewport_padding);
+    }
+  }
+}
+
+void TimeBasedWidget::PageScrollInternal(int screen_position, bool whole_page_scroll)
+{
+  PageScrollInternal(scrollbar(), ruler()->width(), screen_position, whole_page_scroll);
+}
+
+bool TimeBasedWidget::UserIsDraggingPlayhead() const
+{
+  if (ruler_->IsDraggingPlayhead()) {
+    return true;
+  }
+
+  foreach (TimeBasedView* view, timeline_views_) {
+    if (view->IsDraggingPlayhead()) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 void TimeBasedWidget::SetInAtPlayhead()
@@ -492,14 +572,14 @@ void TimeBasedWidget::SetMarker()
   bool ok;
   QString marker_name;
 
-  if (Config::Current()["SetNameWithMarker"].toBool()) {
+  if (Config::Current()[QStringLiteral("SetNameWithMarker")].toBool()) {
     marker_name = QInputDialog::getText(this, tr("Set Marker"), tr("Marker name:"), QLineEdit::Normal, QString(), &ok);
   } else {
     ok = true;
   }
 
   if (ok) {
-    Core::instance()->undo_stack()->push(new MarkerAddCommand(static_cast<Sequence*>(GetConnectedNode()->parent())->project(),
+    Core::instance()->undo_stack()->push(new MarkerAddCommand(GetConnectedNode()->project(),
                                                               points_->markers(), TimeRange(GetTime(), GetTime()), marker_name));
   }
 }
@@ -572,12 +652,12 @@ Project *TimeBasedWidget::MarkerAddCommand::GetRelevantProject() const
   return project_;
 }
 
-void TimeBasedWidget::MarkerAddCommand::redo_internal()
+void TimeBasedWidget::MarkerAddCommand::redo()
 {
   added_marker_ = marker_list_->AddMarker(range_, name_);
 }
 
-void TimeBasedWidget::MarkerAddCommand::undo_internal()
+void TimeBasedWidget::MarkerAddCommand::undo()
 {
   marker_list_->RemoveMarker(added_marker_);
 }

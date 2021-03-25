@@ -42,13 +42,13 @@ public:
 
   QModelIndex get_root_index() const;
 
-  void set_root(Item* item);
+  void set_root(Folder* item);
 
-  QList<Item*> SelectedItems() const;
+  QVector<Node *> SelectedItems() const;
 
   Folder* GetSelectedFolder() const;
 
-  virtual QList<Footage*> GetSelectedFootage() const override;
+  virtual QVector<Footage *> GetSelectedFootage() const override;
 
   ProjectViewModel* model() const;
 
@@ -61,7 +61,7 @@ public:
   virtual void DeleteSelected() override;
 
 public slots:
-  void Edit(Item *item);
+  void Edit(Node *item);
 
 signals:
   void ProjectNameChanged();
@@ -72,7 +72,7 @@ private:
   ProjectExplorer* explorer_;
 
 private slots:
-  void ItemDoubleClickSlot(Item* item);
+  void ItemDoubleClickSlot(Node *item);
 
   void ShowNewMenu();
 

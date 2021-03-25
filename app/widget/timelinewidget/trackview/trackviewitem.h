@@ -35,7 +35,7 @@ class TrackViewItem : public QWidget
 {
   Q_OBJECT
 public:
-  TrackViewItem(TrackOutput* track,
+  TrackViewItem(Track* track,
                 QWidget* parent = nullptr);
 
 private:
@@ -50,7 +50,7 @@ private:
   QPushButton* solo_button_;
   QPushButton* lock_button_;
 
-  TrackOutput* track_;
+  Track* track_;
 
 private slots:
   void LabelClicked();

@@ -46,19 +46,21 @@ OIIODecoder::~OIIODecoder()
   CloseInternal();
 }
 
-QString OIIODecoder::id()
+QString OIIODecoder::id() const
 {
   return QStringLiteral("oiio");
 }
 
-Footage *OIIODecoder::Probe(const QString& filename, const QAtomicInt* cancelled) const
+FootageDescription OIIODecoder::Probe(const QString &filename, const QAtomicInt* cancelled) const
 {
   Q_UNUSED(cancelled)
+
+  FootageDescription desc(id());
 
   // Filter out any file extensions that aren't expected to work - sometimes OIIO will crash trying
   // to open a file that it can't if it's given one
   if (!FileTypeIsSupported(filename)) {
-    return nullptr;
+    return desc;
   }
 
   std::string std_filename = filename.toStdString();
@@ -66,82 +68,47 @@ Footage *OIIODecoder::Probe(const QString& filename, const QAtomicInt* cancelled
   auto in = OIIO::ImageInput::open(std_filename);
 
   if (!in) {
-    return nullptr;
+    return desc;
   }
 
   // Filter out OIIO detecting an "FFmpeg movie", we have a native FFmpeg decoder that can handle
   // it better
   if (!strcmp(in->format_name(), "FFmpeg movie")) {
-    return nullptr;
+    return desc;
   }
 
-  Footage* footage = new Footage();
+  VideoParams video_params;
 
-  VideoStream* image_stream = new VideoStream();
-
-  image_stream->set_width(in->spec().width);
-  image_stream->set_height(in->spec().height);
-  image_stream->set_format(OIIOUtils::GetFormatFromOIIOBasetype(static_cast<OIIO::TypeDesc::BASETYPE>(in->spec().format.basetype)));
-  image_stream->set_channel_count(in->spec().nchannels);
-  image_stream->set_pixel_aspect_ratio(OIIOUtils::GetPixelAspectRatioFromOIIO(in->spec()));
-  image_stream->set_video_type(VideoStream::kVideoTypeStill);
-
-  // Images will always have just one stream
-  image_stream->set_index(0);
+  video_params.set_stream_index(0);
+  video_params.set_width(in->spec().width);
+  video_params.set_height(in->spec().height);
+  video_params.set_format(OIIOUtils::GetFormatFromOIIOBasetype(static_cast<OIIO::TypeDesc::BASETYPE>(in->spec().format.basetype)));
+  video_params.set_channel_count(in->spec().nchannels);
+  video_params.set_pixel_aspect_ratio(OIIOUtils::GetPixelAspectRatioFromOIIO(in->spec()));
+  video_params.set_video_type(VideoParams::kVideoTypeStill);
 
   // OIIO automatically premultiplies alpha
   // FIXME: We usually disassociate the alpha for the color management later, for 8-bit images this
   //        likely reduces the fidelity?
-  image_stream->set_premultiplied_alpha(true);
+  video_params.set_premultiplied_alpha(true);
 
-  // Get stats for this image and dump them into the Footage file
-  footage->add_stream(image_stream);
+  desc.AddVideoStream(video_params);
 
   // If we're here, we have a successful image open
   in->close();
 
-  return footage;
+  return desc;
 }
 
 bool OIIODecoder::OpenInternal()
 {
-  // If we can open the filename provided, assume everything is working (even if this is an image
-  // sequence with potentially missing frame)
-  if (OpenImageHandler(stream()->footage()->filename())) {
-    VideoStream* video_stream = static_cast<VideoStream*>(stream());
-
-    if (video_stream->video_type() == VideoStream::kVideoTypeStill) {
-      last_sequence_index_ = 0;
-    } else {
-      last_sequence_index_ = GetImageSequenceIndex(stream()->footage()->filename());
-    }
-
-    return true;
-  }
-  return false;
+  // If we can open the filename provided, assume everything is working
+  return OpenImageHandler(stream().filename());
 }
 
 FramePtr OIIODecoder::RetrieveVideoInternal(const rational &timecode, const int& divider)
 {
-  VideoStream* video_stream = static_cast<VideoStream*>(stream());
-
-  int64_t sequence_index;
-
-  if (video_stream->video_type() == VideoStream::kVideoTypeStill) {
-    sequence_index = 0;
-  } else {
-    sequence_index = video_stream->get_time_in_timebase_units(timecode);
-  }
-
-  if (last_sequence_index_ != sequence_index) {
-    CloseImageHandle();
-
-    if (!OpenImageHandler(TransformImageSequenceFileName(stream()->footage()->filename(), sequence_index))) {
-      return nullptr;
-    }
-
-    last_sequence_index_ = sequence_index;
-  }
+  Q_UNUSED(timecode)
 
   FramePtr frame = Frame::Create();
 

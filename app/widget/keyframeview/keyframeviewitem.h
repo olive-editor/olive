@@ -32,7 +32,7 @@ class KeyframeViewItem : public QObject, public QGraphicsRectItem, public TimeTa
 {
   Q_OBJECT
 public:
-  KeyframeViewItem(NodeKeyframePtr key, QGraphicsItem *parent = nullptr);
+  KeyframeViewItem(NodeKeyframe* key, QGraphicsItem *parent = nullptr);
 
   void SetOverrideY(qreal vertical_center);
 
@@ -40,7 +40,7 @@ public:
 
   void SetOverrideBrush(const QBrush& b);
 
-  NodeKeyframePtr key() const;
+  NodeKeyframe* key() const;
 
 protected:
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
@@ -48,7 +48,7 @@ protected:
   virtual void TimeTargetChangedEvent(Node* ) override;
 
 private:
-  NodeKeyframePtr key_;
+  NodeKeyframe* key_;
 
   double scale_;
 

@@ -75,9 +75,9 @@ public:
 
   void DecreaseTrackHeight();
 
-  void InsertFootageAtPlayhead(const QList<Footage *> &footage);
+  void InsertFootageAtPlayhead(const QVector<Footage *> &footage);
 
-  void OverwriteFootageAtPlayhead(const QList<Footage *> &footage);
+  void OverwriteFootageAtPlayhead(const QVector<Footage *> &footage);
 
   void ToggleLinksOnSelected();
 
@@ -89,9 +89,22 @@ public:
 
   void ToggleSelectedEnabled();
 
-  QVector<TimelineViewBlockItem*> GetSelectedBlocks();
+  void SetColorLabel(int index);
 
-  virtual bool SnapPoint(QList<rational> start_times, rational *movement, int snap_points = kSnapAll) override;
+  /**
+   * @brief Timelines should always be connected to sequences
+   */
+  Sequence* sequence() const
+  {
+    return static_cast<Sequence*>(GetConnectedNode());
+  }
+
+  const QVector<Block*>& GetSelectedBlocks() const
+  {
+    return selected_blocks_;
+  }
+
+  virtual bool SnapPoint(QVector<rational> start_times, rational *movement, int snap_points = kSnapAll) override;
 
   virtual void HideSnaps() override;
 
@@ -99,7 +112,7 @@ public:
 
   void RestoreSplitterState(const QByteArray& state);
 
-  static void ReplaceBlocksWithGaps(const QVector<Block *> &blocks, bool remove_from_graph, QUndoCommand* command);
+  static void ReplaceBlocksWithGaps(const QVector<Block *> &blocks, bool remove_from_graph, MultiUndoCommand *command);
 
   /**
    * @brief Retrieve the QGraphicsItem at a particular scene position
@@ -107,18 +120,13 @@ public:
    * Requires a float-based scene position. If you have a screen position, use GetScenePos() first to convert it to a
    * scene position
    */
-  TimelineViewBlockItem* GetItemAtScenePos(const TimelineCoordinate &coord);
+  Block* GetItemAtScenePos(const TimelineCoordinate &coord);
 
-  const QMap<Block*, TimelineViewBlockItem*>& GetBlockItems() const
-  {
-    return block_items_;
-  }
+  void AddSelection(const TimeRange& time, const Track::Reference& track);
+  void AddSelection(Block* item);
 
-  void AddSelection(const TimeRange& time, const TrackReference& track);
-  void AddSelection(TimelineViewBlockItem* item);
-
-  void RemoveSelection(const TimeRange& time, const TrackReference& track);
-  void RemoveSelection(TimelineViewBlockItem* item);
+  void RemoveSelection(const TimeRange& time, const Track::Reference& track);
+  void RemoveSelection(Block* item);
 
   const TimelineWidgetSelections& GetSelections() const
   {
@@ -127,7 +135,7 @@ public:
 
   void SetSelections(const TimelineWidgetSelections &s);
 
-  TrackOutput* GetTrackFromReference(const TrackReference& ref);
+  Track* GetTrackFromReference(const Track::Reference& ref) const;
 
   void SetViewBeamCursor(const TimelineCoordinate& coord);
 
@@ -136,14 +144,14 @@ public:
     return ghost_items_;
   }
 
-  void InsertGapsAt(const rational& time, const rational& length, QUndoCommand* command);
+  void InsertGapsAt(const rational& time, const rational& length, MultiUndoCommand *command);
 
   void StartRubberBandSelect(const QPoint& global_cursor_start);
   void MoveRubberBandSelect(bool enable_selecting, bool select_links);
   void EndRubberBandSelect();
 
-  int GetTrackY(const TrackReference& ref);
-  int GetTrackHeight(const TrackReference& ref);
+  int GetTrackY(const Track::Reference& ref);
+  int GetTrackHeight(const Track::Reference& ref);
 
   void AddGhost(TimelineViewGhostItem* ghost);
 
@@ -165,7 +173,7 @@ public:
 
   TimelineView* GetFirstTimelineView();
 
-  rational GetTimebaseForTrackType(Timeline::TrackType type);
+  rational GetTimebaseForTrackType(Track::Type type);
 
   const QRect &GetRubberBandGeometry() const;
 
@@ -197,6 +205,34 @@ public:
    */
   void SignalDeselectedAllBlocks();
 
+  class SetSelectionsCommand : public UndoCommand {
+  public:
+    SetSelectionsCommand(TimelineWidget* timeline, const TimelineWidgetSelections& now, const TimelineWidgetSelections& old) :
+      timeline_(timeline),
+      old_(old),
+      now_(now)
+    {
+    }
+
+    virtual void redo() override
+    {
+      timeline_->SetSelections(now_);
+    }
+
+    virtual void undo() override
+    {
+      timeline_->SetSelections(old_);
+    }
+
+    virtual Project* GetRelevantProject() const override {return nullptr;}
+
+  private:
+    TimelineWidget* timeline_;
+    TimelineWidgetSelections old_;
+    TimelineWidgetSelections now_;
+
+  };
+
 signals:
   void BlocksSelected(const QVector<Block*>& selected_blocks);
 
@@ -209,8 +245,8 @@ protected:
   virtual void TimeChangedEvent(const int64_t &) override;
   virtual void ScaleChangedEvent(const double &) override;
 
-  virtual void ConnectNodeInternal(ViewerOutput* n) override;
-  virtual void DisconnectNodeInternal(ViewerOutput* n) override;
+  virtual void ConnectNodeInternal(Sequence* n) override;
+  virtual void DisconnectNodeInternal(Sequence* n) override;
 
   virtual void CopyNodesToClipboardInternal(QXmlStreamWriter *writer, void* userdata) override;
   virtual void PasteNodesFromClipboardInternal(QXmlStreamReader *reader, XMLNodeData &xml_node_data, void* userdata) override;
@@ -218,7 +254,7 @@ protected:
   struct BlockPasteData {
     Block* block;
     rational in;
-    Timeline::TrackType track_type;
+    Track::Type track_type;
     int track_index;
   };
 
@@ -229,9 +265,11 @@ private:
 
   void EditTo(Timeline::MovementMode mode);
 
-  void ShowSnap(const QList<rational>& times);
+  void ShowSnap(const QVector<rational>& times);
 
-  void UpdateViewports(const Timeline::TrackType& type = Timeline::kTrackTypeNone);
+  void UpdateViewports(const Track::Type& type = Track::kNone);
+
+  QVector<Block*> GetBlocksInGlobalRect(const QPoint &p1, const QPoint &p2);
 
   QPoint drag_origin_;
 
@@ -251,13 +289,13 @@ private:
 
   QVector<TimelineViewGhostItem*> ghost_items_;
 
-  QMap<Block*, TimelineViewBlockItem*> block_items_;
-
-  QList<TimelineAndTrackView*> views_;
+  QVector<TimelineAndTrackView*> views_;
 
   TimeSlider* timecode_label_;
 
   QVector<Block*> selected_blocks_;
+
+  QVector<Block*> added_blocks_;
 
   int deferred_scroll_value_;
 
@@ -280,30 +318,18 @@ private slots:
   void ViewDragLeft(QDragLeaveEvent* event);
   void ViewDragDropped(TimelineViewMouseEvent* event);
 
-  void AddBlock(Block* block, TrackReference track);
-  void RemoveBlock(const QList<Block*>& blocks);
+  void AddBlock(Block* block);
+  void RemoveBlock(Block *blocks);
 
-  void AddTrack(TrackOutput* track, Timeline::TrackType type);
-  void RemoveTrack(TrackOutput* track);
-  void TrackIndexChanged();
-
-  /**
-   * @brief Slot for when a Block node changes its parameters and the graphics need to update
-   *
-   * This slot does a static_cast on sender() to Block*, meaning all objects triggering this slot must be Blocks or
-   * derivatives.
-   */
-  void BlockRefreshed();
+  void AddTrack(Track* track);
+  void RemoveTrack(Track* track);
+  void TrackUpdated();
 
   void BlockUpdated();
-
-  void TrackPreviewUpdated();
 
   void UpdateHorizontalSplitters();
 
   void UpdateTimecodeWidthFromSplitters(QSplitter *s);
-
-  void TrackHeightChanged(Timeline::TrackType type, int index, int height);
 
   void ShowContextMenu();
 
@@ -318,6 +344,8 @@ private slots:
   void ViewTimestampChanged(int64_t ts);
 
   void ToolChanged();
+
+  void SetViewWaveformsEnabled(bool e);
 
 };
 

@@ -35,6 +35,11 @@ class NodePanel : public PanelWidget
 public:
   NodePanel(QWidget* parent);
 
+  NodeGraph* GetGraph() const
+  {
+    return node_view_->GetGraph();
+  }
+
   void SetGraph(NodeGraph *graph)
   {
     node_view_->SetGraph(graph);
@@ -75,6 +80,21 @@ public:
     node_view_->Duplicate();
   }
 
+  virtual void SetColorLabel(int index) override
+  {
+    node_view_->SetColorLabel(index);
+  }
+
+  virtual void ZoomIn() override
+  {
+    node_view_->ZoomIn();
+  }
+
+  virtual void ZoomOut() override
+  {
+    node_view_->ZoomOut();
+  }
+
 public slots:
   void Select(const QVector<Node*>& nodes)
   {
@@ -86,14 +106,18 @@ public slots:
     node_view_->SelectWithDependencies(nodes);
   }
 
-  void SelectBlocks(const QVector<Block*>& nodes)
+  void SelectBlocks(const QVector<Block*>& blocks)
   {
-    node_view_->SelectBlocks(nodes);
+    QVector<Node*> nodes(blocks.size());
+    memcpy(nodes.data(), blocks.constData(), blocks.size() * sizeof(Block*));
+    node_view_->SelectWithDependencies(nodes);
   }
 
   void DeselectBlocks(const QVector<Block*>& nodes)
   {
-    node_view_->DeselectBlocks(nodes);
+    Q_UNUSED(nodes)
+    qDebug() << "Stub";
+    //node_view_->DeselectBlocks(nodes);
   }
 
 signals:

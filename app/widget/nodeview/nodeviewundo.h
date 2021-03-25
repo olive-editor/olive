@@ -21,72 +21,65 @@
 #ifndef NODEVIEWUNDO_H
 #define NODEVIEWUNDO_H
 
-#include <QUndoCommand>
-
 #include "node/graph.h"
 #include "node/node.h"
-#include "nodeviewitem.h"
+#include "project/project.h"
 #include "undo/undocommand.h"
-#include "widget/timelinewidget/undo/undo.h"
 
 namespace olive {
 
 /**
- * @brief An undoable command for connecting two NodeParams together
- *
- * Can be considered a QUndoCommand wrapper for NodeParam::ConnectEdge()/
- */
-class NodeEdgeAddCommand : public UndoCommand {
-public:
-  NodeEdgeAddCommand(NodeOutput* output, NodeInput* input, QUndoCommand* parent = nullptr);
-
-  virtual Project* GetRelevantProject() const override;
-
-protected:
-  virtual void redo_internal() override;
-  virtual void undo_internal() override;
-
-private:
-  NodeOutput* output_;
-  NodeInput* input_;
-
-  NodeEdgePtr old_edge_;
-
-  bool done_;
-};
-
-/**
  * @brief An undoable command for disconnecting two NodeParams
  *
- * Can be considered a QUndoCommand wrapper for NodeParam::DisonnectEdge()/
+ * Can be considered a UndoCommand wrapper for NodeParam::DisonnectEdge()/
  */
 class NodeEdgeRemoveCommand : public UndoCommand {
 public:
-  NodeEdgeRemoveCommand(NodeOutput* output, NodeInput* input, QUndoCommand* parent = nullptr);
-  NodeEdgeRemoveCommand(NodeEdgePtr edge, QUndoCommand* parent = nullptr);
+  NodeEdgeRemoveCommand(const NodeOutput& output, const NodeInput& input);
 
   virtual Project* GetRelevantProject() const override;
 
-protected:
-  virtual void redo_internal() override;
-  virtual void undo_internal() override;
+  virtual void redo() override;
+  virtual void undo() override;
 
 private:
-  NodeOutput* output_;
-  NodeInput* input_;
+  NodeOutput output_;
+  NodeInput input_;
 
-  bool done_;
+};
+
+/**
+ * @brief An undoable command for connecting two NodeParams together
+ *
+ * Can be considered a UndoCommand wrapper for NodeParam::ConnectEdge()/
+ */
+class NodeEdgeAddCommand : public UndoCommand {
+public:
+  NodeEdgeAddCommand(const NodeOutput& output, const NodeInput& input);
+
+  virtual ~NodeEdgeAddCommand() override;
+
+  virtual Project* GetRelevantProject() const override;
+
+  virtual void redo() override;
+  virtual void undo() override;
+
+private:
+  NodeOutput output_;
+  NodeInput input_;
+
+  NodeEdgeRemoveCommand* remove_command_;
+
 };
 
 class NodeAddCommand : public UndoCommand {
 public:
-  NodeAddCommand(NodeGraph* graph, Node* node, QUndoCommand* parent = nullptr);
+  NodeAddCommand(NodeGraph* graph, Node* node);
 
   virtual Project* GetRelevantProject() const override;
 
-protected:
-  virtual void redo_internal() override;
-  virtual void undo_internal() override;
+  virtual void redo() override;
+  virtual void undo() override;
 
 private:
   QObject memory_manager_;
@@ -95,55 +88,133 @@ private:
   Node* node_;
 };
 
-class NodeRemoveCommand : public UndoCommand {
+class NodeRemoveAndDisconnectCommand : public UndoCommand {
 public:
-  NodeRemoveCommand(NodeGraph* graph,
-                    const QVector<Node*>& nodes,
-                    QUndoCommand* parent = nullptr);
+  NodeRemoveAndDisconnectCommand(Node* node) :
+    node_(node),
+    graph_(nullptr),
+    command_(nullptr),
+    prepped_(false)
+  {
+  }
 
-  virtual Project* GetRelevantProject() const override;
+  virtual ~NodeRemoveAndDisconnectCommand() override
+  {
+    delete command_;
+  }
 
-protected:
-  virtual void redo_internal() override;
-  virtual void undo_internal() override;
+  virtual Project* GetRelevantProject() const override
+  {
+    return dynamic_cast<Project*>(graph_);
+  }
+
+  virtual void redo() override
+  {
+    if (!prepped_) {
+      prep();
+      prepped_ = true;
+    }
+
+    command_->redo();
+
+    graph_ = node_->parent();
+    node_->setParent(&memory_manager_);
+  }
+
+  virtual void undo() override
+  {
+    node_->setParent(graph_);
+    graph_ = nullptr;
+
+    command_->undo();
+  }
 
 private:
+  void prep();
+
   QObject memory_manager_;
 
+  Node* node_;
   NodeGraph* graph_;
-  QVector<Node*> nodes_;
-  QVector<NodeEdgePtr> edges_;
-  QVector<BlockUnlinkAllCommand*> block_unlink_commands_;
+
+  MultiUndoCommand* command_;
+
+  bool prepped_;
+
 };
 
-class NodeRemoveWithExclusiveDeps : public UndoCommand {
+class NodeRemoveWithExclusiveDependenciesAndDisconnect : public UndoCommand {
 public:
-  NodeRemoveWithExclusiveDeps(NodeGraph* graph,
-                              Node* node,
-                              QUndoCommand* parent = nullptr);
+  NodeRemoveWithExclusiveDependenciesAndDisconnect(Node* node) :
+    node_(node),
+    command_(nullptr),
+    prepped_(false)
+  {
+  }
 
-  virtual Project* GetRelevantProject() const override;
+  virtual ~NodeRemoveWithExclusiveDependenciesAndDisconnect() override
+  {
+    delete command_;
+  }
+
+  virtual Project* GetRelevantProject() const override
+  {
+    if (command_) {
+      return static_cast<const NodeRemoveAndDisconnectCommand*>(command_->child(0))->GetRelevantProject();
+    } else {
+      return node_->project();
+    }
+  }
+
+  virtual void redo() override
+  {
+    if (!prepped_) {
+      prep();
+      prepped_ = true;
+    }
+
+    command_->redo();
+  }
+
+  virtual void undo() override
+  {
+    command_->undo();
+  }
 
 private:
-  NodeRemoveCommand* remove_command_;
+  void prep()
+  {
+    command_ = new MultiUndoCommand();
+
+    command_->add_child(new NodeRemoveAndDisconnectCommand(node_));
+
+    // Remove exclusive dependencies
+    QVector<Node*> deps = node_->GetExclusiveDependencies();
+    foreach (Node* d, deps) {
+      command_->add_child(new NodeRemoveAndDisconnectCommand(d));
+    }
+  }
+
+  Node* node_;
+  MultiUndoCommand* command_;
+  bool prepped_;
+
 };
 
-class NodeCopyInputsCommand : public QUndoCommand {
+class NodeCopyInputsCommand : public UndoCommand {
 public:
-  NodeCopyInputsCommand(Node* src,
+  NodeCopyInputsCommand(const Node* src,
                         Node* dest,
-                        bool include_connections = true,
-                        QUndoCommand* parent = nullptr);
+                        bool include_connections);
 
-  NodeCopyInputsCommand(Node* src,
-                        Node* dest,
-                        QUndoCommand* parent = nullptr);
-
-protected:
   virtual void redo() override;
 
+  virtual void undo() override {}
+
+  virtual Project* GetRelevantProject() const override {return nullptr;}
+
 private:
-  Node* src_;
+  const Node* src_;
 
   Node* dest_;
 
@@ -151,61 +222,127 @@ private:
 
 };
 
-class NodeGraphBeginOperationCommand : public UndoCommand {
+class NodeLinkCommand : public UndoCommand {
 public:
-  NodeGraphBeginOperationCommand(NodeGraph* graph, QUndoCommand* parent = nullptr) :
-    UndoCommand(parent),
-    graph_(graph)
+  NodeLinkCommand(Node* a, Node* b, bool link) :
+    a_(a),
+    b_(b),
+    link_(link)
   {
   }
 
   virtual Project* GetRelevantProject() const override
   {
-    return static_cast<Sequence*>(graph_)->project();
+    return a_->project();
   }
 
-protected:
-  virtual void redo_internal() override
+  virtual void redo() override
   {
-    graph_->BeginOperation();
+    if (link_) {
+      done_ = Node::Link(a_, b_);
+    } else {
+      done_ = Node::Unlink(a_, b_);
+    }
   }
 
-  virtual void undo_internal() override
+  virtual void undo() override
   {
-    graph_->EndOperation();
+    if (done_) {
+      if (link_) {
+        Node::Unlink(a_, b_);
+      } else {
+        Node::Link(a_, b_);
+      }
+    }
   }
 
 private:
-  NodeGraph* graph_;
+  Node* a_;
+  Node* b_;
+  bool link_;
+  bool done_;
 
 };
 
-class NodeGraphEndOperationCommand : public UndoCommand {
+class NodeUnlinkAllCommand : public UndoCommand {
 public:
-  NodeGraphEndOperationCommand(NodeGraph* graph, QUndoCommand* parent = nullptr) :
-    UndoCommand(parent),
-    graph_(graph)
+  NodeUnlinkAllCommand(Node* node) :
+    node_(node)
   {
   }
 
   virtual Project* GetRelevantProject() const override
   {
-    return static_cast<Sequence*>(graph_)->project();
+    return node_->project();
   }
 
-protected:
-  virtual void redo_internal() override
+  virtual void redo() override
   {
-    graph_->EndOperation();
+    unlinked_ = node_->links();
+
+    foreach (Node* link, unlinked_) {
+      Node::Unlink(node_, link);
+    }
   }
 
-  virtual void undo_internal() override
+  virtual void undo() override
   {
-    graph_->BeginOperation();
+    foreach (Node* link, unlinked_) {
+      Node::Link(node_, link);
+    }
+
+    unlinked_.clear();
   }
 
 private:
-  NodeGraph* graph_;
+  Node* node_;
+
+  QVector<Node*> unlinked_;
+
+};
+
+class NodeLinkManyCommand : public MultiUndoCommand {
+public:
+  NodeLinkManyCommand(const QVector<Node*> nodes, bool link) :
+    nodes_(nodes)
+  {
+    foreach (Node* a, nodes_) {
+      foreach (Node* b, nodes_) {
+        if (a != b) {
+          add_child(new NodeLinkCommand(a, b, link));
+        }
+      }
+    }
+  }
+
+  virtual Project* GetRelevantProject() const override
+  {
+    return nodes_.first()->project();
+  }
+
+private:
+  QVector<Node*> nodes_;
+
+};
+
+class NodeRenameCommand : public UndoCommand
+{
+public:
+  NodeRenameCommand() = default;
+
+  void AddNode(Node* node, const QString& new_name);
+
+  virtual void redo() override;
+
+  virtual void undo() override;
+
+  virtual Project * GetRelevantProject() const override;
+
+private:
+  QVector<Node*> nodes_;
+
+  QStringList new_labels_;
+  QStringList old_labels_;
 
 };
 

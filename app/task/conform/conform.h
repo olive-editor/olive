@@ -21,7 +21,7 @@
 #ifndef CONFORMTASK_H
 #define CONFORMTASK_H
 
-#include "project/item/footage/audiostream.h"
+#include "project/item/footage/footage.h"
 #include "render/audioparams.h"
 #include "task/task.h"
 
@@ -31,13 +31,15 @@ class ConformTask : public Task
 {
   Q_OBJECT
 public:
-  ConformTask(AudioStream* stream, const AudioParams& params);
+  ConformTask(Footage* stream, int index, const AudioParams& params);
 
 protected:
   virtual bool Run() override;
 
 private:
-  AudioStream* stream_;
+  Footage* footage_;
+
+  int index_;
 
   AudioParams params_;
 

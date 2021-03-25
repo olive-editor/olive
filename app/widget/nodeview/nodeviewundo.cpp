@@ -21,213 +21,152 @@
 #include "nodeviewundo.h"
 
 #include "project/item/sequence/sequence.h"
+#include "widget/timelinewidget/timelineundo.h"
 
 namespace olive {
 
-NodeEdgeAddCommand::NodeEdgeAddCommand(NodeOutput *output, NodeInput *input, QUndoCommand *parent) :
-  UndoCommand(parent),
+NodeEdgeAddCommand::NodeEdgeAddCommand(const NodeOutput &output, const NodeInput &input) :
   output_(output),
   input_(input),
-  old_edge_(nullptr),
-  done_(false)
+  remove_command_(nullptr)
 {
 }
 
-void NodeEdgeAddCommand::redo_internal()
+NodeEdgeAddCommand::~NodeEdgeAddCommand()
 {
-  if (done_) {
-    return;
-  }
-
-  old_edge_ = NodeParam::DisconnectForNewOutput(input_);
-
-  NodeParam::ConnectEdge(output_, input_);
-
-  done_ = true;
+  delete remove_command_;
 }
 
-void NodeEdgeAddCommand::undo_internal()
+void NodeEdgeAddCommand::redo()
 {
-  if (!done_) {
-    return;
+  if (input_.IsConnected()) {
+    if (!remove_command_) {
+      remove_command_ = new NodeEdgeRemoveCommand(input_.GetConnectedOutput(), input_);
+    }
+
+    remove_command_->redo();
   }
 
-  NodeParam::DisconnectEdge(output_, input_);
+  Node::ConnectEdge(output_, input_);
+}
 
-  if (old_edge_ != nullptr) {
-    NodeParam::ConnectEdge(old_edge_->output(), old_edge_->input());
+void NodeEdgeAddCommand::undo()
+{
+  Node::DisconnectEdge(output_, input_);
+
+  if (remove_command_) {
+    remove_command_->undo();
   }
-
-  done_ = false;
 }
 
 Project *NodeEdgeAddCommand::GetRelevantProject() const
 {
-  return static_cast<Sequence*>(output_->parentNode()->parent())->project();
+  return output_.node()->project();
 }
 
-NodeEdgeRemoveCommand::NodeEdgeRemoveCommand(NodeOutput *output, NodeInput *input, QUndoCommand *parent) :
-  UndoCommand(parent),
+NodeEdgeRemoveCommand::NodeEdgeRemoveCommand(const NodeOutput &output, const NodeInput &input) :
   output_(output),
-  input_(input),
-  done_(false)
+  input_(input)
 {
 }
 
-NodeEdgeRemoveCommand::NodeEdgeRemoveCommand(NodeEdgePtr edge, QUndoCommand *parent) :
-  UndoCommand(parent),
-  output_(edge->output()),
-  input_(edge->input()),
-  done_(false)
+void NodeEdgeRemoveCommand::redo()
 {
+  Node::DisconnectEdge(output_, input_);
 }
 
-void NodeEdgeRemoveCommand::redo_internal()
+void NodeEdgeRemoveCommand::undo()
 {
-  if (done_) {
-    return;
-  }
-
-  NodeParam::DisconnectEdge(output_, input_);
-  done_ = true;
-}
-
-void NodeEdgeRemoveCommand::undo_internal()
-{
-  if (!done_) {
-    return;
-  }
-
-  NodeParam::ConnectEdge(output_, input_);
-  done_ = false;
+  Node::ConnectEdge(output_, input_);
 }
 
 Project *NodeEdgeRemoveCommand::GetRelevantProject() const
 {
-  return static_cast<Sequence*>(output_->parentNode()->parent())->project();
+  return output_.node()->project();
 }
 
-NodeAddCommand::NodeAddCommand(NodeGraph *graph, Node *node, QUndoCommand *parent) :
-  UndoCommand(parent),
+NodeAddCommand::NodeAddCommand(NodeGraph *graph, Node *node) :
   graph_(graph),
   node_(node)
 {
+  if (memory_manager_.thread() != node->thread()) {
+    memory_manager_.moveToThread(node_->thread());
+  }
+
   // Ensures that when this command is destroyed, if redo() is never called again, the node will be destroyed too
   node_->setParent(&memory_manager_);
 }
 
-void NodeAddCommand::redo_internal()
+void NodeAddCommand::redo()
 {
-  graph_->AddNode(node_);
+  node_->setParent(graph_);
 }
 
-void NodeAddCommand::undo_internal()
+void NodeAddCommand::undo()
 {
-  graph_->TakeNode(node_, &memory_manager_);
+  node_->setParent(&memory_manager_);
 }
 
 Project *NodeAddCommand::GetRelevantProject() const
 {
-  return static_cast<Sequence*>(graph_)->project();
+  return dynamic_cast<Project*>(graph_);
 }
 
-NodeRemoveCommand::NodeRemoveCommand(NodeGraph *graph, const QVector<Node *> &nodes, QUndoCommand *parent) :
-  UndoCommand(parent),
-  graph_(graph),
-  nodes_(nodes)
-{
-}
-
-void NodeRemoveCommand::redo_internal()
-{
-  // Cache edges for undoing
-  foreach (Node* n, nodes_) {
-    foreach (NodeParam* param, n->parameters()) {
-      foreach (NodeEdgePtr edge, param->edges()) {
-        // Ensures the same edge isn't added twice (prevents double connecting when undoing)
-        if (!edges_.contains(edge)) {
-          edges_.append(edge);
-        }
-      }
-    }
-  }
-
-  // Take nodes from graph (TakeNode() will automatically disconnect edges)
-  foreach (Node* n, nodes_) {
-    // If the node is a block, unlink any linked blocks before removing
-    if (n->IsBlock()) {
-      Block *b = static_cast<Block *>(n);
-      if (b->HasLinks()) {
-        BlockUnlinkAllCommand *unlink_command = new BlockUnlinkAllCommand(b);
-        unlink_command->redo();
-        block_unlink_commands_.append(unlink_command);
-      }
-    }
-    graph_->TakeNode(n, &memory_manager_);
-  }
-}
-
-void NodeRemoveCommand::undo_internal()
-{
-  // Re-add nodes to graph
-  foreach (Node* n, nodes_) {
-    graph_->AddNode(n);
-  }
-
-  // Relink any blocks that were unlinked
-  foreach(BlockUnlinkAllCommand* command, block_unlink_commands_) {
-    command->undo();
-    delete command;
-  }
-
-  // Re-connect edges
-  foreach (NodeEdgePtr edge, edges_) {
-    NodeParam::ConnectEdge(edge->output(), edge->input());
-  }
-
-  edges_.clear();
-  block_unlink_commands_.clear();
-}
-
-Project *NodeRemoveCommand::GetRelevantProject() const
-{
-  return static_cast<Sequence*>(graph_)->project();
-}
-
-NodeRemoveWithExclusiveDeps::NodeRemoveWithExclusiveDeps(NodeGraph *graph, Node *node, QUndoCommand *parent) :
-  UndoCommand(parent)
-{
-  QVector<Node*> node_and_its_deps;
-  node_and_its_deps.append(node);
-  node_and_its_deps.append(node->GetExclusiveDependencies());
-
-  remove_command_ = new NodeRemoveCommand(graph, node_and_its_deps, this);
-}
-
-Project *NodeRemoveWithExclusiveDeps::GetRelevantProject() const
-{
-  return remove_command_->GetRelevantProject();
-}
-
-NodeCopyInputsCommand::NodeCopyInputsCommand(Node *src, Node *dest, bool include_connections, QUndoCommand *parent) :
-  QUndoCommand(parent),
+NodeCopyInputsCommand::NodeCopyInputsCommand(const Node *src, Node *dest, bool include_connections) :
   src_(src),
   dest_(dest),
   include_connections_(include_connections)
 {
 }
 
-NodeCopyInputsCommand::NodeCopyInputsCommand(Node *src, Node *dest, QUndoCommand *parent) :
-  QUndoCommand(parent),
-  src_(src),
-  dest_(dest),
-  include_connections_(true)
-{
-}
-
 void NodeCopyInputsCommand::redo()
 {
   Node::CopyInputs(src_, dest_, include_connections_);
+}
+
+void NodeRemoveAndDisconnectCommand::prep()
+{
+  command_ = new MultiUndoCommand();
+
+  // If this is a block, remove all links
+  if (node_->HasLinks()) {
+    command_->add_child(new NodeUnlinkAllCommand(node_));
+  }
+
+  // Disconnect everything
+  for (auto it=node_->input_connections().cbegin(); it!=node_->input_connections().cend(); it++) {
+    command_->add_child(new NodeEdgeRemoveCommand(it->second, it->first));
+  }
+
+  for (const Node::OutputConnection& conn : node_->output_connections()) {
+    command_->add_child(new NodeEdgeRemoveCommand(conn.first, conn.second));
+  }
+}
+
+void NodeRenameCommand::AddNode(Node *node, const QString &new_name)
+{
+  nodes_.append(node);
+  new_labels_.append(new_name);
+  old_labels_.append(node->GetLabel());
+}
+
+void NodeRenameCommand::redo()
+{
+  for (int i=0; i<nodes_.size(); i++) {
+    nodes_.at(i)->SetLabel(new_labels_.at(i));
+  }
+}
+
+void NodeRenameCommand::undo()
+{
+  for (int i=0; i<nodes_.size(); i++) {
+    nodes_.at(i)->SetLabel(old_labels_.at(i));
+  }
+}
+
+Project *NodeRenameCommand::GetRelevantProject() const
+{
+  return nodes_.isEmpty() ? nullptr : nodes_.first()->project();
 }
 
 }

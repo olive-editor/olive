@@ -24,6 +24,8 @@
 #include <QDragLeaveEvent>
 
 #include "common/rational.h"
+#include "widget/nodeview/nodeviewundo.h"
+#include "widget/timelinewidget/timelineundo.h"
 #include "widget/timelinewidget/view/timelineviewghostitem.h"
 #include "widget/timelinewidget/view/timelineviewmouseevent.h"
 
@@ -51,6 +53,8 @@ public:
 
   TimelineWidget* parent();
 
+  Sequence* sequence();
+
   static Timeline::MovementMode FlipTrimMode(const Timeline::MovementMode& trim_mode);
 
   static rational SnapMovementToTimebase(const rational& start, rational movement, const rational& timebase);
@@ -73,9 +77,9 @@ protected:
 
   void GetGhostData(rational *earliest_point, rational *latest_point);
 
-  void InsertGapsAtGhostDestination(QUndoCommand* command);
+  void InsertGapsAtGhostDestination(MultiUndoCommand* command);
 
-  QList<rational> snap_points_;
+  QVector<rational> snap_points_;
 
   bool dragging_;
 

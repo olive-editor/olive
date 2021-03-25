@@ -29,9 +29,10 @@
 
 #include "config/config.h"
 #include "common/flipmodifiers.h"
+#include "common/qtutils.h"
 #include "common/timecodefunctions.h"
-#include "node/input/media/media.h"
 #include "project/item/footage/footage.h"
+#include "ui/colorcoding.h"
 
 namespace olive {
 
@@ -40,7 +41,8 @@ TimelineView::TimelineView(Qt::Alignment vertical_alignment, QWidget *parent) :
   selections_(nullptr),
   ghosts_(nullptr),
   show_beam_cursor_(false),
-  connected_track_list_(nullptr)
+  connected_track_list_(nullptr),
+  show_waveforms_(true)
 {
   Q_ASSERT(vertical_alignment == Qt::AlignTop || vertical_alignment == Qt::AlignBottom);
   setAlignment(Qt::AlignLeft | vertical_alignment);
@@ -53,23 +55,27 @@ TimelineView::TimelineView(Qt::Alignment vertical_alignment, QWidget *parent) :
 
 void TimelineView::mousePressEvent(QMouseEvent *event)
 {
-  if (HandPress(event) || PlayheadPress(event)) {
+  TimelineViewMouseEvent timeline_event = CreateMouseEvent(event);
+
+  if (HandPress(event)
+      || (!GetItemAtScenePos(timeline_event.GetFrame(), timeline_event.GetTrack().index()) && PlayheadPress(event))) {
     // Let the parent handle this
     return;
   }
 
   if (dragMode() != GetDefaultDragMode()) {
+    // Use default behavior when hand dragging for instance
     TimeBasedView::mousePressEvent(event);
     return;
   }
-
-  TimelineViewMouseEvent timeline_event = CreateMouseEvent(event);
 
   emit MousePressed(&timeline_event);
 }
 
 void TimelineView::mouseMoveEvent(QMouseEvent *event)
 {
+  TimelineViewMouseEvent timeline_event = CreateMouseEvent(event);
+
   if (HandMove(event) || PlayheadMove(event)) {
     // Let the parent handle this
     return;
@@ -79,8 +85,6 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event)
     TimeBasedView::mouseMoveEvent(event);
     return;
   }
-
-  TimelineViewMouseEvent timeline_event = CreateMouseEvent(event);
 
   emit MouseMoved(&timeline_event);
 }
@@ -209,7 +213,7 @@ void TimelineView::drawBackground(QPainter *painter, const QRectF &rect)
 
   int line_y = 0;
 
-  foreach (TrackOutput* track, connected_track_list_->GetTracks()) {
+  foreach (Track* track, connected_track_list_->GetTracks()) {
     line_y += track->GetTrackHeightInPixels();
 
     // One px gap between tracks
@@ -229,6 +233,13 @@ void TimelineView::drawBackground(QPainter *painter, const QRectF &rect)
 
 void TimelineView::drawForeground(QPainter *painter, const QRectF &rect)
 {
+  if (!connected_track_list_) {
+    return;
+  }
+
+  // Draw block backgrounds
+  DrawBlocks(painter, false);
+
   // Draw selections
   if (selections_ && !selections_->isEmpty()) {
     painter->setPen(Qt::NoPen);
@@ -247,6 +258,9 @@ void TimelineView::drawForeground(QPainter *painter, const QRectF &rect)
       }
     }
   }
+
+  // Draw block foregrounds
+  DrawBlocks(painter, true);
 
   // Draw ghosts
   if (ghosts_ && !ghosts_->isEmpty()) {
@@ -268,7 +282,6 @@ void TimelineView::drawForeground(QPainter *painter, const QRectF &rect)
 
   // Draw beam cursor
   if (show_beam_cursor_
-      && connected_track_list_
       && cursor_coord_.GetTrack().type() == connected_track_list_->type()) {
     painter->setPen(Qt::gray);
 
@@ -322,26 +335,26 @@ void TimelineView::SceneRectUpdateEvent(QRectF &rect)
   }
 }
 
-Timeline::TrackType TimelineView::ConnectedTrackType()
+Track::Type TimelineView::ConnectedTrackType()
 {
   if (connected_track_list_) {
     return connected_track_list_->type();
   }
 
-  return Timeline::kTrackTypeNone;
+  return Track::kNone;
 }
 
-Stream::Type TimelineView::TrackTypeToStreamType(Timeline::TrackType track_type)
+Stream::Type TimelineView::TrackTypeToStreamType(Track::Type track_type)
 {
   switch (track_type) {
-  case Timeline::kTrackTypeNone:
-  case Timeline::kTrackTypeCount:
+  case Track::kNone:
+  case Track::kCount:
     break;
-  case Timeline::kTrackTypeVideo:
+  case Track::kVideo:
     return Stream::kVideo;
-  case Timeline::kTrackTypeAudio:
+  case Track::kAudio:
     return Stream::kAudio;
-  case Timeline::kTrackTypeSubtitle:
+  case Track::kSubtitle:
     return Stream::kSubtitle;
   }
 
@@ -355,7 +368,7 @@ TimelineCoordinate TimelineView::ScreenToCoordinate(const QPoint& pt)
 
 TimelineCoordinate TimelineView::SceneToCoordinate(const QPointF& pt)
 {
-  return TimelineCoordinate(SceneToTime(pt.x()), TrackReference(ConnectedTrackType(), SceneToTrack(pt.y())));
+  return TimelineCoordinate(SceneToTime(pt.x()), Track::Reference(ConnectedTrackType(), SceneToTrack(pt.y())));
 }
 
 TimelineViewMouseEvent TimelineView::CreateMouseEvent(QMouseEvent *event)
@@ -370,9 +383,91 @@ TimelineViewMouseEvent TimelineView::CreateMouseEvent(const QPoint& pos, Qt::Mou
   return TimelineViewMouseEvent(scene_pt.x(),
                                 GetScale(),
                                 timebase(),
-                                TrackReference(ConnectedTrackType(), SceneToTrack(scene_pt.y())),
+                                Track::Reference(ConnectedTrackType(), SceneToTrack(scene_pt.y())),
                                 button,
                                 modifiers);
+}
+
+void TimelineView::DrawBlocks(QPainter *painter, bool foreground)
+{
+  qreal left_bound = horizontalScrollBar()->value();
+  qreal right_bound = viewport()->width() + horizontalScrollBar()->value();
+
+  rational start_time = SceneToTime(left_bound);
+  rational end_time = SceneToTime(right_bound);
+
+  foreach (Track* track, connected_track_list_->GetTracks()) {
+    // Get first visible block in this track
+    Block* block = track->NearestBlockBeforeOrAt(start_time);
+
+    while (block) {
+      if (block->type() == Block::kClip || block->type() == Block::kTransition) {
+
+        qreal block_left = qMax(left_bound, TimeToScene(block->in()));
+        qreal block_right = qMin(right_bound, TimeToScene(block->out())) - 1;
+        qreal block_top = GetTrackY(track->Index());
+        qreal block_height = GetTrackHeight(track->Index());
+
+        QRectF r(block_left,
+                 block_top,
+                 block_right - block_left,
+                 block_height);
+
+        QColor shadow_color = block->color().toQColor().darker();
+
+        QFontMetrics fm = fontMetrics();
+        int text_height = fm.height();
+        int text_padding = text_height/4; // This ties into the track minimum height being 1.5
+        int text_total_height = text_height + text_padding + text_padding;
+
+        if (foreground) {
+          painter->setBrush(Qt::NoBrush);
+
+          QRectF text_rect = r.adjusted(text_padding, text_padding, -text_padding, -text_padding);
+          painter->setPen(block->is_enabled() ? ColorCoding::GetUISelectorColor(block->color()) : Qt::lightGray);
+          painter->drawText(text_rect, Qt::AlignLeft | Qt::AlignTop, block->GetLabel());
+
+          if (block->HasLinks()) {
+            int text_width = qMin(qRound(text_rect.width()),
+                                  QtUtils::QFontMetricsWidth(fm, block->GetLabel()));
+
+            int underline_y = text_rect.y() + text_height;
+
+            painter->drawLine(text_rect.x(), underline_y, text_width + text_rect.x(), underline_y);
+          }
+
+          qreal line_bottom = block_top+block_height-1;
+
+          painter->setPen(Qt::white);
+          painter->drawLine(block_left, block_top, block_right, block_top);
+          painter->drawLine(block_left, block_top, block_left, line_bottom);
+
+          painter->setPen(shadow_color);
+          painter->drawLine(block_left, line_bottom, block_right, line_bottom);
+          painter->drawLine(block_right, line_bottom, block_right, block_top);
+        } else {
+          painter->setPen(Qt::NoPen);
+          painter->setBrush(block->is_enabled() ? block->brush(block_top, block_top + block_height) : Qt::gray);
+          painter->drawRect(r);
+
+          // Draw waveform
+          if (show_waveforms_) {
+            QRect waveform_rect = r.adjusted(0, text_total_height, 0, 0).toRect();
+            painter->setPen(shadow_color);
+            AudioVisualWaveform::DrawWaveform(painter, waveform_rect, this->GetScale(), track->waveform(), SceneToTime(block_left));
+          }
+        }
+
+      }
+
+      if (block->out() >= end_time) {
+        // Rest of the clips are offscreen, can break loop now
+        break;
+      }
+
+      block = block->next();
+    }
+  }
 }
 
 int TimelineView::GetHeightOfAllTracks() const
@@ -417,7 +512,7 @@ int TimelineView::GetTrackY(int track_index) const
 int TimelineView::GetTrackHeight(int track_index) const
 {
   if (!connected_track_list_ || track_index >= connected_track_list_->GetTrackCount()) {
-    return TrackOutput::GetDefaultTrackHeightInPixels();
+    return Track::GetDefaultTrackHeightInPixels();
   }
 
   return connected_track_list_->GetTrackAt(track_index)->GetTrackHeightInPixels();
@@ -436,21 +531,13 @@ void TimelineView::SetScrollCoordinates(const QPoint &pt)
 
 void TimelineView::ConnectTrackList(TrackList *list)
 {
-  if (connected_track_list_) {
-    disconnect(connected_track_list_, SIGNAL(TrackHeightChanged(int, int)), viewport(), SLOT(update()));
-  }
-
   connected_track_list_ = list;
-
-  if (connected_track_list_) {
-    connect(connected_track_list_, SIGNAL(TrackHeightChanged(int, int)), viewport(), SLOT(update()));
-  }
 }
 
 void TimelineView::SetBeamCursor(const TimelineCoordinate &coord)
 {
   bool update_required = coord.GetTrack().type() == connected_track_list_->type()
-                          || cursor_coord_.GetTrack().type() == connected_track_list_->type();
+      || cursor_coord_.GetTrack().type() == connected_track_list_->type();
 
   show_beam_cursor_ = true;
   cursor_coord_ = coord;
@@ -475,6 +562,23 @@ int TimelineView::SceneToTrack(double y)
   } while (y > heights);
 
   return track;
+}
+
+Block *TimelineView::GetItemAtScenePos(const rational &time, int track_index) const
+{
+  if (connected_track_list_) {
+    Track* track = connected_track_list_->GetTrackAt(track_index);
+
+    if (track) {
+      foreach (Block* b, track->Blocks()) {
+        if (b->in() <= time && b->out() > time) {
+          return b;
+        }
+      }
+    }
+  }
+
+  return nullptr;
 }
 
 void TimelineView::UserSetTime(const int64_t &time)

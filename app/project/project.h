@@ -24,6 +24,8 @@
 #include <QObject>
 #include <memory>
 
+#include "node/project/projectsettings/projectsettings.h"
+#include "node/output/viewer/viewer.h"
 #include "render/colormanager.h"
 #include "project/item/folder/folder.h"
 #include "window/mainwindow/mainwindowlayoutinfo.h"
@@ -41,7 +43,7 @@ namespace olive {
  * * Project Settings
  * * Window Layout
  */
-class Project : public QObject
+class Project : public NodeGraph
 {
   Q_OBJECT
 public:
@@ -61,8 +63,6 @@ public:
 
   ColorManager* color_manager();
 
-  QVector<Item*> get_items_of_type(Item::Type type) const;
-
   bool is_modified() const;
   void set_modified(bool e);
 
@@ -71,11 +71,11 @@ public:
 
   bool is_new() const;
 
-  const QString& cache_path(bool default_if_empty = true) const;
+  QString cache_path() const;
 
-  void set_cache_path(const QString& cache_path)
+  ViewerOutput* footage_viewer()
   {
-    cache_path_ = cache_path;
+    return footage_viewer_;
   }
 
 signals:
@@ -84,22 +84,22 @@ signals:
   void ModifiedChanged(bool e);
 
 private:
-  Folder root_;
+  Folder* root_;
 
   QString filename_;
 
-  ColorManager color_manager_;
+  ColorManager* color_manager_;
+
+  ProjectSettingsNode* settings_;
+
+  ViewerOutput* footage_viewer_;
 
   bool is_modified_;
 
   bool autorecovery_saved_;
 
-  QString cache_path_;
-
 private slots:
-  void ColorConfigChanged();
-
-  void DefaultColorSpaceChanged();
+  void ColorManagerValueChanged(const NodeInput& input, const TimeRange& range);
 
 };
 

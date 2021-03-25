@@ -25,7 +25,8 @@
 #include <QUrl>
 
 #include "core.h"
-#include "node/input/media/media.h"
+#include "widget/nodeview/nodeviewundo.h"
+#include "widget/nodeparamview/nodeparamviewundo.h"
 
 namespace olive {
 
@@ -48,7 +49,15 @@ void ProjectViewModel::set_project(Project *p)
 {
   beginResetModel();
 
+  if (project_) {
+    DisconnectItem(project_->root());
+  }
+
   project_ = p;
+
+  if (project_) {
+    ConnectItem(project_->root());
+  }
 
   endResetModel();
 }
@@ -60,8 +69,8 @@ QModelIndex ProjectViewModel::index(int row, int column, const QModelIndex &pare
     return QModelIndex();
   }
 
-  // Get the parent object (project root if the index is invalid)
-  Item* item_parent = GetItemObjectFromIndex(parent);
+  // Get the parent object, we assume it's a folder since only folders can have children
+  Folder* item_parent = static_cast<Folder*>(GetItemObjectFromIndex(parent));
 
   // Return an index to this object
   return createIndex(row, column, item_parent->item_child(row));
@@ -70,10 +79,10 @@ QModelIndex ProjectViewModel::index(int row, int column, const QModelIndex &pare
 QModelIndex ProjectViewModel::parent(const QModelIndex &child) const
 {
   // Get the Item object from the index
-  Item* item = GetItemObjectFromIndex(child);
+  Node* item = GetItemObjectFromIndex(child);
 
   // Get Item's parent object
-  Item* par = item->item_parent();
+  Folder* par = item->folder();
 
   // If the parent is the root, return an empty index
   if (par == project_->root()) {
@@ -103,7 +112,7 @@ int ProjectViewModel::rowCount(const QModelIndex &parent) const
   }
 
   // Otherwise, the index must contain a valid pointer, so we just return its child count
-  return GetItemObjectFromIndex(parent)->item_child_count();
+  return static_cast<Folder*>(GetItemObjectFromIndex(parent))->item_child_count();
 }
 
 int ProjectViewModel::columnCount(const QModelIndex &parent) const
@@ -120,7 +129,7 @@ int ProjectViewModel::columnCount(const QModelIndex &parent) const
 
 QVariant ProjectViewModel::data(const QModelIndex &index, int role) const
 {
-  Item* internal_item = GetItemObjectFromIndex(index);
+  Node* internal_item = GetItemObjectFromIndex(index);
 
   ColumnType column_type = columns_.at(index.column());
 
@@ -131,7 +140,7 @@ QVariant ProjectViewModel::data(const QModelIndex &index, int role) const
 
     switch (column_type) {
     case kName:
-      return internal_item->name();
+      return internal_item->GetLabel();
     case kDuration:
       return internal_item->duration();
     case kRate:
@@ -146,7 +155,7 @@ QVariant ProjectViewModel::data(const QModelIndex &index, int role) const
     }
     break;
   case Qt::ToolTipRole:
-    return internal_item->tooltip();
+    return internal_item->ToolTip();
   }
 
   return QVariant();
@@ -175,33 +184,30 @@ QVariant ProjectViewModel::headerData(int section, Qt::Orientation orientation, 
 
 bool ProjectViewModel::hasChildren(const QModelIndex &parent) const
 {
-  // Check if this is a valid index
-  if (parent.isValid()) {
-    Item* item = GetItemObjectFromIndex(parent);
+  // If it's a folder, we always return TRUE in order to always show the "expand triangle" icon,
+  // even when there are no "physical" children
+  Node* item = GetItemObjectFromIndex(parent);
 
-    // Check if this item is a kFolder type
-    // If it's a folder, we always return TRUE in order to always show the "expand triangle" icon,
-    // even when there are no "physical" children
-    if (item->CanHaveChildren()) {
-      return true;
-    }
-  }
-
-  // Otherwise, return default behavior
-  return QAbstractItemModel::hasChildren(parent);
+  return dynamic_cast<Folder*>(item);
 }
 
 bool ProjectViewModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
   // The name is editable
   if (index.isValid() && columns_.at(index.column()) == kName && role == Qt::EditRole) {
-    Item* item = GetItemObjectFromIndex(index);
+    Node* item = GetItemObjectFromIndex(index);
 
-    RenameItemCommand* ric = new RenameItemCommand(this, item, value.toString());
+    QString new_name = value.toString();
 
-    Core::instance()->undo_stack()->push(ric);
+    if (!new_name.isEmpty()) {
+      NodeRenameCommand* nrc = new NodeRenameCommand();
 
-    return true;
+      nrc->AddNode(item, value.toString());
+
+      Core::instance()->undo_stack()->push(nrc);
+
+      return true;
+    }
   }
 
   return false;
@@ -209,20 +215,8 @@ bool ProjectViewModel::setData(const QModelIndex &index, const QVariant &value, 
 
 bool ProjectViewModel::canFetchMore(const QModelIndex &parent) const
 {
-  // Check if this is a valid index
-  if (parent.isValid()) {
-    Item* item = GetItemObjectFromIndex(parent);
-
-    // Check if this item is a kFolder type
-    // If it's a folder, we always return TRUE in order to always show the "expand triangle" icon,
-    // even when there are no "physical" children
-    if (item->CanHaveChildren()) {
-      return true;
-    }
-  }
-
-  // Otherwise, return default behavior
-  return QAbstractItemModel::canFetchMore(parent);
+  // Use the same hack that always returns true with folders so the expand triangle is always visible
+  return hasChildren(parent);
 }
 
 Qt::ItemFlags ProjectViewModel::flags(const QModelIndex &index) const
@@ -234,7 +228,7 @@ Qt::ItemFlags ProjectViewModel::flags(const QModelIndex &index) const
 
   Qt::ItemFlags f = Qt::ItemIsDragEnabled | QAbstractItemModel::flags(index);
 
-  if (GetItemObjectFromIndex(index)->CanHaveChildren()) {
+  if (dynamic_cast<Folder*>(GetItemObjectFromIndex(index))) {
     f |= Qt::ItemIsDropEnabled;
   }
 
@@ -249,7 +243,7 @@ Qt::ItemFlags ProjectViewModel::flags(const QModelIndex &index) const
 QStringList ProjectViewModel::mimeTypes() const
 {
   // Allow data from this model and a file list from external sources
-  return {"application/x-oliveprojectitemdata", "text/uri-list"};
+  return {QStringLiteral("application/x-oliveprojectitemdata"), QStringLiteral("text/uri-list")};
 }
 
 QMimeData *ProjectViewModel::mimeData(const QModelIndexList &indexes) const
@@ -275,22 +269,21 @@ QMimeData *ProjectViewModel::mimeData(const QModelIndexList &indexes) const
       // Check if we've dragged this item before
       if (!dragged_items.contains(index.internalPointer())) {
         // If not, add it to the stream (and also keep track of it in the vector)
-        quint64 stream_flags;
+        Footage* footage = dynamic_cast<Footage*>(static_cast<Node*>(index.internalPointer()));
 
-        if (static_cast<Item*>(index.internalPointer())->type() == Item::kFootage) {
-          stream_flags = static_cast<Footage*>(index.internalPointer())->get_enabled_stream_flags();
-        } else {
-          stream_flags = UINT64_MAX;
+        if (footage) {
+          QVector<Footage::StreamReference> streams = footage->GetEnabledStreamsAsReferences();
+
+          stream << streams << reinterpret_cast<quintptr>(footage);
+
+          dragged_items.append(footage);
         }
-
-        stream << stream_flags << index.row() << reinterpret_cast<quintptr>(index.internalPointer());
-        dragged_items.append(index.internalPointer());
       }
     }
   }
 
   // Set byte array as the mime data and return the mime data
-  data->setData("application/x-oliveprojectitemdata", encoded_data);
+  data->setData(QStringLiteral("application/x-oliveprojectitemdata"), encoded_data);
 
   return data;
 }
@@ -309,43 +302,42 @@ bool ProjectViewModel::dropMimeData(const QMimeData *data, Qt::DropAction action
   // Probe mime data for its format
   QStringList mime_formats = data->formats();
 
-  if (mime_formats.contains("application/x-oliveprojectitemdata")) {
+  if (mime_formats.contains(QStringLiteral("application/x-oliveprojectitemdata"))) {
     // Data is drag/drop data from this model
-    QByteArray model_data = data->data("application/x-oliveprojectitemdata");
+    QByteArray model_data = data->data(QStringLiteral("application/x-oliveprojectitemdata"));
 
     // Use QDataStream to deserialize the data
     QDataStream stream(&model_data, QIODevice::ReadOnly);
 
     // Get the Item object that the items were dropped on
-    Item* drop_location = GetItemObjectFromIndex(drop);
+    Folder* drop_location = dynamic_cast<Folder*>(GetItemObjectFromIndex(drop));
 
     // If this is not a folder, we cannot drop these items here
-    if (!drop_location->CanHaveChildren()) {
+    if (!drop_location) {
       return false;
     }
 
     // Variables to deserialize into
     quintptr item_ptr;
-    int r;
-    quint64 enabled_streams;
+    QList<Footage::StreamReference> streams;
 
     // Loop through all data
-    QUndoCommand* move_command = new QUndoCommand();
+    MultiUndoCommand* move_command = new MultiUndoCommand();
 
-    move_command->setText(tr("Move Items"));
+    move_command->set_name(tr("Move Items"));
 
     while (!stream.atEnd()) {
-      stream >> enabled_streams >> r >> item_ptr;
+      stream >> streams >> item_ptr;
 
-      Item* item = reinterpret_cast<Item*>(item_ptr);
+      Node* item = reinterpret_cast<Node*>(item_ptr);
 
       // Check if Item is already the drop location or if its parent is the drop location, in which case this is a
       // no-op
 
-      if (item != drop_location && item->parent() != drop_location && !ItemIsParentOfChild(item, drop_location)) {
-        MoveItemCommand* mic = new MoveItemCommand(this, item, static_cast<Folder*>(drop_location), move_command);
-
-        Q_UNUSED(mic)
+      if (item != drop_location && item->folder() != drop_location
+          && (!dynamic_cast<Folder*>(item) || !ItemIsParentOfChild(static_cast<Folder*>(item), drop_location))) {
+        move_command->add_child(new NodeEdgeRemoveCommand(item, NodeInput(item->folder(), Folder::kChildInput, item->folder()->index_of_child_in_array(item))));
+        move_command->add_child(new FolderAddChild(drop_location, item));
       }
     }
 
@@ -353,9 +345,9 @@ bool ProjectViewModel::dropMimeData(const QMimeData *data, Qt::DropAction action
 
     return true;
 
-  } else if (mime_formats.contains("text/uri-list")) {
+  } else if (mime_formats.contains(QStringLiteral("text/uri-list"))) {
     // We received a list of files
-    QByteArray file_data = data->data("text/uri-list");
+    QByteArray file_data = data->data(QStringLiteral("text/uri-list"));
 
     // Use text stream to parse (just an easy way of sifting through line breaks
     QTextStream stream(&file_data);
@@ -371,104 +363,53 @@ bool ProjectViewModel::dropMimeData(const QMimeData *data, Qt::DropAction action
     }
 
     // Get folder dropped onto
-    Item* drop_item = GetItemObjectFromIndex(drop);
+    Node* drop_item = GetItemObjectFromIndex(drop);
 
     // If we didn't drop onto an item, find the nearest parent folder (should eventually terminate at root either way)
-    while (!drop_item->CanHaveChildren()) {
-      drop_item = drop_item->item_parent();
+    if (!dynamic_cast<Folder*>(drop_item)) {
+      drop_item = drop_item->folder();
+
+      if (!drop_item) {
+        // Failed to find folder to place this in
+        return false;
+      }
     }
 
     // Trigger an import
     Core::instance()->ImportFiles(urls, this, static_cast<Folder*>(drop_item));
+
+    return true;
   }
 
   return false;
 }
 
-void ProjectViewModel::AddChild(Item *parent, Item *child)
-{
-  QModelIndex parent_index;
-
-  if (parent != project_->root()) {
-    parent_index = CreateIndexFromItem(parent);
-  }
-
-  beginInsertRows(parent_index, parent->item_child_count(), parent->item_child_count());
-
-  child->setParent(parent);
-
-  endInsertRows();
-}
-
-void ProjectViewModel::RemoveChild(Item *parent, Item *child, QObject *new_parent)
-{
-  QModelIndex parent_index;
-
-  if (parent != project_->root()) {
-    parent_index = CreateIndexFromItem(parent);
-  }
-
-  int child_row = IndexOfChild(child);
-
-  beginRemoveRows(parent_index, child_row, child_row);
-
-  child->setParent(new_parent);
-
-  endRemoveRows();
-}
-
-void ProjectViewModel::RenameChild(Item *item, const QString &name)
-{
-  item->set_name(name);
-
-  QModelIndex index = CreateIndexFromItem(item, columns_.indexOf(kName));
-
-  emit dataChanged(index, index, {Qt::DisplayRole, Qt::EditRole});
-}
-
-int ProjectViewModel::IndexOfChild(Item *item) const
+int ProjectViewModel::IndexOfChild(Node *item) const
 {
   // Find parent's index within its own parent
-  // (FIXME: this model should handle sorting, which means it'll have to "know" the indices)
+  Folder* parent = item->folder();
 
-  if (item == project_->root()) {
-    return -1;
-  }
-
-  Item* parent = item->item_parent();
-
-  if (parent != nullptr) {
-    for (int i=0;i<parent->item_child_count();i++) {
-      if (parent->item_child(i) == item) {
-        return i;
-      }
-    }
+  if (parent) {
+    return parent->index_of_child(item);
   }
 
   return -1;
 }
 
-int ProjectViewModel::ChildCount(const QModelIndex &index)
-{
-  Item* item = GetItemObjectFromIndex(index);
-
-  return item->item_child_count();
-}
-
-Item *ProjectViewModel::GetItemObjectFromIndex(const QModelIndex &index) const
+Node *ProjectViewModel::GetItemObjectFromIndex(const QModelIndex &index) const
 {
   if (index.isValid()) {
-    return static_cast<Item*>(index.internalPointer());
+    return static_cast<Node*>(index.internalPointer());
   }
 
-  return project_->root();
+  return project_ ? project_->root() : nullptr;
 }
 
-bool ProjectViewModel::ItemIsParentOfChild(Item *parent, Item *child) const
+bool ProjectViewModel::ItemIsParentOfChild(Folder *parent, Node *child) const
 {
   // Loop through parent hierarchy checking if `parent` is one of its parents
   do {
-    child = child->item_parent();
+    child = child->folder();
 
     if (parent == child) {
       return true;
@@ -478,135 +419,92 @@ bool ProjectViewModel::ItemIsParentOfChild(Item *parent, Item *child) const
   return false;
 }
 
-void ProjectViewModel::MoveItemInternal(Item *item, Item *destination)
+void ProjectViewModel::ConnectItem(Node *n)
 {
-  QModelIndex item_index = CreateIndexFromItem(item);
+  connect(n, &Node::LabelChanged, this, &ProjectViewModel::ItemRenamed);
 
-  QModelIndex destination_index = CreateIndexFromItem(destination);
+  Folder* f = dynamic_cast<Folder*>(n);
+  if (f) {
+    connect(f, &Folder::BeginInsertItem, this, &ProjectViewModel::FolderBeginInsertItem);
+    connect(f, &Folder::EndInsertItem, this, &ProjectViewModel::FolderEndInsertItem);
+    connect(f, &Folder::BeginRemoveItem, this, &ProjectViewModel::FolderBeginRemoveItem);
+    connect(f, &Folder::EndRemoveItem, this, &ProjectViewModel::FolderEndRemoveItem);
 
-  beginMoveRows(item_index.parent(), item_index.row(), item_index.row(),
-                destination_index, destination->item_child_count());
-
-  item->setParent(destination);
-
-  endMoveRows();
+    foreach (Node* c, f->children()) {
+      ConnectItem(c);
+    }
+  }
 }
 
-QModelIndex ProjectViewModel::CreateIndexFromItem(Item *item, int column)
+void ProjectViewModel::DisconnectItem(Node *n)
+{
+  disconnect(n, &Node::LabelChanged, this, &ProjectViewModel::ItemRenamed);
+
+  Folder* f = dynamic_cast<Folder*>(n);
+  if (f) {
+    disconnect(f, &Folder::BeginInsertItem, this, &ProjectViewModel::FolderBeginInsertItem);
+    disconnect(f, &Folder::EndInsertItem, this, &ProjectViewModel::FolderEndInsertItem);
+    disconnect(f, &Folder::BeginRemoveItem, this, &ProjectViewModel::FolderBeginRemoveItem);
+    disconnect(f, &Folder::EndRemoveItem, this, &ProjectViewModel::FolderEndRemoveItem);
+
+    foreach (Node* c, f->children()) {
+      ConnectItem(c);
+    }
+  }
+}
+
+void ProjectViewModel::FolderBeginInsertItem(Node *n, int insert_index)
+{
+  Folder* folder = static_cast<Folder*>(sender());
+
+  ConnectItem(n);
+
+  QModelIndex index;
+
+  if (folder != project_->root()) {
+    index = CreateIndexFromItem(folder);
+  }
+
+  beginInsertRows(index, insert_index, insert_index);
+}
+
+void ProjectViewModel::FolderEndInsertItem()
+{
+  endInsertRows();
+}
+
+void ProjectViewModel::FolderBeginRemoveItem(Node *n, int child_index)
+{
+  Folder* folder = static_cast<Folder*>(sender());
+
+  DisconnectItem(n);
+
+  QModelIndex index;
+
+  if (folder != project_->root()) {
+    index = CreateIndexFromItem(folder);
+  }
+
+  beginRemoveRows(index, child_index, child_index);
+}
+
+void ProjectViewModel::FolderEndRemoveItem()
+{
+  endRemoveRows();
+}
+
+void ProjectViewModel::ItemRenamed()
+{
+  Node* item = static_cast<Node*>(sender());
+
+  QModelIndex index = CreateIndexFromItem(item);
+
+  emit dataChanged(index, index, {Qt::DisplayRole, Qt::EditRole});
+}
+
+QModelIndex ProjectViewModel::CreateIndexFromItem(Node *item, int column)
 {
   return createIndex(IndexOfChild(item), column, item);
-}
-
-ProjectViewModel::MoveItemCommand::MoveItemCommand(ProjectViewModel *model,
-                                                   Item *item,
-                                                   Folder *destination,
-                                                   QUndoCommand *parent) :
-  UndoCommand(parent),
-  model_(model),
-  item_(item),
-  destination_(destination)
-{
-  source_ = static_cast<Folder*>(item->parent());
-
-  setText(QCoreApplication::translate("MoveItemCommand", "Move Item"));
-}
-
-Project *ProjectViewModel::MoveItemCommand::GetRelevantProject() const
-{
-  return model_->project();
-}
-
-void ProjectViewModel::MoveItemCommand::redo_internal()
-{
-  model_->MoveItemInternal(item_, destination_);
-}
-
-void ProjectViewModel::MoveItemCommand::undo_internal()
-{
-  model_->MoveItemInternal(item_, source_);
-}
-
-ProjectViewModel::RenameItemCommand::RenameItemCommand(ProjectViewModel* model, Item *item, const QString &name, QUndoCommand *parent) :
-  UndoCommand(parent),
-  model_(model),
-  item_(item),
-  new_name_(name)
-{
-  old_name_ = item->name();
-
-  setText(QCoreApplication::translate("RenameItemCommand", "Rename Item"));
-}
-
-Project *ProjectViewModel::RenameItemCommand::GetRelevantProject() const
-{
-  return model_->project();
-}
-
-void ProjectViewModel::RenameItemCommand::redo_internal()
-{
-  model_->RenameChild(item_, new_name_);
-}
-
-void ProjectViewModel::RenameItemCommand::undo_internal()
-{
-  model_->RenameChild(item_, old_name_);
-}
-
-ProjectViewModel::AddItemCommand::AddItemCommand(ProjectViewModel* model, Item* folder, Item* child, QUndoCommand* parent) :
-  UndoCommand(parent),
-  model_(model),
-  parent_(folder),
-  child_(child)
-{
-  // Ensure all operations are done in folder's thread
-  if (memory_manager_.thread() != parent_->thread()) {
-    memory_manager_.moveToThread(parent_->thread());
-  }
-
-  child_->setParent(&memory_manager_);
-}
-
-Project *ProjectViewModel::AddItemCommand::GetRelevantProject() const
-{
-  return model_->project();
-}
-
-void ProjectViewModel::AddItemCommand::redo_internal()
-{
-  model_->AddChild(parent_, child_);
-}
-
-void ProjectViewModel::AddItemCommand::undo_internal()
-{
-  model_->RemoveChild(parent_, child_, &memory_manager_);
-}
-
-ProjectViewModel::RemoveItemCommand::RemoveItemCommand(ProjectViewModel *model, Item *item, QUndoCommand *parent) :
-  UndoCommand(parent),
-  model_(model),
-  item_(item)
-{
-  // Ensure all operations are done in folder's thread
-  parent_ = item_->item_parent();
-
-  if (memory_manager_.thread() != item_->thread()) {
-    memory_manager_.moveToThread(item_->thread());
-  }
-}
-
-Project *ProjectViewModel::RemoveItemCommand::GetRelevantProject() const
-{
-  return model_->project();
-}
-
-void ProjectViewModel::RemoveItemCommand::redo_internal()
-{
-  model_->RemoveChild(parent_, item_, &memory_manager_);
-}
-
-void ProjectViewModel::RemoveItemCommand::undo_internal()
-{
-  model_->AddChild(parent_, item_);
 }
 
 }

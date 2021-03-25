@@ -36,7 +36,7 @@ void NodeCopyPasteService::CopyNodesToClipboard(const QVector<Node *> &nodes, vo
   QXmlStreamWriter writer(&copy_str);
   writer.setAutoFormatting(true);
 
-  writer.writeStartDocument();
+  writer.writeStartDocument(QString::number(Core::kProjectVersion));
   writer.writeStartElement(QStringLiteral("olive"));
 
   foreach (Node* n, nodes) {
@@ -56,7 +56,7 @@ void NodeCopyPasteService::CopyNodesToClipboard(const QVector<Node *> &nodes, vo
   Core::CopyStringToClipboard(copy_str);
 }
 
-QVector<Node *> NodeCopyPasteService::PasteNodesFromClipboard(Sequence *graph, QUndoCommand* command, void *userdata)
+QVector<Node *> NodeCopyPasteService::PasteNodesFromClipboard(NodeGraph *graph, MultiUndoCommand* command, void *userdata)
 {
   QString clipboard = Core::PasteStringFromClipboard();
 
@@ -65,12 +65,15 @@ QVector<Node *> NodeCopyPasteService::PasteNodesFromClipboard(Sequence *graph, Q
   }
 
   QXmlStreamReader reader(clipboard);
+  uint data_version = reader.documentVersion().toUInt();
 
   QVector<Node*> pasted_nodes;
   XMLNodeData xml_node_data;
 
   while (XMLReadNextStartElement(&reader)) {
     if (reader.name() == QStringLiteral("olive")) {
+      // Default to current version - this may not be desirable?
+
       while (XMLReadNextStartElement(&reader)) {
         if (reader.name() == QStringLiteral("node")) {
           Node* node = nullptr;
@@ -83,7 +86,7 @@ QVector<Node *> NodeCopyPasteService::PasteNodesFromClipboard(Sequence *graph, Q
           }
 
           if (node) {
-            node->Load(&reader, xml_node_data, nullptr);
+            node->Load(&reader, xml_node_data, data_version, nullptr);
 
             pasted_nodes.append(node);
           }
@@ -121,7 +124,7 @@ QVector<Node *> NodeCopyPasteService::PasteNodesFromClipboard(Sequence *graph, Q
 
   // Add all nodes to graph
   foreach (Node* n, pasted_nodes) {
-    new NodeAddCommand(graph, n, command);
+    command->add_child(new NodeAddCommand(graph, n));
   }
 
   // Make connections
@@ -132,37 +135,6 @@ QVector<Node *> NodeCopyPasteService::PasteNodesFromClipboard(Sequence *graph, Q
   // Link blocks
   XMLLinkBlocks(xml_node_data);
 
-  // Connect footage to existing footage if it exists
-  if (!xml_node_data.footage_connections.isEmpty()) {
-    // Get list of all footage from project
-    QVector<Item*> footage = graph->project()->get_items_of_type(Item::kFootage);
-
-    if (!footage.isEmpty()) {
-      foreach (const XMLNodeData::FootageConnection& con, xml_node_data.footage_connections) {
-        if (con.footage) {
-          // Assume this is a pointer to a Stream*
-          Stream* loaded_stream = reinterpret_cast<Stream*>(con.footage);
-
-          bool found = false;
-
-          foreach (Item* item, footage) {
-            foreach (Stream* s, static_cast<Footage*>(item)->streams()) {
-              if (s == loaded_stream) {
-                con.input->set_standard_value(Node::PtrToValue(s));
-                found = true;
-                break;
-              }
-            }
-
-            if (found) {
-              break;
-            }
-          }
-        }
-      }
-    }
-  }
-
   return pasted_nodes;
 }
 
@@ -172,6 +144,7 @@ void NodeCopyPasteService::CopyNodesToClipboardInternal(QXmlStreamWriter*, void*
 
 void NodeCopyPasteService::PasteNodesFromClipboardInternal(QXmlStreamReader* reader, XMLNodeData &xml_node_data, void*)
 {
+  Q_UNUSED(xml_node_data)
   reader->skipCurrentElement();
 }
 

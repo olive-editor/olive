@@ -91,8 +91,10 @@ PreferencesAudioTab::PreferencesAudioTab()
   connect(AudioManager::instance(), &AudioManager::InputListReady, this, &PreferencesAudioTab::RetrieveInputList);
 }
 
-void PreferencesAudioTab::Accept()
+void PreferencesAudioTab::Accept(MultiUndoCommand *command)
 {
+  Q_UNUSED(command)
+
   // FIXME: Qt documentation states that QAudioDeviceInfo::deviceName() is a "unique identifiers", which would make them
   //        ideal for saving in preferences, but in practice they don't actually appear to be unique.
   //        See: https://bugreports.qt.io/browse/QTBUG-16841

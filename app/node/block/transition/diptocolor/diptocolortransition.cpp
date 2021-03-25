@@ -22,10 +22,11 @@
 
 namespace olive {
 
+const QString DipToColorTransition::kColorInput = QStringLiteral("color_in");
+
 DipToColorTransition::DipToColorTransition()
 {
-  color_input_ = new NodeInput(QStringLiteral("color_in"), NodeParam::kColor, QVariant::fromValue(Color(0, 0, 0)));
-  AddInput(color_input_);
+  AddInput(kColorInput, NodeValue::kColor, QVariant::fromValue(Color(0, 0, 0)));
 }
 
 Node *DipToColorTransition::copy() const
@@ -62,7 +63,7 @@ ShaderCode DipToColorTransition::GetShaderCode(const QString &shader_id) const
 
 void DipToColorTransition::ShaderJobEvent(NodeValueDatabase &value, ShaderJob &job) const
 {
-  job.InsertValue(color_input_, value);
+  job.InsertValue(this, kColorInput, value);
 }
 
 }

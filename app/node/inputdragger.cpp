@@ -26,65 +26,64 @@
 
 namespace olive {
 
-NodeInputDragger::NodeInputDragger() :
-  input_(nullptr)
+NodeInputDragger::NodeInputDragger()
 {
 
 }
 
 bool NodeInputDragger::IsStarted() const
 {
-  return input_;
+  return input_.IsValid();
 }
 
-void NodeInputDragger::Start(NodeInput *input, const rational &time, int track)
+void NodeInputDragger::Start(const NodeKeyframeTrackReference &input, const rational &time)
 {
-  Q_ASSERT(!input_);
+  Q_ASSERT(!IsStarted());
 
   // Set up new drag
   input_ = input;
   time_ = time;
-  track_ = track;
+
+  Node* node = input_.input().node();
 
   // Cache current value
-  start_value_ = input_->get_value_at_time_for_track(time, track);
+  start_value_ = node->GetSplitValueAtTimeOnTrack(input_, time);
 
   // Determine whether we are creating a keyframe or not
-  if (input_->is_keyframing()) {
-    dragging_key_ = input_->get_keyframe_at_time_on_track(time, track);
+  if (input_.input().IsKeyframing()) {
+    dragging_key_ = node->GetKeyframeAtTimeOnTrack(input_, time);
     drag_created_key_ = !dragging_key_;
 
     if (drag_created_key_) {
-      dragging_key_ = NodeKeyframe::Create(time,
-                                           start_value_,
-                                           input_->get_best_keyframe_type_for_time(time, track),
-                                           track);
-
-      // We disable default signal emitting during the drag
-      //input_->blockSignals(true);
-      input_->insert_keyframe(dragging_key_);
-      //input_->blockSignals(false);
-
-      emit input_->KeyframeAdded(dragging_key_);
+      dragging_key_ = new NodeKeyframe(time,
+                                       start_value_,
+                                       node->GetBestKeyframeTypeForTimeOnTrack(input_, time),
+                                       input_.track(),
+                                       input_.input().element(),
+                                       input_.input().input(),
+                                       node);
     }
   }
 }
 
 void NodeInputDragger::Drag(QVariant value)
 {
-  Q_ASSERT(input_);
+  Q_ASSERT(IsStarted());
 
-  if (input_->property("min").isValid()) {
+  Node* node = input_.input().node();
+  const QString& input = input_.input().input();
+
+  if (node->HasInputProperty(input, QStringLiteral("min"))) {
     // Assumes the value is a double of some kind
-    double min = input_->property("min").toDouble();
+    double min = node->GetInputProperty(input, QStringLiteral("min")).toDouble();
     double v = value.toDouble();
     if (v < min) {
       value = min;
     }
   }
 
-  if (input_->property("max").isValid()) {
-    double max = input_->property("max").toDouble();
+  if (node->HasInputProperty(input, QStringLiteral("max"))) {
+    double max = node->GetInputProperty(input, QStringLiteral("max")).toDouble();
     double v = value.toDouble();
     if (v > max) {
       value = max;
@@ -95,10 +94,10 @@ void NodeInputDragger::Drag(QVariant value)
 
   //input_->blockSignals(true);
 
-  if (input_->is_keyframing()) {
+  if (input_.input().IsKeyframing()) {
     dragging_key_->set_value(value);
   } else {
-    input_->set_standard_value(value, track_);
+    node->SetSplitStandardValueOnTrack(input_, value);
   }
 
   //input_->blockSignals(false);
@@ -110,26 +109,26 @@ void NodeInputDragger::End()
     return;
   }
 
-  QUndoCommand* command = new QUndoCommand();
+  MultiUndoCommand* command = new MultiUndoCommand();
 
-  if (input_->is_keyframing()) {
+  if (input_.input().node()->IsInputKeyframing(input_.input())) {
     if (drag_created_key_) {
       // We created a keyframe in this process
-      new NodeParamInsertKeyframeCommand(input_, dragging_key_, true, command);
+      command->add_child(new NodeParamInsertKeyframeCommand(input_.input().node(), dragging_key_));
     }
 
     // We just set a keyframe's value
     // We do this even when inserting a keyframe because we don't actually perform an insert in this undo command
     // so this will ensure the ValueChanged() signal is sent correctly
-    new NodeParamSetKeyframeValueCommand(dragging_key_, end_value_, start_value_, command);
+    command->add_child(new NodeParamSetKeyframeValueCommand(dragging_key_, end_value_, start_value_));
   } else {
     // We just set the standard value
-    new NodeParamSetStandardValueCommand(input_, track_, end_value_, start_value_, command);
+    command->add_child(new NodeParamSetStandardValueCommand(input_, end_value_, start_value_));
   }
 
   Core::instance()->undo_stack()->push(command);
 
-  input_ = nullptr;
+  input_.Reset();
 }
 
 }

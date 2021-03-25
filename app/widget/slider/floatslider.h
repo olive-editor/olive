@@ -51,6 +51,8 @@ public:
 
   void SetAutoTrimDecimalPlaces(bool e);
 
+  static QString ValueToString(double val, DisplayType display, int decimal_places, bool autotrim_decimal_places);
+
 protected:
   virtual QString ValueToString(const QVariant& v) override;
 
@@ -65,6 +67,10 @@ private slots:
   void ConvertValue(QVariant v);
 
 private:
+  static double LinearToDecibel(double linear);
+
+  static double DecibelToLinear(double decibel);
+
   DisplayType display_type_;
 
   int decimal_places_;

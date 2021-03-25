@@ -33,7 +33,7 @@ class ExportTask : public RenderTask
 {
   Q_OBJECT
 public:
-  ExportTask(ViewerOutput *viewer_node, ColorManager *color_manager, const ExportParams &params);
+  ExportTask(Sequence *viewer_node, ColorManager *color_manager, const ExportParams &params);
 
 protected:
   virtual bool Run() override;

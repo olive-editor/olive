@@ -69,6 +69,26 @@ public:
   void AddSum(const float* samples, int nb_samples, int nb_channels);
 
   void OverwriteSamples(SampleBufferPtr samples, int sample_rate, const rational& start = rational());
+
+  /**
+   * @brief Replaces sums at a certain range in this visual waveform
+   *
+   * @param sums
+   *
+   * The sums to write over our current ones with.
+   *
+   * @param dest
+   *
+   * Where in this visual waveform these sums should START being written to.
+   *
+   * @param offset
+   *
+   * Where in the `sums` parameter this should start reading from. Defaults to 0.
+   *
+   * @param length
+   *
+   * Maximum length of `sums` to overwrite with.
+   */
   void OverwriteSums(const AudioVisualWaveform& sums, const rational& dest, const rational& offset = rational(), const rational &length = rational());
 
   AudioVisualWaveform Mid(const rational& time) const;

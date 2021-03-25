@@ -40,16 +40,35 @@ public:
 
   void DeleteSelected();
 
+  void AddKeyframesOfNode(Node* n);
+
+  void AddKeyframesOfInput(Node *n, const QString &input);
+
+  void AddKeyframesOfElement(const NodeInput &input);
+
+  void AddKeyframesOfTrack(const NodeKeyframeTrackReference &ref);
+
   void RemoveKeyframesOfNode(Node* n);
 
-  void RemoveKeyframesOfInput(NodeInput* i);
+  void RemoveKeyframesOfInput(Node *n, const QString &input);
+
+  void RemoveKeyframesOfElement(const NodeInput &input);
+
+  void RemoveKeyframesOfTrack(const NodeKeyframeTrackReference &ref);
+
+  void SelectAll();
+
+  void DeselectAll();
+
+signals:
+  void Dragged(int current_x, int current_y);
 
 public slots:
-  void RemoveKeyframe(NodeKeyframePtr key);
+  virtual KeyframeViewItem* AddKeyframe(NodeKeyframe* key);
+
+  void RemoveKeyframe(NodeKeyframe* key);
 
 protected:
-  virtual KeyframeViewItem* AddKeyframeInternal(NodeKeyframePtr key);
-
   virtual void mousePressEvent(QMouseEvent *event) override;
   virtual void mouseMoveEvent(QMouseEvent *event) override;
   virtual void mouseReleaseEvent(QMouseEvent *event) override;
@@ -64,6 +83,11 @@ protected:
 
   virtual void ContextMenuEvent(Menu &m);
 
+  bool IsDragging() const
+  {
+    return dragging_;
+  }
+
 private:
   rational CalculateNewTimeFromScreen(const rational& old_time, double cursor_diff);
 
@@ -71,9 +95,7 @@ private:
                                                const QPointF& start_point,
                                                const QPointF& scaled_cursor_diff);
 
-  void ProcessBezierDrag(QPointF mouse_diff_scaled, bool include_opposing, bool undoable);
-
-  QPointF GetScaledCursorPos(const QPoint& cursor_pos);
+  QPointF GetScaledCursorPos(const QPointF &cursor_pos);
 
   struct KeyframeItemAndTime {
     KeyframeViewItem* key;
@@ -86,15 +108,19 @@ private:
 
   Tool::Item active_tool_;
 
-  QPoint drag_start_;
+  QPointF drag_start_;
 
   BezierControlPointItem* dragging_bezier_point_;
   QPointF dragging_bezier_point_start_;
   QPointF dragging_bezier_point_opposing_start_;
 
+  KeyframeViewItem* initial_drag_item_;
+
   QVector<KeyframeItemAndTime> selected_keys_;
 
   bool currently_autoselecting_;
+
+  bool dragging_;
 
 private slots:
   void ShowContextMenu();

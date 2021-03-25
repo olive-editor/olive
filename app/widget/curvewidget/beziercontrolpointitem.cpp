@@ -29,7 +29,7 @@
 
 namespace olive {
 
-BezierControlPointItem::BezierControlPointItem(NodeKeyframePtr key, NodeKeyframe::BezierType mode, QGraphicsItem *parent) :
+BezierControlPointItem::BezierControlPointItem(NodeKeyframe* key, NodeKeyframe::BezierType mode, QGraphicsItem *parent) :
   QGraphicsRectItem(parent),
   key_(key),
   mode_(mode),
@@ -38,12 +38,12 @@ BezierControlPointItem::BezierControlPointItem(NodeKeyframePtr key, NodeKeyframe
 {
   setFlag(QGraphicsItem::ItemIsMovable);
 
-  connect(key.get(), &NodeKeyframe::TimeChanged, this, &BezierControlPointItem::UpdatePos);
+  connect(key, &NodeKeyframe::TimeChanged, this, &BezierControlPointItem::UpdatePos);
 
   if (mode_ == NodeKeyframe::kInHandle) {
-    connect(key.get(), &NodeKeyframe::BezierControlInChanged, this, &BezierControlPointItem::UpdatePos);
+    connect(key, &NodeKeyframe::BezierControlInChanged, this, &BezierControlPointItem::UpdatePos);
   } else {
-    connect(key.get(), &NodeKeyframe::BezierControlOutChanged, this, &BezierControlPointItem::UpdatePos);
+    connect(key, &NodeKeyframe::BezierControlOutChanged, this, &BezierControlPointItem::UpdatePos);
   }
 
 
@@ -64,7 +64,7 @@ void BezierControlPointItem::SetYScale(double scale)
   UpdatePos();
 }
 
-NodeKeyframePtr BezierControlPointItem::key() const
+NodeKeyframe* BezierControlPointItem::key() const
 {
   return key_;
 }

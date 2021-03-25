@@ -25,6 +25,7 @@
 #include "node/factory.h"
 #include "transition.h"
 #include "widget/nodeview/nodeviewundo.h"
+#include "widget/timelinewidget/timelineundo.h"
 
 namespace olive {
 
@@ -35,8 +36,8 @@ TransitionTool::TransitionTool(TimelineWidget *parent) :
 
 void TransitionTool::MousePress(TimelineViewMouseEvent *event)
 {
-  const TrackReference& track = event->GetTrack();
-  TrackOutput* t = parent()->GetTrackFromReference(track);
+  const Track::Reference& track = event->GetTrack();
+  Track* t = parent()->GetTrackFromReference(track);
   rational cursor_frame = event->GetFrame();
 
   if (!t || t->IsLocked()) {
@@ -106,7 +107,7 @@ void TransitionTool::MouseMove(TimelineViewMouseEvent *event)
 
 void TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
 {
-  const TrackReference& track = ghost_->GetTrack();
+  const Track::Reference& track = ghost_->GetTrack();
 
   if (ghost_) {
     if (!ghost_->GetAdjustedLength().isNull()) {
@@ -119,18 +120,16 @@ void TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
         transition = static_cast<TransitionBlock*>(NodeFactory::CreateFromID(Core::instance()->GetSelectedTransition()));
       }
 
-      QUndoCommand* command = new QUndoCommand();
+      MultiUndoCommand* command = new MultiUndoCommand();
 
       // Place transition in place
-      new NodeAddCommand(static_cast<NodeGraph*>(parent()->GetConnectedNode()->parent()),
-                         transition,
-                         command);
+      command->add_child(new NodeAddCommand(static_cast<NodeGraph*>(parent()->GetConnectedNode()->parent()),
+                                            transition));
 
-      new TrackPlaceBlockCommand(parent()->GetConnectedNode()->track_list(track.type()),
-                                 track.index(),
-                                 transition,
-                                 ghost_->GetAdjustedIn(),
-                                 command);
+      command->add_child(new TrackPlaceBlockCommand(sequence()->track_list(track.type()),
+                                                    track.index(),
+                                                    transition,
+                                                    ghost_->GetAdjustedIn()));
 
       if (dual_transition_) {
         transition->set_length_and_media_out(ghost_->GetAdjustedLength());
@@ -147,29 +146,26 @@ void TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
         Block* in_block = (ghost_->GetMode() == Timeline::kTrimIn) ? active_block : friend_block;
 
         // Connect block to transition
-        new NodeEdgeAddCommand(out_block->output(),
-                               transition->out_block_input(),
-                               command);
+        command->add_child(new NodeEdgeAddCommand(out_block,
+                                                  NodeInput(transition, TransitionBlock::kOutBlockInput)));
 
-        new NodeEdgeAddCommand(in_block->output(),
-                               transition->in_block_input(),
-                               command);
+        command->add_child(new NodeEdgeAddCommand(in_block,
+                                                  NodeInput(transition, TransitionBlock::kInBlockInput)));
       } else {
         Block* block_to_transition = Node::ValueToPtr<Block>(ghost_->GetData(TimelineViewGhostItem::kAttachedBlock));
-        NodeInput* transition_input_to_connect;
+        QString transition_input_to_connect;
 
         if (ghost_->GetMode() == Timeline::kTrimIn) {
           transition->set_length_and_media_out(ghost_->GetAdjustedLength());
-          transition_input_to_connect = transition->in_block_input();
+          transition_input_to_connect = TransitionBlock::kInBlockInput;
         } else {
           transition->set_length_and_media_out(ghost_->GetAdjustedLength());
-          transition_input_to_connect = transition->out_block_input();
+          transition_input_to_connect = TransitionBlock::kOutBlockInput;
         }
 
         // Connect block to transition
-        new NodeEdgeAddCommand(block_to_transition->output(),
-                               transition_input_to_connect,
-                               command);
+        command->add_child(new NodeEdgeAddCommand(block_to_transition,
+                                                  NodeInput(transition, transition_input_to_connect)));
       }
 
       Core::instance()->undo_stack()->push(command);

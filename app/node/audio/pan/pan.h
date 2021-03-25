@@ -38,11 +38,14 @@ public:
   virtual QVector<CategoryID> Category() const override;
   virtual QString Description() const override;
 
-  virtual NodeValueTable Value(NodeValueDatabase &value) const override;
+  virtual NodeValueTable Value(const QString& output, NodeValueDatabase &value) const override;
 
   virtual void ProcessSamples(NodeValueDatabase &values, const SampleBufferPtr input, SampleBufferPtr output, int index) const override;
 
   virtual void Retranslate() override;
+
+  static const QString kSamplesInput;
+  static const QString kPanningInput;
 
 private:
   NodeInput* samples_input_;

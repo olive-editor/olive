@@ -99,102 +99,10 @@ public:
   virtual QMimeData * mimeData(const QModelIndexList &indexes) const override;
   virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) override;
 
-  /** Other model functions */
-  void AddChild(Item* parent, Item* child);
-  void RemoveChild(Item* parent, Item* child, QObject* new_parent);
-  void RenameChild(Item* item, const QString& name);
-
   /**
    * @brief Convenience function for creating QModelIndexes from an Item object
    */
-  QModelIndex CreateIndexFromItem(Item* item, int column = 0);
-
-  /**
-   * @brief A QUndoCommand for moving an item from one folder to another folder
-   */
-  class MoveItemCommand : public UndoCommand {
-  public:
-    MoveItemCommand(ProjectViewModel* model, Item* item, Folder* destination, QUndoCommand* parent = nullptr);
-
-    virtual Project* GetRelevantProject() const override;
-
-  protected:
-    virtual void redo_internal() override;
-
-    virtual void undo_internal() override;
-
-  private:
-    ProjectViewModel* model_;
-    Item* item_;
-    Folder* source_;
-    Folder* destination_;
-
-  };
-
-  /**
-   * @brief A QUndoCommand for renaming an item
-   */
-  class RenameItemCommand : public UndoCommand {
-  public:
-    RenameItemCommand(ProjectViewModel* model, Item* item, const QString& name, QUndoCommand* parent = nullptr);
-
-    virtual Project* GetRelevantProject() const override;
-
-  protected:
-    virtual void redo_internal() override;
-
-    virtual void undo_internal() override;
-
-  private:
-    ProjectViewModel* model_;
-    Item* item_;
-    QString old_name_;
-    QString new_name_;
-  };
-
-  /**
-   * @brief A QUndoCommand for adding an item
-   */
-  class AddItemCommand : public UndoCommand {
-  public:
-    AddItemCommand(ProjectViewModel* model, Item* folder, Item *child, QUndoCommand* parent = nullptr);
-
-    virtual Project* GetRelevantProject() const override;
-
-  protected:
-    virtual void redo_internal() override;
-
-    virtual void undo_internal() override;
-
-  private:
-    ProjectViewModel* model_;
-    Item* parent_;
-    Item* child_;
-    QObject memory_manager_;
-
-  };
-
-  /**
-   * @brief An undo command for removing an item
-   */
-  class RemoveItemCommand : public UndoCommand {
-  public:
-    RemoveItemCommand(ProjectViewModel* model, Item* item, QUndoCommand* parent = nullptr);
-
-    virtual Project* GetRelevantProject() const override;
-
-  protected:
-    virtual void redo_internal() override;
-
-    virtual void undo_internal() override;
-
-  private:
-    ProjectViewModel* model_;
-    Item* item_;
-    Item* parent_;
-    QObject memory_manager_;
-
-  };
+  QModelIndex CreateIndexFromItem(Node *item, int column = 0);
 
 private:
   /**
@@ -207,48 +115,41 @@ private:
    *
    * Index of the specified item, or -1 if the item is root (in which case it has no parent).
    */
-  int IndexOfChild(Item* item) const;
-
-  /**
-   * @brief Get the child count of an index
-   *
-   * @param index
-   *
-   * @return
-   *
-   * Return number of children (immediate children only)
-   */
-  int ChildCount(const QModelIndex& index);
+  int IndexOfChild(Node* item) const;
 
   /**
    * @brief Retrieves the Item object from a given index
    *
    * A convenience function for retrieving Item objects. If the index is not valid, this returns the root Item.
    */
-  Item* GetItemObjectFromIndex(const QModelIndex& index) const;
+  Node* GetItemObjectFromIndex(const QModelIndex& index) const;
 
   /**
    * @brief Check if an Item is a parent of a Child
    *
    * Checks entire "parent hierarchy" of `child` to see if `parent` is one of its parents.
    */
-  bool ItemIsParentOfChild(Item* parent, Item* child) const;
+  bool ItemIsParentOfChild(Folder *parent, Node* child) const;
 
-  /**
-   * @brief Moves an item to a new destination updating all views in the process
-   *
-   * This function will emit a signal indicating that rows are moving, set `destination` as the new parent of `item`,
-   * and then emit a signal that the row has finished moving.
-   *
-   * It's not recommended to use this function directly in most cases since it does not create a QUndoCommand allowing
-   * the user to undo the move. Instead this function should primarily be called from QUndoCommands belonging to this
-   * class (e.g. MoveItemCommand).
-   */
-  void MoveItemInternal(Item* item, Item* destination);
+  void ConnectItem(Node* n);
+
+  void DisconnectItem(Node *n);
 
   Project* project_;
 
   QVector<ColumnType> columns_;
+
+private slots:
+  void FolderBeginInsertItem(Node *n, int insert_index);
+
+  void FolderEndInsertItem();
+
+  void FolderBeginRemoveItem(Node* n, int child_index);
+
+  void FolderEndRemoveItem();
+
+  void ItemRenamed();
+
 };
 
 }

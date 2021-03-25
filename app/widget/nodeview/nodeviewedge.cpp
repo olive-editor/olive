@@ -28,62 +28,38 @@
 #include "common/bezier.h"
 #include "common/lerp.h"
 #include "nodeview.h"
+#include "nodeviewitem.h"
 #include "nodeviewscene.h"
 
 namespace olive {
 
+NodeViewEdge::NodeViewEdge(const NodeOutput &output, const NodeInput &input,
+                           NodeViewItem* from_item, NodeViewItem* to_item,
+                           QGraphicsItem* parent) :
+  QGraphicsPathItem(parent),
+  output_(output),
+  input_(input),
+  from_item_(from_item),
+  to_item_(to_item)
+{
+  Init();
+  SetConnected(true);
+}
+
 NodeViewEdge::NodeViewEdge(QGraphicsItem *parent) :
   QGraphicsPathItem(parent),
-  edge_(nullptr),
-  connected_(false),
-  highlighted_(false),
-  flow_dir_(NodeViewCommon::kLeftToRight),
-  curved_(true)
+  from_item_(nullptr),
+  to_item_(nullptr)
 {
-  setFlag(QGraphicsItem::ItemIsSelectable);
-
-  // Ensures this UI object is drawn behind other objects
-  setZValue(-1);
-
-  // Use font metrics to set edge width for basic high DPI support
-  edge_width_ = QFontMetrics(QFont()).height() / 12;
-  arrow_size_ = QFontMetrics(QFont()).height() / 2;
-}
-
-void NodeViewEdge::SetEdge(NodeEdgePtr edge)
-{
-  SetConnected(true);
-
-  // Set the new edge pointer
-  edge_ = edge;
-
-  // Re-adjust the line positioning for this new edge
-  Adjust();
-}
-
-NodeEdgePtr NodeViewEdge::edge()
-{
-  return edge_;
+  Init();
 }
 
 void NodeViewEdge::Adjust()
 {
-  if (!edge_ || !scene()) {
-    return;
-  }
-
-  // Get the UI objects of both nodes that this edge connects
-  NodeViewItem* output = static_cast<NodeViewScene*>(scene())->NodeToUIObject(edge_->output()->parentNode());
-  NodeViewItem* input = static_cast<NodeViewScene*>(scene())->NodeToUIObject(edge_->input()->parentNode());
-
-  if (!output || !input) {
-    return;
-  }
-
   // Draw a line between the two
-  SetPoints(output->GetParamPoint(edge_->output(), output->pos()),
-            input->GetParamPoint(edge_->input(), output->pos()),
-            input->IsExpanded());
+  SetPoints(from_item()->GetOutputPoint(output_.output()),
+            to_item()->GetInputPoint(input_.input(), input_.element(), from_item()->pos()),
+            to_item()->IsExpanded());
 }
 
 void NodeViewEdge::SetConnected(bool c)
@@ -180,7 +156,9 @@ void NodeViewEdge::SetFlowDirection(NodeViewCommon::FlowDirection dir)
 {
   flow_dir_ = dir;
 
-  Adjust();
+  if (from_item_ && to_item_) {
+    Adjust();
+  }
 }
 
 void NodeViewEdge::SetCurved(bool e)
@@ -218,6 +196,23 @@ void NodeViewEdge::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
   painter->setPen(Qt::NoPen);
   painter->setBrush(edge_color);
   painter->drawPolygon(arrow_);
+}
+
+void NodeViewEdge::Init()
+{
+  connected_ = false;
+  highlighted_ = false;
+  flow_dir_ = NodeViewCommon::kLeftToRight;
+  curved_ = true;
+
+  setFlag(QGraphicsItem::ItemIsSelectable);
+
+  // Ensures this UI object is drawn behind other objects
+  setZValue(-1);
+
+  // Use font metrics to set edge width for basic high DPI support
+  edge_width_ = QFontMetrics(QFont()).height() / 12;
+  arrow_size_ = QFontMetrics(QFont()).height() / 2;
 }
 
 }

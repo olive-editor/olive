@@ -22,7 +22,6 @@
 #define RENDERCACHE_H
 
 #include "codec/decoder.h"
-#include "project/item/footage/stream.h"
 
 namespace olive {
 
@@ -40,7 +39,7 @@ private:
 
 };
 
-using DecoderCache = RenderCache<Stream*, DecoderPtr>;
+using DecoderCache = RenderCache<Decoder::CodecStream, DecoderPtr>;
 using ShaderCache = RenderCache<QString, QVariant>;
 
 }

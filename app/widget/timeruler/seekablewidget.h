@@ -42,6 +42,11 @@ public:
 
   void SetSnapService(SnapService* service);
 
+  bool IsDraggingPlayhead() const
+  {
+    return dragging_;
+  }
+
 public slots:
   void SetTime(const int64_t &r);
 
@@ -97,6 +102,8 @@ private:
   int playhead_width_;
 
   SnapService* snap_service_;
+
+  bool dragging_;
 
 };
 

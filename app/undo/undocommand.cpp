@@ -24,34 +24,38 @@
 
 namespace olive {
 
-UndoCommand::UndoCommand(QUndoCommand *parent) :
-  QUndoCommand(parent)
+void MultiUndoCommand::redo()
 {
+  for (auto it=children_.cbegin(); it!=children_.cend(); it++) {
+    (*it)->redo_and_set_modified();
+  }
 }
 
-void UndoCommand::redo()
+void MultiUndoCommand::undo()
 {
-  redo_internal();
-
-  modified_ = GetRelevantProject()->is_modified();
-  GetRelevantProject()->set_modified(true);
+  for (auto it=children_.crbegin(); it!=children_.crend(); it++) {
+    (*it)->undo_and_set_modified();
+  }
 }
 
-void UndoCommand::undo()
+void UndoCommand::redo_and_set_modified()
 {
-  undo_internal();
+  redo();
 
-  GetRelevantProject()->set_modified(modified_);
+  project_ = GetRelevantProject();
+  if (project_) {
+    modified_ = project_->is_modified();
+    project_->set_modified(true);
+  }
 }
 
-void UndoCommand::redo_internal()
+void UndoCommand::undo_and_set_modified()
 {
-  QUndoCommand::redo();
-}
+  undo();
 
-void UndoCommand::undo_internal()
-{
-  QUndoCommand::undo();
+  if (project_) {
+    project_->set_modified(modified_);
+  }
 }
 
 }

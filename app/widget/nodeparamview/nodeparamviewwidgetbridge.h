@@ -23,7 +23,6 @@
 
 #include <QObject>
 
-#include "node/input.h"
 #include "node/inputdragger.h"
 #include "widget/slider/sliderbase.h"
 #include "widget/timetarget/timetarget.h"
@@ -41,30 +40,37 @@ class NodeParamViewWidgetBridge : public QObject, public TimeTargetObject
 {
   Q_OBJECT
 public:
-  NodeParamViewWidgetBridge(NodeInput* input, QObject* parent);
+  NodeParamViewWidgetBridge(const NodeInput& input, QObject* parent);
 
   void SetTime(const rational& time);
 
-  const QList<QWidget*>& widgets() const;
+  const QVector<QWidget*>& widgets() const
+  {
+    return widgets_;
+  }
+
+signals:
+  void ArrayWidgetDoubleClicked();
 
 private:
   void CreateWidgets();
 
   void SetInputValue(const QVariant& value, int track);
 
-  void SetInputValueInternal(const QVariant& value, int track, QUndoCommand* command);
+  void SetInputValueInternal(const QVariant& value, int track, MultiUndoCommand *command);
 
   void ProcessSlider(SliderBase* slider, const QVariant& value);
 
+  template <typename T>
   void CreateSliders(int count);
 
   void UpdateWidgetValues();
 
   rational GetCurrentTimeAsNodeTime() const;
 
-  NodeInput* input_;
+  NodeInput input_;
 
-  QList<QWidget*> widgets_;
+  QVector<QWidget*> widgets_;
 
   rational time_;
 
@@ -75,9 +81,9 @@ private:
 private slots:
   void WidgetCallback();
 
-  void InputValueChanged(const TimeRange& range);
+  void InputValueChanged(const NodeInput& input, const TimeRange& range);
 
-  void PropertyChanged(const QString& key, const QVariant& value);
+  void PropertyChanged(const QString &input, const QString& key, const QVariant& value);
 
 };
 

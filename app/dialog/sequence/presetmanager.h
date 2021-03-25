@@ -21,6 +21,7 @@
 #ifndef PRESETMANAGER_H
 #define PRESETMANAGER_H
 
+#include <memory>
 #include <QCoreApplication>
 #include <QDir>
 #include <QFile>
@@ -62,8 +63,6 @@ private:
 
 };
 
-using PresetPtr = std::shared_ptr<Preset>;
-
 template <typename T>
 class PresetManager
 {
@@ -81,7 +80,7 @@ public:
         if (reader.name() == QStringLiteral("presets")) {
           while (XMLReadNextStartElement(&reader)) {
             if (reader.name() == QStringLiteral("preset")) {
-              PresetPtr p = std::make_shared<T>();
+              Preset* p = new T();
 
               p->Load(&reader);
 
@@ -111,7 +110,7 @@ public:
 
       writer.writeStartElement(QStringLiteral("presets"));
 
-      foreach (PresetPtr p, custom_preset_data_) {
+      foreach (Preset* p, custom_preset_data_) {
         writer.writeStartElement(QStringLiteral("preset"));
 
         p->Save(&writer);
@@ -158,7 +157,7 @@ public:
     return start;
   }
 
-  bool SavePreset(PresetPtr preset)
+  bool SavePreset(Preset* preset)
   {
     QString preset_name;
     int existing_preset;
@@ -205,7 +204,7 @@ public:
     return QDir(FileFunctions::GetConfigurationLocation()).filePath(preset_name_);
   }
 
-  PresetPtr GetPreset(int index)
+  Preset* GetPreset(int index)
   {
     return custom_preset_data_.at(index);
   }
@@ -220,13 +219,13 @@ public:
     return custom_preset_data_.size();
   }
 
-  const QVector<PresetPtr>& GetPresetData() const
+  const QVector<Preset*>& GetPresetData() const
   {
     return custom_preset_data_;
   }
 
 private:
-  QVector<PresetPtr> custom_preset_data_;
+  QVector<Preset*> custom_preset_data_;
 
   QString preset_name_;
 

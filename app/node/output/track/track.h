@@ -18,8 +18,8 @@
 
 ***/
 
-#ifndef TRACKOUTPUT_H
-#define TRACKOUTPUT_H
+#ifndef TRACK_H
+#define TRACK_H
 
 #include "audio/audiovisualwaveform.h"
 #include "node/block/block.h"
@@ -30,16 +30,24 @@ namespace olive {
 /**
  * @brief A time traversal Node for sorting through one channel/track of Blocks
  */
-class TrackOutput : public Node
+class Track : public Node
 {
   Q_OBJECT
 public:
-  TrackOutput();
+  enum Type {
+    kNone = -1,
+    kVideo,
+    kAudio,
+    kSubtitle,
+    kCount
+  };
 
-  virtual ~TrackOutput() override;
+  Track();
 
-  const Timeline::TrackType& track_type() const;
-  void set_track_type(const Timeline::TrackType& track_type);
+  virtual ~Track() override;
+
+  const Track::Type& type() const;
+  void set_type(const Track::Type& track_type);
 
   virtual Node* copy() const override;
 
@@ -47,6 +55,14 @@ public:
   virtual QString id() const override;
   virtual QVector<CategoryID> Category() const override;
   virtual QString Description() const override;
+
+  virtual TimeRange InputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const override;
+
+  virtual TimeRange OutputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const override;
+
+  static rational TransformTimeForBlock(Block* block, const rational& time);
+
+  static TimeRange TransformRangeForBlock(Block* block, const TimeRange& range);
 
   const double& GetTrackHeight() const;
   void SetTrackHeight(const double& height);
@@ -83,7 +99,58 @@ public:
 
   virtual void Retranslate() override;
 
-  const int& Index();
+  class Reference
+  {
+  public:
+    Reference() :
+      type_(kNone),
+      index_(-1)
+    {
+    }
+
+    Reference(const Track::Type& type, const int& index) :
+      type_(type),
+      index_(index)
+    {
+    }
+
+    const Track::Type& type() const
+    {
+      return type_;
+    }
+
+    const int& index() const
+    {
+      return index_;
+    }
+
+    bool operator==(const Reference& ref) const
+    {
+      return type_ == ref.type_ && index_ == ref.index_;
+    }
+
+    bool operator!=(const Reference& ref) const
+    {
+      return !(*this == ref);
+    }
+
+  private:
+    Track::Type type_;
+
+    int index_;
+
+  };
+
+  Reference ToReference() const
+  {
+    return Reference(type(), Index());
+  }
+
+  const int& Index() const
+  {
+    return index_;
+  }
+
   void SetIndex(const int& index);
 
   /**
@@ -148,11 +215,14 @@ public:
    * `block.in < range.out && block.out > range.in`. Returns an empty list if IsMuted() or if
    * `range.in >= track.length`. Blocks that are not enabled will be omitted from the returned list.
    */
-  QList<Block*> BlocksAtTimeRange(const TimeRange& range) const;
+  QVector<Block*> BlocksAtTimeRange(const TimeRange& range) const;
 
-  const QList<Block *> &Blocks() const;
+  const QVector<Block *> &Blocks() const
+  {
+    return blocks_;
+  }
 
-  virtual void InvalidateCache(const TimeRange& range, NodeInput* from, NodeInput *source) override;
+  virtual void InvalidateCache(const TimeRange& range, const QString& from, int element, qint64 job_time) override;
 
   /**
    * @brief Adds Block `block` at the very beginning of the Sequence before all other clips
@@ -196,21 +266,15 @@ public:
    */
   void ReplaceBlock(Block* old, Block* replace);
 
-  static TrackOutput* TrackFromBlock(const Block *block);
-
   const rational& track_length() const;
 
-  virtual bool IsTrack() const override;
-
-  static QString GetDefaultTrackName(Timeline::TrackType type, int index);
+  static QString GetDefaultTrackName(Track::Type type, int index);
 
   bool IsMuted() const;
 
   bool IsLocked() const;
 
-  NodeInputArray* block_input() const;
-
-  virtual void Hash(QCryptographicHash& hash, const rational &time) const override;
+  virtual void Hash(const QString& output, QCryptographicHash& hash, const rational &time) const override;
 
   AudioVisualWaveform& waveform()
   {
@@ -220,6 +284,9 @@ public:
   static const double kTrackHeightDefault;
   static const double kTrackHeightMinimum;
   static const double kTrackHeightInterval;
+
+  static const QString kBlockInput;
+  static const QString kMutedInput;
 
 public slots:
   void SetMuted(bool e);
@@ -262,28 +329,41 @@ signals:
    */
   void PreviewChanged();
 
+  /**
+   * @brief Emitted when a block changes length and all the subsequent blocks had to update
+   */
+  void BlocksRefreshed();
+
 protected:
-  virtual void LoadInternal(QXmlStreamReader* reader, XMLNodeData& xml_node_data) override;
+  virtual void LoadInternal(QXmlStreamReader* reader, XMLNodeData& xml_node_data, uint version, const QAtomicInt* cancelled) override;
 
   virtual void SaveInternal(QXmlStreamWriter* writer) const override;
+
+  virtual void InputConnectedEvent(const QString& input, int element, const NodeOutput& output) override;
+
+  virtual void InputDisconnectedEvent(const QString& input, int element, const NodeOutput& output) override;
+
+  virtual void InputValueChangedEvent(const QString& input, int element) override;
 
 private:
   void UpdateInOutFrom(int index);
 
-  int GetInputIndexFromCacheIndex(int cache_index);
-  int GetInputIndexFromCacheIndex(Block* block);
+  int GetArrayIndexFromBlock(Block* block) const;
+
+  int GetArrayIndexFromCacheIndex(int index) const;
+
+  int GetCacheIndexFromArrayIndex(int index) const;
 
   void SetLengthInternal(const rational& r, bool invalidate = true);
 
-  QList<Block*> block_cache_;
+  QVector<Block*> blocks_;
+  QVector<int> block_array_indexes_;
 
-  NodeInputArray* block_input_;
-
-  NodeInput* muted_input_;
-
-  Timeline::TrackType track_type_;
+  Track::Type track_type_;
 
   rational track_length_;
+
+  rational last_invalidated_length_;
 
   double track_height_;
 
@@ -294,16 +374,12 @@ private:
   AudioVisualWaveform waveform_;
 
 private slots:
-  void BlockConnected(NodeEdgePtr edge);
-
-  void BlockDisconnected(NodeEdgePtr edge);
-
   void BlockLengthChanged();
-
-  void MutedInputValueChanged();
 
 };
 
+uint qHash(const Track::Reference& r, uint seed = 0);
+
 }
 
-#endif // TRACKOUTPUT_H
+#endif // TRACK_H

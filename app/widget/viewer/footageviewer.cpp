@@ -32,12 +32,6 @@ FootageViewerWidget::FootageViewerWidget(QWidget *parent) :
   ViewerWidget(parent),
   footage_(nullptr)
 {
-  video_node_ = new MediaInput();
-  sequence_.AddNode(video_node_);
-
-  audio_node_ = new MediaInput();
-  sequence_.AddNode(audio_node_);
-
   connect(display_widget(), &ViewerDisplayWidget::DragStarted, this, &FootageViewerWidget::StartFootageDrag);
 
   controls_->SetAudioVideoDragButtonsVisible(true);
@@ -52,61 +46,44 @@ Footage *FootageViewerWidget::GetFootage() const
 
 void FootageViewerWidget::SetFootage(Footage *footage)
 {
+  if (footage && !footage->project()) {
+    qCritical() << "Failed to set footage in footage viewer - footage had no project";
+    return;
+  }
+
   if (footage_) {
     cached_timestamps_.insert(footage_, GetTimestamp());
 
+    ViewerOutput* old_viewer = footage_->project()->footage_viewer();
+
     ConnectViewerNode(nullptr);
 
-    video_node_->SetStream(nullptr);
-    audio_node_->SetStream(nullptr);
+    if (old_viewer->IsInputConnected(ViewerOutput::kTextureInput)) {
+      Node::DisconnectEdge(old_viewer->GetConnectedOutput(ViewerOutput::kTextureInput), NodeInput(old_viewer, ViewerOutput::kTextureInput));
+    }
 
-    NodeParam::DisconnectEdge(video_node_->output(), sequence_.viewer_output()->texture_input());
-    NodeParam::DisconnectEdge(audio_node_->output(), sequence_.viewer_output()->samples_input());
+    if (old_viewer->IsInputConnected(ViewerOutput::kSamplesInput)) {
+      Node::DisconnectEdge(old_viewer->GetConnectedOutput(ViewerOutput::kSamplesInput), NodeInput(old_viewer, ViewerOutput::kSamplesInput));
+    }
   }
 
   footage_ = footage;
 
   if (footage_) {
+    ViewerOutput* new_viewer = footage_->project()->footage_viewer();
+
     // Update sequence media name
-    sequence_.viewer_output()->set_media_name(footage_->name());
+    new_viewer->SetLabel(footage_->GetLabel());
 
     // Reset parameters and then attempt to set from footage
-    sequence_.set_default_parameters();
-    sequence_.set_parameters_from_footage({footage_});
+    new_viewer->set_default_parameters();
+    new_viewer->set_parameters_from_footage({footage_});
 
-    // Use first of each stream
-    VideoStream* video_stream = nullptr;
-    AudioStream* audio_stream = nullptr;
+    // Try to connect video stream
+    TryConnectingType(new_viewer, footage, Stream::kVideo);
+    TryConnectingType(new_viewer, footage, Stream::kAudio);
 
-    foreach (Stream* s, footage_->streams()) {
-      if (!s->enabled()) {
-        continue;
-      }
-
-      if (!audio_stream && s->type() == Stream::kAudio) {
-        audio_stream = static_cast<AudioStream*>(s);
-      }
-
-      if (!video_stream && s->type() == Stream::kVideo) {
-        video_stream = static_cast<VideoStream*>(s);
-      }
-
-      if (audio_stream && video_stream) {
-        break;
-      }
-    }
-
-    if (video_stream) {
-      video_node_->SetStream(video_stream);
-      NodeParam::ConnectEdge(video_node_->output(), sequence_.viewer_output()->texture_input());
-    }
-
-    if (audio_stream) {
-      audio_node_->SetStream(audio_stream);
-      NodeParam::ConnectEdge(audio_node_->output(), sequence_.viewer_output()->samples_input());
-    }
-
-    ConnectViewerNode(sequence_.viewer_output(), footage_->project()->color_manager());
+    ConnectViewerNode(new_viewer);
 
     SetTimestamp(cached_timestamps_.value(footage_, 0));
   } else {
@@ -134,30 +111,76 @@ void FootageViewerWidget::StartFootageDragInternal(bool enable_video, bool enabl
   QMimeData* mimedata = new QMimeData();
 
   QByteArray encoded_data;
-  QDataStream stream(&encoded_data, QIODevice::WriteOnly);
+  QDataStream data_stream(&encoded_data, QIODevice::WriteOnly);
 
-  quint64 enabled_stream_flags = GetFootage()->get_enabled_stream_flags();
+  QVector<Footage::StreamReference> streams = GetFootage()->GetEnabledStreamsAsReferences();
 
   // Disable streams that have been disabled
   if (!enable_video || !enable_audio) {
-    quint64 stream_disabler = 0x1;
+    for (int i=0; i<streams.size(); i++) {
+      const Footage::StreamReference& ref = streams.at(i);
 
-    foreach (Stream* s, GetFootage()->streams()) {
-      if ((s->type() == Stream::kVideo && !enable_video)
-          || (s->type() == Stream::kAudio && !enable_audio)) {
-        enabled_stream_flags &= ~stream_disabler;
+      if ((ref.type() == Stream::kVideo && !enable_video)
+          || (ref.type() == Stream::kAudio && !enable_audio)) {
+        streams.removeAt(i);
+        i--;
       }
-
-      stream_disabler <<= 1;
     }
   }
 
-  stream << enabled_stream_flags << -1 << reinterpret_cast<quintptr>(GetFootage());
+  if (!streams.isEmpty()) {
+    data_stream << streams << reinterpret_cast<quintptr>(GetFootage());
 
-  mimedata->setData("application/x-oliveprojectitemdata", encoded_data);
-  drag->setMimeData(mimedata);
+    mimedata->setData(QStringLiteral("application/x-oliveprojectitemdata"), encoded_data);
+    drag->setMimeData(mimedata);
 
-  drag->exec();
+    drag->exec();
+  }
+}
+
+void FootageViewerWidget::TryConnectingType(ViewerOutput* viewer, Footage *footage, Stream::Type type)
+{
+  int index = -1;
+
+  for (int i=0; ; i++) {
+    if (type == Stream::kVideo) {
+      VideoParams vp = footage->GetVideoParams(i);
+
+      if (!vp.is_valid()) {
+        break;
+      }
+
+      if (vp.enabled()) {
+        index = i;
+        break;
+      }
+    } else if (type == Stream::kAudio) {
+      AudioParams vp = footage->GetAudioParams(i);
+
+      if (!vp.is_valid()) {
+        break;
+      }
+
+      if (vp.enabled()) {
+        index = i;
+        break;
+      }
+    }
+  }
+
+  if (index != -1) {
+    QString s = Footage::GetStringFromReference(type, index);
+
+    QString input_param;
+
+    if (type == Stream::kVideo) {
+      input_param = ViewerOutput::kTextureInput;
+    } else {
+      input_param = ViewerOutput::kSamplesInput;
+    }
+
+    Node::ConnectEdge(NodeOutput(footage, s), NodeInput(viewer, input_param));
+  }
 }
 
 void FootageViewerWidget::StartFootageDrag()

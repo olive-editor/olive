@@ -46,9 +46,9 @@ public:
 
   void ZoomOut();
 
-  ViewerOutput* GetConnectedNode() const;
+  Sequence* GetConnectedNode() const;
 
-  void ConnectViewerNode(ViewerOutput *node);
+  void ConnectViewerNode(Sequence *node);
 
   void SetScaleAndCenterOnPlayhead(const double& scale);
 
@@ -105,11 +105,11 @@ protected:
 
   virtual void ScaleChangedEvent(const double &) override;
 
-  virtual void ConnectedNodeChanged(ViewerOutput*){}
+  virtual void ConnectedNodeChanged(Sequence*){}
 
-  virtual void ConnectNodeInternal(ViewerOutput*){}
+  virtual void ConnectNodeInternal(Sequence*){}
 
-  virtual void DisconnectNodeInternal(ViewerOutput*){}
+  virtual void DisconnectNodeInternal(Sequence*){}
 
   void SetAutoMaxScrollBar(bool e);
 
@@ -121,7 +121,7 @@ protected:
 
   TimelinePoints* GetConnectedTimelinePoints() const;
 
-  void ConnectTimelineView(TimeBasedView* base);
+  void ConnectTimelineView(TimeBasedView* base, bool connect_time_change_event = true);
 
   void PassWheelEventsToScrollBar(QObject* object);
 
@@ -137,6 +137,8 @@ protected slots:
    */
   void SetAutoSetTimebase(bool e);
 
+  static void PageScrollInternal(QScrollBar* bar, int maximum, int screen_position, bool whole_page_scroll);
+
 signals:
   void TimeChanged(const int64_t&);
 
@@ -150,9 +152,8 @@ private:
 
     virtual Project* GetRelevantProject() const override;
 
-  protected:
-    virtual void redo_internal() override;
-    virtual void undo_internal() override;
+    virtual void redo() override;
+    virtual void undo() override;
 
   private:
     Project* project_;
@@ -184,7 +185,11 @@ private:
    */
   void ResetPoint(Timeline::MovementMode m);
 
-  ViewerOutput* viewer_node_;
+  void PageScrollInternal(int screen_position, bool whole_page_scroll);
+
+  bool UserIsDraggingPlayhead() const;
+
+  Sequence* viewer_node_;
 
   TimeRuler* ruler_;
 
@@ -205,10 +210,17 @@ private:
 
   QVector<QObject*> wheel_passthrough_objects_;
 
+  int scrollbar_start_width_;
+  double scrollbar_start_value_;
+  double scrollbar_start_scale_;
+  bool scrollbar_top_handle_;
+
 private slots:
   void UpdateMaximumScroll();
 
-  void ScrollBarResized(const double& multiplier);
+  void ScrollBarResizeBegan(int current_bar_width, bool top_handle);
+
+  void ScrollBarResizeMoved(int new_bar_width);
 
   /**
    * @brief Slot to handle page scrolling of the playhead
@@ -217,6 +229,10 @@ private slots:
    * do nothing.
    */
   void PageScrollToPlayhead();
+
+  void CatchUpScrollToPlayhead();
+
+  void CatchUpScrollToPoint(int point);
 
 };
 

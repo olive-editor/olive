@@ -132,8 +132,6 @@ jobs:
             os-arch: x86_64
             os: windows-latest
             cmake-gen: Ninja
-    env:
-      EXTRACT_TOOL: 7z x
     name: |
       ${{ matrix.os-name }}
       <${{ matrix.compiler-name }},
@@ -162,28 +160,20 @@ jobs:
       - name: Enable Developer Command Prompt (Windows)
         uses: ilammy/msvc-dev-cmd@v1
 
-      - name: Acquire Qt
-        uses: jurplel/install-qt-action@v2
-        with:
-          version: 5.15.1
-
       - name: Acquire Dependencies
         shell: bash
+        working-directory: ${{ runner.workspace }}
         run: |
-          $DOWNLOAD_TOOL https://olivevideoeditor.org/deps/dep-win.7z
-          $EXTRACT_TOOL dep-win.7z
-
-      - name: Acquire Crashpad
-        shell: bash
-        run: |
-          $DOWNLOAD_TOOL https://olivevideoeditor.org/deps/crashpad-win.7z
-          $EXTRACT_TOOL crashpad-win.7z
+          $DOWNLOAD_TOOL https://github.com/olive-editor/dependencies/releases/download/continuous/olive-dep-win32.tar.gz
+          tar xzf olive-dep-win32.tar.gz
 
       - name: Configure CMake
         shell: bash
+        env:
+          DEP_LOCATION: ${{ runner.workspace }}/install
         working-directory: ${{ runner.workspace }}/build
         run: |
-          PATH=$GITHUB_WORKSPACE:$PATH \
+          PATH=$DEP_LOCATION:$DEP_LOCATION/crashpad:$PATH \
             cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}"
 
       - name: Build
@@ -201,16 +191,29 @@ jobs:
       - name: Create Package
         working-directory: ${{ runner.workspace }}/build
         shell: bash
+        env:
+          DEP_LOCATION: ${{ runner.workspace }}/install
         run: |
           mkdir olive-editor
           cp app/olive-editor.exe olive-editor
           cp app/olive-crashhandler.exe olive-editor
           cp app/olive-editor.pdb olive-editor
-          windeployqt olive-editor/olive-crashhandler.exe
-          windeployqt olive-editor/olive-editor.exe
-          cp $(cygpath $GITHUB_WORKSPACE)/bin/*.dll olive-editor
-          cp $(cygpath $GITHUB_WORKSPACE)/out/Default/crashpad_handler.exe olive-editor
-          cp $(cygpath $GITHUB_WORKSPACE)/breakpad/bin/* olive-editor
+          $DEP_LOCATION/bin/windeployqt olive-editor/olive-crashhandler.exe
+          $DEP_LOCATION/bin/windeployqt olive-editor/olive-editor.exe
+          cp $(cygpath $DEP_LOCATION)/bin/*.dll olive-editor
+          cp $(cygpath $DEP_LOCATION)/crashpad/out/Default/crashpad_handler.exe olive-editor
+          cp $(cygpath $DEP_LOCATION)/bin/minidump_stackwalk.exe olive-editor
+
+      - name: Export Crashpad symbols
+        working-directory: ${{ runner.workspace }}/build
+        shell: bash
+        run: |
+          curl -fLSs https://github.com/google/breakpad/blob/master/src/tools/windows/binaries/dump_syms.exe?raw=true > dump_syms.exe
+          ./dump_syms app/olive-editor.pdb > olive-editor.sym
+          SYM_HEADER=($(head -n 1 olive-editor.sym)) # Read first line of symbol file
+          SYM_DIR=olive-editor/symbols/olive-editor.pdb/${SYM_HEADER[3]}
+          mkdir -p "$SYM_DIR"
+          mv olive-editor.sym "$SYM_DIR"
 
       - name: Deploy Packages
         working-directory: ${{ runner.workspace }}/build
@@ -220,7 +223,9 @@ jobs:
           $DOWNLOAD_TOOL https://download.microsoft.com/download/3/2/2/3224B87F-CFA0-4E70-BDA3-3DE650EFEBA5/vcredist_x64.exe
           cp $(cygpath $GITHUB_WORKSPACE)/app/packaging/windows/nsis/* .
           cp $(cygpath $GITHUB_WORKSPACE)/LICENSE .
-          makensis -V4 -DX64 "-XOutFile $PKGNAME.exe" olive.nsi
+          $DOWNLOAD_TOOL https://nsis.sourceforge.io/mediawiki/images/c/c7/ShellExecAsUser.zip
+          7z x ShellExecAsUser.zip ShellExecAsUser.dll
+          makensis -V4 -DX64 "-XOutFile $PKGNAME.exe" "-X!AddPluginDir $(pwd -W)" olive.nsi
 
           # Create Portable ZIP
           echo -n > olive-editor/portable
@@ -261,21 +266,6 @@ jobs:
             -F comment="$(git -C $GITHUB_WORKSPACE show -s --format=%B)" \
             https://ci.olivevideoeditor.org/push.php
 
-      - name: Export Crashpad Symbols and Upload To Server
-        working-directory: ${{ runner.workspace }}/build
-        shell: bash
-        env:
-          GH_AUTH_KEY: ${{ secrets.GH_AUTH_KEY }}
-        if: github.event_name == 'push'
-        run: |
-          curl -fLSs --retry 2 --retry-delay 60 \
-            https://github.com/google/breakpad/blob/master/src/tools/windows/binaries/dump_syms.exe?raw=true > dump_syms.exe
-          ./dump_syms app/olive-editor.pdb > olive-editor.sym
-          curl -X POST \
-            -F symfile=@olive-editor.sym \
-            -F key="$GH_AUTH_KEY" \
-            https://olivevideoeditor.org/crashpad/symbols.php
-
   macos:
     strategy:
       matrix:
@@ -285,7 +275,7 @@ jobs:
             os-name: macOS
             os-arch: x86_64
             os: macos-latest
-            cmake-gen: Unix Makefiles
+            cmake-gen: Ninja
     env:
       EXTRACT_TOOL: sudo unzip -d /usr/local -o
     name: |
@@ -358,8 +348,9 @@ jobs:
         shell: bash
         working-directory: ${{ runner.workspace }}/build
         run: |
+          brew install ninja
           PATH=$GITHUB_WORKSPACE:$PATH \
-            cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}"
+            cmake $GITHUB_WORKSPACE -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}"
 
       - name: Build
         working-directory: ${{ runner.workspace }}/build

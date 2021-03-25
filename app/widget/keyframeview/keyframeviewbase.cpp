@@ -21,6 +21,7 @@
 #include "keyframeviewbase.h"
 
 #include <QMouseEvent>
+#include <QToolTip>
 #include <QVBoxLayout>
 
 #include "dialog/keyframeproperties/keyframeproperties.h"
@@ -35,7 +36,8 @@ namespace olive {
 KeyframeViewBase::KeyframeViewBase(QWidget *parent) :
   TimeBasedView(parent),
   dragging_bezier_point_(nullptr),
-  currently_autoselecting_(false)
+  currently_autoselecting_(false),
+  dragging_(false)
 {
   SetDefaultDragMode(RubberBandDrag);
   setContextMenuPolicy(Qt::CustomContextMenu);
@@ -57,57 +59,125 @@ void KeyframeViewBase::Clear()
 
 void KeyframeViewBase::DeleteSelected()
 {
-  QUndoCommand* command = new QUndoCommand();
+  MultiUndoCommand* command = new MultiUndoCommand();
 
   QMap<NodeKeyframe*, KeyframeViewItem*>::const_iterator i;
 
   for (i=item_map_.constBegin(); i!=item_map_.constEnd(); i++) {
     if (i.value()->isSelected()) {
-      NodeInput* input_parent = i.key()->parent();
-
-      new NodeParamRemoveKeyframeCommand(input_parent,
-                                         input_parent->get_keyframe_shared_ptr_from_raw(i.key()),
-                                         command);
+      command->add_child(new NodeParamRemoveKeyframeCommand(i.key()));
     }
   }
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
+void KeyframeViewBase::AddKeyframesOfNode(Node *n)
+{
+  foreach (const QString& i, n->inputs()) {
+    AddKeyframesOfInput(n, i);
+  }
+}
+
+void KeyframeViewBase::AddKeyframesOfInput(Node* n, const QString& input)
+{
+  if (!n->IsInputKeyframable(input)) {
+    return;
+  }
+
+  int arr_sz = n->InputArraySize(input);
+  for (int i=-1; i<arr_sz; i++) {
+    AddKeyframesOfElement(NodeInput(n, input, i));
+  }
+}
+
+void KeyframeViewBase::AddKeyframesOfElement(const NodeInput& input)
+{
+  const QVector<NodeKeyframeTrack>& tracks = input.node()->GetKeyframeTracks(input);
+
+  for (int i=0; i<tracks.size(); i++) {
+    AddKeyframesOfTrack(NodeKeyframeTrackReference(input, i));
+  }
+}
+
+void KeyframeViewBase::AddKeyframesOfTrack(const NodeKeyframeTrackReference& ref)
+{
+  const QVector<NodeKeyframeTrack>& tracks = ref.input().node()->GetKeyframeTracks(ref.input());
+  const NodeKeyframeTrack& t = tracks.at(ref.track());
+
+  foreach (NodeKeyframe* key, t) {
+    AddKeyframe(key);
+  }
+}
+
 void KeyframeViewBase::RemoveKeyframesOfNode(Node *n)
 {
-  QVector<NodeInput*> inputs = n->GetInputsIncludingArrays();
-
-  foreach (NodeInput* i, inputs) {
-    RemoveKeyframesOfInput(i);
+  foreach (const QString& i, n->inputs()) {
+    RemoveKeyframesOfInput(n, i);
   }
 }
 
-void KeyframeViewBase::RemoveKeyframesOfInput(NodeInput *i)
+void KeyframeViewBase::RemoveKeyframesOfInput(Node* n, const QString& input)
 {
-  foreach (const NodeInput::KeyframeTrack& track, i->keyframe_tracks()) {
-    foreach (NodeKeyframePtr key, track) {
-      RemoveKeyframe(key);
-    }
+  if (!n->IsInputKeyframable(input)) {
+    return;
+  }
+
+  int arr_sz = n->InputArraySize(input);
+  for (int i=-1; i<arr_sz; i++) {
+    RemoveKeyframesOfElement(NodeInput(n, input, i));
   }
 }
 
-void KeyframeViewBase::RemoveKeyframe(NodeKeyframePtr key)
+void KeyframeViewBase::RemoveKeyframesOfElement(const NodeInput& input)
 {
-  KeyframeAboutToBeRemoved(key.get());
+  const QVector<NodeKeyframeTrack>& tracks = input.node()->GetKeyframeTracks(input);
 
-  delete item_map_.take(key.get());
+  for (int i=0; i<tracks.size(); i++) {
+    RemoveKeyframesOfTrack(NodeKeyframeTrackReference(input, i));
+  }
 }
 
-KeyframeViewItem *KeyframeViewBase::AddKeyframeInternal(NodeKeyframePtr key)
+void KeyframeViewBase::RemoveKeyframesOfTrack(const NodeKeyframeTrackReference& ref)
 {
-  KeyframeViewItem* item = item_map_.value(key.get());
+  const QVector<NodeKeyframeTrack>& tracks = ref.input().node()->GetKeyframeTracks(ref.input());
+  const NodeKeyframeTrack& t = tracks.at(ref.track());
+
+  foreach (NodeKeyframe* key, t) {
+    RemoveKeyframe(key);
+  }
+}
+
+void KeyframeViewBase::SelectAll()
+{
+  for (auto it=item_map_.cbegin(); it!=item_map_.cend(); it++) {
+    it.value()->setSelected(true);
+  }
+}
+
+void KeyframeViewBase::DeselectAll()
+{
+  for (auto it=item_map_.cbegin(); it!=item_map_.cend(); it++) {
+    it.value()->setSelected(false);
+  }
+}
+
+void KeyframeViewBase::RemoveKeyframe(NodeKeyframe* key)
+{
+  KeyframeAboutToBeRemoved(key);
+
+  delete item_map_.take(key);
+}
+
+KeyframeViewItem *KeyframeViewBase::AddKeyframe(NodeKeyframe* key)
+{
+  KeyframeViewItem* item = item_map_.value(key);
 
   if (!item) {
     item = new KeyframeViewItem(key);
     item->SetTimeTarget(GetTimeTarget());
     item->SetScale(GetScale());
-    item_map_.insert(key.get(), item);
+    item_map_.insert(key, item);
     scene()->addItem(item);
   }
 
@@ -116,7 +186,9 @@ KeyframeViewItem *KeyframeViewBase::AddKeyframeInternal(NodeKeyframePtr key)
 
 void KeyframeViewBase::mousePressEvent(QMouseEvent *event)
 {
-  if (HandPress(event) || PlayheadPress(event)) {
+  QGraphicsItem* item_under_cursor = itemAt(event->pos());
+
+  if (HandPress(event) || (!item_under_cursor && PlayheadPress(event))) {
     return;
   }
 
@@ -126,11 +198,10 @@ void KeyframeViewBase::mousePressEvent(QMouseEvent *event)
     QGraphicsView::mousePressEvent(event);
 
     if (active_tool_ == Tool::kPointer) {
-      QGraphicsItem* item_under_cursor = itemAt(event->pos());
-
       if (item_under_cursor) {
 
-        drag_start_ = event->pos();
+        dragging_ = true;
+        drag_start_ = mapToScene(event->pos());
 
         // Determine what type of item is under the cursor
         dragging_bezier_point_ = dynamic_cast<BezierControlPointItem*>(item_under_cursor);
@@ -146,12 +217,14 @@ void KeyframeViewBase::mousePressEvent(QMouseEvent *event)
 
           selected_keys_.resize(selected_items.size());
 
+          initial_drag_item_ = static_cast<KeyframeViewItem*>(item_under_cursor);
+
           for (int i=0;i<selected_items.size();i++) {
             KeyframeViewItem* key = static_cast<KeyframeViewItem*>(selected_items.at(i));
 
             selected_keys_.replace(i, {key,
                                        key->x(),
-                                       GetAdjustedTime(key->key()->parent()->parentNode(), GetTimeTarget(), key->key()->time(), NodeParam::kOutput),
+                                       GetAdjustedTime(key->key()->parent(), GetTimeTarget(), key->key()->time(), false),
                                        key->key()->value().toDouble()});
           }
         }
@@ -169,37 +242,113 @@ void KeyframeViewBase::mouseMoveEvent(QMouseEvent *event)
   if (event->buttons() & Qt::LeftButton) {
     QGraphicsView::mouseMoveEvent(event);
 
-    if (active_tool_ == Tool::kPointer) {
+    if (dragging_) {
       // Calculate cursor difference and scale it
-      QPointF mouse_diff_scaled = GetScaledCursorPos(event->pos() - drag_start_);
+      QPointF mouse_diff_scaled = GetScaledCursorPos(mapToScene(event->pos()) - drag_start_);
+
+      if (event->modifiers() & Qt::ShiftModifier) {
+        // If holding shift, only move one axis
+        mouse_diff_scaled.setY(0);
+      }
 
       if (dragging_bezier_point_) {
-        ProcessBezierDrag(mouse_diff_scaled,
-                          !(event->modifiers() & Qt::ControlModifier),
-                          false);
+
+        // Flip the mouse Y because bezier control points are drawn bottom to top, not top to bottom
+        mouse_diff_scaled.setY(-mouse_diff_scaled.y());
+
+        QPointF new_bezier_pos = GenerateBezierControlPosition(dragging_bezier_point_->mode(),
+                                                               dragging_bezier_point_start_,
+                                                               mouse_diff_scaled);
+
+        // If the user is NOT holding control, we set the other handle to the exact negative of this handle
+        QPointF new_opposing_pos;
+        NodeKeyframe::BezierType opposing_type = NodeKeyframe::get_opposing_bezier_type(dragging_bezier_point_->mode());
+
+
+        if (!(event->modifiers() & Qt::ControlModifier)) {
+          new_opposing_pos = GenerateBezierControlPosition(opposing_type,
+                                                           dragging_bezier_point_opposing_start_,
+                                                           -mouse_diff_scaled);
+        } else {
+          new_opposing_pos = dragging_bezier_point_opposing_start_;
+        }
+
+        dragging_bezier_point_->key()->set_bezier_control(dragging_bezier_point_->mode(),
+                                                          new_bezier_pos);
+
+        dragging_bezier_point_->key()->set_bezier_control(opposing_type,
+                                                          new_opposing_pos);
+
+        emit Dragged(qRound(dragging_bezier_point_->x()), qRound(dragging_bezier_point_->y()));
+
       } else if (!selected_keys_.isEmpty()) {
+
+        // Validate movement - ensure no keyframe goes above its max point or below its min point
+        FloatSlider::DisplayType display_type = FloatSlider::kNormal;
+
+        if (IsYAxisEnabled()) {
+          foreach (const KeyframeItemAndTime& keypair, selected_keys_) {
+            Node* node = keypair.key->key()->parent();
+            const QString& input = keypair.key->key()->input();
+            double new_val = keypair.value - mouse_diff_scaled.y();
+            double limited = new_val;
+
+            if (node->HasInputProperty(input, QStringLiteral("min"))) {
+              limited = qMax(limited, node->GetInputProperty(input, QStringLiteral("min")).toDouble());
+            }
+
+            if (node->HasInputProperty(input, QStringLiteral("max"))) {
+              limited = qMin(limited, node->GetInputProperty(input, QStringLiteral("max")).toDouble());
+            }
+
+            if (limited != new_val) {
+              mouse_diff_scaled.setY(keypair.value - limited);
+            }
+          }
+
+          Node* initial_drag_input = initial_drag_item_->key()->parent();
+          const QString& initial_drag_input_id = initial_drag_item_->key()->input();
+          if (initial_drag_input->HasInputProperty(initial_drag_input_id, QStringLiteral("view"))) {
+            display_type = static_cast<FloatSlider::DisplayType>(initial_drag_input->GetInputProperty(initial_drag_input_id, QStringLiteral("view")).toInt());
+          }
+        }
+
         foreach (const KeyframeItemAndTime& keypair, selected_keys_) {
-          //NodeInput* input_parent = keypair.key->key()->parent();
-
-          //input_parent->blockSignals(true);
-
           rational node_time = GetAdjustedTime(GetTimeTarget(),
-                                               keypair.key->key()->parent()->parentNode(),
+                                               keypair.key->key()->parent(),
                                                CalculateNewTimeFromScreen(keypair.time, mouse_diff_scaled.x()),
-                                               NodeParam::kInput);
+                                               true);
 
           keypair.key->key()->set_time(node_time);
 
           if (IsYAxisEnabled()) {
             keypair.key->key()->set_value(keypair.value - mouse_diff_scaled.y());
           }
-
-          // We emit a custom value changed signal while the keyframe is being dragged so only the currently viewed
-          // frame gets rendered in this time
-          //input_parent->blockSignals(false);
-
-          //input_parent->parentNode()->InvalidateVisible(input_parent, input_parent);
         }
+
+        // Show information about this keyframe
+        QString tip = Timecode::time_to_timecode(initial_drag_item_->key()->time(), timebase(),
+                                                 Core::instance()->GetTimecodeDisplay(), false);
+
+        if (IsYAxisEnabled()) {
+          bool ok;
+          double num_value = initial_drag_item_->key()->value().toDouble(&ok);
+
+          if (ok) {
+            tip.append('\n');
+            tip.append(FloatSlider::ValueToString(num_value, display_type, 2, true));
+          }
+
+          // Force viewport to update since Qt might try to optimize it out if the keyframe is
+          // offscreen
+          viewport()->update();
+        }
+
+        QToolTip::hideText();
+        QToolTip::showText(QCursor::pos(), tip);
+
+        emit Dragged(qRound(initial_drag_item_->x()), qRound(initial_drag_item_->y()));
+
       }
     }
   }
@@ -214,61 +363,55 @@ void KeyframeViewBase::mouseReleaseEvent(QMouseEvent *event)
   if (event->button() == Qt::LeftButton) {
     QGraphicsView::mouseReleaseEvent(event);
 
-    if (active_tool_ == Tool::kPointer) {
-      QPoint mouse_diff = event->pos() - drag_start_;
-      QPointF mouse_diff_scaled = GetScaledCursorPos(mouse_diff);
+    if (dragging_) {
+      if (dragging_bezier_point_) {
+        MultiUndoCommand* command = new MultiUndoCommand();
 
-      if (!mouse_diff.isNull()) {
-        if (dragging_bezier_point_) {
-          ProcessBezierDrag(mouse_diff_scaled,
-                            !(event->modifiers() & Qt::ControlModifier),
-                            true);
+        // Create undo command with the current bezier point and the old one
+        command->add_child(new KeyframeSetBezierControlPoint(dragging_bezier_point_->key(),
+                                                             dragging_bezier_point_->mode(),
+                                                             dragging_bezier_point_->key()->bezier_control(dragging_bezier_point_->mode()),
+                                                             dragging_bezier_point_start_));
 
-          dragging_bezier_point_ = nullptr;
-        } else if (!selected_keys_.isEmpty()) {
-          QUndoCommand* command = new QUndoCommand();
+        if (!(event->modifiers() & Qt::ControlModifier)) {
+          auto opposing_type = NodeKeyframe::get_opposing_bezier_type(dragging_bezier_point_->mode());
 
-          foreach (const KeyframeItemAndTime& keypair, selected_keys_) {
-            KeyframeViewItem* item = keypair.key;
-
-            keypair.key->key()->parent()->blockSignals(true);
-
-            // Calculate the new time for this keyframe
-            rational node_time = GetAdjustedTime(GetTimeTarget(),
-                                                 keypair.key->key()->parent()->parentNode(),
-                                                 CalculateNewTimeFromScreen(keypair.time, mouse_diff_scaled.x()),
-                                                 NodeParam::kInput);
-
-
-
-            // Commit movement
-
-            // Since we overrode the cache signalling while dragging, we simulate here precisely the change that
-            // occurred by first setting the keyframe to its original position, and then letting the input handle
-            // the signalling once the undo command is pushed.
-            item->key()->set_time(keypair.time);
-            new NodeParamSetKeyframeTimeCommand(item->key(),
-                                                node_time,
-                                                keypair.time,
-                                                command);
-
-            // Commit value if we're setting a value
-            if (IsYAxisEnabled()) {
-              item->key()->set_value(keypair.value);
-              new NodeParamSetKeyframeValueCommand(item->key(),
-                                                   keypair.value - mouse_diff_scaled.y(),
-                                                   keypair.value,
-                                                   command);
-            }
-
-            keypair.key->key()->parent()->blockSignals(false);
-          }
-
-          Core::instance()->undo_stack()->push(command);
+          command->add_child(new KeyframeSetBezierControlPoint(dragging_bezier_point_->key(),
+                                                               opposing_type,
+                                                               dragging_bezier_point_->key()->bezier_control(opposing_type),
+                                                               dragging_bezier_point_opposing_start_));
         }
+
+        dragging_bezier_point_ = nullptr;
+
+        Core::instance()->undo_stack()->push(command);
+      } else if (!selected_keys_.isEmpty()) {
+        MultiUndoCommand* command = new MultiUndoCommand();
+
+        foreach (const KeyframeItemAndTime& keypair, selected_keys_) {
+          NodeKeyframe* item = keypair.key->key();
+
+          // Commit movement
+          command->add_child(new NodeParamSetKeyframeTimeCommand(item,
+                                                                 item->time(),
+                                                                 keypair.time));
+
+          // Commit value if we're setting a value
+          if (IsYAxisEnabled()) {
+            command->add_child(new NodeParamSetKeyframeValueCommand(item,
+                                                                    item->value(),
+                                                                    keypair.value));
+          }
+        }
+
+        Core::instance()->undo_stack()->push(command);
       }
 
       selected_keys_.clear();
+
+      dragging_ = false;
+
+      QToolTip::hideText();
     }
   }
 }
@@ -277,9 +420,7 @@ void KeyframeViewBase::ScaleChangedEvent(const double &scale)
 {
   TimeBasedView::ScaleChangedEvent(scale);
 
-  QMap<NodeKeyframe*, KeyframeViewItem*>::const_iterator iterator;
-
-  for (iterator=item_map_.begin();iterator!=item_map_.end();iterator++) {
+  for (auto iterator=item_map_.begin();iterator!=item_map_.end();iterator++) {
     iterator.value()->SetScale(scale);
   }
 }
@@ -332,79 +473,10 @@ QPointF KeyframeViewBase::GenerateBezierControlPosition(const NodeKeyframe::Bezi
   return new_bezier_pos;
 }
 
-void KeyframeViewBase::ProcessBezierDrag(QPointF mouse_diff_scaled, bool include_opposing, bool undoable)
+QPointF KeyframeViewBase::GetScaledCursorPos(const QPointF &cursor_pos)
 {
-  // Flip the mouse Y because bezier control points are drawn bottom to top, not top to bottom
-  mouse_diff_scaled.setY(-mouse_diff_scaled.y());
-
-  QPointF new_bezier_pos = GenerateBezierControlPosition(dragging_bezier_point_->mode(),
-                                                         dragging_bezier_point_start_,
-                                                         mouse_diff_scaled);
-
-  // If the user is NOT holding control, we set the other handle to the exact negative of this handle
-  QPointF new_opposing_pos;
-  NodeKeyframe::BezierType opposing_type = NodeKeyframe::get_opposing_bezier_type(dragging_bezier_point_->mode());
-
-  if (include_opposing) {
-    new_opposing_pos = GenerateBezierControlPosition(opposing_type,
-                                                     dragging_bezier_point_opposing_start_,
-                                                     -mouse_diff_scaled);
-  } else {
-    new_opposing_pos = dragging_bezier_point_opposing_start_;
-  }
-
-  //NodeInput* input_parent = dragging_bezier_point_->key()->parent();
-
-  if (undoable) {
-    QUndoCommand* command = new QUndoCommand();
-
-    // Similar to the code in MouseRelease, we manipulated the signalling earlier and need to set the keys back to their
-    // original position to allow the input to signal correctly when the undo command is pushed.
-
-    //input_parent->blockSignals(true);
-
-    dragging_bezier_point_->key()->set_bezier_control(dragging_bezier_point_->mode(),
-                                                      dragging_bezier_point_start_);
-
-    new KeyframeSetBezierControlPoint(dragging_bezier_point_->key(),
-                                      dragging_bezier_point_->mode(),
-                                      new_bezier_pos,
-                                      dragging_bezier_point_start_,
-                                      command);
-
-    if (include_opposing) {
-      dragging_bezier_point_->key()->set_bezier_control(opposing_type,
-                                                        dragging_bezier_point_opposing_start_);
-
-      new KeyframeSetBezierControlPoint(dragging_bezier_point_->key(),
-                                        opposing_type,
-                                        new_opposing_pos,
-                                        dragging_bezier_point_opposing_start_,
-                                        command);
-    }
-
-    //input_parent->blockSignals(false);
-
-    Core::instance()->undo_stack()->push(command);
-  } else {
-    //input_parent->blockSignals(true);
-
-    dragging_bezier_point_->key()->set_bezier_control(dragging_bezier_point_->mode(),
-                                                      new_bezier_pos);
-
-    dragging_bezier_point_->key()->set_bezier_control(opposing_type,
-                                                      new_opposing_pos);
-
-    //input_parent->blockSignals(false);
-
-    //input_parent->parentNode()->InvalidateVisible(input_parent, input_parent);
-  }
-}
-
-QPointF KeyframeViewBase::GetScaledCursorPos(const QPoint &cursor_pos)
-{
-  return QPointF(static_cast<double>(cursor_pos.x()) / GetScale(),
-                 static_cast<double>(cursor_pos.y()) / GetYScale());
+  return QPointF(cursor_pos.x() / GetScale(),
+                 cursor_pos.y() / GetYScale());
 }
 
 void KeyframeViewBase::ShowContextMenu()
@@ -479,11 +551,10 @@ void KeyframeViewBase::ShowContextMenu()
         new_type = NodeKeyframe::kLinear;
       }
 
-      QUndoCommand* command = new QUndoCommand();
+      MultiUndoCommand* command = new MultiUndoCommand();
       foreach (QGraphicsItem* item, items) {
-        new KeyframeSetTypeCommand(static_cast<KeyframeViewItem*>(item)->key(),
-                                   new_type,
-                                   command);
+        command->add_child(new KeyframeSetTypeCommand(static_cast<KeyframeViewItem*>(item)->key(),
+                                                      new_type));
       }
       Core::instance()->undo_stack()->pushIfHasChildren(command);
     }
@@ -493,7 +564,7 @@ void KeyframeViewBase::ShowContextMenu()
 void KeyframeViewBase::ShowKeyframePropertiesDialog()
 {
   QList<QGraphicsItem*> items = scene()->selectedItems();
-  QList<NodeKeyframePtr> keys;
+  QVector<NodeKeyframe*> keys;
 
   foreach (QGraphicsItem* item, items) {
     keys.append(static_cast<KeyframeViewItem*>(item)->key());
@@ -521,15 +592,15 @@ void KeyframeViewBase::AutoSelectKeyTimeNeighbors()
 
     rational key_time = key_item->key()->time();
 
-    QList<NodeKeyframePtr> keys = key_item->key()->parent()->get_keyframe_at_time(key_time);
+    QVector<NodeKeyframe*> keys = key_item->key()->parent()->GetKeyframesAtTime(key_item->key()->input(), key_time, key_item->key()->element());
 
-    foreach (NodeKeyframePtr k, keys) {
+    foreach (NodeKeyframe* k, keys) {
       if (k == key_item->key()) {
         continue;
       }
 
       // Ensure this key is not already selected
-      KeyframeViewItem* item = item_map_.value(k.get());
+      KeyframeViewItem* item = item_map_.value(k);
 
       item->setSelected(true);
     }

@@ -25,19 +25,19 @@
 #include <QComboBox>
 #include <QSpinBox>
 
-#include "preferencestab.h"
+#include "dialog/configbase/configdialogbase.h"
 #include "project/item/sequence/sequence.h"
 #include "widget/slider/floatslider.h"
 
 namespace olive {
 
-class PreferencesGeneralTab : public PreferencesTab
+class PreferencesGeneralTab : public ConfigDialogBaseTab
 {
   Q_OBJECT
 public:
   PreferencesGeneralTab();
 
-  virtual void Accept() override;
+  virtual void Accept(MultiUndoCommand* command) override;
 
 private:
   void AddLanguage(const QString& locale_name);

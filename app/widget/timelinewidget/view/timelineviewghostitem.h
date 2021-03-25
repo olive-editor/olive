@@ -23,10 +23,9 @@
 
 #include <QVariant>
 
+#include "node/output/track/track.h"
 #include "project/item/footage/footage.h"
 #include "timeline/timelinecommon.h"
-#include "timelineviewblockitem.h"
-#include "timelineviewrect.h"
 
 namespace olive {
 /**
@@ -44,45 +43,177 @@ public:
     kTrimShouldBeIgnored
   };
 
-  TimelineViewGhostItem();
+  struct AttachedFootage {
+    Footage* footage;
+    QString output;
+  };
 
-  static TimelineViewGhostItem* FromBlock(Block *block, const TrackReference &track);
+  TimelineViewGhostItem() :
+    track_adj_(0),
+    mode_(Timeline::kNone),
+    can_have_zero_length_(true),
+    can_move_tracks_(true),
+    invisible_(false)
+  {
+  }
 
-  bool CanHaveZeroLength() const;
+  static TimelineViewGhostItem* FromBlock(Block *block)
+  {
+    TimelineViewGhostItem* ghost = new TimelineViewGhostItem();
 
-  bool GetCanMoveTracks() const;
-  void SetCanMoveTracks(bool e);
+    ghost->SetIn(block->in());
+    ghost->SetOut(block->out());
+    ghost->SetMediaIn(block->media_in());
+    ghost->SetTrack(block->track()->ToReference());
+    ghost->SetData(kAttachedBlock, Node::PtrToValue(block));
 
-  const rational& GetIn() const;
-  const rational& GetOut() const;
-  const rational& GetMediaIn() const;
+    switch (block->type()) {
+    case Block::kClip:
+      ghost->can_have_zero_length_ = false;
+      break;
+    case Block::kTransition:
+      ghost->can_have_zero_length_ = false;
+      ghost->SetCanMoveTracks(false);
+      break;
+    case Block::kGap:
+      break;
+    }
 
-  rational GetLength() const;
-  rational GetAdjustedLength() const;
+    return ghost;
+  }
 
-  void SetIn(const rational& in);
-  void SetOut(const rational& out);
-  void SetMediaIn(const rational& media_in);
+  bool CanHaveZeroLength() const
+  {
+    return can_have_zero_length_;
+  }
 
-  void SetInAdjustment(const rational& in_adj);
-  void SetOutAdjustment(const rational& out_adj);
-  void SetTrackAdjustment(const int& track_adj);
-  void SetMediaInAdjustment(const rational& media_in_adj);
+  bool GetCanMoveTracks() const
+  {
+    return can_move_tracks_;
+  }
 
-  const rational& GetInAdjustment() const;
-  const rational& GetOutAdjustment() const;
-  const rational& GetMediaInAdjustment() const;
-  const int& GetTrackAdjustment() const;
+  void SetCanMoveTracks(bool e)
+  {
+    can_move_tracks_ = e;
+  }
 
-  rational GetAdjustedIn() const;
-  rational GetAdjustedOut() const;
-  rational GetAdjustedMediaIn() const;
-  TrackReference GetAdjustedTrack() const;
+  const rational& GetIn() const
+  {
+    return in_;
+  }
 
-  const Timeline::MovementMode& GetMode() const;
-  void SetMode(const Timeline::MovementMode& GetMode);
+  const rational& GetOut() const
+  {
+    return out_;
+  }
 
-  bool HasBeenAdjusted() const;
+  const rational& GetMediaIn() const
+  {
+    return media_in_;
+  }
+
+  rational GetLength() const
+  {
+    return out_ - in_;
+  }
+
+  rational GetAdjustedLength() const
+  {
+    return GetAdjustedOut() - GetAdjustedIn();
+  }
+
+  void SetIn(const rational& in)
+  {
+    in_ = in;
+  }
+
+  void SetOut(const rational& out)
+  {
+    out_ = out;
+  }
+
+  void SetMediaIn(const rational& media_in)
+  {
+    media_in_ = media_in;
+  }
+
+  void SetInAdjustment(const rational& in_adj)
+  {
+    in_adj_ = in_adj;
+  }
+
+  void SetOutAdjustment(const rational& out_adj)
+  {
+    out_adj_ = out_adj;
+  }
+
+  void SetTrackAdjustment(const int& track_adj)
+  {
+    track_adj_ = track_adj;
+  }
+
+  void SetMediaInAdjustment(const rational& media_in_adj)
+  {
+    media_in_adj_ = media_in_adj;
+  }
+
+  const rational& GetInAdjustment() const
+  {
+    return in_adj_;
+  }
+
+  const rational& GetOutAdjustment() const
+  {
+    return out_adj_;
+  }
+
+  const rational& GetMediaInAdjustment() const
+  {
+    return media_in_adj_;
+  }
+
+  const int& GetTrackAdjustment() const
+  {
+    return track_adj_;
+  }
+
+  rational GetAdjustedIn() const
+  {
+    return in_ + in_adj_;
+  }
+
+  rational GetAdjustedOut() const
+  {
+    return out_ + out_adj_;
+  }
+
+  rational GetAdjustedMediaIn() const
+  {
+    return media_in_ + media_in_adj_;
+  }
+
+  Track::Reference GetAdjustedTrack() const
+  {
+    return Track::Reference(track_.type(), track_.index() + track_adj_);
+  }
+
+  const Timeline::MovementMode& GetMode() const
+  {
+    return mode_;
+  }
+
+  void SetMode(const Timeline::MovementMode& mode)
+  {
+    mode_ = mode;
+  }
+
+  bool HasBeenAdjusted() const
+  {
+    return GetInAdjustment() != 0
+        || GetOutAdjustment() != 0
+        || GetMediaInAdjustment() != 0
+        || GetTrackAdjustment() != 0;
+  }
 
   QVariant GetData(int key) const
   {
@@ -94,12 +225,12 @@ public:
     data_.insert(key, value);
   }
 
-  const TrackReference& GetTrack() const
+  const Track::Reference& GetTrack() const
   {
     return track_;
   }
 
-  void SetTrack(const TrackReference& track)
+  void SetTrack(const Track::Reference& track)
   {
     track_ = track;
   }
@@ -132,7 +263,7 @@ private:
   bool can_have_zero_length_;
   bool can_move_tracks_;
 
-  TrackReference track_;
+  Track::Reference track_;
 
   QHash<int, QVariant> data_;
 
@@ -141,5 +272,7 @@ private:
 };
 
 }
+
+Q_DECLARE_METATYPE(olive::TimelineViewGhostItem::AttachedFootage)
 
 #endif // TIMELINEVIEWGHOSTITEM_H

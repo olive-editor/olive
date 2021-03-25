@@ -20,39 +20,68 @@
 
 #include "nodeparamviewarraywidget.h"
 
+#include <QEvent>
 #include <QHBoxLayout>
+
+#include "node/node.h"
 
 namespace olive {
 
-NodeParamViewArrayWidget::NodeParamViewArrayWidget(NodeInputArray* array, QWidget* parent) :
+NodeParamViewArrayWidget::NodeParamViewArrayWidget(Node *node, const QString &input, QWidget* parent) :
   QWidget(parent),
-  array_(array)
+  node_(node),
+  input_(input)
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
 
   count_lbl_ = new QLabel();
   layout->addWidget(count_lbl_);
 
-  layout->addStretch();
+  connect(node_, &Node::InputArraySizeChanged, this, &NodeParamViewArrayWidget::UpdateCounter);
 
-  plus_btn_ = new QPushButton(tr("+"));
-  plus_btn_->setFixedWidth(plus_btn_->sizeHint().height());
-  layout->addWidget(plus_btn_);
-
-  connect(plus_btn_, &QPushButton::clicked, this, &NodeParamViewArrayWidget::AddElement);
-  connect(array_, &NodeInputArray::SizeChanged, this, &NodeParamViewArrayWidget::UpdateCounter);
-
-  UpdateCounter();
+  UpdateCounter(input_, node_->InputArraySize(input_));
 }
 
-void NodeParamViewArrayWidget::UpdateCounter()
+void NodeParamViewArrayWidget::mouseDoubleClickEvent(QMouseEvent *event)
 {
-  count_lbl_->setText(tr("%1 element(s)").arg(array_->GetSize()));
+  QWidget::mouseDoubleClickEvent(event);
+
+  emit DoubleClicked();
 }
 
-void NodeParamViewArrayWidget::AddElement()
+void NodeParamViewArrayWidget::UpdateCounter(const QString& input, int new_size)
 {
-  array_->Append();
+  if (input == input_) {
+    count_lbl_->setText(tr("%1 element(s)").arg(new_size));
+  }
+}
+
+NodeParamViewArrayButton::NodeParamViewArrayButton(NodeParamViewArrayButton::Type type, QWidget *parent) :
+  QPushButton(parent),
+  type_(type)
+{
+  Retranslate();
+
+  int sz = sizeHint().height() / 3 * 2;
+  setFixedSize(sz, sz);
+}
+
+void NodeParamViewArrayButton::changeEvent(QEvent *event)
+{
+  if (event->type() == QEvent::LanguageChange) {
+    Retranslate();
+  }
+
+  QPushButton::changeEvent(event);
+}
+
+void NodeParamViewArrayButton::Retranslate()
+{
+  if (type_ == kAdd) {
+    setText(tr("+"));
+  } else {
+    setText(tr("-"));
+  }
 }
 
 }

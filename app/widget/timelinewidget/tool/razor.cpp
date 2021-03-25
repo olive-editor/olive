@@ -43,7 +43,7 @@ void RazorTool::MouseMove(TimelineViewMouseEvent *event)
   }
 
   // Split at the current cursor track
-  TrackReference split_track = event->GetTrack();
+  Track::Reference split_track = event->GetTrack();
 
   if (!split_tracks_.contains(split_track)) {
     split_tracks_.append(split_track);
@@ -59,8 +59,8 @@ void RazorTool::MouseRelease(TimelineViewMouseEvent *event)
 
   QVector<Block*> blocks_to_split;
 
-  foreach (const TrackReference& track_ref, split_tracks_) {
-    TrackOutput* track = parent()->GetTrackFromReference(track_ref);
+  foreach (const Track::Reference& track_ref, split_tracks_) {
+    Track* track = parent()->GetTrackFromReference(track_ref);
 
     if (track == nullptr || track->IsLocked()) {
       continue;
@@ -70,13 +70,14 @@ void RazorTool::MouseRelease(TimelineViewMouseEvent *event)
 
     // Ensure there's a valid block here
     if (block_at_time
+        && block_at_time->out() != split_time
         && block_at_time->type() == Block::kClip
         && !blocks_to_split.contains(block_at_time)) {
       blocks_to_split.append(block_at_time);
 
       // Add links if no alt is held
       if (!(event->GetModifiers() & Qt::AltModifier)) {
-        foreach (Block* link, block_at_time->linked_clips()) {
+        foreach (Block* link, block_at_time->block_links()) {
           if (!blocks_to_split.contains(link)) {
             blocks_to_split.append(link);
           }

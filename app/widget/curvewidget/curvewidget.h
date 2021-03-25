@@ -27,7 +27,6 @@
 #include <QWidget>
 
 #include "curveview.h"
-#include "node/input.h"
 #include "widget/nodeparamview/nodeparamviewkeyframecontrol.h"
 #include "widget/nodeparamview/nodeparamviewwidgetbridge.h"
 #include "widget/nodetreeview/nodetreeview.h"
@@ -48,6 +47,16 @@ public:
 
   void DeleteSelected();
 
+  void SelectAll()
+  {
+    view_->SelectAll();
+  }
+
+  void DeselectAll()
+  {
+    view_->DeselectAll();
+  }
+
 public slots:
   void SetNodes(const QVector<Node *> &nodes);
 
@@ -58,7 +67,7 @@ protected:
 
   virtual void TimeTargetChangedEvent(Node* target) override;
 
-  virtual void ConnectedNodeChanged(ViewerOutput* n) override;
+  virtual void ConnectedNodeChanged(Sequence* n) override;
 
 private:
   void SetKeyframeButtonEnabled(bool enable);
@@ -69,9 +78,11 @@ private:
 
   void UpdateBridgeTime(const int64_t& timestamp);
 
-  void ConnectNode(Node* n);
+  void ConnectNode(Node* node, bool connect);
 
-  void DisconnectNode(Node* n);
+  void ConnectInput(Node* node, const QString& input, bool connect);
+
+  QHash<NodeKeyframeTrackReference, QColor> keyframe_colors_;
 
   NodeTreeView* tree_view_;
 
@@ -96,7 +107,19 @@ private slots:
 
   void NodeEnabledChanged(Node* n, bool e);
 
-  void InputEnabledChanged(NodeInput* i, bool e);
+  void InputEnabledChanged(const NodeKeyframeTrackReference &ref, bool e);
+
+  void AddKeyframe(NodeKeyframe* key);
+
+  void RemoveKeyframe(NodeKeyframe* key);
+
+  void InputSelectionChanged(const NodeKeyframeTrackReference& ref);
+
+  void InputDoubleClicked(const NodeKeyframeTrackReference& ref);
+
+  void KeyframeViewDragged(int x, int y);
+
+  void CatchUpYScrollToPoint(int point);
 
 };
 

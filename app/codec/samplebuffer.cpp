@@ -23,14 +23,8 @@
 namespace olive {
 
 SampleBuffer::SampleBuffer() :
-  sample_count_per_channel_(0),
-  data_(nullptr)
+  sample_count_per_channel_(0)
 {
-}
-
-SampleBuffer::~SampleBuffer()
-{
-  destroy();
 }
 
 SampleBufferPtr SampleBuffer::Create()
@@ -85,7 +79,7 @@ const AudioParams &SampleBuffer::audio_params() const
 
 void SampleBuffer::set_audio_params(const AudioParams &params)
 {
-  if (data_) {
+  if (is_allocated()) {
     qWarning() << "Tried to set parameters on allocated sample buffer";
     return;
   }
@@ -100,7 +94,7 @@ const int &SampleBuffer::sample_count() const
 
 void SampleBuffer::set_sample_count(const int &sample_count)
 {
-  if (data_) {
+  if (is_allocated()) {
     qWarning() << "Tried to set sample count on allocated sample buffer";
     return;
   }
@@ -108,24 +102,9 @@ void SampleBuffer::set_sample_count(const int &sample_count)
   sample_count_per_channel_ = sample_count;
 }
 
-float **SampleBuffer::data()
-{
-  return data_;
-}
-
-const float **SampleBuffer::const_data() const
-{
-  return const_cast<const float**>(data_);
-}
-
-float *SampleBuffer::channel_data(int channel)
-{
-  return data_[channel];
-}
-
 bool SampleBuffer::is_allocated() const
 {
-  return data_;
+  return !data_.isEmpty();
 }
 
 void SampleBuffer::allocate()
@@ -140,17 +119,20 @@ void SampleBuffer::allocate()
     return;
   }
 
-  if (data_) {
+  if (is_allocated()) {
     qWarning() << "Tried to allocate already allocated sample buffer";
     return;
   }
 
-  allocate_sample_buffer(&data_, audio_params_.channel_count(), sample_count_per_channel_);
+  data_.resize(audio_params_.channel_count());
+  for (int i=0; i<audio_params_.channel_count(); i++) {
+    data_[i].resize(sample_count_per_channel_);
+  }
 }
 
 void SampleBuffer::destroy()
 {
-  destroy_sample_buffer(&data_, audio_params_.channel_count());
+  data_.clear();
 }
 
 void SampleBuffer::reverse()
@@ -180,20 +162,20 @@ void SampleBuffer::speed(double speed)
 
   sample_count_per_channel_ = qRound(static_cast<double>(sample_count_per_channel_) / speed);
 
-  float** input_data = data_;
-  float** output_data;
+  QVector< QVector<float> > output_data;
 
-  allocate_sample_buffer(&output_data, audio_params_.channel_count(), sample_count_per_channel_);
+  output_data.resize(audio_params_.channel_count());
+  for (int i=0; i<audio_params_.channel_count(); i++) {
+    output_data[i].resize(sample_count_per_channel_);
+  }
 
   for (int i=0;i<sample_count_per_channel_;i++) {
     int input_index = qFloor(static_cast<double>(i) * speed);
 
     for (int j=0;j<audio_params_.channel_count();j++) {
-      output_data[j][i] = input_data[j][input_index];
+      output_data[j][i] = data_[j][input_index];
     }
   }
-
-  destroy_sample_buffer(&input_data, audio_params_.channel_count());
 
   data_ = output_data;
 }
@@ -245,23 +227,14 @@ void SampleBuffer::fill(const float &f, int start_sample, int end_sample)
   }
 }
 
-void SampleBuffer::set(const float **data, int sample_offset, int sample_length)
+void SampleBuffer::set(int channel, const float *data, int sample_offset, int sample_length)
 {
   if (!is_allocated()) {
     qWarning() << "Tried to fill an unallocated sample buffer";
     return;
   }
 
-  for (int i=0;i<audio_params().channel_count();i++) {
-    for (int j=0;j<sample_length;j++) {
-      data_[i][j + sample_offset] = data[i][j];
-    }
-  }
-}
-
-void SampleBuffer::set(const float **data, int sample_length)
-{
-  set(data, 0, sample_length);
+  memcpy(&data_[channel].data()[sample_offset], data, sizeof(float) * sample_length);
 }
 
 QByteArray SampleBuffer::toPackedData() const
@@ -285,29 +258,6 @@ QByteArray SampleBuffer::toPackedData() const
   }
 
   return packed_data;
-}
-
-void SampleBuffer::allocate_sample_buffer(float ***data, int nb_channels, int nb_samples)
-{
-  Q_ASSERT(nb_samples > 0);
-
-  *data = new float* [nb_channels];
-
-  for (int i=0;i<nb_channels;i++) {
-    (*data)[i] = new float[nb_samples];
-  }
-}
-
-void SampleBuffer::destroy_sample_buffer(float ***data, int nb_channels)
-{
-  if (*data) {
-    for (int i=0;i<nb_channels;i++) {
-      delete [] (*data)[i];
-    }
-
-    delete [] *data;
-    *data = nullptr;
-  }
 }
 
 }

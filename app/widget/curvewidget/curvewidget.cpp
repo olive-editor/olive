@@ -44,8 +44,11 @@ CurveWidget::CurveWidget(QWidget *parent) :
 
   tree_view_ = new NodeTreeView();
   tree_view_->SetOnlyShowKeyframable(true);
+  tree_view_->SetShowKeyframeTracksAsRows(true);
   connect(tree_view_, &NodeTreeView::NodeEnableChanged, this, &CurveWidget::NodeEnabledChanged);
   connect(tree_view_, &NodeTreeView::InputEnableChanged, this, &CurveWidget::InputEnabledChanged);
+  connect(tree_view_, &NodeTreeView::InputSelectionChanged, this, &CurveWidget::InputSelectionChanged);
+  connect(tree_view_, &NodeTreeView::InputDoubleClicked, this, &CurveWidget::InputDoubleClicked);
   splitter->addWidget(tree_view_);
 
   QWidget* workarea = new QWidget();
@@ -98,6 +101,7 @@ CurveWidget::CurveWidget(QWidget *parent) :
   connect(view_, &CurveView::TimeChanged, this, &CurveWidget::SetTimeAndSignal);
   connect(view_->scene(), &QGraphicsScene::selectionChanged, this, &CurveWidget::SelectionChanged);
   connect(view_, &CurveView::ScaleChanged, this, &CurveWidget::SetScale);
+  connect(view_, &CurveView::Dragged, this, &CurveWidget::KeyframeViewDragged);
 
   // TimeBasedWidget's scrollbar has extra functionality that we can take advantage of
   view_->setHorizontalScrollBar(scrollbar());
@@ -137,14 +141,14 @@ void CurveWidget::SetNodes(const QVector<Node *> &nodes)
   // Detect removed nodes
   foreach (Node* n, nodes_) {
     if (!nodes.contains(n)) {
-      view_->DisconnectNode(n);
+      ConnectNode(n, false);
     }
   }
 
   // Detect added nodes
   foreach (Node* n, nodes) {
     if (tree_view_->IsNodeEnabled(n) && !nodes_.contains(n)) {
-      ConnectNode(n);
+      ConnectNode(n, true);
     }
   }
 
@@ -181,7 +185,7 @@ void CurveWidget::TimeTargetChangedEvent(Node *target)
   view_->SetTimeTarget(target);
 }
 
-void CurveWidget::ConnectedNodeChanged(ViewerOutput *n)
+void CurveWidget::ConnectedNodeChanged(Sequence *n)
 {
   SetTimeTarget(n);
 }
@@ -213,20 +217,73 @@ void CurveWidget::UpdateBridgeTime(const int64_t &timestamp)
   key_control_->SetTime(time);
 }
 
-void CurveWidget::ConnectNode(Node *n)
+void CurveWidget::ConnectNode(Node *node, bool connect)
 {
-  QVector<NodeInput*> inputs = n->GetInputsIncludingArrays();
-
-  foreach (NodeInput* i, inputs) {
-    if (tree_view_->IsInputEnabled(i)) {
-      view_->ConnectInput(i);
+  foreach (const QString& input, node->inputs()) {
+    if (node->IsInputKeyframable(input)) {
+      ConnectInput(node, input, connect);
     }
+  }
+
+  // Connect add/remove signals
+  if (connect) {
+    QObject::connect(node, &Node::KeyframeAdded, this, &CurveWidget::AddKeyframe);
+    QObject::connect(node, &Node::KeyframeRemoved, this, &CurveWidget::RemoveKeyframe);
+  } else {
+    QObject::disconnect(node, &Node::KeyframeAdded, this, &CurveWidget::AddKeyframe);
+    QObject::disconnect(node, &Node::KeyframeRemoved, this, &CurveWidget::RemoveKeyframe);
   }
 }
 
-void CurveWidget::DisconnectNode(Node *n)
+void CurveWidget::ConnectInput(Node *node, const QString &input, bool connect)
 {
-  view_->DisconnectNode(n);
+  if (!node->IsInputKeyframable(input)) {
+    qWarning() << "Tried to connect input that isn't keyframable";
+    return;
+  }
+
+  int track_count = NodeValue::get_number_of_keyframe_tracks(node->GetInputDataType(input));
+  bool multiple_tracks = track_count > 1;
+
+  int arr_sz = node->InputArraySize(input);
+  for (int i=-1; i<arr_sz; i++) {
+    // Generate a random color for this input
+    const QVector<NodeKeyframeTrack>& tracks = node->GetKeyframeTracks(input, i);
+
+    for (int j=0; j<tracks.size(); j++) {
+      NodeKeyframeTrackReference ref(NodeInput(node, input, i), j);
+
+      if (!keyframe_colors_.contains(ref)) {
+        QColor c = QColor::fromHsv(std::rand()%360, std::rand()%255, 255);
+
+        keyframe_colors_.insert(ref, c);
+        tree_view_->SetKeyframeTrackColor(ref, c);
+        view_->SetKeyframeTrackColor(ref, c);
+      }
+    }
+
+    if (tree_view_->IsInputEnabled(NodeKeyframeTrackReference(NodeInput(node, input, i), multiple_tracks ? -1 : 0))) {
+      if (multiple_tracks) {
+        for (int j=0; j<track_count; j++) {
+          NodeKeyframeTrackReference ref(NodeInput(node, input, i), j);
+          if (tree_view_->IsInputEnabled(ref)) {
+            if (connect) {
+              view_->ConnectInput(ref);
+            } else {
+              view_->DisconnectInput(ref);
+            }
+          }
+        }
+      } else {
+        NodeKeyframeTrackReference ref(NodeInput(node, input, i), 0);
+        if (connect) {
+          view_->ConnectInput(ref);
+        } else {
+          view_->DisconnectInput(ref);
+        }
+      }
+    }
+  }
 }
 
 void CurveWidget::SelectionChanged()
@@ -287,12 +344,12 @@ void CurveWidget::KeyframeTypeButtonTriggered(bool checked)
   // Ensure only the appropriate button is checked
   SetKeyframeButtonCheckedFromType(new_type);
 
-  QUndoCommand* command = new QUndoCommand();
+  MultiUndoCommand* command = new MultiUndoCommand();
 
   foreach (QGraphicsItem* item, selected) {
     KeyframeViewItem* key_item = static_cast<KeyframeViewItem*>(item);
 
-    new KeyframeSetTypeCommand(key_item->key(), new_type, command);
+    command->add_child(new KeyframeSetTypeCommand(key_item->key(), new_type));
   }
 
   Core::instance()->undo_stack()->push(command);
@@ -305,20 +362,53 @@ void CurveWidget::KeyControlRequestedTimeChanged(const rational &time)
 
 void CurveWidget::NodeEnabledChanged(Node* n, bool e)
 {
+  ConnectNode(n, e);
+}
+
+void CurveWidget::InputEnabledChanged(const NodeKeyframeTrackReference& ref, bool e)
+{
   if (e) {
-    ConnectNode(n);
+    view_->ConnectInput(ref);
   } else {
-    DisconnectNode(n);
+    view_->DisconnectInput(ref);
   }
 }
 
-void CurveWidget::InputEnabledChanged(NodeInput *i, bool e)
+void CurveWidget::AddKeyframe(NodeKeyframe *key)
 {
-  if (e) {
-    view_->ConnectInput(i);
-  } else {
-    view_->DisconnectInput(i);
+  view_->AddKeyframe(key);
+}
+
+void CurveWidget::RemoveKeyframe(NodeKeyframe *key)
+{
+  view_->RemoveKeyframe(key);
+}
+
+void CurveWidget::InputSelectionChanged(const NodeKeyframeTrackReference& ref)
+{
+  key_control_->SetInput(ref.input());
+
+  if (ref.IsValid()) {
+    view_->SelectKeyframesOfInput(ref);
   }
+}
+
+void CurveWidget::InputDoubleClicked(const NodeKeyframeTrackReference& ref)
+{
+  view_->ZoomToFitInput(ref);
+}
+
+void CurveWidget::KeyframeViewDragged(int x, int y)
+{
+  QMetaObject::invokeMethod(this, "CatchUpScrollToPoint", Qt::QueuedConnection,
+                            Q_ARG(int, x));
+  QMetaObject::invokeMethod(this, "CatchUpYScrollToPoint", Qt::QueuedConnection,
+                            Q_ARG(int, y));
+}
+
+void CurveWidget::CatchUpYScrollToPoint(int point)
+{
+  PageScrollInternal(view_->verticalScrollBar(), view_->height(), point, false);
 }
 
 }

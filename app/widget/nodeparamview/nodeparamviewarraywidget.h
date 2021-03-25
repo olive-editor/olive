@@ -25,27 +25,52 @@
 #include <QPushButton>
 #include <QWidget>
 
-#include "node/inputarray.h"
+#include "node/param.h"
 
 namespace olive {
+
+class NodeParamViewArrayButton : public QPushButton
+{
+  Q_OBJECT
+public:
+  enum Type {
+    kAdd,
+    kRemove
+  };
+
+  NodeParamViewArrayButton(Type type, QWidget* parent = nullptr);
+
+protected:
+  virtual void changeEvent(QEvent* event) override;
+
+private:
+  void Retranslate();
+
+  Type type_;
+
+};
 
 class NodeParamViewArrayWidget : public QWidget
 {
   Q_OBJECT
 public:
-  NodeParamViewArrayWidget(NodeInputArray* array, QWidget* parent = nullptr);
+  NodeParamViewArrayWidget(Node* node, const QString& input, QWidget* parent = nullptr);
+
+signals:
+  void DoubleClicked();
+
+protected:
+  virtual void mouseDoubleClickEvent(QMouseEvent* event) override;
 
 private:
-  NodeInputArray* array_;
+  Node* node_;
+
+  QString input_;
 
   QLabel* count_lbl_;
 
-  QPushButton* plus_btn_;
-
 private slots:
-  void UpdateCounter();
-
-  void AddElement();
+  void UpdateCounter(const QString &input, int new_size);
 
 };
 

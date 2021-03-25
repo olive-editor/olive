@@ -9,6 +9,7 @@
 #include "sequencepreset.h"
 #include "widget/slider/integerslider.h"
 #include "widget/standardcombos/standardcombos.h"
+#include "widget/videoparamedit/videoparamedit.h"
 
 namespace olive {
 
@@ -20,27 +21,27 @@ public:
 
   int GetSelectedVideoWidth() const
   {
-    return video_width_field_->GetValue();
+    return video_section_->GetWidth();
   }
 
   int GetSelectedVideoHeight() const
   {
-    return video_height_field_->GetValue();
+    return video_section_->GetHeight();
   }
 
   rational GetSelectedVideoFrameRate() const
   {
-    return video_frame_rate_field_->GetFrameRate();
+    return video_section_->GetFrameRate();
   }
 
   rational GetSelectedVideoPixelAspect() const
   {
-    return video_pixel_aspect_field_->GetPixelAspectRatio();
+    return video_section_->GetPixelAspectRatio();
   }
 
   VideoParams::Interlacing GetSelectedVideoInterlacingMode() const
   {
-    return video_interlaced_field_->GetInterlaceMode();
+    return video_section_->GetInterlaceMode();
   }
 
   int GetSelectedAudioSampleRate() const
@@ -70,15 +71,7 @@ signals:
   void SaveParametersAsPreset(const SequencePreset& preset);
 
 private:
-  IntegerSlider* video_width_field_;
-
-  IntegerSlider* video_height_field_;
-
-  FrameRateComboBox* video_frame_rate_field_;
-
-  PixelAspectRatioComboBox* video_pixel_aspect_field_;
-
-  InterlacedComboBox* video_interlaced_field_;
+  VideoParamEdit* video_section_;
 
   SampleRateComboBox* audio_sample_rate_field_;
 

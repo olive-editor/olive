@@ -67,7 +67,7 @@ public:
 
   bool IsSequenceOpen(Sequence* sequence) const;
 
-  void FolderOpen(Project* p, Item* i, bool floating);
+  void FolderOpen(Project* p, Folder *i, bool floating);
 
   ScopePanel* AppendScopePanel();
 
@@ -130,7 +130,7 @@ private:
 
   void RemoveProjectPanel(ProjectPanel* panel);
 
-  void TimelineFocused(ViewerOutput *viewer);
+  void TimelineFocused(Sequence *viewer);
 
   QByteArray premaximized_state_;
 
@@ -154,6 +154,10 @@ private:
   unsigned int taskbar_btn_id_;
 
   ITaskbarList3* taskbar_interface_;
+#endif
+
+#ifdef Q_OS_LINUX
+  bool checked_graphics_vendor_;
 #endif
 
 private slots:

@@ -34,7 +34,8 @@ SeekableWidget::SeekableWidget(QWidget* parent) :
   time_(0),
   timeline_points_(nullptr),
   scroll_(0),
-  snap_service_(nullptr)
+  snap_service_(nullptr),
+  dragging_(false)
 {
   QFontMetrics fm = fontMetrics();
 
@@ -86,6 +87,7 @@ void SeekableWidget::mousePressEvent(QMouseEvent *event)
 {
   if (event->button() == Qt::LeftButton) {
     SeekToScreenPoint(event->pos().x());
+    dragging_ = true;
   }
 }
 
@@ -103,6 +105,8 @@ void SeekableWidget::mouseReleaseEvent(QMouseEvent *event)
   if (snap_service_) {
     snap_service_->HideSnaps();
   }
+
+  dragging_ = false;
 }
 
 void SeekableWidget::ScaleChangedEvent(const double &)

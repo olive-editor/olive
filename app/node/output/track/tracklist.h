@@ -29,43 +29,67 @@
 
 namespace olive {
 
-class ViewerOutput;
+class Sequence;
 
-class TrackList : public QObject {
+class TrackList : public QObject
+{
   Q_OBJECT
 public:
-  TrackList(ViewerOutput *parent, const Timeline::TrackType& type, NodeInputArray* track_input);
+  TrackList(Sequence *parent, const Track::Type& type, const QString& track_input);
 
-  const Timeline::TrackType& type() const;
+  const Track::Type& type() const
+  {
+    return type_;
+  }
 
-  const QVector<TrackOutput*>& GetTracks() const;
+  const QVector<Track*>& GetTracks() const
+  {
+    return track_cache_;
+  }
 
-  TrackOutput* GetTrackAt(int index) const;
+  Track* GetTrackAt(int index) const;
 
-  TrackOutput *AddTrack();
+  const rational& GetTotalLength() const
+  {
+    return total_length_;
+  }
 
-  void RemoveTrack(QObject *new_parent);
-
-  const rational& GetTotalLength() const;
-
-  int GetTrackCount() const;
+  int GetTrackCount() const
+  {
+    return track_cache_.size();
+  }
 
   NodeGraph* GetParentGraph() const;
 
+  const QString &track_input() const;
+  NodeInput track_input(int element) const;
+
+  Sequence* parent() const;
+
+  int ArraySize() const;
+
+  void ArrayAppend(bool undoable = false);
+  void ArrayRemoveLast(bool undoable = false);
+
+public slots:
+  /**
+   * @brief Slot for when the track connection is added
+   */
+  void TrackConnected(Node* node, int element);
+
+  /**
+   * @brief Slot for when the track connection is removed
+   */
+  void TrackDisconnected(Node* node, int element);
+
 signals:
-  void BlockAdded(Block* block, int index);
-
-  void BlockRemoved(Block* block);
-
-  void TrackAdded(TrackOutput* track);
-
-  void TrackRemoved(TrackOutput* track);
-
   void TrackListChanged();
 
   void LengthChanged(const rational &length);
 
-  void TrackHeightChanged(int index, int height);
+  void TrackAdded(Track* track);
+
+  void TrackRemoved(Track* track);
 
 private:
   void UpdateTrackIndexesFrom(int index);
@@ -73,44 +97,30 @@ private:
   /**
    * @brief A cache of connected Tracks
    */
-  QVector<TrackOutput*> track_cache_;
+  QVector<Track*> track_cache_;
+  QVector<int> track_array_indexes_;
 
-  NodeInputArray* track_input_;
+  int GetArrayIndexFromCacheIndex(int index) const
+  {
+    return track_array_indexes_.at(index);
+  }
+
+  int GetCacheIndexFromArrayIndex(int index) const
+  {
+    return track_array_indexes_.indexOf(index);
+  }
+
+  QString track_input_;
 
   rational total_length_;
 
-  enum Timeline::TrackType type_;
+  enum Track::Type type_;
 
 private slots:
-  /**
-   * @brief Slot for when the track connection is added
-   */
-  void TrackConnected(NodeEdgePtr edge);
-
-  /**
-   * @brief Slot for when the track connection is removed
-   */
-  void TrackDisconnected(NodeEdgePtr edge);
-
-  /**
-   * @brief Slot for when a connected Track has added a Block so we can update the UI
-   */
-  void TrackAddedBlock(Block* block);
-
-  /**
-   * @brief Slot for when a connected Track has added a Block so we can update the UI
-   */
-  void TrackRemovedBlock(Block* block);
-
   /**
    * @brief Slot for when any of the track's length changes so we can update the length of the tracklist
    */
   void UpdateTotalLength();
-
-  /**
-   * @brief Slot when a track height changes, transforms to the TrackHeightChanged signal which includes a track index
-   */
-  void TrackHeightChangedSlot(int height);
 
 };
 

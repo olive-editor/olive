@@ -36,11 +36,11 @@ public:
 
   virtual ~OIIODecoder() override;
 
-  virtual QString id() override;
+  virtual QString id() const override;
 
   virtual bool SupportsVideo() override{return true;}
 
-  virtual Footage* Probe(const QString& filename, const QAtomicInt* cancelled) const override;
+  virtual FootageDescription Probe(const QString& filename, const QAtomicInt* cancelled) const override;
 
 protected:
   virtual bool OpenInternal() override;
@@ -55,8 +55,6 @@ private:
   bool OpenImageHandler(const QString& fn);
 
   void CloseImageHandle();
-
-  int64_t last_sequence_index_;
 
   VideoParams::Format pix_fmt_;
 

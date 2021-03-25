@@ -26,6 +26,7 @@
 #include "common/xmlutils.h"
 #include "core.h"
 #include "dialog/progress/progress.h"
+#include "node/factory.h"
 #include "render/diskmanager.h"
 #include "window/mainwindow/mainwindow.h"
 
@@ -35,12 +36,32 @@ Project::Project() :
   is_modified_(false),
   autorecovery_saved_(true)
 {
-  root_.set_project(this);
+  // Adds a color manager "node" to this project so that it synchronizes
+  color_manager_ = new ColorManager();
+  color_manager_->setParent(this);
+  color_manager_->SetPosition(QPointF(1, 0));
+  AddDefaultNode(color_manager_);
 
-  connect(&color_manager_, &ColorManager::ConfigChanged,
-          this, &Project::ColorConfigChanged);
-  connect(&color_manager_, &ColorManager::DefaultInputColorSpaceChanged,
-          this, &Project::DefaultColorSpaceChanged);
+  // Same with project settings
+  settings_ = new ProjectSettingsNode();
+  settings_->setParent(this);
+  settings_->SetPosition(QPointF(2, 0));
+  AddDefaultNode(settings_);
+
+  // Viewer node for connecting with the footage viewer
+  footage_viewer_ = new ViewerOutput();
+  footage_viewer_->setParent(this);
+  footage_viewer_->SetLabel(tr("Footage Viewer"));
+  footage_viewer_->SetPosition(QPointF(3, 0));
+  AddDefaultNode(footage_viewer_);
+
+  // Folder root for project
+  root_ = new Folder();
+  root_->setParent(this);
+  root_->SetLabel(tr("Root"));
+
+  connect(color_manager(), &ColorManager::ValueChanged,
+          this, &Project::ColorManagerValueChanged);
 }
 
 void Project::Load(QXmlStreamReader *reader, MainWindowLayoutInfo* layout, uint version, const QAtomicInt* cancelled)
@@ -50,24 +71,7 @@ void Project::Load(QXmlStreamReader *reader, MainWindowLayoutInfo* layout, uint 
   while (XMLReadNextStartElement(reader)) {
     if (reader->name() == QStringLiteral("root")) {
 
-      root_.Load(reader, xml_node_data, version, cancelled);
-
-    } else if (reader->name() == QStringLiteral("colormanagement")) {
-
-      // Read color management info
-      while (XMLReadNextStartElement(reader)) {
-        if (reader->name() == QStringLiteral("config")) {
-          color_manager_.SetConfig(reader->readElementText());
-        } else if (reader->name() == QStringLiteral("default")) {
-          color_manager_.SetDefaultInputColorSpace(reader->readElementText());
-        } else {
-          reader->skipCurrentElement();
-        }
-      }
-
-    } else if (reader->name() == QStringLiteral("cachepath")) {
-
-      set_cache_path(reader->readElementText());
+      root_->Load(reader, xml_node_data, version, cancelled);
 
     } else if (reader->name() == QStringLiteral("layout")) {
 
@@ -78,6 +82,56 @@ void Project::Load(QXmlStreamReader *reader, MainWindowLayoutInfo* layout, uint 
 
       *layout = MainWindowLayoutInfo::fromXml(reader, xml_node_data);
 
+    } else if (reader->name() == QStringLiteral("nodes")) {
+
+      while (XMLReadNextStartElement(reader)) {
+        if (reader->name() == QStringLiteral("node")) {
+          bool is_root = false;
+          bool is_cm = false;
+          bool is_settings = false;
+          QString id;
+
+          {
+            XMLAttributeLoop(reader, attr) {
+              if (attr.name() == QStringLiteral("id")) {
+                id = attr.value().toString();
+              } else if (attr.name() == QStringLiteral("root") && attr.value() == QStringLiteral("1")) {
+                is_root = true;
+              } else if (attr.name() == QStringLiteral("cm") && attr.value() == QStringLiteral("1")) {
+                is_cm = true;
+              } else if (attr.name() == QStringLiteral("settings") && attr.value() == QStringLiteral("1")) {
+                is_settings = true;
+              }
+            }
+          }
+
+          if (id.isEmpty()) {
+            qWarning() << "Failed to load node with empty ID";
+          } else {
+            Node* node;
+
+            if (is_root) {
+              node = root_;
+            } else if (is_cm) {
+              node = color_manager_;
+            } else if (is_settings) {
+              node = settings_;
+            } else {
+              node = NodeFactory::CreateFromID(id);
+            }
+
+            if (!node) {
+              qWarning() << "Failed to find node with ID" << id;
+            } else {
+              node->Load(reader, xml_node_data, version, cancelled);
+              node->setParent(this);
+            }
+          }
+        } else {
+          reader->skipCurrentElement();
+        }
+      }
+
     } else {
 
       // Skip this
@@ -86,28 +140,36 @@ void Project::Load(QXmlStreamReader *reader, MainWindowLayoutInfo* layout, uint 
     }
   }
 
-  foreach (const XMLNodeData::FootageConnection& con, xml_node_data.footage_connections) {
-    if (con.footage) {
-      con.input->set_standard_value(QVariant::fromValue(xml_node_data.footage_ptrs.value(con.footage)));
-    }
-  }
+  // Make connections
+  XMLConnectNodes(xml_node_data);
+
+  // Link blocks
+  XMLLinkBlocks(xml_node_data);
 }
 
 void Project::Save(QXmlStreamWriter *writer) const
 {
-  writer->writeTextElement(QStringLiteral("cachepath"), cache_path(false));
+  writer->writeStartElement(QStringLiteral("nodes"));
 
-  writer->writeStartElement(QStringLiteral("root"));
-  root_.Save(writer);
-  writer->writeEndElement();
+  foreach (Node* node, nodes()) {
+    writer->writeStartElement(QStringLiteral("node"));
 
-  writer->writeStartElement(QStringLiteral("colormanagement"));
+    if (node == root_) {
+      writer->writeAttribute(QStringLiteral("root"), QStringLiteral("1"));
+    } else if (node == color_manager_) {
+      writer->writeAttribute(QStringLiteral("cm"), QStringLiteral("1"));
+    } else if (node == settings_) {
+      writer->writeAttribute(QStringLiteral("settings"), QStringLiteral("1"));
+    }
 
-  writer->writeTextElement(QStringLiteral("config"), color_manager_.GetConfigFilename());
+    writer->writeAttribute(QStringLiteral("id"), node->id());
 
-  writer->writeTextElement(QStringLiteral("default"), color_manager_.GetDefaultInputColorSpace());
+    node->Save(writer);
 
-  writer->writeEndElement(); // colormanagement
+    writer->writeEndElement(); // node
+  }
+
+  writer->writeEndElement(); // nodes
 
   // Save main window project layout
   MainWindowLayoutInfo main_window_info = Core::instance()->main_window()->SaveLayout();
@@ -116,7 +178,7 @@ void Project::Save(QXmlStreamWriter *writer) const
 
 Folder *Project::root()
 {
-  return &root_;
+  return root_;
 }
 
 QString Project::name() const
@@ -158,12 +220,7 @@ void Project::set_filename(const QString &s)
 
 ColorManager *Project::color_manager()
 {
-  return &color_manager_;
-}
-
-QVector<Item *> Project::get_items_of_type(Item::Type type) const
-{
-  return root_.get_children_of_type(type, true);
+  return color_manager_;
 }
 
 bool Project::is_modified() const
@@ -194,37 +251,44 @@ bool Project::is_new() const
   return !is_modified_ && filename_.isEmpty();
 }
 
-const QString &Project::cache_path(bool default_if_empty) const
+QString Project::cache_path() const
 {
-  if (cache_path_.isEmpty() && default_if_empty) {
-    return DiskManager::instance()->GetDefaultCachePath();
+  ProjectSettingsNode::CacheSetting setting = settings_->GetCacheSetting();
+
+  switch (setting) {
+  case ProjectSettingsNode::kCacheUseDefaultLocation:
+    break;
+  case ProjectSettingsNode::kCacheCustomPath:
+  {
+    QString cache_path = settings_->GetCustomCachePath();
+
+    if (cache_path.isEmpty()) {
+      return cache_path;
+    }
+    break;
   }
-  return cache_path_;
+  case ProjectSettingsNode::kCacheStoreAlongsideProject:
+  {
+    if (!filename_.isEmpty()) {
+      return QFileInfo(filename_).path();
+    }
+    break;
+  }
+  }
+
+  return DiskManager::instance()->GetDefaultCachePath();
 }
 
-void Project::ColorConfigChanged()
+void Project::ColorManagerValueChanged(const NodeInput &input, const TimeRange &range)
 {
-  QVector<Item*> footage = this->get_items_of_type(Item::kFootage);
+  Q_UNUSED(range)
 
-  foreach (Item* item, footage) {
-    foreach (Stream* s, static_cast<Footage*>(item)->streams()) {
-      if (s->type() == Stream::kVideo) {
-        static_cast<VideoStream*>(s)->ColorConfigChanged();
-      }
-    }
-  }
-}
+  QVector<Footage*> footage = root()->ListChildrenOfType<Footage>();
 
-void Project::DefaultColorSpaceChanged()
-{
-  QVector<Item*> footage = this->get_items_of_type(Item::kFootage);
-
-  foreach (Item* item, footage) {
-    foreach (Stream* s, static_cast<Footage*>(item)->streams()) {
-      if (s->type() == Stream::kVideo) {
-        static_cast<VideoStream*>(s)->DefaultColorSpaceChanged();
-      }
-    }
+  foreach (Footage* item, footage) {
+    item->InvalidateAll(QString());
+    //static_cast<VideoStream*>(s)->ColorConfigChanged();
+    //static_cast<VideoStream*>(s)->DefaultColorSpaceChanged();
   }
 }
 

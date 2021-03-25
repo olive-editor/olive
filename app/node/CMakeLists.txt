@@ -22,34 +22,32 @@ add_subdirectory(generator)
 add_subdirectory(input)
 add_subdirectory(math)
 add_subdirectory(output)
+add_subdirectory(project)
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  node/edge.h
-  node/edge.cpp
-  node/factory.h
   node/factory.cpp
-  node/graph.h
+  node/factory.h
   node/graph.cpp
-  node/input.h
-  node/input.cpp
-  node/inputarray.h
-  node/inputarray.cpp
-  node/inputdragger.h
+  node/graph.h
   node/inputdragger.cpp
-  node/keyframe.h
+  node/inputdragger.h
+  node/inputimmediate.cpp
+  node/inputimmediate.h
   node/keyframe.cpp
-  node/node.h
+  node/keyframe.h
   node/node.cpp
-  node/nodecopypaste.h
+  node/node.h
   node/nodecopypaste.cpp
-  node/output.h
-  node/output.cpp
-  node/param.h
+  node/nodecopypaste.h
   node/param.cpp
-  node/traverser.h
+  node/param.h
+  node/splitvalue.h
   node/traverser.cpp
-  node/value.h
+  node/traverser.h
   node/value.cpp
+  node/value.h
+  node/valuedatabase.cpp
+  node/valuedatabase.h
   PARENT_SCOPE
 )

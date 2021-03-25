@@ -72,9 +72,17 @@ public:
 
   void DeleteSelected();
 
-signals:
-  void InputDoubleClicked(NodeInput* input);
+  void SelectAll()
+  {
+    keyframe_view_->SelectAll();
+  }
 
+  void DeselectAll()
+  {
+    keyframe_view_->DeselectAll();
+  }
+
+signals:
   void RequestSelectNode(const QVector<Node*>& target);
 
   void NodeOrderChanged(const QVector<Node*>& nodes);
@@ -88,7 +96,7 @@ protected:
   virtual void TimebaseChangedEvent(const rational&) override;
   virtual void TimeChangedEvent(const int64_t &) override;
 
-  virtual void ConnectedNodeChanged(ViewerOutput* n) override;
+  virtual void ConnectedNodeChanged(Sequence* n) override;
 
 private:
   void UpdateItemTime(const int64_t &timestamp);
@@ -96,6 +104,8 @@ private:
   void QueueKeyframePositionUpdate();
 
   void SignalNodeOrder();
+
+  void AddNode(Node* n);
 
   void RemoveNode(Node* n);
 
@@ -126,11 +136,13 @@ private slots:
 
   void UpdateGlobalScrollBar();
 
-  void PlaceKeyframesOnView();
-
   void PinNode(bool pin);
 
   void FocusChanged(QWidget *old, QWidget *now);
+
+  void KeyframeViewDragged(int x, int y);
+
+  void UpdateElementY();
 
 };
 

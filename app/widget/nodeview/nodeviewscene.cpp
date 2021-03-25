@@ -29,7 +29,6 @@ namespace olive {
 
 NodeViewScene::NodeViewScene(QObject *parent) :
   QGraphicsScene(parent),
-  graph_(nullptr),
   direction_(NodeViewCommon::kLeftToRight),
   curved_edges_(true)
 {
@@ -52,9 +51,8 @@ void NodeViewScene::SetFlowDirection(NodeViewCommon::FlowDirection direction)
 
   {
     // Iterate over edge items setting direction
-    QHash<NodeEdge*, NodeViewEdge*>::const_iterator i;
-    for (i=edge_map_.constBegin(); i!=edge_map_.constEnd(); i++) {
-      i.value()->SetFlowDirection(direction_);
+    foreach (NodeViewEdge* edge, edges_) {
+      edge->SetFlowDirection(direction_);
     }
   }
 }
@@ -70,21 +68,11 @@ void NodeViewScene::clear()
   //       deleted. Calling this function appears to update the internal cache and prevent this.
   selectedItems();
 
-  {
-    QHash<Node*, NodeViewItem*>::const_iterator i;
-    for (i=item_map_.begin();i!=item_map_.end();i++) {
-      delete i.value();
-    }
-    item_map_.clear();
-  }
+  qDeleteAll(item_map_);
+  item_map_.clear();
 
-  {
-    QHash<NodeEdge*, NodeViewEdge*>::const_iterator i;
-    for (i=edge_map_.begin();i!=edge_map_.end();i++) {
-      delete i.value();
-    }
-    edge_map_.clear();
-  }
+  qDeleteAll(edges_);
+  edges_.clear();
 }
 
 void NodeViewScene::SelectAll()
@@ -110,14 +98,15 @@ NodeViewItem *NodeViewScene::NodeToUIObject(Node *n)
   return item_map_.value(n);
 }
 
-NodeViewEdge *NodeViewScene::EdgeToUIObject(NodeEdgePtr n)
+NodeViewEdge *NodeViewScene::EdgeToUIObject(const NodeOutput& output, const NodeInput& input)
 {
-  return edge_map_.value(n.get());
-}
+  foreach (NodeViewEdge* edge, edges_) {
+    if (edge->output() == output && edge->input() == input) {
+      return edge;
+    }
+  }
 
-void NodeViewScene::SetGraph(NodeGraph *graph)
-{
-  graph_ = graph;
+  return nullptr;
 }
 
 QVector<Node *> NodeViewScene::GetSelectedNodes() const
@@ -148,29 +137,17 @@ QVector<NodeViewItem *> NodeViewScene::GetSelectedItems() const
   return selected;
 }
 
-QVector<NodeEdge*> NodeViewScene::GetSelectedEdges() const
+QVector<NodeViewEdge *> NodeViewScene::GetSelectedEdges() const
 {
-  QVector<NodeEdge*> edges;
+  QVector<NodeViewEdge*> edges;
 
-  QHash<NodeEdge*, NodeViewEdge*>::const_iterator i;
-
-  for (i=edge_map_.constBegin(); i!=edge_map_.constEnd(); i++) {
-    if (i.value()->isSelected()) {
-      edges.append(i.key());
+  foreach (NodeViewEdge* e, edges_) {
+    if (e->isSelected()) {
+      edges.append(e);
     }
   }
 
   return edges;
-}
-
-const QHash<Node *, NodeViewItem *> &NodeViewScene::item_map() const
-{
-  return item_map_;
-}
-
-const QHash<NodeEdge *, NodeViewEdge *> &NodeViewScene::edge_map() const
-{
-  return edge_map_;
 }
 
 void NodeViewScene::AddNode(Node* node)
@@ -183,47 +160,32 @@ void NodeViewScene::AddNode(Node* node)
   addItem(item);
   item_map_.insert(node, item);
 
-  // Add a NodeViewEdge for each connection
-  foreach (NodeParam* param, node->parameters()) {
-
-    // We only bother working with outputs since eventually this will cover all inputs too
-    // (covering both would lead to duplicates since every edge connects to one input and one output)
-    if (param->type() == NodeParam::kOutput) {
-      const QVector<NodeEdgePtr>& edges = param->edges();
-
-      foreach(NodeEdgePtr edge, edges) {
-        AddEdge(edge);
-      }
-    }
-  }
-
   connect(node, &Node::PositionChanged, this, &NodeViewScene::NodePositionChanged);
-  connect(node, &Node::LabelChanged, this, &NodeViewScene::NodeLabelChanged);
+  connect(node, &Node::LabelChanged, this, &NodeViewScene::NodeAppearanceChanged);
+  connect(node, &Node::ColorChanged, this, &NodeViewScene::NodeAppearanceChanged);
 }
 
 void NodeViewScene::RemoveNode(Node *node)
 {
-  disconnect(node, &Node::LabelChanged, this, &NodeViewScene::NodeLabelChanged);
+  disconnect(node, &Node::ColorChanged, this, &NodeViewScene::NodeAppearanceChanged);
+  disconnect(node, &Node::LabelChanged, this, &NodeViewScene::NodeAppearanceChanged);
   disconnect(node, &Node::PositionChanged, this, &NodeViewScene::NodePositionChanged);
 
   delete item_map_.take(node);
 }
 
-void NodeViewScene::AddEdge(NodeEdgePtr edge)
+void NodeViewScene::AddEdge(const NodeOutput &output, const NodeInput &input)
 {
-  NodeViewEdge* edge_ui = new NodeViewEdge();
-
-  edge_ui->SetEdge(edge);
-  edge_ui->SetFlowDirection(direction_);
-  edge_ui->SetCurved(curved_edges_);
-
-  addItem(edge_ui);
-  edge_map_.insert(edge.get(), edge_ui);
+  AddEdgeInternal(output, input, NodeToUIObject(output.node()), NodeToUIObject(input.node()));
 }
 
-void NodeViewScene::RemoveEdge(NodeEdgePtr edge)
+void NodeViewScene::RemoveEdge(const NodeOutput &output, const NodeInput &input)
 {
-  delete edge_map_.take(edge.get());
+  NodeViewEdge* edge = EdgeToUIObject(output, input);
+  edge->from_item()->RemoveEdge(edge);
+  edge->to_item()->RemoveEdge(edge);
+  edges_.removeOne(edge);
+  delete edge;
 }
 
 int NodeViewScene::DetermineWeight(Node *n)
@@ -239,6 +201,20 @@ int NodeViewScene::DetermineWeight(Node *n)
   }
 
   return qMax(1, weight);
+}
+
+void NodeViewScene::AddEdgeInternal(const NodeOutput& output, const NodeInput& input, NodeViewItem *from, NodeViewItem *to)
+{
+  NodeViewEdge* edge_ui = new NodeViewEdge(output, input, from, to);
+
+  edge_ui->SetFlowDirection(direction_);
+  edge_ui->SetCurved(curved_edges_);
+
+  from->AddEdge(edge_ui);
+  to->AddEdge(edge_ui);
+
+  addItem(edge_ui);
+  edges_.append(edge_ui);
 }
 
 Qt::Orientation NodeViewScene::GetFlowOrientation() const
@@ -284,17 +260,12 @@ void NodeViewScene::ReorganizeFrom(Node* n)
   }
 }
 
-bool NodeViewScene::GetEdgesAreCurved() const
-{
-  return curved_edges_;
-}
-
 void NodeViewScene::SetEdgesAreCurved(bool curved)
 {
   if (curved_edges_ != curved) {
     curved_edges_ = curved;
 
-    foreach (NodeViewEdge* e, edge_map_) {
+    foreach (NodeViewEdge* e, edges_) {
       e->SetCurved(curved_edges_);
     }
   }
@@ -302,11 +273,13 @@ void NodeViewScene::SetEdgesAreCurved(bool curved)
 
 void NodeViewScene::NodePositionChanged(const QPointF &pos)
 {
+  // Update node's internal position
   item_map_.value(static_cast<Node*>(sender()))->SetNodePosition(pos);
 }
 
-void NodeViewScene::NodeLabelChanged()
+void NodeViewScene::NodeAppearanceChanged()
 {
+  // Force item to update
   item_map_.value(static_cast<Node*>(sender()))->update();
 }
 

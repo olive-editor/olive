@@ -44,7 +44,6 @@
 #include "dialog/sequence/sequence.h"
 #include "dialog/task/task.h"
 #include "dialog/preferences/preferences.h"
-#include "dialog/projectproperties/projectproperties.h"
 #include "node/factory.h"
 #include "panel/panelmanager.h"
 #include "panel/project/project.h"
@@ -66,12 +65,14 @@
 #include "widget/menu/menushared.h"
 #include "widget/taskview/taskviewitem.h"
 #include "widget/viewer/viewer.h"
+#include "widget/nodeparamview/nodeparamviewundo.h"
+#include "window/mainwindow/mainstatusbar.h"
 #include "window/mainwindow/mainwindow.h"
 
 namespace olive {
 
 Core* Core::instance_ = nullptr;
-const uint Core::kProjectVersion = 201122;
+const uint Core::kProjectVersion = 210122;
 
 Core::Core(const CoreParams& params) :
   main_window_(nullptr),
@@ -334,29 +335,12 @@ void Core::DialogPreferencesShow()
   pd.exec();
 }
 
-void Core::DialogProjectPropertiesShow()
-{
-  Project* proj = GetActiveProject();
-
-  if (proj) {
-    ProjectPropertiesDialog ppd(proj, main_window_);
-    ppd.exec();
-  } else {
-    QMessageBox::critical(main_window_,
-                          tr("No Active Project"),
-                          tr("No project is currently open to set the properties for"),
-                          QMessageBox::Ok);
-  }
-}
-
 void Core::DialogExportShow()
 {
-  ViewerOutput* viewer = GetSequenceToExport();
+  Sequence* viewer = GetSequenceToExport();
 
   if (viewer) {
-    Sequence* sequence = dynamic_cast<Sequence*>(viewer->parent());
-
-    ExportDialog* ed = new ExportDialog(viewer, sequence, main_window_);
+    ExportDialog* ed = new ExportDialog(viewer, main_window_);
     connect(ed, &ExportDialog::finished, ed, &ExportDialog::deleteLater);
     ed->open();
   }
@@ -381,14 +365,15 @@ void Core::CreateNewFolder()
   Folder* new_folder = new Folder();
 
   // Set a default name
-  new_folder->set_name(tr("New Folder"));
+  new_folder->SetLabel(tr("New Folder"));
 
   // Create an undoable command
-  ProjectViewModel::AddItemCommand* aic = new ProjectViewModel::AddItemCommand(active_project_panel->model(),
-                                                                               folder,
-                                                                               new_folder);
+  MultiUndoCommand* command = new MultiUndoCommand();
 
-  Core::instance()->undo_stack()->push(aic);
+  command->add_child(new NodeAddCommand(active_project, new_folder));
+  command->add_child(new FolderAddChild(folder, new_folder));
+
+  Core::instance()->undo_stack()->push(command);
 
   // Trigger an automatic rename so users can enter the folder name
   active_project_panel->Edit(new_folder);
@@ -418,13 +403,15 @@ void Core::CreateNewSequence()
   if (sd.exec() == QDialog::Accepted) {
 
     // Create an undoable command
-    ProjectViewModel::AddItemCommand* aic = new ProjectViewModel::AddItemCommand(GetActiveProjectModel(),
-                                                                                 GetSelectedFolderInActiveProject(),
-                                                                                 new_sequence);
+    MultiUndoCommand* command = new MultiUndoCommand();
 
-    new_sequence->add_default_nodes();
+    command->add_child(new NodeAddCommand(active_project, new_sequence));
+    command->add_child(new FolderAddChild(GetSelectedFolderInActiveProject(), new_sequence));
 
-    Core::instance()->undo_stack()->push(aic);
+    // Create and connect default nodes to new sequence
+    new_sequence->add_default_nodes(command);
+
+    Core::instance()->undo_stack()->push(command);
 
     Core::instance()->main_window()->OpenSequence(new_sequence);
 
@@ -479,7 +466,7 @@ void Core::ImportTaskComplete(Task* task)
 {
   ProjectImportTask* import_task = static_cast<ProjectImportTask*>(task);
 
-  QUndoCommand *command = import_task->GetCommand();
+  MultiUndoCommand *command = import_task->GetCommand();
 
   if (import_task->HasInvalidFiles()) {
     ProjectImportErrorDialog d(import_task->GetInvalidFiles(), main_window_);
@@ -543,6 +530,7 @@ bool Core::StartHeadlessExport()
   ProjectLoadTask plm(startup_project);
   CLITaskDialog task_dialog(&plm);
 
+  /*
   if (task_dialog.Run()) {
     std::unique_ptr<Project> p = std::unique_ptr<Project>(plm.GetLoadedProject());
     QVector<Item*> items = p->get_items_of_type(Item::kSequence);
@@ -559,7 +547,7 @@ bool Core::StartHeadlessExport()
     if (items.size() > 1) {
       qInfo().noquote() << tr("This project has multiple sequences. Which do you wish to export?");
       for (int i=0;i<items.size();i++) {
-        std::cout << "[" << i << "] " << items.at(i)->name().toStdString();
+        std::cout << "[" << i << "] " << items.at(i)->GetLabel().toStdString();
       }
 
       QTextStream stream(stdin);
@@ -605,6 +593,11 @@ bool Core::StartHeadlessExport()
     qCritical().noquote() << tr("Project failed to load: %1").arg(plm.GetError());
     return false;
   }
+  */
+
+
+
+  return false;
 }
 
 void Core::OpenStartupProject()
@@ -720,7 +713,7 @@ void Core::SaveProjectInternal(Project* project)
   task_dialog->open();
 }
 
-ViewerOutput *Core::GetSequenceToExport()
+Sequence *Core::GetSequenceToExport()
 {
   // First try the most recently focused time based window
   TimeBasedPanel* time_panel = PanelManager::instance()->MostRecentlyFocused<TimeBasedPanel>();
@@ -892,6 +885,8 @@ QString Core::GetProjectFilter(bool include_any_filter)
   if (include_any_filter) {
     filters.append(QStringLiteral("All Supported Projects (*.ove *.otio);;"));
   }
+#else
+  Q_UNUSED(include_any_filter)
 #endif
 
   // Append standard filter
@@ -941,6 +936,11 @@ bool Core::SaveProject(Project* p)
 
     return true;
   }
+}
+
+void Core::ShowStatusBarMessage(const QString &s)
+{
+  main_window_->statusBar()->showMessage(s);
 }
 
 bool Core::SaveProjectAs(Project* p)
@@ -1062,7 +1062,7 @@ void Core::SetPreferenceForRenderMode(RenderMode::Mode mode, const QString &pref
   Config::Current()[GetRenderModePreferencePrefix(mode, preference)] = value;
 }
 
-void Core::LabelNodes(const QVector<Node *> &nodes) const
+void Core::LabelNodes(const QVector<Node *> &nodes)
 {
   if (nodes.isEmpty()) {
     return;
@@ -1088,9 +1088,13 @@ void Core::LabelNodes(const QVector<Node *> &nodes) const
                                     &ok);
 
   if (ok) {
+    NodeRenameCommand* rename_command = new NodeRenameCommand();
+
     foreach (Node* n, nodes) {
-      n->SetLabel(s);
+      rename_command->AddNode(n, s);
     }
+
+    undo_stack_.push(rename_command);
   }
 }
 
@@ -1105,7 +1109,7 @@ Sequence *Core::CreateNewSequenceForProject(Project* project) const
     sequence_name = tr("Sequence %1").arg(sequence_number);
     sequence_number++;
   } while (project->root()->ChildExistsWithName(sequence_name));
-  new_sequence->set_name(sequence_name);
+  new_sequence->SetLabel(sequence_name);
 
   return new_sequence;
 }
@@ -1289,13 +1293,10 @@ void Core::CacheActiveSequence(bool in_out_only)
 
 bool Core::ValidateFootageInLoadedProject(Project* project, const QString& project_saved_url)
 {
+  QVector<Footage*> project_footage = project->root()->ListChildrenOfType<Footage>();
   QVector<Footage*> footage_we_couldnt_validate;
 
-  QVector<Item*> project_footage = project->get_items_of_type(Item::kFootage);
-
-  foreach (Item* item, project_footage) {
-    Footage* footage = static_cast<Footage*>(item);
-
+  foreach (Footage* footage, project_footage) {
     if (!QFileInfo::exists(footage->filename()) && !project_saved_url.isEmpty()) {
       // If the footage doesn't exist, it might have moved with the project
       const QString& project_current_url = project->filename();

@@ -62,8 +62,6 @@ MainMenu::MainMenu(MainWindow *parent) :
   file_export_menu_ = new Menu(file_menu_);
   file_export_media_item_ = file_export_menu_->AddItem("export", Core::instance(), &Core::DialogExportShow, "Ctrl+M");
   file_menu_->addSeparator();
-  file_project_properties_item_ = file_menu_->AddItem("projectproperties", Core::instance(), &Core::DialogProjectPropertiesShow, "Shift+F10");
-  file_menu_->addSeparator();
   file_close_project_item_ = file_menu_->AddItem("closeproj", Core::instance(), &Core::CloseActiveProject);
   file_close_all_projects_item_ = file_menu_->AddItem("closeallproj", Core::instance(), static_cast<bool(Core::*)()>(&Core::CloseAllProjects));
   file_close_all_except_item_ = file_menu_->AddItem("closeallexcept", Core::instance(), &Core::CloseAllExceptActiveProject);
@@ -75,10 +73,10 @@ MainMenu::MainMenu(MainWindow *parent) :
   //
   edit_menu_ = new Menu(this);
 
-  edit_undo_item_ = Core::instance()->undo_stack()->createUndoAction(this);
+  edit_undo_item_ = Core::instance()->undo_stack()->GetUndoAction();
   Menu::ConformItem(edit_undo_item_, "undo", "Ctrl+Z");
   edit_menu_->addAction(edit_undo_item_);
-  edit_redo_item_ = Core::instance()->undo_stack()->createRedoAction(this);
+  edit_redo_item_ = Core::instance()->undo_stack()->GetRedoAction();
   Menu::ConformItem(edit_redo_item_, "redo", "Ctrl+Shift+Z");
   edit_menu_->addAction(edit_redo_item_);
 
@@ -284,7 +282,6 @@ void MainMenu::FileMenuAboutToShow()
 {
   Project* active_project = Core::instance()->GetActiveProject();
 
-  file_project_properties_item_->setEnabled(active_project);
   file_save_item_->setEnabled(active_project);
   file_save_as_item_->setEnabled(active_project);
   file_close_project_item_->setEnabled(active_project);
@@ -610,7 +607,6 @@ void MainMenu::Retranslate()
   file_import_item_->setText(tr("&Import..."));
   file_export_menu_->setTitle(tr("&Export"));
   file_export_media_item_->setText(tr("&Media..."));
-  file_project_properties_item_->setText(tr("&Project Properties..."));
   file_close_all_projects_item_->setText(tr("Close All Projects"));
   file_exit_item_->setText(tr("E&xit"));
 

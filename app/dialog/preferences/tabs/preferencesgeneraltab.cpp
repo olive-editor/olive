@@ -100,8 +100,10 @@ PreferencesGeneralTab::PreferencesGeneralTab()
   layout->addStretch();
 }
 
-void PreferencesGeneralTab::Accept()
+void PreferencesGeneralTab::Accept(MultiUndoCommand *command)
 {
+  Q_UNUSED(command)
+
   Config::Current()[QStringLiteral("RectifiedWaveforms")] = rectified_waveforms_->isChecked();
 
   Config::Current()[QStringLiteral("Autoscroll")] = autoscroll_method_->currentData();

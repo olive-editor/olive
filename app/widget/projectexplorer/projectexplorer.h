@@ -21,11 +21,11 @@
 #ifndef PROJECTEXPLORER_H
 #define PROJECTEXPLORER_H
 
+#include <QSortFilterProxyModel>
 #include <QStackedWidget>
 #include <QTimer>
 #include <QTreeView>
 
-#include "node/input/media/media.h"
 #include "project/project.h"
 #include "project/projectviewmodel.h"
 #include "widget/projectexplorer/projectexplorericonview.h"
@@ -57,9 +57,9 @@ public:
 
   QModelIndex get_root_index() const;
 
-  void set_root(Item* item);
+  void set_root(Folder *item);
 
-  QList<Item*> SelectedItems() const;
+  QVector<Node *> SelectedItems() const;
 
   /**
    * @brief Use a heuristic to determine which (if any) folder is selected
@@ -89,7 +89,7 @@ public:
 public slots:
   void set_view_type(ProjectToolbar::ViewType type);
 
-  void Edit(Item* item);
+  void Edit(Node* item);
 
 signals:
   /**
@@ -99,17 +99,12 @@ signals:
    *
    * The Item that was double clicked, or nullptr if empty area was double clicked
    */
-  void DoubleClickedItem(Item* item);
+  void DoubleClickedItem(Node* item);
 
 private:
   /**
-   * @brief Check if an item is in use anywhere and return any relevant input nodes
-   */
-  QList<MediaInput*> GetMediaNodesUsingFootage(Footage* item);
-
-  /**
    * @brief Get all the blocks that solely rely on an input node
-   * 
+   *
    * Ignores blocks that depend on multiple inputs
    */
   QList<Block*> GetFootageBlocks(QList<Node*> nodes);
@@ -136,6 +131,12 @@ private:
    */
   void BrowseToFolder(const QModelIndex& index);
 
+  int ConfirmItemDeletion(Node *item);
+
+  bool DeleteItemsInternal(const QVector<Node *> &selected, bool &check_if_item_is_in_use, MultiUndoCommand *command);
+
+  static QString GetHumanReadableNodeName(Node* node);
+
   /**
    * @brief Get the currently active QAbstractItemView
    */
@@ -151,13 +152,14 @@ private:
 
   ProjectToolbar::ViewType view_type_;
 
+  QSortFilterProxyModel sort_model_;
   ProjectViewModel model_;
 
   QModelIndex clicked_index_;
 
   QTimer rename_timer_;
 
-  QList<Item*> context_menu_items_;
+  QVector<Node*> context_menu_items_;
 
 private slots:
   void ItemClickedSlot(const QModelIndex& index);

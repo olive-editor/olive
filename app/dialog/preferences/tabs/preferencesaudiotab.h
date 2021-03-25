@@ -25,17 +25,17 @@
 #include <QComboBox>
 #include <QPushButton>
 
-#include "preferencestab.h"
+#include "dialog/configbase/configdialogbase.h"
 
 namespace olive {
 
-class PreferencesAudioTab : public PreferencesTab
+class PreferencesAudioTab : public ConfigDialogBaseTab
 {
   Q_OBJECT
 public:
   PreferencesAudioTab();
 
-  virtual void Accept() override;
+  virtual void Accept(MultiUndoCommand* command) override;
 
 private:
   /**

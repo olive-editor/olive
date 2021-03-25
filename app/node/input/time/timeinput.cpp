@@ -51,24 +51,27 @@ QString TimeInput::Description() const
   return tr("Generates the time (in seconds) at this frame");
 }
 
-NodeValueTable TimeInput::Value(NodeValueDatabase &value) const
+NodeValueTable TimeInput::Value(const QString &output, NodeValueDatabase &value) const
 {
+  Q_UNUSED(output)
+
   NodeValueTable table = value.Merge();
 
-  table.Push(NodeParam::kFloat,
-             value[QStringLiteral("global")].Get(NodeParam::kFloat, QStringLiteral("time_in")),
+  table.Push(NodeValue::kFloat,
+             value[QStringLiteral("global")].Get(NodeValue::kFloat, QStringLiteral("time_in")),
              this,
+             false,
              QStringLiteral("time"));
 
   return table;
 }
 
-void TimeInput::Hash(QCryptographicHash &hash, const rational &time) const
+void TimeInput::Hash(const QString &output, QCryptographicHash &hash, const rational &time) const
 {
-  Node::Hash(hash, time);
+  Node::Hash(output, hash, time);
 
   // Make sure time is hashed
-  hash.addData(NodeParam::ValueToBytes(NodeParam::kRational, QVariant::fromValue(time)));
+  hash.addData(NodeValue::ValueToBytes(NodeValue::kRational, QVariant::fromValue(time)));
 }
 
 }

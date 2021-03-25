@@ -36,6 +36,8 @@ class SequenceDialogPresetTab : public QWidget, public PresetManager<SequencePre
 public:
   SequenceDialogPresetTab(QWidget* parent = nullptr);
 
+  virtual ~SequenceDialogPresetTab() override;
+
 public slots:
   void SaveParametersAsPreset(SequencePreset preset);
 
@@ -54,17 +56,19 @@ private:
   QTreeWidgetItem* GetSelectedItem();
   QTreeWidgetItem* GetSelectedCustomPreset();
 
-  void AddStandardItem(QTreeWidgetItem* folder, PresetPtr preset, const QString &description = QString());
+  void AddStandardItem(QTreeWidgetItem* folder, Preset* preset, const QString &description = QString());
 
-  void AddCustomItem(QTreeWidgetItem* folder, PresetPtr preset, int index, const QString& description = QString());
+  void AddCustomItem(QTreeWidgetItem* folder, Preset* preset, int index, const QString& description = QString());
 
-  void AddItemInternal(QTreeWidgetItem* folder, PresetPtr preset, bool is_custom, int index, const QString& description = QString());
+  void AddItemInternal(QTreeWidgetItem* folder, Preset* preset, bool is_custom, int index, const QString& description = QString());
 
   QTreeWidget* preset_tree_;
 
   QTreeWidgetItem* my_presets_folder_;
 
-  QList<PresetPtr> default_preset_data_;
+  QVector<Preset*> default_preset_data_;
+
+  QVector<Preset*> child_presets_;
 
 private slots:
   void SelectedItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);

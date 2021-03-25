@@ -21,7 +21,6 @@
 #include "diskmanager.h"
 
 #include <QDataStream>
-#include <QDateTime>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
@@ -204,12 +203,14 @@ bool DiskCacheFolder::ClearCache()
 {
   bool deleted_files = true;
 
-  std::list<HashTime>::iterator i = disk_data_.begin();
+  auto i = disk_data_.begin();
 
   while (i != disk_data_.end()) {
     // We return a false result if any of the files fail to delete, but still try to delete as many as we can
-    if (QFile::remove(i->file_name) || !QFileInfo::exists(i->file_name)) {
-      emit DeletedFrame(path_, i->hash);
+    const HashTime& ht = i.value();
+
+    if (QFile::remove(ht.file_name) || !QFileInfo::exists(ht.file_name)) {
+      emit DeletedFrame(path_, i.key());
       i = disk_data_.erase(i);
     } else {
       qWarning() << "Failed to delete" << i->file_name;
@@ -223,30 +224,18 @@ bool DiskCacheFolder::ClearCache()
 
 void DiskCacheFolder::Accessed(const QByteArray &hash)
 {
-  std::list<HashTime>::iterator i = disk_data_.begin();
-
-  while (i != disk_data_.end()) {
-    if (i->hash == hash) {
-      // Copy access data and erase from list
-      HashTime accessed_hash = *i;
-      disk_data_.erase(i);
-
-      // Add it to the end
-      disk_data_.push_back(accessed_hash);
-
-      // End loop
-      break;
-    } else {
-      i++;
-    }
+  if (!disk_data_.contains(hash)) {
+    return;
   }
+
+  disk_data_[hash].access_time = QDateTime::currentMSecsSinceEpoch();
 }
 
 void DiskCacheFolder::CreatedFile(const QString &file_name, const QByteArray &hash)
 {
   qint64 file_size = QFile(file_name).size();
 
-  disk_data_.push_back({file_name, hash, file_size});
+  disk_data_.insert(hash, {file_name, file_size, QDateTime::currentMSecsSinceEpoch()});
 
   consumption_ += file_size;
 
@@ -268,8 +257,8 @@ void DiskCacheFolder::SetPath(const QString &path)
 
   // Signal that disk cache is gone
   if (!disk_data_.empty()) {
-    foreach (const HashTime& h, disk_data_) {
-      emit DeletedFrame(path_, h.hash);
+    for (auto it=disk_data_.cbegin(); it!=disk_data_.cend(); it++) {
+      emit DeletedFrame(path_, it.key());
     }
     disk_data_.clear();
   }
@@ -284,7 +273,7 @@ void DiskCacheFolder::SetPath(const QString &path)
 
   // Attempt to load existing index file from path
   QDir path_dir(path_);
-  path_dir.mkpath(".");
+  path_dir.mkpath(QStringLiteral("."));
 
   index_path_ = path_dir.filePath(QStringLiteral("index"));
 
@@ -298,15 +287,17 @@ void DiskCacheFolder::SetPath(const QString &path)
     ds >> clear_on_close_;
 
     while (!cache_index_file.atEnd()) {
+      QByteArray hash;
       HashTime h;
 
       ds >> h.file_name;
-      ds >> h.hash;
+      ds >> hash;
       ds >> h.file_size;
+      ds >> h.access_time;
 
       if (QFileInfo::exists(h.file_name)) {
         consumption_ += h.file_size;
-        disk_data_.push_back(h);
+        disk_data_.insert(hash, h);
       }
     }
 
@@ -316,14 +307,23 @@ void DiskCacheFolder::SetPath(const QString &path)
 
 QByteArray DiskCacheFolder::DeleteLeastRecent()
 {
-  HashTime h = disk_data_.front();
-  disk_data_.pop_front();
+  auto hash_to_delete = disk_data_.begin();
 
-  QFile::remove(h.file_name);
+  for (auto it=disk_data_.begin()+1; it!=disk_data_.end(); it++) {
+    if (it->access_time < hash_to_delete->access_time) {
+      hash_to_delete = it;
+    }
+  }
 
-  consumption_ -= h.file_size;
+  QByteArray hash = hash_to_delete.key();
+  HashTime ht = hash_to_delete.value();
+  disk_data_.erase(hash_to_delete);
 
-  return h.hash;
+  QFile::remove(ht.file_name);
+
+  consumption_ -= ht.file_size;
+
+  return hash;
 }
 
 void DiskCacheFolder::CloseCacheFolder()
@@ -352,10 +352,13 @@ void DiskCacheFolder::SaveDiskCacheIndex()
     ds << limit_;
     ds << clear_on_close_;
 
-    foreach (const HashTime& h, disk_data_) {
-      ds << h.file_name;
-      ds << h.hash;
-      ds << h.file_size;
+    for (auto it=disk_data_.cbegin(); it!=disk_data_.cend(); it++) {
+      const HashTime& ht = it.value();
+
+      ds << ht.file_name;
+      ds << it.key();
+      ds << ht.file_size;
+      ds << ht.access_time;
     }
 
     cache_index_file.close();

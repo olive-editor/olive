@@ -26,6 +26,8 @@
 
 namespace olive {
 
+class TransitionBlock;
+
 /**
  * @brief A Node that represents a block of time, also displayable on a Timeline
  */
@@ -45,76 +47,130 @@ public:
 
   virtual QVector<CategoryID> Category() const override;
 
-  const rational& in() const;
-  const rational& out() const;
-  void set_in(const rational& in);
-  void set_out(const rational& out);
+  const rational& in() const
+  {
+    return in_point_;
+  }
+
+  const rational& out() const
+  {
+    return out_point_;
+  }
+
+  void set_in(const rational& in)
+  {
+    in_point_ = in;
+  }
+
+  void set_out(const rational& out)
+  {
+    out_point_ = out;
+  }
 
   rational length() const;
   void set_length_and_media_out(const rational &length);
   void set_length_and_media_in(const rational &length);
 
-  TimeRange range() const;
+  TimeRange range() const
+  {
+    return TimeRange(in(), out());
+  }
 
-  Block* previous();
-  Block* next();
-  void set_previous(Block* previous);
-  void set_next(Block* next);
+  Block* previous() const
+  {
+    return previous_;
+  }
+
+  Block* next() const
+  {
+    return next_;
+  }
+
+  void set_previous(Block* previous)
+  {
+    previous_ = previous;
+  }
+
+  void set_next(Block* next)
+  {
+    next_ = next;
+  }
 
   rational media_in() const;
   void set_media_in(const rational& media_in);
 
+  Track* track() const
+  {
+    return track_;
+  }
+
+  void set_track(Track* track)
+  {
+    track_ = track;
+  }
+
   bool is_enabled() const;
   void set_enabled(bool e);
 
-  static bool Link(Block* a, Block* b);
-  static void Link(const QList<Block*>& blocks);
-  static bool Unlink(Block* a, Block* b);
-  static void Unlink(const QList<Block*>& blocks);
-  static bool AreLinked(Block* a, Block* b);
-  const QVector<Block*>& linked_clips();
-  bool HasLinks();
-
-  virtual bool IsBlock() const override;
-
   virtual void Retranslate() override;
 
-  NodeInput* length_input() const;
-  NodeInput* media_in_input() const;
-  NodeInput* speed_input() const;
+  TransitionBlock* in_transition()
+  {
+    return in_transition_;
+  }
 
-  virtual void Hash(QCryptographicHash &hash, const rational &time) const override;
+  void set_in_transition(TransitionBlock* t)
+  {
+    in_transition_ = t;
+  }
+
+  TransitionBlock* out_transition()
+  {
+    return out_transition_;
+  }
+
+  void set_out_transition(TransitionBlock* t)
+  {
+    out_transition_ = t;
+  }
+
+  int index() const
+  {
+    return index_;
+  }
+
+  void set_index(int i)
+  {
+    index_ = i;
+  }
+
+  const QVector<Block*>& block_links() const
+  {
+    return block_links_;
+  }
+
+  virtual void Hash(const QString& output, QCryptographicHash &hash, const rational &time) const override;
+
+  static const QString kLengthInput;
+  static const QString kMediaInInput;
+  static const QString kEnabledInput;
+  static const QString kSpeedInput;
 
 public slots:
 
 signals:
-  /**
-   * @brief Signal emitted when this Block is refreshed
-   *
-   * Can be used as essentially a "changed" signal for UI widgets to know when to update their views
-   */
-  void Refreshed();
-
-  void LengthChanged(const rational& length);
-
-  void LinksChanged();
-
   void EnabledChanged();
+
+  void LengthChanged();
 
 protected:
   rational SequenceToMediaTime(const rational& sequence_time) const;
 
   rational MediaToSequenceTime(const rational& media_time) const;
 
-  virtual void LoadInternal(QXmlStreamReader* reader, XMLNodeData& xml_node_data) override;
+  virtual void InputValueChangedEvent(const QString& input, int element) override;
 
-  virtual void SaveInternal(QXmlStreamWriter* writer) const override;
-
-  virtual QVector<NodeInput*> GetInputsToHash() const override;
-
-  virtual void LengthChangedEvent(const rational& old_length,
-                                  const rational& new_length,
-                                  const Timeline::MovementMode& mode);
+  virtual void LinkChangeEvent() override;
 
   Block* previous_;
   Block* next_;
@@ -122,18 +178,15 @@ protected:
 private:
   void set_length_internal(const rational &length);
 
-  NodeInput* length_input_;
-  NodeInput* media_in_input_;
-  NodeInput* speed_input_;
-  NodeInput* enabled_input_;
-
   rational in_point_;
   rational out_point_;
+  Track* track_;
+  int index_;
 
-  QVector<Block*> linked_clips_;
+  TransitionBlock* in_transition_;
+  TransitionBlock* out_transition_;
 
-private slots:
-  void LengthInputChanged();
+  QVector<Block*> block_links_;
 
 };
 

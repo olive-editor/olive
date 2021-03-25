@@ -21,7 +21,6 @@
 #include "widget/timelinewidget/timelinewidget.h"
 
 #include "node/block/transition/transition.h"
-#include "widget/nodeview/nodeviewundo.h"
 
 namespace olive {
 
@@ -38,6 +37,11 @@ TimelineTool::~TimelineTool()
 TimelineWidget *TimelineTool::parent()
 {
   return parent_;
+}
+
+Sequence *TimelineTool::sequence()
+{
+  return parent_->sequence();
 }
 
 Timeline::MovementMode TimelineTool::FlipTrimMode(const Timeline::MovementMode &trim_mode)
@@ -129,7 +133,7 @@ void TimelineTool::GetGhostData(rational *earliest_point, rational *latest_point
   }
 }
 
-void TimelineTool::InsertGapsAtGhostDestination(QUndoCommand *command)
+void TimelineTool::InsertGapsAtGhostDestination(olive::MultiUndoCommand *command)
 {
   rational earliest_point, latest_point;
 

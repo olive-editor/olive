@@ -64,13 +64,13 @@ FFmpegDecoder::~FFmpegDecoder()
 
 bool FFmpegDecoder::OpenInternal()
 {
-  if (instance_.Open(stream()->footage()->filename().toUtf8(), stream()->index())) {
+  if (instance_.Open(stream().filename().toUtf8(), stream().stream())) {
     AVStream* s = instance_.avstream();
 
     // Store one second in the source's timebase
     second_ts_ = qRound64(av_q2d(av_inv_q(s->time_base)));
 
-    if (stream()->type() == Stream::kVideo) {
+    if (s->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
       // Get an Olive compatible AVPixelFormat
       ideal_pix_fmt_ = FFmpegUtils::GetCompatiblePixelFormat(static_cast<AVPixelFormat>(s->codecpar->format));
 
@@ -92,20 +92,18 @@ bool FFmpegDecoder::OpenInternal()
   return false;
 }
 
-FramePtr FFmpegDecoder::RetrieveStillImage(const rational &timecode, const int &divider)
+/*FramePtr FFmpegDecoder::RetrieveStillImage(const rational &timecode, const int &divider)
 {
   // This is a still image
-  VideoStream* is = static_cast<VideoStream*>(stream());
-
-  QString img_filename = stream()->footage()->filename();
+  QString img_filename = stream().filename();
 
   int64_t ts;
 
   // If it's an image sequence, we'll probably need to transform the filename
-  if (is->video_type() == VideoStream::kVideoTypeImageSequence) {
-    ts = static_cast<VideoStream*>(stream())->get_time_in_timebase_units(timecode);
+  if (stream().GetStream().video_type() == Stream::kVideoTypeImageSequence) {
+    ts = stream().GetTimeInTimebaseUnits(timecode);
 
-    img_filename = TransformImageSequenceFileName(stream()->footage()->filename(), ts);
+    img_filename = TransformImageSequenceFileName(stream().filename(), ts);
   } else {
     ts = 0;
   }
@@ -115,19 +113,21 @@ FramePtr FFmpegDecoder::RetrieveStillImage(const rational &timecode, const int &
   FramePtr output_frame = nullptr;
 
   Instance i;
-  i.Open(img_filename.toUtf8(), stream()->index());
+  i.Open(img_filename.toUtf8(), stream().GetRealStreamIndex());
 
   int ret = i.GetFrame(pkt, frame);
 
   if (ret >= 0) {
+    VideoParams video_params = stream().video_params();
+
     // Create frame to return
     output_frame = Frame::Create();
     output_frame->set_video_params(VideoParams(frame->width,
                                                frame->height,
                                                native_pix_fmt_,
                                                native_channel_count_,
-                                               is->pixel_aspect_ratio(),
-                                               is->interlacing(),
+                                               video_params.pixel_aspect_ratio(),
+                                               video_params.interlacing(),
                                                divider));
     output_frame->set_timestamp(timecode);
     output_frame->allocate();
@@ -146,59 +146,48 @@ FramePtr FFmpegDecoder::RetrieveStillImage(const rational &timecode, const int &
   av_packet_free(&pkt);
 
   return output_frame;
-}
+}*/
 
 FramePtr FFmpegDecoder::RetrieveVideoInternal(const rational &timecode, const int &divider)
 {
-  VideoStream* vs = static_cast<VideoStream*>(stream());
-
   if (scale_divider_ != divider) {
     FreeScaler();
     InitScaler(divider);
   }
 
-  if (vs->video_type() == VideoStream::kVideoTypeStill
-      || vs->video_type() == VideoStream::kVideoTypeImageSequence) {
+  AVStream* s = instance_.avstream();
 
-    return RetrieveStillImage(timecode, divider);
+  int divided_width = VideoParams::GetScaledDimension(s->codecpar->width, divider);
+  int divided_height = VideoParams::GetScaledDimension(s->codecpar->height, divider);
 
-  } else {
+  if (pool_.width() != divided_width || pool_.height() != divided_height) {
+    // Clear all instance queues
+    ClearFrameCache();
 
-    int64_t target_ts = vs->get_time_in_timebase_units(timecode);
+    // Set new frame pool parameters
+    pool_.SetParameters(divided_width, divided_height, native_pix_fmt_, native_channel_count_);
+  }
 
-    int divided_width = VideoParams::GetScaledDimension(vs->width(), divider);
-    int divided_height = VideoParams::GetScaledDimension(vs->height(), divider);
+  // Retrieve frame
+  FFmpegFramePool::ElementPtr return_frame = RetrieveFrame(timecode, divider);
 
-    if (pool_.width() != divided_width || pool_.height() != divided_height) {
-      // Clear all instance queues
-      ClearFrameCache();
+  // We found the frame, we'll return a copy
+  if (return_frame) {
+    FramePtr copy = Frame::Create();
+    copy->set_video_params(VideoParams(s->codecpar->width,
+                                       s->codecpar->height,
+                                       native_pix_fmt_,
+                                       native_channel_count_,
+                                       av_guess_sample_aspect_ratio(instance_.fmt_ctx(), s, nullptr), // May be incorrect,
+                                       VideoParams::kInterlaceNone, // May be incorrect
+                                       divider));
+    copy->set_timestamp(timecode);
+    copy->allocate();
 
-      // Set new frame pool parameters
-      pool_.SetParameters(divided_width, divided_height, native_pix_fmt_, native_channel_count_);
-    }
+    // This data will already match the frame
+    memcpy(copy->data(), return_frame->data(), copy->allocated_size());
 
-    // Retrieve frame
-    FFmpegFramePool::ElementPtr return_frame = RetrieveFrame(target_ts, divider);
-
-    // We found the frame, we'll return a copy
-    if (return_frame) {
-      FramePtr copy = Frame::Create();
-      copy->set_video_params(VideoParams(vs->width(),
-                                         vs->height(),
-                                         native_pix_fmt_,
-                                         native_channel_count_,
-                                         vs->pixel_aspect_ratio(),
-                                         vs->interlacing(),
-                                         divider));
-      copy->set_timestamp(timecode);
-      copy->allocate();
-
-      // This data will already match the frame
-      memcpy(copy->data(), return_frame->data(), copy->allocated_size());
-
-      return copy;
-    }
-
+    return copy;
   }
 
   return nullptr;
@@ -213,22 +202,21 @@ void FFmpegDecoder::CloseInternal()
   FreeScaler();
 }
 
-QString FFmpegDecoder::id()
+QString FFmpegDecoder::id() const
 {
   return QStringLiteral("ffmpeg");
 }
 
-Footage *FFmpegDecoder::Probe(const QString& filename, const QAtomicInt* cancelled) const
+FootageDescription FFmpegDecoder::Probe(const QString &filename, const QAtomicInt *cancelled) const
 {
+  // Return value
+  FootageDescription desc(id());
+
   // Variable for receiving errors from FFmpeg
   int error_code;
 
-  // Result to return
-  Footage* footage = nullptr;
-
   // Convert QString to a C string
-  QByteArray ba = filename.toUtf8();
-  const char* filename_c = ba.constData();
+  QByteArray filename_c = filename.toUtf8();
 
   // Open file in a format context
   AVFormatContext* fmt_ctx = nullptr;
@@ -242,17 +230,14 @@ Footage *FFmpegDecoder::Probe(const QString& filename, const QAtomicInt* cancell
 
     int64_t footage_duration = fmt_ctx->duration;
 
-    QVector<Stream*> streams(fmt_ctx->nb_streams);
-
     // Dump it into the Footage object
     for (unsigned int i=0;i<fmt_ctx->nb_streams;i++) {
 
+      // FFmpeg AVStream
       AVStream* avstream = fmt_ctx->streams[i];
 
       // Find decoder for this stream, if it exists we can proceed
       AVCodec* decoder = avcodec_find_decoder(avstream->codecpar->codec_id);
-
-      Stream* str;
 
       if (decoder
           && (avstream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO
@@ -272,7 +257,7 @@ Footage *FFmpegDecoder::Probe(const QString& filename, const QAtomicInt* cancell
 
             {
               Instance instance;
-              instance.Open(filename.toUtf8(), avstream->index);
+              instance.Open(filename_c, avstream->index);
 
               // Read first frame and retrieve some metadata
               if (instance.GetFrame(pkt, frame) >= 0) {
@@ -330,47 +315,40 @@ Footage *FFmpegDecoder::Probe(const QString& filename, const QAtomicInt* cancell
             av_packet_free(&pkt);
           }
 
-          VideoStream* video_stream = new VideoStream();
-
-          if (image_is_still) {
-            video_stream->set_video_type(VideoStream::kVideoTypeStill);
-          } else {
-            video_stream->set_video_type(VideoStream::kVideoTypeVideo);
-
-            video_stream->set_frame_rate(frame_rate);
-            video_stream->set_start_time(avstream->start_time);
-          }
-
-          video_stream->set_width(avstream->codecpar->width);
-          video_stream->set_height(avstream->codecpar->height);
-          video_stream->set_interlacing(interlacing);
-          video_stream->set_pixel_aspect_ratio(pixel_aspect_ratio);
-
           AVPixelFormat compatible_pix_fmt = FFmpegUtils::GetCompatiblePixelFormat(static_cast<AVPixelFormat>(avstream->codecpar->format));
-          video_stream->set_format(GetNativePixelFormat(compatible_pix_fmt));
-          video_stream->set_channel_count(GetNativeChannelCount(compatible_pix_fmt));
 
-          str = video_stream;
+          VideoParams stream;
+          stream.set_stream_index(i);
+          stream.set_width(avstream->codecpar->width);
+          stream.set_height(avstream->codecpar->height);
+          stream.set_video_type((image_is_still) ? VideoParams::kVideoTypeStill : VideoParams::kVideoTypeVideo);
+          stream.set_format(GetNativePixelFormat(compatible_pix_fmt));
+          stream.set_channel_count(GetNativeChannelCount(compatible_pix_fmt));
+          stream.set_interlacing(interlacing);
+          stream.set_pixel_aspect_ratio(pixel_aspect_ratio);
+          stream.set_frame_rate(frame_rate);
+          stream.set_start_time(avstream->start_time);
+          stream.set_time_base(avstream->time_base);
+          stream.set_duration(avstream->duration);
+
+          // Defaults to false, requires user intervention if incorrect
+          stream.set_premultiplied_alpha(false);
+
+          desc.AddVideoStream(stream);
 
         } else {
 
           // Create an audio stream object
-          AudioStream* audio_stream = new AudioStream();
-
           uint64_t channel_layout = avstream->codecpar->channel_layout;
           if (!channel_layout) {
             channel_layout = static_cast<uint64_t>(av_get_default_channel_layout(avstream->codecpar->channels));
           }
 
-          audio_stream->set_channel_layout(channel_layout);
-          audio_stream->set_channels(avstream->codecpar->channels);
-          audio_stream->set_sample_rate(avstream->codecpar->sample_rate);
-
           if (avstream->duration == AV_NOPTS_VALUE) {
             // Loop through stream until we get the whole duration
             if (footage_duration == AV_NOPTS_VALUE) {
               Instance instance;
-              instance.Open(filename.toUtf8(), avstream->index);
+              instance.Open(filename_c, avstream->index);
 
               AVPacket* pkt = av_packet_alloc();
               AVFrame* frame = av_frame_alloc();
@@ -394,67 +372,27 @@ Footage *FFmpegDecoder::Probe(const QString& filename, const QAtomicInt* cancell
             }
           }
 
-          str = audio_stream;
+          AudioParams stream;
+          stream.set_stream_index(i);
+          stream.set_channel_layout(channel_layout);
+          stream.set_sample_rate(avstream->codecpar->sample_rate);
+          stream.set_format(AudioParams::kInternalFormat);
+          stream.set_time_base(avstream->time_base);
+          stream.set_duration(avstream->duration);
+          desc.AddAudioStream(stream);
 
-        }
-
-      } else {
-
-        // This is data we can't utilize at the moment, but we make a Stream object anyway to keep parity with the file
-        str = new Stream();
-
-        // Set the correct codec type based on FFmpeg's result
-        switch (avstream->codecpar->codec_type) {
-        case AVMEDIA_TYPE_UNKNOWN:
-          str->set_type(Stream::kUnknown);
-          break;
-        case AVMEDIA_TYPE_DATA:
-          str->set_type(Stream::kData);
-          break;
-        case AVMEDIA_TYPE_SUBTITLE:
-          str->set_type(Stream::kSubtitle);
-          break;
-        case AVMEDIA_TYPE_ATTACHMENT:
-          str->set_type(Stream::kAttachment);
-          break;
-        default:
-          // Fallback to an unknown stream
-          str->set_type(Stream::kUnknown);
-          break;
         }
 
       }
 
-      str->set_index(avstream->index);
-      str->set_timebase(avstream->time_base);
-      str->set_duration(avstream->duration);
-
-      streams[i] = str;
     }
 
-    // Check if we could pick up any streams in this file
-    bool found_valid_streams = false;
-
-    foreach (Stream* stream, streams) {
-      if (stream->type() != Stream::kUnknown) {
-        found_valid_streams = true;
-        break;
-      }
-    }
-
-    if (found_valid_streams) {
-      // We actually have footage we can return instead of nullptr
-      footage = new Footage();
-
-      // Add streams
-      footage->add_streams(streams);
-    }
   }
 
   // Free all memory
   avformat_close_input(&fmt_ctx);
 
-  return footage;
+  return desc;
 }
 
 QString FFmpegDecoder::FFmpegError(int error_code)
@@ -547,7 +485,7 @@ bool FFmpegDecoder::ConformAudioInternal(const QString &filename, const AudioPar
         delete [] data;
       }
 
-      SignalProcessingProgress(frame->pts);
+      SignalProcessingProgress(frame->pts, instance_.avstream()->duration);
     }
 
     wave_out.close();
@@ -675,27 +613,30 @@ void FFmpegDecoder::ClearFrameCache()
   cache_at_zero_ = false;
 }
 
-FFmpegFramePool::ElementPtr FFmpegDecoder::RetrieveFrame(const int64_t& target_ts, int divider)
+FFmpegFramePool::ElementPtr FFmpegDecoder::RetrieveFrame(const rational& time, int divider)
 {
+  int64_t target_ts = GetTimeInTimebaseUnits(time, instance_.avstream()->time_base, instance_.avstream()->start_time);
   int64_t seek_ts = target_ts;
   bool still_seeking = false;
 
-  // If the frame wasn't in the frame cache, see if this frame cache is too old to use
-  if (cached_frames_.isEmpty()
-      || (target_ts < cached_frames_.first()->timestamp() || target_ts > cached_frames_.last()->timestamp() + 2*second_ts_)) {
-    ClearFrameCache();
+  if (time != kAnyTimecode) {
+    // If the frame wasn't in the frame cache, see if this frame cache is too old to use
+    if (cached_frames_.isEmpty()
+        || (target_ts < cached_frames_.first()->timestamp() || target_ts > cached_frames_.last()->timestamp() + 2*second_ts_)) {
+      ClearFrameCache();
 
-    instance_.Seek(seek_ts);
-    if (seek_ts == 0) {
-      cache_at_zero_ = true;
-    }
+      instance_.Seek(seek_ts);
+      if (seek_ts == 0) {
+        cache_at_zero_ = true;
+      }
 
-    still_seeking = true;
-  } else {
-    // Search cache for frame
-    FFmpegFramePool::ElementPtr cached_frame = GetFrameFromCache(target_ts);
-    if (cached_frame) {
-      return cached_frame;
+      still_seeking = true;
+    } else {
+      // Search cache for frame
+      FFmpegFramePool::ElementPtr cached_frame = GetFrameFromCache(target_ts);
+      if (cached_frame) {
+        return cached_frame;
+      }
     }
   }
 
@@ -784,7 +725,7 @@ FFmpegFramePool::ElementPtr FFmpegDecoder::RetrieveFrame(const int64_t& target_t
       cached_frames_.append(cached);
 
       // If this is a valid frame, see if this or the frame before it are the one we need
-      if (cached->timestamp() == target_ts) {
+      if (cached->timestamp() == target_ts || time == kAnyTimecode) {
         return_frame = cached;
         break;
       } else if (cached->timestamp() > target_ts) {
@@ -807,13 +748,14 @@ FFmpegFramePool::ElementPtr FFmpegDecoder::RetrieveFrame(const int64_t& target_t
 
 void FFmpegDecoder::InitScaler(int divider)
 {
-  VideoStream* vs = static_cast<VideoStream*>(stream());
+  int src_width = instance_.avstream()->codecpar->width;
+  int src_height = instance_.avstream()->codecpar->height;
 
-  int scaled_width = VideoParams::GetScaledDimension(vs->width(), divider);
-  int scaled_height = VideoParams::GetScaledDimension(vs->height(), divider);
+  int scaled_width = VideoParams::GetScaledDimension(src_width, divider);
+  int scaled_height = VideoParams::GetScaledDimension(src_height, divider);
 
-  scale_ctx_ = sws_getContext(vs->width(),
-                              vs->height(),
+  scale_ctx_ = sws_getContext(src_width,
+                              src_height,
                               static_cast<AVPixelFormat>(instance_.avstream()->codecpar->format),
                               scaled_width,
                               scaled_height,

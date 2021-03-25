@@ -62,7 +62,7 @@ public:
   QString GetCacheDirectory() const;
 
 public slots:
-  void Invalidate(const TimeRange& r);
+  void Invalidate(const TimeRange& r, qint64 job_time);
 
   void InvalidateAll();
 

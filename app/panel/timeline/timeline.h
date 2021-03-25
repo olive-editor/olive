@@ -83,9 +83,11 @@ public:
 
   virtual void ToggleSelectedEnabled() override;
 
-  void InsertFootageAtPlayhead(const QList<Footage *> &footage);
+  virtual void SetColorLabel(int index) override;
 
-  void OverwriteFootageAtPlayhead(const QList<Footage *> &footage);
+  void InsertFootageAtPlayhead(const QVector<Footage *> &footage);
+
+  void OverwriteFootageAtPlayhead(const QVector<Footage *> &footage);
 
 protected:
   virtual void Retranslate() override;

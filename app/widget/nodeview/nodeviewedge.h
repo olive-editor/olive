@@ -24,10 +24,12 @@
 #include <QGraphicsPathItem>
 #include <QPalette>
 
-#include "node/edge.h"
 #include "nodeviewcommon.h"
+#include "node/node.h"
 
 namespace olive {
+
+class NodeViewItem;
 
 /**
  * @brief A graphical representation of a NodeEdge to be used in NodeView
@@ -37,27 +39,37 @@ namespace olive {
 class NodeViewEdge : public QGraphicsPathItem
 {
 public:
+  NodeViewEdge(const NodeOutput& output, const NodeInput& input,
+               NodeViewItem* from_item, NodeViewItem* to_item,
+               QGraphicsItem* parent = nullptr);
+
   NodeViewEdge(QGraphicsItem* parent = nullptr);
 
-  /**
-   * @brief Set the edge that this item corresponds to
-   *
-   * This can be changed at any time (but under most circumstances won't be). Calling this will automatically call
-   * Adjust() to move this item into the correct position.
-   */
-  void SetEdge(NodeEdgePtr edge);
-  NodeEdgePtr edge();
+  const NodeOutput& output() const
+  {
+    return output_;
+  }
 
-  /**
-   * @brief Moves/updates this line to visually connect between the two corresponding NodeViewItems
-   *
-   * Using the attached edge (see SetEdge()), this function retrieves the NodeViewItems representing the two nodes
-   * that this edge connects. It uses their positions to determine where the line should visually connect and sets
-   * it accordingly.
-   *
-   * This should be set any time the NodeEdge changes (see SetEdge()), and any time the nodes move in the NodeGraph
-   * (see NodeView::ItemsChanged()). This will keep the nodes visually connected at all times.
-   */
+  const NodeInput& input() const
+  {
+    return input_;
+  }
+
+  int element() const
+  {
+    return element_;
+  }
+
+  NodeViewItem* from_item() const
+  {
+    return from_item_;
+  }
+
+  NodeViewItem* to_item() const
+  {
+    return to_item_;
+  }
+
   void Adjust();
 
   /**
@@ -98,7 +110,17 @@ protected:
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
 private:
-  NodeEdgePtr edge_;
+  void Init();
+
+  NodeOutput output_;
+
+  NodeInput input_;
+
+  int element_;
+
+  NodeViewItem* from_item_;
+
+  NodeViewItem* to_item_;
 
   int edge_width_;
 

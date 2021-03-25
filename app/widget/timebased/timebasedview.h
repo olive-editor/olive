@@ -38,7 +38,7 @@ public:
 
   static const double kMaximumScale;
 
-  void EnableSnap(const QList<rational>& points);
+  void EnableSnap(const QVector<rational> &points);
   void DisableSnap();
   bool IsSnapped() const
   {
@@ -49,6 +49,13 @@ public:
 
   const double& GetYScale() const;
   void SetYScale(const double& y_scale);
+
+  static bool WheelEventIsAZoomEvent(QWheelEvent* event);
+
+  bool IsDraggingPlayhead() const
+  {
+    return dragging_playhead_;
+  }
 
 public slots:
   void SetTime(const int64_t time);
@@ -72,8 +79,6 @@ protected:
   virtual void VerticalScaleChangedEvent(double scale);
 
   bool HandleZoomFromScroll(QWheelEvent* event);
-
-  bool WheelEventIsAZoomEvent(QWheelEvent* event);
 
   rational GetPlayheadTime() const;
 
@@ -106,7 +111,7 @@ private:
   QGraphicsScene scene_;
 
   bool snapped_;
-  QList<rational> snap_time_;
+  QVector<rational> snap_time_;
 
   rational end_time_;
 

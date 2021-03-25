@@ -60,7 +60,7 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual NodeValueTable Value(NodeValueDatabase& value) const override;
+  virtual NodeValueTable Value(const QString& output, NodeValueDatabase& value) const override;
 
   virtual ShaderCode GetShaderCode(const QString &shader_id) const override;
 
@@ -75,15 +75,15 @@ public:
   virtual void GizmoMove(const QPointF &p, const rational &time) override;
   virtual void GizmoRelease() override;
 
+  static const QString kTextureInput;
+  static const QString kLeftInput;
+  static const QString kTopInput;
+  static const QString kRightInput;
+  static const QString kBottomInput;
+  static const QString kFeatherInput;
+
 private:
-  NodeInput* texture_input_;
-
-  NodeInput* left_input_;
-  NodeInput* top_input_;
-  NodeInput* right_input_;
-  NodeInput* bottom_input_;
-
-  NodeInput* feather_input_;
+  void CreateCropSideInput(const QString& id);
 
   // Gizmo variables
   QRectF gizmo_resize_handle_[kGizmoScaleCount];

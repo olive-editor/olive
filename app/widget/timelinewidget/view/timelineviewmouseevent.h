@@ -26,6 +26,7 @@
 #include <QPoint>
 
 #include "timeline/timelinecoordinate.h"
+#include "widget/timebased/timescaledobject.h"
 
 namespace olive {
 
@@ -35,12 +36,29 @@ public:
   TimelineViewMouseEvent(const qreal& scene_x,
                          const double& scale_x,
                          const rational& timebase,
-                         const TrackReference &track,
+                         const Track::Reference &track,
                          const Qt::MouseButton &button,
-                         const Qt::KeyboardModifiers& modifiers = Qt::NoModifier);
+                         const Qt::KeyboardModifiers& modifiers = Qt::NoModifier) :
+    scene_x_(scene_x),
+    scale_x_(scale_x),
+    timebase_(timebase),
+    track_(track),
+    button_(button),
+    modifiers_(modifiers),
+    source_event_(nullptr),
+    mime_data_(nullptr)
+  {
+  }
 
-  TimelineCoordinate GetCoordinates(bool round_time = false) const;
-  const Qt::KeyboardModifiers& GetModifiers() const;
+  TimelineCoordinate GetCoordinates(bool round_time = false) const
+  {
+    return TimelineCoordinate(GetFrame(round_time), track_);
+  }
+
+  const Qt::KeyboardModifiers& GetModifiers() const
+  {
+    return modifiers_;
+  }
 
   /**
    * @brief Gets the time at this cursor point
@@ -51,28 +69,59 @@ public:
    * always to the left of the cursor. The former behavior is better for clicking between frames (e.g. razor tool) and
    * the latter is better for clicking directly on frames (e.g. pointer tool).
    */
-  rational GetFrame(bool round = false) const;
+  rational GetFrame(bool round = false) const
+  {
+    return TimeScaledObject::SceneToTime(scene_x_, scale_x_, timebase_, round);
+  }
 
-  const TrackReference& GetTrack() const;
+  const Track::Reference& GetTrack() const
+  {
+    return track_;
+  }
 
-  const QMimeData *GetMimeData();
-  void SetMimeData(const QMimeData *data);
+  const QMimeData *GetMimeData()
+  {
+    return mime_data_;
+  }
 
-  void SetEvent(QEvent* event);
+  void SetMimeData(const QMimeData *data)
+  {
+    mime_data_ = data;
+  }
 
-  const qreal& GetSceneX() const;
+  void SetEvent(QEvent* event)
+  {
+    source_event_ = event;
+  }
 
-  const Qt::MouseButton& GetButton() const;
+  const qreal& GetSceneX() const
+  {
+    return scene_x_;
+  }
 
-  void accept();
-  void ignore();
+  const Qt::MouseButton& GetButton() const
+  {
+    return button_;
+  }
+
+  void accept()
+  {
+    if (source_event_ != nullptr)
+      source_event_->accept();
+  }
+
+  void ignore()
+  {
+    if (source_event_ != nullptr)
+      source_event_->ignore();
+  }
 
 private:
   qreal scene_x_;
   double scale_x_;
   rational timebase_;
 
-  TrackReference track_;
+  Track::Reference track_;
 
   Qt::MouseButton button_;
 

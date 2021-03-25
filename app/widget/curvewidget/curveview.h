@@ -38,16 +38,24 @@ public:
 
   virtual void Clear() override;
 
-  void ConnectInput(NodeInput* input);
+  void ConnectInput(const NodeKeyframeTrackReference &ref);
 
-  void DisconnectNode(Node* node);
+  void DisconnectInput(const NodeKeyframeTrackReference &ref);
 
-  void DisconnectInput(NodeInput* input);
+  void SelectKeyframesOfInput(const NodeKeyframeTrackReference &ref);
+
+  void ZoomToFitInput(const NodeKeyframeTrackReference &ref);
+
+  void SetKeyframeTrackColor(const NodeKeyframeTrackReference& ref, const QColor& color);
 
 public slots:
-  void AddKeyframe(NodeKeyframePtr key);
+  virtual KeyframeViewItem* AddKeyframe(NodeKeyframe* key) override;
 
   void ZoomToFit();
+
+  void ZoomToFitSelected();
+
+  void ResetZoom();
 
 protected:
   virtual void drawBackground(QPainter* painter, const QRectF& rect) override;
@@ -63,6 +71,8 @@ protected:
   virtual void ContextMenuEvent(Menu &m) override;
 
 private:
+  void ZoomToFitInternal(const QList<NodeKeyframe *> &keys);
+
   qreal GetItemYFromKeyframeValue(NodeKeyframe* key);
   qreal GetItemYFromKeyframeValue(double value);
 
@@ -74,17 +84,17 @@ private:
 
   void CreateBezierControlPoints(KeyframeViewItem *item);
 
-  QMap<const NodeInput::KeyframeTrack*, QColor> keyframe_colors_;
+  QHash<NodeKeyframeTrackReference, QColor> keyframe_colors_;
 
   int text_padding_;
 
   int minimum_grid_space_;
 
-  QList<QGraphicsLineItem*> lines_;
+  QVector<QGraphicsLineItem*> lines_;
 
-  QList<BezierControlPointItem*> bezier_control_points_;
+  QVector<BezierControlPointItem*> bezier_control_points_;
 
-  QList<NodeInput*> connected_inputs_;
+  QVector<NodeKeyframeTrackReference> connected_inputs_;
 
 private slots:
   void KeyframeValueChanged();

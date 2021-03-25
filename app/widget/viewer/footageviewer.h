@@ -21,7 +21,6 @@
 #ifndef FOOTAGEVIEWERWIDGET_H
 #define FOOTAGEVIEWERWIDGET_H
 
-#include "node/input/media/media.h"
 #include "node/output/viewer/viewer.h"
 #include "viewer.h"
 
@@ -44,13 +43,9 @@ protected:
 private:
   void StartFootageDragInternal(bool enable_video, bool enable_audio);
 
+  void TryConnectingType(ViewerOutput *viewer, Footage* footage, Stream::Type type);
+
   Footage* footage_;
-
-  Sequence sequence_;
-
-  MediaInput* video_node_;
-
-  MediaInput* audio_node_;
 
   QHash<Footage*, int64_t> cached_timestamps_;
 

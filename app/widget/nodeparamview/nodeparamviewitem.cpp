@@ -25,11 +25,16 @@
 #include <QEvent>
 #include <QPainter>
 
+#include "common/qtutils.h"
 #include "core.h"
 #include "nodeparamviewundo.h"
 #include "project/item/sequence/sequence.h"
 
 namespace olive {
+
+const int NodeParamViewItemBody::kKeyControlColumn = 10;
+const int NodeParamViewItemBody::kArrayInsertColumn = kKeyControlColumn-1;
+const int NodeParamViewItemBody::kArrayRemoveColumn = kArrayInsertColumn-1;
 
 NodeParamViewItem::NodeParamViewItem(Node *node, QWidget *parent) :
   QDockWidget(parent),
@@ -43,31 +48,14 @@ NodeParamViewItem::NodeParamViewItem(Node *node, QWidget *parent) :
   this->setTitleBarWidget(title_bar_);
 
   // Create and add contents widget
-  QVector<NodeInput*> inputs;
-
-  // Filter out inputs
-  foreach (NodeParam* p, node->parameters()) {
-    if (p->type() == NodeParam::kInput) {
-      inputs.append(static_cast<NodeInput*>(p));
-    }
-  }
-
-  body_ = new NodeParamViewItemBody(inputs);
-  connect(body_, &NodeParamViewItemBody::InputDoubleClicked, this, &NodeParamViewItem::InputDoubleClicked);
+  body_ = new NodeParamViewItemBody(node_);
   connect(body_, &NodeParamViewItemBody::RequestSelectNode, this, &NodeParamViewItem::RequestSelectNode);
   connect(body_, &NodeParamViewItemBody::RequestSetTime, this, &NodeParamViewItem::RequestSetTime);
-  connect(body_, &NodeParamViewItemBody::KeyframeAdded, this, &NodeParamViewItem::KeyframeAdded);
-  connect(body_, &NodeParamViewItemBody::KeyframeRemoved, this, &NodeParamViewItem::KeyframeRemoved);
+  connect(body_, &NodeParamViewItemBody::ArrayExpandedChanged, this, &NodeParamViewItem::ArrayExpandedChanged);
   connect(title_bar_, &NodeParamViewItemTitleBar::ExpandedStateChanged, this, &NodeParamViewItem::SetExpanded);
   connect(title_bar_, &NodeParamViewItemTitleBar::PinToggled, this, &NodeParamViewItem::PinToggled);
 
-  QWidget* body_container = new QWidget();
-  body_container->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
-  QHBoxLayout* body_container_layout = new QHBoxLayout(body_container);
-  body_container_layout->setSpacing(0);
-  body_container_layout->setMargin(0);
-  body_container_layout->addWidget(body_);
-  this->setWidget(body_container);
+  this->setWidget(body_);
 
   connect(node_, &Node::LabelChanged, this, &NodeParamViewItem::Retranslate);
 
@@ -96,11 +84,6 @@ void NodeParamViewItem::SetTime(const rational &time)
 Node *NodeParamViewItem::GetNode() const
 {
   return node_;
-}
-
-void NodeParamViewItem::SignalAllKeyframes()
-{
-  body_->SignalAllKeyframes();
 }
 
 void NodeParamViewItem::changeEvent(QEvent *e)
@@ -142,11 +125,23 @@ void NodeParamViewItem::SetExpanded(bool e)
 {
   body_->setVisible(e);
   title_bar_->SetExpanded(e);
+
+  emit ExpandedChanged(e);
 }
 
 bool NodeParamViewItem::IsExpanded() const
 {
   return body_->isVisible();
+}
+
+int NodeParamViewItem::GetElementY(const NodeInput &c) const
+{
+  if (IsExpanded()) {
+    return body_->GetElementY(c);
+  } else {
+    // Not expanded, put keyframes at the titlebar Y
+    return mapToGlobal(title_bar_->rect().center()).y();
+  }
 }
 
 void NodeParamViewItem::ToggleExpanded()
@@ -206,99 +201,130 @@ void NodeParamViewItemTitleBar::mouseDoubleClickEvent(QMouseEvent *event)
   collapse_btn_->click();
 }
 
-NodeParamViewItemBody::NodeParamViewItemBody(const QVector<NodeInput *> &inputs, QWidget *parent) :
+NodeParamViewItemBody::NodeParamViewItemBody(Node* node, QWidget *parent) :
   QWidget(parent)
 {
-  int row_count = 0;
+  QGridLayout* root_layout = new QGridLayout(this);
 
-  const int max_col = 10;
+  int insert_row = 0;
 
-  QGridLayout* content_layout = new QGridLayout(this);
+  // Create widgets all root level components
+  foreach (const QString& input, node->inputs()) {
+    CreateWidgets(root_layout, node, input, -1, insert_row);
 
-  foreach (NodeInput* input, inputs) {
-    InputUI ui_objects;
+    insert_row++;
 
-    // Add descriptor label
-    ui_objects.main_label = new ClickableLabel();
-    connect(ui_objects.main_label, &ClickableLabel::MouseDoubleClicked, this, &NodeParamViewItemBody::LabelDoubleClicked);
+    if (node->InputIsArray(input)) {
+      // Insert here
+      QWidget* array_widget = new QWidget();
 
-    if (input->IsArray()) {
-      QHBoxLayout* array_label_layout = new QHBoxLayout();
-      array_label_layout->setMargin(0);
+      QGridLayout* array_layout = new QGridLayout(array_widget);
+      array_layout->setContentsMargins(QtUtils::QFontMetricsWidth(fontMetrics(), QStringLiteral("    ")), 0, 0, 0);
 
+      root_layout->addWidget(array_widget, insert_row, 1, 1, 10);
+
+      int arr_sz = node->InputArraySize(input);
+      for (int j=0; j<arr_sz; j++) {
+        CreateWidgets(array_layout, node, input, j, j);
+      }
+
+      // Add one last add button for appending to the array
+      NodeParamViewArrayButton* append_btn = new NodeParamViewArrayButton(NodeParamViewArrayButton::kAdd);
+      connect(append_btn, &NodeParamViewArrayButton::clicked, this, &NodeParamViewItemBody::ArrayAppendClicked);
+      array_layout->addWidget(append_btn, arr_sz, kArrayInsertColumn);
+
+      array_widget->setVisible(false);
+
+      array_ui_.insert({node, input}, {array_widget, arr_sz, append_btn});
+
+      insert_row++;
+    }
+  }
+
+  connect(node, &Node::InputArraySizeChanged, this, &NodeParamViewItemBody::InputArraySizeChanged);
+  connect(node, &Node::InputConnected, this, &NodeParamViewItemBody::EdgeChanged);
+  connect(node, &Node::InputDisconnected, this, &NodeParamViewItemBody::EdgeChanged);
+}
+
+void NodeParamViewItemBody::CreateWidgets(QGridLayout* layout, Node *node, const QString &input, int element, int row)
+{
+  NodeInput input_ref(node, input, element);
+
+  InputUI ui_objects;
+
+  // Add descriptor label
+  ui_objects.main_label = new QLabel();
+
+  // Label always goes into column 1 (array collapse button goes into 0 if applicable)
+  layout->addWidget(ui_objects.main_label, row, 1);
+
+  if (node->InputIsArray(input)) {
+    if (element == -1) {
+
+      // Create a collapse toggle for expanding/collapsing the array
       CollapseButton* array_collapse_btn = new CollapseButton();
 
-      array_label_layout->addWidget(array_collapse_btn);
-      array_label_layout->addWidget(ui_objects.main_label);
+      // Default to collapsed
+      array_collapse_btn->setChecked(false);
 
-      content_layout->addLayout(array_label_layout, row_count, 0);
+      // Collapse button always goes into column 0
+      layout->addWidget(array_collapse_btn, row, 0);
 
-      NodeParamViewItemBody* sub_body = new NodeParamViewItemBody(static_cast<NodeInputArray*>(input)->sub_params());
-      sub_bodies_.append(sub_body);
-      sub_body->layout()->setMargin(0);
-      content_layout->addWidget(sub_body, row_count + 1, 0, 1, max_col + 1);
+      // Connect signal to show/hide array params when toggled
+      connect(array_collapse_btn, &CollapseButton::toggled, this, &NodeParamViewItemBody::ArrayCollapseBtnPressed);
 
-      connect(array_collapse_btn, &CollapseButton::toggled, sub_body, &NodeParamViewItemBody::setVisible);
+      array_collapse_buttons_.insert({node, input}, array_collapse_btn);
 
-      connect(sub_body, &NodeParamViewItemBody::KeyframeAdded, this, &NodeParamViewItemBody::KeyframeAdded);
-      connect(sub_body, &NodeParamViewItemBody::KeyframeRemoved, this, &NodeParamViewItemBody::KeyframeRemoved);
-      connect(sub_body, &NodeParamViewItemBody::RequestSetTime, this, &NodeParamViewItemBody::RequestSetTime);
-      connect(sub_body, &NodeParamViewItemBody::InputDoubleClicked, this, &NodeParamViewItemBody::InputDoubleClicked);
-      connect(sub_body, &NodeParamViewItemBody::RequestSelectNode, this, &NodeParamViewItemBody::RequestSelectNode);
     } else {
-      content_layout->addWidget(ui_objects.main_label, row_count, 0);
+
+      NodeParamViewArrayButton* insert_element_btn = new NodeParamViewArrayButton(NodeParamViewArrayButton::kAdd);
+      NodeParamViewArrayButton* remove_element_btn = new NodeParamViewArrayButton(NodeParamViewArrayButton::kRemove);
+
+      layout->addWidget(insert_element_btn, row, kArrayInsertColumn);
+      layout->addWidget(remove_element_btn, row, kArrayRemoveColumn);
+
+      ui_objects.array_insert_btn = insert_element_btn;
+      ui_objects.array_remove_btn = remove_element_btn;
+
+      connect(insert_element_btn, &NodeParamViewArrayButton::clicked, this, &NodeParamViewItemBody::ArrayInsertClicked);
+      connect(remove_element_btn, &NodeParamViewArrayButton::clicked, this, &NodeParamViewItemBody::ArrayRemoveClicked);
+
     }
+  }
 
-    // Create a widget/input bridge for this input
-    ui_objects.widget_bridge = new NodeParamViewWidgetBridge(input, this);
+  // Create a widget/input bridge for this input
+  ui_objects.widget_bridge = new NodeParamViewWidgetBridge(NodeInput(node, input, element), this);
+  connect(ui_objects.widget_bridge, &NodeParamViewWidgetBridge::ArrayWidgetDoubleClicked, this, &NodeParamViewItemBody::ToggleArrayExpanded);
 
-    // Add widgets for this parameter to the layout
-    {
-      int column = 1;
-      foreach (QWidget* w, ui_objects.widget_bridge->widgets()) {
-        content_layout->addWidget(w, row_count, column);
-        column++;
-      }
-    }
+  // 0 is for the array collapse button, 1 is for the main label, widgets start at 2
+  const int widget_start = 2;
 
-    if (input->is_connectable()) {
-      // Create clickable label used when an input is connected
-      ui_objects.connected_label = new NodeParamViewConnectedLabel(input);
-      connect(ui_objects.connected_label, &NodeParamViewConnectedLabel::ConnectionClicked, this, &NodeParamViewItemBody::ConnectionClicked);
-      content_layout->addWidget(ui_objects.connected_label, row_count, 1);
+  // Add widgets for this parameter to the layout
+  for (int i=0; i<ui_objects.widget_bridge->widgets().size(); i++) {
+    QWidget* w = ui_objects.widget_bridge->widgets().at(i);
 
-      connect(input, &NodeInput::EdgeAdded, this, &NodeParamViewItemBody::EdgeChanged);
-      connect(input, &NodeInput::EdgeRemoved, this, &NodeParamViewItemBody::EdgeChanged);
-    }
+    layout->addWidget(w, row, i+widget_start);
+  }
 
-    // Add keyframe control to this layout if parameter is keyframable
-    if (input->is_keyframable()) {
-      // Hacky but effective way to make sure this widget is always as far right as possible
-      int control_column = max_col;
+  if (node->IsInputConnectable(input)) {
+    // Create clickable label used when an input is connected
+    ui_objects.connected_label = new NodeParamViewConnectedLabel(input_ref);
+    connect(ui_objects.connected_label, &NodeParamViewConnectedLabel::RequestSelectNode, this, &NodeParamViewItemBody::RequestSelectNode);
+    layout->addWidget(ui_objects.connected_label, row, widget_start);
+  }
 
-      ui_objects.key_control = new NodeParamViewKeyframeControl();
-      ui_objects.key_control->SetInput(input);
-      content_layout->addWidget(ui_objects.key_control, row_count, control_column);
-      connect(ui_objects.key_control, &NodeParamViewKeyframeControl::RequestSetTime, this, &NodeParamViewItemBody::RequestSetTime);
+  // Add keyframe control to this layout if parameter is keyframable
+  if (node->IsInputKeyframable(input)) {
+    ui_objects.key_control = new NodeParamViewKeyframeControl();
+    ui_objects.key_control->SetInput(input_ref);
+    layout->addWidget(ui_objects.key_control, row, kKeyControlColumn);
+    connect(ui_objects.key_control, &NodeParamViewKeyframeControl::RequestSetTime, this, &NodeParamViewItemBody::RequestSetTime);
+  }
 
-      connect(input, &NodeInput::KeyframeEnableChanged, this, &NodeParamViewItemBody::InputKeyframeEnableChanged);
-      connect(input, &NodeInput::KeyframeAdded, this, &NodeParamViewItemBody::InputAddedKeyframe);
-      connect(input, &NodeInput::KeyframeRemoved, this, &NodeParamViewItemBody::KeyframeRemoved);
-    }
+  input_ui_map_.insert(input_ref, ui_objects);
 
-    input_ui_map_.insert(input, ui_objects);
-
-    // Update "connected" label
-    if (input->is_connectable()) {
-      UpdateUIForEdgeConnection(input);
-    }
-
-    row_count++;
-
-    // If the row count is an array, we put an extra body widget in the next row so we skip over it here
-    if (input->IsArray()) {
-      row_count++;
-    }
+  if (node->IsInputConnectable(input)) {
+    UpdateUIForEdgeConnection(input_ref);
   }
 }
 
@@ -312,10 +338,6 @@ void NodeParamViewItemBody::SetTimeTarget(Node *target)
 
     ui_obj.widget_bridge->SetTimeTarget(target);
   }
-
-  foreach (NodeParamViewItemBody* sb, sub_bodies_) {
-    sb->SetTimeTarget(target);
-  }
 }
 
 void NodeParamViewItemBody::SetTime(const rational &time)
@@ -328,119 +350,32 @@ void NodeParamViewItemBody::SetTime(const rational &time)
 
     ui_obj.widget_bridge->SetTime(time);
   }
-
-  foreach (NodeParamViewItemBody* sb, sub_bodies_) {
-    sb->SetTime(time);
-  }
 }
 
 void NodeParamViewItemBody::Retranslate()
 {
-  QMap<NodeInput*, InputUI>::const_iterator i;
+  for (auto i=input_ui_map_.begin(); i!=input_ui_map_.end(); i++) {
+    const NodeInput& ic = i.key();
 
-  for (i=input_ui_map_.begin(); i!=input_ui_map_.end(); i++) {
-    i.value().main_label->setText(tr("%1:").arg(i.key()->name()));
-  }
-
-  foreach (NodeParamViewItemBody* sb, sub_bodies_) {
-    sb->Retranslate();
-  }
-}
-
-void NodeParamViewItemBody::SignalAllKeyframes()
-{
-  QMap<NodeInput*, InputUI>::const_iterator i;
-
-  for (i=input_ui_map_.begin(); i!=input_ui_map_.end(); i++) {
-    NodeInput* input = i.key();
-
-    foreach (const NodeInput::KeyframeTrack& track, input->keyframe_tracks()) {
-      foreach (NodeKeyframePtr key, track) {
-        InputAddedKeyframeInternal(input, key);
-      }
-    }
-  }
-
-  foreach (NodeParamViewItemBody* sb, sub_bodies_) {
-    sb->SignalAllKeyframes();
-  }
-}
-
-void NodeParamViewItemBody::EdgeChanged()
-{
-  UpdateUIForEdgeConnection(static_cast<NodeInput*>(sender()));
-}
-
-void NodeParamViewItemBody::UpdateUIForEdgeConnection(NodeInput *input)
-{
-  // Show/hide bridge widgets
-  const InputUI& ui_objects = input_ui_map_[input];
-
-  foreach (QWidget* w, ui_objects.widget_bridge->widgets()) {
-    w->setVisible(!input->is_connected());
-  }
-
-  // Show/hide connection label
-  ui_objects.connected_label->setVisible(input->is_connected());
-}
-
-void NodeParamViewItemBody::InputKeyframeEnableChanged(bool e)
-{
-  NodeInput* input = static_cast<NodeInput*>(sender());
-
-  foreach (const NodeInput::KeyframeTrack& track, input->keyframe_tracks()) {
-    foreach (NodeKeyframePtr key, track) {
-      if (e) {
-        // Add a keyframe item for each keyframe
-        InputAddedKeyframeInternal(input, key);
-      } else {
-        // Remove each keyframe item
-        emit KeyframeRemoved(key);
-      }
+    if (ic.IsArray() && ic.element() >= 0) {
+      // Make the label the array index
+      i.value().main_label->setText(tr("%n:", nullptr, ic.element()));
+    } else {
+      // Set to the input's name
+      i.value().main_label->setText(tr("%1:").arg(ic.name()));
     }
   }
 }
 
-void NodeParamViewItemBody::InputAddedKeyframe(NodeKeyframePtr key)
+int NodeParamViewItemBody::GetElementY(NodeInput c) const
 {
-  // Get NodeInput that emitted this signal
-  NodeInput* input = static_cast<NodeInput*>(sender());
-
-  InputAddedKeyframeInternal(input, key);
-}
-
-void NodeParamViewItemBody::LabelDoubleClicked()
-{
-  QMap<NodeInput*, InputUI>::const_iterator iterator;
-
-  for (iterator=input_ui_map_.begin(); iterator!=input_ui_map_.end(); iterator++) {
-    if (iterator.value().main_label == sender()) {
-      emit InputDoubleClicked(iterator.key());
-      return;
-    }
+  if (c.IsArray() && !array_ui_.value(c.input_pair()).widget->isVisible()) {
+    // Array is collapsed, so we'll return the Y of its root
+    c.set_element(-1);
   }
-}
 
-void NodeParamViewItemBody::ConnectionClicked()
-{
-  QMap<NodeInput*, InputUI>::const_iterator iterator;
-  for (iterator=input_ui_map_.begin(); iterator!=input_ui_map_.end(); iterator++) {
-    if (iterator.value().connected_label == sender()) {
-      Node* connected = iterator.key()->get_connected_node();
-
-      if (connected) {
-        emit RequestSelectNode({connected});
-      }
-
-      return;
-    }
-  }
-}
-
-void NodeParamViewItemBody::InputAddedKeyframeInternal(NodeInput *input, NodeKeyframePtr keyframe)
-{
   // Find its row in the parameters
-  QLabel* lbl = input_ui_map_.value(input).main_label;
+  QLabel* lbl = input_ui_map_.value(c).main_label;
 
   // Find label's Y position
   QPoint lbl_center = lbl->rect().center();
@@ -448,14 +383,133 @@ void NodeParamViewItemBody::InputAddedKeyframeInternal(NodeInput *input, NodeKey
   // Find global position
   lbl_center = lbl->mapToGlobal(lbl_center);
 
-  emit KeyframeAdded(keyframe, lbl_center.y());
+  // Return Y
+  return lbl_center.y();
+}
+
+void NodeParamViewItemBody::EdgeChanged(const NodeOutput& output, const NodeInput& input)
+{
+  Q_UNUSED(output)
+
+  UpdateUIForEdgeConnection(input);
+}
+
+void NodeParamViewItemBody::UpdateUIForEdgeConnection(const NodeInput& input)
+{
+  // Show/hide bridge widgets
+  if (input_ui_map_.contains(input)) {
+    const InputUI& ui_objects = input_ui_map_[input];
+
+    foreach (QWidget* w, ui_objects.widget_bridge->widgets()) {
+      w->setVisible(!input.IsConnected());
+    }
+
+    // Show/hide connection label
+    ui_objects.connected_label->setVisible(input.IsConnected());
+  }
+}
+
+void NodeParamViewItemBody::ArrayCollapseBtnPressed(bool checked)
+{
+  const NodeInputPair& input = array_collapse_buttons_.key(static_cast<CollapseButton*>(sender()));
+
+  array_ui_.value(input).widget->setVisible(checked);
+
+  emit ArrayExpandedChanged(checked);
+}
+
+void NodeParamViewItemBody::InputArraySizeChanged(const QString& input, int size)
+{
+  Node* node = static_cast<Node*>(sender());
+
+  ArrayUI& array_ui = array_ui_[{node, input}];
+
+  if (size != array_ui.count) {
+    QGridLayout* grid = static_cast<QGridLayout*>(array_ui.widget->layout());
+
+    if (array_ui.count < size) {
+      // Our UI count is smaller than the size, create more
+      grid->addWidget(array_ui.append_btn, size, kArrayInsertColumn);
+
+      for (int i=array_ui.count; i<size; i++) {
+        CreateWidgets(grid, node, input, i, i);
+      }
+    } else {
+      for (int i=array_ui.count-1; i>=size; i--) {
+        // Our UI count is larger than the size, delete
+        InputUI input_ui = input_ui_map_.take({node, input, i});
+        delete input_ui.main_label;
+        qDeleteAll(input_ui.widget_bridge->widgets());
+        delete input_ui.widget_bridge;
+        delete input_ui.connected_label;
+        delete input_ui.key_control;
+        delete input_ui.array_insert_btn;
+        delete input_ui.array_remove_btn;
+      }
+
+      grid->addWidget(array_ui.append_btn, size, kArrayInsertColumn);
+    }
+
+    array_ui.count = size;
+  }
+
+  Retranslate();
+}
+
+void NodeParamViewItemBody::ArrayAppendClicked()
+{
+  for (auto it=array_ui_.cbegin(); it!=array_ui_.cend(); it++) {
+    if (it.value().append_btn == sender()) {
+      it.key().node->InputArrayAppend(it.key().input, true);
+      break;
+    }
+  }
+}
+
+void NodeParamViewItemBody::ArrayInsertClicked()
+{
+  for (auto it=input_ui_map_.cbegin(); it!=input_ui_map_.cend(); it++) {
+    if (it.value().array_insert_btn == sender()) {
+      // Found our input and element
+      const NodeInput& ic = it.key();
+      ic.node()->InputArrayInsert(ic.input(), ic.element(), true);
+      break;
+    }
+  }
+}
+
+void NodeParamViewItemBody::ArrayRemoveClicked()
+{
+  for (auto it=input_ui_map_.cbegin(); it!=input_ui_map_.cend(); it++) {
+    if (it.value().array_remove_btn == sender()) {
+      // Found our input and element
+      const NodeInput& ic = it.key();
+      ic.node()->InputArrayRemove(ic.input(), ic.element(), true);
+      break;
+    }
+  }
+}
+
+void NodeParamViewItemBody::ToggleArrayExpanded()
+{
+  NodeParamViewWidgetBridge* bridge = static_cast<NodeParamViewWidgetBridge*>(sender());
+
+  for (auto it=input_ui_map_.cbegin(); it!=input_ui_map_.cend(); it++) {
+    if (it.value().widget_bridge == bridge) {
+      CollapseButton* b = array_collapse_buttons_.value(it.key().input_pair());
+      b->setChecked(!b->isChecked());
+      return;
+    }
+  }
 }
 
 NodeParamViewItemBody::InputUI::InputUI() :
   main_label(nullptr),
   widget_bridge(nullptr),
   connected_label(nullptr),
-  key_control(nullptr)
+  key_control(nullptr),
+  array_insert_btn(nullptr),
+  array_remove_btn(nullptr)
 {
 }
 

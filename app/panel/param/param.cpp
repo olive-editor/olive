@@ -55,6 +55,16 @@ void ParamPanel::DeleteSelected()
   static_cast<NodeParamView*>(GetTimeBasedWidget())->DeleteSelected();
 }
 
+void ParamPanel::SelectAll()
+{
+  static_cast<NodeParamView*>(GetTimeBasedWidget())->SelectAll();
+}
+
+void ParamPanel::DeselectAll()
+{
+  static_cast<NodeParamView*>(GetTimeBasedWidget())->DeselectAll();
+}
+
 void ParamPanel::Retranslate()
 {
   SetTitle(tr("Parameter Editor"));

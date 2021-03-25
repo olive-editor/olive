@@ -22,43 +22,59 @@
 
 #include <QCoreApplication>
 #include <QDir>
+#include <QStandardPaths>
 
 #include "codec/decoder.h"
 #include "common/filefunctions.h"
 #include "common/xmlutils.h"
 #include "config/config.h"
 #include "core.h"
+#include "render/job/footagejob.h"
 #include "ui/icons/icons.h"
+#include "widget/videoparamedit/videoparamedit.h"
 
 namespace olive {
 
-Footage::Footage()
+const QString Footage::kFilenameInput = QStringLiteral("file_in");
+const QString Footage::kStreamPropertiesFormat = QStringLiteral("stream_properties:%1");
+
+#define super Node
+
+Footage::Footage(const QString &filename) :
+  cancelled_(nullptr)
 {
+  AddInput(kFilenameInput, NodeValue::kFile, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+
   Clear();
+
+  set_filename(filename);
 }
 
-Footage::~Footage()
+void Footage::Retranslate()
 {
-  ClearStreams();
+  super::Retranslate();
+
+  SetInputName(kFilenameInput, tr("Filename"));
+
+  for (auto it=inputs_for_stream_properties_.cbegin(); it!=inputs_for_stream_properties_.cend(); it++) {
+    StreamReference ref = it.key();
+
+    SetInputName(it.value(), QStringLiteral("%1 %2").arg(GetStreamTypeName(ref.type()), QString::number(ref.index())));
+  }
 }
 
-void Footage::Load(QXmlStreamReader *reader, XMLNodeData &xml_node_data, uint version, const QAtomicInt* cancelled)
+void Footage::LoadInternal(QXmlStreamReader *reader, XMLNodeData &xml_node_data, uint version, const QAtomicInt* cancelled)
 {
+  Q_UNUSED(xml_node_data)
+  Q_UNUSED(version)
+
   while (XMLReadNextStartElement(reader)) {
     if (cancelled && *cancelled) {
       return;
     }
 
-    if (reader->name() == QStringLiteral("name")) {
-      set_name(reader->readElementText());
-    } else if (reader->name() == QStringLiteral("filename")) {
-      set_filename(reader->readElementText());
-    } else if (reader->name() == QStringLiteral("stream")) {
-      add_stream(Stream::Load(reader, xml_node_data, cancelled));
-    } else if (reader->name() == QStringLiteral("timestamp")) {
+    if (reader->name() == QStringLiteral("timestamp")) {
       set_timestamp(reader->readElementText().toLongLong());
-    } else if (reader->name() == QStringLiteral("decoder")) {
-      set_decoder(reader->readElementText());
     } else if (reader->name() == QStringLiteral("points")) {
       TimelinePoints::Load(reader);
     } else {
@@ -67,28 +83,209 @@ void Footage::Load(QXmlStreamReader *reader, XMLNodeData &xml_node_data, uint ve
   }
 }
 
-void Footage::Save(QXmlStreamWriter *writer) const
+void Footage::SaveInternal(QXmlStreamWriter *writer) const
 {
-  writer->writeTextElement(QStringLiteral("name"), name());
-  writer->writeTextElement(QStringLiteral("filename"), filename());
   writer->writeTextElement(QStringLiteral("timestamp"), QString::number(timestamp_));
-  writer->writeTextElement(QStringLiteral("decoder"), decoder_);
 
   writer->writeStartElement(QStringLiteral("points"));
-    TimelinePoints::Save(writer);
+  TimelinePoints::Save(writer);
   writer->writeEndElement(); // points
+}
 
-  foreach (Stream* stream, streams_) {
-    writer->writeStartElement(QStringLiteral("stream"));
-      stream->Save(writer);
-    writer->writeEndElement(); // stream
+void Footage::InputValueChangedEvent(const QString &input, int element)
+{
+  Q_UNUSED(element)
+
+  if (input == kFilenameInput) {
+    // Reset internal stream cache
+    Clear();
+
+    // Determine if file still exists
+    QFileInfo info(filename());
+
+    if (info.exists()) {
+      // Grab timestamp
+      set_timestamp(info.lastModified().toMSecsSinceEpoch());
+
+      // Determine if we've already cached the metadata of this file
+      QString meta_cache_file = QDir(QStandardPaths::writableLocation(QStandardPaths::CacheLocation)).filePath(FileFunctions::GetUniqueFileIdentifier(filename()));
+
+      FootageDescription footage_info;
+
+      if (QFileInfo::exists(meta_cache_file)) {
+
+        // Load meta cache file
+        footage_info.Load(meta_cache_file);
+
+      } else {
+
+        // Probe and create cache
+        QVector<DecoderPtr> decoder_list = Decoder::ReceiveListOfAllDecoders();
+
+        foreach (DecoderPtr decoder, decoder_list) {
+          footage_info = decoder->Probe(filename(), cancelled_);
+
+          if (footage_info.IsValid()) {
+            break;
+          }
+        }
+
+        if (!footage_info.Save(meta_cache_file)) {
+          qWarning() << "Failed to save stream cache, footage will have to be re-probed";
+        }
+
+      }
+
+      if (footage_info.IsValid()) {
+        decoder_ = footage_info.decoder();
+
+        for (int i=0; i<footage_info.GetVideoStreams().size(); i++) {
+          AddStreamAsInput(Stream::kVideo, i, QVariant::fromValue(footage_info.GetVideoStreams().at(i)));
+        }
+
+        for (int i=0; i<footage_info.GetAudioStreams().size(); i++) {
+          AddStreamAsInput(Stream::kAudio, i, QVariant::fromValue(footage_info.GetAudioStreams().at(i)));
+        }
+
+        SetValid();
+      }
+
+    } else {
+      set_timestamp(0);
+    }
   }
+}
+
+QString Footage::GetColorspaceToUse(const VideoParams &params) const
+{
+  if (params.colorspace().isEmpty()) {
+    return project()->color_manager()->GetDefaultInputColorSpace();
+  } else {
+    return params.colorspace();
+  }
+}
+
+Footage::StreamReference Footage::GetReferenceFromOutput(const QString &s) const
+{
+  Stream::Type type;
+  int index;
+
+  if (GetReferenceFromOutput(s, &type, &index)) {
+    return StreamReference(type, index);
+  } else {
+    return StreamReference();
+  }
+}
+
+bool Footage::GetReferenceFromOutput(const QString &s, Stream::Type *type, int *index)
+{
+  Stream::Type parse_type = GetTypeFromOutput(s);
+
+  if (parse_type != Stream::kUnknown) {
+    bool ok;
+    int parse_index = s.mid(2).toInt(&ok);
+
+    if (ok) {
+      *type = parse_type;
+      *index = parse_index;
+      return true;
+    }
+  }
+
+  return false;
+}
+
+VideoParams Footage::GetFirstEnabledVideoStream() const
+{
+  for (auto it=inputs_for_stream_properties_.cbegin(); it!=inputs_for_stream_properties_.cend(); it++) {
+    if (it.key().type() == Stream::kVideo) {
+      VideoParams vp = GetVideoParams(it.key().index());
+
+      if (vp.enabled()) {
+        return vp;
+      }
+    }
+  }
+
+  return VideoParams();
+}
+
+AudioParams Footage::GetFirstEnabledAudioStream() const
+{
+  for (auto it=inputs_for_stream_properties_.cbegin(); it!=inputs_for_stream_properties_.cend(); it++) {
+    if (it.key().type() == Stream::kAudio) {
+      AudioParams ap = GetAudioParams(it.key().index());
+
+      if (ap.enabled()) {
+        return ap;
+      }
+    }
+  }
+
+  return AudioParams();
+}
+
+QVector<VideoParams> Footage::GetEnabledVideoStreams() const
+{
+  QVector<VideoParams> list;
+
+  for (auto it=inputs_for_stream_properties_.cbegin(); it!=inputs_for_stream_properties_.cend(); it++) {
+    if (it.key().type() == Stream::kVideo) {
+      VideoParams vp = GetVideoParams(it.key().index());
+
+      if (vp.enabled()) {
+        list.append(vp);
+      }
+    }
+  }
+
+  return list;
+}
+
+QVector<AudioParams> Footage::GetEnabledAudioStreams() const
+{
+  QVector<AudioParams> list;
+
+  for (auto it=inputs_for_stream_properties_.cbegin(); it!=inputs_for_stream_properties_.cend(); it++) {
+    if (it.key().type() == Stream::kAudio) {
+      AudioParams ap = GetAudioParams(it.key().index());
+
+      if (ap.enabled()) {
+        list.append(ap);
+      }
+    }
+  }
+
+  return list;
+}
+
+QVector<Footage::StreamReference> Footage::GetEnabledStreamsAsReferences() const
+{
+  QVector<Footage::StreamReference> refs;
+
+  for (auto it=inputs_for_stream_properties_.cbegin(); it!=inputs_for_stream_properties_.cend(); it++) {
+    refs.append(StreamReference(it.key().type(), it.key().index()));
+  }
+
+  return refs;
 }
 
 void Footage::Clear()
 {
-  // Clear all streams
-  ClearStreams();
+  // Clear all dynamically created inputs
+  foreach (const QString& s, inputs_for_stream_properties_) {
+    RemoveInput(s);
+  }
+  inputs_for_stream_properties_.clear();
+
+  // Clear all dynamically created outputs
+  foreach (const QString& s, outputs_for_streams_) {
+    RemoveOutput(s);
+  }
+  outputs_for_streams_.clear();
+
+  // Clear decoder link
+  decoder_.clear();
 
   // Reset ready state
   valid_ = false;
@@ -99,14 +296,14 @@ void Footage::SetValid()
   valid_ = true;
 }
 
-const QString &Footage::filename() const
+QString Footage::filename() const
 {
-  return filename_;
+  return GetStandardValue(kFilenameInput).toString();
 }
 
 void Footage::set_filename(const QString &s)
 {
-  filename_ = s;
+  SetStandardValue(kFilenameInput, s);
 }
 
 const qint64 &Footage::timestamp() const
@@ -119,37 +316,45 @@ void Footage::set_timestamp(const qint64 &t)
   timestamp_ = t;
 }
 
-void Footage::add_stream(Stream* s)
+QString Footage::GetStringFromReference(Stream::Type type, int index)
 {
-  // Set its footage parent to this
-  s->setParent(this);
+  QString type_string;
 
-  // Add a copy of this stream to the list
-  streams_.append(s);
-}
-
-void Footage::add_streams(const QVector<Stream *> &streams)
-{
-  foreach (Stream* s, streams) {
-    s->setParent(this);
+  if (type == Stream::kVideo) {
+    type_string = QStringLiteral("v");
+  } else if (type == Stream::kAudio) {
+    type_string = QStringLiteral("a");
+  } else {
+    return QString();
   }
 
-  streams_.append(streams);
+  return QStringLiteral("%1:%2").arg(type_string, QString::number(index));
 }
 
-Stream* Footage::stream(int index) const
+int Footage::GetStreamIndex(Stream::Type type, int index) const
 {
-  return streams_.at(index);
+  if (type == Stream::kVideo) {
+    return GetVideoParams(index).stream_index();
+  } else if (type == Stream::kAudio) {
+    return GetAudioParams(index).stream_index();
+  } else {
+    return -1;
+  }
 }
 
-int Footage::stream_count() const
+Stream::Type Footage::GetTypeFromOutput(const QString &s)
 {
-  return streams_.size();
-}
+  if (s.at(1) == ':') {
+    if (s.at(0) == 'v') {
+      // Video stream
+      return Stream::kVideo;
+    } else if (s.at(0) == 'a') {
+      // Audio stream
+      return Stream::kAudio;
+    }
+  }
 
-Item::Type Footage::type() const
-{
-  return kFootage;
+  return Stream::kUnknown;
 }
 
 const QString &Footage::decoder() const
@@ -157,22 +362,17 @@ const QString &Footage::decoder() const
   return decoder_;
 }
 
-void Footage::set_decoder(const QString &id)
+QIcon Footage::icon() const
 {
-  decoder_ = id;
-}
-
-QIcon Footage::icon()
-{
-  if (valid_ && !streams_.isEmpty()) {
+  if (valid_ && !inputs_for_stream_properties_.isEmpty()) {
     // Prioritize video > audio > image
-    Stream* s = get_first_enabled_stream_of_type(Stream::kVideo);
+    VideoParams s = GetFirstEnabledVideoStream();
 
-    if (s && static_cast<VideoStream*>(s)->video_type() != VideoStream::kVideoTypeStill) {
+    if (s.is_valid() && s.video_type() != VideoParams::kVideoTypeStill) {
       return icon::Video;
-    } else if (HasEnabledStreamsOfType(Stream::kAudio)) {
+    } else if (HasEnabledAudioStreams()) {
       return icon::Audio;
-    } else if (s && static_cast<VideoStream*>(s)->video_type() == VideoStream::kVideoTypeStill) {
+    } else if (s.is_valid() && s.video_type() == VideoParams::kVideoTypeStill) {
       return icon::Image;
     }
   }
@@ -180,124 +380,96 @@ QIcon Footage::icon()
   return icon::Error;
 }
 
-QString Footage::duration()
+QString Footage::duration() const
 {
-  // Find longest stream duration
-  Stream* longest_stream = nullptr;
-  rational longest;
+  // Try video first
+  VideoParams video = GetFirstEnabledVideoStream();
 
-  foreach (Stream* stream, streams_) {
-    if (stream->enabled() && (stream->type() == Stream::kVideo || stream->type() == Stream::kAudio)) {
-      rational this_stream_dur = Timecode::timestamp_to_time(stream->duration(),
-                                                             stream->timebase());
+  if (video.is_valid() && video.video_type() != VideoParams::kVideoTypeStill) {
+    int64_t duration = video.duration();
+    rational frame_rate_timebase = video.frame_rate().flipped();
 
-      if (this_stream_dur > longest) {
-        longest_stream = stream;
-        longest = this_stream_dur;
-      }
+    if (video.time_base() != frame_rate_timebase) {
+      // Convert from timebase to frame rate
+      duration = Timecode::rescale_timestamp_ceil(duration, video.time_base(), frame_rate_timebase);
     }
+
+    return Timecode::timestamp_to_timecode(duration,
+                                           frame_rate_timebase,
+                                           Core::instance()->GetTimecodeDisplay());
   }
 
-  if (longest_stream) {
-    if (longest_stream->type() == Stream::kVideo) {
-      VideoStream* video_stream = static_cast<VideoStream*>(longest_stream);
+  // Try audio second
+  AudioParams audio = GetFirstEnabledAudioStream();
 
-      if (video_stream->video_type() != VideoStream::kVideoTypeStill) {
-        int64_t duration = video_stream->duration();
-        rational frame_rate_timebase = video_stream->frame_rate().flipped();
-
-        if (video_stream->timebase() != frame_rate_timebase) {
-          // Convert from timebase to frame rate
-          rational duration_time = Timecode::timestamp_to_time(duration, video_stream->timebase());
-          duration = Timecode::time_to_timestamp(duration_time, frame_rate_timebase);
-        }
-
-        return Timecode::timestamp_to_timecode(duration,
-                                               frame_rate_timebase,
-                                               Core::instance()->GetTimecodeDisplay());
-      }
-    } else if (longest_stream->type() == Stream::kAudio) {
-      // If we're showing in a timecode, we prefer showing audio in seconds instead
-      Timecode::Display display = Core::instance()->GetTimecodeDisplay();
-      if (display == Timecode::kTimecodeDropFrame
-          || display == Timecode::kTimecodeNonDropFrame) {
-        display = Timecode::kTimecodeSeconds;
-      }
-
-      return Timecode::timestamp_to_timecode(longest_stream->duration(),
-                                             longest_stream->timebase(),
-                                             display);
+  if (audio.is_valid()) {
+    // If we're showing in a timecode, we prefer showing audio in seconds instead
+    Timecode::Display display = Core::instance()->GetTimecodeDisplay();
+    if (display == Timecode::kTimecodeDropFrame
+        || display == Timecode::kTimecodeNonDropFrame) {
+      display = Timecode::kTimecodeSeconds;
     }
+
+    return Timecode::timestamp_to_timecode(audio.duration(),
+                                           audio.time_base(),
+                                           display);
   }
 
+  // Otherwise, return nothing
   return QString();
 }
 
-QString Footage::rate()
+QString Footage::rate() const
 {
-  if (streams_.isEmpty()) {
+  if (inputs_for_stream_properties_.isEmpty()) {
     return QString();
   }
 
-  if (HasEnabledStreamsOfType(Stream::kVideo)) {
+  if (HasEnabledVideoStreams()) {
     // This is a video editor, prioritize video streams
-    VideoStream* video_stream = static_cast<VideoStream*>(get_first_enabled_stream_of_type(Stream::kVideo));
+    VideoParams video_stream = GetFirstEnabledVideoStream();
 
-    if (video_stream->video_type() != VideoStream::kVideoTypeStill) {
-      return QCoreApplication::translate("Footage", "%1 FPS").arg(video_stream->frame_rate().toDouble());
+    if (video_stream.video_type() != VideoParams::kVideoTypeStill) {
+      return tr("%1 FPS").arg(video_stream.frame_rate().toDouble());
     }
-  } else if (HasEnabledStreamsOfType(Stream::kAudio)) {
+  } else if (HasEnabledAudioStreams()) {
     // No video streams, return audio
-    AudioStream* audio_stream = static_cast<AudioStream*>(streams_.first());
-    return QCoreApplication::translate("Footage", "%1 Hz").arg(audio_stream->sample_rate());
+    AudioParams audio_stream = GetFirstEnabledAudioStream();
+    return tr("%1 Hz").arg(audio_stream.sample_rate());
   }
 
   return QString();
 }
 
-quint64 Footage::get_enabled_stream_flags() const
+bool Footage::HasEnabledVideoStreams() const
 {
-  quint64 enabled_streams = 0;
-  quint64 stream_enabler = 1;
-
-  foreach (Stream* s, streams_) {
-    if (s->enabled()) {
-      enabled_streams |= stream_enabler;
-    }
-
-    stream_enabler <<= 1;
-  }
-
-  return enabled_streams;
+  return GetFirstEnabledVideoStream().is_valid();
 }
 
-void Footage::ClearStreams()
+bool Footage::HasEnabledAudioStreams() const
 {
-  // Delete all streams
-  streams_.clear();
+  return GetFirstEnabledAudioStream().is_valid();
 }
 
-bool Footage::HasEnabledStreamsOfType(const Stream::Type &type) const
+QString Footage::DescribeVideoStream(const VideoParams &params)
 {
-  // Return true if any streams are video streams
-  foreach (Stream* stream, streams_) {
-    if (stream->enabled() && stream->type() == type) {
-      return true;
-    }
+  if (params.video_type() == VideoParams::kVideoTypeStill) {
+    return tr("%1: Image - %2x%3").arg(QString::number(params.stream_index()),
+                                       QString::number(params.width()),
+                                       QString::number(params.height()));
+  } else {
+    return tr("%1: Video - %2x%3").arg(QString::number(params.stream_index()),
+                                       QString::number(params.width()),
+                                       QString::number(params.height()));
   }
-
-  return false;
 }
 
-Stream *Footage::get_first_enabled_stream_of_type(const Stream::Type &type) const
+QString Footage::DescribeAudioStream(const AudioParams &params)
 {
-  foreach (Stream* stream, streams_) {
-    if (stream->enabled() && stream->type() == type) {
-      return stream;
-    }
-  }
-
-  return nullptr;
+  return tr("%1: Audio - %2 Channel(s), %3Hz")
+      .arg(QString::number(params.stream_index()),
+           QString::number(params.channel_count()),
+           QString::number(params.sample_rate()));
 }
 
 bool Footage::CompareFootageToFile(Footage *footage, const QString &filename)
@@ -306,20 +478,24 @@ bool Footage::CompareFootageToFile(Footage *footage, const QString &filename)
   QFileInfo info(filename);
 
   if (info.exists()) {
-    if (info.lastModified().toMSecsSinceEpoch() == footage->timestamp()) {
+    /*if (info.lastModified().toMSecsSinceEpoch() == footage->timestamp()) {
       // Footage has not been modified and is where we expect
       return true;
     } else {
       // Footage may have changed and we'll have to re-probe it. It also may not have, in which
       // case nothing needs to change.
-      std::unique_ptr<Footage> item(Decoder::Probe(footage->project(), filename, nullptr));
+      DecoderPtr decoder = Decoder::CreateFromID(footage->decoder());
 
-      if (item) {
-        // Item is the same type, that's a good sign. Let's look for any differences.
-        // FIXME: Implement this
+      Streams probed_streams = decoder->Probe(filename, nullptr);
+
+      if (probed_streams == footage->streams_) {
         return true;
       }
-    }
+    }*/
+    Q_UNUSED(footage)
+
+    // Simplified, since our footage node is much more tolerant, we'll try this
+    return true;
   }
 
   // Footage file couldn't be found or resolved to something we didn't expect
@@ -331,24 +507,252 @@ bool Footage::CompareFootageToItsFilename(Footage *footage)
   return CompareFootageToFile(footage, footage->filename());
 }
 
+void Footage::Hash(const QString& output, QCryptographicHash &hash, const rational &time) const
+{
+  super::Hash(output, hash, time);
+
+  // Translate output ID to stream
+  StreamReference ref = GetReferenceFromOutput(output);
+
+  QString fn = filename();
+
+  if (!fn.isEmpty()) {
+    VideoParams params = GetVideoParams(ref.index());
+
+    if (params.is_valid()) {
+      // Add footage details to hash
+
+      // Footage filename
+      hash.addData(filename().toUtf8());
+
+      // Footage last modified date
+      hash.addData(QString::number(timestamp()).toUtf8());
+
+      // Footage stream
+      hash.addData(QString::number(ref.index()).toUtf8());
+
+      if (ref.type() == Stream::kVideo) {
+        // Current color config and space
+        hash.addData(project()->color_manager()->GetConfigFilename().toUtf8());
+        hash.addData(GetColorspaceToUse(params).toUtf8());
+
+        // Alpha associated setting
+        hash.addData(QString::number(params.premultiplied_alpha()).toUtf8());
+
+        // Pixel aspect ratio
+        hash.addData(reinterpret_cast<const char*>(&params.pixel_aspect_ratio()), sizeof(params.pixel_aspect_ratio()));
+
+        // Footage timestamp
+        if (params.video_type() != VideoParams::kVideoTypeStill) {
+          int64_t video_ts = Timecode::time_to_timestamp(time, params.time_base());
+
+          // Add timestamp in units of the video stream's timebase
+          hash.addData(reinterpret_cast<const char*>(&video_ts), sizeof(int64_t));
+
+          // Add start time - used for both image sequences and video streams
+          hash.addData(QString::number(params.start_time()).toUtf8());
+        }
+      }
+    }
+  }
+}
+
+NodeValueTable Footage::Value(const QString &output, NodeValueDatabase &value) const
+{
+  StreamReference ref = GetReferenceFromOutput(output);
+
+  // Pop filename from table
+  QString file = value[kFilenameInput].Take(NodeValue::kFile).toString();
+
+  // Merge table
+  NodeValueTable table = value.Merge();
+
+  // If the file exists and the reference is valid, push a footage job to the renderer
+  if (QFileInfo(file).exists()) {
+    FootageJob job(decoder_, filename(), ref.type());
+
+    rational length;
+
+    if (ref.type() == Stream::kVideo) {
+      VideoParams vp = GetVideoParams(ref.index());
+
+      // Ensure the colorspace is valid and not empty
+      vp.set_colorspace(GetColorspaceToUse(vp));
+      length = Timecode::timestamp_to_time(vp.duration(), vp.time_base());
+
+      job.set_video_params(vp);
+    } else {
+      AudioParams ap = GetAudioParams(ref.index());
+      job.set_audio_params(ap);
+      job.set_cache_path(project()->cache_path());
+      length = Timecode::timestamp_to_time(ap.duration(), ap.time_base());
+    }
+
+    table.Push(NodeValue::kRational, QVariant::fromValue(length), this, false, QStringLiteral("length"));
+
+    table.Push(NodeValue::kFootageJob, QVariant::fromValue(job), this);
+  }
+
+  return table;
+}
+
+QString Footage::GetStreamTypeName(Stream::Type type)
+{
+  switch (type) {
+  case Stream::kVideo:
+    return tr("Video");
+  case Stream::kAudio:
+    return tr("Audio");
+  case Stream::kSubtitle:
+    return tr("Subtitle");
+  case Stream::kData:
+    return tr("Data");
+  case Stream::kAttachment:
+    return tr("Attachment");
+  case Stream::kUnknown:
+    break;
+  }
+
+  return tr("Unknown");
+}
+
 void Footage::UpdateTooltip()
 {
   if (valid_) {
-    QString tip = QCoreApplication::translate("Footage", "Filename: %1").arg(filename());
+    QString tip = tr("Filename: %1").arg(filename());
 
-    if (!streams_.isEmpty()) {
-      foreach (Stream* s, streams_) {
-        if (s->enabled()) {
+    for (auto it=inputs_for_stream_properties_.cbegin(); it!=inputs_for_stream_properties_.cend(); it++) {
+      if (it.key().type() == Stream::kVideo) {
+        VideoParams p = GetVideoParams(it.key().index());
+
+        if (p.enabled()) {
           tip.append("\n");
-          tip.append(s->description());
+          tip.append(DescribeVideoStream(p));
+        }
+      } else if (it.key().type() == Stream::kAudio) {
+        AudioParams p = GetAudioParams(it.key().index());
+
+        if (p.enabled()) {
+          tip.append("\n");
+          tip.append(DescribeAudioStream(p));
         }
       }
     }
 
-    set_tooltip(tip);
+    SetToolTip(tip);
   } else {
-    set_tooltip(QCoreApplication::translate("Footage", "This footage is not valid for use"));
+    SetToolTip(tr("This footage is not valid for use"));
   }
+}
+
+void Footage::AddStreamAsInput(Stream::Type type, int index, QVariant value)
+{
+  QString input_id = GetInputIDOfIndex(type, index);
+
+  StreamReference ref(type, index);
+
+  // Create input for parameters
+  NodeValue::Type value_type;
+  uint64_t param_mask = 0;
+
+  if (type == Stream::kVideo) {
+    VideoParams vp = value.value<VideoParams>();
+    value_type = NodeValue::kVideoParams;
+
+    // Universal parameters for video/image footage
+    param_mask |= VideoParamEdit::kEnabled;
+    param_mask |= VideoParamEdit::kColorspace;
+    param_mask |= VideoParamEdit::kPixelAspect;
+    param_mask |= VideoParamEdit::kInterlacing;
+
+    if (vp.channel_count() == VideoParams::kRGBAChannelCount) {
+      // If this has an alpha channel, add a premultiplied optino
+      param_mask |= VideoParamEdit::kPremultipliedAlpha;
+    }
+
+    if (vp.video_type() != VideoParams::kVideoTypeVideo) {
+      // This is either a still image or an image sequence, add properties for those
+      param_mask |= VideoParamEdit::kIsImageSequence;
+      param_mask |= VideoParamEdit::kStartTime;
+      param_mask |= VideoParamEdit::kEndTime;
+      param_mask |= VideoParamEdit::kFrameRate;
+    } else {
+      // Ensure timebase isn't overwritten by the frame rate field
+      param_mask |= VideoParamEdit::kFrameRateIsNotTimebase;
+    }
+  } else {
+    value_type = NodeValue::kAudioParams;
+    param_mask = 0;
+  }
+
+  AddInput(input_id, value_type,
+           InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+  SetStandardValue(input_id, value);
+  SetInputProperty(input_id, QStringLiteral("mask"), QVariant::fromValue(param_mask));
+  inputs_for_stream_properties_.insert(ref, input_id);
+
+  // Create output for stream
+  QString output_id = GetStringFromReference(type, index);
+  AddOutput(output_id);
+  outputs_for_streams_.insert(ref, output_id);
+}
+
+void Footage::CheckFootage()
+{
+  QString fn = filename();
+
+  if (!fn.isEmpty()) {
+    QFileInfo info(fn);
+
+    qint64 current_file_timestamp = info.lastModified().toMSecsSinceEpoch();
+
+    if (current_file_timestamp != timestamp()) {
+      // File has changed!
+      set_timestamp(current_file_timestamp);
+      InvalidateAll(kFilenameInput);
+    }
+  }
+}
+
+/*QString Footage::StreamReference::video_colorspace(bool default_if_empty) const
+{
+  if (IsValid()) {
+    VideoParams params = footage_->GetVideoParams(index_);
+
+    if (params.is_valid()) {
+      if (params.colorspace().isEmpty() && default_if_empty) {
+
+      } else {
+        return params.colorspace();
+      }
+    }
+  }
+
+  return QString();
+}*/
+
+uint qHash(const Footage::StreamReference &ref, uint seed)
+{
+  return qHash(ref.type(), seed) ^ qHash(ref.index(), seed);
+}
+
+QDataStream &operator<<(QDataStream &out, const Footage::StreamReference &ref)
+{
+  out << static_cast<int>(ref.type()) << ref.index();
+
+  return out;
+}
+
+QDataStream &operator>>(QDataStream &in, Footage::StreamReference &ref)
+{
+  int type;
+  int index;
+
+  in >> type >> index;
+
+  ref = Footage::StreamReference(static_cast<Stream::Type>(type), index);
+
+  return in;
 }
 
 }

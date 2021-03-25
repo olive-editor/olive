@@ -241,7 +241,7 @@ public:
   /**
    * @brief Show a dialog to the user to rename a set of nodes
    */
-  void LabelNodes(const QVector<Node *> &nodes) const;
+  void LabelNodes(const QVector<Node *> &nodes);
 
   /**
    * @brief Create a new sequence named appropriately for the active project
@@ -290,6 +290,13 @@ public:
    * @brief Saves a specific project
    */
   bool SaveProject(Project *p);
+
+  /**
+   * @brief Show message in main window's status bar
+   *
+   * Shorthand for Core::instance()->main_window()->statusBar()->showMessage();
+   */
+  void ShowStatusBarMessage(const QString& s);
 
   static const uint kProjectVersion;
 
@@ -362,11 +369,6 @@ public slots:
    * @brief Show Preferences dialog
    */
   void DialogPreferencesShow();
-
-  /**
-   * @brief Show Project Properties dialog
-   */
-  void DialogProjectPropertiesShow();
 
   /**
    * @brief Show Export dialog
@@ -488,7 +490,7 @@ private:
   /**
    * @brief Retrieves the currently most active sequence for exporting
    */
-  ViewerOutput* GetSequenceToExport();
+  Sequence* GetSequenceToExport();
 
   /**
    * @brief Internal main window object

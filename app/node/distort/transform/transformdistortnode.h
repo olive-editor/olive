@@ -63,7 +63,7 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual NodeValueTable Value(NodeValueDatabase& value) const override;
+  virtual NodeValueTable Value(const QString& output, NodeValueDatabase& value) const override;
 
   virtual ShaderCode GetShaderCode(const QString& shader_id) const override;
 
@@ -78,11 +78,6 @@ public:
   virtual void GizmoMove(const QPointF &p, const rational &time) override;
   virtual void GizmoRelease() override;
 
-  NodeInput* texture_input() const
-  {
-    return texture_input_;
-  }
-
   enum AutoScaleType {
     kAutoScaleNone,
     kAutoScaleFit,
@@ -95,15 +90,15 @@ public:
                                               const QVector2D& texture_res,
                                               AutoScaleType autoscale_type = kAutoScaleNone);
 
+  static const QString kTextureInput;
+  static const QString kAutoscaleInput;
+  static const QString kInterpolationInput;
+
 private:
   static QPointF CreateScalePoint(double x, double y, const QPointF& half_res, const QMatrix4x4& mat);
 
-  NodeInput* texture_input_;
-  NodeInput* autoscale_input_;
-  NodeInput* interpolation_input_;
-
   // Gizmo variables
-  NodeInput* gizmo_drag_;
+  QString gizmo_drag_;
   QVector<QVariant> gizmo_start_;
   QVector<NodeInputDragger> gizmo_dragger_;
   QPointF gizmo_drag_pos_;

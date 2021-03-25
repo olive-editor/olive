@@ -4,8 +4,10 @@
 #include <QtConcurrent/QtConcurrent>
 
 #include "config/config.h"
+#include "node/graph.h"
 #include "node/node.h"
 #include "node/output/viewer/viewer.h"
+#include "project/project.h"
 #include "render/colormanager.h"
 #include "threading/threadticketwatcher.h"
 
@@ -22,12 +24,14 @@ class PreviewAutoCacher : public QObject
 public:
   PreviewAutoCacher();
 
+  virtual ~PreviewAutoCacher() override;
+
   RenderTicketPtr GetSingleFrame(const rational& t);
 
   /**
    * @brief Set the viewer node to auto-cache
    */
-  void SetViewerNode(ViewerOutput *viewer_node);
+  void SetViewerNode(Sequence *viewer_node);
 
   /**
    * @brief If the mouse is held during the next cache invalidation, cache anyway
@@ -89,18 +93,8 @@ public:
     color_manager_ = manager;
   }
 
-public slots:
-  /**
-   * @brief Main handler for when the NodeGraph changes
-   */
-  void NodeGraphChanged(NodeInput *source);
-
 private:
-  static void GenerateHashes(ViewerOutput* viewer, FrameHashCache *cache, const QVector<rational>& times, qint64 job_time);
-
-  void CopyNodeInputValue(NodeInput* input);
-  Node *CopyNodeConnections(Node *src_node);
-  void CopyNodeMakeConnection(NodeInput *src_input, NodeInput *dst_input);
+  static void GenerateHashes(Sequence *viewer, FrameHashCache *cache, const QVector<rational>& times, qint64 job_time);
 
   void TryRender();
 
@@ -114,11 +108,40 @@ private:
 
   bool HasActiveJobs() const;
 
-  QList<NodeInput*> graph_update_queue_;
-  QHash<Node*, Node*> copy_map_;
-  ViewerOutput* copied_viewer_node_;
+  void AddNode(Node* node);
+  void RemoveNode(Node* node);
+  void AddEdge(const NodeOutput& output, const NodeInput& input);
+  void RemoveEdge(const NodeOutput& output, const NodeInput& input);
+  void CopyValue(const NodeInput& input);
 
-  ViewerOutput* viewer_node_;
+  void InsertIntoCopyMap(Node* node, Node* copy);
+
+  void UpdateLastSyncedValue();
+
+  class QueuedJob {
+  public:
+    enum Type {
+      kNodeAdded,
+      kNodeRemoved,
+      kEdgeAdded,
+      kEdgeRemoved,
+      kValueChanged
+    };
+
+    Type type;
+    Node* node;
+    NodeInput input;
+    NodeOutput output;
+  };
+
+  Sequence* viewer_node_;
+
+  Project copied_project_;
+
+  QVector<QueuedJob> graph_update_queue_;
+  QHash<Node*, Node*> copy_map_;
+  Sequence* copied_viewer_node_;
+  QVector<Node*> created_nodes_;
 
   bool paused_;
 
@@ -144,10 +167,6 @@ private:
   qint64 last_update_time_;
 
   bool ignore_next_mouse_button_;
-
-  bool video_params_changed_;
-
-  bool audio_params_changed_;
 
   ColorManager* color_manager_;
 
@@ -184,18 +203,15 @@ private slots:
    */
   void VideoDownloaded();
 
-  /**
-   * @brief Handler for when a NodeInput has been deleted so we clear it from the queue
-   *
-   * FIXME: This is hacky. It also might not be necessary anymore with recent changes to the
-   *        node system, but I haven't tested yet. Either way, PreviewAutoCacher should probably
-   *        be able to pick up on these sorts of things without such a slot.
-   */
-  void QueuedInputRemoved();
+  void NodeAdded(Node* node);
 
-  void VideoParamsChanged();
+  void NodeRemoved(Node* node);
 
-  void AudioParamsChanged();
+  void EdgeAdded(const NodeOutput& output, const NodeInput& input);
+
+  void EdgeRemoved(const NodeOutput& output, const NodeInput& input);
+
+  void ValueChanged(const NodeInput& input);
 
   void SingleFrameFinished();
 

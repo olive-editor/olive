@@ -29,6 +29,7 @@
 #include <QWidget>
 
 #include "node/node.h"
+#include "nodeparamviewarraywidget.h"
 #include "nodeparamviewconnectedlabel.h"
 #include "nodeparamviewkeyframecontrol.h"
 #include "nodeparamviewwidgetbridge.h"
@@ -48,6 +49,8 @@ public:
   void SetText(const QString& s)
   {
     lbl_->setText(s);
+    lbl_->setToolTip(s);
+    lbl_->setMinimumWidth(1);
   }
 
 signals:
@@ -72,7 +75,7 @@ private:
 class NodeParamViewItemBody : public QWidget {
   Q_OBJECT
 public:
-  NodeParamViewItemBody(const QVector<NodeInput*>& inputs, QWidget* parent = nullptr);
+  NodeParamViewItemBody(Node* node, QWidget* parent = nullptr);
 
   void SetTimeTarget(Node* target);
 
@@ -80,47 +83,69 @@ public:
 
   void Retranslate();
 
-  void SignalAllKeyframes();
+  int GetElementY(NodeInput c) const;
 
 signals:
-  void KeyframeAdded(NodeKeyframePtr key, int y);
-
-  void KeyframeRemoved(NodeKeyframePtr key);
-
   void RequestSetTime(const rational& time);
-
-  void InputDoubleClicked(NodeInput* input);
 
   void RequestSelectNode(const QVector<Node*>& node);
 
-private:
-  void UpdateUIForEdgeConnection(NodeInput* input);
+  void ArrayExpandedChanged(bool e);
 
-  void InputAddedKeyframeInternal(NodeInput* input, NodeKeyframePtr keyframe);
+private:
+  void CreateWidgets(QGridLayout *layout, Node* node, const QString& input, int element, int row_index);
+
+  void UpdateUIForEdgeConnection(const NodeInput &input);
 
   struct InputUI {
     InputUI();
 
-    ClickableLabel* main_label;
+    QLabel* main_label;
     NodeParamViewWidgetBridge* widget_bridge;
     NodeParamViewConnectedLabel* connected_label;
     NodeParamViewKeyframeControl* key_control;
+
+    NodeParamViewArrayButton* array_insert_btn;
+    NodeParamViewArrayButton* array_remove_btn;
   };
 
-  QMap<NodeInput*, InputUI> input_ui_map_;
+  QHash<NodeInput, InputUI> input_ui_map_;
 
-  QVector<NodeParamViewItemBody*> sub_bodies_;
+  struct ArrayUI {
+    QWidget* widget;
+    int count;
+    NodeParamViewArrayButton* append_btn;
+  };
+
+  QHash<NodeInputPair, ArrayUI> array_ui_;
+
+  QHash<NodeInputPair, CollapseButton*> array_collapse_buttons_;
+
+  /**
+   * @brief The column to place the keyframe controls in
+   *
+   * Serves as an effective "maximum column" index because the keyframe button is always aligned
+   * to the right edge.
+   */
+  static const int kKeyControlColumn;
+
+  static const int kArrayInsertColumn;
+  static const int kArrayRemoveColumn;
 
 private slots:
-  void EdgeChanged();
+  void EdgeChanged(const NodeOutput &output, const NodeInput &input);
 
-  void InputKeyframeEnableChanged(bool e);
+  void ArrayCollapseBtnPressed(bool checked);
 
-  void InputAddedKeyframe(NodeKeyframePtr key);
+  void InputArraySizeChanged(const QString &input, int size);
 
-  void LabelDoubleClicked();
+  void ArrayAppendClicked();
 
-  void ConnectionClicked();
+  void ArrayInsertClicked();
+
+  void ArrayRemoveClicked();
+
+  void ToggleArrayExpanded();
 
 };
 
@@ -145,25 +170,23 @@ public:
     update();
   }
 
-public slots:
-  void SignalAllKeyframes();
+  int GetElementY(const NodeInput& c) const;
 
+public slots:
   void SetExpanded(bool e);
 
   void ToggleExpanded();
 
 signals:
-  void KeyframeAdded(NodeKeyframePtr key, int y);
-
-  void KeyframeRemoved(NodeKeyframePtr key);
-
   void RequestSetTime(const rational& time);
-
-  void InputDoubleClicked(NodeInput* input);
 
   void RequestSelectNode(const QVector<Node*>& node);
 
   void PinToggled(bool e);
+
+  void ExpandedChanged(bool e);
+
+  void ArrayExpandedChanged(bool e);
 
 protected:
   virtual void changeEvent(QEvent *e) override;

@@ -22,7 +22,6 @@
 #define NODEGRAPH_H
 
 #include "node/node.h"
-#include "project/item/item.h"
 
 namespace olive {
 
@@ -32,7 +31,7 @@ namespace olive {
  * This doesn't technically need to be a derivative of Item, but since both Item and NodeGraph need
  * to be QObject derivatives, this simplifies Sequence.
  */
-class NodeGraph : public Item
+class NodeGraph : public QObject
 {
   Q_OBJECT
 public:
@@ -47,31 +46,17 @@ public:
   void Clear();
 
   /**
-   * @brief Add a node to this graph
-   *
-   * The node will get added to this graph. It is not automatically connected to anything, any connections will need to
-   * be made manually after the node is added. The graph takes ownership of the Node.
-   */
-  void AddNode(Node* node);
-
-  /**
-   * @brief Removes a Node from the graph BUT doesn't destroy it. Ownership is passed to `new_parent`.
-   */
-  void TakeNode(Node* node, QObject* new_parent = nullptr);
-
-  /**
    * @brief Retrieve a complete list of the nodes belonging to this graph
    */
-  const QList<Node*>& nodes() const;
+  const QVector<Node*>& nodes() const
+  {
+    return node_children_;
+  }
 
-  /**
-   * @brief Returns whether a certain Node is in the graph or not
-   */
-  bool ContainsNode(Node* n) const;
-
-  void BeginOperation();
-
-  void EndOperation();
+  const QVector<Node*>& default_nodes() const
+  {
+    return default_nodes_;
+  }
 
 signals:
   /**
@@ -84,31 +69,24 @@ signals:
    */
   void NodeRemoved(Node* node);
 
-  /**
-   * @brief Signal emitted when a member node of this graph has been connected to another (creating an "edge")
-   */
-  void EdgeAdded(NodeEdgePtr edge);
+  void InputConnected(const NodeOutput& output, const NodeInput& input);
 
-  /**
-   * @brief Signal emitted when a member node of this graph has been disconnected from another (removing an "edge")
-   */
-  void EdgeRemoved(NodeEdgePtr edge);
+  void InputDisconnected(const NodeOutput& output, const NodeInput& input);
+
+  void ValueChanged(const NodeInput& input);
+
+protected:
+  void AddDefaultNode(Node* n)
+  {
+    default_nodes_.append(n);
+  }
+
+  virtual void childEvent(QChildEvent* event) override;
 
 private:
-  QList<Node*> node_children_;
+  QVector<Node*> node_children_;
 
-  int operation_stack_;
-
-  QList<Node*> cached_added_nodes_;
-  QList<Node*> cached_removed_nodes_;
-  QList<NodeEdgePtr> cached_added_edges_;
-  QList<NodeEdgePtr> cached_removed_edges_;
-
-private slots:
-  void SignalNodeAdded(Node *node);
-  void SignalNodeRemoved(Node* node);
-  void SignalEdgeAdded(NodeEdgePtr edge);
-  void SignalEdgeRemoved(NodeEdgePtr edge);
+  QVector<Node*> default_nodes_;
 
 };
 

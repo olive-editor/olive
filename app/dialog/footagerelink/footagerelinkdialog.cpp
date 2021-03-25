@@ -65,7 +65,7 @@ FootageRelinkDialog::FootageRelinkDialog(const QVector<Footage *> &footage, QWid
     item_actions_layout->addWidget(item_browse_btn);
 
     item->setIcon(0, f->icon());
-    item->setText(0, f->name());
+    item->setText(0, f->GetLabel());
     item->setText(1, f->filename());
 
     table_->addTopLevelItem(item);
@@ -101,7 +101,7 @@ void FootageRelinkDialog::BrowseForFootage()
   QFileInfo info(f->filename());
 
   QString new_fn = QFileDialog::getOpenFileName(this,
-                                                tr("Relink \"%1\"").arg(f->name()),
+                                                tr("Relink \"%1\"").arg(f->GetLabel()),
                                                 info.absolutePath(),
                                                 QStringLiteral("%1;;%2 (**)").arg(info.fileName(), tr("All Files")));
 

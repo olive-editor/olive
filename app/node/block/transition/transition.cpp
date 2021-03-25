@@ -24,26 +24,19 @@
 
 namespace olive {
 
+const QString TransitionBlock::kOutBlockInput = QStringLiteral("out_block_in");
+const QString TransitionBlock::kInBlockInput = QStringLiteral("in_block_in");
+const QString TransitionBlock::kCurveInput = QStringLiteral("curve_in");
+
 TransitionBlock::TransitionBlock() :
   connected_out_block_(nullptr),
   connected_in_block_(nullptr)
 {
-  out_block_input_ = new NodeInput(QStringLiteral("out_block_in"), NodeParam::kBuffer);
-  out_block_input_->set_is_keyframable(false);
-  connect(out_block_input_, &NodeParam::EdgeAdded, this, &TransitionBlock::BlockConnected);
-  connect(out_block_input_, &NodeParam::EdgeRemoved, this, &TransitionBlock::BlockDisconnected);
-  AddInput(out_block_input_);
+  AddInput(kOutBlockInput, NodeValue::kNone, InputFlags(kInputFlagNotKeyframable));
 
-  in_block_input_ = new NodeInput(QStringLiteral("in_block_in"), NodeParam::kBuffer);
-  in_block_input_->set_is_keyframable(false);
-  connect(in_block_input_, &NodeParam::EdgeAdded, this, &TransitionBlock::BlockConnected);
-  connect(in_block_input_, &NodeParam::EdgeRemoved, this, &TransitionBlock::BlockDisconnected);
-  AddInput(in_block_input_);
+  AddInput(kInBlockInput, NodeValue::kNone, InputFlags(kInputFlagNotKeyframable));
 
-  curve_input_ = new NodeInput(QStringLiteral("curve_in"), NodeParam::kCombo);
-  curve_input_->set_is_keyframable(false);
-  curve_input_->set_connectable(false);
-  AddInput(curve_input_);
+  AddInput(kCurveInput, NodeValue::kCombo, InputFlags(kInputFlagNotKeyframable | kInputFlagNotConnectable));
 }
 
 Block::Type TransitionBlock::type() const
@@ -51,26 +44,16 @@ Block::Type TransitionBlock::type() const
   return kTransition;
 }
 
-NodeInput *TransitionBlock::out_block_input() const
-{
-  return out_block_input_;
-}
-
-NodeInput *TransitionBlock::in_block_input() const
-{
-  return in_block_input_;
-}
-
 void TransitionBlock::Retranslate()
 {
   Block::Retranslate();
 
-  out_block_input_->set_name(tr("From"));
-  in_block_input_->set_name(tr("To"));
-  curve_input_->set_name(tr("Curve"));
+  SetInputName(kOutBlockInput, tr("From"));
+  SetInputName(kInBlockInput, tr("To"));
+  SetInputName(kCurveInput, tr("Curve"));
 
   // These must correspond to the CurveType enum
-  curve_input_->set_combobox_strings({ tr("Linear"), tr("Exponential"), tr("Logarithmic") });
+  SetComboBoxStrings(kCurveInput, { tr("Linear"), tr("Exponential"), tr("Logarithmic") });
 }
 
 rational TransitionBlock::in_offset() const
@@ -138,9 +121,9 @@ double TransitionBlock::GetInProgress(const double &time) const
   return clamp((GetInternalTransitionTime(time) - out_offset().toDouble()) / in_offset().toDouble(), 0.0, 1.0);
 }
 
-void TransitionBlock::Hash(QCryptographicHash &hash, const rational &time) const
+void TransitionBlock::Hash(const QString &output, QCryptographicHash &hash, const rational &time) const
 {
-  Node::Hash(hash, time);
+  Node::Hash(output, hash, time);
 
   double time_dbl = time.toDouble();
   double all_prog = GetTotalProgress(time_dbl);
@@ -154,86 +137,64 @@ void TransitionBlock::Hash(QCryptographicHash &hash, const rational &time) const
 
 double TransitionBlock::GetInternalTransitionTime(const double &time) const
 {
-  return time - in().toDouble();
+  return time;
 }
 
 void TransitionBlock::InsertTransitionTimes(AcceleratedJob *job, const double &time) const
 {
   // Provides total transition progress from 0.0 (start) - 1.0 (end)
   job->InsertValue(QStringLiteral("ove_tprog_all"),
-                   ShaderValue(GetTotalProgress(time), NodeParam::kFloat));
+                   NodeValue(NodeValue::kFloat, GetTotalProgress(time), this));
 
   // Provides progress of out section from 1.0 (start) - 0.0 (end)
   job->InsertValue(QStringLiteral("ove_tprog_out"),
-                   ShaderValue(GetOutProgress(time), NodeParam::kFloat));
+                   NodeValue(NodeValue::kFloat, GetOutProgress(time), this));
 
   // Provides progress of in section from 0.0 (start) - 1.0 (end)
   job->InsertValue(QStringLiteral("ove_tprog_in"),
-                   ShaderValue(GetInProgress(time), NodeParam::kFloat));
+                   NodeValue(NodeValue::kFloat, GetInProgress(time), this));
 }
 
-void TransitionBlock::BlockConnected(NodeEdgePtr edge)
+NodeValueTable TransitionBlock::Value(const QString &output, NodeValueDatabase &value) const
 {
-  if (!edge->output()->parentNode()->IsBlock()) {
-    return;
-  }
+  Q_UNUSED(output)
 
-  Block* block = static_cast<Block*>(edge->output()->parentNode());
+  NodeValue::Type data_type;
 
-  if (edge->input() == out_block_input_) {
-    connected_out_block_ = block;
+  if (IsInputConnected(kOutBlockInput)) {
+    data_type = value[kOutBlockInput].GetWithMeta(NodeValue::kBuffer).type();
+  } else if (IsInputConnected(kInBlockInput)) {
+    data_type = value[kInBlockInput].GetWithMeta(NodeValue::kBuffer).type();
   } else {
-    connected_in_block_ = block;
-  }
-}
-
-void TransitionBlock::BlockDisconnected(NodeEdgePtr edge)
-{
-  if (edge->input() == out_block_input_) {
-    connected_out_block_ = nullptr;
-  } else {
-    connected_in_block_ = nullptr;
-  }
-}
-
-NodeValueTable TransitionBlock::Value(NodeValueDatabase &value) const
-{
-  NodeParam::DataType data_type;
-
-  if (out_block_input()->is_connected()) {
-    data_type = value[out_block_input()].GetWithMeta(NodeParam::kBuffer).type();
-  } else if (in_block_input()->is_connected()) {
-    data_type = value[in_block_input()].GetWithMeta(NodeParam::kBuffer).type();
-  } else {
-    data_type = NodeParam::kNone;
+    data_type = NodeValue::kNone;
   }
 
-  NodeParam::DataType job_type;
+  NodeValue::Type job_type = NodeValue::kNone;
   QVariant push_job;
 
-  if (data_type == NodeParam::kTexture) {
+  if (data_type == NodeValue::kTexture) {
     // This must be a visual transition
     ShaderJob job;
 
-    job.InsertValue(out_block_input(), value);
-    job.InsertValue(in_block_input(), value);
-    job.InsertValue(curve_input_, value);
+    job.InsertValue(this, kOutBlockInput, value);
+    job.InsertValue(this, kInBlockInput, value);
+    job.InsertValue(this, kCurveInput, value);
 
-    double time = value[QStringLiteral("global")].Get(NodeParam::kFloat, QStringLiteral("time_in")).toDouble();
+    double time = value[QStringLiteral("global")].Get(NodeValue::kFloat, QStringLiteral("time_in")).toDouble();
     InsertTransitionTimes(&job, time);
 
     ShaderJobEvent(value, job);
 
-    job_type = NodeParam::kShaderJob;
+    job_type = NodeValue::kShaderJob;
     push_job = QVariant::fromValue(job);
-  } else if (data_type == NodeParam::kSamples) {
+  } else if (data_type == NodeValue::kSamples) {
     // This must be an audio transition
-    SampleBufferPtr from_samples = value[out_block_input()].Take(NodeParam::kBuffer).value<SampleBufferPtr>();
-    SampleBufferPtr to_samples = value[in_block_input()].Take(NodeParam::kBuffer).value<SampleBufferPtr>();
+    SampleBufferPtr from_samples = value[kOutBlockInput].Take(NodeValue::kSamples).value<SampleBufferPtr>();
+    SampleBufferPtr to_samples = value[kInBlockInput].Take(NodeValue::kSamples).value<SampleBufferPtr>();
 
     if (from_samples || to_samples) {
-      double time_in = value[QStringLiteral("global")].Get(NodeParam::kFloat, QStringLiteral("time_in")).toDouble();
-      double time_out = value[QStringLiteral("global")].Get(NodeParam::kFloat, QStringLiteral("time_out")).toDouble();
+      double time_in = value[QStringLiteral("global")].Get(NodeValue::kFloat, QStringLiteral("time_in")).toDouble();
+      double time_out = value[QStringLiteral("global")].Get(NodeValue::kFloat, QStringLiteral("time_out")).toDouble();
 
       const AudioParams& params = (from_samples) ? from_samples->audio_params() : to_samples->audio_params();
 
@@ -242,7 +203,7 @@ NodeValueTable TransitionBlock::Value(NodeValueDatabase &value) const
       SampleBufferPtr out_samples = SampleBuffer::CreateAllocated(params, nb_samples);
       SampleJobEvent(from_samples, to_samples, out_samples, time_in);
 
-      job_type = NodeParam::kSamples;
+      job_type = NodeValue::kSamples;
       push_job = QVariant::fromValue(out_samples);
     }
   }
@@ -254,39 +215,6 @@ NodeValueTable TransitionBlock::Value(NodeValueDatabase &value) const
   }
 
   return table;
-}
-
-TransitionBlock *GetBlockTransitionInternal(Block *block, Timeline::MovementMode mode)
-{
-  // See if this block outputs to a transition
-  foreach (NodeEdgePtr edge, block->output()->edges()) {
-    Node* connected_node = edge->input()->parentNode();
-
-    if (connected_node->IsBlock()) {
-      Block* connected_block = static_cast<Block*>(connected_node);
-
-      if (connected_block->type() == Block::kTransition) {
-        TransitionBlock* connected_transition = static_cast<TransitionBlock*>(connected_block);
-
-        if ((mode == Timeline::kTrimIn && edge->input() == connected_transition->in_block_input())
-            || (mode == Timeline::kTrimOut && edge->input() == connected_transition->out_block_input())) {
-          return connected_transition;
-        }
-      }
-    }
-  }
-
-  return nullptr;
-}
-
-TransitionBlock *TransitionBlock::GetBlockInTransition(Block *block)
-{
-  return GetBlockTransitionInternal(block, Timeline::kTrimIn);
-}
-
-TransitionBlock *TransitionBlock::GetBlockOutTransition(Block *block)
-{
-  return GetBlockTransitionInternal(block, Timeline::kTrimOut);
 }
 
 void TransitionBlock::ShaderJobEvent(NodeValueDatabase &value, ShaderJob &job) const
@@ -305,7 +233,7 @@ void TransitionBlock::SampleJobEvent(SampleBufferPtr from_samples, SampleBufferP
 
 double TransitionBlock::TransformCurve(double linear) const
 {
-  switch (static_cast<CurveType>(curve_input_->get_standard_value().toInt())) {
+  switch (static_cast<CurveType>(GetStandardValue(kCurveInput).toInt())) {
   case kLinear:
     break;
   case kExponential:
@@ -317,6 +245,51 @@ double TransitionBlock::TransformCurve(double linear) const
   }
 
   return linear;
+}
+
+void TransitionBlock::InputConnectedEvent(const QString &input, int element, const NodeOutput &output)
+{
+  Q_UNUSED(element)
+
+  if (input == kOutBlockInput) {
+    // If node is not a block, this will just be null
+    if ((connected_out_block_ = dynamic_cast<Block*>(output.node()))) {
+
+      Q_ASSERT(connected_out_block_->type() != Block::kTransition
+          && !connected_out_block_->out_transition()
+          && connected_out_block_ == this->previous());
+
+      connected_out_block_->set_out_transition(this);
+    }
+  } else if (input == kInBlockInput) {
+    // If node is not a block, this will just be null
+    if ((connected_in_block_ = dynamic_cast<Block*>(output.node()))) {
+
+      Q_ASSERT(connected_in_block_->type() != Block::kTransition
+          && !connected_in_block_->in_transition()
+          && connected_in_block_ == this->next());
+
+      connected_in_block_->set_in_transition(this);
+    }
+  }
+}
+
+void TransitionBlock::InputDisconnectedEvent(const QString &input, int element, const NodeOutput &output)
+{
+  Q_UNUSED(element)
+  Q_UNUSED(output)
+
+  if (input == kOutBlockInput) {
+    if (connected_out_block_) {
+      connected_out_block_->set_in_transition(nullptr);
+      connected_out_block_ = nullptr;
+    }
+  } else if (input == kInBlockInput) {
+    if (connected_in_block_) {
+      connected_in_block_->set_in_transition(nullptr);
+      connected_in_block_ = nullptr;
+    }
+  }
 }
 
 }

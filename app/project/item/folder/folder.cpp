@@ -27,81 +27,132 @@
 
 namespace olive {
 
-Item::Type Folder::type() const
+#define super Node
+
+const QString Folder::kChildInput = QStringLiteral("child_in");
+
+Folder::Folder()
 {
-  return kFolder;
+  AddInput(kChildInput, NodeValue::kNone, InputFlags(kInputFlagArray | kInputFlagNotKeyframable));
 }
 
-bool Folder::CanHaveChildren() const
-{
-  return true;
-}
-
-QIcon Folder::icon()
+QIcon Folder::icon() const
 {
   return icon::Folder;
 }
 
-void Folder::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, uint version, const QAtomicInt *cancelled)
+void Folder::Retranslate()
 {
-  XMLAttributeLoop(reader, attr) {
-    if (cancelled && *cancelled) {
-      return;
-    }
+  super::Retranslate();
 
-    if (attr.name() == QStringLiteral("name")) {
-      set_name(attr.value().toString());
-    } else if (attr.name() == QStringLiteral("ptr")) {
-      xml_node_data.item_ptrs.insert(attr.value().toULongLong(), this);
+  SetInputName(kChildInput, tr("Children"));
+}
+
+bool ChildExistsWithNameInternal(const Folder* n, const QString& s)
+{
+  foreach (const Node::OutputConnection& c, n->output_connections()) {
+    Node* connected = c.second.node();
+
+    if (connected->GetLabel() == s) {
+      return true;
+    } else {
+      Folder* subfolder = dynamic_cast<Folder*>(connected);
+
+      if (subfolder && ChildExistsWithNameInternal(subfolder, s)) {
+        return true;
+      }
     }
   }
 
-  while (XMLReadNextStartElement(reader)) {
-    if (cancelled && *cancelled) {
-      return;
-    }
+  return false;
+}
 
-    Item* child;
+bool Folder::ChildExistsWithName(const QString &s) const
+{
+  return ChildExistsWithNameInternal(this, s);
+}
 
-    if (reader->name() == QStringLiteral("folder")) {
-      child = new Folder();
-    } else if (reader->name() == QStringLiteral("footage")) {
-      child = new Footage();
-    } else if (reader->name() == QStringLiteral("sequence")) {
-      child = new Sequence();
-    } else {
-      reader->skipCurrentElement();
-      continue;
-    }
+int Folder::index_of_child_in_array(Node *item) const
+{
+  int index_of_item = item_children_.indexOf(item);
 
-    child->setParent(this);
-    child->Load(reader, xml_node_data, version, cancelled);
+  if (index_of_item == -1) {
+    return -1;
+  }
+
+  return item_element_index_.at(index_of_item);
+}
+
+void Folder::InputConnectedEvent(const QString &input, int element, const NodeOutput &output)
+{
+  if (input == kChildInput && element != -1) {
+    Node* item = output.node();
+
+    // The insert index is always our "count" because we only support appending in our internal
+    // model. For sorting/organizing, a QSortFilterProxyModel is used instead.
+    emit BeginInsertItem(item, item_child_count());
+    item_children_.append(item);
+    item_element_index_.append(element);
+    item->SetFolder(this);
+    emit EndInsertItem();
   }
 }
 
-void Folder::Save(QXmlStreamWriter *writer) const
+void Folder::InputDisconnectedEvent(const QString &input, int element, const NodeOutput &output)
 {
-  writer->writeAttribute(QStringLiteral("name"), name());
+  if (input == kChildInput && element != -1) {
+    Node* item = output.node();
 
-  writer->writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(this)));
-
-  foreach (Item* child, children()) {
-    switch (child->type()) {
-    case Item::kFootage:
-      writer->writeStartElement(QStringLiteral("footage"));
-      break;
-    case Item::kSequence:
-      writer->writeStartElement(QStringLiteral("sequence"));
-      break;
-    case Item::kFolder:
-      writer->writeStartElement(QStringLiteral("folder"));
-      break;
-    }
-
-    child->Save(writer);
-
-    writer->writeEndElement(); // footage/folder/sequence
+    int child_index = item_children_.indexOf(item);
+    emit BeginRemoveItem(item, child_index);
+    item_children_.removeAt(child_index);
+    item_element_index_.removeAt(child_index);
+    item->SetFolder(nullptr);
+    emit EndRemoveItem();
   }
+}
+
+FolderAddChild::FolderAddChild(Folder *folder, Node *child, bool autoposition) :
+  folder_(folder),
+  child_(child),
+  autoposition_(autoposition),
+  position_command_(nullptr)
+{
+}
+
+FolderAddChild::~FolderAddChild()
+{
+  delete position_command_;
+}
+
+Project *FolderAddChild::GetRelevantProject() const
+{
+  return folder_->project();
+}
+
+void FolderAddChild::redo()
+{
+  int array_index = folder_->InputArraySize(Folder::kChildInput);
+  folder_->InputArrayAppend(Folder::kChildInput, false);
+  Node::ConnectEdge(child_, NodeInput(folder_, Folder::kChildInput, array_index));
+
+  if (autoposition_) {
+    old_position_ = child_->GetPosition();
+    if (!position_command_) {
+      position_command_ = new NodeSetPositionAsChildCommand(child_, folder_, array_index, array_index+1, true);
+    }
+    position_command_->redo();
+  }
+}
+
+void FolderAddChild::undo()
+{
+  if (position_command_) {
+    position_command_->undo();
+  }
+
+  Node::DisconnectEdge(child_, NodeInput(folder_, Folder::kChildInput, folder_->InputArraySize(Folder::kChildInput)-1));
+  folder_->InputArrayRemoveLast(Folder::kChildInput);
 }
 
 }

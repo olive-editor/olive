@@ -21,52 +21,49 @@
 #ifndef XMLREADLOOP_H
 #define XMLREADLOOP_H
 
-#include <QUndoCommand>
 #include <QXmlStreamReader>
 
-#include "project/item/footage/stream.h"
+#include "node/param.h"
+#include "undo/undocommand.h"
 
 namespace olive {
 
 class Block;
 class Node;
-class NodeParam;
 class NodeInput;
-class NodeOutput;
-class Item;
 
 #define XMLAttributeLoop(reader, item) \
-  QXmlStreamAttributes __attributes = reader->attributes(); \
-  foreach (const QXmlStreamAttribute& item, __attributes)
+  foreach (const QXmlStreamAttribute& item, reader->attributes())
 
 struct XMLNodeData {
   struct SerializedConnection {
-    NodeInput* input;
-    quintptr output;
-  };
-
-  struct FootageConnection {
-    NodeInput* input;
-    quintptr footage;
+    NodeInput input;
+    quintptr output_node;
+    QString output;
   };
 
   struct BlockLink {
-    Block* block;
+    Node* block;
     quintptr link;
   };
 
   QHash<quintptr, Node*> node_ptrs;
-  QHash<quintptr, NodeOutput*> output_ptrs;
   QList<SerializedConnection> desired_connections;
-  QHash<quintptr, Stream*> footage_ptrs;
-  QList<FootageConnection> footage_connections;
   QList<BlockLink> block_links;
-  QHash<quintptr, Item*> item_ptrs;
 
 };
 
-void XMLConnectNodes(const XMLNodeData& xml_node_data, QUndoCommand* command = nullptr);
+void XMLConnectNodes(const XMLNodeData& xml_node_data, MultiUndoCommand *command = nullptr);
 
+/**
+ * @brief Workaround for QXmlStreamReader::readNextStartElement not detecting the end of a document
+ *
+ * Since Qt's default function doesn't exit at the end of the document, it ends up consistently
+ * throwing a "premature end of document" error. We have our own function here that does essentially
+ * the same thing but fixes that issue.
+ *
+ * See also: https://stackoverflow.com/questions/46346450/qt-qxmlstreamreader-always-returns-premature-end-of-document-error
+ */
 bool XMLReadNextStartElement(QXmlStreamReader* reader);
 
 void XMLLinkBlocks(const XMLNodeData& xml_node_data);

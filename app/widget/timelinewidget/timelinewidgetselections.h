@@ -24,18 +24,18 @@
 #include <QHash>
 
 #include "common/timerange.h"
-#include "timeline/trackreference.h"
+#include "node/output/track/track.h"
 
 namespace olive {
 
-class TimelineWidgetSelections : public QHash<TrackReference, TimeRangeList>
+class TimelineWidgetSelections : public QHash<Track::Reference, TimeRangeList>
 {
 public:
   TimelineWidgetSelections() = default;
 
   void ShiftTime(const rational& diff);
 
-  void ShiftTracks(Timeline::TrackType type, int diff);
+  void ShiftTracks(Track::Type type, int diff);
 
   void TrimIn(const rational& diff);
 

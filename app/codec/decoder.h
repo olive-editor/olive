@@ -25,6 +25,7 @@ extern "C" {
 #include <libswresample/swresample.h>
 }
 
+#include <QFileInfo>
 #include <QMutex>
 #include <QObject>
 #include <QWaitCondition>
@@ -35,6 +36,8 @@ extern "C" {
 #include "codec/waveoutput.h"
 #include "common/rational.h"
 #include "project/item/footage/footage.h"
+#include "project/item/footage/footagedescription.h"
+#include "project/item/footage/stream.h"
 
 namespace olive {
 
@@ -72,10 +75,61 @@ public:
   /**
    * @brief Unique decoder ID
    */
-  virtual QString id() = 0;
+  virtual QString id() const = 0;
 
   virtual bool SupportsVideo(){return false;}
   virtual bool SupportsAudio(){return false;}
+
+  class CodecStream
+  {
+  public:
+    CodecStream() :
+      stream_(-1)
+    {
+    }
+
+    CodecStream(const QString& filename, int stream) :
+      filename_(filename),
+      stream_(stream)
+    {
+    }
+
+    bool IsValid() const
+    {
+      return !filename_.isEmpty() && stream_ >= 0;
+    }
+
+    bool Exists() const
+    {
+      return QFileInfo::exists(filename_);
+    }
+
+    void Reset()
+    {
+      *this = CodecStream();
+    }
+
+    bool operator==(const CodecStream& rhs) const
+    {
+      return filename_ == rhs.filename_ && stream_ == rhs.stream_;
+    }
+
+    const QString& filename() const
+    {
+      return filename_;
+    }
+
+    int stream() const
+    {
+      return stream_;
+    }
+
+  private:
+    QString filename_;
+
+    int stream_;
+
+  };
 
   /**
    * @brief Open stream for decoding
@@ -86,7 +140,9 @@ public:
    * already open and the stream == the stream provided. Returns FALSE if the stream couldn't
    * be opened OR if already open and the stream is NOT the same.
    */
-  bool Open(Stream* fs);
+  bool Open(const CodecStream& stream);
+
+  static const rational kAnyTimecode;
 
   /**
    * @brief Retrieves a video frame from footage
@@ -108,28 +164,7 @@ public:
    *
    * This function is thread safe and can only run while the decoder is open. \see Open()
    */
-  SampleBufferPtr RetrieveAudio(const TimeRange& range, const AudioParams& params, const QAtomicInt *cancelled);
-
-  /**
-   * @brief Try to probe a Footage file by passing it through all available Decoders
-   *
-   * This is a helper function designed to abstract the process of communicating with several Decoders from the rest of
-   * the application. This function will take a Footage file and manually pass it through the available Decoders' Probe()
-   * functions until one indicates that it can decode this file. That Decoder will then dump information about the file
-   * into the Footage object for use throughout the program.
-   *
-   * Probing may be a lengthy process and it's recommended to run this in a separate thread.
-   *
-   * @param f
-   *
-   * A Footage object with a valid filename. If the Footage does not have a valid filename (e.g. is empty or file doesn't
-   * exist), this function will return FALSE.
-   *
-   * @return
-   *
-   * TRUE if a Decoder was successfully able to parse and probe this file. FALSE if not.
-   */
-  static Footage *Probe(Project *project, const QString& filename, const QAtomicInt *cancelled);
+  SampleBufferPtr RetrieveAudio(const TimeRange& range, const AudioParams& params, const QString &cache_path, const QAtomicInt *cancelled);
 
   /**
    * @brief Generate a Footage object from a file
@@ -142,7 +177,7 @@ public:
    *
    * This function is re-entrant.
    */
-  virtual Footage *Probe(const QString& filename, const QAtomicInt* cancelled) const = 0;
+  virtual FootageDescription Probe(const QString& filename, const QAtomicInt* cancelled) const = 0;
 
   /**
    * @brief Closes media/deallocates memory
@@ -165,6 +200,8 @@ public:
   static int GetImageSequenceDigitCount(const QString& filename);
 
   static int64_t GetImageSequenceIndex(const QString& filename);
+
+  static QVector<DecoderPtr> ReceiveListOfAllDecoders();
 
 protected:
   /**
@@ -199,17 +236,15 @@ protected:
 
   virtual bool ConformAudioInternal(const QString& filename, const AudioParams &params, const QAtomicInt* cancelled);
 
-  void SignalProcessingProgress(const int64_t& ts);
+  void SignalProcessingProgress(int64_t ts, int64_t duration);
 
   /**
    * @brief Get the destination filename of an audio stream conformed to a set of parameters
    */
-  QString GetConformedFilename(const AudioParams &params);
-
-  QString GetIndexFilename();
+  QString GetConformedFilename(const QString &cache_path, const AudioParams &params);
 
   struct CurrentlyConforming {
-    Stream* stream;
+    CodecStream stream;
     AudioParams params;
 
     bool operator==(const CurrentlyConforming& rhs) const
@@ -223,10 +258,12 @@ protected:
    *
    * This function is NOT thread safe and should therefore only be called by thread safe functions.
    */
-  Stream* stream() const
+  const CodecStream& stream() const
   {
     return stream_;
   }
+
+  static int64_t GetTimeInTimebaseUnits(const rational& time, const rational& timebase, int64_t start_time);
 
   static QMutex currently_conforming_mutex_;
   static QWaitCondition currently_conforming_wait_cond_;
@@ -242,11 +279,13 @@ signals:
 private:
   SampleBufferPtr RetrieveAudioFromConform(const QString& conform_filename, const TimeRange &range);
 
-  Stream* stream_;
+  CodecStream stream_;
 
   QMutex mutex_;
 
 };
+
+uint qHash(Decoder::CodecStream stream, uint seed = 0);
 
 }
 

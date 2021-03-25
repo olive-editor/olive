@@ -21,6 +21,7 @@
 #include "crashhandler.h"
 
 #include <QApplication>
+#include <QCloseEvent>
 #include <QDir>
 #include <QFile>
 #include <QFontDatabase>
@@ -30,6 +31,7 @@
 #include <QNetworkAccessManager>
 #include <QProcess>
 #include <QScrollBar>
+#include <QSplitter>
 #include <QThread>
 #include <QTimer>
 #include <QVBoxLayout>
@@ -45,24 +47,35 @@ CrashHandlerDialog::CrashHandlerDialog(const char *report_dir, const char* crash
 
   crash_time_ = QString(crash_time).toULongLong();
   report_dir_ = report_dir;
+  waiting_for_upload_ = false;
 
   QVBoxLayout* layout = new QVBoxLayout(this);
 
   layout->addWidget(new QLabel(tr("We're sorry, Olive has crashed. Please help us fix it by "
                                   "sending an error report.")));
 
+  QSplitter* splitter = new QSplitter(Qt::Vertical);
+  splitter->setChildrenCollapsible(false);
+  layout->addWidget(splitter);
+
   summary_edit_ = new QTextEdit();
   summary_edit_->setPlaceholderText(tr("Describe what you were doing in as much detail as "
                                        "possible. If you can, provide steps to reproduce this crash."));
 
-  layout->addWidget(summary_edit_);
+  splitter->addWidget(summary_edit_);
 
-  layout->addWidget(new QLabel(tr("Crash Report:")));
+  QWidget* crash_widget = new QWidget();
+  QVBoxLayout* crash_widget_layout = new QVBoxLayout(crash_widget);
+  crash_widget_layout->setMargin(0);
+
+  crash_widget_layout->addWidget(new QLabel(tr("Crash Report:")));
 
   crash_report_ = new QTextEdit();
   crash_report_->setReadOnly(true);
   crash_report_->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
-  layout->addWidget(crash_report_);
+  crash_widget_layout->addWidget(crash_report_);
+
+  splitter->addWidget(crash_widget);
 
   QHBoxLayout* btn_layout = new QHBoxLayout();
   btn_layout->setMargin(0);
@@ -102,21 +115,22 @@ void CrashHandlerDialog::GenerateReport()
           this, &CrashHandlerDialog::ReadProcessFinished);
   connect(p, &QProcess::readyReadStandardOutput, this, &CrashHandlerDialog::ReadProcessHasData);
 
-  QString stackwalk_filename;
+  QString stackwalk_filename = QStringLiteral("minidump_stackwalk");
 
 #if defined(OS_WIN)
-  stackwalk_filename = QStringLiteral("minidump_stackwalk.exe");
-#else
-  stackwalk_filename = QStringLiteral("minidump_stackwalk");
+  stackwalk_filename.append(QStringLiteral(".exe"));
 #endif
 
-  QString stackwalk_bin = QDir(qApp->applicationDirPath()).filePath(stackwalk_filename);
-  p->start(stackwalk_bin, {report_filename_});
+  QDir app_path(qApp->applicationDirPath());
+  QString stackwalk_bin = app_path.filePath(stackwalk_filename);
+  p->start(stackwalk_bin, {report_filename_, app_path.filePath(QStringLiteral("symbols"))});
   crash_report_->setText(QStringLiteral("Trying to run: %1").arg(stackwalk_bin));
 }
 
 void CrashHandlerDialog::ReplyFinished(QNetworkReply* reply)
 {
+  waiting_for_upload_ = false;
+
   if (reply->error() == QNetworkReply::NoError) {
     // Close dialog
     QDialog::accept();
@@ -175,8 +189,6 @@ void CrashHandlerDialog::SendErrorReport()
     }
   }
 
-  SetGUIObjectsEnabled(false);
-
   QNetworkAccessManager* manager = new QNetworkAccessManager();
   connect(manager, &QNetworkAccessManager::finished, this, &CrashHandlerDialog::ReplyFinished);
 
@@ -194,18 +206,96 @@ void CrashHandlerDialog::SendErrorReport()
   desc_part.setBody(summary_edit_->toPlainText().toUtf8());
   multipart->append(desc_part);
 
-  // Create file section
-  QHttpPart file_part;
-  file_part.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/octet-stream"));
-  file_part.setHeader(QNetworkRequest::ContentDispositionHeader, QStringLiteral("form-data; name=\"upload_file_minidump\"; filename=\"%1\"")
+  // Create report section
+  QHttpPart report_part;
+  report_part.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("text/plain"));
+  report_part.setHeader(QNetworkRequest::ContentDispositionHeader, QStringLiteral("form-data; name=\"report\""));
+  report_part.setBody(report_data_);
+  multipart->append(report_part);
+
+  // Create commit section
+  QHttpPart commit_part;
+  commit_part.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("text/plain"));
+  commit_part.setHeader(QNetworkRequest::ContentDispositionHeader, QStringLiteral("form-data; name=\"commit\""));
+  commit_part.setBody(GITHASH);
+  multipart->append(commit_part);
+
+  // Create dump section
+  QHttpPart dump_part;
+  dump_part.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/octet-stream"));
+  dump_part.setHeader(QNetworkRequest::ContentDispositionHeader, QStringLiteral("form-data; name=\"dump\"; filename=\"%1\"")
                       .arg(QFileInfo(report_filename_).fileName()));
-  QFile* file = new QFile(report_filename_);
-  file->open(QFile::ReadOnly);
-  file_part.setBodyDevice(file);
-  file->setParent(multipart); // Delete file with multipart
-  multipart->append(file_part);
+  QFile* dump_file = new QFile(report_filename_);
+  dump_file->open(QFile::ReadOnly);
+  dump_part.setBodyDevice(dump_file);
+  dump_file->setParent(multipart); // Delete file with multipart
+  multipart->append(dump_part);
+
+  // Find symbol file
+  QDir symbol_dir(QDir(qApp->applicationDirPath()).filePath(QStringLiteral("symbols")));
+#ifdef Q_OS_WINDOWS
+  symbol_dir = QDir(symbol_dir.filePath(QStringLiteral("olive-editor.pdb")));
+#else
+  symbol_dir = QDir(symbol_dir.filePath(QStringLiteral("olive-editor")));
+#endif
+  QStringList folders_in_symbol_path = symbol_dir.entryList();
+
+  bool found = false;
+  foreach (const QString& symbol_folder, folders_in_symbol_path) {
+    if (!symbol_folder.startsWith('.')) {
+      // Assume that the first folder we find is the one with the symbols in it
+      symbol_dir = QDir(symbol_dir.filePath(symbol_folder));
+      found = true;
+      break;
+    }
+  }
+
+  if (!found) {
+    QMessageBox::critical(this, tr("Failed to send report"), tr("Failed to find symbols necessary to send report. "
+                                                                "This is a packaging issue. Please notify "
+                                                                "the maintainers of this package."));
+    return;
+  }
+
+  // Create sym section
+  QString symbol_filename = QStringLiteral("olive-editor.sym");
+  QString symbol_full_path = symbol_dir.filePath(symbol_filename);
+  QHttpPart sym_part;
+  sym_part.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/octet-stream"));
+  sym_part.setHeader(QNetworkRequest::ContentDispositionHeader, QStringLiteral("form-data; name=\"sym\"; filename=\"%1\"")
+                     .arg(symbol_filename));
+  QFile sym_file(symbol_full_path);
+
+  if (!sym_file.open(QFile::ReadOnly)) {
+    QMessageBox::critical(this, tr("Failed to send report"), tr("Failed to open symbol file. You may not have "
+                                                                "permission to access it."));
+    return;
+  }
+
+  QByteArray symbol_data = qCompress(sym_file.readAll(), 9);
+  sym_file.close();
+
+  sym_part.setBody(symbol_data);
+  multipart->append(sym_part);
 
   manager->post(request, multipart);
+
+  SetGUIObjectsEnabled(false);
+  waiting_for_upload_ = true;
+}
+
+void CrashHandlerDialog::closeEvent(QCloseEvent* e)
+{
+  if (waiting_for_upload_
+      && QMessageBox::warning(this,
+                              tr("Confirm Close"),
+                              tr("Crash report is still uploading. Closing now may result in no "
+                                 "report being sent. Are you sure you wish to close?"),
+                              QMessageBox::Ok | QMessageBox::Cancel) == QMessageBox::Cancel) {
+    e->ignore();
+  } else {
+    e->accept();
+  }
 }
 
 }

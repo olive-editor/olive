@@ -26,7 +26,7 @@
 #include "codec/decoder.h"
 #include "common/cancelableobject.h"
 #include "node/output/track/track.h"
-#include "project/item/footage/stream.h"
+#include "render/job/footagejob.h"
 #include "value.h"
 
 namespace olive {
@@ -36,19 +36,22 @@ class NodeTraverser : public CancelableObject
 public:
   NodeTraverser() = default;
 
-  NodeValueTable GenerateTable(const Node *n, const TimeRange &range);
-  NodeValueTable GenerateTable(const Node *n, const rational &in, const rational& out);
+  NodeValueTable GenerateTable(const Node *n, const QString &output, const TimeRange &range);
+  NodeValueTable GenerateTable(const NodeOutput& output, const TimeRange &range)
+  {
+    return GenerateTable(output.node(), output.output(), range);
+  }
 
   NodeValueDatabase GenerateDatabase(const Node *node, const TimeRange &range);
 
 protected:
-  NodeValueTable ProcessInput(NodeInput *input, const TimeRange &range);
+  NodeValueTable ProcessInput(const Node *node, const QString &input, const TimeRange &range);
 
-  virtual NodeValueTable GenerateBlockTable(const TrackOutput *track, const TimeRange& range);
+  virtual NodeValueTable GenerateBlockTable(const Track *track, const TimeRange& range);
 
-  virtual QVariant ProcessVideoFootage(VideoStream* stream, const rational &input_time);
+  virtual QVariant ProcessVideoFootage(const FootageJob &stream, const rational &input_time);
 
-  virtual QVariant ProcessAudioFootage(AudioStream* stream, const TimeRange &input_time);
+  virtual QVariant ProcessAudioFootage(const FootageJob &stream, const TimeRange &input_time);
 
   virtual QVariant ProcessShader(const Node *node, const TimeRange &range, const ShaderJob& job);
 

@@ -53,34 +53,33 @@ public:
    * in this view/scene), this function returns nullptr.
    */
   NodeViewItem* NodeToUIObject(Node* n);
-
-  /**
-   * @brief Retrieve the graphical widget corresponding to a specific NodeEdge
-   *
-   * Same as NodeToUIObject() but returns a NodeViewEdge corresponding to a NodeEdgePtr instead.
-   */
-  NodeViewEdge* EdgeToUIObject(NodeEdgePtr n);
-
-  void SetGraph(NodeGraph* graph);
+  NodeViewEdge *EdgeToUIObject(const NodeOutput &output, const NodeInput &input);
 
   QVector<Node *> GetSelectedNodes() const;
   QVector<NodeViewItem*> GetSelectedItems() const;
-  QVector<NodeEdge *> GetSelectedEdges() const;
+  QVector<NodeViewEdge*> GetSelectedEdges() const;
 
-  const QHash<Node*, NodeViewItem*>& item_map() const;
-  const QHash<NodeEdge*, NodeViewEdge*>& edge_map() const;
+  const QHash<Node*, NodeViewItem*>& item_map() const
+  {
+    return item_map_;
+  }
+
+  const QVector<NodeViewEdge*>& edges() const
+  {
+    return edges_;
+  }
 
   Qt::Orientation GetFlowOrientation() const;
 
   NodeViewCommon::FlowDirection GetFlowDirection() const;
   void SetFlowDirection(NodeViewCommon::FlowDirection direction);
 
-  /**
-   * @brief Automatically reposition the nodes based on their connections
-   */
-  void ReorganizeFrom(Node* n);
+  bool GetEdgesAreCurved() const
+  {
+    return curved_edges_;
+  }
 
-  bool GetEdgesAreCurved() const;
+  void ReorganizeFrom(Node* n);
 
 public slots:
   /**
@@ -99,21 +98,8 @@ public slots:
    */
   void RemoveNode(Node* node);
 
-  /**
-   * @brief Slot when an edge is added to a graph (SetGraph() connects this)
-   *
-   * This should NEVER be called directly, only connected to a NodeGraph. To add an edge (i.e. connect two node
-   * parameters together), use NodeParam::ConnectEdge().
-   */
-  void AddEdge(NodeEdgePtr edge);
-
-  /**
-   * @brief Slot when an edge is removed from a graph (SetGraph() connects this)
-   *
-   * This should NEVER be called directly, only connected to a NodeGraph. To remove an edge (i.e. disconnect two node
-   * parameters), use NodeParam::DisconnectEdge().
-   */
-  void RemoveEdge(NodeEdgePtr edge);
+  void AddEdge(const NodeOutput& output, const NodeInput& input);
+  void RemoveEdge(const NodeOutput& output, const NodeInput& input);
 
   /**
    * @brief Set whether edges in this scene should be curved or not
@@ -123,9 +109,11 @@ public slots:
 private:
   static int DetermineWeight(Node* n);
 
+  void AddEdgeInternal(const NodeOutput &output, const NodeInput &input, NodeViewItem* from, NodeViewItem* to);
+
   QHash<Node*, NodeViewItem*> item_map_;
 
-  QHash<NodeEdge*, NodeViewEdge*> edge_map_;
+  QVector<NodeViewEdge*> edges_;
 
   NodeGraph* graph_;
 
@@ -142,7 +130,7 @@ private slots:
   /**
    * @brief Receiver for when a node's label has changed
    */
-  void NodeLabelChanged();
+  void NodeAppearanceChanged();
 
 };
 

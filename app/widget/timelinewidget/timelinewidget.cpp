@@ -124,7 +124,7 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
 
     view_splitter_->addWidget(tview);
 
-    ConnectTimelineView(view);
+    ConnectTimelineView(view, false);
 
     connect(view->horizontalScrollBar(), &QScrollBar::valueChanged, ruler(), &TimeRuler::SetScroll);
     connect(view, &TimelineView::ScaleChanged, this, &TimelineWidget::SetScale);
@@ -176,12 +176,6 @@ TimelineWidget::~TimelineWidget()
 
 void TimelineWidget::Clear()
 {
-  // Delete all items
-  for (auto iterator=block_items_.begin(); iterator!=block_items_.end(); iterator++) {
-    delete iterator.value();
-  }
-  block_items_.clear();
-
   // Emit that we've deselected any selected blocks
   SignalDeselectedAllBlocks();
 
@@ -196,14 +190,6 @@ void TimelineWidget::TimebaseChangedEvent(const rational &timebase)
   timecode_label_->SetTimebase(timebase);
 
   timecode_label_->setVisible(!timebase.isNull());
-
-  QMap<Block*, TimelineViewBlockItem*>::const_iterator iterator;
-
-  for (iterator=block_items_.begin();iterator!=block_items_.end();iterator++) {
-    if (iterator.value()) {
-      iterator.value()->SetTimebase(timebase);
-    }
-  }
 
   UpdateViewTimebases();
 }
@@ -227,60 +213,49 @@ void TimelineWidget::ScaleChangedEvent(const double &scale)
 {
   TimeBasedWidget::ScaleChangedEvent(scale);
 
-  QMap<Block*, TimelineViewBlockItem*>::const_iterator iterator;
-
-  for (iterator=block_items_.begin();iterator!=block_items_.end();iterator++) {
-    if (iterator.value()) {
-      iterator.value()->SetScale(scale);
-    }
-  }
-
   foreach (TimelineAndTrackView* view, views_) {
     view->view()->SetScale(scale);
   }
 }
 
-void TimelineWidget::ConnectNodeInternal(ViewerOutput *n)
+void TimelineWidget::ConnectNodeInternal(Sequence *n)
 {
-  connect(n, &ViewerOutput::BlockAdded, this, &TimelineWidget::AddBlock);
-  connect(n, &ViewerOutput::BlockRemoved, this, &TimelineWidget::RemoveBlock);
   connect(n, &ViewerOutput::TrackAdded, this, &TimelineWidget::AddTrack);
   connect(n, &ViewerOutput::TrackRemoved, this, &TimelineWidget::RemoveTrack);
   connect(n, &ViewerOutput::TimebaseChanged, this, &TimelineWidget::SetTimebase);
-  connect(n, &ViewerOutput::TrackHeightChanged, this, &TimelineWidget::TrackHeightChanged);
 
   ruler()->SetPlaybackCache(n->video_frame_cache());
 
   SetTimebase(n->video_params().time_base());
 
   for (int i=0;i<views_.size();i++) {
-    Timeline::TrackType track_type = static_cast<Timeline::TrackType>(i);
+    Sequence* s = static_cast<Sequence*>(n);
+    Track::Type track_type = static_cast<Track::Type>(i);
     TimelineView* view = views_.at(i)->view();
-    TrackList* track_list = n->track_list(track_type);
+    TrackList* track_list = s->track_list(track_type);
     TrackView* track_view = views_.at(i)->track_view();
 
     track_view->ConnectTrackList(track_list);
     view->ConnectTrackList(track_list);
 
     // Defer to the track to make all the block UI items necessary
-    foreach (TrackOutput* track, n->track_list(track_type)->GetTracks()) {
-      AddTrack(track, track_type);
+    const QVector<Track*> tracks = s->track_list(track_type)->GetTracks();
+    foreach (Track* track, tracks) {
+      AddTrack(track);
     }
   }
 }
 
-void TimelineWidget::DisconnectNodeInternal(ViewerOutput *n)
+void TimelineWidget::DisconnectNodeInternal(Sequence *n)
 {
-  disconnect(n, &ViewerOutput::BlockAdded, this, &TimelineWidget::AddBlock);
-  disconnect(n, &ViewerOutput::BlockRemoved, this, &TimelineWidget::RemoveBlock);
   disconnect(n, &ViewerOutput::TrackAdded, this, &TimelineWidget::AddTrack);
   disconnect(n, &ViewerOutput::TrackRemoved, this, &TimelineWidget::RemoveTrack);
   disconnect(n, &ViewerOutput::TimebaseChanged, this, &TimelineWidget::SetTimebase);
-  disconnect(n, &ViewerOutput::TrackHeightChanged, this, &TimelineWidget::TrackHeightChanged);
 
   DeselectAll();
 
-  foreach (TrackOutput* track, n->GetTracks()) {
+  Sequence* s = static_cast<Sequence*>(n);
+  foreach (Track* track, s->GetTracks()) {
     RemoveTrack(track);
   }
 
@@ -299,29 +274,22 @@ void TimelineWidget::DisconnectNodeInternal(ViewerOutput *n)
 void TimelineWidget::CopyNodesToClipboardInternal(QXmlStreamWriter *writer, void* userdata)
 {
   // Cache the earliest in point so all copied clips have a "relative" in point that can be pasted anywhere
-  QVector<TimelineViewBlockItem*>& selected = *static_cast<QVector<TimelineViewBlockItem*>*>(userdata);
+  QVector<Block*>& selected = *static_cast<QVector<Block*>*>(userdata);
   rational earliest_in = RATIONAL_MAX;
 
-  foreach (TimelineViewBlockItem* item, selected) {
-    Block* block = item->block();
-
+  foreach (Block* block, selected) {
     earliest_in = qMin(earliest_in, block->in());
   }
 
-  foreach (TimelineViewBlockItem* item, selected) {
-    Block* block = item->block();
-
+  foreach (Block* block, selected) {
     writer->writeStartElement(QStringLiteral("block"));
 
     writer->writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(block)));
     writer->writeAttribute(QStringLiteral("in"), (block->in() - earliest_in).toString());
 
-    TrackOutput* track = TrackOutput::TrackFromBlock(block);
-
-    if (track) {
-      writer->writeAttribute(QStringLiteral("tracktype"), QString::number(track->track_type()));
-      writer->writeAttribute(QStringLiteral("trackindex"), QString::number(track->Index()));
-    }
+    Track* track = block->track();
+    writer->writeAttribute(QStringLiteral("tracktype"), QString::number(track->type()));
+    writer->writeAttribute(QStringLiteral("trackindex"), QString::number(track->Index()));
 
     writer->writeEndElement();
   }
@@ -341,7 +309,7 @@ void TimelineWidget::PasteNodesFromClipboardInternal(QXmlStreamReader *reader, X
         } else if (attr.name() == QStringLiteral("in")) {
           bpd.in = rational::fromString(attr.value().toString());
         } else if (attr.name() == QStringLiteral("tracktype")) {
-          bpd.track_type = static_cast<Timeline::TrackType>(attr.value().toInt());
+          bpd.track_type = static_cast<Track::Type>(attr.value().toInt());
         } else if (attr.name() == QStringLiteral("trackindex")) {
           bpd.track_index = attr.value().toInt();
         }
@@ -358,10 +326,10 @@ void TimelineWidget::SelectAll()
 {
   QVector<Block*> newly_selected_blocks;
 
-  for (auto it=block_items_.cbegin(); it!=block_items_.cend(); it++) {
-    if (!selected_blocks_.contains(it.key())) {
-      newly_selected_blocks.append(it.key());
-      AddSelection(it.key()->range(), it.value()->Track());
+  foreach (Block* block, added_blocks_) {
+    if (!selected_blocks_.contains(block)) {
+      newly_selected_blocks.append(block);
+      AddSelection(block);
     }
   }
 
@@ -408,7 +376,7 @@ void TimelineWidget::SplitAtPlayhead()
 
   rational playhead_time = Timecode::timestamp_to_time(GetTimestamp(), timebase());
 
-  QVector<TimelineViewBlockItem *> selected_blocks = GetSelectedBlocks();
+  QVector<Block*> selected_blocks = GetSelectedBlocks();
 
   // Prioritize blocks that are selected and overlap the playhead
   QVector<Block*> blocks_to_split;
@@ -417,15 +385,15 @@ void TimelineWidget::SplitAtPlayhead()
   bool some_blocks_are_selected = false;
 
   // Get all blocks at the playhead
-  foreach (TrackOutput* track, GetConnectedNode()->GetTracks()) {
+  foreach (Track* track, sequence()->GetTracks()) {
     Block* b = track->BlockContainingTime(playhead_time);
 
     if (b && b->type() == Block::kClip) {
       bool selected = false;
 
       // See if this block is selected
-      foreach (TimelineViewBlockItem* item, selected_blocks) {
-        if (item->block() == b) {
+      foreach (Block* item, selected_blocks) {
+        if (item == b) {
           some_blocks_are_selected = true;
           selected = true;
           break;
@@ -454,8 +422,8 @@ void TimelineWidget::SplitAtPlayhead()
 }
 
 void TimelineWidget::ReplaceBlocksWithGaps(const QVector<Block *> &blocks,
-                                            bool remove_from_graph,
-                                            QUndoCommand *command)
+                                           bool remove_from_graph,
+                                           MultiUndoCommand *command)
 {
   foreach (Block* b, blocks) {
     if (b->type() == Block::kGap) {
@@ -464,24 +432,22 @@ void TimelineWidget::ReplaceBlocksWithGaps(const QVector<Block *> &blocks,
       continue;
     }
 
-    TrackOutput* original_track = TrackOutput::TrackFromBlock(b);
+    Track* original_track = b->track();
 
-    new TrackReplaceBlockWithGapCommand(original_track, b, command);
+    command->add_child(new TrackReplaceBlockWithGapCommand(original_track, b));
 
     if (remove_from_graph) {
-      new NodeRemoveWithExclusiveDeps(static_cast<NodeGraph*>(b->parent()), b, command);
+      command->add_child(new NodeRemoveWithExclusiveDependenciesAndDisconnect(b));
     }
   }
 }
 
 void TimelineWidget::DeleteSelected(bool ripple)
 {
-  QVector<TimelineViewBlockItem *> selected_list = GetSelectedBlocks();
+  QVector<Block*> selected_list = GetSelectedBlocks();
   QVector<Block*> blocks_to_delete;
 
-  foreach (TimelineViewBlockItem* item, selected_list) {
-    Block* b = item->block();
-
+  foreach (Block* b, selected_list) {
     blocks_to_delete.append(b);
   }
 
@@ -490,7 +456,7 @@ void TimelineWidget::DeleteSelected(bool ripple)
     return;
   }
 
-  QUndoCommand* command = new QUndoCommand();
+  MultiUndoCommand* command = new MultiUndoCommand();
 
   QVector<Block*> clips_to_delete;
   QVector<TransitionBlock*> transitions_to_delete;
@@ -505,20 +471,16 @@ void TimelineWidget::DeleteSelected(bool ripple)
 
   // For transitions, remove them but extend their attached blocks to fill their place
   foreach (TransitionBlock* transition, transitions_to_delete) {
-    new TransitionRemoveCommand(TrackOutput::TrackFromBlock(transition),
-                                transition,
-                                command);
+    command->add_child(new TransitionRemoveCommand(transition));
 
-    new NodeRemoveWithExclusiveDeps(static_cast<NodeGraph*>(GetConnectedNode()->parent()),
-                                    transition,
-                                    command);
+    command->add_child(new NodeRemoveWithExclusiveDependenciesAndDisconnect(transition));
   }
 
   // Replace clips with gaps (effectively deleting them)
   ReplaceBlocksWithGaps(clips_to_delete, true, command);
 
   // Remove all selections
-  new TimelineSetSelectionsCommand(this, TimelineWidgetSelections(), GetSelections(), command);
+  command->add_child(new SetSelectionsCommand(this, TimelineWidgetSelections(), GetSelections()));
 
   // Insert ripple command now that it's all cleaned up gaps
   if (ripple) {
@@ -528,7 +490,7 @@ void TimelineWidget::DeleteSelected(bool ripple)
       range_list.insert(TimeRange(b->in(), b->out()));
     }
 
-    new TimelineRippleDeleteGapsAtRegionsCommand(GetConnectedNode(), range_list, command);
+    command->add_child(new TimelineRippleDeleteGapsAtRegionsCommand(sequence(), range_list));
   }
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);
@@ -540,11 +502,9 @@ void TimelineWidget::IncreaseTrackHeight()
     return;
   }
 
-  QVector<TrackOutput*> all_tracks = GetConnectedNode()->GetTracks();
-
   // Increase the height of each track by one "unit"
-  foreach (TrackOutput* t, all_tracks) {
-    t->SetTrackHeight(t->GetTrackHeight() + TrackOutput::kTrackHeightInterval);
+  foreach (Track* t, sequence()->GetTracks()) {
+    t->SetTrackHeight(t->GetTrackHeight() + Track::kTrackHeightInterval);
   }
 }
 
@@ -554,50 +514,46 @@ void TimelineWidget::DecreaseTrackHeight()
     return;
   }
 
-  QVector<TrackOutput*> all_tracks = GetConnectedNode()->GetTracks();
-
   // Decrease the height of each track by one "unit"
-  foreach (TrackOutput* t, all_tracks) {
-    t->SetTrackHeight(qMax(t->GetTrackHeight() - TrackOutput::kTrackHeightInterval, TrackOutput::kTrackHeightMinimum));
+  foreach (Track* t, sequence()->GetTracks()) {
+    t->SetTrackHeight(qMax(t->GetTrackHeight() - Track::kTrackHeightInterval, Track::kTrackHeightMinimum));
   }
 }
 
-void TimelineWidget::InsertFootageAtPlayhead(const QList<Footage*>& footage)
+void TimelineWidget::InsertFootageAtPlayhead(const QVector<Footage*>& footage)
 {
   import_tool_->PlaceAt(footage, GetTime(), true);
 }
 
-void TimelineWidget::OverwriteFootageAtPlayhead(const QList<Footage *> &footage)
+void TimelineWidget::OverwriteFootageAtPlayhead(const QVector<Footage *> &footage)
 {
   import_tool_->PlaceAt(footage, GetTime(), false);
 }
 
 void TimelineWidget::ToggleLinksOnSelected()
 {
-  QVector<TimelineViewBlockItem*> sel = GetSelectedBlocks();
-
-  QVector<Block*> blocks;
+  QVector<Node*> blocks;
   bool link = true;
 
-  foreach (TimelineViewBlockItem* item, sel) {
+  foreach (Block* item, GetSelectedBlocks()) {
     // Only clips can be linked
-    if (item->block()->type() != Block::kClip) {
+    if (item->type() != Block::kClip) {
       continue;
     }
 
     // Prioritize unlinking, if any block has links, assume we're unlinking
-    if (link && item->block()->HasLinks()) {
+    if (link && item->HasLinks()) {
       link = false;
     }
 
-    blocks.append(item->block());
+    blocks.append(item);
   }
 
   if (blocks.isEmpty()) {
     return;
   }
 
-  Core::instance()->undo_stack()->push(new BlockLinkManyCommand(blocks, link));
+  Core::instance()->undo_stack()->push(new NodeLinkManyCommand(blocks, link));
 }
 
 void TimelineWidget::CopySelected(bool cut)
@@ -606,7 +562,7 @@ void TimelineWidget::CopySelected(bool cut)
     return;
   }
 
-  QVector<TimelineViewBlockItem*> selected = GetSelectedBlocks();
+  QVector<Block*> selected = GetSelectedBlocks();
 
   if (selected.isEmpty()) {
     return;
@@ -614,9 +570,7 @@ void TimelineWidget::CopySelected(bool cut)
 
   QVector<Node*> selected_nodes;
 
-  foreach (TimelineViewBlockItem* item, selected) {
-    Node* block = item->block();
-
+  foreach (Block* block, selected) {
     selected_nodes.append(block);
 
     QVector<Node*> deps = block->GetDependencies();
@@ -641,10 +595,10 @@ void TimelineWidget::Paste(bool insert)
     return;
   }
 
-  QUndoCommand* command = new QUndoCommand();
+  MultiUndoCommand* command = new MultiUndoCommand();
 
   QVector<BlockPasteData> paste_data;
-  QVector<Node*> pasted = PasteNodesFromClipboard(static_cast<Sequence*>(GetConnectedNode()->parent()), command, &paste_data);
+  QVector<Node*> pasted = PasteNodesFromClipboard(GetConnectedNode()->parent(), command, &paste_data);
 
   rational paste_start = GetTime();
 
@@ -662,11 +616,10 @@ void TimelineWidget::Paste(bool insert)
 
   foreach (const BlockPasteData& bpd, paste_data) {
     qDebug() << "Placing" << bpd.block;
-    new TrackPlaceBlockCommand(GetConnectedNode()->track_list(bpd.track_type),
-                               bpd.track_index,
-                               bpd.block,
-                               paste_start + bpd.in,
-                               command);
+    command->add_child(new TrackPlaceBlockCommand(sequence()->track_list(bpd.track_type),
+                                                  bpd.track_index,
+                                                  bpd.block,
+                                                  paste_start + bpd.in));
   }
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);
@@ -680,40 +633,36 @@ void TimelineWidget::DeleteInToOut(bool ripple)
     return;
   }
 
-  QUndoCommand* command = new QUndoCommand();
+  MultiUndoCommand* command = new MultiUndoCommand();
 
   if (ripple) {
 
-    new TimelineRippleRemoveAreaCommand(GetConnectedNode(),
-                                        GetConnectedTimelinePoints()->workarea()->in(),
-                                        GetConnectedTimelinePoints()->workarea()->out(),
-                                        command);
+    command->add_child(new TimelineRippleRemoveAreaCommand(sequence(),
+                                                           GetConnectedTimelinePoints()->workarea()->in(),
+                                                           GetConnectedTimelinePoints()->workarea()->out()));
 
   } else {
-    QVector<TrackOutput*> unlocked_tracks = GetConnectedNode()->GetUnlockedTracks();
+    QVector<Track*> unlocked_tracks = sequence()->GetUnlockedTracks();
 
-    foreach (TrackOutput* track, unlocked_tracks) {
+    foreach (Track* track, unlocked_tracks) {
       GapBlock* gap = new GapBlock();
 
       gap->set_length_and_media_out(GetConnectedTimelinePoints()->workarea()->length());
 
-      new NodeAddCommand(static_cast<NodeGraph*>(track->parent()),
-                         gap,
-                         command);
+      command->add_child(new NodeAddCommand(static_cast<NodeGraph*>(track->parent()),
+                                            gap));
 
-      new TrackPlaceBlockCommand(GetConnectedNode()->track_list(track->track_type()),
-                                 track->Index(),
-                                 gap,
-                                 GetConnectedTimelinePoints()->workarea()->in(),
-                                 command);
+      command->add_child(new TrackPlaceBlockCommand(sequence()->track_list(track->type()),
+                                                    track->Index(),
+                                                    gap,
+                                                    GetConnectedTimelinePoints()->workarea()->in()));
     }
   }
 
   // Clear workarea after this
-  new WorkareaSetEnabledCommand(GetTimelinePointsProject(),
-                                GetConnectedTimelinePoints(),
-                                false,
-                                command);
+  command->add_child(new WorkareaSetEnabledCommand(GetTimelinePointsProject(),
+                                                   GetConnectedTimelinePoints(),
+                                                   false));
 
   if (ripple) {
     SetTimeAndSignal(Timecode::time_to_timestamp(GetConnectedTimelinePoints()->workarea()->in(),
@@ -725,55 +674,49 @@ void TimelineWidget::DeleteInToOut(bool ripple)
 
 void TimelineWidget::ToggleSelectedEnabled()
 {
-  QVector<TimelineViewBlockItem*> items = GetSelectedBlocks();
+  QVector<Block*> items = GetSelectedBlocks();
 
   if (items.isEmpty()) {
     return;
   }
 
-  QUndoCommand* command = new QUndoCommand();
+  MultiUndoCommand* command = new MultiUndoCommand();
 
-  foreach (TimelineViewBlockItem* i, items) {
-    new BlockEnableDisableCommand(i->block(),
-                                  !i->block()->is_enabled(),
-                                  command);
+  foreach (Block* i, items) {
+    command->add_child(new BlockEnableDisableCommand(i,
+                                                     !i->is_enabled()));
   }
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
-QVector<TimelineViewBlockItem *> TimelineWidget::GetSelectedBlocks()
+void TimelineWidget::SetColorLabel(int index)
 {
-  QVector<TimelineViewBlockItem *> list(selected_blocks_.size());
-
-  for (int i=0; i<selected_blocks_.size(); i++) {
-    list[i] = block_items_.value(selected_blocks_.at(i));
-  }
-
-  return list;
-}
-
-void TimelineWidget::InsertGapsAt(const rational &earliest_point, const rational &insert_length, QUndoCommand *command)
-{
-  for (int i=0;i<Timeline::kTrackTypeCount;i++) {
-    new TrackListInsertGaps(GetConnectedNode()->track_list(static_cast<Timeline::TrackType>(i)),
-                            earliest_point,
-                            insert_length,
-                            command);
+  foreach (Block* b, selected_blocks_) {
+    b->SetOverrideColor(index);
   }
 }
 
-TrackOutput *TimelineWidget::GetTrackFromReference(const TrackReference &ref)
+void TimelineWidget::InsertGapsAt(const rational &earliest_point, const rational &insert_length, MultiUndoCommand *command)
 {
-  return GetConnectedNode()->track_list(ref.type())->GetTrackAt(ref.index());
+  for (int i=0;i<Track::kCount;i++) {
+    command->add_child(new TrackListInsertGaps(sequence()->track_list(static_cast<Track::Type>(i)),
+                                               earliest_point,
+                                               insert_length));
+  }
 }
 
-int TimelineWidget::GetTrackY(const TrackReference &ref)
+Track *TimelineWidget::GetTrackFromReference(const Track::Reference &ref) const
+{
+  return sequence()->track_list(ref.type())->GetTrackAt(ref.index());
+}
+
+int TimelineWidget::GetTrackY(const Track::Reference &ref)
 {
   return views_.at(ref.type())->view()->GetTrackY(ref.index());
 }
 
-int TimelineWidget::GetTrackHeight(const TrackReference &ref)
+int TimelineWidget::GetTrackHeight(const Track::Reference &ref)
 {
   return views_.at(ref.type())->view()->GetTrackHeight(ref.index());
 }
@@ -823,14 +766,17 @@ void TimelineWidget::ViewMouseMoved(TimelineViewMouseEvent *event)
   if (GetConnectedNode()) {
     if (active_tool_) {
       active_tool_->MouseMove(event);
+
       UpdateViewports();
+
+      QMetaObject::invokeMethod(this, "CatchUpScrollToPoint", Qt::QueuedConnection,
+                                Q_ARG(int, qRound(event->GetSceneX())));
     } else {
       // Mouse is not down, attempt a hover event
       TimelineTool* hover_tool = GetActiveTool();
 
       if (hover_tool) {
         hover_tool->HoverMove(event);
-        UpdateViewports();
       }
     }
   }
@@ -877,133 +823,76 @@ void TimelineWidget::ViewDragDropped(TimelineViewMouseEvent *event)
   UpdateViewports();
 }
 
-void TimelineWidget::AddBlock(Block *block, TrackReference track)
+void TimelineWidget::AddBlock(Block *block)
 {
   // Set up clip with view parameters (clip item will automatically size its rect accordingly)
-  TimelineViewBlockItem* item = block_items_.value(block);
-
-  if (!item) {
-
-    // Add to list of clip items that can be iterated through
-    item = new TimelineViewBlockItem(block);
-    block_items_.insert(block, item);
-
-    // Set scale parameters
-    item->SetScale(GetScale());
-    item->SetTimebase(timebase());
-    item->SetYCoords(GetTrackY(track), GetTrackHeight(track));
-    item->SetTrack(track);
-
-    // Add item to graphics scene
-    views_.at(track.type())->view()->scene()->addItem(item);
-
-    connect(block, &Block::Refreshed, this, &TimelineWidget::BlockRefreshed);
+  if (!added_blocks_.contains(block)) {
     connect(block, &Block::LinksChanged, this, &TimelineWidget::BlockUpdated);
     connect(block, &Block::LabelChanged, this, &TimelineWidget::BlockUpdated);
+    connect(block, &Block::ColorChanged, this, &TimelineWidget::BlockUpdated);
     connect(block, &Block::EnabledChanged, this, &TimelineWidget::BlockUpdated);
 
-  } else if (item->Track() != track) {
-
-    item->SetYCoords(GetTrackY(track), GetTrackHeight(track));
-    item->SetTrack(track);
-
+    added_blocks_.append(block);
   }
 }
 
-void TimelineWidget::RemoveBlock(const QList<Block *> &blocks)
+void TimelineWidget::RemoveBlock(Block *block)
 {
-  QVector<Block*> deselect_blocks;
+  // Disconnect all signals
+  disconnect(block, &Block::LinksChanged, this, &TimelineWidget::BlockUpdated);
+  disconnect(block, &Block::LabelChanged, this, &TimelineWidget::BlockUpdated);
+  disconnect(block, &Block::ColorChanged, this, &TimelineWidget::BlockUpdated);
+  disconnect(block, &Block::EnabledChanged, this, &TimelineWidget::BlockUpdated);
 
-  foreach (Block* b, blocks) {
-    // Disconnect all signals
-    disconnect(b, &Block::Refreshed, this, &TimelineWidget::BlockRefreshed);
-    disconnect(b, &Block::LinksChanged, this, &TimelineWidget::BlockUpdated);
-    disconnect(b, &Block::LabelChanged, this, &TimelineWidget::BlockUpdated);
-    disconnect(b, &Block::EnabledChanged, this, &TimelineWidget::BlockUpdated);
+  // Take item from map
+  added_blocks_.removeOne(block);
 
-    // Take item from map
-    TimelineViewBlockItem* item = block_items_.take(b);
+  // If selected, deselect it
+  int select_index = selected_blocks_.indexOf(block);
+  if (select_index > -1) {
+    selected_blocks_.removeAt(select_index);
+    RemoveSelection(block);
 
-    // If selected, deselect it
-    int select_index = selected_blocks_.indexOf(b);
-    if (select_index > -1) {
-      selected_blocks_.removeAt(select_index);
-      deselect_blocks.append(b);
-      RemoveSelection(item);
-    }
-
-    // Finally, delete item
-    delete item;
-  }
-
-  if (!deselect_blocks.isEmpty()) {
-    // We already removed the blocks from selected_blocks_, so we can signal directly rather than
-    // through
-    emit BlocksDeselected(deselect_blocks);
+    emit BlocksDeselected({block});
   }
 }
 
-void TimelineWidget::AddTrack(TrackOutput *track, Timeline::TrackType type)
+void TimelineWidget::AddTrack(Track *track)
 {
   foreach (Block* b, track->Blocks()) {
-    AddBlock(b, TrackReference(type, track->Index()));
+    AddBlock(b);
   }
 
-  connect(track, &TrackOutput::IndexChanged, this, &TimelineWidget::TrackIndexChanged);
-  connect(track, &TrackOutput::PreviewChanged, this, &TimelineWidget::TrackPreviewUpdated);
+  connect(track, &Track::IndexChanged, this, &TimelineWidget::TrackUpdated);
+  connect(track, &Track::PreviewChanged, this, &TimelineWidget::TrackUpdated);
+  connect(track, &Track::BlocksRefreshed, this, &TimelineWidget::TrackUpdated);
+  connect(track, &Track::TrackHeightChangedInPixels, this, &TimelineWidget::TrackUpdated);
+  connect(track, &Track::BlockAdded, this, &TimelineWidget::AddBlock);
+  connect(track, &Track::BlockRemoved, this, &TimelineWidget::RemoveBlock);
 }
 
-void TimelineWidget::RemoveTrack(TrackOutput *track)
+void TimelineWidget::RemoveTrack(Track *track)
 {
-  disconnect(track, &TrackOutput::IndexChanged, this, &TimelineWidget::TrackIndexChanged);
-  disconnect(track, &TrackOutput::PreviewChanged, this, &TimelineWidget::TrackPreviewUpdated);
-
-  RemoveBlock(track->Blocks());
-}
-
-void TimelineWidget::TrackIndexChanged()
-{
-  TrackOutput* track = static_cast<TrackOutput*>(sender());
-  TrackReference ref(track->track_type(), track->Index());
+  disconnect(track, &Track::IndexChanged, this, &TimelineWidget::TrackUpdated);
+  disconnect(track, &Track::PreviewChanged, this, &TimelineWidget::TrackUpdated);
+  disconnect(track, &Track::BlocksRefreshed, this, &TimelineWidget::TrackUpdated);
+  disconnect(track, &Track::TrackHeightChangedInPixels, this, &TimelineWidget::TrackUpdated);
+  disconnect(track, &Track::BlockAdded, this, &TimelineWidget::AddBlock);
+  disconnect(track, &Track::BlockRemoved, this, &TimelineWidget::RemoveBlock);
 
   foreach (Block* b, track->Blocks()) {
-    TimelineViewBlockItem* item = block_items_.value(b);
-
-    item->SetYCoords(GetTrackY(ref), GetTrackHeight(ref));
-    item->SetTrack(ref);
+    RemoveBlock(b);
   }
 }
 
-void TimelineWidget::BlockRefreshed()
+void TimelineWidget::TrackUpdated()
 {
-  TimelineViewRect* rect = block_items_.value(static_cast<Block*>(sender()));
-
-  if (rect) {
-    rect->UpdateRect();
-  }
+  UpdateViewports(static_cast<Track*>(sender())->type());
 }
 
 void TimelineWidget::BlockUpdated()
 {
-  TimelineViewRect* rect = block_items_.value(static_cast<Block*>(sender()));
-
-  if (rect) {
-    rect->update();
-  }
-}
-
-void TimelineWidget::TrackPreviewUpdated()
-{
-  QMap<Block*, TimelineViewBlockItem*>::const_iterator i;
-
-  TrackOutput* track = static_cast<TrackOutput*>(sender());
-  TrackReference track_ref(track->track_type(), track->Index());
-
-  for (i=block_items_.constBegin(); i!=block_items_.constEnd(); i++) {
-    if (i.value()->Track() == track_ref) {
-      i.value()->update();
-    }
-  }
+  UpdateViewports(static_cast<Block*>(sender())->track()->type());
 }
 
 void TimelineWidget::UpdateHorizontalSplitters()
@@ -1028,42 +917,28 @@ void TimelineWidget::UpdateTimecodeWidthFromSplitters(QSplitter* s)
   timecode_label_->setFixedWidth(s->sizes().first() + s->handleWidth());
 }
 
-void TimelineWidget::TrackHeightChanged(Timeline::TrackType type, int index, int height)
-{
-  Q_UNUSED(index)
-  Q_UNUSED(height)
-
-  QMap<Block*, TimelineViewBlockItem*>::const_iterator iterator;
-  TimelineView* view = views_.at(type)->view();
-
-  for (iterator=block_items_.begin();iterator!=block_items_.end();iterator++) {
-    TimelineViewBlockItem* block_item = iterator.value();
-
-    if (block_item->Track().type() == type) {
-      block_item->SetYCoords(view->GetTrackY(block_item->Track().index()),
-                             view->GetTrackHeight(block_item->Track().index()));
-    }
-  }
-}
-
 void TimelineWidget::ShowContextMenu()
 {
   Menu menu(this);
 
-  QVector<TimelineViewBlockItem*> selected = GetSelectedBlocks();
+  QVector<Block*> selected = GetSelectedBlocks();
 
   if (!selected.isEmpty()) {
     MenuShared::instance()->AddItemsForEditMenu(&menu, true);
 
     menu.addSeparator();
 
+    MenuShared::instance()->AddColorCodingMenu(&menu);
+
+    menu.addSeparator();
+
     QAction* properties_action = menu.addAction(tr("Properties"));
     connect(properties_action, &QAction::triggered, this, [this](){
-      QVector<TimelineViewBlockItem*> block_items = GetSelectedBlocks();
+      QVector<Block*> block_items = GetSelectedBlocks();
       QVector<Node*> nodes;
 
-      foreach (TimelineViewBlockItem* i, block_items) {
-        nodes.append(i->block());
+      foreach (Block* i, block_items) {
+        nodes.append(i);
       }
 
       Core::instance()->LabelNodes(nodes);
@@ -1076,6 +951,11 @@ void TimelineWidget::ShowContextMenu()
     toggle_audio_units->setCheckable(true);
     toggle_audio_units->setChecked(use_audio_time_units_);
     connect(toggle_audio_units, &QAction::triggered, this, &TimelineWidget::SetUseAudioTimeUnits);
+
+    QAction* show_waveforms = menu.addAction(tr("Show Waveforms"));
+    show_waveforms->setCheckable(true);
+    show_waveforms->setChecked(views_.first()->view()->GetShowWaveforms());
+    connect(show_waveforms, &QAction::triggered, this, &TimelineWidget::SetViewWaveformsEnabled);
 
     menu.addSeparator();
 
@@ -1097,7 +977,7 @@ void TimelineWidget::ShowSequenceDialog()
     return;
   }
 
-  SequenceDialog sd(static_cast<Sequence*>(GetConnectedNode()->parent()), SequenceDialog::kExisting, this);
+  SequenceDialog sd(sequence(), SequenceDialog::kExisting, this);
   sd.exec();
 }
 
@@ -1117,7 +997,7 @@ void TimelineWidget::SetViewTimestamp(const int64_t &ts)
   for (int i=0;i<views_.size();i++) {
     TimelineAndTrackView* view = views_.at(i);
 
-    if (use_audio_time_units_ && i == Timeline::kTrackTypeAudio) {
+    if (use_audio_time_units_ && i == Track::kAudio) {
       view->view()->SetTime(Timecode::rescale_timestamp(ts,
                                                         timebase(),
                                                         GetConnectedNode()->audio_params().time_base()));
@@ -1129,22 +1009,27 @@ void TimelineWidget::SetViewTimestamp(const int64_t &ts)
 
 void TimelineWidget::ViewTimestampChanged(int64_t ts)
 {
-  if (use_audio_time_units_ && sender() == views_.at(Timeline::kTrackTypeAudio)) {
+  if (use_audio_time_units_ && sender() == views_.at(Track::kAudio)) {
     ts = Timecode::rescale_timestamp(ts,
                                      GetConnectedNode()->audio_params().time_base(),
                                      timebase());
   }
 
   // Update all other views
-  SetViewTimestamp(ts);
-
-  ruler()->SetTime(ts);
+  SetTimestamp(ts);
   emit TimeChanged(ts);
 }
 
 void TimelineWidget::ToolChanged()
 {
   HideSnaps();
+}
+
+void TimelineWidget::SetViewWaveformsEnabled(bool e)
+{
+  foreach (TimelineAndTrackView* tview, views_) {
+    tview->view()->SetShowWaveforms(e);
+  }
 }
 
 void TimelineWidget::AddGhost(TimelineViewGhostItem *ghost)
@@ -1159,7 +1044,7 @@ void TimelineWidget::UpdateViewTimebases()
   for (int i=0;i<views_.size();i++) {
     TimelineAndTrackView* view = views_.at(i);
 
-    if (use_audio_time_units_ && i == Timeline::kTrackTypeAudio) {
+    if (use_audio_time_units_ && i == Track::kAudio) {
       view->view()->SetTimebase(GetConnectedNode()->audio_params().time_base());
     } else {
       view->view()->SetTimebase(timebase());
@@ -1176,17 +1061,11 @@ void TimelineWidget::SetViewBeamCursor(const TimelineCoordinate &coord)
 
 void TimelineWidget::SetBlockLinksSelected(Block* block, bool selected)
 {
-  TimelineViewBlockItem* link_item;
-
-  foreach (Block* link, block->linked_clips()) {
-    link_item = block_items_.value(link);
-
-    if (link_item) {
-      if (selected) {
-        AddSelection(link_item);
-      } else {
-        RemoveSelection(link_item);
-      }
+  foreach (Block* link, block->block_links()) {
+    if (selected) {
+      AddSelection(link);
+    } else {
+      RemoveSelection(link);
     }
   }
 }
@@ -1204,7 +1083,7 @@ TimelineView *TimelineWidget::GetFirstTimelineView()
   return views_.first()->view();
 }
 
-rational TimelineWidget::GetTimebaseForTrackType(Timeline::TrackType type)
+rational TimelineWidget::GetTimebaseForTrackType(Track::Type type)
 {
   return views_.at(type)->view()->timebase();
 }
@@ -1262,7 +1141,7 @@ QVector<Timeline::EditToInfo> TimelineWidget::GetEditToInfo(const rational& play
                                                             Timeline::MovementMode mode)
 {
   // Get list of unlocked tracks
-  QVector<TrackOutput*> tracks = GetConnectedNode()->GetUnlockedTracks();
+  QVector<Track*> tracks = sequence()->GetUnlockedTracks();
 
   // Create list to cache nearest times and the blocks at this point
   QVector<Timeline::EditToInfo> info_list(tracks.size());
@@ -1270,7 +1149,7 @@ QVector<Timeline::EditToInfo> TimelineWidget::GetEditToInfo(const rational& play
   for (int i=0;i<tracks.size();i++) {
     Timeline::EditToInfo info;
 
-    TrackOutput* track = tracks.at(i);
+    Track* track = tracks.at(i);
     info.track = track;
 
     Block* b;
@@ -1341,7 +1220,7 @@ void TimelineWidget::RippleTo(Timeline::MovementMode mode)
   rational in_ripple = qMin(closest_point_to_playhead, playhead_time);
   rational out_ripple = qMax(closest_point_to_playhead, playhead_time);
 
-  TimelineRippleRemoveAreaCommand* c = new TimelineRippleRemoveAreaCommand(GetConnectedNode(),
+  TimelineRippleRemoveAreaCommand* c = new TimelineRippleRemoveAreaCommand(sequence(),
                                                                            in_ripple,
                                                                            out_ripple);
 
@@ -1366,7 +1245,7 @@ void TimelineWidget::EditTo(Timeline::MovementMode mode)
     return;
   }
 
-  QUndoCommand* command = new QUndoCommand();
+  MultiUndoCommand* command = new MultiUndoCommand();
 
   foreach (const Timeline::EditToInfo& info, tracks) {
     if (info.nearest_block
@@ -1381,33 +1260,72 @@ void TimelineWidget::EditTo(Timeline::MovementMode mode)
       }
       new_len = info.nearest_block->length() - new_len;
 
-      new BlockTrimCommand(info.track,
-                           info.nearest_block,
-                           new_len,
-                           mode,
-                           command);
+      command->add_child(new BlockTrimCommand(info.track,
+                                              info.nearest_block,
+                                              new_len,
+                                              mode));
     }
   }
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
-void TimelineWidget::ShowSnap(const QList<rational> &times)
+void TimelineWidget::ShowSnap(const QVector<rational> &times)
 {
   foreach (TimelineAndTrackView* tview, views_) {
     tview->view()->EnableSnap(times);
   }
 }
 
-void TimelineWidget::UpdateViewports(const Timeline::TrackType &type)
+void TimelineWidget::UpdateViewports(const Track::Type &type)
 {
-  if (type == Timeline::kTrackTypeNone) {
+  if (type == Track::kNone) {
     foreach (TimelineAndTrackView* tview, views_) {
       tview->view()->viewport()->update();
     }
   } else {
     views_.at(type)->view()->viewport()->update();
   }
+}
+
+QVector<Block *> TimelineWidget::GetBlocksInGlobalRect(const QPoint &p1, const QPoint& p2)
+{
+  QVector<Block*> blocks_in_rect;
+
+  // Determine which tracks are in the rect
+  for (int i=0; i<views_.size(); i++) {
+    TimelineView* view = views_.at(i)->view();
+
+    // Map global mouse coordinates to viewport
+    QRectF mapped_rect(view->mapToScene(view->viewport()->mapFromGlobal(p1)),
+                       view->mapToScene(view->viewport()->mapFromGlobal(p2)));
+
+    // Normalize
+    mapped_rect = mapped_rect.normalized();
+
+    // Get tracks
+    TrackList* track_list = sequence()->track_list(static_cast<Track::Type>(i));
+
+    for (int j=0; j<track_list->GetTrackCount(); j++) {
+      int track_top = view->GetTrackY(j);
+      int track_bottom = track_top + view->GetTrackHeight(j);
+
+      if (!(track_bottom < mapped_rect.top() || track_top > mapped_rect.bottom())) {
+        // This track is in the rect, so we'll iterate through its blocks and see where they start
+        rational left_time = SceneToTime(mapped_rect.left());
+        rational right_time = SceneToTime(mapped_rect.right(), true);
+
+        Track* track = track_list->GetTrackAt(j);
+        foreach (Block* b, track->Blocks()) {
+          if (!(b->out() < left_time || b->in() > right_time)) {
+            blocks_in_rect.append(b);
+          }
+        }
+      }
+    }
+  }
+
+  return blocks_in_rect;
 }
 
 void TimelineWidget::HideSnaps()
@@ -1452,21 +1370,8 @@ void TimelineWidget::MoveRubberBandSelect(bool enable_selecting, bool select_lin
     return;
   }
 
-  QList<QGraphicsItem*> items_in_rubberband;
-
-  // Determine all items in the rubberband
-  foreach (TimelineAndTrackView* tview, views_) {
-    TimelineView* view = tview->view();
-
-    // Map global mouse coordinates to viewport
-    QRect mapped_rect(view->viewport()->mapFromGlobal(drag_origin_),
-                      view->viewport()->mapFromGlobal(rubberband_now));
-
-    // Normalize and get items in rect
-    QList<QGraphicsItem*> rubberband_items = view->items(mapped_rect.normalized());
-
-    items_in_rubberband.append(rubberband_items);
-  }
+  // Get current items in rubberband
+  QVector<Block*> items_in_rubberband = GetBlocksInGlobalRect(drag_origin_, rubberband_now);
 
   // Reset selection to whatever it was before
   SetSelections(rubberband_old_selections_);
@@ -1474,32 +1379,26 @@ void TimelineWidget::MoveRubberBandSelect(bool enable_selecting, bool select_lin
   // Add any blocks in rubberband
   rubberband_now_selected_.clear();
 
-  foreach (QGraphicsItem* item, items_in_rubberband) {
-    TimelineViewBlockItem* block_item = dynamic_cast<TimelineViewBlockItem*>(item);
+  foreach (Block* b, items_in_rubberband) {
+    if (b->type() == Block::kGap) {
+      continue;
+    }
 
-    if (block_item) {
-      Block* b = block_item->block();
+    Track* t = b->track();
+    if (t->IsLocked()) {
+      continue;
+    }
 
-      if (b->type() == Block::kGap) {
-        continue;
-      }
+    if (!rubberband_now_selected_.contains(b)) {
+      AddSelection(b);
+      rubberband_now_selected_.append(b);
+    }
 
-      TrackOutput* t = GetTrackFromReference(block_item->Track());
-      if (t && t->IsLocked()) {
-        continue;
-      }
-
-      if (!rubberband_now_selected_.contains(b)) {
-        AddSelection(block_item);
-        rubberband_now_selected_.append(b);
-      }
-
-      if (select_links) {
-        foreach (Block* link, b->linked_clips()) {
-          if (!rubberband_now_selected_.contains(link)) {
-            AddSelection(block_items_.value(link));
-            rubberband_now_selected_.append(link);
-          }
+    if (select_links) {
+      foreach (Block* link, b->block_links()) {
+        if (!rubberband_now_selected_.contains(link)) {
+          AddSelection(link);
+          rubberband_now_selected_.append(link);
         }
       }
     }
@@ -1517,28 +1416,32 @@ void TimelineWidget::EndRubberBandSelect()
   rubberband_old_selections_.clear();
 }
 
-void TimelineWidget::AddSelection(const TimeRange &time, const TrackReference &track)
+void TimelineWidget::AddSelection(const TimeRange &time, const Track::Reference &track)
 {
   selections_[track].insert(time);
 
   UpdateViewports(track.type());
 }
 
-void TimelineWidget::AddSelection(TimelineViewBlockItem *item)
+void TimelineWidget::AddSelection(Block *item)
 {
-  AddSelection(item->block()->range(), item->Track());
+  if (item->track()) {
+    AddSelection(item->range(), item->track()->ToReference());
+  }
 }
 
-void TimelineWidget::RemoveSelection(const TimeRange &time, const TrackReference &track)
+void TimelineWidget::RemoveSelection(const TimeRange &time, const Track::Reference &track)
 {
   selections_[track].remove(time);
 
   UpdateViewports(track.type());
 }
 
-void TimelineWidget::RemoveSelection(TimelineViewBlockItem *item)
+void TimelineWidget::RemoveSelection(Block *item)
 {
-  RemoveSelection(item->block()->range(), item->Track());
+  if (item->track()) {
+    RemoveSelection(item->range(), item->track()->ToReference());
+  }
 }
 
 void TimelineWidget::SetSelections(const TimelineWidgetSelections &s)
@@ -1548,20 +1451,9 @@ void TimelineWidget::SetSelections(const TimelineWidgetSelections &s)
   UpdateViewports();
 }
 
-TimelineViewBlockItem *TimelineWidget::GetItemAtScenePos(const TimelineCoordinate& coord)
+Block *TimelineWidget::GetItemAtScenePos(const TimelineCoordinate& coord)
 {
-  for (auto it=block_items_.cbegin(); it!=block_items_.cend(); it++) {
-    Block* b = it.key();
-    TimelineViewBlockItem* item = it.value();
-
-    if (b->in() <= coord.GetFrame()
-        && b->out() > coord.GetFrame()
-        && item->Track() == coord.GetTrack()) {
-      return item;
-    }
-  }
-
-  return nullptr;
+  return views_.at(coord.GetTrack().type())->view()->GetItemAtScenePos(coord.GetFrame(), coord.GetTrack().index());
 }
 
 struct SnapData {
@@ -1569,13 +1461,13 @@ struct SnapData {
   rational movement;
 };
 
-QList<SnapData> AttemptSnap(const QList<double>& screen_pt,
-                            double compare_pt,
-                            const QList<rational>& start_times,
-                            const rational& compare_time) {
+QVector<SnapData> AttemptSnap(const QVector<double>& screen_pt,
+                              double compare_pt,
+                              const QVector<rational>& start_times,
+                              const rational& compare_time) {
   const qreal kSnapRange = 10; // FIXME: Hardcoded number
 
-  QList<SnapData> snap_data;
+  QVector<SnapData> snap_data;
 
   for (int i=0;i<screen_pt.size();i++) {
     // Attempt snapping to clip out point
@@ -1587,15 +1479,15 @@ QList<SnapData> AttemptSnap(const QList<double>& screen_pt,
   return snap_data;
 }
 
-bool TimelineWidget::SnapPoint(QList<rational> start_times, rational* movement, int snap_points)
+bool TimelineWidget::SnapPoint(QVector<rational> start_times, rational* movement, int snap_points)
 {
-  QList<double> screen_pt;
+  QVector<double> screen_pt;
 
   foreach (const rational& s, start_times) {
     screen_pt.append(TimeToScene(s + *movement));
   }
 
-  QList<SnapData> potential_snaps;
+  QVector<SnapData> potential_snaps;
 
   if (snap_points & kSnapToPlayhead) {
     rational playhead_abs_time = GetTime();
@@ -1604,21 +1496,15 @@ bool TimelineWidget::SnapPoint(QList<rational> start_times, rational* movement, 
   }
 
   if (snap_points & kSnapToClips) {
-    QMap<Block*, TimelineViewBlockItem*>::const_iterator i;
+    foreach (Block* b, added_blocks_) {
+      qreal rect_left = TimeToScene(b->in());
+      qreal rect_right = TimeToScene(b->out());
 
-    for (i=block_items_.constBegin(); i!=block_items_.constEnd(); i++) {
-      TimelineViewBlockItem* item = i.value();
+      // Attempt snapping to clip in point
+      potential_snaps.append(AttemptSnap(screen_pt, rect_left, start_times, b->in()));
 
-      if (item) {
-        qreal rect_left = item->x();
-        qreal rect_right = rect_left + item->rect().width();
-
-        // Attempt snapping to clip in point
-        potential_snaps.append(AttemptSnap(screen_pt, rect_left, start_times, item->block()->in()));
-
-        // Attempt snapping to clip out point
-        potential_snaps.append(AttemptSnap(screen_pt, rect_right, start_times, item->block()->out()));
-      }
+      // Attempt snapping to clip out point
+      potential_snaps.append(AttemptSnap(screen_pt, rect_right, start_times, b->out()));
     }
   }
 
@@ -1655,7 +1541,7 @@ bool TimelineWidget::SnapPoint(QList<rational> start_times, rational* movement, 
   *movement = potential_snaps.at(closest_snap).movement;
 
   // Find all points at this movement
-  QList<rational> snap_times;
+  QVector<rational> snap_times;
   foreach (const SnapData& d, potential_snaps) {
     if (d.movement == *movement) {
       snap_times.append(d.time);

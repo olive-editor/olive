@@ -21,18 +21,7 @@
 #ifndef VIEWER_H
 #define VIEWER_H
 
-#include <QUuid>
-
-#include "node/block/block.h"
-#include "node/output/track/track.h"
-#include "node/output/track/tracklist.h"
-#include "node/node.h"
-#include "render/audioparams.h"
-#include "render/audioplaybackcache.h"
-#include "render/framehashcache.h"
-#include "render/videoparams.h"
-#include "timeline/timelinecommon.h"
-#include "timeline/trackreference.h"
+#include "project/item/sequence/sequence.h"
 
 namespace olive {
 
@@ -41,13 +30,11 @@ namespace olive {
  *
  * Receives update/time change signals from ViewerPanels and responds by sending them a texture of that frame
  */
-class ViewerOutput : public Node
+class ViewerOutput : public Sequence
 {
   Q_OBJECT
 public:
   ViewerOutput();
-
-  virtual ~ViewerOutput() override;
 
   virtual Node* copy() const override;
 
@@ -55,144 +42,6 @@ public:
   virtual QString id() const override;
   virtual QVector<CategoryID> Category() const override;
   virtual QString Description() const override;
-
-  void ShiftVideoCache(const rational& from, const rational& to);
-  void ShiftAudioCache(const rational& from, const rational& to);
-  void ShiftCache(const rational& from, const rational& to);
-
-  NodeInput* texture_input() const {
-    return texture_input_;
-  }
-
-  NodeInput* samples_input() const {
-    return samples_input_;
-  }
-
-  virtual void InvalidateCache(const TimeRange &range, NodeInput *from, NodeInput* source) override;
-
-  const VideoParams& video_params() const {
-    return video_params_;
-  }
-
-  const AudioParams& audio_params() const {
-    return audio_params_;
-  }
-
-  void set_video_params(const VideoParams &video);
-  void set_audio_params(const AudioParams &audio);
-
-  rational GetLength();
-
-  const QUuid& uuid() const {
-    return uuid_;
-  }
-
-  const QVector<TrackOutput *> &GetTracks() const {
-    return track_cache_;
-  }
-
-  /**
-   * @brief Same as GetTracks() but omits tracks that are locked.
-   */
-  QVector<TrackOutput *> GetUnlockedTracks() const;
-
-  NodeInput* track_input(Timeline::TrackType type) const {
-    return track_inputs_.at(type);
-  }
-
-  TrackList* track_list(Timeline::TrackType type) const {
-    return track_lists_.at(type);
-  }
-
-  virtual void Retranslate() override;
-
-  const QString& media_name() const {
-    return media_name_;
-  }
-
-  void set_media_name(const QString& name);
-
-  FrameHashCache* video_frame_cache() {
-    return &video_frame_cache_;
-  }
-
-  AudioPlaybackCache* audio_playback_cache() {
-    return &audio_playback_cache_;
-  }
-
-  virtual void BeginOperation() override;
-
-  virtual void EndOperation() override;
-
-signals:
-  void TimebaseChanged(const rational&);
-
-  void GraphChangedFrom(NodeInput* source);
-
-  void LengthChanged(const rational& length);
-
-  void SizeChanged(int width, int height);
-
-  void PixelAspectChanged(const rational& pixel_aspect);
-
-  void InterlacingChanged(VideoParams::Interlacing mode);
-
-  void VideoParamsChanged();
-  void AudioParamsChanged();
-
-  void BlockAdded(Block* block, TrackReference track);
-  void BlockRemoved(const QList<Block*>& blocks);
-
-  void TrackAdded(TrackOutput* track, Timeline::TrackType type);
-  void TrackRemoved(TrackOutput* track);
-
-  void TrackHeightChanged(Timeline::TrackType type, int index, int height);
-
-  void MediaNameChanged(const QString& name);
-
-private:
-  QMap<Block*, TrackReference> cached_block_added_;
-  QList<Block*> cached_block_removed_;
-
-  QUuid uuid_;
-
-  NodeInput* texture_input_;
-
-  NodeInput* samples_input_;
-
-  VideoParams video_params_;
-
-  AudioParams audio_params_;
-
-  QVector<NodeInput*> track_inputs_;
-
-  QVector<TrackList*> track_lists_;
-
-  QVector<TrackOutput*> track_cache_;
-
-  rational last_length_;
-
-  QString media_name_;
-
-  FrameHashCache video_frame_cache_;
-
-  AudioPlaybackCache audio_playback_cache_;
-
-  int operation_stack_;
-
-private slots:
-  void UpdateTrackCache();
-
-  void VerifyLength();
-
-  void TrackListAddedBlock(Block* block, int index);
-
-  void TrackListAddedTrack(TrackOutput* track);
-
-  void TrackHeightChangedSlot(int index, int height);
-
-  void SignalBlockAdded(Block *block, const TrackReference &track);
-  void SignalBlockRemoved(Block *block);
 
 };
 

@@ -32,13 +32,13 @@ class TimeBasedPanel : public PanelWidget
 public:
   TimeBasedPanel(const QString& object_name, QWidget *parent = nullptr);
 
-  void ConnectViewerNode(ViewerOutput* node);
+  void ConnectViewerNode(Sequence *node);
 
   void DisconnectViewerNode();
 
   rational GetTime();
 
-  ViewerOutput* GetConnectedViewer() const;
+  Sequence *GetConnectedViewer() const;
 
   TimeRuler* ruler() const;
 

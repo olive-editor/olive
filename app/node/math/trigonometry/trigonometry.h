@@ -40,7 +40,10 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual NodeValueTable Value(NodeValueDatabase &value) const override;
+  virtual NodeValueTable Value(const QString& output, NodeValueDatabase &value) const override;
+
+  static const QString kMethodIn;
+  static const QString kXIn;
 
 private:
   enum Operation {
@@ -54,10 +57,6 @@ private:
     kOpHypCosine,
     kOpHypTangent
   };
-
-  NodeInput* method_in_;
-
-  NodeInput* x_in_;
 
 };
 

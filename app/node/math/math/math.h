@@ -44,34 +44,22 @@ public:
 
   Operation GetOperation() const
   {
-    return static_cast<Operation>(method_in_->get_standard_value().toInt());
+    return static_cast<Operation>(GetStandardValue(kMethodIn).toInt());
   }
 
   void SetOperation(Operation o)
   {
-    method_in_->set_standard_value(o);
+    SetStandardValue(kMethodIn, o);
   }
 
-  NodeInput* param_a_in() const
-  {
-    return param_a_in_;
-  }
-
-  NodeInput* param_b_in() const
-  {
-    return param_b_in_;
-  }
-
-  virtual NodeValueTable Value(NodeValueDatabase &value) const override;
+  virtual NodeValueTable Value(const QString& output, NodeValueDatabase &value) const override;
 
   virtual void ProcessSamples(NodeValueDatabase &values, const SampleBufferPtr input, SampleBufferPtr output, int index) const override;
 
-private:
-  NodeInput* method_in_;
-
-  NodeInput* param_a_in_;
-
-  NodeInput* param_b_in_;
+  static const QString kMethodIn;
+  static const QString kParamAIn;
+  static const QString kParamBIn;
+  static const QString kParamCIn;
 
 };
 

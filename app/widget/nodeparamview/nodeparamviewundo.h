@@ -21,118 +21,139 @@
 #ifndef NODEPARAMVIEWUNDO_H
 #define NODEPARAMVIEWUNDO_H
 
-#include "node/input.h"
+#include "node/keyframe.h"
+#include "node/node.h"
+#include "node/param.h"
 #include "undo/undocommand.h"
 
 namespace olive {
 
-class NodeParamSetKeyframingCommand : public UndoCommand {
+class NodeParamSetKeyframingCommand : public UndoCommand
+{
 public:
-  NodeParamSetKeyframingCommand(NodeInput* input, bool setting, QUndoCommand* parent = nullptr);
+  NodeParamSetKeyframingCommand(const NodeInput& input, bool setting);
 
   virtual Project* GetRelevantProject() const override;
 
-protected:
-  virtual void redo_internal() override;
-  virtual void undo_internal() override;
+  virtual void redo() override;
+  virtual void undo() override;
 
 private:
-  NodeInput* input_;
+  NodeInput input_;
   bool setting_;
-};
-
-class NodeParamInsertKeyframeCommand : public UndoCommand {
-public:
-  NodeParamInsertKeyframeCommand(NodeInput* input, NodeKeyframePtr keyframe, QUndoCommand *parent = nullptr);
-  NodeParamInsertKeyframeCommand(NodeInput* input, NodeKeyframePtr keyframe, bool already_done, QUndoCommand *parent = nullptr);
-
-  virtual Project* GetRelevantProject() const override;
-
-protected:
-  virtual void redo_internal() override;
-  virtual void undo_internal() override;
-
-private:
-  NodeInput* input_;
-
-  NodeKeyframePtr keyframe_;
-
-  bool done_;
 
 };
 
-class NodeParamRemoveKeyframeCommand : public UndoCommand {
+class NodeParamInsertKeyframeCommand : public UndoCommand
+{
 public:
-  NodeParamRemoveKeyframeCommand(NodeInput* input, NodeKeyframePtr keyframe, QUndoCommand *parent = nullptr);
+  NodeParamInsertKeyframeCommand(Node *node, NodeKeyframe* keyframe);
 
   virtual Project* GetRelevantProject() const override;
 
-protected:
-  virtual void redo_internal() override;
-  virtual void undo_internal() override;
+  virtual void redo() override;
+  virtual void undo() override;
 
 private:
-  NodeInput* input_;
+  Node* input_;
 
-  NodeKeyframePtr keyframe_;
+  NodeKeyframe* keyframe_;
+
+  QObject memory_manager_;
 
 };
 
-class NodeParamSetKeyframeTimeCommand : public UndoCommand {
+class NodeParamRemoveKeyframeCommand : public UndoCommand
+{
 public:
-  NodeParamSetKeyframeTimeCommand(NodeKeyframePtr key, const rational& time, QUndoCommand* parent = nullptr);
-  NodeParamSetKeyframeTimeCommand(NodeKeyframePtr key, const rational& new_time, const rational& old_time, QUndoCommand* parent = nullptr);
+  NodeParamRemoveKeyframeCommand(NodeKeyframe* keyframe);
 
   virtual Project* GetRelevantProject() const override;
 
-protected:
-  virtual void redo_internal() override;
-  virtual void undo_internal() override;
+  virtual void redo() override;
+  virtual void undo() override;
 
 private:
-  NodeKeyframePtr key_;
+  Node* input_;
+
+  NodeKeyframe* keyframe_;
+
+  QObject memory_manager_;
+
+};
+
+class NodeParamSetKeyframeTimeCommand : public UndoCommand
+{
+public:
+  NodeParamSetKeyframeTimeCommand(NodeKeyframe* key, const rational& time);
+  NodeParamSetKeyframeTimeCommand(NodeKeyframe* key, const rational& new_time, const rational& old_time);
+
+  virtual Project* GetRelevantProject() const override;
+
+  virtual void redo() override;
+  virtual void undo() override;
+
+private:
+  NodeKeyframe* key_;
 
   rational old_time_;
   rational new_time_;
 
 };
 
-class NodeParamSetKeyframeValueCommand : public UndoCommand {
+class NodeParamSetKeyframeValueCommand : public UndoCommand
+{
 public:
-  NodeParamSetKeyframeValueCommand(NodeKeyframePtr key, const QVariant& value, QUndoCommand* parent = nullptr);
-  NodeParamSetKeyframeValueCommand(NodeKeyframePtr key, const QVariant& new_value, const QVariant& old_value, QUndoCommand* parent = nullptr);
+  NodeParamSetKeyframeValueCommand(NodeKeyframe* key, const QVariant& value);
+  NodeParamSetKeyframeValueCommand(NodeKeyframe* key, const QVariant& new_value, const QVariant& old_value);
 
   virtual Project* GetRelevantProject() const override;
 
-protected:
-  virtual void redo_internal() override;
-  virtual void undo_internal() override;
+  virtual void redo() override;
+  virtual void undo() override;
 
 private:
-  NodeKeyframePtr key_;
+  NodeKeyframe* key_;
 
   QVariant old_value_;
   QVariant new_value_;
 
 };
 
-class NodeParamSetStandardValueCommand : public UndoCommand {
+class NodeParamSetStandardValueCommand : public UndoCommand
+{
 public:
-  NodeParamSetStandardValueCommand(NodeInput* input, int track, const QVariant& value, QUndoCommand* parent = nullptr);
-  NodeParamSetStandardValueCommand(NodeInput* input, int track, const QVariant& new_value, const QVariant& old_value, QUndoCommand* parent = nullptr);
+  NodeParamSetStandardValueCommand(const NodeKeyframeTrackReference& input, const QVariant& value);
+  NodeParamSetStandardValueCommand(const NodeKeyframeTrackReference& input, const QVariant& new_value, const QVariant& old_value);
 
   virtual Project* GetRelevantProject() const override;
 
-protected:
-  virtual void redo_internal() override;
-  virtual void undo_internal() override;
+  virtual void redo() override;
+  virtual void undo() override;
 
 private:
-  NodeInput* input_;
-  int track_;
+  NodeKeyframeTrackReference ref_;
 
   QVariant old_value_;
   QVariant new_value_;
+
+};
+
+class NodeParamArrayAppendCommand : public UndoCommand
+{
+public:
+  NodeParamArrayAppendCommand(Node* node, const QString& input);
+
+  virtual Project* GetRelevantProject() const override;
+
+  virtual void redo() override;
+
+  virtual void undo() override;
+
+private:
+  Node* node_;
+
+  QString input_;
 
 };
 

@@ -31,7 +31,6 @@
 
 #include "common/filefunctions.h"
 #include "config/config.h"
-#include "node/input.h"
 #include "render/videoparams.h"
 #include "ui/icons/icons.h"
 #include "widget/menu/menu.h"
@@ -80,12 +79,19 @@ SequenceDialogPresetTab::SequenceDialogPresetTab(QWidget* parent) :
   }
 }
 
+SequenceDialogPresetTab::~SequenceDialogPresetTab()
+{
+  qDeleteAll(child_presets_);
+}
+
 void SequenceDialogPresetTab::SaveParametersAsPreset(SequencePreset preset)
 {
-  PresetPtr preset_ptr = std::make_shared<SequencePreset>(preset);
+  Preset* preset_ptr = new SequencePreset(preset);
 
   if (SavePreset(preset_ptr)) {
     AddCustomItem(my_presets_folder_, preset_ptr, GetNumberOfPresets() - 1);
+  } else {
+    delete preset_ptr;
   }
 }
 
@@ -206,19 +212,19 @@ QTreeWidgetItem *SequenceDialogPresetTab::GetSelectedCustomPreset()
   return nullptr;
 }
 
-void SequenceDialogPresetTab::AddStandardItem(QTreeWidgetItem *folder, PresetPtr preset, const QString& description)
+void SequenceDialogPresetTab::AddStandardItem(QTreeWidgetItem *folder, Preset* preset, const QString& description)
 {
   int index = default_preset_data_.size();
   default_preset_data_.append(preset);
   AddItemInternal(folder, preset, false, index, description);
 }
 
-void SequenceDialogPresetTab::AddCustomItem(QTreeWidgetItem *folder, PresetPtr preset, int index, const QString &description)
+void SequenceDialogPresetTab::AddCustomItem(QTreeWidgetItem *folder, Preset* preset, int index, const QString &description)
 {
   AddItemInternal(folder, preset, true, index, description);
 }
 
-void SequenceDialogPresetTab::AddItemInternal(QTreeWidgetItem *folder, PresetPtr preset, bool is_custom, int index, const QString &description)
+void SequenceDialogPresetTab::AddItemInternal(QTreeWidgetItem *folder, Preset* preset, bool is_custom, int index, const QString &description)
 {
   QTreeWidgetItem* item = new QTreeWidgetItem();
 
@@ -228,6 +234,8 @@ void SequenceDialogPresetTab::AddItemInternal(QTreeWidgetItem *folder, PresetPtr
   item->setData(0, kDataIsPreset, true);
   item->setData(0, kDataPresetIsCustomRole, is_custom);
   item->setData(0, kDataPresetDataRole, index);
+
+  child_presets_.append(preset);
 
   folder->addChild(item);
 }
@@ -239,11 +247,11 @@ void SequenceDialogPresetTab::SelectedItemChanged(QTreeWidgetItem* current, QTre
   if (current->data(0, kDataIsPreset).toBool()) {
     int preset_index = current->data(0, kDataPresetDataRole).toInt();
 
-    PresetPtr preset_data = (current->data(0, kDataPresetIsCustomRole).toBool())
+    Preset* preset_data = (current->data(0, kDataPresetIsCustomRole).toBool())
         ? GetPreset(preset_index)
         : default_preset_data_.at(preset_index);
 
-    emit PresetChanged(*static_cast<SequencePreset*>(preset_data.get()));
+    emit PresetChanged(*static_cast<SequencePreset*>(preset_data));
   }
 }
 

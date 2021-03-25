@@ -37,9 +37,9 @@ FootageViewerPanel::FootageViewerPanel(QWidget *parent) :
   Retranslate();
 }
 
-QList<Footage *> FootageViewerPanel::GetSelectedFootage() const
+QVector<Footage *> FootageViewerPanel::GetSelectedFootage() const
 {
-  QList<Footage *> list;
+  QVector<Footage *> list;
   Footage* f = static_cast<FootageViewerWidget*>(GetTimeBasedWidget())->GetFootage();
 
   if (f) {
@@ -60,7 +60,7 @@ void FootageViewerPanel::SetFootage(Footage *f)
 
   if (f) {
     // SetSubtitle() will call Retranslate(), so we don't need to call it here
-    SetSubtitle(f->name());
+    SetSubtitle(f->GetLabel());
 
     // Pop this panel up so the user doesn't think nothing's happening if it's behind another tab
     this->show();

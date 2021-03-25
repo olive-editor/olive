@@ -21,6 +21,7 @@
 #ifndef MENUSHARED_H
 #define MENUSHARED_H
 
+#include "widget/colorlabelmenu/colorlabelmenu.h"
 #include "widget/menu/menu.h"
 
 namespace olive {
@@ -32,6 +33,7 @@ class MenuShared : public QObject {
   Q_OBJECT
 public:
   MenuShared();
+  virtual ~MenuShared() override;
 
   static void CreateInstance();
   static void DestroyInstance();
@@ -41,6 +43,7 @@ public:
   void AddItemsForNewMenu(Menu* m);
   void AddItemsForEditMenu(Menu* m, bool for_clips);
   void AddItemsForInOutMenu(Menu* m);
+  void AddColorCodingMenu(Menu* m);
   void AddItemsForClipEditMenu(Menu* m);
   void AddItemsForTimeRulerMenu(Menu* m);
 
@@ -84,6 +87,9 @@ private:
   QAction* view_timecode_view_seconds_item_;
   QAction* view_timecode_view_frames_item_;
   QAction* view_timecode_view_milliseconds_item_;
+
+  // Color coding menu items
+  ColorLabelMenu* color_coding_menu_;
 
   static MenuShared* instance_;
 
@@ -129,6 +135,8 @@ private slots:
    * timecode change throughout the rest of the application.
    */
   void TimecodeDisplayTriggered();
+
+  void ColorLabelTriggered(int color_index);
 
 };
 

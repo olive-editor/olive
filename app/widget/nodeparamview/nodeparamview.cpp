@@ -91,6 +91,7 @@ NodeParamView::NodeParamView(QWidget *parent) :
   connect(ruler(), &TimeRuler::TimeChanged, keyframe_view_, &KeyframeView::SetTime);
   connect(keyframe_view_, &KeyframeView::TimeChanged, ruler(), &TimeRuler::SetTime);
   connect(keyframe_view_, &KeyframeView::TimeChanged, this, &NodeParamView::SetTimestamp);
+  connect(keyframe_view_, &KeyframeView::Dragged, this, &NodeParamView::KeyframeViewDragged);
 
   // Connect keyframe view scaling to this
   connect(keyframe_view_, &KeyframeView::ScaleChanged, this, &NodeParamView::SetScale);
@@ -136,45 +137,22 @@ NodeParamView::NodeParamView(QWidget *parent) :
 
 void NodeParamView::SelectNodes(const QVector<Node *> &nodes)
 {
-  active_nodes_.append(nodes);
-
-  bool changes_made = false;
+  int original_node_count = items_.size();
 
   foreach (Node* n, nodes) {
-    if (!pinned_nodes_.contains(n))  {
-      NodeParamViewItem* item = new NodeParamViewItem(n, param_widget_area_);
-
-      item->setAllowedAreas(Qt::LeftDockWidgetArea);
-      item->setFeatures(QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetMovable);
-      item->SetExpanded(node_expanded_state_.value(n, true));
-
-      connect(item, &NodeParamViewItem::KeyframeAdded, keyframe_view_, &KeyframeView::AddKeyframe);
-      connect(item, &NodeParamViewItem::KeyframeRemoved, keyframe_view_, &KeyframeView::RemoveKeyframe);
-      connect(item, &NodeParamViewItem::RequestSetTime, this, &NodeParamView::ItemRequestedTimeChanged);
-      connect(item, &NodeParamViewItem::InputDoubleClicked, this, &NodeParamView::InputDoubleClicked);
-      connect(item, &NodeParamViewItem::RequestSelectNode, this, &NodeParamView::RequestSelectNode);
-      connect(item, &NodeParamViewItem::dockLocationChanged, this, &NodeParamView::QueueKeyframePositionUpdate);
-      connect(item, &NodeParamViewItem::dockLocationChanged, this, &NodeParamView::SignalNodeOrder);
-      connect(item, &NodeParamViewItem::PinToggled, this, &NodeParamView::PinNode);
-
-      // Set time target
-      item->SetTimeTarget(GetTimeTarget());
-
-      items_.insert(n, item);
-      param_widget_area_->addDockWidget(Qt::LeftDockWidgetArea, item);
-
-      changes_made = true;
-
-      if (!focused_node_ && n->HasGizmos()) {
-        // We'll focus this node now
-        item->SetHighlighted(true);
-        focused_node_ = n;
-        emit FocusedNodeChanged(focused_node_);
-      }
+    // If we've already added this node (either a duplicate or a pinned node), don't add another
+    if (items_.contains(n)) {
+      continue;
     }
+
+    // Add to "active" list to represent currently selected node
+    active_nodes_.append(n);
+
+    // Create node UI
+    AddNode(n);
   }
 
-  if (changes_made) {
+  if (items_.size() > original_node_count ) {
     UpdateItemTime(GetTimestamp());
 
     // Re-arrange keyframes
@@ -187,23 +165,26 @@ void NodeParamView::SelectNodes(const QVector<Node *> &nodes)
 void NodeParamView::DeselectNodes(const QVector<Node *> &nodes)
 {
   // Remove item from map and delete the widget
-  bool changes_made = false;
+  int original_node_count = items_.size();
 
   foreach (Node* n, nodes) {
+    // Filter out duplicates
+    if (!items_.contains(n)) {
+      continue;
+    }
+
     if (!pinned_nodes_.contains(n)) {
       // Store expanded state
       node_expanded_state_.insert(n, items_.value(n)->IsExpanded());
 
       // Remove all keyframes from this node
       RemoveNode(n);
-
-      changes_made = true;
     }
 
     active_nodes_.removeOne(n);
   }
 
-  if (changes_made) {
+  if (items_.size() < original_node_count) {
     // Re-arrange keyframes
     QueueKeyframePositionUpdate();
 
@@ -245,7 +226,7 @@ void NodeParamView::TimeChangedEvent(const int64_t &timestamp)
   UpdateItemTime(timestamp);
 }
 
-void NodeParamView::ConnectedNodeChanged(ViewerOutput *n)
+void NodeParamView::ConnectedNodeChanged(Sequence *n)
 {
   // Set viewer as a time target
   keyframe_view_->SetTimeTarget(n);
@@ -276,7 +257,7 @@ void NodeParamView::UpdateItemTime(const int64_t &timestamp)
 
 void NodeParamView::QueueKeyframePositionUpdate()
 {
-  QMetaObject::invokeMethod(this, "PlaceKeyframesOnView", Qt::QueuedConnection);
+  QMetaObject::invokeMethod(this, "UpdateElementY", Qt::QueuedConnection);
 }
 
 void NodeParamView::SignalNodeOrder()
@@ -308,9 +289,47 @@ void NodeParamView::SignalNodeOrder()
   emit NodeOrderChanged(nodes);
 }
 
+void NodeParamView::AddNode(Node *n)
+{
+  NodeParamViewItem* item = new NodeParamViewItem(n, param_widget_area_);
+
+  item->setAllowedAreas(Qt::LeftDockWidgetArea);
+  item->setFeatures(QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetMovable);
+  item->SetExpanded(node_expanded_state_.value(n, true));
+
+  connect(n, &Node::KeyframeAdded, keyframe_view_, &KeyframeView::AddKeyframe);
+  connect(n, &Node::KeyframeRemoved, keyframe_view_, &KeyframeView::RemoveKeyframe);
+
+  connect(item, &NodeParamViewItem::RequestSetTime, this, &NodeParamView::ItemRequestedTimeChanged);
+  connect(item, &NodeParamViewItem::RequestSelectNode, this, &NodeParamView::RequestSelectNode);
+  connect(item, &NodeParamViewItem::dockLocationChanged, this, &NodeParamView::QueueKeyframePositionUpdate);
+  connect(item, &NodeParamViewItem::dockLocationChanged, this, &NodeParamView::SignalNodeOrder);
+  connect(item, &NodeParamViewItem::PinToggled, this, &NodeParamView::PinNode);
+  connect(item, &NodeParamViewItem::ExpandedChanged, this, &NodeParamView::UpdateElementY);
+  connect(item, &NodeParamViewItem::ArrayExpandedChanged, this, &NodeParamView::UpdateElementY);
+
+  // Set time target
+  item->SetTimeTarget(GetTimeTarget());
+
+  items_.insert(n, item);
+  param_widget_area_->addDockWidget(Qt::LeftDockWidgetArea, item);
+
+  if (!focused_node_ && n->HasGizmos()) {
+    // We'll focus this node now
+    item->SetHighlighted(true);
+    focused_node_ = n;
+    emit FocusedNodeChanged(focused_node_);
+  }
+
+  keyframe_view_->AddKeyframesOfNode(n);
+}
+
 void NodeParamView::RemoveNode(Node *n)
 {
   keyframe_view_->RemoveKeyframesOfNode(n);
+
+  disconnect(n, &Node::KeyframeAdded, keyframe_view_, &KeyframeView::AddKeyframe);
+  disconnect(n, &Node::KeyframeRemoved, keyframe_view_, &KeyframeView::RemoveKeyframe);
 
   delete items_.take(n);
 
@@ -333,13 +352,6 @@ void NodeParamView::UpdateGlobalScrollBar()
   vertical_scrollbar_->setRange(0, height_offscreen - keyframe_view_->height());
 }
 
-void NodeParamView::PlaceKeyframesOnView()
-{
-  foreach (NodeParamViewItem* item, items_) {
-    QMetaObject::invokeMethod(item, "SignalAllKeyframes", Qt::QueuedConnection);
-  }
-}
-
 void NodeParamView::PinNode(bool pin)
 {
   NodeParamViewItem* item = static_cast<NodeParamViewItem*>(sender());
@@ -352,6 +364,7 @@ void NodeParamView::PinNode(bool pin)
 
     if (!active_nodes_.contains(node)) {
       RemoveNode(node);
+      SignalNodeOrder();
     }
   }
 }
@@ -385,6 +398,30 @@ void NodeParamView::FocusChanged(QWidget* old, QWidget* now)
     }
 
     parent = parent->parent();
+  }
+}
+
+void NodeParamView::KeyframeViewDragged(int x, int y)
+{
+  Q_UNUSED(y)
+
+  QMetaObject::invokeMethod(this, "CatchUpScrollToPoint", Qt::QueuedConnection,
+                            Q_ARG(int, x));
+}
+
+void NodeParamView::UpdateElementY()
+{
+  for (auto it=items_.cbegin(); it!=items_.cend(); it++) {
+    foreach (const QString& input, it.key()->inputs()) {
+      int arr_sz = it.key()->InputArraySize(input);
+
+      for (int i=-1; i<arr_sz; i++) {
+        NodeInput ic = {it.key(), input, i};
+
+        int y = it.value()->GetElementY(ic);
+        keyframe_view_->SetElementY(ic, y);
+      }
+    }
   }
 }
 

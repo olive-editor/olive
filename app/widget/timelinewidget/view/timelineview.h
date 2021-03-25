@@ -28,12 +28,9 @@
 #include <QDropEvent>
 
 #include "node/block/clip/clip.h"
-#include "timelineviewblockitem.h"
 #include "timelineviewmouseevent.h"
 #include "timelineviewghostitem.h"
 #include "widget/timebased/timebasedview.h"
-#include "widget/timelinewidget/undo/undo.h"
-#include "undo/undostack.h"
 
 namespace olive {
 
@@ -59,7 +56,7 @@ public:
 
   void SetBeamCursor(const TimelineCoordinate& coord);
 
-  void SetSelectionList(QHash<TrackReference, TimeRangeList>* s)
+  void SetSelectionList(QHash<Track::Reference, TimeRangeList>* s)
   {
     selections_ = s;
   }
@@ -67,6 +64,21 @@ public:
   void SetGhostList(QVector<TimelineViewGhostItem*>* ghosts)
   {
     ghosts_ = ghosts;
+  }
+
+  int SceneToTrack(double y);
+
+  Block* GetItemAtScenePos(const rational& time, int track_index) const;
+
+  bool GetShowWaveforms() const
+  {
+    return show_waveforms_;
+  }
+
+  void SetShowWaveforms(bool e)
+  {
+    show_waveforms_ = e;
+    viewport()->update();
   }
 
 signals:
@@ -101,8 +113,8 @@ protected:
   virtual void SceneRectUpdateEvent(QRectF& rect) override;
 
 private:
-  Timeline::TrackType ConnectedTrackType();
-  Stream::Type TrackTypeToStreamType(Timeline::TrackType track_type);
+  Track::Type ConnectedTrackType();
+  Stream::Type TrackTypeToStreamType(Track::Type track_type);
 
   TimelineCoordinate ScreenToCoordinate(const QPoint& pt);
   TimelineCoordinate SceneToCoordinate(const QPointF& pt);
@@ -110,15 +122,15 @@ private:
   TimelineViewMouseEvent CreateMouseEvent(QMouseEvent* event);
   TimelineViewMouseEvent CreateMouseEvent(const QPoint &pos, Qt::MouseButton button, Qt::KeyboardModifiers modifiers);
 
-  int GetHeightOfAllTracks() const;
+  void DrawBlocks(QPainter* painter, bool foreground);
 
-  int SceneToTrack(double y);
+  int GetHeightOfAllTracks() const;
 
   void UserSetTime(const int64_t& time);
 
   void UpdatePlayheadRect();
 
-  QHash<TrackReference, TimeRangeList>* selections_;
+  QHash<Track::Reference, TimeRangeList>* selections_;
 
   QVector<TimelineViewGhostItem*>* ghosts_;
 
@@ -127,6 +139,8 @@ private:
   TimelineCoordinate cursor_coord_;
 
   TrackList* connected_track_list_;
+
+  bool show_waveforms_;
 
 };
 

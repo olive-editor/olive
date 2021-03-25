@@ -20,7 +20,7 @@ public:
   /**
    * @brief Snaps point `start_point` that is moving by `movement` to currently existing clips
    */
-  virtual bool SnapPoint(QList<rational> start_times, rational *movement, int snap_points = kSnapAll) = 0;
+  virtual bool SnapPoint(QVector<rational> start_times, rational *movement, int snap_points = kSnapAll) = 0;
 
   virtual void HideSnaps() = 0;
 

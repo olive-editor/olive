@@ -24,11 +24,12 @@
 
 namespace olive {
 
-ConformTask::ConformTask(AudioStream *stream, const AudioParams& params) :
-  stream_(stream),
+ConformTask::ConformTask(Footage* footage, int index, const AudioParams& params) :
+  footage_(footage),
+  index_(index),
   params_(params)
 {
-  SetTitle(tr("Conforming Audio %1:%2").arg(stream_->footage()->filename(), QString::number(stream_->index())));
+  SetTitle(tr("Conforming Audio %1:%2").arg(footage_->filename(), QString::number(index_)));
 }
 
 bool ConformTask::Run()

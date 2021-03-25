@@ -30,7 +30,6 @@
 
 #include "common/define.h"
 #include "core.h"
-#include "dialog/footageproperties/footageproperties.h"
 #include "dialog/sequence/sequence.h"
 #include "projectexplorerundo.h"
 #include "task/precache/precachetask.h"
@@ -38,8 +37,9 @@
 #include "widget/menu/menu.h"
 #include "widget/menu/menushared.h"
 #include "window/mainwindow/mainwindow.h"
-#include "widget/timelinewidget/timelinewidget.h"
+#include "window/mainwindow/mainwindowundo.h"
 #include "widget/nodeview/nodeviewundo.h"
+#include "widget/timelinewidget/timelinewidget.h"
 
 namespace olive {
 
@@ -62,8 +62,13 @@ ProjectExplorer::ProjectExplorer(QWidget *parent) :
   stacked_widget_ = new QStackedWidget(this);
   layout->addWidget(stacked_widget_);
 
+  // Set up sort filter proxy model
+  sort_model_.setSourceModel(&model_);
+
   // Add tree view to stacked widget
   tree_view_ = new ProjectExplorerTreeView(stacked_widget_);
+  tree_view_->setSortingEnabled(true);
+  tree_view_->sortByColumn(0, Qt::AscendingOrder);
   tree_view_->setContextMenuPolicy(Qt::CustomContextMenu);
   AddView(tree_view_);
 
@@ -118,14 +123,14 @@ void ProjectExplorer::set_view_type(ProjectToolbar::ViewType type)
   }
 }
 
-void ProjectExplorer::Edit(Item *item)
+void ProjectExplorer::Edit(Node *item)
 {
-  CurrentView()->edit(model_.CreateIndexFromItem(item));
+  CurrentView()->edit(sort_model_.mapFromSource(model_.CreateIndexFromItem(item)));
 }
 
 void ProjectExplorer::AddView(QAbstractItemView *view)
 {
-  view->setModel(&model_);
+  view->setModel(&sort_model_);
   view->setEditTriggers(QAbstractItemView::NoEditTriggers);
   connect(view, &QAbstractItemView::clicked, this, &ProjectExplorer::ItemClickedSlot);
   connect(view, &QAbstractItemView::doubleClicked, this, &ProjectExplorer::ItemDoubleClickedSlot);
@@ -144,8 +149,8 @@ void ProjectExplorer::BrowseToFolder(const QModelIndex &index)
 
   // Set navbar text to folder's name
   if (index.isValid()) {
-    Folder* f = static_cast<Folder*>(index.internalPointer());
-    nav_bar_->set_text(f->name());
+    Folder* f = static_cast<Folder*>(sort_model_.mapToSource(index).internalPointer());
+    nav_bar_->set_text(f->GetLabel());
   } else {
     // Or set it to an empty string if the index is valid (which means we're browsing to the root directory)
     nav_bar_->set_text(QString());
@@ -153,6 +158,85 @@ void ProjectExplorer::BrowseToFolder(const QModelIndex &index)
 
   // Set directory up enabled button based on whether we're in root or not
   nav_bar_->set_dir_up_enabled(index.isValid());
+}
+
+int ProjectExplorer::ConfirmItemDeletion(Node* item)
+{
+  QMessageBox msgbox(this);
+  msgbox.setWindowTitle(tr("Confirm Item Deletion"));
+  msgbox.setIcon(QMessageBox::Warning);
+
+  QStringList connected_nodes_names;
+  foreach (const Node::OutputConnection& connected, item->output_connections()) {
+    if (!dynamic_cast<Folder*>(connected.second.node())) {
+      connected_nodes_names.append(GetHumanReadableNodeName(connected.second.node()));
+    }
+  }
+
+  msgbox.setText(tr("The item \"%1\" is currently connected to the following nodes:\n\n"
+                    "%2\n\n"
+                    "Are you sure you wish to delete this footage?")
+                 .arg(GetHumanReadableNodeName(item), connected_nodes_names.join('\n')));
+
+  // Set up buttons
+  msgbox.addButton(QMessageBox::Yes);
+  msgbox.addButton(QMessageBox::YesToAll);
+  msgbox.addButton(QMessageBox::No);
+  msgbox.addButton(QMessageBox::Cancel);
+
+  // Run messagebox
+  return msgbox.exec();
+}
+
+bool ProjectExplorer::DeleteItemsInternal(const QVector<Node*>& selected, bool& check_if_item_is_in_use, MultiUndoCommand* command)
+{
+  for (int i=0; i<selected.size(); i++) {
+    // Delete sequences first
+    Node* node = selected.at(i);
+
+    bool can_delete_item = true;
+
+    if (check_if_item_is_in_use) {
+      foreach (const Node::OutputConnection& oc, node->output_connections()) {
+        Folder* folder_test = dynamic_cast<Folder*>(oc.second.node());
+        if (!folder_test) {
+          // This sequence outputs to SOMETHING, confirm the user if they want to delete this
+          int r = ConfirmItemDeletion(node);
+
+          switch (r) {
+          case QMessageBox::No:
+            can_delete_item = false;
+            break;
+          case QMessageBox::Cancel:
+            return false;
+          case QMessageBox::YesToAll:
+            check_if_item_is_in_use = false;
+            break;
+          }
+        }
+      }
+    }
+
+    if (can_delete_item) {
+      Sequence* sequence = dynamic_cast<Sequence*>(node);
+      if (sequence && Core::instance()->main_window()->IsSequenceOpen(sequence)) {
+        command->add_child(new CloseSequenceCommand(sequence));
+      }
+
+      command->add_child(new NodeRemoveWithExclusiveDependenciesAndDisconnect(node));
+    }
+  }
+
+  return true;
+}
+
+QString ProjectExplorer::GetHumanReadableNodeName(Node *node)
+{
+  if (node->GetLabel().isEmpty()) {
+    return node->Name();
+  } else {
+    return tr("%1 (%2)").arg(node->GetLabel(), node->Name());
+  }
 }
 
 QAbstractItemView *ProjectExplorer::CurrentView() const
@@ -195,11 +279,10 @@ void ProjectExplorer::ItemDoubleClickedSlot(const QModelIndex &index)
   rename_timer_.stop();
 
   // Retrieve source item from index
-  Item* i = static_cast<Item*>(index.internalPointer());
+  Node* i = static_cast<Node*>(sort_model_.mapToSource(index).internalPointer());
 
   // If the item is a folder, browse to it
-  if (i->CanHaveChildren()
-      && (view_type() == ProjectToolbar::ListView || view_type() == ProjectToolbar::IconView)) {
+  if (dynamic_cast<Folder*>(i) && (view_type() == ProjectToolbar::ListView || view_type() == ProjectToolbar::IconView)) {
 
     BrowseToFolder(index);
 
@@ -257,30 +340,22 @@ void ProjectExplorer::ShowContextMenu()
     // "Import" action
     QAction* import_action = menu.addAction(tr("&Import..."));
     connect(import_action, &QAction::triggered, Core::instance(), &Core::DialogImportShow);
-
-    menu.addSeparator();
-
-    // Project properties action
-    QAction* project_properties = menu.addAction(tr("&Project Properties..."));
-    connect(project_properties, &QAction::triggered, Core::instance(), &Core::DialogProjectPropertiesShow);
   } else {
 
     // Actions to add when only one item is selected
     if (context_menu_items_.size() == 1) {
-      Item* context_menu_item = context_menu_items_.first();
+      Node* context_menu_item = context_menu_items_.first();
 
-      switch (context_menu_item->type()) {
-      case Item::kFolder:
-      {
+      if (dynamic_cast<Folder*>(context_menu_item)) {
+
         QAction* open_in_new_tab = menu.addAction(tr("Open in New Tab"));
         connect(open_in_new_tab, &QAction::triggered, this, &ProjectExplorer::OpenContextMenuItemInNewTab);
 
         QAction* open_in_new_window = menu.addAction(tr("Open in New Window"));
         connect(open_in_new_window, &QAction::triggered, this, &ProjectExplorer::OpenContextMenuItemInNewWindow);
-        break;
-      }
-      case Item::kFootage:
-      {
+
+      } else if (dynamic_cast<Footage*>(context_menu_item)) {
+
         QString reveal_text;
 
 #if defined(Q_OS_WINDOWS)
@@ -293,10 +368,7 @@ void ProjectExplorer::ShowContextMenu()
 
         QAction* reveal_action = menu.addAction(reveal_text);
         connect(reveal_action, &QAction::triggered, this, &ProjectExplorer::RevealSelectedFootage);
-        break;
-      }
-      case Item::kSequence:
-        break;
+
       }
 
       menu.addSeparator();
@@ -306,16 +378,19 @@ void ProjectExplorer::ShowContextMenu()
     bool all_items_have_video_streams = true;
     bool all_items_are_footage_or_sequence = true;
 
-    foreach (Item* i, context_menu_items_) {
-      if (i->type() == Item::kFootage && !static_cast<Footage*>(i)->HasEnabledStreamsOfType(Stream::kVideo)) {
+    foreach (Node* i, context_menu_items_) {
+      Footage* footage_cast_test = dynamic_cast<Footage*>(i);
+      Sequence* sequence_cast_test = dynamic_cast<Sequence*>(i);
+
+      if (footage_cast_test && !footage_cast_test->HasEnabledVideoStreams()) {
         all_items_have_video_streams = false;
       }
 
-      if (i->type() != Item::kFootage) {
+      if (!footage_cast_test) {
         all_items_are_footage = false;
       }
 
-      if (i->type() != Item::kFootage && i->type() != Item::kSequence) {
+      if (!footage_cast_test && !sequence_cast_test) {
         all_items_are_footage_or_sequence = false;
       }
     }
@@ -324,14 +399,14 @@ void ProjectExplorer::ShowContextMenu()
       Menu* proxy_menu = new Menu(tr("Pre-Cache"), &menu);
       menu.addMenu(proxy_menu);
 
-      QVector<Item*> sequences = project()->get_items_of_type(Item::kSequence);
+      QVector<Sequence*> sequences = project()->root()->ListChildrenOfType<Sequence>();
 
       if (sequences.isEmpty()) {
         QAction* a = proxy_menu->addAction(tr("No sequences exist in project"));
         a->setEnabled(false);
       } else {
-        foreach (Item* i, sequences) {
-          QAction* a = proxy_menu->addAction(tr("For \"%1\"").arg(i->name()));
+        foreach (Sequence* i, sequences) {
+          QAction* a = proxy_menu->addAction(tr("For \"%1\"").arg(i->GetLabel()));
           a->setData(Node::PtrToValue(i));
         }
 
@@ -354,28 +429,22 @@ void ProjectExplorer::ShowContextMenu()
 
 void ProjectExplorer::ShowItemPropertiesDialog()
 {
-  Item* sel = context_menu_items_.first();
+  Node* sel = context_menu_items_.first();
 
-  switch (sel->type()) {
-  case Item::kFootage:
-  {
-    // FIXME: Support for multiple items
-    FootagePropertiesDialog fpd(this, static_cast<Footage*>(sel));
-    fpd.exec();
-    break;
-  }
-  case Item::kFolder:
-  {
-    // FIXME: Rename dialog probably
-    break;
-  }
-  case Item::kSequence:
-  {
-    // FIXME: Support for multiple items
+  // FIXME: Support for multiple items
+  if (dynamic_cast<Footage*>(sel)) {
+
+    Core::instance()->LabelNodes({static_cast<Footage*>(sel)});
+
+  } else if (dynamic_cast<Folder*>(sel)) {
+
+    Core::instance()->LabelNodes({static_cast<Folder*>(sel)});
+
+  } else if (dynamic_cast<Sequence*>(sel)) {
+
     SequenceDialog sd(static_cast<Sequence*>(sel), SequenceDialog::kExisting, this);
     sd.exec();
-    break;
-  }
+
   }
 }
 
@@ -406,34 +475,29 @@ void ProjectExplorer::RevealSelectedFootage()
 
 void ProjectExplorer::OpenContextMenuItemInNewTab()
 {
-  Core::instance()->main_window()->FolderOpen(project(), context_menu_items_.first(), false);
+  Core::instance()->main_window()->FolderOpen(project(), static_cast<Folder*>(context_menu_items_.first()), false);
 }
 
 void ProjectExplorer::OpenContextMenuItemInNewWindow()
 {
-  Core::instance()->main_window()->FolderOpen(project(), context_menu_items_.first(), true);
+  Core::instance()->main_window()->FolderOpen(project(), static_cast<Folder*>(context_menu_items_.first()), true);
 }
 
 void ProjectExplorer::ContextMenuStartProxy(QAction *a)
 {
-  QVector<VideoStream*> video_streams;
-
-  // To get here, the `context_menu_items_` must be all kFootage
-  foreach (Item* i, context_menu_items_) {
-    Footage* f = static_cast<Footage*>(i);
-    VideoStream* s = static_cast<VideoStream*>(f->get_first_enabled_stream_of_type(Stream::kVideo));
-
-    if (s) {
-      video_streams.append(s);
-    }
-  }
-
   Sequence* sequence = Node::ValueToPtr<Sequence>(a->data());
 
-  // Start a background task for proxying
-  foreach (VideoStream* video_stream, video_streams) {
-    PreCacheTask* proxy_task = new PreCacheTask(video_stream, sequence);
-    TaskManager::instance()->AddTask(proxy_task);
+  // To get here, the `context_menu_items_` must be all kFootage
+  foreach (Node* i, context_menu_items_) {
+    Footage* f = static_cast<Footage*>(i);
+
+    QVector<VideoParams> enabled_streams = f->GetEnabledVideoStreams();
+
+    foreach (const VideoParams& stream, enabled_streams) {
+      // Start a background task for proxying
+      PreCacheTask* proxy_task = new PreCacheTask(f, stream.stream_index(), sequence);
+      TaskManager::instance()->AddTask(proxy_task);
+    }
   }
 }
 
@@ -452,26 +516,26 @@ QModelIndex ProjectExplorer::get_root_index() const
   return tree_view_->rootIndex();
 }
 
-void ProjectExplorer::set_root(Item *item)
+void ProjectExplorer::set_root(Folder *item)
 {
-  QModelIndex index = model_.CreateIndexFromItem(item);
+  QModelIndex index = sort_model_.mapFromSource(model_.CreateIndexFromItem(item));
 
   BrowseToFolder(index);
   tree_view_->setRootIndex(index);
 }
 
-QList<Item *> ProjectExplorer::SelectedItems() const
+QVector<Node *> ProjectExplorer::SelectedItems() const
 {
   // Determine which view is active and get its selected indexes
   QModelIndexList index_list = CurrentView()->selectionModel()->selectedRows();
 
   // Convert indexes to item objects
-  QList<Item*> selected_items;
+  QVector<Node*> selected_items;
 
   for (int i=0;i<index_list.size();i++) {
-    const QModelIndex& index = index_list.at(i);
+    QModelIndex index = sort_model_.mapToSource(index_list.at(i));
 
-    Item* item = static_cast<Item*>(index.internalPointer());
+    Node* item = static_cast<Node*>(index.internalPointer());
 
     selected_items.append(item);
   }
@@ -488,7 +552,7 @@ Folder *ProjectExplorer::GetSelectedFolder() const
   Folder* folder = nullptr;
 
   // Get the selected items from the panel
-  QList<Item*> selected_items = SelectedItems();
+  QVector<Node*> selected_items = SelectedItems();
 
   // Heuristic for finding the selected folder:
   //
@@ -498,13 +562,11 @@ Folder *ProjectExplorer::GetSelectedFolder() const
   // - If more than one folder is found, we play it safe and import into the root folder
 
   for (int i=0;i<selected_items.size();i++) {
-    Item* sel_item = selected_items.at(i);
+    Node* sel_item = selected_items.at(i);
 
     // If this item is not a folder, presumably it's parent is
-    if (!sel_item->CanHaveChildren()) {
-      sel_item = sel_item->item_parent();
-
-      Q_ASSERT(sel_item->CanHaveChildren());
+    if (!dynamic_cast<Folder*>(sel_item)) {
+      sel_item = sel_item->folder();
     }
 
     if (folder == nullptr) {
@@ -541,147 +603,23 @@ void ProjectExplorer::DeselectAll()
   CurrentView()->selectionModel()->clearSelection();
 }
 
-QList<MediaInput *> ProjectExplorer::GetMediaNodesUsingFootage(Footage *item)
-{
-  QList<MediaInput *> list;
-
-  // Get all sequences.
-  QVector<Item*> sequences = model_.project()->get_items_of_type(Item::kSequence);
-
-  // Footage can contain multiple streams, all of which need to be dealt with
-  foreach (Item* s, sequences) {
-    const QList<Node*>& nodes = static_cast<Sequence*>(s)->nodes();
-    foreach (Node* n, nodes) {
-      if (n->IsMedia()) {
-        MediaInput* media_node = static_cast<MediaInput*>(n);
-
-        if (media_node->stream()->footage() == item) {
-          list.append(media_node);
-        }
-      }
-    }
-  }
-
-  return list;
-}
-
 void ProjectExplorer::DeleteSelected()
 {
-  QList<Item*> selected = SelectedItems();
+  QVector<Node*> selected = SelectedItems();
 
   if (selected.isEmpty()) {
     return;
   }
 
-  QUndoCommand* command = new QUndoCommand();
+  MultiUndoCommand* command = new MultiUndoCommand();
 
-  foreach (Item* item, selected) {
-    // Verify whether this item is in use anywhere
-    switch (item->type()) {
-    case Item::kSequence:
-    {
-      // If this is a sequence, check if it's open and close it if necessary
-      Sequence* s = static_cast<Sequence*>(item);
+  bool check_if_item_is_in_use = true;
 
-      if (Core::instance()->main_window()->IsSequenceOpen(s)) {
-        Core::instance()->main_window()->CloseSequence(s);
-      }
-      break;
-    }
-    case Item::kFootage:
-    {
-      // If this is footage, check if it's used anywhere in any sequence
-      Footage* footage = static_cast<Footage*>(item);
-
-      QList<MediaInput*> footage_nodes = GetMediaNodesUsingFootage(footage);
-
-      if (!footage_nodes.isEmpty()) {
-        // Footage is in use, show messagebox asking what to do about it
-        QList<Sequence*> used_in_sequences;
-
-        // Compile list of sequences to assist the user in making this decision
-        foreach (MediaInput* i, footage_nodes) {
-          Sequence* media_parent = static_cast<Sequence*>(i->parent());
-
-          if (!used_in_sequences.contains(media_parent)) {
-            used_in_sequences.append(media_parent);
-          }
-        }
-
-        QString sequence_list_str;
-        foreach (Sequence* s, used_in_sequences) {
-          sequence_list_str.append(QStringLiteral("%1\n").arg(s->name()));
-        }
-
-        QMessageBox msgbox(this);
-        msgbox.setWindowTitle(tr("Confirm Footage Deletion"));
-        msgbox.setText(tr("The footage \"%1\" is currently used in the following sequence(s):\n\n"
-                          "%2\nWhat would you like to do with these clips?")
-                       .arg(footage->filename(), sequence_list_str));
-        msgbox.setIcon(QMessageBox::Warning);
-
-        // Set up buttons
-        QPushButton* offline_btn = msgbox.addButton(tr("Offline Footage"), QMessageBox::YesRole);
-        QPushButton* delete_clip_btn = msgbox.addButton(tr("Delete Clips"), QMessageBox::NoRole);
-        msgbox.addButton(QMessageBox::Cancel);
-
-        // Run messagebox
-        msgbox.exec();
-
-        if (msgbox.clickedButton() == offline_btn || msgbox.clickedButton() == delete_clip_btn) {
-
-          // For safety, even if we're deleting clips, we'll offline the footage nodes too
-          new OfflineFootageCommand(footage_nodes, command);
-
-        }
-
-        if (msgbox.clickedButton() == delete_clip_btn) {
-
-          // Delete any blocks that use this footage
-          QVector<Block*> blocks_to_remove;
-
-          foreach (Sequence* s, used_in_sequences) {
-            foreach (TrackOutput* track, s->viewer_output()->GetTracks()) {
-              foreach (Block* b, track->Blocks()) {
-                QVector<Node*> deps = b->GetDependencies();
-
-                foreach (MediaInput* i, footage_nodes) {
-                  if (deps.contains(i)) {
-                    blocks_to_remove.append(b);
-                    break;
-                  }
-                }
-              }
-            }
-          }
-
-          TimelineWidget::ReplaceBlocksWithGaps(blocks_to_remove, true, command);
-
-        } else if (msgbox.clickedButton() != offline_btn) {
-
-          // Must have cancelled
-          delete command;
-          return;
-
-        }
-      }
-
-      // Close footage if currently open in footage panel
-      FootageViewerPanel* footage_panel = PanelManager::instance()->GetPanelsOfType<FootageViewerPanel>().first();
-      if (footage_panel->GetSelectedFootage().contains(footage)) {
-        footage_panel->SetFootage(nullptr);
-      }
-      break;
-    }
-    case Item::kFolder:
-      // Do nothing
-      break;
-    }
-
-    new ProjectViewModel::RemoveItemCommand(&model_, item, command);
+  if (DeleteItemsInternal(selected, check_if_item_is_in_use, command)) {
+    Core::instance()->undo_stack()->pushIfHasChildren(command);
+  } else {
+    delete command;
   }
-
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
 }

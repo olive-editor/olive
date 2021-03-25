@@ -83,15 +83,14 @@ signals:
   void Released();
 
 private:
-  QPoint drag_start_;
+  int drag_start_x_;
+  int drag_start_y_;
 
   QList<SliderLadderElement*> elements_;
 
   int active_element_;
 
   QTimer drag_timer_;
-
-  int y_mobility_;
 
 private slots:
   void TimerUpdate();

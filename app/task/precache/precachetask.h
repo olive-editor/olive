@@ -21,7 +21,6 @@
 #ifndef PRECACHETASK_H
 #define PRECACHETASK_H
 
-#include "node/input/media/media.h"
 #include "project/item/footage/footage.h"
 #include "project/item/sequence/sequence.h"
 #include "task/render/render.h"
@@ -32,7 +31,7 @@ class PreCacheTask : public RenderTask
 {
   Q_OBJECT
 public:
-  PreCacheTask(VideoStream* footage, Sequence* sequence);
+  PreCacheTask(Footage* footage, int index, Sequence* sequence);
 
   virtual ~PreCacheTask() override;
 
@@ -44,9 +43,9 @@ protected:
   virtual void AudioDownloaded(const TimeRange& range, SampleBufferPtr samples, qint64 job_time) override;
 
 private:
-  VideoStream* footage_;
+  Footage* footage_;
 
-  MediaInput* video_node_;
+  int index_;
 
 };
 

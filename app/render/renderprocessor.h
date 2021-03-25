@@ -35,17 +35,17 @@ public:
   static void Process(RenderTicketPtr ticket, Renderer* render_ctx, StillImageCache* still_image_cache, DecoderCache* decoder_cache, ShaderCache* shader_cache, QVariant default_shader);
 
   struct RenderedWaveform {
-    const TrackOutput* track;
+    const Track* track;
     AudioVisualWaveform waveform;
     TimeRange range;
   };
 
 protected:
-  virtual NodeValueTable GenerateBlockTable(const TrackOutput *track, const TimeRange &range) override;
+  virtual NodeValueTable GenerateBlockTable(const Track *track, const TimeRange &range) override;
 
-  virtual QVariant ProcessVideoFootage(VideoStream* video_stream, const rational &input_time) override;
+  virtual QVariant ProcessVideoFootage(const FootageJob &stream, const rational &input_time) override;
 
-  virtual QVariant ProcessAudioFootage(AudioStream* stream, const TimeRange &input_time) override;
+  virtual QVariant ProcessAudioFootage(const FootageJob &stream, const TimeRange &input_time) override;
 
   virtual QVariant ProcessShader(const Node *node, const TimeRange &range, const ShaderJob& job) override;
 
@@ -62,7 +62,7 @@ private:
 
   void Run();
 
-  DecoderPtr ResolveDecoderFromInput(Stream* stream);
+  DecoderPtr ResolveDecoderFromInput(const QString &decoder_id, const Decoder::CodecStream& stream);
 
   RenderTicketPtr ticket_;
 

@@ -42,8 +42,6 @@ public:
   virtual QString id() const override;
   virtual QString Description() const override;
 
-private:
-
 };
 
 }

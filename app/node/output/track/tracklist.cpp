@@ -27,36 +27,14 @@
 
 namespace olive {
 
-TrackList::TrackList(ViewerOutput *parent, const Timeline::TrackType &type, NodeInputArray *track_input) :
+TrackList::TrackList(Sequence *parent, const Track::Type &type, const QString &track_input) :
   QObject(parent),
   track_input_(track_input),
   type_(type)
 {
-  connect(track_input_, &NodeInputArray::SubParamEdgeAdded, this, &TrackList::TrackConnected);
-  connect(track_input_, &NodeInputArray::SubParamEdgeRemoved, this, &TrackList::TrackDisconnected);
 }
 
-const Timeline::TrackType &TrackList::type() const
-{
-  return type_;
-}
-
-void TrackList::TrackAddedBlock(Block *block)
-{
-  emit BlockAdded(block, static_cast<TrackOutput*>(sender())->Index());
-}
-
-void TrackList::TrackRemovedBlock(Block *block)
-{
-  emit BlockRemoved(block);
-}
-
-const QVector<TrackOutput *> &TrackList::GetTracks() const
-{
-  return track_cache_;
-}
-
-TrackOutput *TrackList::GetTrackAt(int index) const
+Track *TrackList::GetTrackAt(int index) const
 {
   if (index < track_cache_.size()) {
     return track_cache_.at(index);
@@ -65,183 +43,88 @@ TrackOutput *TrackList::GetTrackAt(int index) const
   }
 }
 
-const rational &TrackList::GetTotalLength() const
+void TrackList::TrackConnected(Node *node, int element)
 {
-  return total_length_;
-}
-
-int TrackList::GetTrackCount() const
-{
-  return track_cache_.size();
-}
-
-TrackOutput* TrackList::AddTrack()
-{
-  TrackOutput* track = new TrackOutput();
-  GetParentGraph()->AddNode(track);
-
-  track_input_->Append();
-
-  // Connect this track directly to this output
-  NodeParam::ConnectEdge(track->output(),
-                         track_input_->At(track_input_->GetSize() - 1));
-
-  // Auto-merge with previous track
-  if (track_input_->GetSize() > 1) {
-    TrackOutput* last_track = nullptr;
-
-    for (int i=track_cache_.size()-1;i>=0;i--) {
-      TrackOutput* test_track = track_cache_.at(i);
-
-      if (test_track && test_track != track) {
-        last_track = test_track;
-        break;
-      }
-    }
-
-    if (last_track && last_track->output()->is_connected()) {
-      foreach (NodeEdgePtr edge, last_track->output()->edges()) {
-        if (!track_input_->ContainsSubParameter(edge->input())) {
-          switch (type_) {
-          case Timeline::kTrackTypeVideo:
-          {
-            MergeNode* blend = new MergeNode();
-            GetParentGraph()->AddNode(blend);
-
-            NodeParam::ConnectEdge(track->output(), blend->blend_in());
-            NodeParam::ConnectEdge(last_track->output(), blend->base_in());
-            NodeParam::ConnectEdge(blend->output(), edge->input());
-            break;
-          }
-          case Timeline::kTrackTypeAudio:
-          {
-            MathNode* add = new MathNode();
-            GetParentGraph()->AddNode(add);
-
-            NodeParam::ConnectEdge(track->output(), add->param_a_in());
-            NodeParam::ConnectEdge(last_track->output(), add->param_b_in());
-            NodeParam::ConnectEdge(add->output(), edge->input());
-            break;
-          }
-          default:
-            break;
-          }
-        }
-      }
-    }
-  }
-
-  return track;
-}
-
-void TrackList::RemoveTrack(QObject* new_parent)
-{
-  if (track_cache_.isEmpty()) {
+  if (element == -1) {
+    parent()->InvalidateAll(track_input(), element);
     return;
   }
 
-  TrackOutput* track = track_cache_.last();
+  Track* track = dynamic_cast<Track*>(node);
 
-  GetParentGraph()->TakeNode(track);
-
-  if (!new_parent) {
-    delete track;
-  } else {
-    track->setParent(new_parent);
+  if (!track) {
+    return;
   }
 
-  track_input_->RemoveLast();
-}
+  // Determine where in the cache this block will be
+  int cache_index = -1;
+  for (int i=element+1; i<ArraySize(); i++) {
+    // Find next track because this will be the index we insert at
+    cache_index = GetCacheIndexFromArrayIndex(i);
 
-void TrackList::TrackConnected(NodeEdgePtr edge)
-{
-  int input_index = track_input_->IndexOfSubParameter(edge->input());
-
-  Q_ASSERT(input_index >= 0);
-
-  Node* connected_node = edge->output()->parentNode();
-
-  if (connected_node->IsTrack()) {
-    TrackOutput* connected_track = static_cast<TrackOutput*>(connected_node);
-
-    {
-      // Find "real" index
-      TrackOutput* next = nullptr;
-      for (int i=input_index+1; i<track_input_->GetSize(); i++) {
-        Node* that_track = track_input_->At(i)->get_connected_node();
-
-        if (that_track && that_track->IsTrack()) {
-          next = static_cast<TrackOutput*>(that_track);
-          break;
-        }
-      }
-
-      int track_index;
-
-      if (next) {
-        // Insert track before "next"
-        track_index = track_cache_.indexOf(next);
-        track_cache_.insert(track_index, connected_track);
-      } else {
-        // No "next", this track must come at the end
-        track_index = track_cache_.size();
-        track_cache_.append(connected_track);
-      }
-
-      // Update track indexes in the list (including this track)
-      UpdateTrackIndexesFrom(track_index);
+    if (cache_index >= 0) {
+      break;
     }
-
-    connect(connected_track, &TrackOutput::BlockAdded, this, &TrackList::TrackAddedBlock);
-    connect(connected_track, &TrackOutput::BlockRemoved, this, &TrackList::TrackRemovedBlock);
-    connect(connected_track, &TrackOutput::TrackLengthChanged, this, &TrackList::UpdateTotalLength);
-    connect(connected_track, &TrackOutput::TrackHeightChangedInPixels, this, &TrackList::TrackHeightChangedSlot);
-
-    connected_track->set_track_type(type_);
-
-    emit TrackListChanged();
-
-    // This function must be called after the track is added to track_cache_, since it uses track_cache_ to determine
-    // the track's index
-    emit TrackAdded(connected_track);
-
-    UpdateTotalLength();
-
   }
+
+  // If there was no next, this will be inserted at the end
+  if (cache_index == -1) {
+    cache_index = track_cache_.size();
+  }
+
+  track_cache_.insert(cache_index, track);
+  track_array_indexes_.insert(cache_index, element);
+
+  // Update track indexes in the list (including this track)
+  UpdateTrackIndexesFrom(cache_index);
+
+  connect(track, &Track::TrackLengthChanged, this, &TrackList::UpdateTotalLength);
+
+  track->set_type(type_);
+
+  emit TrackListChanged();
+
+  // This function must be called after the track is added to track_cache_, since it uses track_cache_ to determine
+  // the track's index
+  emit TrackAdded(track);
+
+  UpdateTotalLength();
 }
 
-void TrackList::TrackDisconnected(NodeEdgePtr edge)
+void TrackList::TrackDisconnected(Node *node, int element)
 {
-  int track_index = track_input_->IndexOfSubParameter(edge->input());
-
-  Q_ASSERT(track_index >= 0);
-
-  Node* connected_node = edge->output()->parentNode();
-
-  if (connected_node->IsTrack()) {
-    TrackOutput* track = static_cast<TrackOutput*>(connected_node);
-
-    int index_of_track = track_cache_.indexOf(track);
-    track_cache_.removeAt(index_of_track);
-
-    // Update indices for all subsequent tracks
-    UpdateTrackIndexesFrom(index_of_track);
-
-    // Traverse through Tracks uncaching and disconnecting them
-    emit TrackRemoved(track);
-
-    track->SetIndex(-1);
-    track->set_track_type(Timeline::kTrackTypeNone);
-
-    disconnect(track, &TrackOutput::BlockAdded, this, &TrackList::TrackAddedBlock);
-    disconnect(track, &TrackOutput::BlockRemoved, this, &TrackList::TrackRemovedBlock);
-    disconnect(track, &TrackOutput::TrackLengthChanged, this, &TrackList::UpdateTotalLength);
-    disconnect(track, &TrackOutput::TrackHeightChangedInPixels, this, &TrackList::TrackHeightChangedSlot);
-
-    emit TrackListChanged();
-
-    UpdateTotalLength();
+  if (element == -1) {
+    // User has replaced the entire array, we will invalidate everything
+    parent()->InvalidateAll(track_input(), element);
+    return;
   }
+
+  Track* track = dynamic_cast<Track*>(node);
+
+  if (!track) {
+    return;
+  }
+
+  // Traverse through Tracks uncaching and disconnecting them
+  emit TrackRemoved(track);
+
+  int cache_index = GetCacheIndexFromArrayIndex(element);
+
+  // Remove track here
+  track_cache_.removeAt(cache_index);
+  track_array_indexes_.removeAt(cache_index);
+
+  // Update indices for all subsequent tracks
+  UpdateTrackIndexesFrom(cache_index);
+
+  track->SetIndex(-1);
+  track->set_type(Track::kNone);
+
+  disconnect(track, &Track::TrackLengthChanged, this, &TrackList::UpdateTotalLength);
+
+  emit TrackListChanged();
+
+  UpdateTotalLength();
 }
 
 void TrackList::UpdateTrackIndexesFrom(int index)
@@ -253,25 +136,50 @@ void TrackList::UpdateTrackIndexesFrom(int index)
 
 NodeGraph *TrackList::GetParentGraph() const
 {
-  return static_cast<NodeGraph*>(parent()->parent());
+  return parent()->parent();
+}
+
+const QString& TrackList::track_input() const
+{
+  return track_input_;
+}
+
+NodeInput TrackList::track_input(int element) const
+{
+  return NodeInput(parent(), track_input(), element);
+}
+
+Sequence *TrackList::parent() const
+{
+  return static_cast<Sequence*>(QObject::parent());
+}
+
+int TrackList::ArraySize() const
+{
+  return parent()->InputArraySize(track_input());
+}
+
+void TrackList::ArrayAppend(bool undoable)
+{
+  parent()->InputArrayAppend(track_input(), undoable);
+}
+
+void TrackList::ArrayRemoveLast(bool undoable)
+{
+  parent()->InputArrayRemoveLast(track_input(), undoable);
 }
 
 void TrackList::UpdateTotalLength()
 {
   total_length_ = 0;
 
-  foreach (TrackOutput* track, track_cache_) {
+  foreach (Track* track, track_cache_) {
     if (track) {
       total_length_ = qMax(total_length_, track->track_length());
     }
   }
 
   emit LengthChanged(total_length_);
-}
-
-void TrackList::TrackHeightChangedSlot(int height)
-{
-  emit TrackHeightChanged(static_cast<TrackOutput*>(sender())->Index(), height);
 }
 
 }

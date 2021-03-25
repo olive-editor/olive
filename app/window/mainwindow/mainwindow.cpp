@@ -50,6 +50,10 @@ MainWindow::MainWindow(QWidget *parent) :
   taskbar_interface_ = nullptr;
 #endif
 
+#ifdef Q_OS_LINUX
+  checked_graphics_vendor_ = false;
+#endif
+
   // Create empty central widget - we don't actually want a central widget (so we set its maximum
   // size to 0,0) but some of Qt's docking/undocking fails without it
   QWidget* centralWidget = new QWidget(this);
@@ -156,7 +160,7 @@ MainWindowLayoutInfo MainWindow::SaveLayout() const
 
   foreach (TimelinePanel* panel, timeline_panels_) {
     if (panel->GetConnectedViewer()) {
-      info.add_sequence({static_cast<Sequence*>(panel->GetConnectedViewer()->parent()),
+      info.add_sequence({static_cast<Sequence*>(panel->GetConnectedViewer()),
                          panel->SaveSplitterState()});
     }
   }
@@ -170,7 +174,7 @@ TimelinePanel* MainWindow::OpenSequence(Sequence *sequence, bool enable_focus)
 {
   // See if this sequence is already open, and switch to it if so
   foreach (TimelinePanel* tl, timeline_panels_) {
-    if (tl->GetConnectedViewer() == sequence->viewer_output()) {
+    if (tl->GetConnectedViewer() == sequence) {
       tl->raise();
       return tl;
     }
@@ -186,10 +190,10 @@ TimelinePanel* MainWindow::OpenSequence(Sequence *sequence, bool enable_focus)
     enable_focus = false;
   }
 
-  panel->ConnectViewerNode(sequence->viewer_output());
+  panel->ConnectViewerNode(sequence);
 
   if (enable_focus) {
-    TimelineFocused(sequence->viewer_output());
+    TimelineFocused(sequence);
   }
 
   return panel;
@@ -202,7 +206,7 @@ void MainWindow::CloseSequence(Sequence *sequence)
   QList<TimelinePanel*> copy = timeline_panels_;
 
   foreach (TimelinePanel* tp, copy) {
-    if (tp->GetConnectedViewer() == sequence->viewer_output()) {
+    if (tp->GetConnectedViewer() == sequence) {
       RemoveTimelinePanel(tp);
     }
   }
@@ -211,7 +215,7 @@ void MainWindow::CloseSequence(Sequence *sequence)
 bool MainWindow::IsSequenceOpen(Sequence *sequence) const
 {
   foreach (TimelinePanel* tp, timeline_panels_) {
-    if (tp->GetConnectedViewer() == sequence->viewer_output()) {
+    if (tp->GetConnectedViewer() == sequence) {
       return true;
     }
   }
@@ -219,7 +223,7 @@ bool MainWindow::IsSequenceOpen(Sequence *sequence) const
   return false;
 }
 
-void MainWindow::FolderOpen(Project* p, Item *i, bool floating)
+void MainWindow::FolderOpen(Project* p, Folder *i, bool floating)
 {
   ProjectPanel* panel = PanelManager::instance()->CreatePanel<ProjectPanel>(this);
 
@@ -329,29 +333,23 @@ void MainWindow::ProjectOpen(Project *p)
 void MainWindow::ProjectClose(Project *p)
 {
   // Close any open sequences from project
-  QVector<Item*> open_sequences = p->get_items_of_type(Item::kSequence);
+  QVector<Sequence*> open_sequences = p->root()->ListChildrenOfType<Sequence>();
 
-  foreach (Item* item, open_sequences) {
-    Sequence* seq = static_cast<Sequence*>(item);
-
+  foreach (Sequence* seq, open_sequences) {
     if (IsSequenceOpen(seq)) {
       CloseSequence(seq);
     }
   }
 
   // Close any open footage in footage viewer
-  QVector<Item*> footage = p->get_items_of_type(Item::kFootage);
-  QList<Footage*> footage_in_viewer = footage_viewer_panel_->GetSelectedFootage();
+  QVector<Footage*> footage_in_project = p->root()->ListChildrenOfType<Footage>();
+  QVector<Footage*> footage_in_viewer = footage_viewer_panel_->GetSelectedFootage();
 
   if (!footage_in_viewer.isEmpty()) {
-    // FootageViewer only has the one footage item
-    Footage* f = footage_in_viewer.first();
-
-    foreach (Item* i, footage) {
-      if (f == i) {
-        footage_viewer_panel_->SetFootage(nullptr);
-        break;
-      }
+    // FootageViewer only has the one footage item, check if it's in the project in which case
+    // we'll close it
+    if (footage_in_project.contains(footage_in_viewer.first())) {
+      footage_viewer_panel_->SetFootage(nullptr);
     }
   }
 
@@ -367,6 +365,11 @@ void MainWindow::ProjectClose(Project *p)
     if (panel->project() == p) {
       RemoveProjectPanel(panel);
     }
+  }
+
+  // Close project from NodeView
+  if (node_panel_->GetGraph() == p) {
+    node_panel_->SetGraph(nullptr);
   }
 }
 
@@ -547,19 +550,11 @@ void MainWindow::RemoveProjectPanel(ProjectPanel *panel)
   }
 }
 
-void MainWindow::TimelineFocused(ViewerOutput* viewer)
+void MainWindow::TimelineFocused(Sequence* viewer)
 {
   sequence_viewer_panel_->ConnectViewerNode(viewer);
   param_panel_->ConnectViewerNode(viewer);
   curve_panel_->ConnectViewerNode(viewer);
-
-  Sequence* seq = nullptr;
-
-  if (viewer) {
-    seq = static_cast<Sequence*>(viewer->parent());
-  }
-
-  node_panel_->SetGraph(seq);
 }
 
 void MainWindow::FocusedPanelChanged(PanelWidget *panel)
@@ -575,6 +570,7 @@ void MainWindow::FocusedPanelChanged(PanelWidget *panel)
 
   if (project) {
     UpdateTitle();
+    node_panel_->SetGraph(project->project());
     return;
   }
 }
@@ -640,16 +636,20 @@ void MainWindow::showEvent(QShowEvent *e)
   QMainWindow::showEvent(e);
 
 #ifdef Q_OS_LINUX
-  // Check for nouveau since that driver really doesn't work with Olive
-  QOffscreenSurface surface;
-  surface.create();
-  QOpenGLContext context;
-  context.create();
-  context.makeCurrent(&surface);
-  const char* vendor = reinterpret_cast<const char*>(context.functions()->glGetString(GL_VENDOR));
-  qDebug() << "Using graphics driver:" << vendor;
-  if (!strcmp(vendor, "nouveau")) {
-    QMetaObject::invokeMethod(this, "ShowNouveauWarning", Qt::QueuedConnection);
+  if (!checked_graphics_vendor_) {
+    // Check for nouveau since that driver really doesn't work with Olive
+    QOffscreenSurface surface;
+    surface.create();
+    QOpenGLContext context;
+    context.create();
+    context.makeCurrent(&surface);
+    const char* vendor = reinterpret_cast<const char*>(context.functions()->glGetString(GL_VENDOR));
+    qDebug() << "Using graphics driver:" << vendor;
+    if (!strcmp(vendor, "nouveau")) {
+      QMetaObject::invokeMethod(this, "ShowNouveauWarning", Qt::QueuedConnection);
+    }
+
+    checked_graphics_vendor_ = true;
   }
 #endif
 }

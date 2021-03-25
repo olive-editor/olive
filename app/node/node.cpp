@@ -25,79 +25,68 @@
 #include <QDebug>
 #include <QFile>
 
+#include "common/bezier.h"
+#include "common/lerp.h"
 #include "common/timecodefunctions.h"
 #include "common/xmlutils.h"
+#include "core.h"
+#include "config/config.h"
 #include "project/project.h"
 #include "project/item/footage/footage.h"
-#include "project/item/footage/videostream.h"
+#include "ui/colorcoding.h"
+#include "ui/icons/icons.h"
 #include "widget/nodeview/nodeviewundo.h"
 
 namespace olive {
 
-Node::Node() :
-  can_be_deleted_(true)
+#define super QObject
+
+const QString Node::kDefaultOutput = QStringLiteral("output");
+
+Node::Node(bool create_default_output) :
+  can_be_deleted_(true),
+  override_color_(-1),
+  last_change_time_(0),
+  folder_(nullptr)
 {
-  output_ = new NodeOutput("node_out");
-  AddParameter(output_);
+  if (create_default_output) {
+    AddOutput();
+  }
 }
 
 Node::~Node()
 {
+  // Disconnect all edges
   DisconnectAll();
 
-  // We delete in the Node destructor rather than relying on the QObject system because the parameter may need to
-  // perform actions on this Node object and we want them to be done before the Node object is fully destroyed
-  foreach (NodeParam* param, params_) {
+  // Remove self from anything while we're still a node rather than a base QObject
+  setParent(nullptr);
 
-    // We disconnect input signals because these will try to send invalidate cache signals that may involve the derived
-    // class (which is now destroyed). Any node that this is connected to will handle cache invalidation so it's a waste
-    // of time anyway.
-    if (param->type() == NodeParam::kInput) {
-      DisconnectInput(static_cast<NodeInput*>(param));
+  // Remove all immediates
+  foreach (NodeInputImmediate* i, standard_immediates_) {
+    delete i;
+  }
+  for (auto it=array_immediates_.cbegin(); it!=array_immediates_.cend(); it++) {
+    foreach (NodeInputImmediate* i, it.value()) {
+      delete i;
     }
-
-    delete param;
   }
 }
 
-void Node::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const QAtomicInt* cancelled)
+NodeGraph *Node::parent() const
+{
+  return static_cast<NodeGraph*>(QObject::parent());
+}
+
+void Node::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, uint version, const QAtomicInt* cancelled)
 {
   while (XMLReadNextStartElement(reader)) {
     if (cancelled && *cancelled) {
       return;
     }
 
-    if (reader->name() == QStringLiteral("input") || reader->name() == QStringLiteral("output")) {
-      QString param_id;
-
-      XMLAttributeLoop(reader, attr) {
-        if (attr.name() == QStringLiteral("id")) {
-          param_id = attr.value().toString();
-
-          break;
-        }
-      }
-
-      if (param_id.isEmpty()) {
-        qDebug() << "Found parameter with no ID";
-        continue;
-      }
-
-      NodeParam* param;
-
-      if (reader->name() == QStringLiteral("input")) {
-        param = GetInputWithID(param_id);
-      } else {
-        param = GetOutputWithID(param_id);
-      }
-
-      if (!param) {
-        qDebug() << "No parameter in" << id() << "with parameter" << param_id;
-        reader->skipCurrentElement();
-        continue;
-      }
-
-      param->Load(reader, xml_node_data, cancelled);
+    if (reader->name() == QStringLiteral("input")) {
+      LoadInput(reader, xml_node_data, cancelled);
     } else if (reader->name() == QStringLiteral("ptr")) {
       xml_node_data.node_ptrs.insert(reader->readElementText().toULongLong(), this);
     } else if (reader->name() == QStringLiteral("pos")) {
@@ -116,8 +105,51 @@ void Node::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const QAto
       SetPosition(p);
     } else if (reader->name() == QStringLiteral("label")) {
       SetLabel(reader->readElementText());
+    } else if (reader->name() == QStringLiteral("color")) {
+      override_color_ = reader->readElementText().toInt();
+    } else if (reader->name() == QStringLiteral("links")) {
+      while (XMLReadNextStartElement(reader)) {
+        if (reader->name() == QStringLiteral("link")) {
+          xml_node_data.block_links.append({this, reader->readElementText().toULongLong()});
+        } else {
+          reader->skipCurrentElement();
+        }
+      }
     } else if (reader->name() == QStringLiteral("custom")) {
-      LoadInternal(reader, xml_node_data);
+      LoadInternal(reader, xml_node_data, version, cancelled);
+    } else if (reader->name() == QStringLiteral("connections")) {
+      // Load connections
+      while (XMLReadNextStartElement(reader)) {
+        if (reader->name() == QStringLiteral("connection")) {
+          QString param_id;
+          int ele = -1;
+
+          XMLAttributeLoop(reader, attr) {
+            if (attr.name() == QStringLiteral("element")) {
+              ele = attr.value().toInt();
+            } else if (attr.name() == QStringLiteral("input")) {
+              param_id = attr.value().toString();
+            }
+          }
+
+          QString output_node_id;
+          QString output_param_id;
+
+          while (XMLReadNextStartElement(reader)) {
+            if (reader->name() == QStringLiteral("node")) {
+              output_node_id = reader->readElementText();
+            } else if (reader->name() == QStringLiteral("output")) {
+              output_param_id = reader->readElementText();
+            } else {
+              reader->skipCurrentElement();
+            }
+          }
+
+          xml_node_data.desired_connections.append({NodeInput(this, param_id, ele), output_node_id.toULongLong(), output_param_id});
+        } else {
+          reader->skipCurrentElement();
+        }
+      }
     } else {
       reader->skipCurrentElement();
     }
@@ -134,25 +166,44 @@ void Node::Save(QXmlStreamWriter *writer) const
   writer->writeEndElement(); // pos
 
   writer->writeTextElement(QStringLiteral("label"), GetLabel());
+  writer->writeTextElement(QStringLiteral("color"), QString::number(override_color_));
 
-  foreach (NodeParam* param, parameters()) {
-    switch (param->type()) {
-    case NodeParam::kInput:
-      writer->writeStartElement(QStringLiteral("input"));
-      break;
-    case NodeParam::kOutput:
-      writer->writeStartElement(QStringLiteral("output"));
-      break;
-    }
+  foreach (const QString& input, input_ids_) {
+    writer->writeStartElement(QStringLiteral("input"));
 
-    param->Save(writer);
+    SaveInput(writer, input);
 
-    writer->writeEndElement(); // input/output
+    writer->writeEndElement(); // input
   }
+
+  writer->writeStartElement(QStringLiteral("links"));
+  foreach (Node* link, links_) {
+    writer->writeTextElement(QStringLiteral("link"), QString::number(reinterpret_cast<quintptr>(link)));
+  }
+  writer->writeEndElement(); // links
+
+  writer->writeStartElement(QStringLiteral("connections"));
+  for (auto it=input_connections().cbegin(); it!=input_connections().cend(); it++) {
+    writer->writeStartElement(QStringLiteral("connection"));
+
+    writer->writeAttribute(QStringLiteral("input"), it->first.input());
+    writer->writeAttribute(QStringLiteral("element"), QString::number(it->first.element()));
+
+    writer->writeTextElement(QStringLiteral("node"), QString::number(reinterpret_cast<quintptr>(it->second.node())));
+    writer->writeTextElement(QStringLiteral("output"), it->second.output());
+
+    writer->writeEndElement(); // connection
+  }
+  writer->writeEndElement(); // connections
 
   writer->writeStartElement(QStringLiteral("custom"));
   SaveInternal(writer);
   writer->writeEndElement(); // custom
+}
+
+Project* Node::project() const
+{
+  return dynamic_cast<Project*>(parent());
 }
 
 QString Node::ShortName() const
@@ -170,79 +221,835 @@ void Node::Retranslate()
 {
 }
 
-void Node::AddParameter(NodeParam *param)
+QIcon Node::icon() const
 {
-  // Ensure no other param with this ID has been added to this Node (since that defeats the purpose)
-  Q_ASSERT(!HasParamWithID(param->id()));
+  // Just a meaningless default icon to be used where necessary
+  return icon::New;
+}
 
-  if (params_.contains(param)) {
+Color Node::color() const
+{
+  int c;
+
+  if (override_color_ >= 0) {
+    c = override_color_;
+  } else {
+    c = Config::Current()[QStringLiteral("CatColor%1").arg(this->Category().first())].toInt();
+  }
+
+  return ColorCoding::GetColor(c);
+}
+
+QLinearGradient Node::gradient_color(qreal top, qreal bottom) const
+{
+  QLinearGradient grad;
+
+  grad.setStart(0, top);
+  grad.setFinalStop(0, bottom);
+
+  QColor c = color().toQColor();
+
+  grad.setColorAt(0.0, c.lighter());
+  grad.setColorAt(1.0, c);
+
+  return grad;
+}
+
+QBrush Node::brush(qreal top, qreal bottom) const
+{
+  if (Config::Current()[QStringLiteral("UseGradients")].toBool()) {
+    return gradient_color(top, bottom);
+  } else {
+    return color().toQColor();
+  }
+}
+
+void Node::ConnectEdge(const NodeOutput &output, const NodeInput &input)
+{
+  // Ensure graph is the same
+  Q_ASSERT(input.node()->parent() == output.node()->parent());
+
+  // Ensure a connection isn't getting overwritten
+  Q_ASSERT(input.node()->input_connections().find(input) == input.node()->input_connections().end());
+
+  // Insert connection on both sides
+  input.node()->input_connections_[input] = output;
+  output.node()->output_connections_.push_back(std::pair<NodeOutput, NodeInput>({output, input}));
+
+  // Update change times
+  input.node()->UpdateLastChangedTime();
+
+  // Call internal events
+  input.node()->InputConnectedEvent(input.input(), input.element(), output);
+  output.node()->OutputConnectedEvent(output.output(), input);
+
+  // Emit signals
+  emit input.node()->InputConnected(output, input);
+  emit output.node()->OutputConnected(output, input);
+
+  // Invalidate all if this node isn't ignoring this input
+  if (!input.node()->ignore_connections_.contains(input.input())) {
+    input.node()->InvalidateAll(input.input(), input.element());
+  }
+}
+
+void Node::DisconnectEdge(const NodeOutput &output, const NodeInput &input)
+{
+  // Ensure graph is the same
+  Q_ASSERT(input.node()->parent() == output.node()->parent());
+
+  // Ensure connection exists
+  Q_ASSERT(input.node()->input_connections().at(input) == output);
+
+  // Remove connection from both sides
+  InputConnections& inputs = input.node()->input_connections_;
+  inputs.erase(inputs.find(input));
+
+  OutputConnections& outputs = output.node()->output_connections_;
+  outputs.erase(std::find(outputs.begin(), outputs.end(), std::pair<NodeOutput, NodeInput>({output, input})));
+
+  // Update change times
+  input.node()->UpdateLastChangedTime();
+
+  // Call internal events
+  input.node()->InputDisconnectedEvent(input.input(), input.element(), output);
+  output.node()->OutputDisconnectedEvent(output.output(), input);
+
+  emit input.node()->InputDisconnected(output, input);
+  emit output.node()->OutputDisconnected(output, input);
+
+  if (!input.node()->ignore_connections_.contains(input.input())) {
+    input.node()->InvalidateAll(input.input(), input.element());
+  }
+}
+
+QString Node::GetInputName(const QString &id) const
+{
+  const Input* i = GetInternalInputData(id);
+
+  if (i) {
+    return i->human_name;
+  } else {
+    ReportInvalidInput("get name of", id);
+    return QString();
+  }
+}
+
+void Node::LoadInput(QXmlStreamReader *reader, XMLNodeData &xml_node_data, const QAtomicInt *cancelled)
+{
+  QString param_id;
+
+  XMLAttributeLoop(reader, attr) {
+    if (attr.name() == QStringLiteral("id")) {
+      param_id = attr.value().toString();
+
+      break;
+    }
+  }
+
+  if (param_id.isEmpty()) {
+    qWarning() << "Failed to load parameter with missing ID";
     return;
   }
 
-  param->setParent(this);
-
-  // Keep main output as the last parameter, assume if there are no parameters that this is the output parameter
-  if (params_.isEmpty()) {
-    params_.append(param);
-  } else {
-    params_.insert(params_.size()-1, param);
+  if (!HasInputWithID(param_id)) {
+    qWarning() << "Failed to load parameter that didn't exist";
+    return;
   }
 
-  connect(param, &NodeParam::EdgeAdded, this, &Node::EdgeAdded);
-  connect(param, &NodeParam::EdgeRemoved, this, &Node::EdgeRemoved);
+  while (XMLReadNextStartElement(reader)) {
+    if (cancelled && *cancelled) {
+      return;
+    }
 
-  if (param->type() == NodeParam::kInput) {
-    ConnectInput(static_cast<NodeInput*>(param));
+    if (reader->name() == QStringLiteral("primary")) {
+      // Load primary immediate
+      LoadImmediate(reader, param_id, -1, xml_node_data, cancelled);
+    } else if (reader->name() == QStringLiteral("subelements")) {
+      // Load subelements
+      XMLAttributeLoop(reader, attr) {
+        if (attr.name() == QStringLiteral("count")) {
+          InputArrayResize(param_id, attr.value().toInt());
+        }
+      }
+
+      int element_counter = 0;
+
+      while (XMLReadNextStartElement(reader)) {
+        if (reader->name() == QStringLiteral("element")) {
+          LoadImmediate(reader, param_id, element_counter, xml_node_data, cancelled);
+
+          element_counter++;
+        } else {
+          reader->skipCurrentElement();
+        }
+      }
+    } else {
+      reader->skipCurrentElement();
+    }
   }
 }
 
-NodeValueTable Node::Value(NodeValueDatabase &value) const
+void Node::SaveInput(QXmlStreamWriter *writer, const QString &id) const
 {
+  writer->writeAttribute(QStringLiteral("id"), id);
+
+  writer->writeStartElement(QStringLiteral("primary"));
+
+  SaveImmediate(writer, id, -1);
+
+  writer->writeEndElement(); // primary
+
+  writer->writeStartElement(QStringLiteral("subelements"));
+
+  int arr_sz = InputArraySize(id);
+
+  writer->writeAttribute(QStringLiteral("count"), QString::number(arr_sz));
+
+  for (int i=0; i<arr_sz; i++) {
+    writer->writeStartElement(QStringLiteral("element"));
+
+    SaveImmediate(writer, id, i);
+
+    writer->writeEndElement(); // element
+  }
+
+  writer->writeEndElement(); // subelements
+}
+
+bool Node::IsInputConnectable(const QString &input) const
+{
+  return !(GetInputFlags(input) & kInputFlagNotConnectable);
+}
+
+bool Node::IsInputKeyframable(const QString &input) const
+{
+  return !(GetInputFlags(input) & kInputFlagNotKeyframable);
+}
+
+bool Node::IsInputKeyframing(const QString &input, int element) const
+{
+  NodeInputImmediate* imm = GetImmediate(input, element);
+
+  if (imm) {
+    return imm->is_keyframing();
+  } else {
+    ReportInvalidInput("get keyframing state of", input);
+    return false;
+  }
+}
+
+void Node::SetInputIsKeyframing(const QString &input, bool e, int element)
+{
+  if (!IsInputKeyframable(input)) {
+    qDebug() << "Ignored set keyframing of" << input << "because this input is not keyframable";
+    return;
+  }
+
+  NodeInputImmediate* imm = GetImmediate(input, element);
+
+  if (imm) {
+    imm->set_is_keyframing(e);
+
+    emit KeyframeEnableChanged(NodeInput(this, input, element), e);
+  } else {
+    ReportInvalidInput("set keyframing state of", input);
+  }
+}
+
+bool Node::IsInputConnected(const QString &input, int element) const
+{
+  return GetConnectedOutput(input, element).IsValid();
+}
+
+NodeOutput Node::GetConnectedOutput(const QString &input, int element) const
+{
+  for (auto it=input_connections_.cbegin(); it!=input_connections_.cend(); it++) {
+    if (it->first.input() == input && it->first.element() == element) {
+      return it->second;
+    }
+  }
+
+  return NodeOutput();
+}
+
+bool Node::IsUsingStandardValue(const QString &input, int track, int element) const
+{
+  NodeInputImmediate* imm = GetImmediate(input, element);
+
+  if (imm) {
+    return imm->is_using_standard_value(track);
+  } else {
+    ReportInvalidInput("determine whether using standard value in", input);
+    return true;
+  }
+}
+
+NodeValue::Type Node::GetInputDataType(const QString &id) const
+{
+  const Input* i = GetInternalInputData(id);
+
+  if (i) {
+    return i->type;
+  } else {
+    ReportInvalidInput("get data type of", id);
+    return NodeValue::kNone;
+  }
+}
+
+void Node::SetInputDataType(const QString &id, const NodeValue::Type &type)
+{
+  Input* i = GetInternalInputData(id);
+
+  if (i) {
+    i->type = type;
+
+    emit InputDataTypeChanged(id, type);
+  } else {
+    ReportInvalidInput("set data type of", id);
+  }
+}
+
+bool Node::HasInputProperty(const QString &id, const QString &name) const
+{
+  const Input* i = GetInternalInputData(id);
+
+  if (i) {
+    return i->properties.contains(name);
+  } else {
+    ReportInvalidInput("get property of", id);
+    return false;
+  }
+}
+
+QHash<QString, QVariant> Node::GetInputProperties(const QString &id) const
+{
+  const Input* i = GetInternalInputData(id);
+
+  if (i) {
+    return i->properties;
+  } else {
+    ReportInvalidInput("get property table of", id);
+    return QHash<QString, QVariant>();
+  }
+}
+
+QVariant Node::GetInputProperty(const QString &id, const QString &name) const
+{
+  const Input* i = GetInternalInputData(id);
+
+  if (i) {
+    return i->properties.value(name);
+  } else {
+    ReportInvalidInput("get property of", id);
+    return QVariant();
+  }
+}
+
+void Node::SetInputProperty(const QString &id, const QString &name, const QVariant &value)
+{
+  Input* i = GetInternalInputData(id);
+
+  if (i) {
+    i->properties.insert(name, value);
+
+    emit InputPropertyChanged(id, name, value);
+  } else {
+    ReportInvalidInput("set property of", id);
+  }
+}
+
+SplitValue Node::GetSplitValueAtTime(const QString &input, const rational &time, int element) const
+{
+  SplitValue vals;
+
+  int nb_tracks = GetNumberOfKeyframeTracks(input);
+
+  for (int i=0;i<nb_tracks;i++) {
+    if (IsUsingStandardValue(input, i, element)) {
+      vals.append(GetSplitStandardValueOnTrack(input, i, element));
+    } else {
+      vals.append(GetSplitValueAtTimeOnTrack(input, time, i, element));
+    }
+  }
+
+  return vals;
+}
+
+QVariant Node::GetSplitValueAtTimeOnTrack(const QString &input, const rational &time, int track, int element) const
+{
+  if (!IsUsingStandardValue(input, track, element)) {
+    const NodeKeyframeTrack& key_track = GetKeyframeTracks(input, element).at(track);
+
+    if (key_track.first()->time() >= time) {
+      // This time precedes any keyframe, so we just return the first value
+      return key_track.first()->value();
+    }
+
+    if (key_track.last()->time() <= time) {
+      // This time is after any keyframes so we return the last value
+      return key_track.last()->value();
+    }
+
+    // If we're here, the time must be somewhere in between the keyframes
+    for (int i=0;i<key_track.size()-1;i++) {
+      NodeKeyframe* before = key_track.at(i);
+      NodeKeyframe* after = key_track.at(i+1);
+
+      if (before->time() == time
+          || !NodeValue::type_can_be_interpolated(GetInputDataType(input))
+          || (before->type() == NodeKeyframe::kHold && after->time() > time)) {
+
+        // Time == keyframe time, so value is precise
+        return before->value();
+
+      } else if (after->time() == time) {
+
+        // Time == keyframe time, so value is precise
+        return after->value();
+
+      } else if (before->time() < time && after->time() > time) {
+        // We must interpolate between these keyframes
+
+        if (before->type() == NodeKeyframe::kBezier && after->type() == NodeKeyframe::kBezier) {
+          // Perform a cubic bezier with two control points
+
+          double t = Bezier::CubicXtoT(time.toDouble(),
+                                       before->time().toDouble(),
+                                       before->time().toDouble() + before->valid_bezier_control_out().x(),
+                                       after->time().toDouble() + after->valid_bezier_control_in().x(),
+                                       after->time().toDouble());
+
+          double y = Bezier::CubicTtoY(before->value().toDouble(),
+                                       before->value().toDouble() + before->valid_bezier_control_out().y(),
+                                       after->value().toDouble() + after->valid_bezier_control_in().y(),
+                                       after->value().toDouble(),
+                                       t);
+
+          return y;
+
+        } else if (before->type() == NodeKeyframe::kBezier || after->type() == NodeKeyframe::kBezier) {
+          // Perform a quadratic bezier with only one control point
+
+          QPointF control_point;
+          double control_point_time;
+          double control_point_value;
+
+          if (before->type() == NodeKeyframe::kBezier) {
+            control_point = before->valid_bezier_control_out();
+            control_point_time = before->time().toDouble() + control_point.x();
+            control_point_value = before->value().toDouble() + control_point.y();
+          } else {
+            control_point = after->valid_bezier_control_in();
+            control_point_time = after->time().toDouble() + control_point.x();
+            control_point_value = after->value().toDouble() + control_point.y();
+          }
+
+          // Generate T from time values - used to determine bezier progress
+          double t = Bezier::QuadraticXtoT(time.toDouble(), before->time().toDouble(), control_point_time, after->time().toDouble());
+
+          // Generate value using T
+          double y = Bezier::QuadraticTtoY(before->value().toDouble(), control_point_value, after->value().toDouble(), t);
+
+          return y;
+
+        } else {
+          // To have arrived here, the keyframes must both be linear
+          qreal period_progress = (time.toDouble() - before->time().toDouble()) / (after->time().toDouble() - before->time().toDouble());
+
+          return lerp(before->value().toDouble(), after->value().toDouble(), period_progress);
+        }
+      }
+    }
+  }
+
+  return GetSplitStandardValueOnTrack(input, track, element);
+}
+
+QVariant Node::GetDefaultValue(const QString &input) const
+{
+  NodeValue::Type type = GetInputDataType(input);
+
+  return NodeValue::combine_track_values_into_normal_value(type, GetSplitDefaultValue(input));
+}
+
+SplitValue Node::GetSplitDefaultValue(const QString &input) const
+{
+  const Input* i = GetInternalInputData(input);
+
+  if (i) {
+    return i->default_value;
+  } else {
+    ReportInvalidInput("retrieve default value of", input);
+    return SplitValue();
+  }
+}
+
+QVariant Node::GetSplitDefaultValueOnTrack(const QString &input, int track) const
+{
+  return GetSplitDefaultValue(input).at(track);
+}
+
+const QVector<NodeKeyframeTrack> &Node::GetKeyframeTracks(const QString &input, int element) const
+{
+  return GetImmediate(input, element)->keyframe_tracks();
+}
+
+QVector<NodeKeyframe *> Node::GetKeyframesAtTime(const QString &input, const rational &time, int element) const
+{
+  NodeInputImmediate* imm = GetImmediate(input, element);
+
+  if (imm) {
+    return imm->get_keyframe_at_time(time);
+  } else {
+    ReportInvalidInput("get keyframes at time from", input);
+    return QVector<NodeKeyframe*>();
+  }
+}
+
+NodeKeyframe *Node::GetKeyframeAtTimeOnTrack(const QString &input, const rational &time, int track, int element) const
+{
+  NodeInputImmediate* imm = GetImmediate(input, element);
+
+  if (imm) {
+    return imm->get_keyframe_at_time_on_track(time, track);
+  } else {
+    ReportInvalidInput("get keyframe at time on track from", input);
+    return nullptr;
+  }
+}
+
+NodeKeyframe::Type Node::GetBestKeyframeTypeForTimeOnTrack(const QString &input, const rational &time, int track, int element) const
+{
+  NodeInputImmediate* imm = GetImmediate(input, element);
+
+  if (imm) {
+    return imm->get_best_keyframe_type_for_time(time, track);
+  } else {
+    ReportInvalidInput("get closest keyframe before a time from", input);
+    return NodeKeyframe::kDefaultType;
+  }
+}
+
+int Node::GetNumberOfKeyframeTracks(const QString &id) const
+{
+  return NodeValue::get_number_of_keyframe_tracks(GetInputDataType(id));
+}
+
+NodeKeyframe *Node::GetEarliestKeyframe(const QString &id, int element) const
+{
+  NodeInputImmediate* imm = GetImmediate(id, element);
+
+  if (imm) {
+    return imm->get_earliest_keyframe();
+  } else {
+    ReportInvalidInput("get earliest keyframe from", id);
+    return nullptr;
+  }
+}
+
+NodeKeyframe *Node::GetLatestKeyframe(const QString &id, int element) const
+{
+  NodeInputImmediate* imm = GetImmediate(id, element);
+
+  if (imm) {
+    return imm->get_latest_keyframe();
+  } else {
+    ReportInvalidInput("get latest keyframe from", id);
+    return nullptr;
+  }
+}
+
+NodeKeyframe *Node::GetClosestKeyframeBeforeTime(const QString &id, const rational &time, int element) const
+{
+  NodeInputImmediate* imm = GetImmediate(id, element);
+
+  if (imm) {
+    return imm->get_closest_keyframe_before_time(time);
+  } else {
+    ReportInvalidInput("get closest keyframe before a time from", id);
+    return nullptr;
+  }
+}
+
+NodeKeyframe *Node::GetClosestKeyframeAfterTime(const QString &id, const rational &time, int element) const
+{
+  NodeInputImmediate* imm = GetImmediate(id, element);
+
+  if (imm) {
+    return imm->get_closest_keyframe_after_time(time);
+  } else {
+    ReportInvalidInput("get closest keyframe after a time from", id);
+    return nullptr;
+  }
+}
+
+bool Node::HasKeyframeAtTime(const QString &id, const rational &time, int element) const
+{
+  NodeInputImmediate* imm = GetImmediate(id, element);
+
+  if (imm) {
+    return imm->has_keyframe_at_time(time);
+  } else {
+    ReportInvalidInput("determine if it has a keyframe at a time from", id);
+    return false;
+  }
+}
+
+QStringList Node::GetComboBoxStrings(const QString &id) const
+{
+  return GetInputProperty(id, QStringLiteral("combo_str")).toStringList();
+}
+
+QVariant Node::GetStandardValue(const QString &id, int element) const
+{
+  NodeValue::Type type = GetInputDataType(id);
+
+  return NodeValue::combine_track_values_into_normal_value(type, GetSplitStandardValue(id, element));
+}
+
+SplitValue Node::GetSplitStandardValue(const QString &id, int element) const
+{
+  NodeInputImmediate* imm = GetImmediate(id, element);
+
+  if (imm) {
+    return imm->get_split_standard_value();
+  } else {
+    ReportInvalidInput("get standard value of", id);
+    return SplitValue();
+  }
+}
+
+QVariant Node::GetSplitStandardValueOnTrack(const QString &input, int track, int element) const
+{
+  NodeInputImmediate* imm = GetImmediate(input, element);
+
+  if (imm) {
+    return imm->get_split_standard_value_on_track(track);
+  } else {
+    ReportInvalidInput("get standard value of", input);
+    return QVariant();
+  }
+}
+
+void Node::SetStandardValue(const QString &id, const QVariant &value, int element)
+{
+  NodeValue::Type type = GetInputDataType(id);
+
+  SetSplitStandardValue(id, NodeValue::split_normal_value_into_track_values(type, value), element);
+}
+
+void Node::SetSplitStandardValue(const QString &id, const SplitValue &value, int element)
+{
+  NodeInputImmediate* imm = GetImmediate(id, element);
+
+  if (imm) {
+    imm->set_split_standard_value(value);
+
+    for (int i=0; i<value.size(); i++) {
+      if (IsUsingStandardValue(id, i, element)) {
+        // If this standard value is being used, we need to send a value changed signal
+        ParameterValueChanged(id, element, TimeRange(RATIONAL_MIN, RATIONAL_MAX));
+        break;
+      }
+    }
+  } else {
+    ReportInvalidInput("set standard value of", id);
+  }
+}
+
+void Node::SetSplitStandardValueOnTrack(const QString &id, int track, const QVariant &value, int element)
+{
+  NodeInputImmediate* imm = GetImmediate(id, element);
+
+  if (imm) {
+    imm->set_standard_value_on_track(value, track);
+
+    if (IsUsingStandardValue(id, track, element)) {
+      // If this standard value is being used, we need to send a value changed signal
+      ParameterValueChanged(id, element, TimeRange(RATIONAL_MIN, RATIONAL_MAX));
+    }
+  } else {
+    ReportInvalidInput("set standard value of", id);
+  }
+}
+
+bool Node::InputIsArray(const QString &id) const
+{
+  return GetInputFlags(id) & kInputFlagArray;
+}
+
+void Node::InputArrayInsert(const QString &id, int index, bool undoable)
+{
+  if (undoable) {
+    Core::instance()->undo_stack()->push(new ArrayInsertCommand(this, id, index));
+  } else {
+    // Add new input
+    ArrayResizeInternal(id, InputArraySize(id) + 1);
+
+    // Move connections down
+    InputConnections copied_edges = input_connections();
+    for (auto it=copied_edges.crbegin(); it!=copied_edges.crend(); it++) {
+      if (it->first.element() >= index) {
+        // Disconnect this and reconnect it one element down
+        NodeInput new_edge = it->first;
+        new_edge.set_element(new_edge.element() + 1);
+
+        DisconnectEdge(it->second, it->first);
+        ConnectEdge(it->second, new_edge);
+      }
+    }
+
+    // Shift values and keyframes up one element
+    for (int i=InputArraySize(id)-1; i>index; i--) {
+      CopyValuesOfElement(this, this, id, i-1, i);
+    }
+
+    // Reset value of element we just "inserted"
+    ClearElement(id, index);
+  }
+}
+
+void Node::InputArrayResize(const QString &id, int size, bool undoable)
+{
+  if (InputArraySize(id) == size) {
+    return;
+  }
+
+  ArrayResizeCommand* c = new ArrayResizeCommand(this, id, size);
+
+  if (undoable) {
+    Core::instance()->undo_stack()->push(c);
+  } else {
+    c->redo();
+    delete c;
+  }
+}
+
+void Node::InputArrayRemove(const QString &id, int index, bool undoable)
+{
+  if (undoable) {
+    Core::instance()->undo_stack()->push(new ArrayRemoveCommand(this, id, index));
+  } else {
+    // Remove input
+    ArrayResizeInternal(id, InputArraySize(id) - 1);
+
+    // Move connections up
+    InputConnections copied_edges = input_connections();
+    for (auto it=copied_edges.cbegin(); it!=copied_edges.cend(); it++) {
+      if (it->first.element() >= index) {
+        // Disconnect this and reconnect it one element up if it's not the element being removed
+        DisconnectEdge(it->second, it->first);
+
+        if (it->first.element() > index) {
+          NodeInput new_edge = it->first;
+          new_edge.set_element(new_edge.element() - 1);
+
+          ConnectEdge(it->second, new_edge);
+        }
+      }
+    }
+
+    // Shift values and keyframes down one element
+    int arr_sz = InputArraySize(id);
+    for (int i=index; i<arr_sz; i++) {
+      // Copying ArraySize()+1 is actually legal because immediates are never deleted
+      CopyValuesOfElement(this, this, id, i+1, i);
+    }
+
+    // Reset value of last element
+    ClearElement(id, arr_sz);
+  }
+}
+
+int Node::InputArraySize(const QString &id) const
+{
+  const Input* i = GetInternalInputData(id);
+
+  if (i) {
+    return i->array_size;
+  } else {
+    ReportInvalidInput("retrieve array size of", id);
+    return 0;
+  }
+}
+
+const NodeKeyframeTrack &Node::GetTrackFromKeyframe(NodeKeyframe *key) const
+{
+  return GetImmediate(key->input(), key->element())->keyframe_tracks().at(key->track());
+}
+
+NodeInputImmediate *Node::GetImmediate(const QString &input, int element) const
+{
+  if (element == -1) {
+    return standard_immediates_.value(input, nullptr);
+  } else if (array_immediates_.contains(input)) {
+    const QVector<NodeInputImmediate*>& imm_arr = array_immediates_.value(input);
+
+    if (element >= 0 && element < imm_arr.size()) {
+      return imm_arr.at(element);
+    }
+  }
+
+  return nullptr;
+}
+
+Node::InputFlags Node::GetInputFlags(const QString &input) const
+{
+  const Input* i = GetInternalInputData(input);
+
+  if (i) {
+    return i->flags;
+  } else {
+    ReportInvalidInput("retrieve flags of", input);
+    return InputFlags(kInputFlagNormal);
+  }
+}
+
+NodeValueTable Node::Value(const QString& output, NodeValueDatabase &value) const
+{
+  Q_UNUSED(output)
+
   return value.Merge();
 }
 
-void Node::InvalidateCache(const TimeRange &range, NodeInput *from, NodeInput *source)
+void Node::InvalidateCache(const TimeRange &range, const QString &from, int element, qint64 job_time)
 {
   Q_UNUSED(from)
+  Q_UNUSED(element)
 
-  SendInvalidateCache(range, source);
+  SendInvalidateCache(range, job_time);
 }
 
 void Node::BeginOperation()
 {
-  foreach (NodeParam* param, params_) {
-    if (param->type() == NodeParam::kOutput) {
-      foreach (NodeEdgePtr edge, param->edges()) {
-        edge->input()->parentNode()->BeginOperation();
-      }
-    }
+  // Ripple through graph
+  for (const std::pair<NodeOutput, NodeInput>& output : output_connections_) {
+    output.second.node()->BeginOperation();
   }
 }
 
 void Node::EndOperation()
 {
-  foreach (NodeParam* param, params_) {
-    if (param->type() == NodeParam::kOutput) {
-      foreach (NodeEdgePtr edge, param->edges()) {
-        edge->input()->parentNode()->EndOperation();
-      }
-    }
+  // Ripple through graph
+  for (const std::pair<NodeOutput, NodeInput>& output : output_connections_) {
+    output.second.node()->EndOperation();
   }
 }
 
-TimeRange Node::InputTimeAdjustment(NodeInput *, const TimeRange &input_time) const
+TimeRange Node::InputTimeAdjustment(const QString &, int, const TimeRange &input_time) const
 {
   // Default behavior is no time adjustment at all
   return input_time;
 }
 
-TimeRange Node::OutputTimeAdjustment(NodeInput *, const TimeRange &input_time) const
+TimeRange Node::OutputTimeAdjustment(const QString &, int, const TimeRange &input_time) const
 {
   // Default behavior is no time adjustment at all
   return input_time;
 }
 
-QVector<Node *> Node::CopyDependencyGraph(const QVector<Node *> &nodes, QUndoCommand* command)
+QVector<Node *> Node::CopyDependencyGraph(const QVector<Node *> &nodes, MultiUndoCommand *command)
 {
   int nb_nodes = nodes.size();
 
@@ -258,9 +1065,9 @@ QVector<Node *> Node::CopyDependencyGraph(const QVector<Node *> &nodes, QUndoCom
     // Add to graph
     NodeGraph* graph = static_cast<NodeGraph*>(nodes.at(i)->parent());
     if (command) {
-      new NodeAddCommand(graph, c, command);
+      command->add_child(new NodeAddCommand(graph, c));
     } else {
-      graph->AddNode(c);
+      c->setParent(graph);
     }
 
     // Store in array at the same index as source
@@ -272,101 +1079,310 @@ QVector<Node *> Node::CopyDependencyGraph(const QVector<Node *> &nodes, QUndoCom
   return copies;
 }
 
-void Node::CopyDependencyGraph(const QVector<Node *> &src, const QVector<Node *> &dst, QUndoCommand *command)
+void Node::CopyDependencyGraph(const QVector<Node *> &src, const QVector<Node *> &dst, MultiUndoCommand *command)
 {
-  int nb_nodes = src.size();
+  for (int i=0; i<src.size(); i++) {
+    Node* src_node = src.at(i);
+    Node* dst_node = dst.at(i);
 
-  for (int i=0; i<nb_nodes; i++) {
-    // Find any interconnections
-    QVector<NodeInput*> inputs = src.at(i)->GetInputsIncludingArrays();
+    for (auto it=src_node->input_connections_.cbegin(); it!=src_node->input_connections_.cend(); it++) {
+      // Determine if the connected node is in our src list
+      int connection_index = src.indexOf(it->second.node());
 
-    for (int j=0; j<nb_nodes; j++) {
-      if (i == j) {
-        continue;
-      }
+      if (connection_index > -1) {
+        // Find the equivalent node in the dst list
+        Node* dst_connection = dst.at(connection_index);
 
-      foreach (NodeInput* input, inputs) {
-        if (input->get_connected_node() == src.at(j)) {
-          // Found a connection
-          NodeOutput* copy_output = dst.at(j)->GetOutputWithID(input->get_connected_output()->id());
-          NodeInput* copy_input = dst.at(i)->GetInputWithID(input->id());
+        NodeOutput copied_output = NodeOutput(dst_connection, it->second.output());
+        NodeInput copied_input = NodeInput(dst_node, it->first.input(), it->first.element());
 
-          if (command) {
-            new NodeEdgeAddCommand(copy_output, copy_input, command);
-          } else {
-            NodeParam::ConnectEdge(copy_output, copy_input);
-          }
+        if (command) {
+          command->add_child(new NodeEdgeAddCommand(copied_output, copied_input));
+        } else {
+          ConnectEdge(copied_output, copied_input);
         }
       }
     }
   }
 }
 
-void Node::SendInvalidateCache(const TimeRange &range, NodeInput *source)
+Node *Node::CopyNodeAndDependencyGraphMinusItemsInternal(QMap<const Node*, Node*>& created, const Node *node, MultiUndoCommand *command)
 {
-  // Loop through all parameters (there should be no children that are not NodeParams)
-  foreach (NodeParam* param, params_) {
-    // If the Node is an output, relay the signal to any Nodes that are connected to it
-    if (param->type() == NodeParam::kOutput) {
-      foreach (NodeEdgePtr edge, param->edges()) {
-        NodeInput* connected_input = edge->input();
-        Node* connected_node = connected_input->parentNode();
+  // Make a new node of the same type
+  Node* copy = node->copy();
 
-        // Send clear cache signal to the Node
-        connected_node->InvalidateCache(range, connected_input, source);
+  // Add to map
+  created.insert(node, copy);
+
+  // Copy values to the clone
+  CopyInputs(node, copy, false);
+
+  // Add it to the same graph
+  command->add_child(new NodeAddCommand(node->parent(), copy));
+
+  // Go through input connections and copy if non-item and connect if item
+  for (auto it=node->input_connections_.cbegin(); it!=node->input_connections_.cend(); it++) {
+    NodeInput input = it->first;
+    NodeOutput output = it->second;
+    Node* connected = output.node();
+    Node* connected_copy;
+
+    if (connected->IsItem()) {
+      // This is an item and we avoid copying those and just connect to them directly
+      connected_copy = connected;
+    } else {
+      // Non-item, we want to clone this too
+      connected_copy = created.value(connected, nullptr);
+
+      if (!connected_copy) {
+        connected_copy = CopyNodeAndDependencyGraphMinusItemsInternal(created, connected, command);
       }
     }
+
+    command->add_child(new NodeEdgeAddCommand(NodeOutput(connected_copy, output.output()),
+                                              NodeInput(copy, input.input(), input.element())));
+  }
+
+  return copy;
+}
+
+Node *Node::CopyNodeAndDependencyGraphMinusItems(const Node *node, MultiUndoCommand *command)
+{
+  QMap<const Node*, Node*> created;
+
+  return CopyNodeAndDependencyGraphMinusItemsInternal(created, node, command);
+}
+
+Node *Node::CopyNodeInGraph(const Node *node, MultiUndoCommand *command)
+{
+  Node* copy;
+
+  if (Config::Current()[QStringLiteral("SplitClipsCopyNodes")].toBool()) {
+    copy = Node::CopyNodeAndDependencyGraphMinusItems(node, command);
+  } else {
+    copy = node->copy();
+
+    command->add_child(new NodeAddCommand(static_cast<NodeGraph*>(node->parent()),
+                                          copy));
+
+    command->add_child(new NodeCopyInputsCommand(node, copy, true));
+  }
+
+  return copy;
+}
+
+void Node::SendInvalidateCache(const TimeRange &range, qint64 job_time)
+{
+  for (const OutputConnection& conn : output_connections_) {
+    // Send clear cache signal to the Node
+    const NodeInput& in = conn.second;
+
+    in.node()->InvalidateCache(range, in.input(), in.element(), job_time);
   }
 }
 
-void Node::LoadInternal(QXmlStreamReader *reader, XMLNodeData &)
+void Node::InvalidateAll(const QString &input, int element)
+{
+  InvalidateCache(TimeRange(RATIONAL_MIN, RATIONAL_MAX), input, element);
+}
+
+bool Node::Link(Node *a, Node *b)
+{
+  if (a == b || !a || !b) {
+    return false;
+  }
+
+  if (AreLinked(a, b)) {
+    return false;
+  }
+
+  a->links_.append(b);
+  b->links_.append(a);
+
+  a->LinkChangeEvent();
+  b->LinkChangeEvent();
+
+  emit a->LinksChanged();
+  emit b->LinksChanged();
+
+  return true;
+}
+
+bool Node::Unlink(Node *a, Node *b)
+{
+  if (!AreLinked(a, b)) {
+    return false;
+  }
+
+  a->links_.removeOne(b);
+  b->links_.removeOne(a);
+
+  a->LinkChangeEvent();
+  b->LinkChangeEvent();
+
+  emit a->LinksChanged();
+  emit b->LinksChanged();
+
+  return true;
+}
+
+bool Node::AreLinked(Node *a, Node *b)
+{
+  return a->links_.contains(b);
+}
+
+void Node::AddInput(const QString &id, NodeValue::Type type, const QVariant &default_value, Node::InputFlags flags)
+{
+  if (id.isEmpty()) {
+    qWarning() << "Rejected adding input with an empty ID on node" << this->id();
+    return;
+  }
+
+  if (HasParamWithID(id)) {
+    qWarning() << "Failed to add input to node" << this->id() << "- param with ID" << id << "already exists";
+    return;
+  }
+
+  Node::Input i;
+
+  i.type = type;
+  i.default_value = NodeValue::split_normal_value_into_track_values(type, default_value);
+  i.flags = flags;
+  i.array_size = 0;
+
+  input_ids_.append(id);
+  input_data_.append(i);
+
+  if (!standard_immediates_.value(id, nullptr)) {
+    standard_immediates_.insert(id, CreateImmediate(id));
+  }
+
+  emit InputAdded(id);
+}
+
+void Node::RemoveInput(const QString &id)
+{
+  int index = input_ids_.indexOf(id);
+
+  if (index == -1) {
+    ReportInvalidInput("remove", id);
+    return;
+  }
+
+  input_ids_.removeAt(index);
+  input_data_.removeAt(index);
+
+  emit InputRemoved(id);
+}
+
+void Node::AddOutput(const QString &id)
+{
+  if (id.isEmpty()) {
+    qWarning() << "Rejected adding output with an empty ID on node" << this->id();
+    return;
+  }
+
+  if (HasParamWithID(id)) {
+    qWarning() << "Failed to add output to node" << this->id() << "- param with ID" << id << "already exists";
+    return;
+  }
+
+  outputs_.append(id);
+
+  emit OutputAdded(id);
+}
+
+void Node::RemoveOutput(const QString &id)
+{
+  if (outputs_.removeOne(id)) {
+    emit OutputRemoved(id);
+  } else {
+    ReportInvalidInput("remove", id);
+  }
+}
+
+void Node::ReportInvalidInput(const char *attempted_action, const QString& id) const
+{
+  qWarning() << "Failed to" << attempted_action << "parameter" << id
+             << "in node" << this->id() << "- input doesn't exist";
+}
+
+NodeInputImmediate *Node::CreateImmediate(const QString &input)
+{
+  const Input* i = GetInternalInputData(input);
+
+  if (i) {
+    return new NodeInputImmediate(i->type, i->default_value);
+  } else {
+    ReportInvalidInput("create immediate", input);
+    return nullptr;
+  }
+}
+
+void Node::ArrayResizeInternal(const QString &id, int size)
+{
+  Input* imm = GetInternalInputData(id);
+
+  if (!imm) {
+    ReportInvalidInput("set array size", id);
+    return;
+  }
+
+  if (imm->array_size != size) {
+    // Update array size
+    if (imm->array_size < size) {
+      // Size is larger, create any immediates that don't exist
+      QVector<NodeInputImmediate*>& subinputs = array_immediates_[id];
+      for (int i=subinputs.size(); i<size; i++) {
+        subinputs.append(CreateImmediate(id));
+      }
+
+      // Note that we do not delete any immediates when decreasing size since the user might still
+      // want that data. Therefore it's important to note that array_size_ does NOT necessarily
+      // equal subinputs_.size()
+    }
+
+    imm->array_size = size;
+    emit InputArraySizeChanged(id, size);
+    ParameterValueChanged(id, -1, TimeRange(RATIONAL_MIN, RATIONAL_MAX));
+  }
+}
+
+int Node::GetInternalInputArraySize(const QString &input)
+{
+  return array_immediates_.value(input).size();
+}
+
+void Node::SetInputName(const QString &id, const QString &name)
+{
+  Input* i = GetInternalInputData(id);
+
+  if (i) {
+    i->human_name = name;
+
+    emit InputNameChanged(id, name);
+  } else {
+    ReportInvalidInput("set name of", id);
+  }
+}
+
+void Node::IgnoreInvalidationsFrom(const QString& input_id)
+{
+  ignore_connections_.append(input_id);
+}
+
+void Node::IgnoreHashingFrom(const QString &input_id)
+{
+  ignore_when_hashing_.append(input_id);
+}
+
+void Node::LoadInternal(QXmlStreamReader *reader, XMLNodeData &, uint, const QAtomicInt*)
 {
   reader->skipCurrentElement();
 }
 
 void Node::SaveInternal(QXmlStreamWriter *) const
 {
-}
-
-QVector<NodeInput *> Node::GetInputsToHash() const
-{
-  return GetInputsIncludingArrays();
-}
-
-void GetInputsIncludingArraysInternal(NodeInputArray* array, QVector<NodeInput *>& list)
-{
-  foreach (NodeInput* input, array->sub_params()) {
-    list.append(input);
-
-    if (input->IsArray()) {
-      GetInputsIncludingArraysInternal(static_cast<NodeInputArray*>(input), list);
-    }
-  }
-}
-
-QVector<NodeInput *> Node::GetInputsIncludingArrays() const
-{
-  QVector<NodeInput *> inputs;
-
-  foreach (NodeParam* param, params_) {
-    if (param->type() == NodeParam::kInput) {
-      NodeInput* input = static_cast<NodeInput*>(param);
-
-      inputs.append(input);
-
-      if (input->IsArray()) {
-        GetInputsIncludingArraysInternal(static_cast<NodeInputArray*>(input), inputs);
-      }
-    }
-  }
-
-  return inputs;
-}
-
-QVector<NodeOutput *> Node::GetOutputs() const
-{
-  // The current design only uses one output per node. This function returns a list just in case that changes.
-  return {output_};
 }
 
 bool Node::HasGizmos() const
@@ -405,97 +1421,97 @@ void Node::SetLabel(const QString &s)
   }
 }
 
-void Node::Hash(QCryptographicHash &hash, const rational& time) const
+void Node::Hash(const QString &output, QCryptographicHash &hash, const rational& time) const
 {
-  // Add this Node's ID
+  Q_UNUSED(output)
+
+  // Add this Node's ID and output being used
   hash.addData(id().toUtf8());
+  hash.addData(output.toUtf8());
 
-  QVector<NodeInput*> inputs = GetInputsToHash();
-
-  foreach (NodeInput* input, inputs) {
+  foreach (const QString& input, input_ids_) {
     // For each input, try to hash its value
-
-    // Get time adjustment
-    // For a single frame, we only care about one of the times
-    rational input_time = InputTimeAdjustment(input, TimeRange(time, time)).in();
-
-    if (input->is_connected()) {
-      // Traverse down this edge
-      input->get_connected_node()->Hash(hash, input_time);
-    } else {
-      // Grab the value at this time
-      QVariant value = input->get_value_at_time(input_time);
-      hash.addData(NodeParam::ValueToBytes(input->data_type(), value));
+    if (ignore_when_hashing_.contains(input)) {
+      continue;
     }
 
-    // We have one exception for FOOTAGE types, since we resolve the footage into a frame in the renderer
-    if (input->data_type() == NodeParam::kFootage) {
-      Stream* stream = Node::ValueToPtr<Stream>(input->get_standard_value());
+    int arr_sz = InputArraySize(input);
+    for (int i=-1; i<arr_sz; i++) {
+      HashInputElement(hash, input, i, time);
+    }
+  }
+}
 
-      if (stream) {
-        // Add footage details to hash
+void Node::CopyInputs(const Node *source, Node *destination, bool include_connections)
+{
+  Q_ASSERT(source->id() == destination->id());
 
-        // Footage filename
-        hash.addData(stream->footage()->filename().toUtf8());
+  foreach (const QString& input, source->inputs()) {
+    CopyInput(source, destination, input, include_connections, true);
+  }
 
-        // Footage last modified date
-        hash.addData(QString::number(stream->footage()->timestamp()).toUtf8());
+  destination->SetPosition(source->GetPosition());
+  destination->SetLabel(source->GetLabel());
+}
 
-        // Footage stream
-        hash.addData(QString::number(stream->index()).toUtf8());
+void Node::CopyInput(const Node *src, Node *dst, const QString &input, bool include_connections, bool traverse_arrays)
+{
+  Q_ASSERT(src->id() == dst->id());
 
-        if (stream->type() == Stream::kVideo) {
-          VideoStream* image_stream = static_cast<VideoStream*>(stream);
+  CopyValuesOfElement(src, dst, input, -1);
 
-          // Current color config and space
-          hash.addData(image_stream->footage()->project()->color_manager()->GetConfigFilename().toUtf8());
-          hash.addData(image_stream->colorspace().toUtf8());
+  // Copy array size
+  if (src->InputIsArray(input) && traverse_arrays) {
+    int src_array_sz = src->InputArraySize(input);
 
-          // Alpha associated setting
-          hash.addData(QString::number(image_stream->premultiplied_alpha()).toUtf8());
+    for (int i=0; i<src_array_sz; i++) {
+      CopyValuesOfElement(src, dst, input, i);
+    }
+  }
 
-          // Pixel aspect ratio
-          hash.addData(reinterpret_cast<const char*>(&image_stream->pixel_aspect_ratio()), sizeof(rational));
-        }
-
-        // Footage timestamp
-        if (stream->type() == Stream::kVideo) {
-          VideoStream* video_stream = static_cast<VideoStream*>(stream);
-
-          int64_t video_ts = Timecode::time_to_timestamp(input_time, video_stream->timebase());
-
-          // Add timestamp in units of the video stream's timebase
-          hash.addData(reinterpret_cast<const char*>(&video_ts), sizeof(int64_t));
-
-          // Add start time - used for both image sequences and video streams
-          hash.addData(QString::number(video_stream->start_time()).toUtf8());
-        }
+  // Copy connections
+  if (include_connections) {
+    if (traverse_arrays) {
+      // Copy all connections
+      for (auto it=src->input_connections().cbegin(); it!=src->input_connections().cend(); it++) {
+        ConnectEdge(it->second, NodeInput(dst, input, it->first.element()));
+      }
+    } else {
+      // Just copy the primary connection (at -1)
+      if (src->IsInputConnected(input)) {
+        ConnectEdge(src->GetConnectedOutput(input), NodeInput(dst, input));
       }
     }
   }
 }
 
-void Node::CopyInputs(Node *source, Node *destination, bool include_connections)
+void Node::CopyValuesOfElement(const Node *src, Node *dst, const QString &input, int src_element, int dst_element)
 {
-  Q_ASSERT(source->id() == destination->id());
+  if (dst_element >= dst->GetInternalInputArraySize(input)) {
+    qDebug() << "Ignored destination element that was out of array bounds";
+    return;
+  }
 
-  const QVector<NodeParam*>& src_param = source->params_;
-  const QVector<NodeParam*>& dst_param = destination->params_;
+  // Copy standard value
+  dst->SetSplitStandardValue(input, src->GetSplitStandardValue(input, src_element), dst_element);
 
-  for (int i=0;i<src_param.size();i++) {
-    NodeParam* p = src_param.at(i);
-
-    if (p->type() == NodeParam::kInput) {
-      NodeInput* src = static_cast<NodeInput*>(p);
-
-      NodeInput* dst = static_cast<NodeInput*>(dst_param.at(i));
-
-      NodeInput::CopyValues(src, dst, include_connections);
+  // Copy keyframes
+  dst->GetImmediate(input, dst_element)->delete_all_keyframes();
+  foreach (const NodeKeyframeTrack& track, src->GetImmediate(input, src_element)->keyframe_tracks()) {
+    foreach (NodeKeyframe* key, track) {
+      key->copy(dst_element, dst);
     }
   }
 
-  destination->SetPosition(source->GetPosition());
-  destination->SetLabel(source->GetLabel());
+  // Copy keyframing state
+  if (src->IsInputKeyframable(input)) {
+    dst->SetInputIsKeyframing(input, src->IsInputKeyframing(input, src_element), dst_element);
+  }
+
+  // If this is the root of an array, copy the array size
+  if (src_element == -1 && dst_element == -1) {
+    dst->ArrayResizeInternal(input, src->InputArraySize(input));
+  }
 }
 
 bool Node::CanBeDeleted() const
@@ -508,29 +1524,22 @@ void Node::SetCanBeDeleted(bool s)
   can_be_deleted_ = s;
 }
 
-bool Node::IsBlock() const
+void GetDependenciesRecursively(QVector<Node*>& list, const Node* node, bool traverse, bool exclusive_only)
 {
-  return false;
-}
+  for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
+    Node* connected_node = it->second.node();
 
-bool Node::IsTrack() const
-{
-  return false;
-}
+    if (!exclusive_only
+        || (connected_node->outputs().size() == 1 && !connected_node->IsItem())) {
+      if (!list.contains(connected_node)) {
+        list.append(connected_node);
 
-bool Node::IsMedia() const
-{
-    return false;
-}
-
-const QVector<NodeParam *>& Node::parameters() const
-{
-  return params_;
-}
-
-int Node::IndexOfParameter(NodeParam *param) const
-{
-  return params_.indexOf(param);
+        if (traverse) {
+          GetDependenciesRecursively(list, connected_node, traverse, exclusive_only);
+        }
+      }
+    }
+  }
 }
 
 /**
@@ -541,15 +1550,31 @@ int Node::IndexOfParameter(NodeParam *param) const
  * TRUE to recursively traverse each node for a complete dependency graph. FALSE to return only the immediate
  * dependencies.
  */
-QVector<Node *> Node::GetDependenciesInternal(bool traverse, bool exclusive_only) const {
-  QVector<NodeInput*> inputs = GetInputsIncludingArrays();
+QVector<Node *> Node::GetDependenciesInternal(bool traverse, bool exclusive_only) const
+{
   QVector<Node*> list;
 
-  foreach (NodeInput* i, inputs) {
-    i->GetDependencies(list, traverse, exclusive_only);
-  }
+  GetDependenciesRecursively(list, this, traverse, exclusive_only);
 
   return list;
+}
+
+void Node::HashInputElement(QCryptographicHash &hash, const QString& input, int element, const rational &time) const
+{
+  // Get time adjustment
+  // For a single frame, we only care about one of the times
+  rational input_time = InputTimeAdjustment(input, element, TimeRange(time, time)).in();
+
+  if (IsInputConnected(input, element)) {
+    // Traverse down this edge
+    NodeOutput output = GetConnectedOutput(input, element);
+
+    output.node()->Hash(output.output(), hash, input_time);
+  } else {
+    // Grab the value at this time
+    QVariant value = GetValueAtTime(input, input_time, element);
+    hash.addData(NodeValue::ValueToBytes(GetInputDataType(input), value));
+  }
 }
 
 QVector<Node *> Node::GetDependencies() const
@@ -584,44 +1609,15 @@ void Node::GenerateFrame(FramePtr frame, const GenerateJob &job) const
   Q_UNUSED(job)
 }
 
-NodeInput *Node::GetInputWithID(const QString &id) const
-{
-  QVector<NodeInput*> inputs = GetInputsIncludingArrays();
-
-  foreach (NodeInput* i, inputs) {
-    if (i->id() == id) {
-      return i;
-    }
-  }
-
-  return nullptr;
-}
-
-NodeOutput *Node::GetOutputWithID(const QString &id) const
-{
-  foreach (NodeParam* p, params_) {
-    if (p->type() == NodeParam::kOutput
-        && p->id() == id) {
-      return static_cast<NodeOutput*>(p);
-    }
-  }
-
-  return nullptr;
-}
-
 bool Node::OutputsTo(Node *n, bool recursively) const
 {
-  QVector<NodeOutput*> outputs = GetOutputs();
+  for (const OutputConnection& conn : output_connections_) {
+    Node* connected = conn.second.node();
 
-  foreach (NodeOutput* output, outputs) {
-    foreach (NodeEdgePtr edge, output->edges()) {
-      Node* connected = edge->input()->parentNode();
-
-      if (connected == n) {
-        return true;
-      } else if (recursively && connected->OutputsTo(n, recursively)) {
-        return true;
-      }
+    if (connected == n) {
+      return true;
+    } else if (recursively && connected->OutputsTo(n, recursively)) {
+      return true;
     }
   }
 
@@ -630,39 +1626,28 @@ bool Node::OutputsTo(Node *n, bool recursively) const
 
 bool Node::OutputsTo(const QString &id, bool recursively) const
 {
-  QVector<NodeOutput*> outputs = GetOutputs();
+  for (const OutputConnection& conn : output_connections_) {
+    Node* connected = conn.second.node();
 
-  foreach (NodeOutput* output, outputs) {
-    foreach (NodeEdgePtr edge, output->edges()) {
-      Node* connected = edge->input()->parentNode();
-
-      if (connected->id() == id) {
-        return true;
-      } else if (recursively && connected->OutputsTo(id, recursively)) {
-        return true;
-      }
+    if (connected->id() == id) {
+      return true;
+    } else if (recursively && connected->OutputsTo(id, recursively)) {
+      return true;
     }
   }
 
   return false;
 }
 
-bool Node::OutputsTo(NodeInput *input, bool recursively, bool include_arrays) const
+bool Node::OutputsTo(const NodeInput &input, bool recursively) const
 {
-  QVector<NodeOutput*> outputs = GetOutputs();
+  for (const OutputConnection& conn : output_connections_) {
+    const NodeInput& connected = conn.second;
 
-  foreach (NodeOutput* output, outputs) {
-    foreach (NodeEdgePtr edge, output->edges()) {
-      NodeInput* connected = edge->input();
-
-      if (connected == input) {
-        return true;
-      } else if (include_arrays && input->IsArray()
-                 && static_cast<NodeInputArray*>(input)->sub_params().contains(connected)) {
-        return true;
-      } else if (recursively && connected->parentNode()->OutputsTo(input, recursively, include_arrays)) {
-        return true;
-      }
+    if (connected == input) {
+      return true;
+    } else if (recursively && connected.node()->OutputsTo(input, recursively)) {
+      return true;
     }
   }
 
@@ -671,17 +1656,13 @@ bool Node::OutputsTo(NodeInput *input, bool recursively, bool include_arrays) co
 
 bool Node::InputsFrom(Node *n, bool recursively) const
 {
-  QVector<NodeInput*> inputs = GetInputsIncludingArrays();
+  for (auto it=input_connections_.cbegin(); it!=input_connections_.cend(); it++) {
+    const NodeOutput& connected = it->second;
 
-  foreach (NodeInput* input, inputs) {
-    foreach (NodeEdgePtr edge, input->edges()) {
-      Node* connected = edge->output()->parentNode();
-
-      if (connected == n) {
-        return true;
-      } else if (recursively && connected->InputsFrom(n, recursively)) {
-        return true;
-      }
+    if (connected.node() == n) {
+      return true;
+    } else if (recursively && connected.node()->InputsFrom(n, recursively)) {
+      return true;
     }
   }
 
@@ -690,17 +1671,13 @@ bool Node::InputsFrom(Node *n, bool recursively) const
 
 bool Node::InputsFrom(const QString &id, bool recursively) const
 {
-  QVector<NodeInput*> inputs = GetInputsIncludingArrays();
+  for (auto it=input_connections_.cbegin(); it!=input_connections_.cend(); it++) {
+    const NodeOutput& connected = it->second;
 
-  foreach (NodeInput* input, inputs) {
-    foreach (NodeEdgePtr edge, input->edges()) {
-      Node* connected = edge->output()->parentNode();
-
-      if (connected->id() == id) {
-        return true;
-      } else if (recursively && connected->InputsFrom(id, recursively)) {
-        return true;
-      }
+    if (connected.node()->id() == id) {
+      return true;
+    } else if (recursively && connected.node()->InputsFrom(id, recursively)) {
+      return true;
     }
   }
 
@@ -712,17 +1689,13 @@ int Node::GetRoutesTo(Node *n) const
   bool outputs_directly = false;
   int routes = 0;
 
-  QVector<NodeOutput*> outputs = GetOutputs();
+  foreach (const OutputConnection& conn, output_connections_) {
+    Node* connected_node = conn.second.node();
 
-  foreach (NodeOutput* o, outputs) {
-    foreach (NodeEdgePtr edge, o->edges()) {
-      Node* connected_node = edge->input()->parentNode();
-
-      if (connected_node == n) {
-        outputs_directly = true;
-      } else {
-        routes += connected_node->GetRoutesTo(n);
-      }
+    if (connected_node == n) {
+      outputs_directly = true;
+    } else {
+      routes += connected_node->GetRoutesTo(n);
     }
   }
 
@@ -733,30 +1706,17 @@ int Node::GetRoutesTo(Node *n) const
   return routes;
 }
 
-bool Node::HasInputs() const
-{
-  return HasParamOfType(NodeParam::kInput, false);
-}
-
-bool Node::HasOutputs() const
-{
-  return HasParamOfType(NodeParam::kOutput, false);
-}
-
-bool Node::HasConnectedInputs() const
-{
-  return HasParamOfType(NodeParam::kInput, true);
-}
-
-bool Node::HasConnectedOutputs() const
-{
-  return HasParamOfType(NodeParam::kOutput, true);
-}
-
 void Node::DisconnectAll()
 {
-  foreach (NodeParam* param, params_) {
-    param->DisconnectAll();
+  // Disconnect inputs (copy map since internal map will change as we disconnect)
+  InputConnections copy = input_connections_;
+  for (auto it=copy.cbegin(); it!=copy.cend(); it++) {
+    DisconnectEdge(it->second, it->first);
+  }
+
+  while (!output_connections_.empty()) {
+    OutputConnection conn = output_connections_.back();
+    DisconnectEdge(conn.first, conn.second);
   }
 }
 
@@ -785,6 +1745,8 @@ QString Node::GetCategoryName(const CategoryID &c)
     return tr("Channel");
   case kCategoryTransition:
     return tr("Transition");
+  case kCategoryProject:
+    return tr("Project");
   case kCategoryUnknown:
   case kCategoryCount:
     break;
@@ -793,49 +1755,37 @@ QString Node::GetCategoryName(const CategoryID &c)
   return tr("Uncategorized");
 }
 
-QVector<TimeRange> Node::TransformTimeTo(const TimeRange &time, Node *target, NodeParam::Type direction)
+QVector<TimeRange> Node::TransformTimeTo(const TimeRange &time, Node *target, bool input_dir)
 {
   QVector<TimeRange> paths_found;
 
-  if (direction == NodeParam::kInput) {
-    // Get list of all inputs
-    QVector<NodeInput *> inputs = GetInputsIncludingArrays();
-
+  if (input_dir) {
     // If this input is connected, traverse it to see if we stumble across the specified `node`
-    foreach (NodeInput* input, inputs) {
-      if (input->is_connected()) {
-        TimeRange input_adjustment = InputTimeAdjustment(input, time);
-        Node* connected = input->get_connected_node();
+    for (auto it=input_connections_.cbegin(); it!=input_connections_.cend(); it++) {
+      TimeRange input_adjustment = InputTimeAdjustment(it->first.input(), it->first.element(), time);
+      Node* connected = it->second.node();
 
-        if (connected == target) {
-          // We found the target, no need to keep traversing
-          if (!paths_found.contains(input_adjustment)) {
-            paths_found.append(input_adjustment);
-          }
-        } else {
-          // We did NOT find the target, traverse this
-          paths_found.append(connected->TransformTimeTo(input_adjustment, target, direction));
+      if (connected == target) {
+        // We found the target, no need to keep traversing
+        if (!paths_found.contains(input_adjustment)) {
+          paths_found.append(input_adjustment);
         }
+      } else {
+        // We did NOT find the target, traverse this
+        paths_found.append(connected->TransformTimeTo(input_adjustment, target, input_dir));
       }
     }
   } else {
-    // Get list of all outputs
-    QVector<NodeOutput*> outputs = GetOutputs();
-
     // If this input is connected, traverse it to see if we stumble across the specified `node`
-    foreach (NodeOutput* output, outputs) {
-      if (output->is_connected()) {
-        foreach (NodeEdgePtr edge, output->edges()) {
-          Node* input_node = edge->input()->parentNode();
+    foreach (const OutputConnection& conn, output_connections_) {
+      Node* connected_node = conn.second.node();
 
-          TimeRange output_adjustment = input_node->OutputTimeAdjustment(edge->input(), time);
+      TimeRange output_adjustment = connected_node->OutputTimeAdjustment(conn.second.input(), conn.second.element(), time);
 
-          if (input_node == target) {
-            paths_found.append(output_adjustment);
-          } else {
-            paths_found.append(input_node->TransformTimeTo(output_adjustment, target, direction));
-          }
-        }
+      if (connected_node == target) {
+        paths_found.append(output_adjustment);
+      } else {
+        paths_found.append(connected_node->TransformTimeTo(output_adjustment, target, input_dir));
       }
     }
   }
@@ -848,93 +1798,274 @@ QVariant Node::PtrToValue(void *ptr)
   return reinterpret_cast<quintptr>(ptr);
 }
 
-bool Node::HasParamWithID(const QString &id) const
-{
-  foreach (NodeParam* p, params_)
-  {
-    if (p->id() == id)
-    {
-      return true;
-    }
-  }
-
-  return false;
-}
-
-NodeOutput *Node::output() const
-{
-  return output_;
-}
-
 const QPointF &Node::GetPosition() const
 {
   return position_;
 }
 
-void Node::SetPosition(const QPointF &pos)
+void Node::SetPosition(const QPointF &pos, bool move_dependencies_relatively_too)
 {
+  QPointF old_pos = position_;
+
   position_ = pos;
 
   emit PositionChanged(position_);
+
+  if (move_dependencies_relatively_too) {
+    QPointF difference = pos - old_pos;
+
+    for (auto it=input_connections_.cbegin(); it!=input_connections_.cend(); it++) {
+      Node* c = it->second.node();
+      c->SetPosition(c->GetPosition() + difference, true);
+    }
+  }
 }
 
-void Node::AddInput(NodeInput *input)
+void Node::ParameterValueChanged(const QString& input, int element, const TimeRange& range)
 {
-  AddParameter(input);
+  UpdateLastChangedTime();
+
+  InputValueChangedEvent(input, element);
+
+  emit ValueChanged(NodeInput(this, input, element), range);
+
+  if (ignore_connections_.contains(input)) {
+    return;
+  }
+
+  InvalidateCache(range, input, element);
 }
 
-bool Node::HasParamOfType(NodeParam::Type type, bool must_be_connected) const
+void Node::LoadImmediate(QXmlStreamReader *reader, const QString& input, int element, XMLNodeData &xml_node_data, const QAtomicInt *cancelled)
 {
-  foreach (NodeParam* p, params_) {
-    if (p->type() == type
-        && (p->is_connected() || !must_be_connected)) {
-      return true;
+  NodeValue::Type data_type = GetInputDataType(input);
+
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("standard")) {
+      // Load standard value
+      int val_index = 0;
+
+      while (XMLReadNextStartElement(reader)) {
+        if (cancelled && *cancelled) {
+          return;
+        }
+
+        if (reader->name() == QStringLiteral("track")) {
+          QVariant value_on_track;
+
+          if (data_type == NodeValue::kVideoParams) {
+            VideoParams vp;
+            vp.Load(reader);
+            value_on_track = QVariant::fromValue(vp);
+          } else if (data_type == NodeValue::kAudioParams) {
+            AudioParams ap;
+            ap.Load(reader);
+            value_on_track = QVariant::fromValue(ap);
+          } else {
+            QString value_text = reader->readElementText();
+
+            if (!value_text.isEmpty()) {
+              value_on_track = NodeValue::StringToValue(data_type, value_text, element);
+            }
+          }
+
+          SetSplitStandardValueOnTrack(input, val_index, value_on_track, element);
+
+          val_index++;
+        } else {
+          reader->skipCurrentElement();
+        }
+      }
+    } else if (reader->name() == QStringLiteral("keyframing") && IsInputKeyframable(input)) {
+      SetInputIsKeyframing(input, reader->readElementText().toInt(), element);
+    } else if (reader->name() == QStringLiteral("keyframes")) {
+      int track = 0;
+
+      while (XMLReadNextStartElement(reader)) {
+        if (cancelled && *cancelled) {
+          return;
+        }
+
+        if (reader->name() == QStringLiteral("track")) {
+          while (XMLReadNextStartElement(reader)) {
+            if (cancelled && *cancelled) {
+              return;
+            }
+
+            if (reader->name() == QStringLiteral("key")) {
+              QString key_input;
+              rational key_time;
+              NodeKeyframe::Type key_type = NodeKeyframe::kLinear;
+              QVariant key_value;
+              QPointF key_in_handle;
+              QPointF key_out_handle;
+
+              XMLAttributeLoop(reader, attr) {
+                if (cancelled && *cancelled) {
+                  return;
+                }
+
+                if (attr.name() == QStringLiteral("input")) {
+                  key_input = attr.value().toString();
+                } else if (attr.name() == QStringLiteral("time")) {
+                  key_time = rational::fromString(attr.value().toString());
+                } else if (attr.name() == QStringLiteral("type")) {
+                  key_type = static_cast<NodeKeyframe::Type>(attr.value().toInt());
+                } else if (attr.name() == QStringLiteral("inhandlex")) {
+                  key_in_handle.setX(attr.value().toDouble());
+                } else if (attr.name() == QStringLiteral("inhandley")) {
+                  key_in_handle.setY(attr.value().toDouble());
+                } else if (attr.name() == QStringLiteral("outhandlex")) {
+                  key_out_handle.setX(attr.value().toDouble());
+                } else if (attr.name() == QStringLiteral("outhandley")) {
+                  key_out_handle.setY(attr.value().toDouble());
+                }
+              }
+
+              key_value = NodeValue::StringToValue(data_type, reader->readElementText(), true);
+
+              NodeKeyframe* key = new NodeKeyframe(key_time, key_value, key_type, track, element, key_input, this);
+              key->set_bezier_control_in(key_in_handle);
+              key->set_bezier_control_out(key_out_handle);
+            } else {
+              reader->skipCurrentElement();
+            }
+          }
+
+          track++;
+        } else {
+          reader->skipCurrentElement();
+        }
+      }
+    } else if (reader->name() == QStringLiteral("csinput")) {
+      SetInputProperty(input, QStringLiteral("col_input"), reader->readElementText());
+    } else if (reader->name() == QStringLiteral("csdisplay")) {
+      SetInputProperty(input, QStringLiteral("col_display"), reader->readElementText());
+    } else if (reader->name() == QStringLiteral("csview")) {
+      SetInputProperty(input, QStringLiteral("col_view"), reader->readElementText());
+    } else if (reader->name() == QStringLiteral("cslook")) {
+      SetInputProperty(input, QStringLiteral("col_look"), reader->readElementText());
+    } else {
+      reader->skipCurrentElement();
+    }
+  }
+}
+
+void Node::SaveImmediate(QXmlStreamWriter *writer, const QString& input, int element) const
+{
+  if (IsInputKeyframable(input)) {
+    writer->writeTextElement(QStringLiteral("keyframing"), QString::number(IsInputKeyframing(input, element)));
+  }
+
+  NodeValue::Type data_type = GetInputDataType(input);
+
+  // Write standard value
+  writer->writeStartElement(QStringLiteral("standard"));
+
+  foreach (const QVariant& v, GetSplitStandardValue(input, element)) {
+    writer->writeStartElement(QStringLiteral("track"));
+
+    if (data_type == NodeValue::kVideoParams) {
+      v.value<VideoParams>().Save(writer);
+    } else if (data_type == NodeValue::kAudioParams) {
+      v.value<AudioParams>().Save(writer);
+    } else {
+      writer->writeCharacters(NodeValue::ValueToString(data_type, v, true));
+    }
+
+    writer->writeEndElement(); // track
+  }
+
+  writer->writeEndElement(); // standard
+
+  // Write keyframes
+  writer->writeStartElement(QStringLiteral("keyframes"));
+
+  foreach (const NodeKeyframeTrack& track, GetKeyframeTracks(input, element)) {
+    writer->writeStartElement(QStringLiteral("track"));
+
+    foreach (NodeKeyframe* key, track) {
+      writer->writeStartElement(QStringLiteral("key"));
+
+      writer->writeAttribute(QStringLiteral("input"), key->input());
+      writer->writeAttribute(QStringLiteral("time"), key->time().toString());
+      writer->writeAttribute(QStringLiteral("type"), QString::number(key->type()));
+      writer->writeAttribute(QStringLiteral("inhandlex"), QString::number(key->bezier_control_in().x()));
+      writer->writeAttribute(QStringLiteral("inhandley"), QString::number(key->bezier_control_in().y()));
+      writer->writeAttribute(QStringLiteral("outhandlex"), QString::number(key->bezier_control_out().x()));
+      writer->writeAttribute(QStringLiteral("outhandley"), QString::number(key->bezier_control_out().y()));
+
+      writer->writeCharacters(NodeValue::ValueToString(data_type, key->value(), true));
+
+      writer->writeEndElement(); // key
+    }
+
+    writer->writeEndElement(); // track
+  }
+
+  writer->writeEndElement(); // keyframes
+
+  if (data_type == NodeValue::kColor) {
+    // Save color management information
+    writer->writeTextElement(QStringLiteral("csinput"), GetInputProperty(input, QStringLiteral("col_input")).toString());
+    writer->writeTextElement(QStringLiteral("csdisplay"), GetInputProperty(input, QStringLiteral("col_display")).toString());
+    writer->writeTextElement(QStringLiteral("csview"), GetInputProperty(input, QStringLiteral("col_view")).toString());
+    writer->writeTextElement(QStringLiteral("cslook"), GetInputProperty(input, QStringLiteral("col_look")).toString());
+  }
+}
+
+void Node::UpdateLastChangedTime()
+{
+  last_change_time_ = QDateTime::currentMSecsSinceEpoch();
+}
+
+TimeRange Node::GetRangeAffectedByKeyframe(NodeKeyframe *key) const
+{
+  const NodeKeyframeTrack& key_track = GetTrackFromKeyframe(key);
+  int keyframe_index = key_track.indexOf(key);
+
+  TimeRange range = GetRangeAroundIndex(key->input(), keyframe_index, key->track(), key->element());
+
+  // If a previous key exists and it's a hold, we don't need to invalidate those frames
+  if (key_track.size() > 1
+      && keyframe_index > 0
+      && key_track.at(keyframe_index - 1)->type() == NodeKeyframe::kHold) {
+    range.set_in(key->time());
+  }
+
+  return range;
+}
+
+TimeRange Node::GetRangeAroundIndex(const QString &input, int index, int track, int element) const
+{
+  rational range_begin = RATIONAL_MIN;
+  rational range_end = RATIONAL_MAX;
+
+  const NodeKeyframeTrack& key_track = GetImmediate(input, element)->keyframe_tracks().at(track);
+
+  if (key_track.size() > 1) {
+    if (index > 0) {
+      // If this is not the first key, we'll need to limit it to the key just before
+      range_begin = key_track.at(index - 1)->time();
+    }
+    if (index < key_track.size() - 1) {
+      // If this is not the last key, we'll need to limit it to the key just after
+      range_end = key_track.at(index + 1)->time();
     }
   }
 
-  return false;
+  return TimeRange(range_begin, range_end);
 }
 
-void Node::ConnectInput(NodeInput *input)
+void Node::ClearElement(const QString& input, int index)
 {
-  connect(input, &NodeInput::ValueChanged, this, &Node::InputChanged);
-  connect(input, &NodeInput::EdgeAdded, this, &Node::InputConnectionChanged);
-  connect(input, &NodeInput::EdgeRemoved, this, &Node::InputConnectionChanged);
+  GetImmediate(input, index)->delete_all_keyframes();
 
-  if (input->IsArray()) {
-    NodeInputArray* array = static_cast<NodeInputArray*>(input);
-
-    connect(array, &NodeInputArray::SubParamEdgeAdded, this, &Node::InputConnectionChanged);
-    connect(array, &NodeInputArray::SubParamEdgeRemoved, this, &Node::InputConnectionChanged);
-    connect(array, &NodeInputArray::SubParamEdgeAdded, this, &Node::EdgeAdded);
-    connect(array, &NodeInputArray::SubParamEdgeRemoved, this, &Node::EdgeRemoved);
-  }
-}
-
-void Node::DisconnectInput(NodeInput *input)
-{
-  if (input->IsArray()) {
-    NodeInputArray* array = static_cast<NodeInputArray*>(input);
-
-    disconnect(array, &NodeInputArray::SubParamEdgeAdded, this, &Node::InputConnectionChanged);
-    disconnect(array, &NodeInputArray::SubParamEdgeRemoved, this, &Node::InputConnectionChanged);
-    disconnect(array, &NodeInputArray::SubParamEdgeAdded, this, &Node::EdgeAdded);
-    disconnect(array, &NodeInputArray::SubParamEdgeRemoved, this, &Node::EdgeRemoved);
+  if (IsInputKeyframable(input)) {
+    SetInputIsKeyframing(input, false, index);
   }
 
-  disconnect(input, &NodeInput::ValueChanged, this, &Node::InputChanged);
-  disconnect(input, &NodeInput::EdgeAdded, this, &Node::InputConnectionChanged);
-  disconnect(input, &NodeInput::EdgeRemoved, this, &Node::InputConnectionChanged);
-}
-
-void Node::InputChanged(const TimeRange& range)
-{
-  InvalidateCache(range, static_cast<NodeInput*>(sender()), static_cast<NodeInput*>(sender()));
-}
-
-void Node::InputConnectionChanged(NodeEdgePtr edge)
-{
-  InvalidateCache(TimeRange(RATIONAL_MIN, RATIONAL_MAX), edge->input(), edge->input());
+  SetSplitStandardValue(input, GetSplitDefaultValue(input), index);
 }
 
 QRectF Node::CreateGizmoHandleRect(const QPointF &pt, int radius)
@@ -964,6 +2095,204 @@ void Node::DrawAndExpandGizmoHandles(QPainter *p, int handle_radius, QRectF *rec
 
     // Extend rect so it's easier to drag with handle
     r.adjust(-handle_radius, -handle_radius, handle_radius, handle_radius);
+  }
+}
+
+void Node::InputValueChangedEvent(const QString &input, int element)
+{
+  Q_UNUSED(input)
+  Q_UNUSED(element)
+}
+
+void Node::InputConnectedEvent(const QString &input, int element, const NodeOutput &output)
+{
+  Q_UNUSED(input)
+  Q_UNUSED(element)
+  Q_UNUSED(output)
+}
+
+void Node::InputDisconnectedEvent(const QString &input, int element, const NodeOutput &output)
+{
+  Q_UNUSED(input)
+  Q_UNUSED(element)
+  Q_UNUSED(output)
+}
+
+void Node::OutputConnectedEvent(const QString &output, const NodeInput &input)
+{
+  Q_UNUSED(output)
+  Q_UNUSED(input)
+}
+
+void Node::OutputDisconnectedEvent(const QString &output, const NodeInput &input)
+{
+  Q_UNUSED(output)
+  Q_UNUSED(input)
+}
+
+void Node::childEvent(QChildEvent *event)
+{
+  super::childEvent(event);
+
+  NodeKeyframe* key = dynamic_cast<NodeKeyframe*>(event->child());
+
+  if (key) {
+    NodeInput i(this, key->input(), key->element());
+
+    if (event->type() == QEvent::ChildAdded) {
+      GetImmediate(key->input(), key->element())->insert_keyframe(key);
+
+      connect(key, &NodeKeyframe::TimeChanged, this, &Node::InvalidateFromKeyframeTimeChange);
+      connect(key, &NodeKeyframe::TimeChanged, this, &Node::KeyframeTimeChanged);
+      connect(key, &NodeKeyframe::ValueChanged, this, &Node::InvalidateFromKeyframeValueChange);
+      connect(key, &NodeKeyframe::TypeChanged, this, &Node::InvalidateFromKeyframeTypeChanged);
+      connect(key, &NodeKeyframe::BezierControlInChanged, this, &Node::InvalidateFromKeyframeBezierInChange);
+      connect(key, &NodeKeyframe::BezierControlOutChanged, this, &Node::InvalidateFromKeyframeBezierOutChange);
+
+      emit KeyframeAdded(key);
+      ParameterValueChanged(i, GetRangeAffectedByKeyframe(key));
+    } else if (event->type() == QEvent::ChildRemoved) {
+      TimeRange time_affected = GetRangeAffectedByKeyframe(key);
+
+      disconnect(key, &NodeKeyframe::TimeChanged, this, &Node::InvalidateFromKeyframeTimeChange);
+      disconnect(key, &NodeKeyframe::TimeChanged, this, &Node::KeyframeTimeChanged);
+      disconnect(key, &NodeKeyframe::ValueChanged, this, &Node::InvalidateFromKeyframeValueChange);
+      disconnect(key, &NodeKeyframe::TypeChanged, this, &Node::InvalidateFromKeyframeTypeChanged);
+      disconnect(key, &NodeKeyframe::BezierControlInChanged, this, &Node::InvalidateFromKeyframeBezierInChange);
+      disconnect(key, &NodeKeyframe::BezierControlOutChanged, this, &Node::InvalidateFromKeyframeBezierOutChange);
+
+      GetImmediate(key->input(), key->element())->remove_keyframe(key);
+
+      emit KeyframeRemoved(key);
+      ParameterValueChanged(i, time_affected);
+    }
+  }
+}
+
+void Node::InvalidateFromKeyframeBezierInChange()
+{
+  NodeKeyframe* key = static_cast<NodeKeyframe*>(sender());
+  const NodeKeyframeTrack& track = GetTrackFromKeyframe(key);
+  int keyframe_index = track.indexOf(key);
+
+  rational start = RATIONAL_MIN;
+  rational end = key->time();
+
+  if (keyframe_index > 0) {
+    start = track.at(keyframe_index - 1)->time();
+  }
+
+  ParameterValueChanged(key->key_track_ref().input(), TimeRange(start, end));
+}
+
+void Node::InvalidateFromKeyframeBezierOutChange()
+{
+  NodeKeyframe* key = static_cast<NodeKeyframe*>(sender());
+  const NodeKeyframeTrack& track = GetTrackFromKeyframe(key);
+  int keyframe_index = track.indexOf(key);
+
+  rational start = key->time();
+  rational end = RATIONAL_MAX;
+
+  if (keyframe_index < track.size() - 1) {
+    end = track.at(keyframe_index + 1)->time();
+  }
+
+  ParameterValueChanged(key->key_track_ref().input(), TimeRange(start, end));
+}
+
+void Node::InvalidateFromKeyframeTimeChange()
+{
+  NodeKeyframe* key = static_cast<NodeKeyframe*>(sender());
+  NodeInputImmediate* immediate = GetImmediate(key->input(), key->element());
+  TimeRange original_range = GetRangeAffectedByKeyframe(key);
+
+  TimeRangeList invalidate_range;
+  invalidate_range.insert(original_range);
+
+  if (!(original_range.in() < key->time() && original_range.out() > key->time())) {
+    // This keyframe needs resorting, store it and remove it from the list
+    immediate->remove_keyframe(key);
+
+    // Automatically insertion sort
+    immediate->insert_keyframe(key);
+
+    // Invalidate new area that the keyframe has been moved to
+    invalidate_range.insert(GetRangeAffectedByKeyframe(key));
+  }
+
+  // Invalidate entire area surrounding the keyframe (either where it currently is, or where it used to be before it
+  // was resorted in the if block above)
+  foreach (const TimeRange& r, invalidate_range) {
+    ParameterValueChanged(key->key_track_ref().input(), r);
+  }
+}
+
+void Node::InvalidateFromKeyframeValueChange()
+{
+  NodeKeyframe* key = static_cast<NodeKeyframe*>(sender());
+  ParameterValueChanged(key->key_track_ref().input(), GetRangeAffectedByKeyframe(key));
+}
+
+void Node::InvalidateFromKeyframeTypeChanged()
+{
+  NodeKeyframe* key = static_cast<NodeKeyframe*>(sender());
+  const NodeKeyframeTrack& track = GetTrackFromKeyframe(key);
+
+  if (track.size() == 1) {
+    // If there are no other frames, the interpolation won't do anything
+    return;
+  }
+
+  // Invalidate entire range
+  ParameterValueChanged(key->key_track_ref().input(), GetRangeAroundIndex(key->input(), track.indexOf(key), key->track(), key->element()));
+}
+
+Project *Node::ArrayInsertCommand::GetRelevantProject() const
+{
+  return node_->project();
+}
+
+Project *Node::ArrayRemoveCommand::GetRelevantProject() const
+{
+  return node_->project();
+}
+
+Project *Node::ArrayResizeCommand::GetRelevantProject() const
+{
+  return node_->project();
+}
+
+void NodeSetPositionAndShiftSurroundingsCommand::redo()
+{
+  if (commands_.isEmpty()) {
+    // Move first node
+    NodeSetPositionCommand* set_pos_command = new NodeSetPositionCommand(node_, position_, move_dependencies_);
+    set_pos_command->redo();
+    commands_.append(set_pos_command);
+
+    // Get bounding rect
+    QRectF bounding_rect(position_.x() - 0.5, position_.y() - 0.5, 1, 1);
+
+    // Start moving other nodes
+    foreach (Node* surrounding, node_->parent()->nodes()) {
+      if (bounding_rect.contains(surrounding->GetPosition()) && surrounding != node_) {
+        QPointF new_pos = surrounding->GetPosition();
+        if (surrounding->GetPosition().y() > position_.y()) {
+          new_pos.setY(new_pos.y() + 0.5);
+        } else {
+          new_pos.setY(new_pos.y() - 0.5);
+        }
+
+        auto sur_command = new NodeSetPositionAndShiftSurroundingsCommand(surrounding, new_pos, true);
+        sur_command->redo();
+        commands_.append(sur_command);
+      }
+    }
+  } else {
+    for (int i=0; i<commands_.size(); i++) {
+      commands_.at(i)->redo();
+    }
   }
 }
 

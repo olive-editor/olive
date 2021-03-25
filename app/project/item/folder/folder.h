@@ -21,9 +21,7 @@
 #ifndef FOLDER_H
 #define FOLDER_H
 
-#include "node/param.h"
-#include "project/item/footage/footage.h"
-#include "project/item/item.h"
+#include "node/node.h"
 
 namespace olive {
 
@@ -33,22 +31,156 @@ namespace olive {
  * The Item base class already has support for children, but this functionality is disabled by default
  * (see CanHaveChildren() override). The Folder is a specific type that enables this functionality.
  */
-class Folder : public Item
+class Folder : public Node
 {
+  Q_OBJECT
 public:
-  Folder() = default;
+  Folder();
 
-  virtual Type type() const override;
+  virtual Node* copy() const override
+  {
+    return new Folder();
+  }
 
-  virtual bool CanHaveChildren() const override;
+  virtual QString Name() const override
+  {
+    return tr("Folder");
+  }
 
-  virtual QIcon icon() override;
+  virtual QString id() const override
+  {
+    return QStringLiteral("org.olivevideoeditor.Olive.folder");
+  }
 
-  virtual void Load(QXmlStreamReader* reader, XMLNodeData &xml_node_data, uint version, const QAtomicInt *cancelled) override;
+  virtual QVector<CategoryID> Category() const override
+  {
+    return {kCategoryProject};
+  }
 
-  virtual void Save(QXmlStreamWriter* writer) const override;
+  virtual QString Description() const override
+  {
+    return tr("Organize several items into a single collection.");
+  }
+
+  virtual QIcon icon() const override;
+
+  virtual void Retranslate() override;
+
+  bool ChildExistsWithName(const QString& s) const;
+
+  int item_child_count() const
+  {
+    return item_children_.size();
+  }
+
+  Node* item_child(int i) const
+  {
+    return item_children_.at(i);
+  }
+
+  const QVector<Node*>& children() const
+  {
+    return item_children_;
+  }
+
+  virtual bool IsItem() const override
+  {
+    return true;
+  }
+
+  int index_of_child(Node* item) const
+  {
+    return item_children_.indexOf(item);
+  }
+
+  int index_of_child_in_array(Node* item) const;
+
+  template <typename T>
+  QVector<T*> ListChildrenOfType() const
+  {
+    QVector<T*> list;
+
+    foreach (Node* node, item_children_) {
+      T* cast_test = dynamic_cast<T*>(node);
+
+      if (cast_test) {
+        list.append(cast_test);
+      }
+    }
+
+    return list;
+  }
+
+  static const QString kChildInput;
+
+signals:
+  void BeginInsertItem(Node* n, int index);
+
+  void EndInsertItem();
+
+  void BeginRemoveItem(Node* n, int index);
+
+  void EndRemoveItem();
+
+protected:
+  virtual void InputConnectedEvent(const QString& input, int element, const NodeOutput& output) override;
+
+  virtual void InputDisconnectedEvent(const QString& input, int element, const NodeOutput& output) override;
 
 private:
+  template<typename T>
+  static void ListOutputsOfTypeInternal(const Folder* n, QVector<T*>& list, bool recursive)
+  {
+    foreach (const Node::OutputConnection& c, n->output_connections()) {
+      Node* connected = c.second.node();
+
+      T* cast_test = dynamic_cast<T*>(connected);
+
+      if (cast_test) {
+        // Avoid duplicates
+        if (!list.contains(cast_test)) {
+          list.append(cast_test);
+        }
+      }
+
+      if (recursive) {
+        Folder* subfolder = dynamic_cast<Folder*>(connected);
+
+        if (subfolder) {
+          ListOutputsOfTypeInternal(subfolder, list, recursive);
+        }
+      }
+    }
+  }
+
+  QVector<Node*> item_children_;
+  QVector<int> item_element_index_;
+
+};
+
+class FolderAddChild : public UndoCommand
+{
+public:
+  FolderAddChild(Folder* folder, Node* child, bool autoposition = true);
+
+  virtual ~FolderAddChild() override;
+
+  virtual Project * GetRelevantProject() const override;
+
+  virtual void redo() override;
+
+  virtual void undo() override;
+
+private:
+  Folder* folder_;
+
+  Node* child_;
+
+  bool autoposition_;
+
+  QPointF old_position_;
+
+  NodeSetPositionAsChildCommand* position_command_;
 
 };
 

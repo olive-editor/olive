@@ -37,7 +37,7 @@ public:
 protected:
   void CopyNodesToClipboard(const QVector<Node *> &nodes, void* userdata = nullptr);
 
-  QVector<Node*> PasteNodesFromClipboard(Sequence *graph, QUndoCommand *command, void* userdata = nullptr);
+  QVector<Node*> PasteNodesFromClipboard(NodeGraph *graph, MultiUndoCommand *command, void* userdata = nullptr);
 
   virtual void CopyNodesToClipboardInternal(QXmlStreamWriter *writer, void* userdata);
 

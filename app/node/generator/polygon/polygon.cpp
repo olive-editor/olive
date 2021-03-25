@@ -25,33 +25,27 @@
 
 namespace olive {
 
+const QString PolygonGenerator::kPointsInput = QStringLiteral("points_in");
+const QString PolygonGenerator::kColorInput = QStringLiteral("color_in");
+
 PolygonGenerator::PolygonGenerator()
 {
-  points_input_ = new NodeInputArray("points_in", NodeParam::kVec2);
-  AddInput(points_input_);
+  AddInput(kPointsInput, NodeValue::kVec2, QVector2D(0, 0), InputFlags(kInputFlagArray));
 
-  color_input_ = new NodeInput("color_in", NodeParam::kColor);
-  AddInput(color_input_);
+  AddInput(kColorInput, NodeValue::kColor, QVariant::fromValue(Color(1.0, 1.0, 1.0)));
 
-  // Default to "a color" that isn't
-  color_input_->set_standard_value(1.0, 0);
-  color_input_->set_standard_value(1.0, 1);
-  color_input_->set_standard_value(1.0, 2);
-  color_input_->set_standard_value(1.0, 3);
-
-  // FIXME: Test code
-  points_input_->SetSize(5);
-  points_input_->At(0)->set_standard_value(960, 0);
-  points_input_->At(0)->set_standard_value(240, 1);
-  points_input_->At(1)->set_standard_value(640, 0);
-  points_input_->At(1)->set_standard_value(480, 1);
-  points_input_->At(2)->set_standard_value(760, 0);
-  points_input_->At(2)->set_standard_value(800, 1);
-  points_input_->At(3)->set_standard_value(1100, 0);
-  points_input_->At(3)->set_standard_value(800, 1);
-  points_input_->At(4)->set_standard_value(1280, 0);
-  points_input_->At(4)->set_standard_value(480, 1);
-  // End test
+  // The Default Pentagon(tm)
+  InputArrayResize(kPointsInput, 5);
+  SetSplitStandardValueOnTrack(kPointsInput, 0, 960, 0);
+  SetSplitStandardValueOnTrack(kPointsInput, 1, 240, 0);
+  SetSplitStandardValueOnTrack(kPointsInput, 0, 640, 1);
+  SetSplitStandardValueOnTrack(kPointsInput, 1, 480, 1);
+  SetSplitStandardValueOnTrack(kPointsInput, 0, 760, 2);
+  SetSplitStandardValueOnTrack(kPointsInput, 1, 800, 2);
+  SetSplitStandardValueOnTrack(kPointsInput, 0, 1100, 3);
+  SetSplitStandardValueOnTrack(kPointsInput, 1, 800, 3);
+  SetSplitStandardValueOnTrack(kPointsInput, 0, 1200, 4);
+  SetSplitStandardValueOnTrack(kPointsInput, 1, 480, 4);
 }
 
 Node *PolygonGenerator::copy() const
@@ -81,28 +75,30 @@ QString PolygonGenerator::Description() const
 
 void PolygonGenerator::Retranslate()
 {
-  points_input_->set_name(tr("Points"));
-  color_input_->set_name(tr("Color"));
+  SetInputName(kPointsInput, tr("Points"));
+  SetInputName(kColorInput, tr("Color"));
 }
 
 ShaderCode PolygonGenerator::GetShaderCode(const QString &shader_id) const
 {
   Q_UNUSED(shader_id)
 
-  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/polygon.frag"));
+  return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/polygon.frag")));
 }
 
-NodeValueTable PolygonGenerator::Value(NodeValueDatabase &value) const
+NodeValueTable PolygonGenerator::Value(const QString &output, NodeValueDatabase &value) const
 {
+  Q_UNUSED(output)
+
   ShaderJob job;
 
-  job.InsertValue(points_input_, value);
-  job.InsertValue(color_input_, value);
-  job.InsertValue(QStringLiteral("resolution_in"), ShaderValue(value[QStringLiteral("global")].Get(NodeParam::kVec2, QStringLiteral("resolution")), NodeParam::kVec2));
+  job.InsertValue(this, kPointsInput, value);
+  job.InsertValue(this, kColorInput, value);
+  job.InsertValue(QStringLiteral("resolution_in"), value[QStringLiteral("global")].GetWithMeta(NodeValue::kVec2, QStringLiteral("resolution")));
   job.SetAlphaChannelRequired(true);
 
   NodeValueTable table = value.Merge();
-  table.Push(NodeParam::kShaderJob, QVariant::fromValue(job), this);
+  table.Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
   return table;
 }
 
@@ -175,10 +171,12 @@ void PolygonGenerator::GizmoRelease()
 
 QVector<QPointF> PolygonGenerator::GetGizmoCoordinates(NodeValueDatabase &db, const QVector2D& scale) const
 {
-  QVector<QPointF> points(points_input_->GetSize());
+  // FIXME: Should Get() use a `kArray` type instead of a `kVec2` type?
+  QVector<NodeValueTable> array_tbl = db[kPointsInput].Get(NodeValue::kVec2).value< QVector<NodeValueTable> >();
+  QVector<QPointF> points(array_tbl.size());
 
-  for (int i=0;i<points_input_->GetSize();i++) {
-    QVector2D v = db[points_input_->At(i)].Get(NodeParam::kVec2).value<QVector2D>();
+  for (int i=0;i<array_tbl.size();i++) {
+    QVector2D v = array_tbl.at(i).Get(NodeValue::kVec2).value<QVector2D>();
 
     v *= scale;
 

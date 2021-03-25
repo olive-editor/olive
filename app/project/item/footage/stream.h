@@ -21,103 +21,19 @@
 #ifndef STREAM_H
 #define STREAM_H
 
-#include <memory>
-#include <QCoreApplication>
-#include <QMutex>
-#include <QString>
-#include <QXmlStreamWriter>
-
-#include "common/rational.h"
-#include "ui/icons/icons.h"
-
 namespace olive {
 
-class Footage;
-struct XMLNodeData;
-
-/**
- * @brief A base class for keeping metadata about a media stream.
- *
- * A Stream can contain video data, audio data, subtitle data,
- * etc. and a Stream object stores metadata about it.
- *
- * The Stream class is fairly simple and is intended to be subclassed for data that pertains specifically to one
- * Stream::Type. \see VideoStream and \see AudioStream.
- */
-class Stream : public QObject
+class Stream
 {
-  Q_OBJECT
 public:
   enum Type {
-    kUnknown,
+    kUnknown = -1,
     kVideo,
     kAudio,
     kData,
     kSubtitle,
     kAttachment
   };
-
-  /**
-   * @brief Stream constructor
-   */
-  Stream();
-
-  /**
-   * @brief Required virtual destructor, serves no purpose
-   */
-  virtual ~Stream() override;
-
-  static Stream* Load(QXmlStreamReader* reader, XMLNodeData& xml_node_data, const QAtomicInt* cancelled);
-
-  void Save(QXmlStreamWriter *writer) const;
-
-  virtual QString description() const;
-
-  const Type& type() const;
-  void set_type(const Type& type);
-
-  Footage* footage() const;
-
-  const rational& timebase() const;
-  void set_timebase(const rational& timebase);
-
-  const int& index() const;
-  void set_index(const int& index);
-
-  const int64_t& duration() const;
-  void set_duration(const int64_t& duration);
-
-  bool enabled() const;
-  void set_enabled(bool e);
-
-  virtual QIcon icon() const;
-
-  QMutex* mutex()
-  {
-    return &mutex_;
-  }
-
-protected:
-  virtual void LoadCustomParameters(QXmlStreamReader *reader);
-
-  virtual void SaveCustomParameters(QXmlStreamWriter* writer) const;
-
-signals:
-  void ParametersChanged();
-
-private:
-  rational timebase_;
-
-  int64_t duration_;
-
-  int index_;
-
-  Type type_;
-
-  bool enabled_;
-
-  QMutex mutex_;
-
 };
 
 }

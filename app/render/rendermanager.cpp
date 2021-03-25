@@ -21,7 +21,6 @@
 #include "rendermanager.h"
 
 #include <QApplication>
-#include <QDateTime>
 #include <QMatrix4x4>
 #include <QThread>
 
@@ -94,13 +93,13 @@ QByteArray RenderManager::Hash(const Node *n, const VideoParams &params, const r
   hasher.addData(reinterpret_cast<const char*>(&format), sizeof(VideoParams::Format));
 
   if (n) {
-    n->Hash(hasher, time);
+    n->Hash(Node::kDefaultOutput, hasher, time);
   }
 
   return hasher.result();
 }
 
-RenderTicketPtr RenderManager::RenderFrame(ViewerOutput* viewer, ColorManager* color_manager,
+RenderTicketPtr RenderManager::RenderFrame(Sequence* viewer, ColorManager* color_manager,
                                            const rational& time, RenderMode::Mode mode,
                                            FrameHashCache* cache, bool prioritize)
 {
@@ -118,7 +117,7 @@ RenderTicketPtr RenderManager::RenderFrame(ViewerOutput* viewer, ColorManager* c
                      prioritize);
 }
 
-RenderTicketPtr RenderManager::RenderFrame(ViewerOutput* viewer, ColorManager* color_manager,
+RenderTicketPtr RenderManager::RenderFrame(Sequence* viewer, ColorManager* color_manager,
                                            const rational& time, RenderMode::Mode mode,
                                            const VideoParams &video_params, const AudioParams &audio_params,
                                            const QSize& force_size,
@@ -157,12 +156,12 @@ RenderTicketPtr RenderManager::RenderFrame(ViewerOutput* viewer, ColorManager* c
   return ticket;
 }
 
-RenderTicketPtr RenderManager::RenderAudio(ViewerOutput* viewer, const TimeRange& r, bool generate_waveforms, bool prioritize)
+RenderTicketPtr RenderManager::RenderAudio(Sequence* viewer, const TimeRange& r, bool generate_waveforms, bool prioritize)
 {
   return RenderAudio(viewer, r, viewer->audio_params(), generate_waveforms, prioritize);
 }
 
-RenderTicketPtr RenderManager::RenderAudio(ViewerOutput* viewer, const TimeRange &r, const AudioParams &params, bool generate_waveforms, bool prioritize)
+RenderTicketPtr RenderManager::RenderAudio(Sequence* viewer, const TimeRange &r, const AudioParams &params, bool generate_waveforms, bool prioritize)
 {
   // Create ticket
   RenderTicketPtr ticket = std::make_shared<RenderTicket>();
