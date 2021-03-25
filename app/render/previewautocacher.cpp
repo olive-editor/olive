@@ -248,6 +248,7 @@ void PreviewAutoCacher::SingleFrameFinished()
   RenderTicketWatcher* watcher = static_cast<RenderTicketWatcher*>(sender());
   RenderTicketPtr passthrough = watcher->property("passthrough").value<RenderTicketPtr>();
   passthrough->Finish(watcher->GetTicket()->Get(), watcher->GetTicket()->WasCancelled());
+  single_frame_tasks_.removeOne(watcher);
   delete watcher;
 }
 
@@ -498,6 +499,7 @@ void PreviewAutoCacher::TryRender()
     watcher->setProperty("passthrough", QVariant::fromValue(single_frame_render_));
 
     connect(watcher, &RenderTicketWatcher::Finished, this, &PreviewAutoCacher::SingleFrameFinished);
+    single_frame_tasks_.append(watcher);
 
     single_frame_render_->Start();
 
@@ -603,6 +605,16 @@ void PreviewAutoCacher::SetViewerNode(Sequence *viewer_node)
     // We'll need to wait for these since they work directly on the FrameHashCache. Frames will
     // be in the cache for later use.
     ClearVideoDownloadQueue(true);
+
+    // Wait for any single frame renders to finish
+    foreach (RenderTicketWatcher* watcher, single_frame_tasks_) {
+      watcher->Cancel();
+      watcher->WaitForFinished();
+    }
+    single_frame_tasks_.clear();
+
+    // Clear any single frame render that might be queued
+    single_frame_render_ = nullptr;
 
     // No longer caching any hashes
     currently_caching_hashes_.clear();

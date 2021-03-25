@@ -152,6 +152,7 @@ private:
   QMap<RenderTicketWatcher*, TimeRange> audio_tasks_;
   QMap<RenderTicketWatcher*, QByteArray> video_tasks_;
   QMap<RenderTicketWatcher*, QByteArray> video_download_tasks_;
+  QVector<RenderTicketWatcher*> single_frame_tasks_;
 
   QVector<QByteArray> currently_caching_hashes_;
 
