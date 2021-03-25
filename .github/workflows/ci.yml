@@ -334,7 +334,7 @@ jobs:
           mv app/$BUNDLE_NAME .
           macdeployqt $BUNDLE_NAME
           $DOWNLOAD_TOOL https://github.com/arl/macdeployqtfix/raw/master/macdeployqtfix.py
-          python2 macdeployqtfix.py $BUNDLE_NAME/Contents/MacOS/Olive /usr/local/Cellar/qt5/5.*/
+          python2 macdeployqtfix.py $BUNDLE_NAME/Contents/MacOS/Olive /opt/olive-editor
 
       - name: Deploy Packages
         working-directory: ${{ runner.workspace }}/build
