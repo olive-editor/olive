@@ -51,7 +51,6 @@ find_library(OCIO_LIBRARY
         libOpenColorIO.so.2.0 # libOpenColorIO.so.2.0 (Linux)
         OpenColorIO.2.0       # libOpenColorIO.2.0.dylib (macOS)
         OpenColorIO_2_0       # OpenColorIO_2_0.lib (Windows)
-        OpenColorIO           # (fallback)
     HINTS
         "${OCIO_LOCATION}"
         "$ENV{OCIO_LOCATION}"
