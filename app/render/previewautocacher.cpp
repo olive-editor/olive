@@ -358,13 +358,6 @@ void PreviewAutoCacher::SetPlayhead(const rational &playhead)
   RequeueFrames();
 }
 
-void PreviewAutoCacher::ClearQueue(bool wait)
-{
-  ClearHashQueue(wait);
-  ClearVideoQueue(wait);
-  ClearAudioQueue(wait);
-}
-
 void PreviewAutoCacher::ClearHashQueue(bool wait)
 {
   auto copy = hash_tasks_;
@@ -539,27 +532,34 @@ void PreviewAutoCacher::RequeueFrames()
 
     QVector<rational> invalidated_ranges = viewer_node_->video_frame_cache()->GetInvalidatedFrames(using_range);
 
-    ClearVideoQueue();
-
     foreach (const rational& t, invalidated_ranges) {
       const QByteArray& hash = viewer_node_->video_frame_cache()->GetHash(t);
 
-      if (t >= using_range.in()
-          && t < using_range.out()
-          && !currently_caching_hashes_.contains(hash)) {
-        // Don't render any hash more than once
-        currently_caching_hashes_.append(hash);
+      bool currently_caching_hash = currently_caching_hashes_.contains(hash);
 
-        RenderTicketWatcher* watcher = new RenderTicketWatcher();
-        watcher->setProperty("hash", hash);
-        connect(watcher, &RenderTicketWatcher::Finished, this, &PreviewAutoCacher::VideoRendered);
-        video_tasks_.insert(watcher, hash);
-        watcher->SetTicket(RenderManager::instance()->RenderFrame(copied_viewer_node_,
-                                                                  color_manager_,
-                                                                  t,
-                                                                  RenderMode::kOffline,
-                                                                  viewer_node_->video_frame_cache(),
-                                                                  false));
+      if (t >= using_range.in()
+          && t < using_range.out()) {
+        if (!currently_caching_hash) {
+          // Don't render any hash more than once
+          currently_caching_hashes_.append(hash);
+
+          RenderTicketWatcher* watcher = new RenderTicketWatcher();
+          watcher->setProperty("hash", hash);
+          connect(watcher, &RenderTicketWatcher::Finished, this, &PreviewAutoCacher::VideoRendered);
+          video_tasks_.insert(watcher, hash);
+          watcher->SetTicket(RenderManager::instance()->RenderFrame(copied_viewer_node_,
+                                                                    color_manager_,
+                                                                    t,
+                                                                    RenderMode::kOffline,
+                                                                    viewer_node_->video_frame_cache(),
+                                                                    false));
+        }
+      } else if (currently_caching_hash) {
+        // Cancel this frame unless it's already started
+        RenderTicketWatcher* watcher = video_tasks_.key(hash);
+        if (watcher && watcher->HasStarted()) {
+          watcher->Cancel();
+        }
       }
     }
 
@@ -589,27 +589,23 @@ void PreviewAutoCacher::SetViewerNode(Sequence *viewer_node)
 
   if (viewer_node_) {
     // Cancel any remaining tickets and wait for them to finish
-    ClearQueue(true);
 
-    // Clear autocache lists
-    {
-      // We need to wait for these since they work directly on the FrameHashCache. Most of the time
-      // this is fine, but not if the FrameHashCache gets deleted after this function.
-      ClearHashQueue(true);
+    // We need to wait for these since they send signals directly to the FrameHashCache
+    // which might get deleted after this function.
+    ClearHashQueue(true);
 
-      // This can be cleared normally (frames will be discarded and need to be rendered again)
-      ClearVideoQueue(false);
+    // This can be cleared normally (frames will be discarded and need to be rendered again)
+    ClearVideoQueue(true);
 
-      // This can be cleared normally (PCM data will be discarded and need to be rendered again)
-      ClearAudioQueue(false);
+    // This can be cleared normally (PCM data will be discarded and need to be rendered again)
+    ClearAudioQueue(true);
 
-      // We'll need to wait for these since they work directly on the FrameHashCache. Frames will
-      // be in the cache for later use.
-      ClearVideoDownloadQueue(true);
+    // We'll need to wait for these since they work directly on the FrameHashCache. Frames will
+    // be in the cache for later use.
+    ClearVideoDownloadQueue(true);
 
-      // No longer caching any hashes
-      currently_caching_hashes_.clear();
-    }
+    // No longer caching any hashes
+    currently_caching_hashes_.clear();
 
     // Delete all of our copied nodes
     qDeleteAll(created_nodes_);

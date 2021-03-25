@@ -52,6 +52,8 @@ public:
 
   QVariant Get();
 
+  bool HasStarted();
+
   bool IsFinished(bool lock = true);
 
   bool WasCancelled();

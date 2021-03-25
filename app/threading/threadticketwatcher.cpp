@@ -70,6 +70,15 @@ bool RenderTicketWatcher::IsFinished()
   }
 }
 
+bool RenderTicketWatcher::HasStarted()
+{
+  if (ticket_) {
+    return ticket_->HasStarted();
+  } else {
+    return false;
+  }
+}
+
 void RenderTicketWatcher::WaitForFinished()
 {
   if (ticket_) {
