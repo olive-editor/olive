@@ -389,16 +389,18 @@ void SliderBase::ResetValue()
 
 void SliderBase::RepositionLadder()
 {
-  if (Config::Current()[QStringLiteral("UseSliderLadders")].toBool()) {
-    drag_ladder_->move(QCursor::pos() - QPoint(drag_ladder_->width()/2, drag_ladder_->height()/2));
-  } else {
-    QPoint label_global_pos = label_->mapToGlobal(label_->pos());
-    int text_width = QtUtils::QFontMetricsWidth(label_->fontMetrics(), label_->text());
+  if (drag_ladder_) {
+    if (Config::Current()[QStringLiteral("UseSliderLadders")].toBool()) {
+      drag_ladder_->move(QCursor::pos() - QPoint(drag_ladder_->width()/2, drag_ladder_->height()/2));
+    } else {
+      QPoint label_global_pos = label_->mapToGlobal(label_->pos());
+      int text_width = QtUtils::QFontMetricsWidth(label_->fontMetrics(), label_->text());
 
-    int ladder_x = label_global_pos.x() + text_width / 2 - drag_ladder_->width() / 2;
-    int ladder_y = label_global_pos.y() + label_->height() / 2 - drag_ladder_->height() / 2;
+      int ladder_x = label_global_pos.x() + text_width / 2 - drag_ladder_->width() / 2;
+      int ladder_y = label_global_pos.y() + label_->height() / 2 - drag_ladder_->height() / 2;
 
-    drag_ladder_->move(ladder_x, ladder_y);
+      drag_ladder_->move(ladder_x, ladder_y);
+    }
   }
 }
 
