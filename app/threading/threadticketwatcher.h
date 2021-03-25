@@ -44,6 +44,8 @@ public:
 
   bool IsFinished();
 
+  bool HasStarted();
+
   void WaitForFinished();
 
   QVariant Get();

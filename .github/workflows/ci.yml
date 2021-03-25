@@ -36,28 +36,20 @@ jobs:
             compiler-name: GCC 9.3.1
             cmake-gen: Ninja
             os-name: Linux (CentOS 7)
-            vfx-cy: 2021
-            ci-common-version: 2
           - build-type: RelWithDebInfo
             cc-compiler: clang
             cxx-compiler: clang++
             compiler-name: Clang 10.0.0
             cmake-gen: Ninja
             os-name: Linux (CentOS 7)
-            vfx-cy: 2021
-            ci-common-version: 2
     name: |
       ${{ matrix.os-name }}
       <${{ matrix.compiler-name }},
        ${{ matrix.build-type }},
-       ${{ matrix.cmake-gen }},
-       VFX CY${{ matrix.vfx-cy }},
-       CI Common Version ${{ matrix.ci-common-version }}>
+       ${{ matrix.cmake-gen }}>
     runs-on: ubuntu-latest
     container:
-      image: olivevideoeditor/ci-olive:${{ matrix.vfx-cy }}.${{ matrix.ci-common-version }}
-    if: >-
-      !contains(github.event.head_commit.message, '[skip ci]')
+      image: olivevideoeditor/ci-olive:2021.3
 
     steps:
       - name: Checkout Source Code
@@ -138,8 +130,6 @@ jobs:
        ${{ matrix.build-type }},
        ${{ matrix.cmake-gen }}>
     runs-on: ${{ matrix.os }}
-    if: >-
-      !contains(github.event.head_commit.message, '[skip ci]')
 
     steps:
       - name: Checkout Source Code
@@ -277,15 +267,13 @@ jobs:
             os: macos-latest
             cmake-gen: Ninja
     env:
-      EXTRACT_TOOL: sudo unzip -d /usr/local -o
+      DEP_LOCATION: /opt/olive-editor
     name: |
       ${{ matrix.os-name }}
       <${{ matrix.compiler-name }},
        ${{ matrix.build-type }},
        ${{ matrix.cmake-gen }}>
     runs-on: ${{ matrix.os }}
-    if: >-
-      !contains(github.event.head_commit.message, '[skip ci]')
 
     steps:
       - name: Checkout Source Code
@@ -303,54 +291,20 @@ jobs:
         run: |
           cmake -E make_directory ${{ runner.workspace }}/build
 
-      - name: Acquire Qt
-        uses: jurplel/install-qt-action@v2
-        with:
-          version: 5.15.1
-
-      - name: Acquire FFmpeg
+      - name: Acquire Dependencies
         shell: bash
+        working-directory: ${{ runner.workspace }}
         run: |
-          $DOWNLOAD_TOOL https://olivevideoeditor.org/deps/ffmpeg-mac.zip
-          $EXTRACT_TOOL ffmpeg-mac.zip
-
-      - name: Acquire OpenColorIO
-        shell: bash
-        run: |
-          $DOWNLOAD_TOOL https://olivevideoeditor.org/deps/ocio-mac.zip
-          $EXTRACT_TOOL ocio-mac.zip
-
-      - name: Acquire OpenTimelineIO
-        shell: bash
-        run: |
-          $DOWNLOAD_TOOL https://olivevideoeditor.org/deps/otio-mac.zip
-          $EXTRACT_TOOL otio-mac.zip
-
-      - name: Acquire OpenEXR
-        shell: bash
-        run: |
-          $DOWNLOAD_TOOL https://olivevideoeditor.org/deps/openexr-mac.zip
-          $EXTRACT_TOOL openexr-mac.zip
-
-      - name: Acquire OpenImageIO
-        shell: bash
-        run: |
-          $DOWNLOAD_TOOL https://olivevideoeditor.org/deps/oiio-mac.zip
-          $EXTRACT_TOOL oiio-mac.zip
-
-      - name: Acquire Crashpad
-        shell: bash
-        run: |
-          $DOWNLOAD_TOOL https://olivevideoeditor.org/deps/crashpad-mac.zip
-          $EXTRACT_TOOL crashpad-mac.zip
+          $DOWNLOAD_TOOL https://github.com/olive-editor/dependencies/releases/download/continuous/olive-dep-mac-x86_64.tar.gz
+          sudo tar xzf olive-dep-mac-x86_64.tar.gz -C /
 
       - name: Configure CMake
         shell: bash
         working-directory: ${{ runner.workspace }}/build
         run: |
           brew install ninja
-          PATH=$GITHUB_WORKSPACE:$PATH \
-            cmake $GITHUB_WORKSPACE -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}"
+          PATH=$DEP_LOCATION:$PATH \
+            cmake $GITHUB_WORKSPACE -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}" -DCMAKE_INSTALL_PREFIX=$DEP_LOCATION
 
       - name: Build
         working-directory: ${{ runner.workspace }}/build
@@ -366,17 +320,23 @@ jobs:
 
       - name: Create Package
         working-directory: ${{ runner.workspace }}/build
+        env:
+          BUNDLE_NAME: "Olive.app"
         shell: bash
         run: |
-          export BUNDLE_NAME=Olive.app
           mv app/$BUNDLE_NAME .
-
-          # HACK: OCIO doesn't link it's library properly so we need to manually correct
-          install_name_tool -change libOpenColorIO.1.dylib @rpath/libOpenColorIO.1.dylib $BUNDLE_NAME/Contents/MacOS/Olive
-
-          macdeployqt $BUNDLE_NAME
+          $DEP_LOCATION/bin/macdeployqt $BUNDLE_NAME
           $DOWNLOAD_TOOL https://github.com/arl/macdeployqtfix/raw/master/macdeployqtfix.py
-          python2 macdeployqtfix.py $BUNDLE_NAME/Contents/MacOS/Olive /usr/local/Cellar/qt5/5.*/
+          python2 macdeployqtfix.py $BUNDLE_NAME/Contents/MacOS/Olive $DEP_LOCATION
+
+          # Manual fixes
+          cp $DEP_LOCATION/lib/libopentimelineio.dylib $BUNDLE_NAME/Contents/Frameworks
+          cp $DEP_LOCATION/lib/libopentime.dylib $BUNDLE_NAME/Contents/Frameworks
+          cp $DEP_LOCATION/lib/libmodplug.dylib $BUNDLE_NAME/Contents/Frameworks
+          install_name_tool -change @loader_path/libopentimelineio.dylib @rpath/libopentimelineio.dylib $BUNDLE_NAME/Contents/MacOS/Olive
+          install_name_tool -change @loader_path/libopentime.dylib @rpath/libopentime.dylib $BUNDLE_NAME/Contents/MacOS/Olive
+          install_name_tool -change libmodplug.dylib @rpath/libmodplug.dylib $BUNDLE_NAME/Contents/Frameworks/libavformat.*
+          install_name_tool -change libmodplug.dylib @rpath/libmodplug.dylib $BUNDLE_NAME/Contents/Frameworks/libavfilter.*
 
       - name: Deploy Packages
         working-directory: ${{ runner.workspace }}/build

@@ -74,15 +74,6 @@ public:
    */
   void SetPlayhead(const rational& playhead);
 
-  /**
-   * @brief Clears queue of running jobs
-   *
-   * Any jobs that haven't run yet are cancelled and will never run. Any jobs that are currently
-   * running are cancelled, but may not be finished by the time this function returns. If the
-   * jobs must be finished by the time this function returns, set `wait` to TRUE.
-   */
-  void ClearQueue(bool wait = false);
-
   void ClearHashQueue(bool wait = false);
   void ClearVideoQueue(bool wait = false);
   void ClearAudioQueue(bool wait = false);
@@ -161,6 +152,7 @@ private:
   QMap<RenderTicketWatcher*, TimeRange> audio_tasks_;
   QMap<RenderTicketWatcher*, QByteArray> video_tasks_;
   QMap<RenderTicketWatcher*, QByteArray> video_download_tasks_;
+  QVector<RenderTicketWatcher*> single_frame_tasks_;
 
   QVector<QByteArray> currently_caching_hashes_;
 

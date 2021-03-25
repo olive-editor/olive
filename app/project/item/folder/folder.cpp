@@ -50,13 +50,13 @@ void Folder::Retranslate()
 
 bool ChildExistsWithNameInternal(const Folder* n, const QString& s)
 {
-  foreach (const Node::OutputConnection& c, n->output_connections()) {
-    Node* connected = c.second.node();
+  for (int i=0; i<n->item_child_count(); i++) {
+    Node* child = n->item_child(i);
 
-    if (connected->GetLabel() == s) {
+    if (child->GetLabel() == s) {
       return true;
     } else {
-      Folder* subfolder = dynamic_cast<Folder*>(connected);
+      Folder* subfolder = dynamic_cast<Folder*>(child);
 
       if (subfolder && ChildExistsWithNameInternal(subfolder, s)) {
         return true;

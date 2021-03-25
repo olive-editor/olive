@@ -2,13 +2,17 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # Build image (default):
-#  docker build -t olivevideoeditor/ci-olive:2021.2 -f ci-olive/Dockerfile .
+#  docker build -t olivevideoeditor/ci-olive:2021.3 -f ci-olive/Dockerfile .
+#
+# .n is the build image revision number. It should be incremented each time a
+# new image is published (also update the GitHub Actions workflow!).
+# This allows to revert to a previous image should something go wrong.
 
 ARG OLIVE_ORG=olivevideoeditor
 ARG ASWF_PKG_ORG=aswftesting
 ARG CI_COMMON_VERSION=2
 ARG VFXPLATFORM_VERSION=2021
-ARG OCIO_VERSION=2.0
+ARG OCIO_VERSION=2.0.0
 ARG FFMPEG_VERSION=4.2.4
 
 FROM ${ASWF_PKG_ORG}/ci-package-qt:${VFXPLATFORM_VERSION} as ci-package-qt
@@ -16,6 +20,8 @@ FROM ${ASWF_PKG_ORG}/ci-package-python:${VFXPLATFORM_VERSION} as ci-package-pyth
 FROM ${ASWF_PKG_ORG}/ci-package-boost:${VFXPLATFORM_VERSION} as ci-package-boost
 FROM ${ASWF_PKG_ORG}/ci-package-openexr:${VFXPLATFORM_VERSION} as ci-package-openexr
 FROM ${ASWF_PKG_ORG}/ci-package-oiio:${VFXPLATFORM_VERSION} as ci-package-oiio
+#FROM ${ASWF_PKG_ORG}/ci-package-ocio:${VFXPLATFORM_VERSION}-${OCIO_VERSION} as ci-package-ocio
+# Our package is compiled as RelWithDebInfo
 FROM ${OLIVE_ORG}/ci-package-ocio:${VFXPLATFORM_VERSION}-${OCIO_VERSION} as ci-package-ocio
 FROM ${OLIVE_ORG}/ci-package-ffmpeg:${FFMPEG_VERSION} as ci-package-ffmpeg
 FROM ${OLIVE_ORG}/ci-package-crashpad:latest as ci-package-crashpad
@@ -50,6 +56,7 @@ COPY --from=ci-package-ocio /. /usr/local/
 COPY --from=ci-package-ffmpeg /. /usr/local/
 COPY --from=ci-package-crashpad /. /usr/local/
 COPY --from=ci-package-otio /. /usr/local/
+COPY scripts/build_olive.sh /tmp/
 
 RUN curl --location "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage" \
       -o "/usr/local/linuxdeployqt-x86_64.AppImage" && \

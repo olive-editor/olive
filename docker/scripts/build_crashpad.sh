@@ -77,6 +77,6 @@ mkdir breakpad
 cd breakpad
 fetch breakpad
 cd src
-./configure --prefix="${OLIVE_INSTALL_PREFIX}/breakpad"
+./configure --prefix="${OLIVE_INSTALL_PREFIX}"
 make
 make install -j$(nproc)
