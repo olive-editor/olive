@@ -52,6 +52,7 @@ COPY --from=ci-package-ocio /. /usr/local/
 COPY --from=ci-package-ffmpeg /. /usr/local/
 COPY --from=ci-package-crashpad /. /usr/local/
 COPY --from=ci-package-otio /. /usr/local/
+COPY scripts/build_olive.sh /tmp/
 
 RUN curl --location "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage" \
       -o "/usr/local/linuxdeployqt-x86_64.AppImage" && \
