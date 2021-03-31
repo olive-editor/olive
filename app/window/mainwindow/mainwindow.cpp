@@ -154,7 +154,7 @@ MainWindowLayoutInfo MainWindow::SaveLayout() const
 
   foreach (ProjectPanel* panel, folder_panels_) {
     if (panel->project()) {
-      info.add_folder(static_cast<Folder*>(panel->get_root_index().internalPointer()));
+      info.add_folder(panel->get_root());
     }
   }
 

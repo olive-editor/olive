@@ -103,9 +103,9 @@ void ProjectPanel::set_project(Project* p)
   }
 }
 
-QModelIndex ProjectPanel::get_root_index() const
+Folder *ProjectPanel::get_root() const
 {
-  return explorer_->get_root_index();
+  return explorer_->get_root();
 }
 
 void ProjectPanel::set_root(Folder *item)
@@ -170,7 +170,7 @@ void ProjectPanel::Edit(Node* item)
 
 void ProjectPanel::Retranslate()
 {
-  if (explorer_->get_root_index().isValid()) {
+  if (project() && explorer_->get_root() != project()->root()) {
     SetTitle(tr("Folder"));
   } else {
     SetTitle(tr("Project"));
@@ -207,10 +207,10 @@ void ProjectPanel::UpdateSubtitle()
   if (project()) {
     QString project_title = QStringLiteral("[*]%1").arg(project()->name());
 
-    if (explorer_->get_root_index().isValid()) {
+    if (explorer_->get_root() != project()->root()) {
       QString folder_path;
 
-      Folder* item = static_cast<Folder*>(explorer_->get_root_index().internalPointer());
+      Folder* item = explorer_->get_root();
 
       do {
         folder_path.prepend(QStringLiteral("/%1").arg(item->GetLabel()));

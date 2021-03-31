@@ -40,7 +40,7 @@ public:
   Project* project() const;
   void set_project(Project* p);
 
-  QModelIndex get_root_index() const;
+  Folder *get_root() const;
 
   void set_root(Folder* item);
 
