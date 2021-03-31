@@ -511,9 +511,15 @@ void ProjectExplorer::set_project(Project *p)
   model_.set_project(p);
 }
 
-QModelIndex ProjectExplorer::get_root_index() const
+Folder *ProjectExplorer::get_root() const
 {
-  return tree_view_->rootIndex();
+  QModelIndex root_index = sort_model_.mapToSource(tree_view_->rootIndex());
+
+  if (!root_index.isValid()) {
+    return project()->root();
+  }
+
+  return static_cast<Folder *>(root_index.internalPointer());
 }
 
 void ProjectExplorer::set_root(Folder *item)

@@ -282,7 +282,8 @@ bool PreviewAutoCacher::HasActiveJobs() const
 {
   return !hash_tasks_.isEmpty()
       || !audio_tasks_.isEmpty()
-      || !video_tasks_.isEmpty();
+      || !video_tasks_.isEmpty()
+      || !single_frame_tasks_.isEmpty();
 }
 
 void PreviewAutoCacher::AddNode(Node *node)
@@ -377,15 +378,21 @@ void PreviewAutoCacher::ClearHashQueue(bool wait)
 void PreviewAutoCacher::ClearVideoQueue(bool wait)
 {
   // Copy because tasks that cancel immediately will be automatically removed from the list
-  auto copy = video_tasks_;
+  auto vt_copy = video_tasks_;
+  auto sft_copy = single_frame_tasks_;
 
-  for (auto it=copy.cbegin(); it!=copy.cend(); it++) {
+  for (auto it=vt_copy.cbegin(); it!=vt_copy.cend(); it++) {
     it.key()->Cancel();
   }
+  foreach (RenderTicketWatcher* watcher, sft_copy) {
+    watcher->Cancel();
+  }
   if (wait) {
-    copy = video_tasks_;
-    for (auto it=copy.cbegin(); it!=copy.cend(); it++) {
+    for (auto it=vt_copy.cbegin(); it!=vt_copy.cend(); it++) {
       it.key()->WaitForFinished();
+    }
+    foreach (RenderTicketWatcher* watcher, sft_copy) {
+      watcher->WaitForFinished();
     }
   }
 
@@ -605,13 +612,6 @@ void PreviewAutoCacher::SetViewerNode(Sequence *viewer_node)
     // We'll need to wait for these since they work directly on the FrameHashCache. Frames will
     // be in the cache for later use.
     ClearVideoDownloadQueue(true);
-
-    // Wait for any single frame renders to finish
-    foreach (RenderTicketWatcher* watcher, single_frame_tasks_) {
-      watcher->Cancel();
-      watcher->WaitForFinished();
-    }
-    single_frame_tasks_.clear();
 
     // Clear any single frame render that might be queued
     single_frame_render_ = nullptr;

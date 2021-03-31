@@ -491,16 +491,20 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
   frag_vbo_.release();
 
   int vertex_location = shader->attributeLocation("a_position");
-  vert_vbo_.bind();
-  functions_->glEnableVertexAttribArray(vertex_location);
-  functions_->glVertexAttribPointer(vertex_location, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-  vert_vbo_.release();
+  if (vertex_location != -1) {
+    vert_vbo_.bind();
+    functions_->glEnableVertexAttribArray(vertex_location);
+    functions_->glVertexAttribPointer(vertex_location, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+    vert_vbo_.release();
+  }
 
   int tex_location = shader->attributeLocation("a_texcoord");
-  frag_vbo_.bind();
-  functions_->glEnableVertexAttribArray(tex_location);
-  functions_->glVertexAttribPointer(tex_location, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
-  frag_vbo_.release();
+  if (tex_location != -1) {
+    frag_vbo_.bind();
+    functions_->glEnableVertexAttribArray(tex_location);
+    functions_->glVertexAttribPointer(tex_location, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+    frag_vbo_.release();
+  }
 
   // Some shaders optimize through multiple iterations which requires ping-ponging textures
   // - If there are only two iterations, we can just create one backend texture and then the

@@ -124,6 +124,8 @@ public:
 
       preset_file.close();
     }
+
+    qDeleteAll(custom_preset_data_);
   }
 
   QString GetPresetName(QString start) const
