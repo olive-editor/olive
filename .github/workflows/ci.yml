@@ -316,7 +316,7 @@ jobs:
         working-directory: ${{ runner.workspace }}/build
         run: |
           brew install ninja
-          PATH=$DEP_LOCATION:$PATH \
+          PATH=$DEP_LOCATION:$DEP_LOCATION/crashpad:$PATH \
             cmake $GITHUB_WORKSPACE -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}" -DCMAKE_INSTALL_PREFIX=$DEP_LOCATION
 
       - name: Build
