@@ -51,9 +51,7 @@ MainWindow::MainWindow(QWidget *parent) :
   taskbar_interface_ = nullptr;
 #endif
 
-#ifdef Q_OS_LINUX
-  checked_graphics_vendor_ = false;
-#endif
+  first_show_ = true;
 
   // Create empty central widget - we don't actually want a central widget (so we set its maximum
   // size to 0,0) but some of Qt's docking/undocking fails without it
@@ -646,10 +644,10 @@ void MainWindow::showEvent(QShowEvent *e)
 
   QMainWindow::showEvent(e);
 
-  QMetaObject::invokeMethod(Core::instance(), "CheckForAutoRecoveries", Qt::QueuedConnection);
+  if (first_show_) {
+    QMetaObject::invokeMethod(Core::instance(), "CheckForAutoRecoveries", Qt::QueuedConnection);
 
 #ifdef Q_OS_LINUX
-  if (!checked_graphics_vendor_) {
     // Check for nouveau since that driver really doesn't work with Olive
     QOffscreenSurface surface;
     surface.create();
@@ -662,9 +660,9 @@ void MainWindow::showEvent(QShowEvent *e)
       QMetaObject::invokeMethod(this, "ShowNouveauWarning", Qt::QueuedConnection);
     }
 
-    checked_graphics_vendor_ = true;
-  }
+    first_show_ = false;
 #endif
+  }
 }
 
 template<typename T>

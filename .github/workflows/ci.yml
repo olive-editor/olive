@@ -102,7 +102,7 @@ jobs:
           # Package AppImage
           $DOWNLOAD_TOOL https://github.com/AppImage/AppImageKit/releases/download/12/appimagetool-x86_64.AppImage
           chmod +x appimagetool-x86_64.AppImage
-          VERSION=${GITHUB_SHA::8} ./appimagetool-x86_64.AppImage appdir
+          VERSION=${GITHUB_SHA::8} ./appimagetool-x86_64.AppImage appdir --appimage-extract-and-run
 
           # Set env variables
           filename=$(echo Olive*.AppImage)
