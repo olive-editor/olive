@@ -240,4 +240,13 @@ bool FileFunctions::RenameFileAllowOverwrite(const QString &from, const QString 
   return true;
 }
 
+QString FileFunctions::GetFormattedExecutableForPlatform(QString unformatted)
+{
+#ifdef Q_OS_WINDOWS
+  unformatted.append(QStringLiteral(".exe"));
+#endif
+
+  return unformatted;
+}
+
 }
