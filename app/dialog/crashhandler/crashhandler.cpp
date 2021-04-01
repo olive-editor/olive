@@ -137,6 +137,7 @@ void CrashHandlerDialog::GenerateReport()
   QString stackwalk_filename = FileFunctions::GetFormattedExecutableForPlatform(QStringLiteral("minidump_stackwalk"));
 
   qDebug() << "Looking for symbols in:" << GetSymbolPath();
+  qDebug() << "Reading report:" << report_filename_;
 
   QString stackwalk_bin = QDir(qApp->applicationDirPath()).filePath(stackwalk_filename);
   p->start(stackwalk_bin, {report_filename_, GetSymbolPath()});
