@@ -637,9 +637,9 @@ void MainWindow::showEvent(QShowEvent *e)
   // CRASH CODE - This is specifically designed to crash in order to test handling behavior.
   QTimer *timebomb = new QTimer(this);
   connect(timebomb, &QTimer::timeout, this, []{
-    ::raise(SIGSEGV);
-    //int *ptr = nullptr;
-    //qDebug() << *ptr << ptr[2];
+    //::raise(SIGSEGV);
+    int *ptr = nullptr;
+    qDebug() << *ptr << ptr[2];
   });
   timebomb->setInterval(5000);
   timebomb->start();
