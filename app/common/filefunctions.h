@@ -84,6 +84,8 @@ public:
    */
   static bool RenameFileAllowOverwrite(const QString& from, const QString& to);
 
+  static QString GetFormattedExecutableForPlatform(QString unformatted);
+
 };
 
 

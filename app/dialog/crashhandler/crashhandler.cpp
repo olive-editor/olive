@@ -37,6 +37,7 @@
 #include <QVBoxLayout>
 
 #include "common/crashpadutils.h"
+#include "common/filefunctions.h"
 
 namespace olive {
 
@@ -107,6 +108,21 @@ void CrashHandlerDialog::SetGUIObjectsEnabled(bool e)
   dont_send_btn_->setEnabled(e);
 }
 
+QString CrashHandlerDialog::GetSymbolPath()
+{
+  QString symbols_path;
+
+#if defined(OS_WIN)
+  symbols_path = app_path.filePath(QStringLiteral("symbols"));
+#elif defined(OS_LINUX)
+  symbols_path = app_path.filePath(QStringLiteral("../share/olive-editor/symbols"));
+#elif defined(OS_APPLE)
+  symbols_path = app_path.filePath(QStringLiteral("../Resources/symbols"));
+#endif
+
+  return symbols_path;
+}
+
 void CrashHandlerDialog::GenerateReport()
 {
   QProcess* p = new QProcess();
@@ -117,18 +133,10 @@ void CrashHandlerDialog::GenerateReport()
 
   QDir app_path(qApp->applicationDirPath());
 
-  QString stackwalk_filename = QStringLiteral("minidump_stackwalk");
-  QString symbols_path;
-
-#if defined(OS_WIN)
-  stackwalk_filename.append(QStringLiteral(".exe"));
-  symbols_path = app_path.filePath(QStringLiteral("symbols"));
-#elif defined(Q_OS_LINUX)
-  symbols_path = app_path.filePath(QStringLiteral("../share/olive-editor/symbols"));
-#endif
+  QString stackwalk_filename = FileFunctions::GetFormattedExecutableForPlatform(QStringLiteral("minidump_stackwalk"));
 
   QString stackwalk_bin = app_path.filePath(stackwalk_filename);
-  p->start(stackwalk_bin, {report_filename_, symbols_path});
+  p->start(stackwalk_bin, {report_filename_, GetSymbolPath()});
   crash_report_->setText(QStringLiteral("Trying to run: %1").arg(stackwalk_bin));
 }
 
@@ -237,25 +245,17 @@ void CrashHandlerDialog::SendErrorReport()
   multipart->append(dump_part);
 
   // Find symbol file
-  QDir symbol_dir(QDir(qApp->applicationDirPath()).filePath(QStringLiteral("symbols")));
+  QDir symbol_dir(GetSymbolPath());
 #ifdef Q_OS_WINDOWS
   symbol_dir = QDir(symbol_dir.filePath(QStringLiteral("olive-editor.pdb")));
 #else
   symbol_dir = QDir(symbol_dir.filePath(QStringLiteral("olive-editor")));
 #endif
-  QStringList folders_in_symbol_path = symbol_dir.entryList();
+  QStringList folders_in_symbol_path = symbol_dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
 
-  bool found = false;
-  foreach (const QString& symbol_folder, folders_in_symbol_path) {
-    if (!symbol_folder.startsWith('.')) {
-      // Assume that the first folder we find is the one with the symbols in it
-      symbol_dir = QDir(symbol_dir.filePath(symbol_folder));
-      found = true;
-      break;
-    }
-  }
-
-  if (!found) {
+  if (folders_in_symbol_path.size() > 0) {
+    symbol_dir = QDir(symbol_dir.filePath(folders_in_symbol_path.first()));
+  } else {
     QMessageBox::critical(this, tr("Failed to send report"), tr("Failed to find symbols necessary to send report. "
                                                                 "This is a packaging issue. Please notify "
                                                                 "the maintainers of this package."));

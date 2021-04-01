@@ -43,6 +43,8 @@ private:
 
   void GenerateReport();
 
+  static QString GetSymbolPath();
+
   QTextEdit* summary_edit_;
 
   QTextEdit* crash_report_;
