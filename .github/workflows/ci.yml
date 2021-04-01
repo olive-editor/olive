@@ -96,9 +96,9 @@ jobs:
           /usr/local/linuxdeployqt-x86_64.AppImage \
           appdir/usr/share/applications/org.olivevideoeditor.Olive.desktop \
           -appimage \
-          -executable appdir/usr/bin/crashpad_handler \
-          -executable appdir/usr/bin/minidump_stackwalk \
-          -executable appdir/usr/bin/olive-crashhandler \
+          -executable=appdir/usr/bin/crashpad_handler \
+          -executable=appdir/usr/bin/minidump_stackwalk \
+          -executable=appdir/usr/bin/olive-crashhandler \
           --appimage-extract-and-run
           filename=$(echo Olive*.AppImage)
           pkgname="${filename/x86_64/Linux-x86_64}"
