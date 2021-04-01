@@ -116,7 +116,6 @@ void CrashHandlerDialog::GenerateReport()
   connect(p, &QProcess::readyReadStandardOutput, this, &CrashHandlerDialog::ReadProcessHasData);
 
   QDir app_path(qApp->applicationDirPath());
-  QString stackwalk_bin = app_path.filePath(stackwalk_filename);
 
   QString stackwalk_filename = QStringLiteral("minidump_stackwalk");
   QString symbols_path;
@@ -128,6 +127,7 @@ void CrashHandlerDialog::GenerateReport()
   symbols_path = app_path.filePath(QStringLiteral("../share/olive-editor/symbols"));
 #endif
 
+  QString stackwalk_bin = app_path.filePath(stackwalk_filename);
   p->start(stackwalk_bin, {report_filename_, symbols_path});
   crash_report_->setText(QStringLiteral("Trying to run: %1").arg(stackwalk_bin));
 }
