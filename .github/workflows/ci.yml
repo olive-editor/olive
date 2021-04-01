@@ -84,7 +84,7 @@ jobs:
           cmake --install app --prefix appdir/usr
 
           # Dump Crashpad symbols
-          dump_syms app/olive-editor > olive-editor.sym
+          dump_syms appdir/usr/bin/olive-editor > olive-editor.sym
           #SYM_HEADER=($(head -n 1 olive-editor.sym)) # Read first line of symbol file
           #SYM_DIR=appdir/usr/share/olive-editor/symbols/olive-editor/${SYM_HEADER[3]}
           # HACK: For some reason, minidump_stackwalk reads identifier as all 0s
