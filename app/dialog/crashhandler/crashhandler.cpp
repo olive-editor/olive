@@ -116,9 +116,11 @@ QString CrashHandlerDialog::GetSymbolPath()
 #if defined(OS_WIN)
   symbols_path = app_path.filePath(QStringLiteral("symbols"));
 #elif defined(OS_LINUX)
-  symbols_path = app_path.filePath(QStringLiteral("../share/olive-editor/symbols"));
+  app_path.cdUp();
+  symbols_path = app_path.filePath(QStringLiteral("share/olive-editor/symbols"));
 #elif defined(OS_APPLE)
-  symbols_path = app_path.filePath(QStringLiteral("../Resources/symbols"));
+  app_path.cdUp();
+  symbols_path = app_path.filePath(QStringLiteral("Resources/symbols"));
 #endif
 
   return symbols_path;

@@ -117,6 +117,7 @@ private:
   double dragged_diff_;
 
   QVariant temp_dragged_value_;
+  QVariant clamped_temp_dragged_value_;
 
   QVariant offset_;
 
