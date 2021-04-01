@@ -135,6 +135,8 @@ void CrashHandlerDialog::GenerateReport()
 
   QString stackwalk_filename = FileFunctions::GetFormattedExecutableForPlatform(QStringLiteral("minidump_stackwalk"));
 
+  qDebug() << "Looking for symbols in:" << GetSymbolPath();
+
   QString stackwalk_bin = app_path.filePath(stackwalk_filename);
   p->start(stackwalk_bin, {report_filename_, GetSymbolPath()});
   crash_report_->setText(QStringLiteral("Trying to run: %1").arg(stackwalk_bin));
@@ -265,6 +267,7 @@ void CrashHandlerDialog::SendErrorReport()
   // Create sym section
   QString symbol_filename = QStringLiteral("olive-editor.sym");
   QString symbol_full_path = symbol_dir.filePath(symbol_filename);
+  qDebug() << "Tried to access symbol:" << symbol_full_path;
   QHttpPart sym_part;
   sym_part.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/octet-stream"));
   sym_part.setHeader(QNetworkRequest::ContentDispositionHeader, QStringLiteral("form-data; name=\"sym\"; filename=\"%1\"")
