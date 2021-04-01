@@ -101,7 +101,7 @@ jobs:
 
           # Package AppImage
           $DOWNLOAD_TOOL https://github.com/AppImage/AppImageKit/releases/download/12/appimagetool-x86_64.AppImage
-          chmod_+x appimagetool-x86_64.AppImage
+          chmod +x appimagetool-x86_64.AppImage
           VERSION=${GITHUB_SHA::8} ./appimagetool-x86_64.AppImage appdir
 
           # Set env variables
