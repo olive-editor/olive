@@ -37,7 +37,7 @@ Project::Project() :
   autorecovery_saved_(true)
 {
   // Generate UUID for this project
-  uuid_ = QUuid::createUuid();
+  RegenerateUuid();
 
   // Adds a color manager "node" to this project so that it synchronizes
   color_manager_ = new ColorManager();
@@ -286,6 +286,11 @@ QString Project::cache_path() const
   }
 
   return DiskManager::instance()->GetDefaultCachePath();
+}
+
+void Project::RegenerateUuid()
+{
+  uuid_ = QUuid::createUuid();
 }
 
 void Project::ColorManagerValueChanged(const NodeInput &input, const TimeRange &range)

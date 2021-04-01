@@ -83,6 +83,8 @@ public:
     return uuid_;
   }
 
+  void RegenerateUuid();
+
 signals:
   void NameChanged();
 
