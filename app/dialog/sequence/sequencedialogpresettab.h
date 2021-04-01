@@ -68,8 +68,6 @@ private:
 
   QVector<Preset*> default_preset_data_;
 
-  QVector<Preset*> child_presets_;
-
 private slots:
   void SelectedItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
 

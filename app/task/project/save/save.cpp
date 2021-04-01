@@ -37,8 +37,10 @@ ProjectSaveTask::ProjectSaveTask(Project *project) :
 
 bool ProjectSaveTask::Run()
 {
+  QString using_filename = override_filename_.isEmpty() ? project_->filename() : override_filename_;
+
   // File to temporarily save to (ensures we can't half-write the user's main file and crash)
-  QString temp_save = FileFunctions::GetSafeTemporaryFilename(project_->filename());
+  QString temp_save = FileFunctions::GetSafeTemporaryFilename(using_filename);
 
   QFile project_file(temp_save);
 
@@ -54,7 +56,7 @@ bool ProjectSaveTask::Run()
     // Allows easy integer math for checking project versions.
     writer.writeTextElement(QStringLiteral("version"), QString::number(Core::kProjectVersion));
 
-    writer.writeTextElement("url", project_->filename());
+    writer.writeTextElement("url", using_filename);
 
     writer.writeStartElement(QStringLiteral("project"));
 
@@ -74,11 +76,11 @@ bool ProjectSaveTask::Run()
     }
 
     // Save was successful, we can now rewrite the original file
-    if (FileFunctions::RenameFileAllowOverwrite(temp_save, project_->filename())) {
+    if (FileFunctions::RenameFileAllowOverwrite(temp_save, using_filename)) {
       return true;
     } else {
       SetError(tr("Failed to overwrite \"%1\". Project has been saved as \"%2\" instead.")
-               .arg(project_->filename(), temp_save));
+               .arg(using_filename, temp_save));
       return false;
     }
   } else {

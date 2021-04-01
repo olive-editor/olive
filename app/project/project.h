@@ -78,12 +78,19 @@ public:
     return footage_viewer_;
   }
 
+  const QUuid& GetUuid() const
+  {
+    return uuid_;
+  }
+
 signals:
   void NameChanged();
 
   void ModifiedChanged(bool e);
 
 private:
+  QUuid uuid_;
+
   Folder* root_;
 
   QString filename_;

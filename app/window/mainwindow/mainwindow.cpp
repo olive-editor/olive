@@ -154,7 +154,7 @@ MainWindowLayoutInfo MainWindow::SaveLayout() const
 
   foreach (ProjectPanel* panel, folder_panels_) {
     if (panel->project()) {
-      info.add_folder(static_cast<Folder*>(panel->get_root_index().internalPointer()));
+      info.add_folder(panel->get_root());
     }
   }
 
@@ -643,6 +643,8 @@ void MainWindow::showEvent(QShowEvent *e)
   timebomb->start();
 
   QMainWindow::showEvent(e);
+
+  QMetaObject::invokeMethod(Core::instance(), "CheckForAutoRecoveries", Qt::QueuedConnection);
 
 #ifdef Q_OS_LINUX
   if (!checked_graphics_vendor_) {

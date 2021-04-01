@@ -66,7 +66,9 @@ void Config::SetDefaults()
   SetEntryInternal(QStringLiteral("DefaultStillLength"), NodeValue::kRational, QVariant::fromValue(rational(2)));
   SetEntryInternal(QStringLiteral("HoverFocus"), NodeValue::kBoolean, false);
   SetEntryInternal(QStringLiteral("AudioScrubbing"), NodeValue::kBoolean, true);
+  SetEntryInternal(QStringLiteral("AutorecoveryEnabled"), NodeValue::kBoolean, true);
   SetEntryInternal(QStringLiteral("AutorecoveryInterval"), NodeValue::kInt, 1);
+  SetEntryInternal(QStringLiteral("AutorecoveryMaximum"), NodeValue::kInt, 20);
   SetEntryInternal(QStringLiteral("DiskCacheSaveInterval"), NodeValue::kInt, 10000);
   SetEntryInternal(QStringLiteral("Language"), NodeValue::kText, QString());
   SetEntryInternal(QStringLiteral("ScrollZooms"), NodeValue::kBoolean, false);

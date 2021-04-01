@@ -36,6 +36,9 @@ Project::Project() :
   is_modified_(false),
   autorecovery_saved_(true)
 {
+  // Generate UUID for this project
+  uuid_ = QUuid::createUuid();
+
   // Adds a color manager "node" to this project so that it synchronizes
   color_manager_ = new ColorManager();
   color_manager_->setParent(this);
@@ -81,6 +84,10 @@ void Project::Load(QXmlStreamReader *reader, MainWindowLayoutInfo* layout, uint 
       // appropriately in its own thread.
 
       *layout = MainWindowLayoutInfo::fromXml(reader, xml_node_data);
+
+    } else if (reader->name() == QStringLiteral("uuid")) {
+
+      uuid_ = QUuid::fromString(reader->readElementText());
 
     } else if (reader->name() == QStringLiteral("nodes")) {
 
@@ -149,6 +156,8 @@ void Project::Load(QXmlStreamReader *reader, MainWindowLayoutInfo* layout, uint 
 
 void Project::Save(QXmlStreamWriter *writer) const
 {
+  writer->writeTextElement(QStringLiteral("uuid"), uuid_.toString());
+
   writer->writeStartElement(QStringLiteral("nodes"));
 
   foreach (Node* node, nodes()) {
@@ -231,7 +240,7 @@ bool Project::is_modified() const
 void Project::set_modified(bool e)
 {
   is_modified_ = e;
-  autorecovery_saved_ = !e;
+  set_autorecovery_saved(!e);
 
   emit ModifiedChanged(is_modified_);
 }

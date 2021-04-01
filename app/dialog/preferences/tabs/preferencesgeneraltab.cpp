@@ -21,6 +21,7 @@
 #include "preferencesgeneraltab.h"
 
 #include <QGridLayout>
+#include <QGroupBox>
 #include <QLabel>
 #include <QPushButton>
 
@@ -36,66 +37,116 @@ PreferencesGeneralTab::PreferencesGeneralTab()
   QVBoxLayout* layout = new QVBoxLayout(this);
   layout->setMargin(0);
 
-  QGridLayout* general_layout = new QGridLayout();
-  layout->addLayout(general_layout);
+  {
+    QGroupBox* global_groupbox = new QGroupBox(tr("Locale"));
+    QGridLayout* global_layout = new QGridLayout(global_groupbox);
+    layout->addWidget(global_groupbox);
 
-  int row = 0;
+    int row = 0;
 
-  // General -> Language
-  general_layout->addWidget(new QLabel(tr("Language:")), row, 0);
+    // General -> Language
+    global_layout->addWidget(new QLabel(tr("Language:")), row, 0);
 
-  language_combobox_ = new QComboBox();
+    language_combobox_ = new QComboBox();
 
-  // Add default language (en-US)
-  QDir language_dir(QStringLiteral(":/ts"));
-  QStringList languages = language_dir.entryList();
-  foreach (const QString& l, languages) {
-    AddLanguage(l);
-  }
-
-  QString current_language = Config::Current()[QStringLiteral("Language")].toString();
-  if (current_language.isEmpty()) {
-    // No configured language, use system language
-    current_language = QLocale::system().name();
-
-    // If we don't have a language for this, default to en_US
-    if (!languages.contains(current_language)) {
-      current_language = QStringLiteral("en_US");
+    // Add default language (en-US)
+    QDir language_dir(QStringLiteral(":/ts"));
+    QStringList languages = language_dir.entryList();
+    foreach (const QString& l, languages) {
+      AddLanguage(l);
     }
+
+    QString current_language = Config::Current()[QStringLiteral("Language")].toString();
+    if (current_language.isEmpty()) {
+      // No configured language, use system language
+      current_language = QLocale::system().name();
+
+      // If we don't have a language for this, default to en_US
+      if (!languages.contains(current_language)) {
+        current_language = QStringLiteral("en_US");
+      }
+    }
+    language_combobox_->setCurrentIndex(languages.indexOf(current_language));
+
+    global_layout->addWidget(language_combobox_, row, 1);
   }
-  language_combobox_->setCurrentIndex(languages.indexOf(current_language));
 
-  general_layout->addWidget(language_combobox_, row, 1);
+  {
+    QGroupBox* timeline_groupbox = new QGroupBox(tr("Timeline"));
+    QGridLayout* timeline_layout = new QGridLayout(timeline_groupbox);
+    layout->addWidget(timeline_groupbox);
 
-  row++;
+    int row = 0;
 
-  general_layout->addWidget(new QLabel(tr("Auto-Scroll Method:")), row, 0);
+    timeline_layout->addWidget(new QLabel(tr("Auto-Scroll Method:")), row, 0);
 
-  // ComboBox indices match enum indices
-  autoscroll_method_ = new QComboBox();
-  autoscroll_method_->addItem(tr("None"), AutoScroll::kNone);
-  autoscroll_method_->addItem(tr("Page Scrolling"), AutoScroll::kPage);
-  autoscroll_method_->addItem(tr("Smooth Scrolling"), AutoScroll::kSmooth);
-  autoscroll_method_->setCurrentIndex(Config::Current()["Autoscroll"].toInt());
-  general_layout->addWidget(autoscroll_method_, row, 1);
+    // ComboBox indices match enum indices
+    autoscroll_method_ = new QComboBox();
+    autoscroll_method_->addItem(tr("None"), AutoScroll::kNone);
+    autoscroll_method_->addItem(tr("Page Scrolling"), AutoScroll::kPage);
+    autoscroll_method_->addItem(tr("Smooth Scrolling"), AutoScroll::kSmooth);
+    autoscroll_method_->setCurrentIndex(Config::Current()["Autoscroll"].toInt());
+    timeline_layout->addWidget(autoscroll_method_, row, 1);
 
-  row++;
+    row++;
 
-  general_layout->addWidget(new QLabel(tr("Rectified Waveforms:")), row, 0);
+    timeline_layout->addWidget(new QLabel(tr("Rectified Waveforms:")), row, 0);
 
-  rectified_waveforms_ = new QCheckBox();
-  rectified_waveforms_->setChecked(Config::Current()["RectifiedWaveforms"].toBool());
-  general_layout->addWidget(rectified_waveforms_, row, 1);
+    rectified_waveforms_ = new QCheckBox();
+    rectified_waveforms_->setChecked(Config::Current()["RectifiedWaveforms"].toBool());
+    timeline_layout->addWidget(rectified_waveforms_, row, 1);
 
-  row++;
+    row++;
 
-  general_layout->addWidget(new QLabel(tr("Default Still Image Length:")), row, 0);
+    timeline_layout->addWidget(new QLabel(tr("Default Still Image Length:")), row, 0);
 
-  default_still_length_ = new FloatSlider();
-  default_still_length_->SetMinimum(0.1);
-  default_still_length_->SetFormat(tr("%1 second(s)"));
-  default_still_length_->SetValue(Config::Current()["DefaultStillLength"].value<rational>().toDouble());
-  general_layout->addWidget(default_still_length_);
+    default_still_length_ = new FloatSlider();
+    default_still_length_->SetMinimum(0.1);
+    default_still_length_->SetFormat(tr("%1 second(s)"));
+    default_still_length_->SetValue(Config::Current()["DefaultStillLength"].value<rational>().toDouble());
+    timeline_layout->addWidget(default_still_length_);
+  }
+
+  {
+    QGroupBox* autorecovery_groupbox = new QGroupBox(tr("Auto-Recovery"));
+    QGridLayout* autorecovery_layout = new QGridLayout(autorecovery_groupbox);
+    layout->addWidget(autorecovery_groupbox);
+
+    int row = 0;
+
+    autorecovery_layout->addWidget(new QLabel(tr("Enable Auto-Recovery:")), row, 0);
+
+    autorecovery_enabled_ = new QCheckBox();
+    autorecovery_enabled_->setChecked(Config::Current()[QStringLiteral("AutorecoveryEnabled")].toBool());
+    autorecovery_layout->addWidget(autorecovery_enabled_, row, 1);
+
+    row++;
+
+    autorecovery_layout->addWidget(new QLabel(tr("Auto-Recovery Interval:")), row, 0);
+
+    autorecovery_interval_ = new IntegerSlider();
+    autorecovery_interval_->SetMinimum(1);
+    autorecovery_interval_->SetMaximum(60);
+    autorecovery_interval_->SetFormat(tr("%1 minute(s)"));
+    autorecovery_interval_->SetValue(Config::Current()[QStringLiteral("AutorecoveryInterval")].toLongLong());
+    autorecovery_layout->addWidget(autorecovery_interval_, row, 1);
+
+    row++;
+
+    autorecovery_layout->addWidget(new QLabel(tr("Maximum Versions Per Project:")), row, 0);
+
+    autorecovery_maximum_ = new IntegerSlider();
+    autorecovery_maximum_->SetMinimum(1);
+    autorecovery_maximum_->SetMaximum(1000);
+    autorecovery_maximum_->SetValue(Config::Current()[QStringLiteral("AutorecoveryMaximum")].toLongLong());
+    autorecovery_layout->addWidget(autorecovery_maximum_, row, 1);
+
+    row++;
+
+    QPushButton* browse_autorecoveries = new QPushButton(tr("Browse Auto-Recoveries"));
+    connect(browse_autorecoveries, &QPushButton::clicked, Core::instance(), &Core::BrowseAutoRecoveries);
+    autorecovery_layout->addWidget(browse_autorecoveries, row, 1);
+  }
 
   layout->addStretch();
 }
@@ -121,6 +172,11 @@ void PreferencesGeneralTab::Accept(MultiUndoCommand *command)
     Config::Current()[QStringLiteral("Language")] = set_language;
     Core::instance()->SetLanguage(set_language.isEmpty() ? QLocale::system().name() : set_language);
   }
+
+  Config::Current()[QStringLiteral("AutorecoveryEnabled")] = autorecovery_enabled_->isChecked();
+  Config::Current()[QStringLiteral("AutorecoveryInterval")] = QVariant::fromValue(autorecovery_interval_->GetValue());
+  Config::Current()[QStringLiteral("AutorecoveryMaximum")] = QVariant::fromValue(autorecovery_maximum_->GetValue());
+  Core::instance()->SetAutorecoveryInterval(autorecovery_interval_->GetValue());
 }
 
 void PreferencesGeneralTab::AddLanguage(const QString &locale_name)
