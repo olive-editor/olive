@@ -39,6 +39,7 @@
 #include "common/xmlutils.h"
 #include "config/config.h"
 #include "dialog/about/about.h"
+#include "dialog/autorecovery/autorecoverydialog.h"
 #include "dialog/export/export.h"
 #include "dialog/footagerelink/footagerelinkdialog.h"
 #include "dialog/sequence/sequence.h"
@@ -164,6 +165,9 @@ void Core::Start()
 
 void Core::Stop()
 {
+  // Assume all projects have closed gracefully and no auto-recovery is necessary
+  QFile::remove(GetAutoRecoveryIndexFilename());
+
   // Save Config
   Config::Save();
 
@@ -667,6 +671,7 @@ void Core::StartGUI(bool full_screen)
 
   // Start autorecovery timer using the config value as its interval
   SetAutorecoveryInterval(Config::Current()["AutorecoveryInterval"].toInt());
+  connect(&autorecovery_timer_, &QTimer::timeout, this, &Core::SaveAutorecovery);
   autorecovery_timer_.start();
 
   // Load recently opened projects list
@@ -687,7 +692,7 @@ void Core::StartGUI(bool full_screen)
   }
 }
 
-void Core::SaveProjectInternal(Project* project)
+void Core::SaveProjectInternal(Project* project, const QString& override_filename)
 {
   // Create save manager
   Task* psm;
@@ -704,11 +709,19 @@ void Core::SaveProjectInternal(Project* project)
 #endif
   } else {
     psm = new ProjectSaveTask(project);
+
+    if (!override_filename.isEmpty()) {
+      // Set override filename if provided
+      static_cast<ProjectSaveTask*>(psm)->SetOverrideFilename(override_filename);
+    }
   }
 
   TaskDialog* task_dialog = new TaskDialog(psm, tr("Save Project"), main_window_);
 
-  connect(task_dialog, &TaskDialog::TaskSucceeded, this, &Core::ProjectSaveSucceeded);
+  if (override_filename.isEmpty()) {
+    // Default behavior: set as not modified and push to top of "Open Recent" dialog
+    connect(task_dialog, &TaskDialog::TaskSucceeded, this, &Core::ProjectSaveSucceeded);
+  }
 
   task_dialog->open();
 }
@@ -743,12 +756,85 @@ Sequence *Core::GetSequenceToExport()
   return nullptr;
 }
 
+QString Core::GetAutoRecoveryIndexFilename()
+{
+  return QDir(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)).filePath(QStringLiteral("unrecovered"));
+}
+
+QString Core::GetAutoRecoveryRoot()
+{
+  return QDir(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)).filePath(QStringLiteral("autorecovery"));
+}
+
 void Core::SaveAutorecovery()
 {
-  foreach (Project* p, open_projects_) {
-    if (!p->has_autorecovery_been_saved()) {
-      // FIXME: SAVE AN AUTORECOVERY PROJECT
-      p->set_autorecovery_saved(true);
+  if (Config::Current()[QStringLiteral("AutorecoveryEnabled")].toBool()) {
+    QStringList autorecoveries_saved;
+
+    foreach (Project* p, open_projects_) {
+      if (!p->has_autorecovery_been_saved()) {
+        QDir project_autorecovery_dir(QDir(GetAutoRecoveryRoot()).filePath(p->GetUuid().toString()));
+        if (project_autorecovery_dir.mkpath(QStringLiteral("."))) {
+          QString this_autorecovery_path = project_autorecovery_dir.filePath(QStringLiteral("%1.ove").arg(QString::number(QDateTime::currentSecsSinceEpoch())));
+
+          SaveProjectInternal(p, this_autorecovery_path);
+
+          p->set_autorecovery_saved(true);
+
+          autorecoveries_saved.append(project_autorecovery_dir.absolutePath());
+
+          qDebug() << "Saved auto-recovery to:" << this_autorecovery_path;
+
+          // Write human-readable real name so it's not just a UUID
+          {
+            QFile realname_file(project_autorecovery_dir.filePath(QStringLiteral("realname.txt")));
+            realname_file.open(QFile::WriteOnly);
+            realname_file.write(p->pretty_filename().toUtf8());
+            realname_file.close();
+          }
+
+          int64_t max_recoveries_per_file = Config::Current()[QStringLiteral("AutorecoveryMaximum")].toLongLong();
+
+          // Since we write an extra file, increment total allowed files by 1
+          max_recoveries_per_file++;
+
+          // Delete old entries
+          QStringList recovery_files = project_autorecovery_dir.entryList(QDir::Files | QDir::NoDotAndDotDot, QDir::Name);
+          while (recovery_files.size() > max_recoveries_per_file) {
+            bool deleted = false;
+            for (int i=0; i<recovery_files.size(); i++) {
+              const QString& f = recovery_files.at(i);
+
+              if (f.endsWith(QStringLiteral(".ove"), Qt::CaseInsensitive)) {
+                QString delete_full_path = project_autorecovery_dir.filePath(f);
+                qDebug() << "Deleted old recovery:" << delete_full_path;
+                QFile::remove(delete_full_path);
+                recovery_files.removeAt(i);
+                deleted = true;
+                break;
+              }
+            }
+
+            if (!deleted) {
+              // For some reason none of the files were deletable. Break so we don't end up in
+              // an infinite loop.
+              break;
+            }
+          }
+        } else {
+          QMessageBox::critical(main_window_, tr("Auto-Recovery Error"),
+                                tr("Failed to save auto-recovery to \"%1\". "
+                                   "Olive may not have permission to this directory.")
+                                .arg(project_autorecovery_dir.absolutePath()));
+        }
+      }
+    }
+
+    // Save index
+    QFile autorecovery_index(GetAutoRecoveryIndexFilename());
+    if (autorecovery_index.open(QFile::WriteOnly)) {
+      autorecovery_index.write(autorecoveries_saved.join('\n').toUtf8());
+      autorecovery_index.close();
     }
   }
 }
@@ -941,6 +1027,52 @@ bool Core::SaveProject(Project* p)
 void Core::ShowStatusBarMessage(const QString &s)
 {
   main_window_->statusBar()->showMessage(s);
+}
+
+void Core::OpenRecoveryProject(const QString &filename)
+{
+  OpenProjectInternal(filename);
+}
+
+void Core::CheckForAutoRecoveries()
+{
+  QFile autorecovery_index(GetAutoRecoveryIndexFilename());
+  if (autorecovery_index.exists()) {
+    // Uh-oh, we have auto-recoveries to prompt
+    if (autorecovery_index.open(QFile::ReadOnly)) {
+      QStringList recovery_filenames = QString::fromUtf8(autorecovery_index.readAll()).split('\n');
+
+      AutoRecoveryDialog ard(tr("The following projects had unsaved changes when Olive "
+                                "forcefully quit. Would you like to load them?"),
+                             recovery_filenames, true, main_window_);
+      ard.exec();
+
+      autorecovery_index.close();
+
+      // Delete recovery index since we don't need it anymore
+      QFile::remove(GetAutoRecoveryIndexFilename());
+    } else {
+      QMessageBox::critical(main_window_, tr("Auto-Recovery Error"),
+                            tr("Found auto-recoveries but failed to load the auto-recovery index. "
+                               "Auto-recover projects will have to be opened manually.\n\n"
+                               "Your recoverable projects are still available at: %1").arg(GetAutoRecoveryRoot()));
+    }
+  }
+}
+
+void Core::BrowseAutoRecoveries()
+{
+  QDir autorecovery_root(GetAutoRecoveryRoot());
+
+  // List all auto-recovery entries
+  QStringList entries = autorecovery_root.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+  for (int i=0; i<entries.size(); i++) {
+    entries[i] = autorecovery_root.filePath(entries.at(i));
+  }
+
+  AutoRecoveryDialog ard(tr("The following project versions have been auto-saved:"),
+                         entries, false, main_window_);
+  ard.exec();
 }
 
 bool Core::SaveProjectAs(Project* p)

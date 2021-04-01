@@ -298,6 +298,8 @@ public:
    */
   void ShowStatusBarMessage(const QString& s);
 
+  void OpenRecoveryProject(const QString& filename);
+
   static const uint kProjectVersion;
 
 public slots:
@@ -405,6 +407,10 @@ public slots:
    */
   void CreateNewProject();
 
+  void CheckForAutoRecoveries();
+
+  void BrowseAutoRecoveries();
+
 signals:
   /**
    * @brief Signal emitted when a project is opened
@@ -485,12 +491,16 @@ private:
   /**
    * @brief Internal function for saving a project to a file
    */
-  void SaveProjectInternal(Project *project);
+  void SaveProjectInternal(Project *project, const QString &override_filename = QString());
 
   /**
    * @brief Retrieves the currently most active sequence for exporting
    */
   Sequence* GetSequenceToExport();
+
+  static QString GetAutoRecoveryIndexFilename();
+
+  static QString GetAutoRecoveryRoot();
 
   /**
    * @brief Internal main window object

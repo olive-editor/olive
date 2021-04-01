@@ -18,40 +18,40 @@
 
 ***/
 
-#ifndef PROJECTSAVEMANAGER_H
-#define PROJECTSAVEMANAGER_H
+#ifndef AUTORECOVERYDIALOG_H
+#define AUTORECOVERYDIALOG_H
 
-#include "project/project.h"
-#include "task/task.h"
+#include <QDialog>
+#include <QTreeWidget>
+
+#include "common/define.h"
 
 namespace olive {
 
-class ProjectSaveTask : public Task
+class AutoRecoveryDialog : public QDialog
 {
   Q_OBJECT
 public:
-  ProjectSaveTask(Project* project);
+  AutoRecoveryDialog(const QString& message, const QStringList& recoveries, bool autocheck_latest, QWidget* parent);
 
-  Project* GetProject() const
-  {
-    return project_;
-  }
-
-  void SetOverrideFilename(const QString& filename)
-  {
-    override_filename_ = filename;
-  }
-
-protected:
-  virtual bool Run() override;
+public slots:
+  virtual void accept() override;
 
 private:
-  Project* project_;
+  void Init(const QString &header_text);
 
-  QString override_filename_;
+  void PopulateTree(const QStringList &recoveries, bool autocheck);
+
+  QTreeWidget* tree_widget_;
+
+  QVector<QTreeWidgetItem*> checkable_items_;
+
+  enum DataRole {
+    kFilenameRole = Qt::UserRole
+  };
 
 };
 
 }
 
-#endif // PROJECTSAVEMANAGER_H
+#endif // AUTORECOVERYDIALOG_H

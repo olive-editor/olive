@@ -635,6 +635,8 @@ void MainWindow::showEvent(QShowEvent *e)
 {
   QMainWindow::showEvent(e);
 
+  QMetaObject::invokeMethod(Core::instance(), "CheckForAutoRecoveries", Qt::QueuedConnection);
+
 #ifdef Q_OS_LINUX
   if (!checked_graphics_vendor_) {
     // Check for nouveau since that driver really doesn't work with Olive
