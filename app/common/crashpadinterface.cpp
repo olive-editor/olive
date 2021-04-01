@@ -71,13 +71,11 @@ bool LinuxExceptionHandler(int, siginfo_t*, ucontext_t*)
 
 bool InitializeCrashpad()
 {
-  QString handler_fn;
+  QString handler_fn = QStringLiteral("crashpad_handler");;
 
   // Determine filename of handler from platform
 #ifdef OS_WIN
-  handler_fn = QStringLiteral("crashpad_handler.exe");
-#else
-  handler_fn = QStringLiteral("crashpad_handler");
+  handler_fn.append(QStringLiteral(".exe"));
 #endif
 
   // Generate absolute path
