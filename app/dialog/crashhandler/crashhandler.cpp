@@ -110,6 +110,7 @@ void CrashHandlerDialog::SetGUIObjectsEnabled(bool e)
 
 QString CrashHandlerDialog::GetSymbolPath()
 {
+  QDir app_path(qApp->applicationDirPath());
   QString symbols_path;
 
 #if defined(OS_WIN)
@@ -131,13 +132,11 @@ void CrashHandlerDialog::GenerateReport()
           this, &CrashHandlerDialog::ReadProcessFinished);
   connect(p, &QProcess::readyReadStandardOutput, this, &CrashHandlerDialog::ReadProcessHasData);
 
-  QDir app_path(qApp->applicationDirPath());
-
   QString stackwalk_filename = FileFunctions::GetFormattedExecutableForPlatform(QStringLiteral("minidump_stackwalk"));
 
   qDebug() << "Looking for symbols in:" << GetSymbolPath();
 
-  QString stackwalk_bin = app_path.filePath(stackwalk_filename);
+  QString stackwalk_bin = QDir(qApp->applicationDirPath()).filePath(stackwalk_filename);
   p->start(stackwalk_bin, {report_filename_, GetSymbolPath()});
   crash_report_->setText(QStringLiteral("Trying to run: %1").arg(stackwalk_bin));
 }
