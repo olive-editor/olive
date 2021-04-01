@@ -378,7 +378,7 @@ void NodeViewItem::DrawNodeTitle(QPainter* painter, QString text, const QRectF& 
   int icon_padding = title_bar_rect_.height() / 2 - icon_size / 2;
   int icon_full_size = icon_size + icon_padding * 2;
   const QIcon& expand_icon = IsExpanded() ? icon::TriDown : icon::TriRight;
-  int icon_size_scaled = icon_size * painter->matrix().m11();
+  int icon_size_scaled = icon_size * painter->transform().m11();
   painter->drawPixmap(QRect(title_bar_rect_.x() + icon_padding,
                             title_bar_rect_.y() + icon_padding,
                             icon_size,
