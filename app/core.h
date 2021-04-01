@@ -572,7 +572,7 @@ private slots:
    */
   void AddOpenProject(olive::Project* p);
 
-  void AddOpenProjectFromTask(Task* task);
+  bool AddOpenProjectFromTask(Task* task);
 
   void ImportTaskComplete(Task *task);
 
@@ -584,10 +584,12 @@ private slots:
 
   void OpenStartupProject();
 
+  void AddRecoveryProjectFromTask(Task* task);
+
   /**
    * @brief Internal project open
    */
-  void OpenProjectInternal(const QString& filename);
+  void OpenProjectInternal(const QString& filename, bool recovery_project = false);
 
 };
 

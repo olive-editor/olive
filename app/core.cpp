@@ -451,7 +451,7 @@ void Core::AddOpenProject(Project* p)
   emit ProjectOpened(p);
 }
 
-void Core::AddOpenProjectFromTask(Task *task)
+bool Core::AddOpenProjectFromTask(Task *task)
 {
   ProjectLoadBaseTask* load_task = static_cast<ProjectLoadBaseTask*>(task);
 
@@ -461,8 +461,12 @@ void Core::AddOpenProjectFromTask(Task *task)
   if (ValidateFootageInLoadedProject(project, load_task->GetFilenameProjectWasSavedAs())) {
     AddOpenProject(project);
     main_window_->LoadLayout(layout);
+
+    return true;
   } else {
     delete project;
+
+    return false;
   }
 }
 
@@ -624,6 +628,26 @@ void Core::OpenStartupProject()
   } else {
     // If no load project is set, create a new one on open
     CreateNewProject();
+  }
+}
+
+void Core::AddRecoveryProjectFromTask(Task *task)
+{
+  if (AddOpenProjectFromTask(task)) {
+    ProjectLoadBaseTask* load_task = static_cast<ProjectLoadBaseTask*>(task);
+
+    Project* project = load_task->GetLoadedProject();
+
+    // Clearing the filename will force the user to re-save it somewhere else
+    project->set_filename(QString());
+
+    // Forcing a UUID regeneration will prevent it from saving auto-recoveries in the same place
+    // the original project did
+    project->RegenerateUuid();
+
+    // Setting modified will ensure that the program doesn't close and lose the project without
+    // prompting the user first
+    project->set_modified(true);
   }
 }
 
@@ -1031,7 +1055,7 @@ void Core::ShowStatusBarMessage(const QString &s)
 
 void Core::OpenRecoveryProject(const QString &filename)
 {
-  OpenProjectInternal(filename);
+  OpenProjectInternal(filename, true);
 }
 
 void Core::CheckForAutoRecoveries()
@@ -1119,7 +1143,7 @@ void Core::PushRecentlyOpenedProject(const QString& s)
   emit OpenRecentListChanged();
 }
 
-void Core::OpenProjectInternal(const QString &filename)
+void Core::OpenProjectInternal(const QString &filename, bool recovery_project)
 {
   // See if this project is open already
   foreach (Project* p, open_projects_) {
@@ -1150,7 +1174,11 @@ void Core::OpenProjectInternal(const QString &filename)
 
   TaskDialog* task_dialog = new TaskDialog(load_task, tr("Load Project"), main_window());
 
-  connect(task_dialog, &TaskDialog::TaskSucceeded, this, &Core::AddOpenProjectFromTask);
+  if (recovery_project) {
+    connect(task_dialog, &TaskDialog::TaskSucceeded, this, &Core::AddRecoveryProjectFromTask);
+  } else {
+    connect(task_dialog, &TaskDialog::TaskSucceeded, this, &Core::AddOpenProjectFromTask);
+  }
 
   task_dialog->open();
 }
