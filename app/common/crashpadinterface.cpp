@@ -38,6 +38,11 @@
 #include <Windows.h>
 #endif
 
+QMap<int, void(*)(int)> old_actions;
+
+bool launched_report_diag = false;
+QString crash_report_dialog;
+
 crashpad::CrashpadClient *client;
 
 QString GenerateReportPath()
@@ -50,41 +55,21 @@ base::FilePath GenerateReportPathForCrashpad()
   return base::FilePath(QSTRING_TO_BASE_STRING(GenerateReportPath()));
 }
 
-#ifndef OS_WIN
-QMap<int, struct sigaction> old_actions;
-#endif
-
-bool launched_report_diag = false;
-
 void StartCrashReportDialog(int signum)
 {
   if (!launched_report_diag) {
-    QString crash_handler_exe = QDir(qApp->applicationDirPath()).filePath(olive::FileFunctions::GetFormattedExecutableForPlatform(QStringLiteral("olive-crashhandler")));
-    QProcess::startDetached(crash_handler_exe, {GenerateReportPath(), QString::number(QDateTime::currentSecsSinceEpoch())});
+    QProcess::startDetached(crash_report_dialog, {GenerateReportPath(), QString::number(QDateTime::currentSecsSinceEpoch())});
     launched_report_diag = true;
   }
 
-#ifndef OS_WIN
-  if (old_actions.value(signum).sa_handler) {
-    old_actions.value(signum).sa_handler(signum);
+  if (old_actions.value(signum)) {
+    old_actions.value(signum)(signum);
   }
-#endif
 }
 
-void HandleSignal(int signal)
+void HandleSignal(int signum)
 {
-#ifdef OS_WIN
-  signal(signal, StartCrashReportDialog);
-#else
-  struct sigaction new_action, old_action;
-
-  new_action.sa_handler = StartCrashReportDialog;
-  sigemptyset(&new_action.sa_mask);
-  new_action.sa_flags = 0;
-
-  sigaction(signal, &new_action, &old_action);
-  old_actions.insert(signal, old_action);
-#endif
+  old_actions.insert(signum, signal(signum, StartCrashReportDialog));
 }
 
 bool InitializeCrashpad()
@@ -130,6 +115,8 @@ bool InitializeCrashpad()
 
   // Add our own signal to show our crash report dialog
   if (status) {
+    crash_report_dialog = QDir(qApp->applicationDirPath()).filePath(olive::FileFunctions::GetFormattedExecutableForPlatform(QStringLiteral("olive-crashhandler")));
+
     HandleSignal(SIGILL);
     HandleSignal(SIGFPE);
     HandleSignal(SIGSEGV);
