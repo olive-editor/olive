@@ -60,7 +60,7 @@ void ExceptionHandler(int signum)
   client->DumpAndCrash(ExceptionInfo);
   return EXCEPTION_CONTINUE_SEARCH;
 #elif defined(OS_APPLE)
-  void(*)(int) follow = old_signals.value(signum);
+  void(*follow)(int) = old_signals.value(signum);
 
   if (follow) {
     follow(signum);
