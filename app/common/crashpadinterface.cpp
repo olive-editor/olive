@@ -117,13 +117,13 @@ bool InitializeCrashpad()
 
   // Add our own signal to show our crash report dialog
   if (status) {
-    HandleSignal(SIGILL, StartCrashReportDialog);
-    HandleSignal(SIGFPE, StartCrashReportDialog);
-    HandleSignal(SIGSEGV, StartCrashReportDialog);
-    HandleSignal(SIGTERM, StartCrashReportDialog);
-    HandleSignal(SIGABRT, StartCrashReportDialog);
+    HandleSignal(SIGILL);
+    HandleSignal(SIGFPE);
+    HandleSignal(SIGSEGV);
+    HandleSignal(SIGTERM);
+    HandleSignal(SIGABRT);
 #ifndef OS_WIN
-    HandleSignal(SIGBUS, StartCrashReportDialog);
+    HandleSignal(SIGBUS);
 #endif
   } else {
     qWarning() << "Failed to start Crashpad, automatic crash reporting will be disabled";
