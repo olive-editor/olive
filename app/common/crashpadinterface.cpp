@@ -103,7 +103,9 @@ bool InitializeCrashpad()
     signal(SIGSEGV, StartCrashReportDialog);
     signal(SIGTERM, StartCrashReportDialog);
     signal(SIGABRT, StartCrashReportDialog);
+#ifndef OS_WIN
     signal(SIGBUS, StartCrashReportDialog);
+#endif
   } else {
     qWarning() << "Failed to start Crashpad, automatic crash reporting will be disabled";
   }
