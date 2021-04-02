@@ -48,7 +48,7 @@ LONG WINAPI ExceptionHandler(_EXCEPTION_POINTERS *ExceptionInfo)
 #elif defined(OS_APPLE)
 #include <signal.h>
 QMap<int, void(*)(int)> old_signals;
-void SetSignalHandler(int signum, void(*)(int) handler){old_signals.insert(signum, signal(signum, handler));}
+void SetSignalHandler(int signum, void(*handler)(int) handler){old_signals.insert(signum, signal(signum, handler));}
 void ExceptionHandler(int signum)
 #endif
 {
