@@ -64,9 +64,9 @@ void ExceptionHandler(int signum)
 
   if (follow) {
     follow(signum);
+  } else {
+    exit(EXIT_FAILURE);
   }
-
-  exit(EXIT_FAILURE);
 #endif
 }
 
