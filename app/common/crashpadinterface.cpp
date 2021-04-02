@@ -50,16 +50,25 @@ base::FilePath GenerateReportPathForCrashpad()
   return base::FilePath(QSTRING_TO_BASE_STRING(GenerateReportPath()));
 }
 
+#ifndef OS_WIN
 QMap<int, struct sigaction> old_actions;
+#endif
+
+bool launched_report_diag = false;
 
 void StartCrashReportDialog(int signum)
 {
-  QString crash_handler_exe = QDir(qApp->applicationDirPath()).filePath(olive::FileFunctions::GetFormattedExecutableForPlatform(QStringLiteral("olive-crashhandler")));
-  QProcess::startDetached(crash_handler_exe, {GenerateReportPath(), QString::number(QDateTime::currentSecsSinceEpoch())});
+  if (!launched_report_diag) {
+    QString crash_handler_exe = QDir(qApp->applicationDirPath()).filePath(olive::FileFunctions::GetFormattedExecutableForPlatform(QStringLiteral("olive-crashhandler")));
+    QProcess::startDetached(crash_handler_exe, {GenerateReportPath(), QString::number(QDateTime::currentSecsSinceEpoch())});
+    launched_report_diag = true;
+  }
 
+#ifndef OS_WIN
   if (old_actions.value(signum).sa_handler) {
     old_actions.value(signum).sa_handler(signum);
   }
+#endif
 }
 
 void HandleSignal(int signal)
