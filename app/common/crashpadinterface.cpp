@@ -47,8 +47,8 @@ bool ExceptionHandler(int, siginfo_t*, ucontext_t*)
 LONG WINAPI ExceptionHandler(_EXCEPTION_POINTERS *ExceptionInfo)
 #elif defined(OS_APPLE)
 #include <signal.h>
-QMap<int, sighandler_t> signals;
-void SetSignalHandler(int signum, sighandler_t handler){signals.insert(signum, signal(signum, handler));}
+QMap<int, void(*)(int)> old_signals;
+void SetSignalHandler(int signum, void(*)(int) handler){old_signals.insert(signum, signal(signum, handler));}
 void ExceptionHandler(int signum)
 #endif
 {
@@ -60,7 +60,7 @@ void ExceptionHandler(int signum)
   client->DumpAndCrash(ExceptionInfo);
   return EXCEPTION_CONTINUE_SEARCH;
 #elif defined(OS_APPLE)
-  sighandler_t follow = signals.value(signum);
+  void(*)(int) follow = old_signals.value(signum);
 
   if (follow) {
     follow(signum);
