@@ -58,7 +58,7 @@ base::FilePath GenerateReportPathForCrashpad()
 void StartCrashReportDialog(int signum)
 {
   if (!launched_report_diag) {
-    QProcess::startDetached(crash_report_dialog, {GenerateReportPath(), QString::number(QDateTime::currentSecsSinceEpoch())});
+    QProcess::startDetached(crash_report_dialog, {GenerateReportPath(), QString::number(QDateTime::currentSecsSinceEpoch()-10)});
     launched_report_diag = true;
   }
 
