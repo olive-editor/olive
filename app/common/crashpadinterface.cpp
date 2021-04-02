@@ -26,10 +26,8 @@
 #include <QDateTime>
 #include <QDebug>
 #include <QDir>
-#include <QMap>
 #include <QMessageBox>
 #include <QProcess>
-#include <signal.h>
 
 #include "crashpadutils.h"
 #include "filefunctions.h"
@@ -38,42 +36,35 @@
 #include <Windows.h>
 #endif
 
-QMap<int, void(*)(int)> old_actions;
-
-bool launched_report_diag = false;
-QString crash_report_dialog;
-
 crashpad::CrashpadClient *client;
 
-QString GenerateReportPath()
-{
-  return QDir(olive::FileFunctions::GetTempFilePath()).filePath(QStringLiteral("reports"));
-}
+QString report_dialog;
+QString report_path;
 
-base::FilePath GenerateReportPathForCrashpad()
+#if defined(OS_LINUX)
+bool ExceptionHandler(int, siginfo_t*, ucontext_t*)
+#elif defined(OS_WIN)
+LONG WINAPI ExceptionHandler(_EXCEPTION_POINTERS *ExceptionInfo)
+#elif defined(OS_APPLE)
+void ExceptionHandler(int signum)
+#endif
 {
-  return base::FilePath(QSTRING_TO_BASE_STRING(GenerateReportPath()));
-}
+  QProcess::startDetached(report_dialog, {report_path, QString::number(QDateTime::currentSecsSinceEpoch()-10)});
 
-void StartCrashReportDialog(int signum)
-{
-  if (!launched_report_diag) {
-    QProcess::startDetached(crash_report_dialog, {GenerateReportPath(), QString::number(QDateTime::currentSecsSinceEpoch()-10)});
-    launched_report_diag = true;
-  }
-
-  if (old_actions.value(signum)) {
-    old_actions.value(signum)(signum);
-  }
-}
-
-void HandleSignal(int signum)
-{
-  old_actions.insert(signum, signal(signum, StartCrashReportDialog));
+#if defined(OS_LINUX)
+  return false;
+#elif defined(OS_WIN)
+  client->DumpAndCrash(ExceptionInfo);
+  return EXCEPTION_CONTINUE_SEARCH;
+#elif defined(OS_APPLE)
+  exit(EXIT_FAILURE);
+#endif
 }
 
 bool InitializeCrashpad()
 {
+  report_path = QDir(olive::FileFunctions::GetTempFilePath()).filePath(QStringLiteral("reports"));
+
   QString handler_fn = olive::FileFunctions::GetFormattedExecutableForPlatform(QStringLiteral("crashpad_handler"));
 
   // Generate absolute path
@@ -84,7 +75,7 @@ bool InitializeCrashpad()
   if (QFileInfo::exists(handler_abs_path)) {
     base::FilePath handler(QSTRING_TO_BASE_STRING(handler_abs_path));
 
-    base::FilePath reports_dir = GenerateReportPathForCrashpad();
+    base::FilePath reports_dir(QSTRING_TO_BASE_STRING(report_path));
 
     base::FilePath metrics_dir(QSTRING_TO_BASE_STRING(QDir(olive::FileFunctions::GetTempFilePath()).filePath(QStringLiteral("metrics"))));
 
@@ -113,18 +104,20 @@ bool InitializeCrashpad()
   }
 
 
-  // Add our own signal to show our crash report dialog
+  // Override Crashpad exception filter with our own
   if (status) {
-    crash_report_dialog = QDir(qApp->applicationDirPath()).filePath(olive::FileFunctions::GetFormattedExecutableForPlatform(QStringLiteral("olive-crashhandler")));
-
-    HandleSignal(SIGILL);
-    HandleSignal(SIGFPE);
-    HandleSignal(SIGSEGV);
-    HandleSignal(SIGTERM);
-    HandleSignal(SIGABRT);
-#ifndef OS_WIN
-    HandleSignal(SIGBUS);
+#if defined(OS_WIN)
+    SetUnhandledExceptionFilter(ExceptionHandler);
+#elif defined(OS_LINUX)
+    crashpad::CrashpadClient::SetFirstChanceExceptionHandler(ExceptionHandler);
+#elif defined(OS_APPLE)
+    signal(SIGILL, ExceptionHandler);
+    signal(SIGFPE, ExceptionHandler);
+    signal(SIGSEGV, ExceptionHandler);
+    signal(SIGABRT, ExceptionHandler);
+    signal(SIGBUS, ExceptionHandler);
 #endif
+    report_dialog = QDir(qApp->applicationDirPath()).filePath(olive::FileFunctions::GetFormattedExecutableForPlatform(QStringLiteral("olive-crashhandler")));
   } else {
     qWarning() << "Failed to start Crashpad, automatic crash reporting will be disabled";
   }
