@@ -46,6 +46,8 @@ bool ExceptionHandler(int, siginfo_t*, ucontext_t*)
 #elif defined(OS_WIN)
 LONG WINAPI ExceptionHandler(_EXCEPTION_POINTERS *ExceptionInfo)
 #elif defined(OS_APPLE)
+QMap<int, sighandler_t> signals;
+void SetSignalHandler(int signum, sighandler_t handler){signals.insert(signum, signal(signum, handler));}
 void ExceptionHandler(int signum)
 #endif
 {
@@ -57,6 +59,12 @@ void ExceptionHandler(int signum)
   client->DumpAndCrash(ExceptionInfo);
   return EXCEPTION_CONTINUE_SEARCH;
 #elif defined(OS_APPLE)
+  sighandler_t follow = signals.value(signum);
+
+  if (follow) {
+    follow(signum);
+  }
+
   exit(EXIT_FAILURE);
 #endif
 }
@@ -111,11 +119,11 @@ bool InitializeCrashpad()
 #elif defined(OS_LINUX)
     crashpad::CrashpadClient::SetFirstChanceExceptionHandler(ExceptionHandler);
 #elif defined(OS_APPLE)
-    signal(SIGILL, ExceptionHandler);
-    signal(SIGFPE, ExceptionHandler);
-    signal(SIGSEGV, ExceptionHandler);
-    signal(SIGABRT, ExceptionHandler);
-    signal(SIGBUS, ExceptionHandler);
+    SetSignalHandler(SIGILL, ExceptionHandler);
+    SetSignalHandler(SIGFPE, ExceptionHandler);
+    SetSignalHandler(SIGSEGV, ExceptionHandler);
+    SetSignalHandler(SIGABRT, ExceptionHandler);
+    SetSignalHandler(SIGBUS, ExceptionHandler);
 #endif
     report_dialog = QDir(qApp->applicationDirPath()).filePath(olive::FileFunctions::GetFormattedExecutableForPlatform(QStringLiteral("olive-crashhandler")));
   } else {
