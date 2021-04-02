@@ -26,6 +26,7 @@
 #include <QDateTime>
 #include <QDebug>
 #include <QDir>
+#include <QMap>
 #include <QMessageBox>
 #include <QProcess>
 #include <signal.h>
@@ -49,10 +50,28 @@ base::FilePath GenerateReportPathForCrashpad()
   return base::FilePath(QSTRING_TO_BASE_STRING(GenerateReportPath()));
 }
 
+QMap<int, struct sigaction> old_actions;
+
 void StartCrashReportDialog(int signum)
 {
   QString crash_handler_exe = QDir(qApp->applicationDirPath()).filePath(olive::FileFunctions::GetFormattedExecutableForPlatform(QStringLiteral("olive-crashhandler")));
   QProcess::startDetached(crash_handler_exe, {GenerateReportPath(), QString::number(QDateTime::currentSecsSinceEpoch())});
+
+  if (old_actions.value(signum).sa_handler) {
+    old_actions.value(signum).sa_handler(signum);
+  }
+}
+
+void HandleSignal(int signal)
+{
+  struct sigaction new_action, old_action;
+
+  new_action.sa_handler = StartCrashReportDialog;
+  sigemptyset(&new_action.sa_mask);
+  new_action.sa_flags = 0;
+
+  sigaction(signal, &new_action, &old_action);
+  old_actions.insert(signal, old_action);
 }
 
 bool InitializeCrashpad()
@@ -96,15 +115,15 @@ bool InitializeCrashpad()
   }
 
 
-  // Override Crashpad exception filter with our own
+  // Add our own signal to show our crash report dialog
   if (status) {
-    signal(SIGILL, StartCrashReportDialog);
-    signal(SIGFPE, StartCrashReportDialog);
-    signal(SIGSEGV, StartCrashReportDialog);
-    signal(SIGTERM, StartCrashReportDialog);
-    signal(SIGABRT, StartCrashReportDialog);
+    HandleSignal(SIGILL, StartCrashReportDialog);
+    HandleSignal(SIGFPE, StartCrashReportDialog);
+    HandleSignal(SIGSEGV, StartCrashReportDialog);
+    HandleSignal(SIGTERM, StartCrashReportDialog);
+    HandleSignal(SIGABRT, StartCrashReportDialog);
 #ifndef OS_WIN
-    signal(SIGBUS, StartCrashReportDialog);
+    HandleSignal(SIGBUS, StartCrashReportDialog);
 #endif
   } else {
     qWarning() << "Failed to start Crashpad, automatic crash reporting will be disabled";
