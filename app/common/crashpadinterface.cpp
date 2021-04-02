@@ -64,6 +64,9 @@ void StartCrashReportDialog(int signum)
 
 void HandleSignal(int signal)
 {
+#ifdef OS_WIN
+  signal(signal, StartCrashReportDialog);
+#else
   struct sigaction new_action, old_action;
 
   new_action.sa_handler = StartCrashReportDialog;
@@ -72,6 +75,7 @@ void HandleSignal(int signal)
 
   sigaction(signal, &new_action, &old_action);
   old_actions.insert(signal, old_action);
+#endif
 }
 
 bool InitializeCrashpad()
