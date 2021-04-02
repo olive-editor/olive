@@ -83,23 +83,28 @@ jobs:
           # Create install tree
           cmake --install app --prefix appdir/usr
 
+          # Process AppDir
+          /usr/local/linuxdeployqt-x86_64.AppImage \
+            appdir/usr/share/applications/org.olivevideoeditor.Olive.desktop \
+            -bundle-non-qt-libs \
+            -executable=appdir/usr/bin/crashpad_handler \
+            -executable=appdir/usr/bin/minidump_stackwalk \
+            -executable=appdir/usr/bin/olive-crashhandler \
+            --appimage-extract-and-run
+
           # Dump Crashpad symbols
-          dump_syms app/olive-editor > olive-editor.sym
-          SYM_HEADER=($(head -n 1 olive-editor.sym)) # Read first line of symbol file
-          SYM_DIR=appdir/usr/share/olive-editor/symbols/olive-editor/${SYM_HEADER[3]}
+          dump_syms appdir/usr/bin/olive-editor > olive-editor.sym
+          # HACK: For some reason, minidump_stackwalk reads identifier as all 0s
+          SYM_DIR=appdir/usr/share/olive-editor/symbols/olive-editor/000000000000000000000000000000000
           mkdir -p "$SYM_DIR"
           mv olive-editor.sym "$SYM_DIR"
 
           # Package AppImage
-          VERSION=${GITHUB_SHA::8}
-          export VERSION
-          /usr/local/linuxdeployqt-x86_64.AppImage \
-          appdir/usr/share/applications/org.olivevideoeditor.Olive.desktop \
-          -appimage \
-          -executable=appdir/usr/bin/crashpad_handler \
-          -executable=appdir/usr/bin/minidump_stackwalk \
-          -executable=appdir/usr/bin/olive-crashhandler \
-          --appimage-extract-and-run
+          $DOWNLOAD_TOOL https://github.com/AppImage/AppImageKit/releases/download/12/appimagetool-x86_64.AppImage
+          chmod +x appimagetool-x86_64.AppImage
+          VERSION=${GITHUB_SHA::8} ./appimagetool-x86_64.AppImage appdir --appimage-extract-and-run
+
+          # Set env variables
           filename=$(echo Olive*.AppImage)
           pkgname="${filename/x86_64/Linux-x86_64}"
           mv "${filename}" "${pkgname}"
@@ -316,7 +321,7 @@ jobs:
         working-directory: ${{ runner.workspace }}/build
         run: |
           brew install ninja
-          PATH=$DEP_LOCATION:$PATH \
+          PATH=$DEP_LOCATION:$DEP_LOCATION/crashpad:$PATH \
             cmake $GITHUB_WORKSPACE -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}" -DCMAKE_INSTALL_PREFIX=$DEP_LOCATION
 
       - name: Build
