@@ -28,6 +28,7 @@
 #include <QDir>
 #include <QMessageBox>
 #include <QProcess>
+#include <signal.h>
 
 #include "crashpadutils.h"
 #include "filefunctions.h"
@@ -48,26 +49,11 @@ base::FilePath GenerateReportPathForCrashpad()
   return base::FilePath(QSTRING_TO_BASE_STRING(GenerateReportPath()));
 }
 
-#if defined(OS_WIN)
-LONG WINAPI Win32ExceptionHandler(_EXCEPTION_POINTERS *ExceptionInfo)
+void StartCrashReportDialog(int signum)
 {
-  QString crash_handler_exe = QDir(qApp->applicationDirPath()).filePath(QStringLiteral("olive-crashhandler"));
+  QString crash_handler_exe = QDir(qApp->applicationDirPath()).filePath(olive::FileFunctions::GetFormattedExecutableForPlatform(QStringLiteral("olive-crashhandler")));
   QProcess::startDetached(crash_handler_exe, {GenerateReportPath(), QString::number(QDateTime::currentSecsSinceEpoch())});
-
-  client->DumpAndCrash(ExceptionInfo);
-
-  return EXCEPTION_CONTINUE_SEARCH;
 }
-#elif defined(OS_LINUX)
-bool LinuxExceptionHandler(int, siginfo_t*, ucontext_t*)
-{
-  QString crash_handler_exe = QDir(qApp->applicationDirPath()).filePath(QStringLiteral("olive-crashhandler"));
-  QProcess::startDetached(crash_handler_exe, {GenerateReportPath(), QString::number(QDateTime::currentSecsSinceEpoch())});
-
-  // Returning false signals to Crashpad to proceed with its own exception handling
-  return false;
-}
-#endif
 
 bool InitializeCrashpad()
 {
@@ -112,11 +98,12 @@ bool InitializeCrashpad()
 
   // Override Crashpad exception filter with our own
   if (status) {
-#if defined(OS_WIN)
-    SetUnhandledExceptionFilter(Win32ExceptionHandler);
-#elif defined(OS_LINUX)
-    crashpad::CrashpadClient::SetFirstChanceExceptionHandler(LinuxExceptionHandler);
-#endif
+    signal(SIGILL, StartCrashReportDialog);
+    signal(SIGFPE, StartCrashReportDialog);
+    signal(SIGSEGV, StartCrashReportDialog);
+    signal(SIGTERM, StartCrashReportDialog);
+    signal(SIGABRT, StartCrashReportDialog);
+    signal(SIGBUS, StartCrashReportDialog);
   } else {
     qWarning() << "Failed to start Crashpad, automatic crash reporting will be disabled";
   }
