@@ -41,13 +41,12 @@
 
 namespace olive {
 
-CrashHandlerDialog::CrashHandlerDialog(const char *report_dir, const char* crash_time)
+CrashHandlerDialog::CrashHandlerDialog(const char *report_path)
 {
   setWindowTitle(tr("Olive"));
   setWindowFlags(Qt::WindowStaysOnTopHint);
 
-  crash_time_ = QString(crash_time).toULongLong();
-  report_dir_ = report_dir;
+  report_filename_ = report_path;
   waiting_for_upload_ = false;
 
   QVBoxLayout* layout = new QVBoxLayout(this);
@@ -97,7 +96,7 @@ CrashHandlerDialog::CrashHandlerDialog(const char *report_dir, const char* crash
 
   crash_report_->setText(tr("Waiting for crash report to be generated..."));
 
-  AttemptToFindReport();
+  GenerateReport();
 }
 
 void CrashHandlerDialog::SetGUIObjectsEnabled(bool e)
@@ -161,19 +160,6 @@ void CrashHandlerDialog::ReplyFinished(QNetworkReply* reply)
 
 void CrashHandlerDialog::AttemptToFindReport()
 {
-  // Retrieve reports from Crashpad database
-  std::unique_ptr<crashpad::CrashReportDatabase> database = crashpad::CrashReportDatabase::Initialize(base::FilePath(QSTRING_TO_BASE_STRING(QString(report_dir_))));
-  std::vector<crashpad::CrashReportDatabase::Report> reports;
-  database->GetCompletedReports(&reports);
-
-  // Find report that was made after the crash time
-  foreach (const crashpad::CrashReportDatabase::Report& report, reports) {
-    if (report.creation_time >= crash_time_) {
-      report_filename_ = BASE_STRING_TO_QSTRING(report.file_path.value());
-      break;
-    }
-  }
-
   // If we found it, use it, otherwise wait a second and try again
   if (report_filename_.isEmpty()) {
     // Couldn't find report, try again in one second

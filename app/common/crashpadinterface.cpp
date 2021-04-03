@@ -38,41 +38,9 @@
 
 crashpad::CrashpadClient *client;
 
-QString report_dialog;
-QString report_path;
-
-#if defined(OS_LINUX)
-bool ExceptionHandler(int, siginfo_t*, ucontext_t*)
-#elif defined(OS_WIN)
-LONG WINAPI ExceptionHandler(_EXCEPTION_POINTERS *ExceptionInfo)
-#elif defined(OS_APPLE)
-#include <signal.h>
-QMap<int, void(*)(int)> old_signals;
-void SetSignalHandler(int signum, void(*handler)(int)){old_signals.insert(signum, signal(signum, handler));}
-void ExceptionHandler(int signum)
-#endif
-{
-  QProcess::startDetached(report_dialog, {report_path, QString::number(QDateTime::currentSecsSinceEpoch()-10)});
-
-#if defined(OS_LINUX)
-  return false;
-#elif defined(OS_WIN)
-  client->DumpAndCrash(ExceptionInfo);
-  return EXCEPTION_CONTINUE_SEARCH;
-#elif defined(OS_APPLE)
-  void(*follow)(int) = old_signals.value(signum);
-
-  if (follow) {
-    follow(signum);
-  } else {
-    exit(EXIT_FAILURE);
-  }
-#endif
-}
-
 bool InitializeCrashpad()
 {
-  report_path = QDir(olive::FileFunctions::GetTempFilePath()).filePath(QStringLiteral("reports"));
+  QString report_path = QDir(olive::FileFunctions::GetTempFilePath()).filePath(QStringLiteral("reports"));
 
   QString handler_fn = olive::FileFunctions::GetFormattedExecutableForPlatform(QStringLiteral("crashpad_handler"));
 
@@ -112,22 +80,8 @@ bool InitializeCrashpad()
                                   annotations, arguments, true, true);
   }
 
-
   // Override Crashpad exception filter with our own
-  if (status) {
-#if defined(OS_WIN)
-    SetUnhandledExceptionFilter(ExceptionHandler);
-#elif defined(OS_LINUX)
-    crashpad::CrashpadClient::SetFirstChanceExceptionHandler(ExceptionHandler);
-#elif defined(OS_APPLE)
-    SetSignalHandler(SIGILL, ExceptionHandler);
-    SetSignalHandler(SIGFPE, ExceptionHandler);
-    SetSignalHandler(SIGSEGV, ExceptionHandler);
-    SetSignalHandler(SIGABRT, ExceptionHandler);
-    SetSignalHandler(SIGBUS, ExceptionHandler);
-#endif
-    report_dialog = QDir(qApp->applicationDirPath()).filePath(olive::FileFunctions::GetFormattedExecutableForPlatform(QStringLiteral("olive-crashhandler")));
-  } else {
+  if (!status) {
     qWarning() << "Failed to start Crashpad, automatic crash reporting will be disabled";
   }
 

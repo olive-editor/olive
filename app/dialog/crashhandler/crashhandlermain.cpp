@@ -24,13 +24,13 @@
 
 int main(int argc, char *argv[])
 {
-  if (argc < 3) {
+  if (argc < 2) {
     return 1;
   }
 
   QApplication a(argc, argv);
 
-  olive::CrashHandlerDialog chd(argv[1], argv[2]);
+  olive::CrashHandlerDialog chd(argv[1]);
   chd.open();
 
   return a.exec();

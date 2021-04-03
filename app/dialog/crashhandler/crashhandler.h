@@ -36,7 +36,7 @@ class CrashHandlerDialog : public QDialog
 {
   Q_OBJECT
 public:
-  CrashHandlerDialog(const char* report_dir, const char* crash_time);
+  CrashHandlerDialog(const char* report_path);
 
 private:
   void SetGUIObjectsEnabled(bool e);
@@ -54,10 +54,6 @@ private:
   QPushButton* dont_send_btn_;
 
   QString report_filename_;
-
-  time_t crash_time_;
-
-  QString report_dir_;
 
   QByteArray report_data_;
 
