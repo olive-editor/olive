@@ -21,6 +21,8 @@
 #ifndef OTIODECODER_H
 #define OTIODECODER_H
 
+#ifdef USE_OTIO
+
 #include "project/project.h"
 #include "task/project/load/loadbasetask.h"
 
@@ -38,5 +40,7 @@ protected:
 };
 
 }
+
+#endif
 
 #endif // OTIODECODER_H

@@ -20,6 +20,8 @@
 
 #include "loadotio.h"
 
+#ifdef USE_OTIO
+
 #include <opentimelineio/clip.h>
 #include <opentimelineio/externalReference.h>
 #include <opentimelineio/gap.h>
@@ -191,3 +193,5 @@ bool LoadOTIOTask::Run()
 }
 
 }
+
+#endif
