@@ -108,6 +108,7 @@ foreach (COMPONENT ${_crashpad_components})
       ${SHORT_COMPONENT}
     HINTS
       "${CRASHPAD_LIBRARY_DIRS}/obj/${COMPONENT}"
+    NO_DEFAULT_PATH
   )
 
   list(APPEND CRASHPAD_LIBRARIES ${CRASHPAD_${UPPER_COMPONENT}_LIB})
