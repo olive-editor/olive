@@ -120,3 +120,9 @@ if (UNIX AND NOT APPLE)
     Threads::Threads # Link against libpthread.so (-lpthread)
   )
 endif()
+
+if (WIN32)
+  list(APPEND CRASHPAD_LIBRARIES
+    shlwapi.lib # Only necessary for our fork of Crashpad
+  )
+endif()

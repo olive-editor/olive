@@ -41,7 +41,7 @@
 
 namespace olive {
 
-CrashHandlerDialog::CrashHandlerDialog(const char *report_path)
+CrashHandlerDialog::CrashHandlerDialog(const QString& report_path)
 {
   setWindowTitle(tr("Olive"));
   setWindowFlags(Qt::WindowStaysOnTopHint);
