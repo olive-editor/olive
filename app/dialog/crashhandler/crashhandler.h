@@ -36,7 +36,7 @@ class CrashHandlerDialog : public QDialog
 {
   Q_OBJECT
 public:
-  CrashHandlerDialog(const char* report_path);
+  CrashHandlerDialog(const QString& report_path);
 
 private:
   void SetGUIObjectsEnabled(bool e);
