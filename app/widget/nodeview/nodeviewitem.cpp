@@ -371,15 +371,18 @@ void NodeViewItem::DrawNodeTitle(QPainter* painter, QString text, const QRectF& 
 {
   QFontMetrics fm = painter->fontMetrics();
 
+  painter->setRenderHint(QPainter::SmoothPixmapTransform);
+
   // Draw right or down arrow based on expanded state
   int icon_size = fm.height() / 2;
   int icon_padding = title_bar_rect_.height() / 2 - icon_size / 2;
   int icon_full_size = icon_size + icon_padding * 2;
   const QIcon& expand_icon = IsExpanded() ? icon::TriDown : icon::TriRight;
-  expand_icon.paint(painter, QRect(title_bar_rect_.x() + icon_padding,
-                                   title_bar_rect_.y() + icon_padding,
-                                   icon_size,
-                                   icon_size));
+  int icon_size_scaled = icon_size * painter->transform().m11();
+  painter->drawPixmap(QRect(title_bar_rect_.x() + icon_padding,
+                            title_bar_rect_.y() + icon_padding,
+                            icon_size,
+                            icon_size), expand_icon.pixmap(QSize(icon_size_scaled, icon_size_scaled)));
 
   // Calculate how much space we have for text
   int item_width = title_bar_rect_.width();
