@@ -290,7 +290,7 @@
     <message>
         <location filename="../panels/effectcontrols.cpp" line="325"/>
         <source>(none)</source>
-        <translation>(пусто)</translation>
+        <translation>(hiç)</translation>
     </message>
     <message>
         <location filename="../panels/effectcontrols.cpp" line="507"/>
@@ -440,7 +440,7 @@
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="441"/>
         <source>Invalid codec</source>
-        <translation>Geçersiz kodek</translation>
+        <translation>Geçersiz kodlama</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="442"/>
@@ -516,15 +516,15 @@
         <source>Kalite Faktörü:
 
 0 = lossless
-17-18 = visually lossless (compressed, but unnoticeable)
-23 = high quality
-51 = lowest quality possible</source>
+17-18 = görsel olarak kayıpsız (sıkıştırılmış, ancak farkedilemeze)
+23 = üstün kâlite
+51 = mümkün olan en düşük kalite</source>
         <translation>Kalite Katsayısı:
 
-0 = без втрат
-17-18 = візульно без втрат (стиснуто, але майже непомітно)
-23 = висока якість
-51 = найнижча можлива якість</translation>
+0 = kayıpsız
+17-18 = görsel olarak kayıpsız (sıkıştırılmış ama neredeyse algılanamaz)
+23 = yüksek kalite
+51 = mümkün olan en düşük kalite</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="666"/>
@@ -608,7 +608,7 @@
     <message>
         <location filename="../rendering/exportthread.cpp" line="79"/>
         <source>failed to send frame to encoder (%1)</source>
-        <translation>kodlayıcıya çerçeve gönderilemedi (%1)</translation>
+        <translation>kodlayıcıya kare gönderilemedi (%1)</translation>
     </message>
     <message>
         <location filename="../rendering/exportthread.cpp" line="90"/>
@@ -778,7 +778,7 @@
     <message>
         <location filename="../project/media.cpp" line="44"/>
         <source>None (Progressive)</source>
-        <translation>Merhaba (İlerleyen)</translation>
+        <translation>Hiç (İlerleyen)</translation>
     </message>
     <message>
         <location filename="../project/media.cpp" line="45"/>
@@ -1082,17 +1082,17 @@
     <message>
         <location filename="../ui/mainwindow.cpp" line="852"/>
         <source>Frames</source>
-        <translation>Çerçeve</translation>
+        <translation>Kareler</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="853"/>
         <source>Drop Frame</source>
-        <translation>Başlangıç Çerçevesi</translation>
+        <translation>Başlangıç Karesi</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="854"/>
         <source>Non-Drop Frame</source>
-        <translation>Alt Düşmeyen Çerçeve</translation>
+        <translation>Alt Düşmeyen Kare</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="855"/>
@@ -1148,12 +1148,12 @@
     <message>
         <location filename="../ui/mainwindow.cpp" line="868"/>
         <source>Go to Start</source>
-        <translation>Başlaş Git</translation>
+        <translation>Başa Git</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="869"/>
         <source>Previous Frame</source>
-        <translation>Önceki Çerçeve</translation>
+        <translation>Önceki Kare</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="870"/>
@@ -1550,7 +1550,7 @@ Ses Kanalları: %6</translation>
     <message>
         <location filename="../dialogs/mediapropertiesdialog.cpp" line="53"/>
         <source>Tracks:</source>
-        <translation>İzler:</translation>
+        <translation>Parçalar:</translation>
     </message>
     <message>
         <location filename="../dialogs/mediapropertiesdialog.cpp" line="61"/>
@@ -1829,12 +1829,12 @@ Ses Kanalları: %6</translation>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="272"/>
         <source>Interlacing:</source>
-        <translation>Karıştır:</translation>
+        <translation>Geçmeli Tarama:</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="274"/>
         <source>None (Progressive)</source>
-        <translation>Merhaba (ilerleyen)</translation>
+        <translation>Hiç (İlerleyen)</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="282"/>
@@ -2147,7 +2147,7 @@ Ses Kanalları: %6</translation>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="640"/>
         <source>Auto-Seek to Imported Clips</source>
-        <translatorcomment>Уточнити</translatorcomment>
+        <translatorcomment>netleştir</translatorcomment>
         <translation>Alınan Kliplere Otomatik Arama</translation>
     </message>
     <message>
@@ -2158,7 +2158,7 @@ Ses Kanalları: %6</translation>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="648"/>
         <source>Drop Files on Media to Replace</source>
-        <translatorcomment>Уточнити</translatorcomment>
+        <translatorcomment>netleştir</translatorcomment>
         <translation>Medyada Değiştirilecek Dosyaları Bırak</translation>
     </message>
     <message>
@@ -2184,7 +2184,7 @@ Ses Kanalları: %6</translation>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="672"/>
         <source>Olive Dark (Default)</source>
-        <translation>Olive Kara (типово)</translation>
+        <translation>Olive Karanlık (tipi)</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="673"/>
@@ -2671,7 +2671,7 @@ Hızlı konumlandırma (belki yanlış çerçeve ekranı-oynatmayı etkilemez)</
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="102"/>
         <source>You cannot insert a sequence into itself.</source>
-        <translation>Kendi içinde bir sıra ekleyemezsiniz.</translation>
+        <translation>Kendi içinde bir dizi ekleyemezsiniz.</translation>
     </message>
 </context>
 <context>
@@ -2842,7 +2842,7 @@ Hızlı konumlandırma (belki yanlış çerçeve ekranı-oynatmayı etkilemez)</
     <message>
         <location filename="../project/sourcescommon.cpp" line="83"/>
         <source>Import...</source>
-        <translation>İthal...</translation>
+        <translation>Aktarma...</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="86"/>
@@ -2940,7 +2940,7 @@ Hızlı konumlandırma (belki yanlış çerçeve ekranı-oynatmayı etkilemez)</
     <message>
         <location filename="../project/sourcescommon.cpp" line="212"/>
         <source>Modify Proxy</source>
-        <translation>Vekil'i Değiştir</translation>
+        <translation>Vekili Değiştir</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="215"/>
