@@ -347,6 +347,13 @@ jobs:
           $DOWNLOAD_TOOL https://github.com/arl/macdeployqtfix/raw/master/macdeployqtfix.py
           python2 macdeployqtfix.py $BUNDLE_NAME/Contents/MacOS/Olive $DEP_LOCATION
 
+          # Crashpad symbols
+          $DEP_LOCATION/bin/dump_syms $BUNDLE_NAME/Contents/MacOS/Olive > Olive.sym
+          SYM_HEADER=($(head -n 1 Olive.sym)) # Read first line of symbol file
+          SYM_DIR=$BUNDLE_NAME/Contents/Resources/symbols/Olive/${SYM_HEADER[3]}
+          mkdir -p "$SYM_DIR"
+          mv Olive.sym "$SYM_DIR"
+
           # Manual fixes
           cp $DEP_LOCATION/lib/libopentimelineio.dylib $BUNDLE_NAME/Contents/Frameworks
           cp $DEP_LOCATION/lib/libopentime.dylib $BUNDLE_NAME/Contents/Frameworks
