@@ -55,7 +55,10 @@ Sequence::Sequence()
 
 Sequence::~Sequence()
 {
+  // Should prevent traversing graph unnecessarily
+  BeginOperation();
   DisconnectAll();
+  EndOperation();
 }
 
 void Sequence::add_default_nodes(MultiUndoCommand* command)

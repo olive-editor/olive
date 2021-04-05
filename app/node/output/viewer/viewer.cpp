@@ -52,7 +52,10 @@ ViewerOutput::ViewerOutput() :
 
 ViewerOutput::~ViewerOutput()
 {
+  // Should prevent traversing graph unnecessarily
+  BeginOperation();
   DisconnectAll();
+  EndOperation();
 }
 
 Node *ViewerOutput::copy() const
