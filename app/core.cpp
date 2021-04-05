@@ -817,7 +817,6 @@ void Core::SaveUnrecoveredList()
 
 void Core::SaveAutorecovery()
 {
-  qDebug() << "Autorecovery Interval!";
   if (Config::Current()[QStringLiteral("AutorecoveryEnabled")].toBool()) {
     foreach (Project* p, open_projects_) {
       if (!p->has_autorecovery_been_saved()) {
