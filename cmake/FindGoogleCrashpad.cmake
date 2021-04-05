@@ -108,6 +108,7 @@ foreach (COMPONENT ${_crashpad_components})
       ${SHORT_COMPONENT}
     HINTS
       "${CRASHPAD_LIBRARY_DIRS}/obj/${COMPONENT}"
+    NO_DEFAULT_PATH
   )
 
   list(APPEND CRASHPAD_LIBRARIES ${CRASHPAD_${UPPER_COMPONENT}_LIB})
@@ -175,5 +176,11 @@ if (UNIX AND NOT APPLE)
   list(APPEND CRASHPAD_LIBRARIES
     ${CMAKE_DL_LIBS} # Crashpad compat lib needs libdl.so (-ldl)
     Threads::Threads # Link against libpthread.so (-lpthread)
+  )
+endif()
+
+if (WIN32)
+  list(APPEND CRASHPAD_LIBRARIES
+    shlwapi.lib # Only necessary for our fork of Crashpad
   )
 endif()

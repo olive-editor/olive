@@ -38,39 +38,10 @@
 
 crashpad::CrashpadClient *client;
 
-QString GenerateReportPath()
-{
-  return QDir(olive::FileFunctions::GetTempFilePath()).filePath(QStringLiteral("reports"));
-}
-
-base::FilePath GenerateReportPathForCrashpad()
-{
-  return base::FilePath(QSTRING_TO_BASE_STRING(GenerateReportPath()));
-}
-
-#if defined(OS_WIN)
-LONG WINAPI Win32ExceptionHandler(_EXCEPTION_POINTERS *ExceptionInfo)
-{
-  QString crash_handler_exe = QDir(qApp->applicationDirPath()).filePath(QStringLiteral("olive-crashhandler"));
-  QProcess::startDetached(crash_handler_exe, {GenerateReportPath(), QString::number(QDateTime::currentSecsSinceEpoch())});
-
-  client->DumpAndCrash(ExceptionInfo);
-
-  return EXCEPTION_CONTINUE_SEARCH;
-}
-#elif defined(OS_LINUX)
-bool LinuxExceptionHandler(int, siginfo_t*, ucontext_t*)
-{
-  QString crash_handler_exe = QDir(qApp->applicationDirPath()).filePath(QStringLiteral("olive-crashhandler"));
-  QProcess::startDetached(crash_handler_exe, {GenerateReportPath(), QString::number(QDateTime::currentSecsSinceEpoch())});
-
-  // Returning false signals to Crashpad to proceed with its own exception handling
-  return false;
-}
-#endif
-
 bool InitializeCrashpad()
 {
+  QString report_path = QDir(olive::FileFunctions::GetTempFilePath()).filePath(QStringLiteral("reports"));
+
   QString handler_fn = olive::FileFunctions::GetFormattedExecutableForPlatform(QStringLiteral("crashpad_handler"));
 
   // Generate absolute path
@@ -81,7 +52,7 @@ bool InitializeCrashpad()
   if (QFileInfo::exists(handler_abs_path)) {
     base::FilePath handler(QSTRING_TO_BASE_STRING(handler_abs_path));
 
-    base::FilePath reports_dir = GenerateReportPathForCrashpad();
+    base::FilePath reports_dir(QSTRING_TO_BASE_STRING(report_path));
 
     base::FilePath metrics_dir(QSTRING_TO_BASE_STRING(QDir(olive::FileFunctions::GetTempFilePath()).filePath(QStringLiteral("metrics"))));
 
@@ -109,15 +80,8 @@ bool InitializeCrashpad()
                                   annotations, arguments, true, true);
   }
 
-
   // Override Crashpad exception filter with our own
-  if (status) {
-#if defined(OS_WIN)
-    SetUnhandledExceptionFilter(Win32ExceptionHandler);
-#elif defined(OS_LINUX)
-    crashpad::CrashpadClient::SetFirstChanceExceptionHandler(LinuxExceptionHandler);
-#endif
-  } else {
+  if (!status) {
     qWarning() << "Failed to start Crashpad, automatic crash reporting will be disabled";
   }
 
