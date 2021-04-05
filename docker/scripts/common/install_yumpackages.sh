@@ -5,15 +5,19 @@
 
 set -ex
 
-# TODO: Check if this causes any problems. ASWF doesn't run a yum update.
-yum update -y
+# Some packages are apparently in the powertools repo
+sed -i -e 's/enabled=0/enabled=1/' /etc/yum.repos.d/CentOS-Linux-PowerTools.repo
+
+# TODO: Check if this causes any problems. ASWF doesn't run an update.
+dnf upgrade -y
 
 # TODO: Add deps of deps which are explicitly listed in aswf-docker?
-yum install --setopt=tsflags=nodocs -y \
+dnf install --setopt=tsflags=nodocs -y \
     bzip2-devel \
     cups-libs \
     freetype-devel \
     giflib-devel \
+    git-core \
     gstreamer1 \
     gstreamer1-devel \
     gstreamer1-plugins-bad-free \
@@ -51,38 +55,13 @@ yum install --setopt=tsflags=nodocs -y \
 # This is needed for Xvfb to function properly.
 dbus-uuidgen > /etc/machine-id
 
-yum -y groupinstall "Development Tools"
+#yum -y groupinstall "Development Tools"
 
-# TODO: Below code installs the obsolete devtoolset-6.
-#       Unclear which devtoolset it will be for VFX platform CY2021:
-#       https://groups.google.com/forum/#!topic/vfx-platform-discuss/_-_CPw1fD3c
-
-yum install -y --setopt=tsflags=nodocs centos-release-scl-rh yum-utils
-
-if [[ $DTS_VERSION == 6 ]]; then
-    # Use the centos vault as the original devtoolset-6 is not part of CentOS-7 anymore
-    sed -i 's/7/7.6.1810/g; s|^#\s*\(baseurl=http://\)mirror|\1vault|g; /mirrorlist/d' /etc/yum.repos.d/CentOS-SCLo-*.repo
-fi
-
-yum install -y --setopt=tsflags=nodocs \
-    "devtoolset-$DTS_VERSION-toolchain"
-
-yum install -y epel-release
-
-# Additional package that are not found initially
-yum install -y \
-    rh-git218
-#   lame-devel
-#   libcaca-devel \
-#   libdb4-devel \
-#   libdc1394-devel \
-#   openssl11-devel \
-#   p7zip \
-#   yasm-devel \
-#   zvbi-devel
+# https://stackoverflow.com/a/61593093/2044940
+dnf install -y gcc-toolset-9-gcc gcc-toolset-9-gcc-c++
 
 # TODO: Does clearing the cache have any negative side effects?
-yum clean all
+dnf clean all
 
 # HACK: Qt5GuiConfigExtras.cmake expects libGL.so in /usr/local/lib64 but it gets installed to /usr/lib64
 ln -s /usr/lib64/libGL.so /usr/local/lib64/

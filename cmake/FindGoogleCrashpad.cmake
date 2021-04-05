@@ -77,7 +77,6 @@ set (_crashpad_components
   client
   util
   third_party/mini_chromium/mini_chromium/base
-  compat
 )
 foreach (COMPONENT ${_crashpad_components})
   get_filename_component(SHORT_COMPONENT ${COMPONENT} NAME)
@@ -116,7 +115,6 @@ find_package_handle_standard_args(GoogleCrashpad
 
 if (UNIX AND NOT APPLE)
   list(APPEND CRASHPAD_LIBRARIES
-    ${CMAKE_DL_LIBS} # Crashpad compat lib needs libdl.so (-ldl)
     Threads::Threads # Link against libpthread.so (-lpthread)
   )
 endif()
