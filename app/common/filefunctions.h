@@ -93,6 +93,8 @@ public:
     return unformatted;
   }
 
+  static QString GetAutoRecoveryRoot();
+
 };
 
 
