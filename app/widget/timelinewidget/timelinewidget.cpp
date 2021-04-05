@@ -786,9 +786,12 @@ void TimelineWidget::ViewMouseMoved(TimelineViewMouseEvent *event)
 
 void TimelineWidget::ViewMouseReleased(TimelineViewMouseEvent *event)
 {
-  if (GetConnectedNode() && active_tool_ != nullptr) {
-    active_tool_->MouseRelease(event);
-    UpdateViewports();
+  if (active_tool_) {
+    if (GetConnectedNode()) {
+      active_tool_->MouseRelease(event);
+      UpdateViewports();
+    }
+
     active_tool_ = nullptr;
   }
 }
