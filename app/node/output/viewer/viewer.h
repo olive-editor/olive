@@ -24,14 +24,16 @@
 #include "common/rational.h"
 #include "node/node.h"
 #include "node/output/track/track.h"
-#include "project/item/footage/footage.h"
 #include "render/audioparams.h"
 #include "render/audioplaybackcache.h"
 #include "render/framehashcache.h"
 #include "render/videoparams.h"
 #include "render/videoparams.h"
+#include "timeline/timelinepoints.h"
 
 namespace olive {
+
+class Footage;
 
 /**
  * @brief A bridge between a node system and a ViewerPanel
@@ -97,6 +99,11 @@ public:
     return &audio_playback_cache_;
   }
 
+  TimelinePoints* GetTimelinePoints()
+  {
+    return &timeline_points_;
+  }
+
   virtual void Retranslate() override;
 
   virtual void BeginOperation() override;
@@ -143,6 +150,10 @@ protected:
 
   virtual void InputValueChangedEvent(const QString& input, int element) override;
 
+  virtual bool LoadCustom(QXmlStreamReader* reader, XMLNodeData &xml_node_data, uint version, const QAtomicInt* cancelled) override;
+
+  virtual void SaveCustom(QXmlStreamWriter *writer) const override;
+
 private:
   rational last_length_;
 
@@ -153,6 +164,8 @@ private:
   int operation_stack_;
 
   VideoParams cached_video_params_;
+
+  TimelinePoints timeline_points_;
 
 };
 

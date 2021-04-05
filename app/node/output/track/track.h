@@ -335,9 +335,9 @@ signals:
   void BlocksRefreshed();
 
 protected:
-  virtual void LoadInternal(QXmlStreamReader* reader, XMLNodeData& xml_node_data, uint version, const QAtomicInt* cancelled) override;
+  virtual bool LoadCustom(QXmlStreamReader* reader, XMLNodeData& xml_node_data, uint version, const QAtomicInt* cancelled) override;
 
-  virtual void SaveInternal(QXmlStreamWriter* writer) const override;
+  virtual void SaveCustom(QXmlStreamWriter* writer) const override;
 
   virtual void InputConnectedEvent(const QString& input, int element, const NodeOutput& output) override;
 

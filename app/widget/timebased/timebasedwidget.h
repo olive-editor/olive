@@ -48,8 +48,6 @@ public:
 
   ViewerOutput* GetConnectedNode() const;
 
-  TimelinePoints* GetConnectedTimelinePoints() const;
-
   void ConnectViewerNode(ViewerOutput *node);
 
   void SetScaleAndCenterOnPlayhead(const double& scale);
@@ -116,10 +114,6 @@ protected:
   void SetAutoMaxScrollBar(bool e);
 
   virtual void resizeEvent(QResizeEvent *event) override;
-
-  virtual TimelinePoints* GetTimelinePointsToConnect();
-
-  virtual Project* GetTimelinePointsProject();
 
   void ConnectTimelineView(TimeBasedView* base, bool connect_time_change_event = true);
 
@@ -196,8 +190,6 @@ private:
   ResizableTimelineScrollBar* scrollbar_;
 
   bool auto_max_scrollbar_;
-
-  TimelinePoints* points_;
 
   QList<TimeBasedView*> timeline_views_;
 

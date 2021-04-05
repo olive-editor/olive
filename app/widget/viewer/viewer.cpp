@@ -212,9 +212,7 @@ void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
   UpdateStack();
 
   waveform_view_->SetViewer(GetConnectedNode()->audio_playback_cache());
-  if (GetConnectedTimelinePoints()) {
-    waveform_view_->ConnectTimelinePoints(GetConnectedTimelinePoints());
-  }
+  waveform_view_->ConnectTimelinePoints(GetConnectedNode()->GetTimelinePoints());
 
   UpdateRendererVideoParameters();
   UpdateRendererAudioParameters();
@@ -361,8 +359,8 @@ void ViewerWidget::CacheEntireSequence()
 
 void ViewerWidget::CacheSequenceInOut()
 {
-  if (GetConnectedTimelinePoints() && GetConnectedTimelinePoints()->workarea()->enabled()) {
-    auto_cacher_.ForceCacheRange(GetConnectedTimelinePoints()->workarea()->range());
+  if (GetConnectedNode() && GetConnectedNode()->GetTimelinePoints()->workarea()->enabled()) {
+    auto_cacher_.ForceCacheRange(GetConnectedNode()->GetTimelinePoints()->workarea()->range());
   } else {
     QMessageBox::warning(this,
                          tr("Error"),
@@ -974,10 +972,10 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
 void ViewerWidget::Play(bool in_to_out_only)
 {
   if (in_to_out_only) {
-    if (GetConnectedTimelinePoints()
-        && GetConnectedTimelinePoints()->workarea()->enabled()) {
+    if (GetConnectedNode()
+        && GetConnectedNode()->GetTimelinePoints()->workarea()->enabled()) {
       // Jump to in point
-      SetTimeAndSignal(Timecode::time_to_timestamp(GetConnectedTimelinePoints()->workarea()->in(), timebase()));
+      SetTimeAndSignal(Timecode::time_to_timestamp(GetConnectedNode()->GetTimelinePoints()->workarea()->in(), timebase()));
     } else {
       in_to_out_only = false;
     }
@@ -1072,12 +1070,11 @@ void ViewerWidget::PlaybackTimerUpdate()
 
   {
     if ((play_in_to_out_only_ || Config::Current()["Loop"].toBool())
-        && GetConnectedTimelinePoints()
-        && GetConnectedTimelinePoints()->workarea()->enabled()) {
+        && GetConnectedNode()->GetTimelinePoints()->workarea()->enabled()) {
 
       // If "play in to out" is enabled or we're looping AND we have a workarea, only play the workarea
-      min_time = Timecode::time_to_timestamp(GetConnectedTimelinePoints()->workarea()->in(), timebase());
-      max_time = Timecode::time_to_timestamp(GetConnectedTimelinePoints()->workarea()->out(), timebase());
+      min_time = Timecode::time_to_timestamp(GetConnectedNode()->GetTimelinePoints()->workarea()->in(), timebase());
+      max_time = Timecode::time_to_timestamp(GetConnectedNode()->GetTimelinePoints()->workarea()->out(), timebase());
 
     } else {
 

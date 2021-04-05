@@ -116,7 +116,11 @@ void Node::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, uint versi
         }
       }
     } else if (reader->name() == QStringLiteral("custom")) {
-      LoadInternal(reader, xml_node_data, version, cancelled);
+      while (XMLReadNextStartElement(reader)) {
+        if (!LoadCustom(reader, xml_node_data, version, cancelled)) {
+          reader->skipCurrentElement();
+        }
+      }
     } else if (reader->name() == QStringLiteral("connections")) {
       // Load connections
       while (XMLReadNextStartElement(reader)) {
@@ -197,7 +201,7 @@ void Node::Save(QXmlStreamWriter *writer) const
   writer->writeEndElement(); // connections
 
   writer->writeStartElement(QStringLiteral("custom"));
-  SaveInternal(writer);
+  SaveCustom(writer);
   writer->writeEndElement(); // custom
 }
 
@@ -1376,12 +1380,12 @@ void Node::IgnoreHashingFrom(const QString &input_id)
   ignore_when_hashing_.append(input_id);
 }
 
-void Node::LoadInternal(QXmlStreamReader *reader, XMLNodeData &, uint, const QAtomicInt*)
+bool Node::LoadCustom(QXmlStreamReader *, XMLNodeData &, uint, const QAtomicInt*)
 {
-  reader->skipCurrentElement();
+  return false;
 }
 
-void Node::SaveInternal(QXmlStreamWriter *) const
+void Node::SaveCustom(QXmlStreamWriter *) const
 {
 }
 

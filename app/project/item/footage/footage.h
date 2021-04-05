@@ -26,7 +26,7 @@
 
 #include "common/rational.h"
 #include "footagedescription.h"
-#include "node/node.h"
+#include "node/output/viewer/viewer.h"
 #include "render/audioparams.h"
 #include "render/videoparams.h"
 #include "stream.h"
@@ -41,7 +41,7 @@ namespace olive {
  * Footage objects store a list of Stream objects which store the majority of video/audio metadata. These streams
  * are identical to the stream data in the files.
  */
-class Footage : public Node, public TimelinePoints
+class Footage : public ViewerOutput
 {
   Q_OBJECT
 public:
@@ -139,61 +139,6 @@ public:
   {
     cancelled_ = c;
   }
-
-  class StreamReference
-  {
-  public:
-    StreamReference()
-    {
-      type_ = Stream::kUnknown;
-      index_ = -1;
-    }
-
-    StreamReference(Stream::Type type, int index)
-    {
-      type_ = type;
-      index_ = index;
-    }
-
-    bool operator==(const StreamReference& rhs) const
-    {
-      return type_ == rhs.type_ && index_ == rhs.index_;
-    }
-
-    bool operator<(const StreamReference& rhs) const
-    {
-      if (type_ != rhs.type_) {
-        return type_ < rhs.type_;
-      }
-
-      return index_ < rhs.index_;
-    }
-
-    bool IsValid() const
-    {
-      return type_ != Stream::kUnknown && index_ >= 0;
-    }
-
-    void Reset()
-    {
-      *this = StreamReference();
-    }
-
-    Stream::Type type() const
-    {
-      return type_;
-    }
-
-    int index() const
-    {
-      return index_;
-    }
-
-  private:
-    Stream::Type type_;
-    int index_;
-
-  };
 
   static QString GetStringFromReference(Stream::Type type, int index);
   static QString GetStringFromReference(const StreamReference& ref)
@@ -293,12 +238,12 @@ protected:
   /**
    * @brief Load function
    */
-  virtual void LoadInternal(QXmlStreamReader* reader, XMLNodeData &xml_node_data, uint version, const QAtomicInt *cancelled) override;
+  virtual bool LoadCustom(QXmlStreamReader* reader, XMLNodeData &xml_node_data, uint version, const QAtomicInt *cancelled) override;
 
   /**
    * @brief Save function
    */
-  virtual void SaveInternal(QXmlStreamWriter *writer) const override;
+  virtual void SaveCustom(QXmlStreamWriter *writer) const override;
 
   virtual void InputValueChangedEvent(const QString &input, int element) override;
 

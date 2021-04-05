@@ -38,7 +38,7 @@ namespace olive {
 const QString Footage::kFilenameInput = QStringLiteral("file_in");
 const QString Footage::kStreamPropertiesFormat = QStringLiteral("stream_properties:%1");
 
-#define super Node
+#define super ViewerOutput
 
 Footage::Footage(const QString &filename) :
   cancelled_(nullptr)
@@ -63,33 +63,21 @@ void Footage::Retranslate()
   }
 }
 
-void Footage::LoadInternal(QXmlStreamReader *reader, XMLNodeData &xml_node_data, uint version, const QAtomicInt* cancelled)
+bool Footage::LoadCustom(QXmlStreamReader *reader, XMLNodeData &xml_node_data, uint version, const QAtomicInt* cancelled)
 {
-  Q_UNUSED(xml_node_data)
-  Q_UNUSED(version)
-
-  while (XMLReadNextStartElement(reader)) {
-    if (cancelled && *cancelled) {
-      return;
-    }
-
-    if (reader->name() == QStringLiteral("timestamp")) {
-      set_timestamp(reader->readElementText().toLongLong());
-    } else if (reader->name() == QStringLiteral("points")) {
-      TimelinePoints::Load(reader);
-    } else {
-      reader->skipCurrentElement();
-    }
+  if (reader->name() == QStringLiteral("timestamp")) {
+    set_timestamp(reader->readElementText().toLongLong());
+    return true;
+  } else {
+    return super::LoadCustom(reader, xml_node_data, version, cancelled);
   }
 }
 
-void Footage::SaveInternal(QXmlStreamWriter *writer) const
+void Footage::SaveCustom(QXmlStreamWriter *writer) const
 {
-  writer->writeTextElement(QStringLiteral("timestamp"), QString::number(timestamp_));
+  super::SaveCustom(writer);
 
-  writer->writeStartElement(QStringLiteral("points"));
-  TimelinePoints::Save(writer);
-  writer->writeEndElement(); // points
+  writer->writeTextElement(QStringLiteral("timestamp"), QString::number(timestamp_));
 }
 
 void Footage::InputValueChangedEvent(const QString &input, int element)

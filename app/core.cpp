@@ -342,11 +342,10 @@ void Core::DialogPreferencesShow()
 
 void Core::DialogExportShow()
 {
-  ViewerOutput* viewer;
-  TimelinePoints* points;
+  ViewerOutput* viewer = GetSequenceToExport();
 
-  if (GetSequenceToExport(&viewer, &points) && viewer) {
-    ExportDialog* ed = new ExportDialog(viewer, points, main_window_);
+  if (viewer) {
+    ExportDialog* ed = new ExportDialog(viewer, main_window_);
     connect(ed, &ExportDialog::finished, ed, &ExportDialog::deleteLater);
     ed->open();
   }
@@ -752,7 +751,7 @@ void Core::SaveProjectInternal(Project* project, const QString& override_filenam
   task_dialog->open();
 }
 
-bool Core::GetSequenceToExport(ViewerOutput** viewer, TimelinePoints** points)
+ViewerOutput* Core::GetSequenceToExport()
 {
   // First try the most recently focused time based window
   TimeBasedPanel* time_panel = PanelManager::instance()->MostRecentlyFocused<TimeBasedPanel>();
@@ -770,9 +769,7 @@ bool Core::GetSequenceToExport(ViewerOutput** viewer, TimelinePoints** points)
                             tr("This Sequence is empty. There is nothing to export."),
                             QMessageBox::Ok);
     } else {
-      *viewer = time_panel->GetConnectedViewer();
-      *points = time_panel->GetConnectedTimelinePoints();
-      return true;
+      return time_panel->GetConnectedViewer();
     }
   } else {
     QMessageBox::critical(main_window_,
@@ -781,7 +778,7 @@ bool Core::GetSequenceToExport(ViewerOutput** viewer, TimelinePoints** points)
                           QMessageBox::Ok);
   }
 
-  return false;
+  return nullptr;
 }
 
 QString Core::GetAutoRecoveryIndexFilename()

@@ -43,11 +43,6 @@ public:
     return widget_->GetConnectedNode();
   }
 
-  TimelinePoints* GetConnectedTimelinePoints() const
-  {
-    return widget_->GetConnectedTimelinePoints();
-  }
-
   TimeRuler* ruler() const
   {
     return widget_->ruler();

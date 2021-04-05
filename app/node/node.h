@@ -808,9 +808,9 @@ protected:
 
   void IgnoreHashingFrom(const QString& input_id);
 
-  virtual void LoadInternal(QXmlStreamReader* reader, XMLNodeData& xml_node_data, uint version, const QAtomicInt* cancelled);
+  virtual bool LoadCustom(QXmlStreamReader* reader, XMLNodeData& xml_node_data, uint version, const QAtomicInt* cancelled);
 
-  virtual void SaveInternal(QXmlStreamWriter* writer) const;
+  virtual void SaveCustom(QXmlStreamWriter* writer) const;
 
   enum GizmoScaleHandles {
     kGizmoScaleTopLeft,

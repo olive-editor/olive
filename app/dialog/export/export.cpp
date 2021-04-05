@@ -39,10 +39,9 @@
 
 namespace olive {
 
-ExportDialog::ExportDialog(ViewerOutput *viewer_node, TimelinePoints *points, QWidget *parent) :
+ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   QDialog(parent),
-  viewer_node_(viewer_node),
-  timeline_points_(points)
+  viewer_node_(viewer_node)
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
 
@@ -105,7 +104,7 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, TimelinePoints *points, QW
   range_combobox_ = new QComboBox();
   range_combobox_->addItem(tr("Entire Sequence"));
   range_combobox_->addItem(tr("In to Out"));
-  range_combobox_->setEnabled(timeline_points_ && timeline_points_->workarea()->enabled());
+  range_combobox_->setEnabled(viewer_node_->GetTimelinePoints()->workarea()->enabled());
 
   preferences_layout->addWidget(range_combobox_, row, 1, 1, 3);
 
@@ -229,7 +228,7 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, TimelinePoints *points, QW
 
   // Set viewer to view the node
   preview_viewer_->ConnectViewerNode(viewer_node_);
-  preview_viewer_->ruler()->ConnectTimelinePoints(timeline_points_);
+  preview_viewer_->ruler()->ConnectTimelinePoints(viewer_node_->GetTimelinePoints());
   preview_viewer_->SetColorMenuEnabled(false);
   preview_viewer_->SetColorTransform(video_tab_->CurrentOCIOColorSpace());
 }
@@ -462,10 +461,9 @@ ExportParams ExportDialog::GenerateParams() const
   params.SetFilename(filename_edit_->text().trimmed());
   params.SetExportLength(viewer_node_->GetLength());
 
-  if (range_combobox_->isEnabled() && range_combobox_->currentIndex() == kRangeInToOut) {
-    // Assume if this combobox is enabled, that we have timeline points - a check that we make
-    // in this dialog's constructor
-    params.set_custom_range(timeline_points_->workarea()->range());
+  if (range_combobox_->currentIndex() == kRangeInToOut) {
+    // Assume if this combobox is enabled, workarea is enabled - a check that we make in this dialog's constructor
+    params.set_custom_range(viewer_node_->GetTimelinePoints()->workarea()->range());
   }
 
   if (video_tab_->scaling_method_combobox()->isEnabled()) {
@@ -500,12 +498,13 @@ void ExportDialog::UpdateViewerDimensions()
   preview_viewer_->SetViewerResolution(static_cast<int>(video_tab_->width_slider()->GetValue()),
                                        static_cast<int>(video_tab_->height_slider()->GetValue()));
 
-  QMatrix4x4 transform =
-      ExportParams::GenerateMatrix(static_cast<ExportParams::VideoScalingMethod>(video_tab_->scaling_method_combobox()->currentData().toInt()),
-                                   viewer_node_->video_params().width(),
-                                   viewer_node_->video_params().height(),
-                                   static_cast<int>(video_tab_->width_slider()->GetValue()),
-                                   static_cast<int>(video_tab_->height_slider()->GetValue()));
+  QMatrix4x4 transform = ExportParams::GenerateMatrix(
+        static_cast<ExportParams::VideoScalingMethod>(video_tab_->scaling_method_combobox()->currentData().toInt()),
+        viewer_node_->video_params().width(),
+        viewer_node_->video_params().height(),
+        static_cast<int>(video_tab_->width_slider()->GetValue()),
+        static_cast<int>(video_tab_->height_slider()->GetValue())
+  );
 
   preview_viewer_->SetMatrix(transform);
 }

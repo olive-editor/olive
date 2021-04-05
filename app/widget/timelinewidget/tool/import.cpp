@@ -237,9 +237,10 @@ void ImportTool::FootageToGhosts(rational ghost_start, const QMap<Footage *, QVe
       } else {
         // Rescale stream duration to timeline timebase
         // Convert to rational time
-        if (it.key()->workarea()->enabled()) {
-          footage_duration = qMax(footage_duration, it.key()->workarea()->range().length());
-          ghost->SetMediaIn(it.key()->workarea()->in());
+        TimelinePoints* tp = it.key()->GetTimelinePoints();
+        if (tp->workarea()->enabled()) {
+          footage_duration = qMax(footage_duration, tp->workarea()->range().length());
+          ghost->SetMediaIn(tp->workarea()->in());
         } else {
           int64_t dur;
           rational tb;

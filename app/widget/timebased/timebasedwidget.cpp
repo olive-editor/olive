@@ -35,7 +35,6 @@ TimeBasedWidget::TimeBasedWidget(bool ruler_text_visible, bool ruler_cache_statu
   TimelineScaledWidget(parent),
   viewer_node_(nullptr),
   auto_max_scrollbar_(false),
-  points_(nullptr),
   toggle_show_all_(false),
   auto_set_timebase_(true)
 {
@@ -89,7 +88,6 @@ void TimeBasedWidget::ConnectViewerNode(ViewerOutput *node)
       SetTimebase(rational());
     }
 
-    points_ = nullptr;
     ruler()->ConnectTimelinePoints(nullptr);
     scrollbar_->ConnectTimelinePoints(nullptr);
   }
@@ -101,10 +99,8 @@ void TimeBasedWidget::ConnectViewerNode(ViewerOutput *node)
   if (viewer_node_) {
     connect(viewer_node_, &ViewerOutput::LengthChanged, this, &TimeBasedWidget::UpdateMaximumScroll);
 
-    if ((points_ = GetTimelinePointsToConnect())) {
-      ruler()->ConnectTimelinePoints(points_);
-      scrollbar_->ConnectTimelinePoints(points_);
-    }
+    ruler()->ConnectTimelinePoints(viewer_node_->GetTimelinePoints());
+    scrollbar_->ConnectTimelinePoints(viewer_node_->GetTimelinePoints());
 
     if (auto_set_timebase_) {
       if (!viewer_node_->video_params().time_base().isNull()) {
@@ -240,27 +236,6 @@ void TimeBasedWidget::resizeEvent(QResizeEvent *event)
   scrollbar()->setPageStep(scrollbar()->width());
 
   UpdateMaximumScroll();
-}
-
-TimelinePoints *TimeBasedWidget::GetTimelinePointsToConnect()
-{
-  Sequence* sequence = dynamic_cast<Sequence*>(viewer_node_);
-
-  if (sequence) {
-    return sequence->timeline_points();
-  }
-
-  return nullptr;
-}
-
-Project *TimeBasedWidget::GetTimelinePointsProject()
-{
-  return viewer_node_->project();
-}
-
-TimelinePoints *TimeBasedWidget::GetConnectedTimelinePoints() const
-{
-  return points_;
 }
 
 void TimeBasedWidget::ConnectTimelineView(TimeBasedView *base, bool connect_time_change_event)
@@ -442,15 +417,16 @@ void TimeBasedWidget::SetAutoSetTimebase(bool e)
 
 void TimeBasedWidget::SetPoint(Timeline::MovementMode m, const rational& time)
 {
-  if (!points_) {
+  if (!viewer_node_) {
     return;
   }
 
   MultiUndoCommand* command = new MultiUndoCommand();
+  TimelinePoints* points = viewer_node_->GetTimelinePoints();
 
   // Enable workarea if it isn't already enabled
-  if (!points_->workarea()->enabled()) {
-    command->add_child(new WorkareaSetEnabledCommand(GetTimelinePointsProject(), points_, true));
+  if (!points->workarea()->enabled()) {
+    command->add_child(new WorkareaSetEnabledCommand(viewer_node_->project(), points, true));
   }
 
   // Determine our new range
@@ -459,34 +435,40 @@ void TimeBasedWidget::SetPoint(Timeline::MovementMode m, const rational& time)
   if (m == Timeline::kTrimIn) {
     in_point = time;
 
-    if (!points_->workarea()->enabled() || points_->workarea()->out() < in_point) {
+    if (!points->workarea()->enabled() || points->workarea()->out() < in_point) {
       out_point = TimelineWorkArea::kResetOut;
     } else {
-      out_point = points_->workarea()->out();
+      out_point = points->workarea()->out();
     }
   } else {
     out_point = time;
 
-    if (!points_->workarea()->enabled() || points_->workarea()->in() > out_point) {
+    if (!points->workarea()->enabled() || points->workarea()->in() > out_point) {
       in_point = TimelineWorkArea::kResetIn;
     } else {
-      in_point = points_->workarea()->in();
+      in_point = points->workarea()->in();
     }
   }
 
   // Set workarea
-  command->add_child(new WorkareaSetRangeCommand(GetTimelinePointsProject(), points_, TimeRange(in_point, out_point)));
+  command->add_child(new WorkareaSetRangeCommand(viewer_node_->project(), points, TimeRange(in_point, out_point)));
 
   Core::instance()->undo_stack()->push(command);
 }
 
 void TimeBasedWidget::ResetPoint(Timeline::MovementMode m)
 {
-  if (!points_ || !points_->workarea()->enabled()) {
+  if (!GetConnectedNode()) {
     return;
   }
 
-  TimeRange r = points_->workarea()->range();
+  TimelinePoints* points = GetConnectedNode()->GetTimelinePoints();
+
+  if (!GetConnectedNode() || !points->workarea()->enabled()) {
+    return;
+  }
+
+  TimeRange r = points->workarea()->range();
 
   if (m == Timeline::kTrimIn) {
     r.set_in(TimelineWorkArea::kResetIn);
@@ -494,7 +476,7 @@ void TimeBasedWidget::ResetPoint(Timeline::MovementMode m)
     r.set_out(TimelineWorkArea::kResetOut);
   }
 
-  Core::instance()->undo_stack()->push(new WorkareaSetRangeCommand(GetTimelinePointsProject(), points_, r));
+  Core::instance()->undo_stack()->push(new WorkareaSetRangeCommand(viewer_node_->project(), points, r));
 }
 
 void TimeBasedWidget::PageScrollInternal(QScrollBar *bar, int maximum, int screen_position, bool whole_page_scroll)
@@ -561,17 +543,17 @@ void TimeBasedWidget::ResetOut()
 
 void TimeBasedWidget::ClearInOutPoints()
 {
-  if (!points_) {
+  if (!GetConnectedNode()) {
     return;
   }
 
 
-  Core::instance()->undo_stack()->push(new WorkareaSetEnabledCommand(GetTimelinePointsProject(), points_, false));
+  Core::instance()->undo_stack()->push(new WorkareaSetEnabledCommand(GetConnectedNode()->project(), GetConnectedNode()->GetTimelinePoints(), false));
 }
 
 void TimeBasedWidget::SetMarker()
 {
-  if (!points_) {
+  if (!GetConnectedNode()) {
     return;
   }
 
@@ -586,7 +568,7 @@ void TimeBasedWidget::SetMarker()
 
   if (ok) {
     Core::instance()->undo_stack()->push(new MarkerAddCommand(GetConnectedNode()->project(),
-                                                              points_->markers(), TimeRange(GetTime(), GetTime()), marker_name));
+                                                              GetConnectedNode()->GetTimelinePoints()->markers(), TimeRange(GetTime(), GetTime()), marker_name));
   }
 }
 
@@ -625,9 +607,9 @@ void TimeBasedWidget::ToggleShowAll()
 
 void TimeBasedWidget::GoToIn()
 {
-  if (viewer_node_) {
-    if (points_ && points_->workarea()->enabled()) {
-      SetTimeAndSignal(Timecode::time_to_timestamp(points_->workarea()->in(), timebase()));
+  if (GetConnectedNode()) {
+    if (GetConnectedNode()->GetTimelinePoints()->workarea()->enabled()) {
+      SetTimeAndSignal(Timecode::time_to_timestamp(GetConnectedNode()->GetTimelinePoints()->workarea()->in(), timebase()));
     } else {
       GoToStart();
     }
@@ -636,9 +618,9 @@ void TimeBasedWidget::GoToIn()
 
 void TimeBasedWidget::GoToOut()
 {
-  if (viewer_node_) {
-    if (points_ && points_->workarea()->enabled()) {
-      SetTimeAndSignal(Timecode::time_to_timestamp(points_->workarea()->out(), timebase()));
+  if (GetConnectedNode()) {
+    if (GetConnectedNode()->GetTimelinePoints()->workarea()->enabled()) {
+      SetTimeAndSignal(Timecode::time_to_timestamp(GetConnectedNode()->GetTimelinePoints()->workarea()->out(), timebase()));
     } else {
       GoToEnd();
     }

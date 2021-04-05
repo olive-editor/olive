@@ -29,6 +29,8 @@
 
 namespace olive {
 
+#define super Node
+
 const double Track::kTrackHeightDefault = 3.0;
 const double Track::kTrackHeightMinimum = 1.5;
 const double Track::kTrackHeightInterval = 0.5;
@@ -143,18 +145,17 @@ void Track::SetTrackHeight(const double &height)
   emit TrackHeightChangedInPixels(GetTrackHeightInPixels());
 }
 
-void Track::LoadInternal(QXmlStreamReader *reader, XMLNodeData &, uint , const QAtomicInt* )
+bool Track::LoadCustom(QXmlStreamReader *reader, XMLNodeData &xml_node_data, uint version, const QAtomicInt* cancelled)
 {
-  while (XMLReadNextStartElement(reader)) {
-    if (reader->name() == QStringLiteral("height")) {
-      SetTrackHeight(reader->readElementText().toDouble());
-    } else {
-      reader->skipCurrentElement();
-    }
+  if (reader->name() == QStringLiteral("height")) {
+    SetTrackHeight(reader->readElementText().toDouble());
+    return true;
+  } else {
+    return super::LoadCustom(reader, xml_node_data, version, cancelled);
   }
 }
 
-void Track::SaveInternal(QXmlStreamWriter *writer) const
+void Track::SaveCustom(QXmlStreamWriter *writer) const
 {
   writer->writeTextElement(QStringLiteral("height"), QString::number(GetTrackHeight()));
 }

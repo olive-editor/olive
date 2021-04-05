@@ -29,6 +29,7 @@
 #include <opentimelineio/transition.h>
 
 #include "node/block/transition/transition.h"
+#include "project/item/footage/footage.h"
 
 namespace olive {
 

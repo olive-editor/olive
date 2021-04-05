@@ -178,27 +178,4 @@ void Sequence::UpdateTrackCache()
   }
 }
 
-void Sequence::LoadInternal(QXmlStreamReader *reader, XMLNodeData &xml_node_data, uint version, const QAtomicInt *cancelled)
-{
-  Q_UNUSED(xml_node_data)
-  Q_UNUSED(version)
-  Q_UNUSED(cancelled)
-
-  while (XMLReadNextStartElement(reader)) {
-    if (reader->name() == QStringLiteral("points")) {
-      timeline_points_.Load(reader);
-    } else {
-      reader->skipCurrentElement();
-    }
-  }
-}
-
-void Sequence::SaveInternal(QXmlStreamWriter *writer) const
-{
-  // Write TimelinePoints
-  writer->writeStartElement(QStringLiteral("points"));
-  timeline_points_.Save(writer);
-  writer->writeEndElement(); // points
-}
-
 }

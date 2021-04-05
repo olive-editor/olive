@@ -630,8 +630,7 @@ void TimelineWidget::Paste(bool insert)
 void TimelineWidget::DeleteInToOut(bool ripple)
 {
   if (!GetConnectedNode()
-      || !GetConnectedTimelinePoints()
-      || !GetConnectedTimelinePoints()->workarea()->enabled()) {
+      || !GetConnectedNode()->GetTimelinePoints()->workarea()->enabled()) {
     return;
   }
 
@@ -639,9 +638,10 @@ void TimelineWidget::DeleteInToOut(bool ripple)
 
   if (ripple) {
 
-    command->add_child(new TimelineRippleRemoveAreaCommand(sequence(),
-                                                           GetConnectedTimelinePoints()->workarea()->in(),
-                                                           GetConnectedTimelinePoints()->workarea()->out()));
+    command->add_child(new TimelineRippleRemoveAreaCommand(
+                         sequence(),
+                         GetConnectedNode()->GetTimelinePoints()->workarea()->in(),
+                         GetConnectedNode()->GetTimelinePoints()->workarea()->out()));
 
   } else {
     QVector<Track*> unlocked_tracks = sequence()->GetUnlockedTracks();
@@ -649,7 +649,7 @@ void TimelineWidget::DeleteInToOut(bool ripple)
     foreach (Track* track, unlocked_tracks) {
       GapBlock* gap = new GapBlock();
 
-      gap->set_length_and_media_out(GetConnectedTimelinePoints()->workarea()->length());
+      gap->set_length_and_media_out(GetConnectedNode()->GetTimelinePoints()->workarea()->length());
 
       command->add_child(new NodeAddCommand(static_cast<NodeGraph*>(track->parent()),
                                             gap));
@@ -657,17 +657,17 @@ void TimelineWidget::DeleteInToOut(bool ripple)
       command->add_child(new TrackPlaceBlockCommand(sequence()->track_list(track->type()),
                                                     track->Index(),
                                                     gap,
-                                                    GetConnectedTimelinePoints()->workarea()->in()));
+                                                    GetConnectedNode()->GetTimelinePoints()->workarea()->in()));
     }
   }
 
   // Clear workarea after this
-  command->add_child(new WorkareaSetEnabledCommand(GetTimelinePointsProject(),
-                                                   GetConnectedTimelinePoints(),
+  command->add_child(new WorkareaSetEnabledCommand(GetConnectedNode()->project(),
+                                                   GetConnectedNode()->GetTimelinePoints(),
                                                    false));
 
   if (ripple) {
-    SetTimeAndSignal(Timecode::time_to_timestamp(GetConnectedTimelinePoints()->workarea()->in(),
+    SetTimeAndSignal(Timecode::time_to_timestamp(GetConnectedNode()->GetTimelinePoints()->workarea()->in(),
                                                  timebase()));
   }
 
@@ -1513,8 +1513,8 @@ bool TimelineWidget::SnapPoint(QVector<rational> start_times, rational* movement
     }
   }
 
-  if ((snap_points & kSnapToMarkers) && GetConnectedTimelinePoints()) {
-    foreach (TimelineMarker* m, GetConnectedTimelinePoints()->markers()->list()) {
+  if ((snap_points & kSnapToMarkers)) {
+    foreach (TimelineMarker* m, GetConnectedNode()->GetTimelinePoints()->markers()->list()) {
       qreal marker_pos = TimeToScene(m->time().in());
       potential_snaps.append(AttemptSnap(screen_pt, marker_pos, start_times, m->time().in()));
 

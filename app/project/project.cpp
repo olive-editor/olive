@@ -51,13 +51,6 @@ Project::Project() :
   settings_->SetPosition(QPointF(2, 0));
   AddDefaultNode(settings_);
 
-  // Viewer node for connecting with the footage viewer
-  footage_viewer_ = new ViewerOutput();
-  footage_viewer_->setParent(this);
-  footage_viewer_->SetLabel(tr("Footage Viewer"));
-  footage_viewer_->SetPosition(QPointF(3, 0));
-  AddDefaultNode(footage_viewer_);
-
   // Folder root for project
   root_ = new Folder();
   root_->setParent(this);
@@ -295,6 +288,7 @@ void Project::RegenerateUuid()
 
 void Project::ColorManagerValueChanged(const NodeInput &input, const TimeRange &range)
 {
+  Q_UNUSED(input)
   Q_UNUSED(range)
 
   QVector<Footage*> footage = root()->ListChildrenOfType<Footage>();

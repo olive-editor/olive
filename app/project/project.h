@@ -74,11 +74,6 @@ public:
 
   QString cache_path() const;
 
-  ViewerOutput* footage_viewer()
-  {
-    return footage_viewer_;
-  }
-
   const QUuid& GetUuid() const
   {
     return uuid_;
@@ -101,8 +96,6 @@ private:
   ColorManager* color_manager_;
 
   ProjectSettingsNode* settings_;
-
-  ViewerOutput* footage_viewer_;
 
   bool is_modified_;
 
