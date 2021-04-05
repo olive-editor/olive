@@ -166,7 +166,8 @@ void Core::Start()
 void Core::Stop()
 {
   // Assume all projects have closed gracefully and no auto-recovery is necessary
-  QFile::remove(GetAutoRecoveryIndexFilename());
+  autorecovered_projects_.clear();
+  SaveUnrecoveredList();
 
   // Save Config
   Config::Save();
@@ -785,19 +786,42 @@ QString Core::GetAutoRecoveryIndexFilename()
   return QDir(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)).filePath(QStringLiteral("unrecovered"));
 }
 
-QString Core::GetAutoRecoveryRoot()
+void Core::SaveUnrecoveredList()
 {
-  return QDir(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)).filePath(QStringLiteral("autorecovery"));
+  QFile autorecovery_index(GetAutoRecoveryIndexFilename());
+
+  if (autorecovered_projects_.isEmpty()) {
+    // Recovery list is empty, delete file if exists
+    if (autorecovery_index.exists()) {
+      autorecovery_index.remove();
+    }
+  } else if (autorecovery_index.open(QFile::WriteOnly)) {
+    // Overwrite recovery list with current list
+    QTextStream ts(&autorecovery_index);
+
+    bool first = true;
+    foreach (const QUuid& uuid, autorecovered_projects_) {
+      if (first) {
+        first = false;
+      } else {
+        ts << QStringLiteral("\n");
+      }
+      ts << uuid.toString();
+    }
+
+    autorecovery_index.close();
+  } else {
+    qWarning() << "Failed to save unrecovered list";
+  }
 }
 
 void Core::SaveAutorecovery()
 {
+  qDebug() << "Autorecovery Interval!";
   if (Config::Current()[QStringLiteral("AutorecoveryEnabled")].toBool()) {
-    QStringList autorecoveries_saved;
-
     foreach (Project* p, open_projects_) {
       if (!p->has_autorecovery_been_saved()) {
-        QDir project_autorecovery_dir(QDir(GetAutoRecoveryRoot()).filePath(p->GetUuid().toString()));
+        QDir project_autorecovery_dir(QDir(FileFunctions::GetAutoRecoveryRoot()).filePath(p->GetUuid().toString()));
         if (project_autorecovery_dir.mkpath(QStringLiteral("."))) {
           QString this_autorecovery_path = project_autorecovery_dir.filePath(QStringLiteral("%1.ove").arg(QString::number(QDateTime::currentSecsSinceEpoch())));
 
@@ -805,7 +829,10 @@ void Core::SaveAutorecovery()
 
           p->set_autorecovery_saved(true);
 
-          autorecoveries_saved.append(project_autorecovery_dir.absolutePath());
+          // Keep track of projects that where the "newest" save is the recovery project
+          if (!autorecovered_projects_.contains(p->GetUuid())) {
+            autorecovered_projects_.append(p->GetUuid());
+          }
 
           qDebug() << "Saved auto-recovery to:" << this_autorecovery_path;
 
@@ -855,11 +882,7 @@ void Core::SaveAutorecovery()
     }
 
     // Save index
-    QFile autorecovery_index(GetAutoRecoveryIndexFilename());
-    if (autorecovery_index.open(QFile::WriteOnly)) {
-      autorecovery_index.write(autorecoveries_saved.join('\n').toUtf8());
-      autorecovery_index.close();
-    }
+    SaveUnrecoveredList();
   }
 }
 
@@ -870,6 +893,9 @@ void Core::ProjectSaveSucceeded(Task* task)
   PushRecentlyOpenedProject(p->filename());
 
   p->set_modified(false);
+
+  autorecovered_projects_.removeOne(p->GetUuid());
+  SaveUnrecoveredList();
 }
 
 Project* Core::GetActiveProject() const
@@ -1079,23 +1105,17 @@ void Core::CheckForAutoRecoveries()
       QMessageBox::critical(main_window_, tr("Auto-Recovery Error"),
                             tr("Found auto-recoveries but failed to load the auto-recovery index. "
                                "Auto-recover projects will have to be opened manually.\n\n"
-                               "Your recoverable projects are still available at: %1").arg(GetAutoRecoveryRoot()));
+                               "Your recoverable projects are still available at: %1").arg(FileFunctions::GetAutoRecoveryRoot()));
     }
   }
 }
 
 void Core::BrowseAutoRecoveries()
 {
-  QDir autorecovery_root(GetAutoRecoveryRoot());
-
   // List all auto-recovery entries
-  QStringList entries = autorecovery_root.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
-  for (int i=0; i<entries.size(); i++) {
-    entries[i] = autorecovery_root.filePath(entries.at(i));
-  }
-
   AutoRecoveryDialog ard(tr("The following project versions have been auto-saved:"),
-                         entries, false, main_window_);
+                         QDir(FileFunctions::GetAutoRecoveryRoot()).entryList(QDir::Dirs | QDir::NoDotAndDotDot),
+                         false, main_window_);
   ard.exec();
 }
 

@@ -500,7 +500,7 @@ private:
 
   static QString GetAutoRecoveryIndexFilename();
 
-  static QString GetAutoRecoveryRoot();
+  void SaveUnrecoveredList();
 
   /**
    * @brief Internal main window object
@@ -561,6 +561,11 @@ private:
    * @brief Internal translator
    */
   QTranslator* translator_;
+
+  /**
+   * @brief List of projects that are unsaved but have autorecovery projects
+   */
+  QVector<QUuid> autorecovered_projects_;
 
 private slots:
   void SaveAutorecovery();

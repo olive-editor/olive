@@ -75,8 +75,10 @@ void AutoRecoveryDialog::Init(const QString& header_text)
 void AutoRecoveryDialog::PopulateTree(const QStringList& recoveries, bool autocheck_latest)
 {
   // Each entry in `recoveries` is a directory with 1+ recovery projects in it
+  QDir autorecovery_root(FileFunctions::GetAutoRecoveryRoot());
+
   foreach (const QString& recovery_folder, recoveries) {
-    QDir recovery_dir(recovery_folder);
+    QDir recovery_dir(autorecovery_root.filePath(recovery_folder));
 
     QString pretty_name;
     {
