@@ -326,6 +326,7 @@ void MainWindow::ProjectOpen(Project *p)
   }
 
   panel->set_project(p);
+  panel->setFocus();
 }
 
 void MainWindow::ProjectClose(Project *p)
