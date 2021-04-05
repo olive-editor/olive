@@ -91,7 +91,7 @@ void FootageViewerWidget::SetFootage(Footage *footage)
   }
 }
 
-TimelinePoints *FootageViewerWidget::ConnectTimelinePoints()
+TimelinePoints *FootageViewerWidget::GetTimelinePointsToConnect()
 {
   return footage_;
 }

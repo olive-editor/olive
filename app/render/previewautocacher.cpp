@@ -3,7 +3,6 @@
 #include <QApplication>
 #include <QtConcurrent/QtConcurrent>
 
-#include "project/item/sequence/sequence.h"
 #include "project/project.h"
 #include "render/rendermanager.h"
 #include "render/renderprocessor.h"
@@ -65,13 +64,13 @@ void PreviewAutoCacher::SetPaused(bool paused)
   }
 }
 
-void PreviewAutoCacher::GenerateHashes(Sequence *viewer, FrameHashCache* cache, const QVector<rational> &times, qint64 job_time)
+void PreviewAutoCacher::GenerateHashes(ViewerOutput *viewer, FrameHashCache* cache, const QVector<rational> &times, qint64 job_time)
 {
   std::vector<QByteArray> existing_hashes;
 
   foreach (const rational& time, times) {
     // See if hash already exists in disk cache
-    QByteArray hash = RenderManager::Hash(viewer->GetConnectedNode(Sequence::kTextureInput), viewer->video_params(), time);
+    QByteArray hash = RenderManager::Hash(viewer->GetConnectedNode(ViewerOutput::kTextureInput), viewer->video_params(), time);
 
     // Check memory list since disk checking is slow
     bool hash_exists = (std::find(existing_hashes.begin(), existing_hashes.end(), hash) != existing_hashes.end());
@@ -590,7 +589,7 @@ void PreviewAutoCacher::ForceCacheRange(const TimeRange &range)
   RequeueFrames();
 }
 
-void PreviewAutoCacher::SetViewerNode(Sequence *viewer_node)
+void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
 {
   if (viewer_node_ == viewer_node) {
     return;
@@ -662,7 +661,7 @@ void PreviewAutoCacher::SetViewerNode(Sequence *viewer_node)
     }
 
     // Find copied viewer node
-    copied_viewer_node_ = static_cast<Sequence*>(copy_map_.value(viewer_node_));
+    copied_viewer_node_ = static_cast<ViewerOutput*>(copy_map_.value(viewer_node_));
 
     // Copy parameters
     copied_viewer_node_->set_video_params(viewer_node_->video_params());

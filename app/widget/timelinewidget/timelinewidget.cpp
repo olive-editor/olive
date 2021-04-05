@@ -218,10 +218,12 @@ void TimelineWidget::ScaleChangedEvent(const double &scale)
   }
 }
 
-void TimelineWidget::ConnectNodeInternal(Sequence *n)
+void TimelineWidget::ConnectNodeInternal(ViewerOutput *n)
 {
-  connect(n, &ViewerOutput::TrackAdded, this, &TimelineWidget::AddTrack);
-  connect(n, &ViewerOutput::TrackRemoved, this, &TimelineWidget::RemoveTrack);
+  Sequence* s = static_cast<Sequence*>(n);
+
+  connect(s, &Sequence::TrackAdded, this, &TimelineWidget::AddTrack);
+  connect(s, &Sequence::TrackRemoved, this, &TimelineWidget::RemoveTrack);
   connect(n, &ViewerOutput::TimebaseChanged, this, &TimelineWidget::SetTimebase);
 
   ruler()->SetPlaybackCache(n->video_frame_cache());
@@ -229,7 +231,6 @@ void TimelineWidget::ConnectNodeInternal(Sequence *n)
   SetTimebase(n->video_params().time_base());
 
   for (int i=0;i<views_.size();i++) {
-    Sequence* s = static_cast<Sequence*>(n);
     Track::Type track_type = static_cast<Track::Type>(i);
     TimelineView* view = views_.at(i)->view();
     TrackList* track_list = s->track_list(track_type);
@@ -246,15 +247,16 @@ void TimelineWidget::ConnectNodeInternal(Sequence *n)
   }
 }
 
-void TimelineWidget::DisconnectNodeInternal(Sequence *n)
+void TimelineWidget::DisconnectNodeInternal(ViewerOutput *n)
 {
-  disconnect(n, &ViewerOutput::TrackAdded, this, &TimelineWidget::AddTrack);
-  disconnect(n, &ViewerOutput::TrackRemoved, this, &TimelineWidget::RemoveTrack);
+  Sequence* s = static_cast<Sequence*>(n);
+
+  disconnect(s, &Sequence::TrackAdded, this, &TimelineWidget::AddTrack);
+  disconnect(s, &Sequence::TrackRemoved, this, &TimelineWidget::RemoveTrack);
   disconnect(n, &ViewerOutput::TimebaseChanged, this, &TimelineWidget::SetTimebase);
 
   DeselectAll();
 
-  Sequence* s = static_cast<Sequence*>(n);
   foreach (Track* track, s->GetTracks()) {
     RemoveTrack(track);
   }

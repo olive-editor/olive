@@ -496,7 +496,7 @@ private:
   /**
    * @brief Retrieves the currently most active sequence for exporting
    */
-  Sequence* GetSequenceToExport();
+  bool GetSequenceToExport(ViewerOutput **viewer, TimelinePoints **points);
 
   static QString GetAutoRecoveryIndexFilename();
 

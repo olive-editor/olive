@@ -130,7 +130,7 @@ private:
 
   void RemoveProjectPanel(ProjectPanel* panel);
 
-  void TimelineFocused(Sequence *viewer);
+  void TimelineFocused(ViewerOutput *viewer);
 
   QByteArray premaximized_state_;
 

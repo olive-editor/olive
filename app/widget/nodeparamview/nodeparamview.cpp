@@ -226,7 +226,7 @@ void NodeParamView::TimeChangedEvent(const int64_t &timestamp)
   UpdateItemTime(timestamp);
 }
 
-void NodeParamView::ConnectedNodeChanged(Sequence *n)
+void NodeParamView::ConnectedNodeChanged(ViewerOutput *n)
 {
   // Set viewer as a time target
   keyframe_view_->SetTimeTarget(n);

@@ -21,8 +21,9 @@
 #ifndef PROJECT_H
 #define PROJECT_H
 
-#include <QObject>
 #include <memory>
+#include <QObject>
+#include <QUuid>
 
 #include "node/project/projectsettings/projectsettings.h"
 #include "node/output/viewer/viewer.h"
