@@ -12,6 +12,10 @@ cmake --install app --prefix appdir/usr
 /usr/local/linuxdeployqt-x86_64.AppImage \
   appdir/usr/share/applications/org.olivevideoeditor.Olive.desktop \
   -appimage \
+  -bundle-non-qt-libs \
+  -executable=appdir/usr/bin/crashpad_handler \
+  -executable=appdir/usr/bin/minidump_stackwalk \
+  -executable=appdir/usr/bin/olive-crashhandler \
   --appimage-extract-and-run
 
 ./Olive*.AppImage --appimage-extract-and-run --version
