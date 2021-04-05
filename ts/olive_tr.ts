@@ -19,7 +19,7 @@
     <message>
         <location filename="../dialogs/actionsearch.cpp" line="57"/>
         <source>Search for action...</source>
-        <translation>İşlem Ara...</translation>
+        <translation>Eylem Ara...</translation>
     </message>
 </context>
 <context>
@@ -77,12 +77,12 @@
     <message>
         <location filename="../dialogs/autocutsilencedialog.cpp" line="44"/>
         <source>Attack Threshold:</source>
-        <translation>Hamleyi Eşitle:</translation>
+        <translation>Atak Eşiği:</translation>
     </message>
     <message>
         <location filename="../dialogs/autocutsilencedialog.cpp" line="49"/>
         <source>Attack Time:</source>
-        <translation>Hamle Tarihi:</translation>
+        <translation>Atak Tarihi:</translation>
     </message>
     <message>
         <location filename="../dialogs/autocutsilencedialog.cpp" line="54"/>
@@ -1316,7 +1316,7 @@
     <message>
         <location filename="../ui/mainwindow.cpp" line="908"/>
         <source>Transition Tool</source>
-        <translation>Geçiş</translation>
+        <translation>Geçiş Aracı</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="909"/>
@@ -1366,7 +1366,7 @@
     <message>
         <source>Enable Drag Files to Timeline</source>
         <translatorcomment>rafine</translatorcomment>
-        <translation type="vanished">Sürükle Dosyaları Zaman Çizelgesi'ne Etkinleştir</translation>
+        <translation type="vanished">Dosyaları zaman çizelgesine sürüklemeyi etkinleştir</translation>
     </message>
     <message>
         <source>Auto-Scale By Default</source>
@@ -1455,7 +1455,7 @@
     <message>
         <location filename="../timeline/marker.cpp" line="66"/>
         <source>Set clip marker name:</source>
-        <translation>Klip İşaretçisi Adı:</translation>
+        <translation>Klip işaretleyici adını ayarla:</translation>
     </message>
     <message>
         <location filename="../timeline/marker.cpp" line="67"/>
