@@ -123,6 +123,8 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
 
 ViewerWidget::~ViewerWidget()
 {
+  instances_.removeOne(this);
+
   QList<ViewerWindow*> windows = windows_;
 
   foreach (ViewerWindow* window, windows) {
