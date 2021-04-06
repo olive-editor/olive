@@ -517,6 +517,10 @@ bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AV
         codec_ctx->bit_rate = params().video_bit_rate();
       }
 
+      if (params().video_min_bit_rate() > 0) {
+        codec_ctx->rc_min_rate = params().video_min_bit_rate();
+      }
+
       if (params().video_max_bit_rate() > 0) {
         codec_ctx->rc_max_rate = params().video_max_bit_rate();
       }

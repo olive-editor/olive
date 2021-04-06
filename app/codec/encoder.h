@@ -48,6 +48,7 @@ public:
 
   void set_video_option(const QString& key, const QString& value);
   void set_video_bit_rate(const int64_t& rate);
+  void set_video_min_bit_rate(const int64_t& rate);
   void set_video_max_bit_rate(const int64_t& rate);
   void set_video_buffer_size(const int64_t& sz);
   void set_video_threads(const int& threads);
@@ -60,6 +61,7 @@ public:
   const VideoParams& video_params() const;
   const QHash<QString, QString>& video_opts() const;
   const int64_t& video_bit_rate() const;
+  const int64_t& video_min_bit_rate() const;
   const int64_t& video_max_bit_rate() const;
   const int64_t& video_buffer_size() const;
   const int& video_threads() const;
@@ -92,6 +94,7 @@ private:
   VideoParams video_params_;
   QHash<QString, QString> video_opts_;
   int64_t video_bit_rate_;
+  int64_t video_min_bit_rate_;
   int64_t video_max_bit_rate_;
   int64_t video_buffer_size_;
   int video_threads_;
