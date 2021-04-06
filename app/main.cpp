@@ -45,6 +45,10 @@ extern "C" {
 #include "common/crashpadinterface.h"
 #endif // USE_CRASHPAD
 
+#ifdef Q_OS_WINDOWS
+#include <Windows.h>
+#endif // Q_OS_WINDOWS
+
 int main(int argc, char *argv[])
 {
   // Set up debug handler
@@ -175,6 +179,12 @@ int main(int argc, char *argv[])
     qWarning() << "Failed to initialize Crashpad handler";
   }
 #endif // USE_CRASHPAD
+
+#ifdef Q_OS_WINDOWS
+  // Disable dynamic thread priority boosting
+  SetProcessPriorityBoost(GetCurrentProcess(), TRUE);
+#endif // Q_OS_WINDOWS
+
 
   // Start core
   olive::Core c(startup_params);
