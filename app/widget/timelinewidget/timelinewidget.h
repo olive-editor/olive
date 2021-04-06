@@ -75,9 +75,9 @@ public:
 
   void DecreaseTrackHeight();
 
-  void InsertFootageAtPlayhead(const QVector<Footage *> &footage);
+  void InsertFootageAtPlayhead(const QVector<ViewerOutput *> &footage);
 
-  void OverwriteFootageAtPlayhead(const QVector<Footage *> &footage);
+  void OverwriteFootageAtPlayhead(const QVector<ViewerOutput *> &footage);
 
   void ToggleLinksOnSelected();
 

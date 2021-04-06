@@ -170,12 +170,12 @@ void TimelinePanel::SetColorLabel(int index)
   static_cast<TimelineWidget*>(GetTimeBasedWidget())->SetColorLabel(index);
 }
 
-void TimelinePanel::InsertFootageAtPlayhead(const QVector<Footage *> &footage)
+void TimelinePanel::InsertFootageAtPlayhead(const QVector<ViewerOutput *> &footage)
 {
   static_cast<TimelineWidget*>(GetTimeBasedWidget())->InsertFootageAtPlayhead(footage);
 }
 
-void TimelinePanel::OverwriteFootageAtPlayhead(const QVector<Footage *> &footage)
+void TimelinePanel::OverwriteFootageAtPlayhead(const QVector<ViewerOutput *> &footage)
 {
   static_cast<TimelineWidget*>(GetTimeBasedWidget())->OverwriteFootageAtPlayhead(footage);
 }

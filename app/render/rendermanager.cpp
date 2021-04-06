@@ -107,8 +107,8 @@ RenderTicketPtr RenderManager::RenderFrame(ViewerOutput *viewer, ColorManager* c
                      color_manager,
                      time,
                      mode,
-                     viewer->video_params(),
-                     viewer->audio_params(),
+                     viewer->GetVideoParams(),
+                     viewer->GetAudioParams(),
                      QSize(0, 0),
                      QMatrix4x4(),
                      VideoParams::kFormatInvalid,
@@ -158,7 +158,7 @@ RenderTicketPtr RenderManager::RenderFrame(ViewerOutput *viewer, ColorManager* c
 
 RenderTicketPtr RenderManager::RenderAudio(ViewerOutput* viewer, const TimeRange& r, bool generate_waveforms, bool prioritize)
 {
-  return RenderAudio(viewer, r, viewer->audio_params(), generate_waveforms, prioritize);
+  return RenderAudio(viewer, r, viewer->GetAudioParams(), generate_waveforms, prioritize);
 }
 
 RenderTicketPtr RenderManager::RenderAudio(ViewerOutput* viewer, const TimeRange &r, const AudioParams &params, bool generate_waveforms, bool prioritize)

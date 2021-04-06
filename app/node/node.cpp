@@ -1346,8 +1346,9 @@ void Node::ArrayResizeInternal(const QString &id, int size)
       // equal subinputs_.size()
     }
 
+    int old_sz = imm->array_size;
     imm->array_size = size;
-    emit InputArraySizeChanged(id, size);
+    emit InputArraySizeChanged(id, old_sz, size);
     ParameterValueChanged(id, -1, TimeRange(RATIONAL_MIN, RATIONAL_MAX));
   }
 }
@@ -1842,6 +1843,8 @@ void Node::ParameterValueChanged(const QString& input, int element, const TimeRa
 
 void Node::LoadImmediate(QXmlStreamReader *reader, const QString& input, int element, XMLNodeData &xml_node_data, const QAtomicInt *cancelled)
 {
+  Q_UNUSED(xml_node_data)
+
   NodeValue::Type data_type = GetInputDataType(input);
 
   while (XMLReadNextStartElement(reader)) {

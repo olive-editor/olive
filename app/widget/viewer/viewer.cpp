@@ -54,7 +54,6 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   playback_speed_(0),
   frame_cache_job_time_(0),
   color_menu_enabled_(true),
-  override_color_manager_(nullptr),
   time_changed_from_timer_(false),
   pause_autocache_during_playback_(false),
   prequeuing_(false)
@@ -183,30 +182,22 @@ void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
   connect(n->video_frame_cache(), &FrameHashCache::Shifted, this, &ViewerWidget::ViewerShiftedRange);
   connect(n, &ViewerOutput::TextureInputChanged, this, &ViewerWidget::UpdateStack);
 
-  InterlacingChangedSlot(n->video_params().interlacing());
+  VideoParams vp = n->GetVideoParams();
+
+  InterlacingChangedSlot(vp.interlacing());
 
   ruler()->SetPlaybackCache(n->video_frame_cache());
 
-  SetViewerResolution(n->video_params().width(), n->video_params().height());
-  SetViewerPixelAspect(n->video_params().pixel_aspect_ratio());
+  SetViewerResolution(vp.width(), vp.height());
+  SetViewerPixelAspect(vp.pixel_aspect_ratio());
   last_length_ = rational();
   LengthChangedSlot(n->GetLength());
 
-  ColorManager* using_manager;
-  if (override_color_manager_) {
-    using_manager = override_color_manager_;
-  } else if (n->parent()) {
-    using_manager = n->project()->color_manager();
-  } else {
-    qWarning() << "Failed to find a suitable color manager for the connected viewer node";
-    using_manager = nullptr;
-  }
+  ColorManager* color_manager = n->project()->color_manager();
 
-  auto_cacher_.SetColorManager(using_manager);
-
-  display_widget_->ConnectColorManager(using_manager);
+  display_widget_->ConnectColorManager(color_manager);
   foreach (ViewerWindow* window, windows_) {
-    window->display_widget()->ConnectColorManager(using_manager);
+    window->display_widget()->ConnectColorManager(color_manager);
   }
 
   UpdateStack();
@@ -244,7 +235,6 @@ void ViewerWidget::DisconnectNodeInternal(ViewerOutput *n)
   foreach (ViewerWindow* window, windows_) {
     window->display_widget()->DisconnectColorManager();
   }
-  auto_cacher_.SetColorManager(nullptr);
 
   waveform_view_->SetViewer(nullptr);
   waveform_view_->ConnectTimelinePoints(nullptr);
@@ -286,13 +276,6 @@ bool ViewerWidget::IsPlaying() const
   return playback_speed_ != 0;
 }
 
-void ViewerWidget::ConnectViewerNode(ViewerOutput *node, ColorManager* color_manager)
-{
-  override_color_manager_ = color_manager;
-
-  super::ConnectViewerNode(node);
-}
-
 void ViewerWidget::SetColorMenuEnabled(bool enabled)
 {
   color_menu_enabled_ = enabled;
@@ -332,7 +315,7 @@ void ViewerWidget::SetFullScreen(QScreen *screen)
   connect(vw->display_widget(), &ViewerDisplayWidget::customContextMenuRequested, this, &ViewerWidget::ShowContextMenu);
 
   if (GetConnectedNode()) {
-    vw->SetVideoParams(GetConnectedNode()->video_params());
+    vw->SetVideoParams(GetConnectedNode()->GetVideoParams());
     vw->display_widget()->SetDeinterlacing(vw->display_widget()->IsDeinterlacing());
   }
 
@@ -541,26 +524,28 @@ void ViewerWidget::PauseInternal()
 
 void ViewerWidget::PushScrubbedAudio()
 {
-  if (!IsPlaying() && Config::Current()["AudioScrubbing"].toBool()) {
+  if (!IsPlaying() && GetConnectedNode() && Config::Current()["AudioScrubbing"].toBool()) {
     // Get audio src device from renderer
-    AudioPlaybackCache::PlaybackDevice* audio_src = GetConnectedNode()->audio_playback_cache()->CreatePlaybackDevice();
+    const AudioParams& params = GetConnectedNode()->audio_playback_cache()->GetParameters();
 
-    if (audio_src->open(QIODevice::ReadOnly)) {
-      const AudioParams& params = GetConnectedNode()->audio_playback_cache()->GetParameters();
+    if (params.is_valid()) {
+      AudioPlaybackCache::PlaybackDevice* audio_src = GetConnectedNode()->audio_playback_cache()->CreatePlaybackDevice();
 
-      // FIXME: Hardcoded scrubbing interval (20ms)
-      int size_of_sample = params.time_to_bytes(rational(20, 1000));
+      if (audio_src->open(QIODevice::ReadOnly)) {
+        // FIXME: Hardcoded scrubbing interval (20ms)
+        int size_of_sample = params.time_to_bytes(rational(20, 1000));
 
-      // Push audio
-      audio_src->seek(params.time_to_bytes(GetTime()));
-      QByteArray frame_audio = audio_src->read(size_of_sample);
-      AudioManager::instance()->SetOutputParams(params);
-      AudioManager::instance()->PushToOutput(frame_audio);
+        // Push audio
+        audio_src->seek(params.time_to_bytes(GetTime()));
+        QByteArray frame_audio = audio_src->read(size_of_sample);
+        AudioManager::instance()->SetOutputParams(params);
+        AudioManager::instance()->PushToOutput(frame_audio);
 
-      audio_src->close();
+        audio_src->close();
+      }
+
+      delete audio_src;
     }
-
-    delete audio_src;
   }
 }
 
@@ -656,10 +641,12 @@ void ViewerWidget::FinishPlayPreprocess()
   int64_t playback_start_time = ruler()->GetTime();
 
   AudioPlaybackCache* audio_cache = GetConnectedNode()->audio_playback_cache();
-  AudioManager::instance()->SetOutputParams(audio_cache->GetParameters());
-  AudioManager::instance()->StartOutput(audio_cache,
-                                        audio_cache->GetParameters().time_to_bytes(GetTime()),
-                                        playback_speed_);
+  if (audio_cache->GetParameters().is_valid()) {
+    AudioManager::instance()->SetOutputParams(audio_cache->GetParameters());
+    AudioManager::instance()->StartOutput(audio_cache,
+                                          audio_cache->GetParameters().time_to_bytes(GetTime()),
+                                          playback_speed_);
+  }
 
   playback_timer_.Start(playback_start_time, playback_speed_, timebase_dbl());
   display_widget_->ResetFPSTimer();
@@ -869,7 +856,7 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
 
     {
       // Deinterlace Option
-      if (GetConnectedNode()->video_params().interlacing() != VideoParams::kInterlaceNone) {
+      if (GetConnectedNode()->GetVideoParams().interlacing() != VideoParams::kInterlaceNone) {
         QAction* deinterlace_action = menu.addAction(tr("Deinterlace"));
         deinterlace_action->setCheckable(true);
         deinterlace_action->setChecked(display_widget_->IsDeinterlacing());
@@ -1176,9 +1163,11 @@ void ViewerWidget::InterlacingChangedSlot(VideoParams::Interlacing interlacing)
 
 void ViewerWidget::UpdateRendererVideoParameters()
 {
-  display_widget_->SetVideoParams(GetConnectedNode()->video_params());
+  VideoParams vp = GetConnectedNode()->GetVideoParams();
+
+  display_widget_->SetVideoParams(vp);
   foreach (ViewerWindow* window, windows_) {
-    window->display_widget()->SetVideoParams(GetConnectedNode()->video_params());
+    window->display_widget()->SetVideoParams(vp);
   }
 }
 

@@ -169,15 +169,15 @@ bool LoadOTIOTask::Run()
               probed_item->setParent(project_->root());
             }
 
-            Footage::StreamReference reference;
+            Track::Reference reference;
 
             if (track->type() == Track::kVideo) {
-              reference = Footage::StreamReference(Stream::kVideo, 0);
+              reference = Track::Reference(Track::kVideo, 0);
             } else {
-              reference = Footage::StreamReference(Stream::kAudio, 0);
+              reference = Track::Reference(Track::kAudio, 0);
             }
 
-            QString output_id = probed_item->GetStringFromReference(reference);
+            QString output_id = reference.ToString();
 
             Node::ConnectEdge(NodeOutput(probed_item, output_id), NodeInput(block, ClipBlock::kBufferIn));
           }

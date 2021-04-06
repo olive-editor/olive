@@ -79,11 +79,6 @@ public:
   void ClearAudioQueue(bool wait = false);
   void ClearVideoDownloadQueue(bool wait = false);
 
-  void SetColorManager(ColorManager* manager)
-  {
-    color_manager_ = manager;
-  }
-
 private:
   static void GenerateHashes(ViewerOutput *viewer, FrameHashCache *cache, const QVector<rational>& times, qint64 job_time);
 
@@ -132,6 +127,7 @@ private:
   QVector<QueuedJob> graph_update_queue_;
   QHash<Node*, Node*> copy_map_;
   ViewerOutput* copied_viewer_node_;
+  ColorManager* copied_color_manager_;
   QVector<Node*> created_nodes_;
 
   bool paused_;
@@ -159,8 +155,6 @@ private:
   qint64 last_update_time_;
 
   bool ignore_next_mouse_button_;
-
-  ColorManager* color_manager_;
 
   QTimer delayed_requeue_timer_;
 

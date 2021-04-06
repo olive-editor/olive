@@ -103,10 +103,10 @@ void TimeBasedWidget::ConnectViewerNode(ViewerOutput *node)
     scrollbar_->ConnectTimelinePoints(viewer_node_->GetTimelinePoints());
 
     if (auto_set_timebase_) {
-      if (!viewer_node_->video_params().time_base().isNull()) {
-        SetTimebase(viewer_node_->video_params().time_base());
-      } else if (viewer_node_->audio_params().sample_rate() > 0) {
-        SetTimebase(viewer_node_->audio_params().time_base());
+      if (!viewer_node_->GetVideoParams().time_base().isNull()) {
+        SetTimebase(viewer_node_->GetVideoParams().time_base());
+      } else if (viewer_node_->GetAudioParams().sample_rate() > 0) {
+        SetTimebase(viewer_node_->GetAudioParams().time_base());
       } else {
         SetTimebase(rational());
       }

@@ -295,8 +295,6 @@ void Project::ColorManagerValueChanged(const NodeInput &input, const TimeRange &
 
   foreach (Footage* item, footage) {
     item->InvalidateAll(QString());
-    //static_cast<VideoStream*>(s)->ColorConfigChanged();
-    //static_cast<VideoStream*>(s)->DefaultColorSpaceChanged();
   }
 }
 

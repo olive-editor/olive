@@ -214,7 +214,7 @@ void ProjectImportTask::ValidateImageSequence(Footage *footage, QFileInfoList& i
         video_stream.set_start_time(start_index);
         video_stream.set_duration(end_index - start_index + 1);
 
-        footage->SetVideoParams(0, video_stream);
+        footage->SetVideoParams(video_stream, 0);
       }
     }
 

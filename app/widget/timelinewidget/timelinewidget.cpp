@@ -228,7 +228,7 @@ void TimelineWidget::ConnectNodeInternal(ViewerOutput *n)
 
   ruler()->SetPlaybackCache(n->video_frame_cache());
 
-  SetTimebase(n->video_params().time_base());
+  SetTimebase(n->GetVideoParams().time_base());
 
   for (int i=0;i<views_.size();i++) {
     Track::Type track_type = static_cast<Track::Type>(i);
@@ -522,12 +522,12 @@ void TimelineWidget::DecreaseTrackHeight()
   }
 }
 
-void TimelineWidget::InsertFootageAtPlayhead(const QVector<Footage*>& footage)
+void TimelineWidget::InsertFootageAtPlayhead(const QVector<ViewerOutput*>& footage)
 {
   import_tool_->PlaceAt(footage, GetTime(), true);
 }
 
-void TimelineWidget::OverwriteFootageAtPlayhead(const QVector<Footage *> &footage)
+void TimelineWidget::OverwriteFootageAtPlayhead(const QVector<ViewerOutput *> &footage)
 {
   import_tool_->PlaceAt(footage, GetTime(), false);
 }
@@ -1005,7 +1005,7 @@ void TimelineWidget::SetViewTimestamp(const int64_t &ts)
     if (use_audio_time_units_ && i == Track::kAudio) {
       view->view()->SetTime(Timecode::rescale_timestamp(ts,
                                                         timebase(),
-                                                        GetConnectedNode()->audio_params().time_base()));
+                                                        GetConnectedNode()->GetAudioParams().time_base()));
     } else {
       view->view()->SetTime(ts);
     }
@@ -1016,7 +1016,7 @@ void TimelineWidget::ViewTimestampChanged(int64_t ts)
 {
   if (use_audio_time_units_ && sender() == views_.at(Track::kAudio)) {
     ts = Timecode::rescale_timestamp(ts,
-                                     GetConnectedNode()->audio_params().time_base(),
+                                     GetConnectedNode()->GetAudioParams().time_base(),
                                      timebase());
   }
 
@@ -1050,7 +1050,7 @@ void TimelineWidget::UpdateViewTimebases()
     TimelineAndTrackView* view = views_.at(i);
 
     if (use_audio_time_units_ && i == Track::kAudio) {
-      view->view()->SetTimebase(GetConnectedNode()->audio_params().time_base());
+      view->view()->SetTimebase(GetConnectedNode()->GetAudioParams().time_base());
     } else {
       view->view()->SetTimebase(timebase());
     }

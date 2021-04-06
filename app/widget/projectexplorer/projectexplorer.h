@@ -100,6 +100,8 @@ signals:
    */
   void DoubleClickedItem(Node* item);
 
+  void ItemRemoved(Node* node);
+
 private:
   /**
    * @brief Get all the blocks that solely rely on an input node

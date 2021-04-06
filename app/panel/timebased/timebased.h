@@ -34,7 +34,10 @@ public:
 
   void ConnectViewerNode(ViewerOutput *node);
 
-  void DisconnectViewerNode();
+  void DisconnectViewerNode()
+  {
+    ConnectViewerNode(nullptr);
+  }
 
   rational GetTime();
 
@@ -122,8 +125,15 @@ protected:
 
   virtual void Retranslate() override;
 
+  void SetShowAndRaiseOnConnect()
+  {
+    show_and_raise_on_connect_ = true;
+  }
+
 private:
   TimeBasedWidget* widget_;
+
+  bool show_and_raise_on_connect_;
 
 };
 

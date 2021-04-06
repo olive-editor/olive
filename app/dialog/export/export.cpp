@@ -188,18 +188,21 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
           &ExportDialog::FormatChanged);
   FormatChanged(ExportFormat::kFormatMPEG4);
 
-  video_tab_->width_slider()->SetValue(viewer_node_->video_params().width());
-  video_tab_->width_slider()->SetDefaultValue(viewer_node_->video_params().width());
-  video_tab_->height_slider()->SetValue(viewer_node_->video_params().height());
-  video_tab_->height_slider()->SetDefaultValue(viewer_node_->video_params().height());
-  video_tab_->frame_rate_combobox()->SetFrameRate(viewer_node_->video_params().time_base().flipped());
-  video_tab_->pixel_aspect_combobox()->SetPixelAspectRatio(viewer_node_->video_params().pixel_aspect_ratio());
-  video_tab_->pixel_format_field()->SetPixelFormat(static_cast<VideoParams::Format>(Config::Current()["OnlinePixelFormat"].toInt()));
-  video_tab_->interlaced_combobox()->SetInterlaceMode(viewer_node_->video_params().interlacing());
-  audio_tab_->sample_rate_combobox()->SetSampleRate(viewer_node_->audio_params().sample_rate());
-  audio_tab_->channel_layout_combobox()->SetChannelLayout(viewer_node_->audio_params().channel_layout());
+  VideoParams vp = viewer_node_->GetVideoParams();
+  AudioParams ap = viewer_node_->GetAudioParams();
 
-  video_aspect_ratio_ = static_cast<double>(viewer_node_->video_params().width()) / static_cast<double>(viewer_node_->video_params().height());
+  video_tab_->width_slider()->SetValue(vp.width());
+  video_tab_->width_slider()->SetDefaultValue(vp.width());
+  video_tab_->height_slider()->SetValue(vp.height());
+  video_tab_->height_slider()->SetDefaultValue(vp.height());
+  video_tab_->frame_rate_combobox()->SetFrameRate(vp.time_base().flipped());
+  video_tab_->pixel_aspect_combobox()->SetPixelAspectRatio(vp.pixel_aspect_ratio());
+  video_tab_->pixel_format_field()->SetPixelFormat(static_cast<VideoParams::Format>(Config::Current()["OnlinePixelFormat"].toInt()));
+  video_tab_->interlaced_combobox()->SetInterlaceMode(vp.interlacing());
+  audio_tab_->sample_rate_combobox()->SetSampleRate(ap.sample_rate());
+  audio_tab_->channel_layout_combobox()->SetChannelLayout(ap.channel_layout());
+
+  video_aspect_ratio_ = static_cast<double>(vp.width()) / static_cast<double>(vp.height());
 
   connect(video_tab_->width_slider(),
           &IntegerSlider::ValueChanged,
@@ -498,10 +501,12 @@ void ExportDialog::UpdateViewerDimensions()
   preview_viewer_->SetViewerResolution(static_cast<int>(video_tab_->width_slider()->GetValue()),
                                        static_cast<int>(video_tab_->height_slider()->GetValue()));
 
+  VideoParams vp = viewer_node_->GetVideoParams();
+
   QMatrix4x4 transform = ExportParams::GenerateMatrix(
         static_cast<ExportParams::VideoScalingMethod>(video_tab_->scaling_method_combobox()->currentData().toInt()),
-        viewer_node_->video_params().width(),
-        viewer_node_->video_params().height(),
+        vp.width(),
+        vp.height(),
         static_cast<int>(video_tab_->width_slider()->GetValue()),
         static_cast<int>(video_tab_->height_slider()->GetValue())
   );

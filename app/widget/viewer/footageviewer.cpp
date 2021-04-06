@@ -42,6 +42,8 @@ FootageViewerWidget::FootageViewerWidget(QWidget *parent) :
 
 void FootageViewerWidget::ConnectNodeInternal(ViewerOutput *n)
 {
+  super::ConnectNodeInternal(n);
+
   SetTimestamp(cached_timestamps_.value(n, 0));
 }
 
@@ -50,6 +52,8 @@ void FootageViewerWidget::DisconnectNodeInternal(ViewerOutput *n)
   // Cache timestamp in case this footage is opened again later
   cached_timestamps_.insert(n, GetTimestamp());
   SetTimestamp(0);
+
+  super::DisconnectNodeInternal(n);
 }
 
 void FootageViewerWidget::StartFootageDragInternal(bool enable_video, bool enable_audio)
@@ -64,15 +68,15 @@ void FootageViewerWidget::StartFootageDragInternal(bool enable_video, bool enabl
   QByteArray encoded_data;
   QDataStream data_stream(&encoded_data, QIODevice::WriteOnly);
 
-  QVector<Footage::StreamReference> streams = GetConnectedNode()->GetEnabledStreamsAsReferences();
+  QVector<Track::Reference> streams = GetConnectedNode()->GetEnabledStreamsAsReferences();
 
   // Disable streams that have been disabled
   if (!enable_video || !enable_audio) {
     for (int i=0; i<streams.size(); i++) {
-      const Footage::StreamReference& ref = streams.at(i);
+      const Track::Reference& ref = streams.at(i);
 
-      if ((ref.type() == Stream::kVideo && !enable_video)
-          || (ref.type() == Stream::kAudio && !enable_audio)) {
+      if ((ref.type() == Track::kVideo && !enable_video)
+          || (ref.type() == Track::kAudio && !enable_audio)) {
         streams.removeAt(i);
         i--;
       }

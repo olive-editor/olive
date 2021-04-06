@@ -25,10 +25,10 @@
 namespace olive {
 
 PreCacheTask::PreCacheTask(Footage *footage, int index, Sequence* sequence) :
-  RenderTask(new ViewerOutput(), sequence->video_params(), sequence->audio_params())
+  RenderTask(new ViewerOutput(), sequence->GetVideoParams(), sequence->GetAudioParams())
 {
-  viewer()->set_video_params(sequence->video_params());
-  viewer()->set_audio_params(sequence->audio_params());
+  viewer()->SetVideoParams(sequence->GetVideoParams());
+  viewer()->SetAudioParams(sequence->GetAudioParams());
 
   // FIXME: I've been lazy and haven't included support for anything connected to a footage input.
   //        At the moment, footage nodes have no connectable inputs so it's not a problem, but if

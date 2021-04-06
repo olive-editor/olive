@@ -24,7 +24,8 @@ namespace olive {
 
 TimeBasedPanel::TimeBasedPanel(const QString &object_name, QWidget *parent) :
   PanelWidget(object_name, parent),
-  widget_(nullptr)
+  widget_(nullptr),
+  show_and_raise_on_connect_(false)
 {
 }
 
@@ -122,6 +123,11 @@ void TimeBasedPanel::ConnectViewerNode(ViewerOutput *node)
 
   if (node) {
     connect(node, &ViewerOutput::LabelChanged, this, &TimeBasedPanel::SetSubtitle);
+
+    if (show_and_raise_on_connect_) {
+      this->show();
+      this->raise();
+    }
   }
 
   // Update strings

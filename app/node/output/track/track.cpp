@@ -673,4 +673,23 @@ uint qHash(const Track::Reference &r, uint seed)
                  seed);
 }
 
+QDataStream &operator<<(QDataStream &out, const Track::Reference &ref)
+{
+  out << static_cast<int>(ref.type()) << ref.index();
+
+  return out;
+}
+
+QDataStream &operator>>(QDataStream &in, Track::Reference &ref)
+{
+  int type;
+  int index;
+
+  in >> type >> index;
+
+  ref = Track::Reference(static_cast<Track::Type>(type), index);
+
+  return in;
+}
+
 }

@@ -70,7 +70,7 @@ private:
   QLabel* count_lbl_;
 
 private slots:
-  void UpdateCounter(const QString &input, int new_size);
+  void UpdateCounter(const QString &input, int old_size, int new_size);
 
 };
 

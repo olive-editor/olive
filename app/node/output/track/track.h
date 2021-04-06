@@ -134,6 +134,63 @@ public:
       return !(*this == ref);
     }
 
+    bool operator<(const Track::Reference& rhs) const
+    {
+      if (type_ != rhs.type_) {
+        return type_ < rhs.type_;
+      }
+
+      return index_ < rhs.index_;
+    }
+
+    QString ToString() const
+    {
+      QString type_string;
+
+      if (type_ == Track::kVideo) {
+        type_string = QStringLiteral("v");
+      } else if (type_ == Track::kAudio) {
+        type_string = QStringLiteral("a");
+      } else {
+        return QString();
+      }
+
+      return QStringLiteral("%1:%2").arg(type_string, QString::number(index_));
+    }
+
+    static Type TypeFromString(const QString& s)
+    {
+      if (s.at(1) == ':') {
+        if (s.at(0) == 'v') {
+          // Video stream
+          return Track::kVideo;
+        } else if (s.at(0) == 'a') {
+          // Audio stream
+          return Track::kAudio;
+        }
+      }
+
+      return Track::kNone;
+    }
+
+    static Reference FromString(const QString& s)
+    {
+      Reference ref;
+      Type parse_type = TypeFromString(s);
+
+      if (parse_type != Track::kNone) {
+        bool ok;
+        int parse_index = s.mid(2).toInt(&ok);
+
+        if (ok) {
+          ref.type_ = parse_type;
+          ref.index_ = parse_index;
+        }
+      }
+
+      return ref;
+    }
+
   private:
     Track::Type type_;
 
@@ -379,6 +436,10 @@ private slots:
 };
 
 uint qHash(const Track::Reference& r, uint seed = 0);
+
+QDataStream &operator<<(QDataStream &out, const Track::Reference &ref);
+
+QDataStream &operator>>(QDataStream &in, Track::Reference &ref);
 
 }
 

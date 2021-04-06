@@ -63,8 +63,6 @@ public:
 
   bool IsPlaying() const;
 
-  void ConnectViewerNode(ViewerOutput *node, ColorManager *color_manager = nullptr);
-
   /**
    * @brief Enable or disable the color management menu
    *
@@ -155,7 +153,7 @@ protected:
 
   virtual void ConnectNodeInternal(ViewerOutput *) override;
   virtual void DisconnectNodeInternal(ViewerOutput *) override;
-  virtual void ConnectedNodeChanged(ViewerOutput*n) override;
+  virtual void ConnectedNodeChanged(ViewerOutput *) override;
 
   virtual void ScaleChangedEvent(const double& s) override;
 
@@ -216,8 +214,6 @@ private:
   int64_t last_time_;
 
   bool color_menu_enabled_;
-
-  ColorManager* override_color_manager_;
 
   bool time_changed_from_timer_;
 

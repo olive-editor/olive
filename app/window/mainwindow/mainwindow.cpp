@@ -341,15 +341,9 @@ void MainWindow::ProjectClose(Project *p)
   }
 
   // Close any open footage in footage viewer
-  QVector<Footage*> footage_in_project = p->root()->ListChildrenOfType<Footage>();
-  QVector<Footage*> footage_in_viewer = footage_viewer_panel_->GetSelectedFootage();
-
-  if (!footage_in_viewer.isEmpty()) {
-    // FootageViewer only has the one footage item, check if it's in the project in which case
-    // we'll close it
-    if (footage_in_project.contains(footage_in_viewer.first())) {
-      footage_viewer_panel_->SetFootage(nullptr);
-    }
+  if (footage_viewer_panel_->GetConnectedViewer()
+      && footage_viewer_panel_->GetConnectedViewer()->project() == p) {
+    footage_viewer_panel_->DisconnectViewerNode();
   }
 
   // Close any extra folder panels

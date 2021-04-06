@@ -27,7 +27,6 @@
 #include <QVector4D>
 
 #include "common/tohex.h"
-#include "project/item/footage/stream.h"
 #include "render/audioparams.h"
 #include "render/videoparams.h"
 #include "render/color.h"

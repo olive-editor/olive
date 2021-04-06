@@ -876,7 +876,7 @@ signals:
 
   void LinksChanged();
 
-  void InputArraySizeChanged(const QString& input, int new_size);
+  void InputArraySizeChanged(const QString& input, int old_size, int new_size);
 
   void KeyframeAdded(NodeKeyframe* key);
 

@@ -234,7 +234,7 @@ void NodeTraverser::PostProcessTable(const Node *node, const TimeRange &range, N
       // Assume this is a VideoStream, we did a type check earlier in the function
       FootageJob job = v.data().value<FootageJob>();
 
-      if (job.type() == Stream::kVideo) {
+      if (job.type() == Track::kVideo) {
         QVariant value = ProcessVideoFootage(job, range.in());
 
         if (!value.isNull()) {
@@ -267,7 +267,7 @@ void NodeTraverser::PostProcessTable(const Node *node, const TimeRange &range, N
     // Assume this is an AudioStream, we did a type check earlier in the function
     FootageJob job = v.data().value<FootageJob>();
 
-    if (job.type() == Stream::kAudio) {
+    if (job.type() == Track::kAudio) {
       QVariant value = ProcessAudioFootage(job, range);
 
       if (!value.isNull()) {

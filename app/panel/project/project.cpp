@@ -57,6 +57,7 @@ ProjectPanel::ProjectPanel(QWidget *parent) :
   explorer_ = new ProjectExplorer(this);
   layout->addWidget(explorer_);
   connect(explorer_, &ProjectExplorer::DoubleClickedItem, this, &ProjectPanel::ItemDoubleClickSlot);
+  connect(explorer_, &ProjectExplorer::ItemRemoved, this, &ProjectPanel::ItemRemoved);
 
   // Set toolbar's view to the explorer's view
   toolbar->SetView(explorer_->view_type());
@@ -186,7 +187,7 @@ void ProjectPanel::ItemDoubleClickSlot(Node *item)
     Core::instance()->DialogImportShow();
   } else if (dynamic_cast<Footage*>(item)) {
     // Open this footage in a FootageViewer
-    PanelManager::instance()->MostRecentlyFocused<FootageViewerPanel>()->SetFootage(static_cast<Footage*>(item));
+    PanelManager::instance()->MostRecentlyFocused<FootageViewerPanel>()->ConnectViewerNode(static_cast<Footage*>(item));
   } else if (dynamic_cast<Sequence*>(item)) {
     // Open this sequence in the Timeline
     Core::instance()->main_window()->OpenSequence(static_cast<Sequence*>(item));
@@ -232,14 +233,24 @@ void ProjectPanel::SaveConnectedProject()
   Core::instance()->SaveProject(this->project());
 }
 
-QVector<Footage *> ProjectPanel::GetSelectedFootage() const
+void ProjectPanel::ItemRemoved(Node *item)
+{
+  // Open this footage in a FootageViewer
+  FootageViewerPanel* panel = PanelManager::instance()->MostRecentlyFocused<FootageViewerPanel>();
+
+  if (panel->GetConnectedViewer() == item) {
+    panel->DisconnectViewerNode();
+  }
+}
+
+QVector<ViewerOutput *> ProjectPanel::GetSelectedFootage() const
 {
   QVector<Node*> items = SelectedItems();
-  QVector<Footage*> footage;
+  QVector<ViewerOutput*> footage;
 
   foreach (Node* i, items) {
-    if (dynamic_cast<Footage*>(i)) {
-      footage.append(static_cast<Footage*>(i));
+    if (dynamic_cast<ViewerOutput*>(i)) {
+      footage.append(static_cast<ViewerOutput*>(i));
     }
   }
 

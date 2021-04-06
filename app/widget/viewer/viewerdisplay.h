@@ -170,6 +170,12 @@ signals:
    */
   void CursorColor(const Color& reference, const Color& display);
 
+  void DragEntered();
+
+  void DragLeft();
+
+  void Dropped();
+
 protected:
   /**
    * @brief Override the mouse press event for the DragStarted() signal and gizmos
@@ -185,6 +191,12 @@ protected:
    * @brief Override mouse release event for gizmos
    */
   virtual void mouseReleaseEvent(QMouseEvent* event) override;
+
+  virtual void dragEnterEvent(QDragEnterEvent* event) override;
+
+  virtual void dragLeaveEvent(QDragLeaveEvent* event) override;
+
+  virtual void dropEvent(QDropEvent* event) override;
 
 protected slots:
   /**

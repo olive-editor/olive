@@ -37,8 +37,10 @@
 
 namespace olive {
 
+#define super ManagedDisplayWidget
+
 ViewerDisplayWidget::ViewerDisplayWidget(QWidget *parent) :
-  ManagedDisplayWidget(parent),
+  super(parent),
   deinterlace_texture_(nullptr),
   signal_cursor_color_(false),
   gizmos_(nullptr),
@@ -219,7 +221,7 @@ void ViewerDisplayWidget::mousePressEvent(QMouseEvent *event)
       emit DragStarted();
     }
 
-    ManagedDisplayWidget::mousePressEvent(event);
+    super::mousePressEvent(event);
 
   }
 }
@@ -246,7 +248,7 @@ void ViewerDisplayWidget::mouseMoveEvent(QMouseEvent *event)
   } else {
 
     // Default behavior
-    ManagedDisplayWidget::mouseMoveEvent(event);
+    super::mouseMoveEvent(event);
 
   }
 }
@@ -269,9 +271,27 @@ void ViewerDisplayWidget::mouseReleaseEvent(QMouseEvent *event)
   } else {
 
     // Default behavior
-    ManagedDisplayWidget::mouseReleaseEvent(event);
+    super::mouseReleaseEvent(event);
 
   }
+}
+
+void ViewerDisplayWidget::dragEnterEvent(QDragEnterEvent *event)
+{
+  emit DragEntered();
+  super::dragEnterEvent(event);
+}
+
+void ViewerDisplayWidget::dragLeaveEvent(QDragLeaveEvent *event)
+{
+  emit DragLeft();
+  super::dragLeaveEvent(event);
+}
+
+void ViewerDisplayWidget::dropEvent(QDropEvent *event)
+{
+  emit Dropped();
+  super::dropEvent(event);
 }
 
 void ViewerDisplayWidget::OnPaint()
@@ -402,7 +422,7 @@ void ViewerDisplayWidget::OnPaint()
 
 void ViewerDisplayWidget::OnDestroy()
 {
-  ManagedDisplayWidget::OnDestroy();
+  super::OnDestroy();
 
   texture_ = nullptr;
 }

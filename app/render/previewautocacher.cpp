@@ -16,8 +16,7 @@ PreviewAutoCacher::PreviewAutoCacher() :
   use_custom_range_(false),
   single_frame_render_(nullptr),
   last_update_time_(0),
-  ignore_next_mouse_button_(false),
-  color_manager_(nullptr)
+  ignore_next_mouse_button_(false)
 {
   // Set default autocache range
   SetPlayhead(rational());
@@ -70,7 +69,7 @@ void PreviewAutoCacher::GenerateHashes(ViewerOutput *viewer, FrameHashCache* cac
 
   foreach (const rational& time, times) {
     // See if hash already exists in disk cache
-    QByteArray hash = RenderManager::Hash(viewer->GetConnectedNode(ViewerOutput::kTextureInput), viewer->video_params(), time);
+    QByteArray hash = RenderManager::Hash(viewer->GetConnectedNode(ViewerOutput::kTextureInput), viewer->GetVideoParams(), time);
 
     // Check memory list since disk checking is slow
     bool hash_exists = (std::find(existing_hashes.begin(), existing_hashes.end(), hash) != existing_hashes.end());
@@ -164,7 +163,7 @@ void PreviewAutoCacher::AudioRendered()
                                                                                                watcher->GetTicket()->GetJobTime());
           if (!valid_ranges.isEmpty()) {
             // Generate visual waveform in this background thread
-            track->waveform().set_channel_count(viewer_node_->audio_params().channel_count());
+            track->waveform().set_channel_count(viewer_node_->GetAudioParams().channel_count());
 
             foreach (const TimeRange& r, valid_ranges) {
               track->waveform().OverwriteSums(waveform_info.waveform, r.in(), r.in() - waveform_info.range.in(), r.length());
@@ -510,7 +509,7 @@ void PreviewAutoCacher::TryRender()
     single_frame_render_->Start();
 
     watcher->SetTicket(RenderManager::instance()->RenderFrame(copied_viewer_node_,
-                                                              color_manager_,
+                                                              copied_color_manager_,
                                                               single_frame_render_->property("time").value<rational>(),
                                                               RenderMode::kOffline,
                                                               viewer_node_->video_frame_cache(),
@@ -556,7 +555,7 @@ void PreviewAutoCacher::RequeueFrames()
           connect(watcher, &RenderTicketWatcher::Finished, this, &PreviewAutoCacher::VideoRendered);
           video_tasks_.insert(watcher, hash);
           watcher->SetTicket(RenderManager::instance()->RenderFrame(copied_viewer_node_,
-                                                                    color_manager_,
+                                                                    copied_color_manager_,
                                                                     t,
                                                                     RenderMode::kOffline,
                                                                     viewer_node_->video_frame_cache(),
@@ -662,10 +661,11 @@ void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
 
     // Find copied viewer node
     copied_viewer_node_ = static_cast<ViewerOutput*>(copy_map_.value(viewer_node_));
+    copied_color_manager_ = static_cast<ColorManager*>(copy_map_.value(viewer_node_->project()->color_manager()));
 
     // Copy parameters
-    copied_viewer_node_->set_video_params(viewer_node_->video_params());
-    copied_viewer_node_->set_audio_params(viewer_node_->audio_params());
+    copied_viewer_node_->SetVideoParams(viewer_node_->GetVideoParams());
+    copied_viewer_node_->SetAudioParams(viewer_node_->GetAudioParams());
 
     // Add all connections
     foreach (Node* node, graph->nodes()) {

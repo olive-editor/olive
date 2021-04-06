@@ -418,8 +418,10 @@ void NodeParamViewItemBody::ArrayCollapseBtnPressed(bool checked)
   emit ArrayExpandedChanged(checked);
 }
 
-void NodeParamViewItemBody::InputArraySizeChanged(const QString& input, int size)
+void NodeParamViewItemBody::InputArraySizeChanged(const QString& input, int old_sz, int size)
 {
+  Q_UNUSED(old_sz)
+
   Node* node = static_cast<Node*>(sender());
 
   ArrayUI& array_ui = array_ui_[{node, input}];

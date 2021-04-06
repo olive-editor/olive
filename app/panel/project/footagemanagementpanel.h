@@ -29,7 +29,7 @@ namespace olive {
 
 class FootageManagementPanel {
 public:
-  virtual QVector<Footage*> GetSelectedFootage() const = 0;
+  virtual QVector<ViewerOutput *> GetSelectedFootage() const = 0;
 };
 
 }

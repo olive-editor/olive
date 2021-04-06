@@ -39,7 +39,7 @@ NodeParamViewArrayWidget::NodeParamViewArrayWidget(Node *node, const QString &in
 
   connect(node_, &Node::InputArraySizeChanged, this, &NodeParamViewArrayWidget::UpdateCounter);
 
-  UpdateCounter(input_, node_->InputArraySize(input_));
+  UpdateCounter(input_, 0, node_->InputArraySize(input_));
 }
 
 void NodeParamViewArrayWidget::mouseDoubleClickEvent(QMouseEvent *event)
@@ -49,8 +49,9 @@ void NodeParamViewArrayWidget::mouseDoubleClickEvent(QMouseEvent *event)
   emit DoubleClicked();
 }
 
-void NodeParamViewArrayWidget::UpdateCounter(const QString& input, int new_size)
+void NodeParamViewArrayWidget::UpdateCounter(const QString& input, int old_size, int new_size)
 {
+  Q_UNUSED(old_size)
   if (input == input_) {
     count_lbl_->setText(tr("%1 element(s)").arg(new_size));
   }

@@ -114,7 +114,6 @@ protected:
 
 private:
   Track::Type ConnectedTrackType();
-  Stream::Type TrackTypeToStreamType(Track::Type track_type);
 
   TimelineCoordinate ScreenToCoordinate(const QPoint& pt);
   TimelineCoordinate SceneToCoordinate(const QPointF& pt);

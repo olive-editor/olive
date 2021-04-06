@@ -100,7 +100,7 @@ bool FFmpegDecoder::OpenInternal()
   int64_t ts;
 
   // If it's an image sequence, we'll probably need to transform the filename
-  if (stream().GetStream().video_type() == Stream::kVideoTypeImageSequence) {
+  if (stream().GetStream().video_type() == Track::kVideoTypeImageSequence) {
     ts = stream().GetTimeInTimebaseUnits(timecode);
 
     img_filename = TransformImageSequenceFileName(stream().filename(), ts);

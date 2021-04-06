@@ -37,7 +37,6 @@ extern "C" {
 #include "common/rational.h"
 #include "project/item/footage/footage.h"
 #include "project/item/footage/footagedescription.h"
-#include "project/item/footage/stream.h"
 
 namespace olive {
 
