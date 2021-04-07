@@ -83,11 +83,6 @@ jobs:
           # Create install tree
           cmake --install app --prefix appdir/usr
 
-          # Ensure OpenSSL is included
-          mkdir -p appdir/usr/lib
-          cp -L /usr/lib64/libcrypto.so.10 appdir/usr/lib
-          cp -L /usr/lib64/libssl.so.10 appdir/usr/lib
-
           # Process AppDir
           /usr/local/linuxdeployqt-x86_64.AppImage \
             appdir/usr/share/applications/org.olivevideoeditor.Olive.desktop \
@@ -96,8 +91,6 @@ jobs:
             -executable=appdir/usr/bin/crashpad_handler \
             -executable=appdir/usr/bin/minidump_stackwalk \
             -executable=appdir/usr/bin/olive-crashhandler \
-            -executable=appdir/usr/lib/libcrypto.so.10
-            -executable=appdir/usr/lib/libssl.so.10
             --appimage-extract-and-run
 
           # Dump Crashpad symbols
