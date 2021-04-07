@@ -214,6 +214,10 @@ void NodeParamView::TimebaseChangedEvent(const rational &timebase)
 
   keyframe_view_->SetTimebase(timebase);
 
+  foreach (NodeParamViewItem* item, items_) {
+      item->SetTimebase(timebase);
+  }
+
   UpdateItemTime(GetTimestamp());
 }
 

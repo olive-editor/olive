@@ -81,6 +81,11 @@ void NodeParamViewItem::SetTime(const rational &time)
   body_->SetTime(time_);
 }
 
+void NodeParamViewItem::SetTimebase(const rational& timebase)
+{
+    body_->SetTimebase(timebase);
+}
+
 Node *NodeParamViewItem::GetNode() const
 {
   return node_;
@@ -502,6 +507,12 @@ void NodeParamViewItemBody::ToggleArrayExpanded()
       b->setChecked(!b->isChecked());
       return;
     }
+  }
+}
+
+void NodeParamViewItemBody::SetTimebase(const rational& timebase) {
+  foreach (const InputUI& ui_obj, input_ui_map_) {
+      ui_obj.widget_bridge->SetTimebase(timebase);
   }
 }
 

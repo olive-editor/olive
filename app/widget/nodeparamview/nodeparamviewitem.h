@@ -85,6 +85,8 @@ public:
 
   int GetElementY(NodeInput c) const;
 
+   void SetTimebase(const rational& timebase);
+
 signals:
   void RequestSetTime(const rational& time);
 
@@ -158,6 +160,8 @@ public:
   void SetTimeTarget(Node* target);
 
   void SetTime(const rational& time);
+
+  void SetTimebase(const rational& timebase);
 
   Node* GetNode() const;
 
