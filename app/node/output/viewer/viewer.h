@@ -150,7 +150,7 @@ public:
   static const uint64_t kVideoParamEditMask;
 
 signals:
-  void TimebaseChanged(const rational&);
+  void FrameRateChanged(const rational&);
 
   void LengthChanged(const rational& length);
 

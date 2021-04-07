@@ -122,6 +122,11 @@ public:
     time_base_ = r;
   }
 
+  rational frame_rate_as_time_base() const
+  {
+    return frame_rate_.flipped();
+  }
+
   int divider() const
   {
     return divider_;

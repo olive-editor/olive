@@ -170,11 +170,11 @@ signals:
    */
   void CursorColor(const Color& reference, const Color& display);
 
-  void DragEntered();
+  void DragEntered(QDragEnterEvent* event);
 
-  void DragLeft();
+  void DragLeft(QDragLeaveEvent* event);
 
-  void Dropped();
+  void Dropped(QDropEvent* event);
 
 protected:
   /**

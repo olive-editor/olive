@@ -278,20 +278,29 @@ void ViewerDisplayWidget::mouseReleaseEvent(QMouseEvent *event)
 
 void ViewerDisplayWidget::dragEnterEvent(QDragEnterEvent *event)
 {
-  emit DragEntered();
-  super::dragEnterEvent(event);
+  emit DragEntered(event);
+
+  if (!event->isAccepted()) {
+    super::dragEnterEvent(event);
+  }
 }
 
 void ViewerDisplayWidget::dragLeaveEvent(QDragLeaveEvent *event)
 {
-  emit DragLeft();
-  super::dragLeaveEvent(event);
+  emit DragLeft(event);
+
+  if (!event->isAccepted()) {
+    super::dragLeaveEvent(event);
+  }
 }
 
 void ViewerDisplayWidget::dropEvent(QDropEvent *event)
 {
-  emit Dropped();
-  super::dropEvent(event);
+  emit Dropped(event);
+
+  if (!event->isAccepted()) {
+    super::dropEvent(event);
+  }
 }
 
 void ViewerDisplayWidget::OnPaint()
@@ -345,7 +354,7 @@ void ViewerDisplayWidget::OnPaint()
     rational node_time = GetGizmoTime();
 
     gizmo_db_ = gt.GenerateDatabase(gizmos_, TimeRange(node_time,
-                                                       node_time + gizmo_params_.time_base()));
+                                                       node_time + gizmo_params_.frame_rate_as_time_base()));
 
     QPainter p(inner_widget());
     p.setWorldTransform(GenerateGizmoTransform());

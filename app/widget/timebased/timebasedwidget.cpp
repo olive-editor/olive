@@ -74,46 +74,58 @@ ViewerOutput *TimeBasedWidget::GetConnectedNode() const
 
 void TimeBasedWidget::ConnectViewerNode(ViewerOutput *node)
 {
+  // Ignore no-op
   if (viewer_node_ == node) {
     return;
   }
 
   if (viewer_node_) {
+    // Call potential derivative functions for disconnecting the viewer node
     DisconnectNodeInternal(viewer_node_);
 
+    // Disconnect length changed signal
     disconnect(viewer_node_, &ViewerOutput::LengthChanged, this, &TimeBasedWidget::UpdateMaximumScroll);
-    disconnect(viewer_node_, &ViewerOutput::TimebaseChanged, this, &TimeBasedWidget::SetTimebase);
 
-    if (auto_set_timebase_) {
-      SetTimebase(rational());
-    }
+    // Reset timebase to null
+    SetTimebase(rational());
 
+    // Disconnect ruler and scrollbar from timeline points
     ruler()->ConnectTimelinePoints(nullptr);
     scrollbar_->ConnectTimelinePoints(nullptr);
   }
 
+  // Set viewer node
   viewer_node_ = node;
 
+  // Call derivatives
   ConnectedNodeChanged(viewer_node_);
 
   if (viewer_node_) {
+    // Connect length changed signal
     connect(viewer_node_, &ViewerOutput::LengthChanged, this, &TimeBasedWidget::UpdateMaximumScroll);
 
+    // Connect ruler and scrollbar to timeline points
     ruler()->ConnectTimelinePoints(viewer_node_->GetTimelinePoints());
     scrollbar_->ConnectTimelinePoints(viewer_node_->GetTimelinePoints());
 
+    // If we're setting the timebase, set it automatically based on the video and audio parameters
     if (auto_set_timebase_) {
-      if (!viewer_node_->GetVideoParams().time_base().isNull()) {
-        SetTimebase(viewer_node_->GetVideoParams().time_base());
-      } else if (viewer_node_->GetAudioParams().sample_rate() > 0) {
-        SetTimebase(viewer_node_->GetAudioParams().time_base());
-      } else {
-        SetTimebase(rational());
-      }
+      rational video_tb = viewer_node_->GetVideoParams().frame_rate_as_time_base();
 
-      connect(viewer_node_, &ViewerOutput::TimebaseChanged, this, &TimeBasedWidget::SetTimebase);
+      if (!video_tb.isNull()) {
+        SetTimebase(video_tb);
+      } else {
+        rational audio_tb = viewer_node_->GetAudioParams().sample_rate_as_time_base();
+
+        if (!audio_tb.isNull()) {
+          SetTimebase(audio_tb);
+        } else {
+          SetTimebase(rational());
+        }
+      }
     }
 
+    // Call derivatives
     ConnectNodeInternal(viewer_node_);
   }
 

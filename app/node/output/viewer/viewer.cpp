@@ -92,30 +92,13 @@ QString ViewerOutput::Description() const
 
 QString ViewerOutput::duration() const
 {
-  /*rational timeline_length = GetLength();
-
-  rational timebase = GetVideoParams().time_base();
-
-  int64_t timestamp = Timecode::time_to_timestamp(timeline_length, timebase);
-
-  return Timecode::timestamp_to_timecode(timestamp, timebase, Core::instance()->GetTimecodeDisplay());*/
   // Try video first
   VideoParams video = GetFirstEnabledVideoStream();
 
   if (video.is_valid() && video.video_type() != VideoParams::kVideoTypeStill) {
-    int64_t duration = video.duration();
+    rational frame_rate_timebase = video.frame_rate_as_time_base();
 
-    rational frame_rate_timebase = video.frame_rate().flipped();
-    if (frame_rate_timebase.isNull()) {
-      frame_rate_timebase = video.time_base();
-    }
-
-    if (video.time_base() != frame_rate_timebase) {
-      // Convert from timebase to frame rate
-      duration = Timecode::rescale_timestamp_ceil(duration, video.time_base(), frame_rate_timebase);
-    }
-
-    return Timecode::timestamp_to_timecode(duration,
+    return Timecode::timestamp_to_timecode(Timecode::rescale_timestamp_ceil(video.duration(), video.time_base(), frame_rate_timebase),
                                            frame_rate_timebase,
                                            Core::instance()->GetTimecodeDisplay());
   }
@@ -147,13 +130,7 @@ QString ViewerOutput::rate() const
     VideoParams video_stream = GetFirstEnabledVideoStream();
 
     if (video_stream.video_type() != VideoParams::kVideoTypeStill) {
-      rational using_tb = video_stream.frame_rate();
-
-      if (using_tb.isNull()) {
-        using_tb = video_stream.time_base().flipped();
-      }
-
-      return tr("%1 FPS").arg(using_tb.toDouble());
+      return tr("%1 FPS").arg(video_stream.frame_rate().toDouble());
     }
   } else if (HasEnabledAudioStreams()) {
     // No video streams, return audio
@@ -414,7 +391,7 @@ void ViewerOutput::InputValueChangedEvent(const QString &input, int element)
       VideoParams new_video_params = GetVideoParams();
 
       bool size_changed = cached_video_params_.width() != new_video_params.width() || cached_video_params_.height() != new_video_params.height();
-      bool timebase_changed = cached_video_params_.time_base() != new_video_params.time_base();
+      bool frame_rate_changed = cached_video_params_.frame_rate() != new_video_params.frame_rate();
       bool pixel_aspect_changed = cached_video_params_.pixel_aspect_ratio() != new_video_params.pixel_aspect_ratio();
       bool interlacing_changed = cached_video_params_.interlacing() != new_video_params.interlacing();
 
@@ -430,9 +407,9 @@ void ViewerOutput::InputValueChangedEvent(const QString &input, int element)
         emit InterlacingChanged(new_video_params.interlacing());
       }
 
-      if (timebase_changed) {
-        video_frame_cache_.SetTimebase(new_video_params.time_base());
-        emit TimebaseChanged(new_video_params.time_base());
+      if (frame_rate_changed) {
+        video_frame_cache_.SetTimebase(new_video_params.frame_rate_as_time_base());
+        emit FrameRateChanged(new_video_params.frame_rate());
       }
 
       emit VideoParamsChanged();
@@ -479,7 +456,7 @@ void ViewerOutput::set_parameters_from_footage(const QVector<ViewerOutput *> foo
         // prioritize
         using_timebase = GetVideoParams().time_base();
       } else {
-        using_timebase = s.frame_rate().flipped();
+        using_timebase = s.frame_rate_as_time_base();
         found_video_params = true;
       }
 

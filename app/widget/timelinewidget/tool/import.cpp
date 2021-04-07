@@ -281,7 +281,7 @@ void ImportTool::PrepGhosts(const rational& frame, const int& track_index)
   if (parent()->GetConnectedNode()) {
     FootageToGhosts(frame,
                     dragged_footage_,
-                    parent()->timebase(),
+                    parent()->GetConnectedNode()->GetVideoParams().time_base(),
                     track_index);
   }
 }

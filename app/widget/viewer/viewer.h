@@ -288,6 +288,10 @@ private slots:
 
   void TimeChangedFromWaveform(qint64 t);
 
+  void DragEntered(QDragEnterEvent* event);
+
+  void Dropped(QDropEvent* event);
+
 };
 
 }

@@ -71,10 +71,13 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   stack_->addWidget(sizer_);
 
   display_widget_ = new ViewerDisplayWidget();
+  display_widget_->setAcceptDrops(true);
   connect(display_widget_, &ViewerDisplayWidget::customContextMenuRequested, this, &ViewerWidget::ShowContextMenu);
   connect(display_widget_, &ViewerDisplayWidget::CursorColor, this, &ViewerWidget::CursorColor);
   connect(display_widget_, &ViewerDisplayWidget::ColorProcessorChanged, this, &ViewerWidget::ColorProcessorChanged);
   connect(display_widget_, &ViewerDisplayWidget::ColorManagerChanged, this, &ViewerWidget::ColorManagerChanged);
+  connect(display_widget_, &ViewerDisplayWidget::DragEntered, this, &ViewerWidget::DragEntered);
+  connect(display_widget_, &ViewerDisplayWidget::Dropped, this, &ViewerWidget::Dropped);
   connect(sizer_, &ViewerSizer::RequestScale, display_widget_, &ViewerDisplayWidget::SetMatrixZoom);
   connect(sizer_, &ViewerSizer::RequestTranslate, display_widget_, &ViewerDisplayWidget::SetMatrixTranslate);
   connect(display_widget_, &ViewerDisplayWidget::HandDragMoved, sizer_, &ViewerSizer::HandDragMove);
@@ -118,6 +121,8 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   SetAutoMaxScrollBar(true);
 
   instances_.append(this);
+
+  setAcceptDrops(true);
 }
 
 ViewerWidget::~ViewerWidget()
@@ -1211,6 +1216,39 @@ void ViewerWidget::ViewerShiftedRange(const rational &from, const rational &to)
 {
   if (GetTime() >= qMin(from, to)) {
     QMetaObject::invokeMethod(this, "ForceUpdate", Qt::QueuedConnection);
+  }
+}
+
+void ViewerWidget::DragEntered(QDragEnterEvent* event)
+{
+  if (event->mimeData()->formats().contains(QStringLiteral("application/x-oliveprojectitemdata"))) {
+    event->accept();
+  }
+}
+
+void ViewerWidget::Dropped(QDropEvent *event)
+{
+  QByteArray mimedata = event->mimeData()->data(QStringLiteral("application/x-oliveprojectitemdata"));
+  QDataStream stream(&mimedata, QIODevice::ReadOnly);
+
+  // Variables to deserialize into
+  quintptr item_ptr = 0;
+  QVector<Track::Reference> enabled_streams;
+
+  while (!stream.atEnd()) {
+    stream >> enabled_streams >> item_ptr;
+
+    // We only need the one item
+    break;
+  }
+
+  if (item_ptr) {
+    Node* item = reinterpret_cast<Node*>(item_ptr);
+    ViewerOutput* viewer = dynamic_cast<ViewerOutput*>(item);
+
+    if (viewer) {
+      ConnectViewerNode(viewer);
+    }
   }
 }
 

@@ -163,7 +163,7 @@ void ExportTask::FrameDownloaded(FramePtr f, const QByteArray &hash, const QVect
 
   forever {
     rational real_time = Timecode::timestamp_to_time(frame_time_,
-                                                     viewer()->GetVideoParams().time_base());
+                                                     viewer()->GetVideoParams().frame_rate_as_time_base());
 
     if (!time_map_.contains(real_time)) {
       break;

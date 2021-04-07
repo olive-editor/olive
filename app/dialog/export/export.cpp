@@ -195,7 +195,7 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   video_tab_->width_slider()->SetDefaultValue(vp.width());
   video_tab_->height_slider()->SetValue(vp.height());
   video_tab_->height_slider()->SetDefaultValue(vp.height());
-  video_tab_->frame_rate_combobox()->SetFrameRate(vp.time_base().flipped());
+  video_tab_->frame_rate_combobox()->SetFrameRate(vp.frame_rate());
   video_tab_->pixel_aspect_combobox()->SetPixelAspectRatio(vp.pixel_aspect_ratio());
   video_tab_->pixel_format_field()->SetPixelFormat(static_cast<VideoParams::Format>(Config::Current()["OnlinePixelFormat"].toInt()));
   video_tab_->interlaced_combobox()->SetInterlaceMode(vp.interlacing());

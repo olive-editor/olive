@@ -112,7 +112,8 @@ VideoParams::VideoParams(int width, int height, const rational &time_base, Forma
   channel_count_(nb_channels),
   pixel_aspect_ratio_(pixel_aspect_ratio),
   interlacing_(interlacing),
-  divider_(divider)
+  divider_(divider),
+  frame_rate_(time_base.flipped())
 {
   calculate_effective_size();
   validate_pixel_aspect_ratio();

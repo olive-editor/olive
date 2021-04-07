@@ -74,6 +74,7 @@ public:
     format_(format)
   {
     set_default_footage_parameters();
+    timebase_ = sample_rate_as_time_base();
   }
 
   int sample_rate() const
@@ -98,16 +99,17 @@ public:
 
   rational time_base() const
   {
-    if (timebase_.isNull()) {
-      return rational(1, sample_rate());
-    } else {
-      return timebase_;
-    }
+    return timebase_;
   }
 
   void set_time_base(const rational& timebase)
   {
     timebase_ = timebase;
+  }
+
+  rational sample_rate_as_time_base() const
+  {
+    return rational(1, sample_rate());
   }
 
   Format format() const

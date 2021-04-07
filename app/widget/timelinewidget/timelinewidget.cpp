@@ -224,11 +224,10 @@ void TimelineWidget::ConnectNodeInternal(ViewerOutput *n)
 
   connect(s, &Sequence::TrackAdded, this, &TimelineWidget::AddTrack);
   connect(s, &Sequence::TrackRemoved, this, &TimelineWidget::RemoveTrack);
-  connect(n, &ViewerOutput::TimebaseChanged, this, &TimelineWidget::SetTimebase);
 
   ruler()->SetPlaybackCache(n->video_frame_cache());
 
-  SetTimebase(n->GetVideoParams().time_base());
+  SetTimebase(n->GetVideoParams().frame_rate_as_time_base());
 
   for (int i=0;i<views_.size();i++) {
     Track::Type track_type = static_cast<Track::Type>(i);
@@ -253,7 +252,6 @@ void TimelineWidget::DisconnectNodeInternal(ViewerOutput *n)
 
   disconnect(s, &Sequence::TrackAdded, this, &TimelineWidget::AddTrack);
   disconnect(s, &Sequence::TrackRemoved, this, &TimelineWidget::RemoveTrack);
-  disconnect(n, &ViewerOutput::TimebaseChanged, this, &TimelineWidget::SetTimebase);
 
   DeselectAll();
 

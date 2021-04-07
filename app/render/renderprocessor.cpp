@@ -62,7 +62,7 @@ void RenderProcessor::Run()
     NodeOutput texture_output = viewer->GetConnectedTextureOutput();
     if (texture_output.IsValid()) {
       table = GenerateTable(texture_output.node(), texture_output.output(),
-                            TimeRange(time, time + video_params.time_base()));
+                            TimeRange(time, time + video_params.frame_rate_as_time_base()));
     }
 
     TexturePtr texture = table.Get(NodeValue::kTexture).value<TexturePtr>();
