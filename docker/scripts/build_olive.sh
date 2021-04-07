@@ -22,7 +22,6 @@ libQt5Pdf.so,\
 libQt5Qml.so,\
 libQt5QmlModels.so,\
 libQt5Quick.so,\
-libQt5Svg.so,\
 libQt5VirtualKeyboard.so \
   -bundle-non-qt-libs \
   -executable=appdir/usr/bin/crashpad_handler \
