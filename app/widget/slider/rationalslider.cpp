@@ -25,7 +25,6 @@ RationalSlider::RationalSlider(QWidget *parent) :
   display_type_(kTimecode),
   decimal_places_(2),
   autotrim_decimal_places_(false),
-  timebase_(rational(1,24)),
   lock_display_type_(false)
 {
   connect(this, SIGNAL(ValueChanged(QVariant)), this, SLOT(ConvertValue(QVariant)));

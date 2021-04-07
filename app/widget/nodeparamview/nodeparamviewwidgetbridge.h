@@ -76,6 +76,8 @@ private:
 
   rational time_;
 
+  rational timebase_;
+
   NodeInputDragger dragger_;
 
   NodeParamViewScrollBlocker scroll_filter_;

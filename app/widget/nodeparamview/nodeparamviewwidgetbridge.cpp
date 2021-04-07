@@ -528,6 +528,8 @@ rational NodeParamViewWidgetBridge::GetCurrentTimeAsNodeTime() const
 
 void NodeParamViewWidgetBridge::SetTimebase(const rational& timebase)
 {
+  timebase_ = timebase;
+
   if (input_.GetDataType() == NodeValue::kRational) {
     static_cast<RationalSlider*>(widgets_.first())->SetTimebase(timebase);
   }

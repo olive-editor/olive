@@ -133,6 +133,7 @@ NodeParamView::NodeParamView(QWidget *parent) :
           &QApplication::focusChanged,
           this,
           &NodeParamView::FocusChanged);
+
 }
 
 void NodeParamView::SelectNodes(const QVector<Node *> &nodes)
@@ -314,6 +315,9 @@ void NodeParamView::AddNode(Node *n)
 
   // Set time target
   item->SetTimeTarget(GetTimeTarget());
+
+  // Set the timebase
+  item->SetTimebase(timebase());
 
   items_.insert(n, item);
   param_widget_area_->addDockWidget(Qt::LeftDockWidgetArea, item);
