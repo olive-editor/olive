@@ -56,7 +56,6 @@ void FrameHashCache::SetHash(const rational &time, const QByteArray &hash, const
     if (job.range.Contains(time)
         && job_time < job.job_time) {
       // Hash here has changed since this frame started rendering, discard it
-      qDebug() << "Discarded hash because old";
       return;
     }
   }
@@ -72,7 +71,6 @@ void FrameHashCache::SetHash(const rational &time, const QByteArray &hash, const
 
 void FrameHashCache::SetTimebase(const rational &tb)
 {
-  qDebug() << "Hello timebase" << tb;
   timebase_ = tb;
 }
 
