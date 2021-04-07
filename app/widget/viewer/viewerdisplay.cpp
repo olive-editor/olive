@@ -353,8 +353,8 @@ void ViewerDisplayWidget::OnPaint()
 
     rational node_time = GetGizmoTime();
 
-    gizmo_db_ = gt.GenerateDatabase(gizmos_, TimeRange(node_time,
-                                                       node_time + gizmo_params_.frame_rate_as_time_base()));
+    gizmo_db_ = gt.GenerateDatabase(gizmos_, QString(),
+                                    TimeRange(node_time, node_time + gizmo_params_.frame_rate_as_time_base()));
 
     QPainter p(inner_widget());
     p.setWorldTransform(GenerateGizmoTransform());

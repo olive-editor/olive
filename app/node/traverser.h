@@ -42,7 +42,7 @@ public:
     return GenerateTable(output.node(), output.output(), range);
   }
 
-  NodeValueDatabase GenerateDatabase(const Node *node, const TimeRange &range);
+  NodeValueDatabase GenerateDatabase(const Node *node, const QString &output, const TimeRange &range);
 
 protected:
   NodeValueTable ProcessInput(const Node *node, const QString &input, const TimeRange &range);

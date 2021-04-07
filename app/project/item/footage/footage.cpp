@@ -57,6 +57,12 @@ void Footage::Retranslate()
   SetInputName(kFilenameInput, tr("Filename"));
 }
 
+QVector<QString> Footage::inputs_for_output(const QString &output) const
+{
+  Q_UNUSED(output)
+  return {kFilenameInput};
+}
+
 bool Footage::LoadCustom(QXmlStreamReader *reader, XMLNodeData &xml_node_data, uint version, const QAtomicInt* cancelled)
 {
   if (reader->name() == QStringLiteral("timestamp")) {

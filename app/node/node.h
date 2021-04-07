@@ -187,6 +187,12 @@ public:
     return input_ids_;
   }
 
+  virtual QVector<QString> inputs_for_output(const QString& output) const
+  {
+    Q_UNUSED(output)
+    return inputs();
+  }
+
   const QVector<QString>& outputs() const
   {
     return outputs_;

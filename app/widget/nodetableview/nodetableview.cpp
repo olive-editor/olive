@@ -71,7 +71,7 @@ void NodeTableView::SetTime(const rational &time)
     QTreeWidgetItem* item = i.value();
 
     // Generate a value database for this node at this time
-    NodeValueDatabase db = traverser.GenerateDatabase(node, TimeRange(time, time));
+    NodeValueDatabase db = traverser.GenerateDatabase(node, QString(), TimeRange(time, time));
 
     // Delete any children of this item that aren't in this database
     for (int j=0; j<item->childCount(); j++) {

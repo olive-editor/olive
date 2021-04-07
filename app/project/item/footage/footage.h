@@ -76,6 +76,8 @@ public:
 
   virtual void Retranslate() override;
 
+  virtual QVector<QString> inputs_for_output(const QString &output) const override;
+
   /**
    * @brief Reset Footage state ready for running through Probe() again
    *

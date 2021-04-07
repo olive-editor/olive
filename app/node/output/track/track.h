@@ -191,6 +191,11 @@ public:
       return ref;
     }
 
+    bool IsValid() const
+    {
+      return type_ > kNone && type_ < kCount && index_ >= 0;
+    }
+
   private:
     Track::Type type_;
 

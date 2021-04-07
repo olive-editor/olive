@@ -25,12 +25,13 @@
 
 namespace olive {
 
-NodeValueDatabase NodeTraverser::GenerateDatabase(const Node* node, const TimeRange &range)
+NodeValueDatabase NodeTraverser::GenerateDatabase(const Node* node, const QString& output, const TimeRange &range)
 {
   NodeValueDatabase database;
 
   // We need to insert tables into the database for each input
-  foreach (const QString& input, node->inputs()) {
+  auto inputs = node->inputs_for_output(output);
+  foreach (const QString& input, inputs) {
     if (IsCancelled()) {
       return NodeValueDatabase();
     }
@@ -104,7 +105,7 @@ NodeValueTable NodeTraverser::GenerateTable(const Node *n, const QString& output
   // FIXME: Cache certain values here if we've already processed them before
 
   // Generate database of input values of node
-  NodeValueDatabase database = GenerateDatabase(n, range);
+  NodeValueDatabase database = GenerateDatabase(n, output, range);
 
   // By this point, the node should have all the inputs it needs to render correctly
   NodeValueTable table = n->Value(output, database);

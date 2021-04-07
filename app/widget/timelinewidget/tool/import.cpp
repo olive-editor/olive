@@ -198,60 +198,21 @@ void ImportTool::FootageToGhosts(rational ghost_start, const QMap<ViewerOutput *
     QVector<int> track_offsets(Track::kCount);
     track_offsets.fill(track_start);
 
-    QVector<TimelineViewGhostItem*> footage_ghosts;
+    ViewerOutput* footage = it.key();
     rational footage_duration;
-    bool contains_image_stream = false;
+    rational ghost_in;
 
-    foreach (const Track::Reference& ref, it.value()) {
-      Track::Type track_type = ref.type();
+    TimelineWorkArea* wk = footage->GetTimelinePoints()->workarea();
+    if (wk->enabled()) {
+      footage_duration = wk->length();
+      ghost_in = wk->in();
+    } else {
+      footage_duration = footage->GetLength();
 
-      TimelineViewGhostItem* ghost = new TimelineViewGhostItem();
-
-      if (ref.type() == Track::kVideo && it.key()->GetVideoParams(ref.index()).video_type() == VideoParams::kVideoTypeStill) {
-        // Stream is essentially length-less - we may use the default still image length in config,
-        // or we may use another stream's length depending on the circumstance
-        contains_image_stream = true;
-      } else {
-        // Rescale stream duration to timeline timebase
-        // Convert to rational time
-        TimelinePoints* tp = it.key()->GetTimelinePoints();
-        if (tp->workarea()->enabled()) {
-          footage_duration = qMax(footage_duration, tp->workarea()->range().length());
-          ghost->SetMediaIn(tp->workarea()->in());
-        } else {
-          int64_t dur;
-          rational tb;
-
-          if (ref.type() == Track::kVideo) {
-            VideoParams vp = it.key()->GetVideoParams(ref.index());
-            dur = vp.duration();
-            tb = vp.time_base();
-          } else {
-            AudioParams ap = it.key()->GetAudioParams(ref.index());
-            dur = ap.duration();
-            tb = ap.time_base();
-          }
-
-          int64_t stream_duration = Timecode::rescale_timestamp_ceil(dur, tb, dest_tb);
-          footage_duration = qMax(footage_duration, Timecode::timestamp_to_time(stream_duration, dest_tb));
-        }
+      if (footage_duration.isNull()) {
+        // Fallback to still length if legngth was 0
+        footage_duration = Config::Current()[QStringLiteral("DefaultStillLength")].value<rational>();
       }
-
-      ghost->SetTrack(Track::Reference(track_type, track_offsets.at(track_type)));
-
-      // Increment track count for this track type
-      track_offsets[track_type]++;
-
-      TimelineViewGhostItem::AttachedFootage af = {it.key(), ref.ToString()};
-      ghost->SetData(TimelineViewGhostItem::kAttachedFootage, QVariant::fromValue(af));
-      ghost->SetMode(Timeline::kMove);
-
-      footage_ghosts.append(ghost);
-    }
-
-    if (contains_image_stream && footage_duration.isNull()) {
-      // Footage must ONLY be image streams so no duration value was found, use default in config
-      footage_duration = Config::Current()["DefaultStillLength"].value<rational>();
     }
 
     // Snap footage duration to timebase
@@ -260,12 +221,26 @@ void ImportTool::FootageToGhosts(rational ghost_start, const QMap<ViewerOutput *
       footage_duration += snap_mvmt;
     }
 
-    foreach (TimelineViewGhostItem* ghost, footage_ghosts) {
+    // Create ghosts
+    foreach (const Track::Reference& ref, it.value()) {
+      Track::Type track_type = ref.type();
+
+      TimelineViewGhostItem* ghost = new TimelineViewGhostItem();
+
       ghost->SetIn(ghost_start);
       ghost->SetOut(ghost_start + footage_duration);
+      ghost->SetMediaIn(ghost_in);
+      ghost->SetTrack(Track::Reference(track_type, track_offsets.at(track_type)));
 
       snap_points_.append(ghost->GetIn());
       snap_points_.append(ghost->GetOut());
+
+      // Increment track count for this track type
+      track_offsets[track_type]++;
+
+      TimelineViewGhostItem::AttachedFootage af = {it.key(), ref.ToString()};
+      ghost->SetData(TimelineViewGhostItem::kAttachedFootage, QVariant::fromValue(af));
+      ghost->SetMode(Timeline::kMove);
 
       parent()->AddGhost(ghost);
     }

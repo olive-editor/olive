@@ -92,35 +92,34 @@ QString ViewerOutput::Description() const
 
 QString ViewerOutput::duration() const
 {
-  // Try video first
+  rational using_timebase;
+  Timecode::Display using_display = Core::instance()->GetTimecodeDisplay();
+
+  // Get first enabled streams
   VideoParams video = GetFirstEnabledVideoStream();
-
-  if (video.is_valid() && video.video_type() != VideoParams::kVideoTypeStill) {
-    rational frame_rate_timebase = video.frame_rate_as_time_base();
-
-    return Timecode::timestamp_to_timecode(Timecode::rescale_timestamp_ceil(video.duration(), video.time_base(), frame_rate_timebase),
-                                           frame_rate_timebase,
-                                           Core::instance()->GetTimecodeDisplay());
-  }
-
-  // Try audio second
   AudioParams audio = GetFirstEnabledAudioStream();
 
-  if (audio.is_valid()) {
+  if (video.is_valid() && video.video_type() != VideoParams::kVideoTypeStill) {
+    // Prioritize video
+    using_timebase = video.frame_rate_as_time_base();
+  } else if (audio.is_valid()) {
+    // Use audio as a backup
     // If we're showing in a timecode, we prefer showing audio in seconds instead
-    Timecode::Display display = Core::instance()->GetTimecodeDisplay();
-    if (display == Timecode::kTimecodeDropFrame
-        || display == Timecode::kTimecodeNonDropFrame) {
-      display = Timecode::kTimecodeSeconds;
+    if (using_display == Timecode::kTimecodeDropFrame
+        || using_display == Timecode::kTimecodeNonDropFrame) {
+      using_display = Timecode::kTimecodeSeconds;
     }
 
-    return Timecode::timestamp_to_timecode(audio.duration(),
-                                           audio.time_base(),
-                                           display);
+    using_timebase = audio.sample_rate_as_time_base();
   }
 
-  // Otherwise, return nothing
-  return QString();
+  if (using_timebase.isNull()) {
+    // No timebase, return null
+    return QString();
+  } else {
+    // Return time transformed to timecode
+    return Timecode::time_to_timecode(GetLength(), using_timebase, using_display);
+  }
 }
 
 QString ViewerOutput::rate() const
@@ -246,6 +245,20 @@ void ViewerOutput::InvalidateCache(const TimeRange& range, const QString& from, 
   }
 
   super::InvalidateCache(range, from, element, job_time);
+}
+
+QVector<QString> ViewerOutput::inputs_for_output(const QString &output) const
+{
+  QVector<QString> inputs;
+  Track::Type type = Track::Reference::TypeFromString(output);
+
+  if (type == Track::kVideo) {
+    inputs.append(kTextureInput);
+  } else if (type == Track::kAudio) {
+    inputs.append(kSamplesInput);
+  }
+
+  return inputs;
 }
 
 const rational& ViewerOutput::GetLength() const

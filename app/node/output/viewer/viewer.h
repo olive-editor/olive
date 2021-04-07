@@ -67,6 +67,8 @@ public:
 
   virtual void InvalidateCache(const TimeRange& range, const QString& from, int element, qint64 job_time) override;
 
+  virtual QVector<QString> inputs_for_output(const QString& output) const override;
+
   VideoParams GetVideoParams(int index = 0) const
   {
     return GetStandardValue(kVideoParamsInput, index).value<VideoParams>();
