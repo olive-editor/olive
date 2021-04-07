@@ -97,6 +97,7 @@ VideoParamEdit::VideoParamEdit(QWidget* parent) :
   connect(frame_rate_combobox_, static_cast<void (FrameRateComboBox::*)(int)>(&FrameRateComboBox::currentIndexChanged), this, &VideoParamEdit::Changed);
   layout->addWidget(frame_rate_combobox_, row, 1);
 
+  // FIXME: Replace with rational slider
   frame_rate_slider_ = new FloatSlider();
   connect(frame_rate_slider_, &FloatSlider::ValueChanged, this, &VideoParamEdit::Changed);
   layout->addWidget(frame_rate_slider_, row, 1);
