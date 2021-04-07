@@ -396,6 +396,8 @@ void SliderBase::RepositionLadder()
 
       drag_ladder_->move(ladder_x, ladder_y);
     }
+
+    drag_ladder_->StartListeningToMouseInput();
   }
 }
 

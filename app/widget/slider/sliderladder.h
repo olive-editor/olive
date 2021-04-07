@@ -70,10 +70,10 @@ public:
 
   void SetValue(const QString& s);
 
+  void StartListeningToMouseInput();
+
 protected:
   virtual void mouseReleaseEvent(QMouseEvent *event) override;
-
-  virtual void showEvent(QShowEvent *event) override;
 
   virtual void closeEvent(QCloseEvent* event) override;
 
