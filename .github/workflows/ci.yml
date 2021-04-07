@@ -83,6 +83,9 @@ jobs:
           # Create install tree
           cmake --install app --prefix appdir/usr
 
+          # Inject custom AppRun (linuxdeployqt won't replace if it already exists)
+          cp $GITHUB_WORKSPACE/app/packaging/linux/AppRun appdir
+
           # Process AppDir
           /usr/local/linuxdeployqt-x86_64.AppImage \
             appdir/usr/share/applications/org.olivevideoeditor.Olive.desktop \
