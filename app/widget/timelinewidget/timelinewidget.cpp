@@ -1003,7 +1003,7 @@ void TimelineWidget::SetViewTimestamp(const int64_t &ts)
     if (use_audio_time_units_ && i == Track::kAudio) {
       view->view()->SetTime(Timecode::rescale_timestamp(ts,
                                                         timebase(),
-                                                        GetConnectedNode()->GetAudioParams().time_base()));
+                                                        GetConnectedNode()->GetAudioParams().sample_rate_as_time_base()));
     } else {
       view->view()->SetTime(ts);
     }
@@ -1014,7 +1014,7 @@ void TimelineWidget::ViewTimestampChanged(int64_t ts)
 {
   if (use_audio_time_units_ && sender() == views_.at(Track::kAudio)) {
     ts = Timecode::rescale_timestamp(ts,
-                                     GetConnectedNode()->GetAudioParams().time_base(),
+                                     GetConnectedNode()->GetAudioParams().sample_rate_as_time_base(),
                                      timebase());
   }
 
@@ -1048,7 +1048,7 @@ void TimelineWidget::UpdateViewTimebases()
     TimelineAndTrackView* view = views_.at(i);
 
     if (use_audio_time_units_ && i == Track::kAudio) {
-      view->view()->SetTimebase(GetConnectedNode()->GetAudioParams().time_base());
+      view->view()->SetTimebase(GetConnectedNode()->GetAudioParams().sample_rate_as_time_base());
     } else {
       view->view()->SetTimebase(timebase());
     }
