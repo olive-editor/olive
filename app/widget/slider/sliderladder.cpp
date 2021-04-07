@@ -113,18 +113,16 @@ void SliderLadder::SetValue(const QString &s)
   }
 }
 
+void SliderLadder::StartListeningToMouseInput()
+{
+  drag_timer_.start();
+}
+
 void SliderLadder::mouseReleaseEvent(QMouseEvent *event)
 {
   Q_UNUSED(event)
 
   this->close();
-}
-
-void SliderLadder::showEvent(QShowEvent *event)
-{
-  QWidget::showEvent(event);
-
-  drag_timer_.start();
 }
 
 void SliderLadder::closeEvent(QCloseEvent *event)
@@ -134,6 +132,8 @@ void SliderLadder::closeEvent(QCloseEvent *event)
   drag_timer_.stop();
 
   emit Released();
+
+  QFrame::closeEvent(event);
 }
 
 void SliderLadder::TimerUpdate()
