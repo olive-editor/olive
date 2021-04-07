@@ -23,7 +23,9 @@ export PATH
 # Toolchain can be controlled with env vars CC, CXX and AR
 mkdir crashpad
 cd crashpad
-fetch crashpad
+git clone --depth 1 https://github.com/olive-editor/crashpad.git
+gclient config https://github.com/olive-editor/crashpad.git
+gclient sync
 cd crashpad
 # TODO: Do we want to set any special args here? For example:
 # gn gen --args="target_cpu=\"x64\" is_debug=true" out/Default
