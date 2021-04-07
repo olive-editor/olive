@@ -54,11 +54,11 @@ void RenderProcessor::Run()
   switch (type) {
   case RenderManager::kTypeVideo:
   {
-    Sequence* viewer = Node::ValueToPtr<Sequence>(ticket_->property("viewer"));
+    ViewerOutput* viewer = Node::ValueToPtr<ViewerOutput>(ticket_->property("viewer"));
     const VideoParams& video_params = ticket_->property("vparam").value<VideoParams>();
     rational time = ticket_->property("time").value<rational>();
 
-    NodeValueTable table = ProcessInput(viewer, Sequence::kTextureInput,
+    NodeValueTable table = ProcessInput(viewer, ViewerOutput::kTextureInput,
                                         TimeRange(time, time + video_params.time_base()));
 
     TexturePtr texture = table.Get(NodeValue::kTexture).value<TexturePtr>();
@@ -130,10 +130,10 @@ void RenderProcessor::Run()
   }
   case RenderManager::kTypeAudio:
   {
-    Sequence* viewer = Node::ValueToPtr<Sequence>(ticket_->property("viewer"));
+    ViewerOutput* viewer = Node::ValueToPtr<ViewerOutput>(ticket_->property("viewer"));
     TimeRange time = ticket_->property("time").value<TimeRange>();
 
-    NodeValueTable table = ProcessInput(viewer, Sequence::kSamplesInput, time);
+    NodeValueTable table = ProcessInput(viewer, ViewerOutput::kSamplesInput, time);
 
     ticket_->Finish(table.Get(NodeValue::kSamples), IsCancelled());
     break;

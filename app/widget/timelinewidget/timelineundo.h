@@ -1395,9 +1395,9 @@ public:
       QString relevant_input;
 
       if (timeline_->type() == Track::kVideo) {
-        relevant_input = Sequence::kTextureInput;
+        relevant_input = ViewerOutput::kTextureInput;
       } else {
-        relevant_input = Sequence::kSamplesInput;
+        relevant_input = ViewerOutput::kSamplesInput;
       }
 
       if (!timeline_->parent()->IsInputConnected(relevant_input)) {

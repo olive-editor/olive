@@ -313,12 +313,11 @@ void ImportTool::DropGhosts(bool insert)
   MultiUndoCommand* command = new MultiUndoCommand();
 
   NodeGraph* dst_graph = nullptr;
-  Sequence* sequence = nullptr;
+  Sequence* sequence = this->sequence();
   bool open_sequence = false;
 
-  if (parent()->GetConnectedNode()) {
-    sequence = parent()->GetConnectedNode();
-    dst_graph = parent()->GetConnectedNode()->parent();
+  if (sequence) {
+    dst_graph = sequence->parent();
   } else {
     // There's no active timeline here, ask the user what to do
 

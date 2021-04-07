@@ -550,7 +550,7 @@ void MainWindow::RemoveProjectPanel(ProjectPanel *panel)
   }
 }
 
-void MainWindow::TimelineFocused(Sequence* viewer)
+void MainWindow::TimelineFocused(ViewerOutput* viewer)
 {
   sequence_viewer_panel_->ConnectViewerNode(viewer);
   param_panel_->ConnectViewerNode(viewer);

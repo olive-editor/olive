@@ -36,7 +36,7 @@ public:
   void SetFootage(Footage* footage);
 
 protected:
-  virtual TimelinePoints* ConnectTimelinePoints() override;
+  virtual TimelinePoints* GetTimelinePointsToConnect() override;
 
   virtual Project* GetTimelinePointsProject() override;
 

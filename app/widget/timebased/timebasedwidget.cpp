@@ -68,12 +68,12 @@ const int64_t &TimeBasedWidget::GetTimestamp() const
   return ruler_->GetTime();
 }
 
-Sequence *TimeBasedWidget::GetConnectedNode() const
+ViewerOutput *TimeBasedWidget::GetConnectedNode() const
 {
   return viewer_node_;
 }
 
-void TimeBasedWidget::ConnectViewerNode(Sequence *node)
+void TimeBasedWidget::ConnectViewerNode(ViewerOutput *node)
 {
   if (viewer_node_ == node) {
     return;
@@ -101,7 +101,7 @@ void TimeBasedWidget::ConnectViewerNode(Sequence *node)
   if (viewer_node_) {
     connect(viewer_node_, &ViewerOutput::LengthChanged, this, &TimeBasedWidget::UpdateMaximumScroll);
 
-    if ((points_ = ConnectTimelinePoints())) {
+    if ((points_ = GetTimelinePointsToConnect())) {
       ruler()->ConnectTimelinePoints(points_);
       scrollbar_->ConnectTimelinePoints(points_);
     }
@@ -242,9 +242,15 @@ void TimeBasedWidget::resizeEvent(QResizeEvent *event)
   UpdateMaximumScroll();
 }
 
-TimelinePoints *TimeBasedWidget::ConnectTimelinePoints()
+TimelinePoints *TimeBasedWidget::GetTimelinePointsToConnect()
 {
-  return viewer_node_->timeline_points();
+  Sequence* sequence = dynamic_cast<Sequence*>(viewer_node_);
+
+  if (sequence) {
+    return sequence->timeline_points();
+  }
+
+  return nullptr;
 }
 
 Project *TimeBasedWidget::GetTimelinePointsProject()

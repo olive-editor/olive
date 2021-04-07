@@ -40,7 +40,7 @@ class ExportDialog : public QDialog
 {
   Q_OBJECT
 public:
-  ExportDialog(Sequence* sequence, QWidget* parent = nullptr);
+  ExportDialog(ViewerOutput* viewer_node, TimelinePoints* points, QWidget* parent = nullptr);
 
 protected:
   virtual void closeEvent(QCloseEvent *e) override;
@@ -51,7 +51,8 @@ private:
 
   ExportParams GenerateParams() const;
 
-  Sequence* sequence_;
+  ViewerOutput* viewer_node_;
+  TimelinePoints* timeline_points_;
 
   ExportFormat::Format previously_selected_format_;
 

@@ -32,15 +32,26 @@ class TimeBasedPanel : public PanelWidget
 public:
   TimeBasedPanel(const QString& object_name, QWidget *parent = nullptr);
 
-  void ConnectViewerNode(Sequence *node);
+  void ConnectViewerNode(ViewerOutput *node);
 
   void DisconnectViewerNode();
 
   rational GetTime();
 
-  Sequence *GetConnectedViewer() const;
+  ViewerOutput *GetConnectedViewer() const
+  {
+    return widget_->GetConnectedNode();
+  }
 
-  TimeRuler* ruler() const;
+  TimelinePoints* GetConnectedTimelinePoints() const
+  {
+    return widget_->GetConnectedTimelinePoints();
+  }
+
+  TimeRuler* ruler() const
+  {
+    return widget_->ruler();
+  }
 
   virtual void ZoomIn() override;
 
@@ -107,7 +118,10 @@ signals:
   void ShuttleRightRequested();
 
 protected:
-  TimeBasedWidget* GetTimeBasedWidget() const;
+  TimeBasedWidget* GetTimeBasedWidget() const
+  {
+    return widget_;
+  }
 
   void SetTimeBasedWidget(TimeBasedWidget* widget);
 

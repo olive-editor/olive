@@ -31,7 +31,7 @@ public:
   /**
    * @brief Set the viewer node to auto-cache
    */
-  void SetViewerNode(Sequence *viewer_node);
+  void SetViewerNode(ViewerOutput *viewer_node);
 
   /**
    * @brief If the mouse is held during the next cache invalidation, cache anyway
@@ -85,7 +85,7 @@ public:
   }
 
 private:
-  static void GenerateHashes(Sequence *viewer, FrameHashCache *cache, const QVector<rational>& times, qint64 job_time);
+  static void GenerateHashes(ViewerOutput *viewer, FrameHashCache *cache, const QVector<rational>& times, qint64 job_time);
 
   void TryRender();
 
@@ -125,13 +125,13 @@ private:
     NodeOutput output;
   };
 
-  Sequence* viewer_node_;
+  ViewerOutput* viewer_node_;
 
   Project copied_project_;
 
   QVector<QueuedJob> graph_update_queue_;
   QHash<Node*, Node*> copy_map_;
-  Sequence* copied_viewer_node_;
+  ViewerOutput* copied_viewer_node_;
   QVector<Node*> created_nodes_;
 
   bool paused_;

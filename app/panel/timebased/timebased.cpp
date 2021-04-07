@@ -108,22 +108,7 @@ void TimeBasedPanel::ShuttleRight()
   emit ShuttleRightRequested();
 }
 
-TimeBasedWidget *TimeBasedPanel::GetTimeBasedWidget() const
-{
-  return widget_;
-}
-
-Sequence *TimeBasedPanel::GetConnectedViewer() const
-{
-  return widget_->GetConnectedNode();
-}
-
-TimeRuler *TimeBasedPanel::ruler() const
-{
-  return widget_->ruler();
-}
-
-void TimeBasedPanel::ConnectViewerNode(Sequence *node)
+void TimeBasedPanel::ConnectViewerNode(ViewerOutput *node)
 {
   if (widget_->GetConnectedNode() == node) {
     return;

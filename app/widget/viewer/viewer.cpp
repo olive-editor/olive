@@ -35,7 +35,6 @@
 #include "common/ratiodialog.h"
 #include "common/timecodefunctions.h"
 #include "config/config.h"
-#include "project/item/sequence/sequence.h"
 #include "project/project.h"
 #include "render/rendermanager.h"
 #include "task/taskmanager.h"
@@ -44,12 +43,14 @@
 
 namespace olive {
 
+#define super TimeBasedWidget
+
 QVector<ViewerWidget*> ViewerWidget::instances_;
 
 const int kMaxPreQueueSize = 16;
 
 ViewerWidget::ViewerWidget(QWidget *parent) :
-  TimeBasedWidget(false, true, parent),
+  super(false, true, parent),
   playback_speed_(0),
   frame_cache_job_time_(0),
   color_menu_enabled_(true),
@@ -122,6 +123,8 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
 
 ViewerWidget::~ViewerWidget()
 {
+  instances_.removeOne(this);
+
   QList<ViewerWindow*> windows = windows_;
 
   foreach (ViewerWindow* window, windows) {
@@ -168,7 +171,7 @@ void ViewerWidget::TimeChangedEvent(const int64_t &i)
   last_time_ = i;
 }
 
-void ViewerWidget::ConnectNodeInternal(Sequence *n)
+void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
 {
   connect(n, &ViewerOutput::SizeChanged, this, &ViewerWidget::SetViewerResolution);
   connect(n, &ViewerOutput::PixelAspectChanged, this, &ViewerWidget::SetViewerPixelAspect);
@@ -220,7 +223,7 @@ void ViewerWidget::ConnectNodeInternal(Sequence *n)
   ForceUpdate();
 }
 
-void ViewerWidget::DisconnectNodeInternal(Sequence *n)
+void ViewerWidget::DisconnectNodeInternal(ViewerOutput *n)
 {
   PauseInternal();
 
@@ -252,21 +255,21 @@ void ViewerWidget::DisconnectNodeInternal(Sequence *n)
   QMetaObject::invokeMethod(this, "UpdateStack", Qt::QueuedConnection);
 }
 
-void ViewerWidget::ConnectedNodeChanged(Sequence *n)
+void ViewerWidget::ConnectedNodeChanged(ViewerOutput *n)
 {
   auto_cacher_.SetViewerNode(n);
 }
 
 void ViewerWidget::ScaleChangedEvent(const double &s)
 {
-  TimeBasedWidget::ScaleChangedEvent(s);
+  super::ScaleChangedEvent(s);
 
   waveform_view_->SetScale(s);
 }
 
 void ViewerWidget::resizeEvent(QResizeEvent *event)
 {
-  TimeBasedWidget::resizeEvent(event);
+  super::resizeEvent(event);
 
   UpdateMinimumScale();
 }
@@ -285,11 +288,11 @@ bool ViewerWidget::IsPlaying() const
   return playback_speed_ != 0;
 }
 
-void ViewerWidget::ConnectViewerNode(Sequence *node, ColorManager* color_manager)
+void ViewerWidget::ConnectViewerNode(ViewerOutput *node, ColorManager* color_manager)
 {
   override_color_manager_ = color_manager;
 
-  TimeBasedWidget::ConnectViewerNode(node);
+  super::ConnectViewerNode(node);
 }
 
 void ViewerWidget::SetColorMenuEnabled(bool enabled)
@@ -1053,7 +1056,7 @@ void ViewerWidget::SetSignalCursorColorEnabled(bool e)
 
 void ViewerWidget::TimebaseChangedEvent(const rational &timebase)
 {
-  TimeBasedWidget::TimebaseChangedEvent(timebase);
+  super::TimebaseChangedEvent(timebase);
 
   controls_->SetTimebase(timebase);
 
