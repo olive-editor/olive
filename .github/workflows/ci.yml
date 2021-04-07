@@ -96,8 +96,8 @@ jobs:
             -executable=appdir/usr/bin/crashpad_handler \
             -executable=appdir/usr/bin/minidump_stackwalk \
             -executable=appdir/usr/bin/olive-crashhandler \
-            -executable=appdir/usr/lib/libcrypto.so.10
-            -executable=appdir/usr/lib/libssl.so.10
+            -executable=appdir/usr/lib/libcrypto.so.10 \
+            -executable=appdir/usr/lib/libssl.so.10 \
             --appimage-extract-and-run
 
           # Dump Crashpad symbols
