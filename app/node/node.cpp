@@ -1457,6 +1457,7 @@ void Node::CopyInputs(const Node *source, Node *destination, bool include_connec
 
   destination->SetPosition(source->GetPosition());
   destination->SetLabel(source->GetLabel());
+  destination->SetOverrideColor(source->GetOverrideColor());
 }
 
 void Node::CopyInput(const Node *src, Node *dst, const QString &input, bool include_connections, bool traverse_arrays)
