@@ -30,17 +30,12 @@ PreCacheTask::PreCacheTask(Footage *footage, int index, Sequence* sequence) :
   viewer()->SetVideoParams(sequence->GetVideoParams());
   viewer()->SetAudioParams(sequence->GetAudioParams());
 
-  // FIXME: I've been lazy and haven't included support for anything connected to a footage input.
-  //        At the moment, footage nodes have no connectable inputs so it's not a problem, but if
-  //        they ever do, that needs to be addressed immediately.
-  Q_ASSERT(footage->inputs().isEmpty());
-
   // Copy footage node so it can precache without any modifications from the user screwing it up
   footage_ = static_cast<Footage*>(footage->copy());
   index_ = index;
   Node::CopyInputs(footage, footage_, false);
 
-  Node::ConnectEdge(footage_, NodeInput(viewer(), ViewerOutput::kTextureInput));
+  Node::ConnectEdge(NodeOutput(footage_, Track::Reference(Track::kVideo, 0).ToString()), NodeInput(viewer(), ViewerOutput::kTextureInput));
 
   SetTitle(tr("Pre-caching %1:%2").arg(footage_->filename()));
 }
