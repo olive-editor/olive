@@ -291,6 +291,12 @@ void SliderLadderElement::UpdateLabel()
   } else {
     label_->setText(value_);
   }
+
+  // Increase the ladder width if displaying timecode
+  if (value_.contains(":")) {
+    label_->setFixedWidth(QtUtils::QFontMetricsWidth(label_->fontMetrics(), QStringLiteral("00:00:00:00")));
+  }
+
 }
 
 }
