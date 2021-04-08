@@ -331,19 +331,18 @@ void MainWindow::ProjectOpen(Project *p)
 
 void MainWindow::ProjectClose(Project *p)
 {
-  // Close any open sequences from project
-  QVector<Sequence*> open_sequences = p->root()->ListChildrenOfType<Sequence>();
+  // Close any nodes open in TimeBasedWidgets
+  foreach (PanelWidget* panel, PanelManager::instance()->panels()) {
+    TimeBasedPanel* tbp = dynamic_cast<TimeBasedPanel*>(panel);
 
-  foreach (Sequence* seq, open_sequences) {
-    if (IsSequenceOpen(seq)) {
-      CloseSequence(seq);
+    if (tbp && tbp->GetConnectedViewer() && tbp->GetConnectedViewer()->project() == p) {
+      if (dynamic_cast<TimelinePanel*>(tbp)) {
+        // Prefer our CloseSequence function which will delete any unnecessary timeline panels
+        CloseSequence(static_cast<Sequence*>(tbp->GetConnectedViewer()));
+      } else {
+        tbp->DisconnectViewerNode();
+      }
     }
-  }
-
-  // Close any open footage in footage viewer
-  if (footage_viewer_panel_->GetConnectedViewer()
-      && footage_viewer_panel_->GetConnectedViewer()->project() == p) {
-    footage_viewer_panel_->DisconnectViewerNode();
   }
 
   // Close any extra folder panels
@@ -523,11 +522,9 @@ void MainWindow::RemoveTimelinePanel(TimelinePanel *panel)
 {
   // Stop showing this timeline in the viewer
   TimelineFocused(nullptr);
+  panel->ConnectViewerNode(nullptr);
 
-  if (timeline_panels_.size() == 1) {
-    // Leave our single remaining timeline panel open
-    panel->ConnectViewerNode(nullptr);
-  } else {
+  if (timeline_panels_.size() != 1) {
     timeline_panels_.removeOne(panel);
     panel->deleteLater();
   }
