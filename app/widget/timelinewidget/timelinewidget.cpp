@@ -500,6 +500,9 @@ void TimelineWidget::DeleteSelected(bool ripple)
   }
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);
+
+  // Ensures any current drag operations are cancelled
+  ClearGhosts();
 }
 
 void TimelineWidget::IncreaseTrackHeight()
