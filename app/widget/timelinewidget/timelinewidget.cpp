@@ -169,6 +169,8 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
 TimelineWidget::~TimelineWidget()
 {
   // Ensure no blocks are selected before any child widgets are destroyed (prevents corrupt ViewSelectionChanged() signal)
+  ConnectViewerNode(nullptr);
+
   Clear();
 
   qDeleteAll(tools_);
@@ -1061,7 +1063,7 @@ void TimelineWidget::UpdateViewTimebases()
   for (int i=0;i<views_.size();i++) {
     TimelineAndTrackView* view = views_.at(i);
 
-    if (use_audio_time_units_ && i == Track::kAudio) {
+    if (GetConnectedNode() && use_audio_time_units_ && i == Track::kAudio) {
       view->view()->SetTimebase(GetConnectedNode()->GetAudioParams().sample_rate_as_time_base());
     } else {
       view->view()->SetTimebase(timebase());
