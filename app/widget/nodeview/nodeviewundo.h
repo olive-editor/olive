@@ -76,6 +76,8 @@ class NodeAddCommand : public UndoCommand {
 public:
   NodeAddCommand(NodeGraph* graph, Node* node);
 
+  void PushToThread(QThread* thread);
+
   virtual Project* GetRelevantProject() const override;
 
   virtual void redo() override;

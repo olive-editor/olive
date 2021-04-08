@@ -89,12 +89,13 @@ NodeAddCommand::NodeAddCommand(NodeGraph *graph, Node *node) :
   graph_(graph),
   node_(node)
 {
-  if (memory_manager_.thread() != node->thread()) {
-    memory_manager_.moveToThread(node_->thread());
-  }
-
   // Ensures that when this command is destroyed, if redo() is never called again, the node will be destroyed too
   node_->setParent(&memory_manager_);
+}
+
+void NodeAddCommand::PushToThread(QThread *thread)
+{
+  memory_manager_.moveToThread(thread);
 }
 
 void NodeAddCommand::redo()
