@@ -41,6 +41,8 @@ public:
 
   rational GetTime();
 
+  rational timebase();
+
   ViewerOutput *GetConnectedViewer() const
   {
     return widget_->GetConnectedNode();

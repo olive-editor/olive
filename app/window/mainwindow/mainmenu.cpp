@@ -112,9 +112,6 @@ MainMenu::MainMenu(MainWindow *parent) :
   view_decrease_track_height_item_ = view_menu_->AddItem("vzoomout", this, &MainMenu::DecreaseTrackHeightTriggered, "Ctrl+-");
   view_show_all_item_ = view_menu_->AddItem("showall", this, &MainMenu::ToggleShowAllTriggered, "\\");
   view_show_all_item_->setCheckable(true);
-  view_menu_->addSeparator();
-
-  MenuShared::instance()->AddItemsForTimeRulerMenu(view_menu_);
 
   view_menu_->addSeparator();
 
@@ -308,6 +305,15 @@ void MainMenu::ViewMenuAboutToShow()
 
   // Ensure checked timecode display mode is correct
   MenuShared::instance()->AboutToShowTimeRulerActions();
+
+  
+  TimeBasedPanel* p = PanelManager::instance()->MostRecentlyFocused<TimeBasedPanel>();
+  if (p) {
+    if (p->timebase().denominator() != 0) {
+      view_menu_->addSeparator();
+      MenuShared::instance()->AddItemsForTimeRulerMenu(view_menu_, p->timebase());
+    }
+  }
 }
 
 void MainMenu::ToolsMenuAboutToShow()

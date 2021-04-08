@@ -21,6 +21,7 @@
 #ifndef MENUSHARED_H
 #define MENUSHARED_H
 
+#include "common/rational.h"
 #include "widget/colorlabelmenu/colorlabelmenu.h"
 #include "widget/menu/menu.h"
 
@@ -45,7 +46,7 @@ public:
   void AddItemsForInOutMenu(Menu* m);
   void AddColorCodingMenu(Menu* m);
   void AddItemsForClipEditMenu(Menu* m);
-  void AddItemsForTimeRulerMenu(Menu* m);
+  void AddItemsForTimeRulerMenu(Menu* m, const rational& timebase);
 
   void AboutToShowTimeRulerActions();
 
