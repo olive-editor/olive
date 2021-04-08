@@ -82,6 +82,11 @@ private slots:
 
 };
 
+#define MANAGEDDISPLAYWIDGET_DEFAULT_DESTRUCTOR_INNER \
+  makeCurrent();OnDestroy();doneCurrent()
+#define MANAGEDDISPLAYWIDGET_DEFAULT_DESTRUCTOR(x) \
+  virtual ~x() override{MANAGEDDISPLAYWIDGET_DEFAULT_DESTRUCTOR_INNER;}
+
 class ManagedDisplayWidget : public QWidget
 {
   Q_OBJECT

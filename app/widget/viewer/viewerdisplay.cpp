@@ -62,11 +62,6 @@ ViewerDisplayWidget::ViewerDisplayWidget(QWidget *parent) :
   frame_rate_averages_.resize(kFrameRateAverageCount);
 }
 
-ViewerDisplayWidget::~ViewerDisplayWidget()
-{
-  OnDestroy();
-}
-
 void ViewerDisplayWidget::SetMatrixTranslate(const QMatrix4x4 &mat)
 {
   translate_matrix_ = mat;

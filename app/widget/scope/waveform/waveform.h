@@ -31,7 +31,7 @@ class WaveformScope : public ScopeBase
 public:
   WaveformScope(QWidget* parent = nullptr);
 
-  virtual ~WaveformScope() override;
+  MANAGEDDISPLAYWIDGET_DEFAULT_DESTRUCTOR(WaveformScope)
 
 protected:
   virtual ShaderCode GenerateShaderCode() override;

@@ -31,7 +31,7 @@ class HistogramScope : public ScopeBase
 public:
   HistogramScope(QWidget* parent = nullptr);
 
-  virtual ~HistogramScope() override;
+  MANAGEDDISPLAYWIDGET_DEFAULT_DESTRUCTOR(HistogramScope)
 
 protected slots:
   virtual void OnInit() override;

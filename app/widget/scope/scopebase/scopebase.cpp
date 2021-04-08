@@ -24,16 +24,13 @@
 
 namespace olive {
 
+#define super ManagedDisplayWidget
+
 ScopeBase::ScopeBase(QWidget* parent) :
-  ManagedDisplayWidget(parent),
+  super(parent),
   buffer_(nullptr)
 {
   EnableDefaultContextMenu();
-}
-
-ScopeBase::~ScopeBase()
-{
-  OnDestroy();
 }
 
 void ScopeBase::SetBuffer(Frame *frame)
@@ -45,7 +42,7 @@ void ScopeBase::SetBuffer(Frame *frame)
 
 void ScopeBase::showEvent(QShowEvent* e)
 {
-  ManagedDisplayWidget::showEvent(e);
+  super::showEvent(e);
 
   UploadTextureFromBuffer();
 }
@@ -92,7 +89,7 @@ void ScopeBase::UploadTextureFromBuffer()
 
 void ScopeBase::OnInit()
 {
-  ManagedDisplayWidget::OnInit();
+  super::OnInit();
 
   UploadTextureFromBuffer();
 
@@ -114,7 +111,7 @@ void ScopeBase::OnPaint()
 
 void ScopeBase::OnDestroy()
 {
-  ManagedDisplayWidget::OnDestroy();
+  super::OnDestroy();
 
   managed_tex_ = nullptr;
   texture_ = nullptr;

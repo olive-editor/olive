@@ -29,19 +29,16 @@
 
 namespace olive {
 
-HistogramScope::HistogramScope(QWidget* parent) :
-  ScopeBase(parent)
-{
-}
+#define super ScopeBase
 
-HistogramScope::~HistogramScope()
+HistogramScope::HistogramScope(QWidget* parent) :
+  super(parent)
 {
-  OnDestroy();
 }
 
 void HistogramScope::OnInit()
 {
-  ScopeBase::OnInit();
+  super::OnInit();
 
   ShaderCode secondary_code(FileFunctions::ReadFileAsString(":/shaders/rgbhistogram_secondary.frag"),
                             FileFunctions::ReadFileAsString(":/shaders/rgbhistogram.vert"));
@@ -50,7 +47,7 @@ void HistogramScope::OnInit()
 
 void HistogramScope::OnDestroy()
 {
-  ScopeBase::OnDestroy();
+  super::OnDestroy();
 
   pipeline_secondary_.clear();
   texture_row_sums_ = nullptr;
