@@ -230,6 +230,11 @@ public:
    */
   QBrush brush(qreal top, qreal bottom) const;
 
+  int GetOverrideColor() const
+  {
+    return override_color_;
+  }
+
   /**
    * @brief Sets the override color. Set to -1 for no override color.
    */
