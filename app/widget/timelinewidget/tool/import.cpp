@@ -194,11 +194,17 @@ void ImportTool::PlaceAt(const QMap<ViewerOutput*, QVector<Track::Reference> > &
 void ImportTool::FootageToGhosts(rational ghost_start, const QMap<ViewerOutput *, QVector<Track::Reference> > &sorted, const rational& dest_tb, const int& track_start)
 {
   for (auto it=sorted.cbegin(); it!=sorted.cend(); it++) {
+    ViewerOutput* footage = it.key();
+
+    if (footage == sequence()) {
+      // Prevent cyclical dependency
+      continue;
+    }
+
     // Each stream is offset by one track per track "type", we keep track of them in this vector
     QVector<int> track_offsets(Track::kCount);
     track_offsets.fill(track_start);
 
-    ViewerOutput* footage = it.key();
     rational footage_duration;
     rational ghost_in;
 
