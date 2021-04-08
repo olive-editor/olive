@@ -281,11 +281,19 @@ int64_t Timecode::time_to_timestamp(const double &time, const rational &timebase
 
 int64_t Timecode::rescale_timestamp(const int64_t &ts, const rational &source, const rational &dest)
 {
+  if (source == dest) {
+    return ts;
+  }
+
   return qRound64(static_cast<double>(ts) * source.toDouble() / dest.toDouble());
 }
 
 int64_t Timecode::rescale_timestamp_ceil(const int64_t &ts, const rational &source, const rational &dest)
 {
+  if (source == dest) {
+    return ts;
+  }
+
   return qCeil(static_cast<double>(ts) * source.toDouble() / dest.toDouble());
 }
 

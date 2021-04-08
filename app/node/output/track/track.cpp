@@ -29,6 +29,8 @@
 
 namespace olive {
 
+#define super Node
+
 const double Track::kTrackHeightDefault = 3.0;
 const double Track::kTrackHeightMinimum = 1.5;
 const double Track::kTrackHeightInterval = 0.5;
@@ -51,11 +53,6 @@ Track::Track() :
 
   // Set default height
   track_height_ = kTrackHeightDefault;
-}
-
-Track::~Track()
-{
-  DisconnectAll();
 }
 
 void Track::set_type(const Type &track_type)
@@ -143,18 +140,17 @@ void Track::SetTrackHeight(const double &height)
   emit TrackHeightChangedInPixels(GetTrackHeightInPixels());
 }
 
-void Track::LoadInternal(QXmlStreamReader *reader, XMLNodeData &, uint , const QAtomicInt* )
+bool Track::LoadCustom(QXmlStreamReader *reader, XMLNodeData &xml_node_data, uint version, const QAtomicInt* cancelled)
 {
-  while (XMLReadNextStartElement(reader)) {
-    if (reader->name() == QStringLiteral("height")) {
-      SetTrackHeight(reader->readElementText().toDouble());
-    } else {
-      reader->skipCurrentElement();
-    }
+  if (reader->name() == QStringLiteral("height")) {
+    SetTrackHeight(reader->readElementText().toDouble());
+    return true;
+  } else {
+    return super::LoadCustom(reader, xml_node_data, version, cancelled);
   }
 }
 
-void Track::SaveInternal(QXmlStreamWriter *writer) const
+void Track::SaveCustom(QXmlStreamWriter *writer) const
 {
   writer->writeTextElement(QStringLiteral("height"), QString::number(GetTrackHeight()));
 }
@@ -421,6 +417,10 @@ QVector<Block *> Track::BlocksAtTimeRange(const TimeRange &range) const
 
 void Track::InvalidateCache(const TimeRange& range, const QString& from, int element, qint64 job_time)
 {
+  if (GetOperationStack() != 0) {
+    return;
+  }
+
   TimeRange limited;
 
   const Block* b;
@@ -435,8 +435,8 @@ void Track::InvalidateCache(const TimeRange& range, const QString& from, int ele
 
     limited = TimeRange(qMax(range.in(), b->in()), qMin(range.out(), b->out()));
   } else {
-    limited = TimeRange(qMax(range.in(), rational(0)), qMin(range.out(), qMax(last_invalidated_length_, track_length())));
-    last_invalidated_length_ = track_length();
+    limited = TimeRange(qMax(range.in(), rational(0)), qMin(range.out(), qMax(preop_track_length_, track_length())));
+    preop_track_length_ = track_length_;
   }
 
   Node::InvalidateCache(limited, from, element, job_time);
@@ -582,6 +582,15 @@ void Track::Hash(const QString &output, QCryptographicHash &hash, const rational
   }
 }
 
+void Track::EndOperation()
+{
+  super::EndOperation();
+
+  if (track_length_ != midop_track_length_) {
+    SetLengthInternal(midop_track_length_);
+  }
+}
+
 void Track::SetMuted(bool e)
 {
   SetStandardValue(kMutedInput, e);
@@ -633,13 +642,13 @@ int Track::GetCacheIndexFromArrayIndex(int index) const
 
 void Track::SetLengthInternal(const rational &r, bool invalidate)
 {
-  if (r != track_length_) {
-    // TimeRange will automatically normalize so that the shorter number is the in and the longer
-    // is the out
-    TimeRange invalidate_range(track_length_, r);
+  // Hold track length until operation stack is empty
+  midop_track_length_ = r;
 
+  if (GetOperationStack() == 0 && track_length_ != r) {
+    TimeRange invalidate_range(track_length_, r);
     track_length_ = r;
-    last_invalidated_length_ = qMax(last_invalidated_length_, track_length_);
+    preop_track_length_ = qMax(preop_track_length_, track_length_);
     emit TrackLengthChanged();
 
     if (invalidate) {
@@ -670,6 +679,25 @@ uint qHash(const Track::Reference &r, uint seed)
   return ::qHash(QStringLiteral("%1:%2").arg(QString::number(r.type()),
                                              QString::number(r.index())),
                  seed);
+}
+
+QDataStream &operator<<(QDataStream &out, const Track::Reference &ref)
+{
+  out << static_cast<int>(ref.type()) << ref.index();
+
+  return out;
+}
+
+QDataStream &operator>>(QDataStream &in, Track::Reference &ref)
+{
+  int type;
+  int index;
+
+  in >> type >> index;
+
+  ref = Track::Reference(static_cast<Track::Type>(type), index);
+
+  return in;
 }
 
 }

@@ -31,6 +31,8 @@ class ProjectSettingsNode : public Node
 public:
   ProjectSettingsNode();
 
+  NODE_DEFAULT_DESTRUCTOR(ProjectSettingsNode)
+
   virtual QString Name() const override
   {
     return tr("Project Settings");

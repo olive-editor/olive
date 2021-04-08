@@ -37,8 +37,10 @@
 
 namespace olive {
 
+#define super ManagedDisplayWidget
+
 ViewerDisplayWidget::ViewerDisplayWidget(QWidget *parent) :
-  ManagedDisplayWidget(parent),
+  super(parent),
   deinterlace_texture_(nullptr),
   signal_cursor_color_(false),
   gizmos_(nullptr),
@@ -58,11 +60,6 @@ ViewerDisplayWidget::ViewerDisplayWidget(QWidget *parent) :
 
   const int kFrameRateAverageCount = 8;
   frame_rate_averages_.resize(kFrameRateAverageCount);
-}
-
-ViewerDisplayWidget::~ViewerDisplayWidget()
-{
-  OnDestroy();
 }
 
 void ViewerDisplayWidget::SetMatrixTranslate(const QMatrix4x4 &mat)
@@ -219,7 +216,7 @@ void ViewerDisplayWidget::mousePressEvent(QMouseEvent *event)
       emit DragStarted();
     }
 
-    ManagedDisplayWidget::mousePressEvent(event);
+    super::mousePressEvent(event);
 
   }
 }
@@ -246,7 +243,7 @@ void ViewerDisplayWidget::mouseMoveEvent(QMouseEvent *event)
   } else {
 
     // Default behavior
-    ManagedDisplayWidget::mouseMoveEvent(event);
+    super::mouseMoveEvent(event);
 
   }
 }
@@ -269,8 +266,35 @@ void ViewerDisplayWidget::mouseReleaseEvent(QMouseEvent *event)
   } else {
 
     // Default behavior
-    ManagedDisplayWidget::mouseReleaseEvent(event);
+    super::mouseReleaseEvent(event);
 
+  }
+}
+
+void ViewerDisplayWidget::dragEnterEvent(QDragEnterEvent *event)
+{
+  emit DragEntered(event);
+
+  if (!event->isAccepted()) {
+    super::dragEnterEvent(event);
+  }
+}
+
+void ViewerDisplayWidget::dragLeaveEvent(QDragLeaveEvent *event)
+{
+  emit DragLeft(event);
+
+  if (!event->isAccepted()) {
+    super::dragLeaveEvent(event);
+  }
+}
+
+void ViewerDisplayWidget::dropEvent(QDropEvent *event)
+{
+  emit Dropped(event);
+
+  if (!event->isAccepted()) {
+    super::dropEvent(event);
   }
 }
 
@@ -324,8 +348,8 @@ void ViewerDisplayWidget::OnPaint()
 
     rational node_time = GetGizmoTime();
 
-    gizmo_db_ = gt.GenerateDatabase(gizmos_, TimeRange(node_time,
-                                                       node_time + gizmo_params_.time_base()));
+    gizmo_db_ = gt.GenerateDatabase(gizmos_, QString(),
+                                    TimeRange(node_time, node_time + gizmo_params_.frame_rate_as_time_base()));
 
     QPainter p(inner_widget());
     p.setWorldTransform(GenerateGizmoTransform());
@@ -402,7 +426,7 @@ void ViewerDisplayWidget::OnPaint()
 
 void ViewerDisplayWidget::OnDestroy()
 {
-  ManagedDisplayWidget::OnDestroy();
+  super::OnDestroy();
 
   texture_ = nullptr;
 }

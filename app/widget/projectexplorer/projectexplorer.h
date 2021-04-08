@@ -26,8 +26,8 @@
 #include <QTimer>
 #include <QTreeView>
 
-#include "project/project.h"
-#include "project/projectviewmodel.h"
+#include "node/project/project.h"
+#include "node/project/projectviewmodel.h"
 #include "widget/projectexplorer/projectexplorericonview.h"
 #include "widget/projectexplorer/projectexplorerlistview.h"
 #include "widget/projectexplorer/projectexplorertreeview.h"
@@ -99,6 +99,8 @@ signals:
    * The Item that was double clicked, or nullptr if empty area was double clicked
    */
   void DoubleClickedItem(Node* item);
+
+  void ItemRemoved(Node* node);
 
 private:
   /**

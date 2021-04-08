@@ -23,8 +23,8 @@
 
 #include <QtConcurrent/QtConcurrent>
 
+#include "node/color/colormanager/colormanager.h"
 #include "node/output/viewer/viewer.h"
-#include "render/colormanager.h"
 #include "task/task.h"
 #include "threading/threadticket.h"
 #include "threading/threadticketwatcher.h"

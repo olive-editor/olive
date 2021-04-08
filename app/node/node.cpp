@@ -31,8 +31,8 @@
 #include "common/xmlutils.h"
 #include "core.h"
 #include "config/config.h"
+#include "node/project/footage/footage.h"
 #include "project/project.h"
-#include "project/item/footage/footage.h"
 #include "ui/colorcoding.h"
 #include "ui/icons/icons.h"
 #include "widget/nodeview/nodeviewundo.h"
@@ -47,7 +47,8 @@ Node::Node(bool create_default_output) :
   can_be_deleted_(true),
   override_color_(-1),
   last_change_time_(0),
-  folder_(nullptr)
+  folder_(nullptr),
+  operation_stack_(0)
 {
   if (create_default_output) {
     AddOutput();
@@ -116,7 +117,11 @@ void Node::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, uint versi
         }
       }
     } else if (reader->name() == QStringLiteral("custom")) {
-      LoadInternal(reader, xml_node_data, version, cancelled);
+      while (XMLReadNextStartElement(reader)) {
+        if (!LoadCustom(reader, xml_node_data, version, cancelled)) {
+          reader->skipCurrentElement();
+        }
+      }
     } else if (reader->name() == QStringLiteral("connections")) {
       // Load connections
       while (XMLReadNextStartElement(reader)) {
@@ -197,7 +202,7 @@ void Node::Save(QXmlStreamWriter *writer) const
   writer->writeEndElement(); // connections
 
   writer->writeStartElement(QStringLiteral("custom"));
-  SaveInternal(writer);
+  SaveCustom(writer);
   writer->writeEndElement(); // custom
 }
 
@@ -1023,18 +1028,14 @@ void Node::InvalidateCache(const TimeRange &range, const QString &from, int elem
 
 void Node::BeginOperation()
 {
-  // Ripple through graph
-  for (const std::pair<NodeOutput, NodeInput>& output : output_connections_) {
-    output.second.node()->BeginOperation();
-  }
+  // Increase operation stack
+  operation_stack_++;
 }
 
 void Node::EndOperation()
 {
-  // Ripple through graph
-  for (const std::pair<NodeOutput, NodeInput>& output : output_connections_) {
-    output.second.node()->EndOperation();
-  }
+  // Decrease operation stack
+  operation_stack_--;
 }
 
 TimeRange Node::InputTimeAdjustment(const QString &, int, const TimeRange &input_time) const
@@ -1057,7 +1058,7 @@ QVector<Node *> Node::CopyDependencyGraph(const QVector<Node *> &nodes, MultiUnd
 
   for (int i=0; i<nb_nodes; i++) {
     // Create another of the same node
-    Node* c = nodes.at(i)->copy();;
+    Node* c = nodes.at(i)->copy();
 
     // Copy the values, but NOT the connections, since we'll be connecting to our own clones later
     Node::CopyInputs(nodes.at(i), c, false);
@@ -1173,11 +1174,13 @@ Node *Node::CopyNodeInGraph(const Node *node, MultiUndoCommand *command)
 
 void Node::SendInvalidateCache(const TimeRange &range, qint64 job_time)
 {
-  for (const OutputConnection& conn : output_connections_) {
-    // Send clear cache signal to the Node
-    const NodeInput& in = conn.second;
+  if (GetOperationStack() == 0) {
+    for (const OutputConnection& conn : output_connections_) {
+      // Send clear cache signal to the Node
+      const NodeInput& in = conn.second;
 
-    in.node()->InvalidateCache(range, in.input(), in.element(), job_time);
+      in.node()->InvalidateCache(range, in.input(), in.element(), job_time);
+    }
   }
 }
 
@@ -1342,8 +1345,9 @@ void Node::ArrayResizeInternal(const QString &id, int size)
       // equal subinputs_.size()
     }
 
+    int old_sz = imm->array_size;
     imm->array_size = size;
-    emit InputArraySizeChanged(id, size);
+    emit InputArraySizeChanged(id, old_sz, size);
     ParameterValueChanged(id, -1, TimeRange(RATIONAL_MIN, RATIONAL_MAX));
   }
 }
@@ -1376,12 +1380,12 @@ void Node::IgnoreHashingFrom(const QString &input_id)
   ignore_when_hashing_.append(input_id);
 }
 
-void Node::LoadInternal(QXmlStreamReader *reader, XMLNodeData &, uint, const QAtomicInt*)
+bool Node::LoadCustom(QXmlStreamReader *, XMLNodeData &, uint, const QAtomicInt*)
 {
-  reader->skipCurrentElement();
+  return false;
 }
 
-void Node::SaveInternal(QXmlStreamWriter *) const
+void Node::SaveCustom(QXmlStreamWriter *) const
 {
 }
 
@@ -1452,6 +1456,7 @@ void Node::CopyInputs(const Node *source, Node *destination, bool include_connec
 
   destination->SetPosition(source->GetPosition());
   destination->SetLabel(source->GetLabel());
+  destination->SetOverrideColor(source->GetOverrideColor());
 }
 
 void Node::CopyInput(const Node *src, Node *dst, const QString &input, bool include_connections, bool traverse_arrays)
@@ -1838,6 +1843,8 @@ void Node::ParameterValueChanged(const QString& input, int element, const TimeRa
 
 void Node::LoadImmediate(QXmlStreamReader *reader, const QString& input, int element, XMLNodeData &xml_node_data, const QAtomicInt *cancelled)
 {
+  Q_UNUSED(xml_node_data)
+
   NodeValue::Type data_type = GetInputDataType(input);
 
   while (XMLReadNextStartElement(reader)) {

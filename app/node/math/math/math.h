@@ -31,6 +31,8 @@ class MathNode : public MathNodeBase
 public:
   MathNode();
 
+  NODE_DEFAULT_DESTRUCTOR(MathNode)
+
   virtual Node* copy() const override;
 
   virtual QString Name() const override;

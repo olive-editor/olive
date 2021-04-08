@@ -22,7 +22,7 @@
 #define PROJECT_PANEL_H
 
 #include "footagemanagementpanel.h"
-#include "project/project.h"
+#include "node/project/project.h"
 #include "widget/panel/panel.h"
 #include "widget/projectexplorer/projectexplorer.h"
 
@@ -48,7 +48,7 @@ public:
 
   Folder* GetSelectedFolder() const;
 
-  virtual QVector<Footage *> GetSelectedFootage() const override;
+  virtual QVector<ViewerOutput *> GetSelectedFootage() const override;
 
   ProjectViewModel* model() const;
 
@@ -79,6 +79,8 @@ private slots:
   void UpdateSubtitle();
 
   void SaveConnectedProject();
+
+  void ItemRemoved(Node* item);
 
 };
 

@@ -48,8 +48,6 @@ public:
 
   ViewerOutput* GetConnectedNode() const;
 
-  TimelinePoints* GetConnectedTimelinePoints() const;
-
   void ConnectViewerNode(ViewerOutput *node);
 
   void SetScaleAndCenterOnPlayhead(const double& scale);
@@ -107,19 +105,15 @@ protected:
 
   virtual void ScaleChangedEvent(const double &) override;
 
-  virtual void ConnectedNodeChanged(ViewerOutput*){}
+  virtual void ConnectedNodeChangeEvent(ViewerOutput*){}
 
-  virtual void ConnectNodeInternal(ViewerOutput*){}
+  virtual void ConnectNodeEvent(ViewerOutput*){}
 
-  virtual void DisconnectNodeInternal(ViewerOutput*){}
+  virtual void DisconnectNodeEvent(ViewerOutput*){}
 
   void SetAutoMaxScrollBar(bool e);
 
   virtual void resizeEvent(QResizeEvent *event) override;
-
-  virtual TimelinePoints* GetTimelinePointsToConnect();
-
-  virtual Project* GetTimelinePointsProject();
 
   void ConnectTimelineView(TimeBasedView* base, bool connect_time_change_event = true);
 
@@ -143,6 +137,8 @@ signals:
   void TimeChanged(const int64_t&);
 
   void TimebaseChanged(const rational&);
+
+  void ConnectedNodeChanged(ViewerOutput* old, ViewerOutput* now);
 
 private:
   class MarkerAddCommand : public UndoCommand
@@ -197,8 +193,6 @@ private:
 
   bool auto_max_scrollbar_;
 
-  TimelinePoints* points_;
-
   QList<TimeBasedView*> timeline_views_;
 
   bool toggle_show_all_;
@@ -233,6 +227,8 @@ private slots:
   void CatchUpScrollToPlayhead();
 
   void CatchUpScrollToPoint(int point);
+
+  void AutoUpdateTimebase();
 
 };
 

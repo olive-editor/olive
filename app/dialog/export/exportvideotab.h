@@ -28,7 +28,7 @@
 #include "common/rational.h"
 #include "dialog/export/codec/h264section.h"
 #include "dialog/export/codec/imagesection.h"
-#include "render/colormanager.h"
+#include "node/color/colormanager/colormanager.h"
 #include "widget/colorwheel/colorspacechooser.h"
 #include "widget/slider/integerslider.h"
 #include "widget/standardcombos/standardcombos.h"

@@ -31,6 +31,8 @@ class TimeInput : public Node
 public:
   TimeInput();
 
+  NODE_DEFAULT_DESTRUCTOR(TimeInput)
+
   virtual Node* copy() const override;
 
   virtual QString Name() const override;

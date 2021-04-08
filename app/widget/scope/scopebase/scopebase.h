@@ -32,7 +32,7 @@ class ScopeBase : public ManagedDisplayWidget
 public:
   ScopeBase(QWidget* parent = nullptr);
 
-  virtual ~ScopeBase() override;
+  MANAGEDDISPLAYWIDGET_DEFAULT_DESTRUCTOR(ScopeBase)
 
 public slots:
   void SetBuffer(Frame* frame);

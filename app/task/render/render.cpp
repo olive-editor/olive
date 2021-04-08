@@ -51,7 +51,7 @@ bool RenderTask::Render(ColorManager* manager,
 
   double progress_counter = 0;
   double total_length = 0;
-  double video_frame_sz = video_params().time_base().toDouble();
+  double video_frame_sz = video_params().frame_rate_as_time_base().toDouble();
 
   // Store real time before any rendering takes place
   qint64 job_time = QDateTime::currentMSecsSinceEpoch();

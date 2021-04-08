@@ -43,9 +43,9 @@
 #include "math/trigonometry/trigonometry.h"
 #include "output/track/track.h"
 #include "output/viewer/viewer.h"
-#include "project/item/folder/folder.h"
-#include "project/item/footage/footage.h"
-#include "project/item/sequence/sequence.h"
+#include "project/folder/folder.h"
+#include "project/footage/footage.h"
+#include "project/sequence/sequence.h"
 
 namespace olive {
 QList<Node*> NodeFactory::library_;

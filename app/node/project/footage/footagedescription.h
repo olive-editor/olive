@@ -21,9 +21,9 @@
 #ifndef FOOTAGEDESCRIPTION_H
 #define FOOTAGEDESCRIPTION_H
 
+#include "node/output/track/track.h"
 #include "render/audioparams.h"
 #include "render/videoparams.h"
-#include "stream.h"
 
 namespace olive {
 
@@ -59,14 +59,14 @@ public:
     audio_streams_.append(audio_params);
   }
 
-  Stream::Type GetTypeOfStream(int index)
+  Track::Type GetTypeOfStream(int index)
   {
     if (StreamIsVideo(index)) {
-      return Stream::kVideo;
+      return Track::kVideo;
     } else if (StreamIsAudio(index)) {
-      return Stream::kAudio;
+      return Track::kAudio;
     } else {
-      return Stream::kUnknown;
+      return Track::kNone;
     }
   }
 

@@ -79,6 +79,8 @@ void AudioOutputManager::Close()
   if (output_) {
     output_->stop();
 
+    push_device_ = nullptr;
+
     if (device_proxy_.isOpen()) {
       device_proxy_.close();
     }

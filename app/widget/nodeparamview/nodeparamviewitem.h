@@ -137,7 +137,7 @@ private slots:
 
   void ArrayCollapseBtnPressed(bool checked);
 
-  void InputArraySizeChanged(const QString &input, int size);
+  void InputArraySizeChanged(const QString &input, int old_sz, int size);
 
   void ArrayAppendClicked();
 

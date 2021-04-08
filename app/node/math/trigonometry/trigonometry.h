@@ -31,6 +31,8 @@ class TrigonometryNode : public Node
 public:
   TrigonometryNode();
 
+  NODE_DEFAULT_DESTRUCTOR(TrigonometryNode)
+
   virtual Node* copy() const override;
 
   virtual QString Name() const override;

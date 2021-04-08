@@ -22,7 +22,7 @@
 
 #include "common/define.h"
 #include "common/ocioutils.h"
-#include "colormanager.h"
+#include "node/color/colormanager/colormanager.h"
 
 namespace olive {
 

@@ -25,10 +25,10 @@
 #include <QObject>
 #include <QUuid>
 
-#include "node/project/projectsettings/projectsettings.h"
+#include "node/color/colormanager/colormanager.h"
 #include "node/output/viewer/viewer.h"
-#include "render/colormanager.h"
-#include "project/item/folder/folder.h"
+#include "node/project/footage/footage.h"
+#include "node/project/projectsettings/projectsettings.h"
 #include "window/mainwindow/mainwindowlayoutinfo.h"
 
 namespace olive {
@@ -74,11 +74,6 @@ public:
 
   QString cache_path() const;
 
-  ViewerOutput* footage_viewer()
-  {
-    return footage_viewer_;
-  }
-
   const QUuid& GetUuid() const
   {
     return uuid_;
@@ -101,8 +96,6 @@ private:
   ColorManager* color_manager_;
 
   ProjectSettingsNode* settings_;
-
-  ViewerOutput* footage_viewer_;
 
   bool is_modified_;
 

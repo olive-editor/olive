@@ -24,6 +24,7 @@
 #include <QMainWindow>
 
 #include "mainwindowlayoutinfo.h"
+#include "node/project/project.h"
 #include "panel/panelmanager.h"
 #include "panel/audiomonitor/audiomonitor.h"
 #include "panel/curve/curve.h"
@@ -38,7 +39,6 @@
 #include "panel/footageviewer/footageviewer.h"
 #include "panel/sequenceviewer/sequenceviewer.h"
 #include "panel/pixelsampler/pixelsamplerpanel.h"
-#include "project/project.h"
 
 #ifdef Q_OS_WINDOWS
 #include <shobjidl.h>

@@ -24,7 +24,8 @@ namespace olive {
 
 TimeBasedPanel::TimeBasedPanel(const QString &object_name, QWidget *parent) :
   PanelWidget(object_name, parent),
-  widget_(nullptr)
+  widget_(nullptr),
+  show_and_raise_on_connect_(false)
 {
 }
 
@@ -110,22 +111,7 @@ void TimeBasedPanel::ShuttleRight()
 
 void TimeBasedPanel::ConnectViewerNode(ViewerOutput *node)
 {
-  if (widget_->GetConnectedNode() == node) {
-    return;
-  }
-
-  if (widget_->GetConnectedNode()) {
-    disconnect(widget_->GetConnectedNode(), &ViewerOutput::LabelChanged, this, &TimeBasedPanel::SetSubtitle);
-  }
-
   widget_->ConnectViewerNode(node);
-
-  if (node) {
-    connect(node, &ViewerOutput::LabelChanged, this, &TimeBasedPanel::SetSubtitle);
-  }
-
-  // Update strings
-  Retranslate();
 }
 
 void TimeBasedPanel::SetTimeBasedWidget(TimeBasedWidget *widget)
@@ -133,6 +119,7 @@ void TimeBasedPanel::SetTimeBasedWidget(TimeBasedWidget *widget)
   if (widget_) {
     disconnect(widget_, &TimeBasedWidget::TimeChanged, this, &TimeBasedPanel::TimeChanged);
     disconnect(widget_, &TimeBasedWidget::TimebaseChanged, this, &TimeBasedPanel::TimebaseChanged);
+    disconnect(widget_, &TimeBasedWidget::ConnectedNodeChanged, this, &TimeBasedPanel::ConnectedNodeChanged);
   }
 
   widget_ = widget;
@@ -140,6 +127,7 @@ void TimeBasedPanel::SetTimeBasedWidget(TimeBasedWidget *widget)
   if (widget_) {
     connect(widget_, &TimeBasedWidget::TimeChanged, this, &TimeBasedPanel::TimeChanged);
     connect(widget_, &TimeBasedWidget::TimebaseChanged, this, &TimeBasedPanel::TimebaseChanged);
+    connect(widget_, &TimeBasedWidget::ConnectedNodeChanged, this, &TimeBasedPanel::ConnectedNodeChanged);
   }
 
   SetWidgetWithPadding(widget_);
@@ -152,6 +140,25 @@ void TimeBasedPanel::Retranslate()
   } else {
     SetSubtitle(tr("(none)"));
   }
+}
+
+void TimeBasedPanel::ConnectedNodeChanged(ViewerOutput *old, ViewerOutput *now)
+{
+  if (old) {
+    disconnect(old, &ViewerOutput::LabelChanged, this, &TimeBasedPanel::SetSubtitle);
+  }
+
+  if (now) {
+    connect(now, &ViewerOutput::LabelChanged, this, &TimeBasedPanel::SetSubtitle);
+
+    if (show_and_raise_on_connect_) {
+      this->show();
+      this->raise();
+    }
+  }
+
+  // Update strings
+  Retranslate();
 }
 
 void TimeBasedPanel::SetIn()

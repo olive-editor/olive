@@ -219,7 +219,7 @@ void FFmpegEncoder::WriteAudio(AudioParams pcm_info, QIODevice* file)
       // If not, use another frame size
       if (params().video_enabled()) {
         // If we're encoding video, use enough samples to cover roughly one frame of video
-        maximum_frame_samples = params().audio_params().time_to_samples(params().video_params().time_base());
+        maximum_frame_samples = params().audio_params().time_to_samples(params().video_params().frame_rate_as_time_base());
       } else {
         // If no video, just use an arbitrary number
         maximum_frame_samples = 256;
@@ -484,7 +484,7 @@ bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AV
     codec_ctx->width = params().video_params().width();
     codec_ctx->height = params().video_params().height();
     codec_ctx->sample_aspect_ratio = params().video_params().pixel_aspect_ratio().toAVRational();
-    codec_ctx->time_base = params().video_params().time_base().toAVRational();
+    codec_ctx->time_base = params().video_params().frame_rate_as_time_base().toAVRational();
     codec_ctx->pix_fmt = av_get_pix_fmt(params().video_pix_fmt().toUtf8());
 
     if (params().video_params().interlacing() != VideoParams::kInterlaceNone) {
@@ -515,6 +515,10 @@ bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AV
 
       if (params().video_bit_rate() > 0) {
         codec_ctx->bit_rate = params().video_bit_rate();
+      }
+
+      if (params().video_min_bit_rate() > 0) {
+        codec_ctx->rc_min_rate = params().video_min_bit_rate();
       }
 
       if (params().video_max_bit_rate() > 0) {

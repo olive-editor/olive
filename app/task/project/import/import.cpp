@@ -25,7 +25,7 @@
 
 #include "config/config.h"
 #include "core.h"
-#include "project/item/footage/footage.h"
+#include "node/project/footage/footage.h"
 #include "widget/nodeview/nodeviewundo.h"
 
 namespace olive {
@@ -115,14 +115,14 @@ void ProjectImportTask::Import(Folder *folder, QFileInfoList import, int &counte
       footage->SetLabel(file_info.fileName());
 
       if (footage->IsValid()) {
-        // Move footage to main thread
-        footage->moveToThread(folder->thread());
-
         // See if this footage is an image sequence
         ValidateImageSequence(footage, import, i);
 
         // Create undoable command that adds the items to the model
-        parent_command->add_child(new NodeAddCommand(folder->parent(), footage));
+        NodeAddCommand* nac = new NodeAddCommand(folder->parent(), footage);
+        nac->PushToThread(folder->thread());
+        parent_command->add_child(nac);
+
         parent_command->add_child(new FolderAddChild(folder, footage));
       } else {
         // Add to list so we can tell the user about it later
@@ -214,7 +214,7 @@ void ProjectImportTask::ValidateImageSequence(Footage *footage, QFileInfoList& i
         video_stream.set_start_time(start_index);
         video_stream.set_duration(end_index - start_index + 1);
 
-        footage->SetVideoParams(0, video_stream);
+        footage->SetVideoParams(video_stream, 0);
       }
     }
 

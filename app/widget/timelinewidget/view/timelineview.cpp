@@ -31,7 +31,7 @@
 #include "common/flipmodifiers.h"
 #include "common/qtutils.h"
 #include "common/timecodefunctions.h"
-#include "project/item/footage/footage.h"
+#include "node/project/footage/footage.h"
 #include "ui/colorcoding.h"
 
 namespace olive {
@@ -342,23 +342,6 @@ Track::Type TimelineView::ConnectedTrackType()
   }
 
   return Track::kNone;
-}
-
-Stream::Type TimelineView::TrackTypeToStreamType(Track::Type track_type)
-{
-  switch (track_type) {
-  case Track::kNone:
-  case Track::kCount:
-    break;
-  case Track::kVideo:
-    return Stream::kVideo;
-  case Track::kAudio:
-    return Stream::kAudio;
-  case Track::kSubtitle:
-    return Stream::kSubtitle;
-  }
-
-  return Stream::kUnknown;
 }
 
 TimelineCoordinate TimelineView::ScreenToCoordinate(const QPoint& pt)

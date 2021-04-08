@@ -25,7 +25,7 @@
 #include <QDialog>
 #include <QSpinBox>
 
-#include "project/item/sequence/sequence.h"
+#include "node/project/sequence/sequence.h"
 #include "sequencedialogparametertab.h"
 #include "sequencedialogpresettab.h"
 #include "undo/undocommand.h"

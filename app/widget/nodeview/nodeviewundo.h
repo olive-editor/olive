@@ -23,7 +23,7 @@
 
 #include "node/graph.h"
 #include "node/node.h"
-#include "project/project.h"
+#include "node/project/project.h"
 #include "undo/undocommand.h"
 
 namespace olive {
@@ -75,6 +75,8 @@ private:
 class NodeAddCommand : public UndoCommand {
 public:
   NodeAddCommand(NodeGraph* graph, Node* node);
+
+  void PushToThread(QThread* thread);
 
   virtual Project* GetRelevantProject() const override;
 

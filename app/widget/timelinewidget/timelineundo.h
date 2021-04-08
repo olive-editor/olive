@@ -1170,7 +1170,6 @@ private:
         new_block_length = b->length() + operation_movement;
       }
 
-      rational earliest_point_of_change;
       rational pre_shift;
       rational post_shift;
 
@@ -1195,7 +1194,7 @@ private:
           // As an insertion, we will shift from the gap's in to the gap's out
           pre_shift = gap->in();
           post_shift = gap->out();
-          earliest_point_of_change = gap->in();
+          working_data.earliest_point_of_change = gap->in();
         } else {
           // As a removal, we will shift from the gap's out to the gap's in
           pre_shift = gap->out();
@@ -1212,7 +1211,7 @@ private:
 
         if (redo) {
           // The earliest point changes will happen is at the start of this block
-          earliest_point_of_change = b->in();
+          working_data.earliest_point_of_change = b->in();
 
           // As a removal, we will be shifting from the out point to the in point
           pre_shift = b->out();
@@ -1228,7 +1227,7 @@ private:
           track->InsertBlockAfter(b, working_data.removed_gap_after);
 
           // The earliest point changes will happen is at the start of this block
-          earliest_point_of_change = b->in();
+          working_data.earliest_point_of_change = b->in();
 
           // As an insert, we will be shifting from the block's in point to its out point
           pre_shift = b->in();
@@ -1242,7 +1241,7 @@ private:
 
         if (movement_mode_ == Timeline::kTrimIn) {
           // The earliest point changes will occur is in point of this bloc
-          earliest_point_of_change = b->in();
+          working_data.earliest_point_of_change = b->in();
 
           // Undo the trim in inversion we do above, this will still be inverted accurately for
           // undoing where appropriate
@@ -1260,7 +1259,7 @@ private:
         } else {
           // The earliest point changes will occur is the out point if trimming out or the in point
           // if trimming in
-          earliest_point_of_change = b->out();
+          working_data.earliest_point_of_change = b->out();
 
           // The latest out before the ripple is this block's current out point
           pre_shift = b->out();
@@ -1274,17 +1273,10 @@ private:
 
       }
 
-      track->EndOperation();
-
       working_data_.insert(it.key(), working_data);
 
       pre_latest_out = qMax(pre_latest_out, pre_shift);
       post_latest_out = qMax(post_latest_out, post_shift);
-
-      if (!all_tracks_unlocked_) {
-        // If we're not shifting, the whole track must get invalidated
-        track->Node::InvalidateCache(TimeRange(earliest_point_of_change, RATIONAL_MAX), Track::kBlockInput);
-      }
     }
 
     if (all_tracks_unlocked_) {
@@ -1293,6 +1285,17 @@ private:
         track_list_->parent()->ShiftVideoCache(pre_latest_out, post_latest_out);
       } else if (track_list_->type() == Track::kAudio) {
         track_list_->parent()->ShiftAudioCache(pre_latest_out, post_latest_out);
+      }
+    }
+
+    for (auto it=working_data_.cbegin(); it!=working_data_.cend(); it++) {
+      Track* track = it.key();
+
+      track->EndOperation();
+
+      if (!all_tracks_unlocked_) {
+        // If we're not shifting, the whole track must get invalidated
+        track->Node::InvalidateCache(TimeRange(it.value().earliest_point_of_change, RATIONAL_MAX), Track::kBlockInput);
       }
     }
   }
@@ -1307,6 +1310,7 @@ private:
     GapBlock* created_gap = nullptr;
     Block* removed_gap_after;
     rational old_length;
+    rational earliest_point_of_change;
   };
 
   QHash<Track*, WorkingData> working_data_;
@@ -1650,12 +1654,12 @@ public:
 
   virtual void redo() override
   {
-    track_->BeginOperation();
-
-    // Invalidate the range inhabited by this block
-    TimeRange invalidate_range(block_->in(), block_->out());
-
     if (block_->next()) {
+      track_->BeginOperation();
+
+      // Invalidate the range inhabited by this block
+      TimeRange invalidate_range(block_->in(), block_->out());
+
       // Block has a next, which means it's NOT at the end of the sequence and thus requires a gap
       rational new_gap_length = block_->length();
 
@@ -1704,6 +1708,10 @@ public:
         position_command_->redo();
       }
 
+      track_->EndOperation();
+
+      track_->Node::InvalidateCache(invalidate_range, Track::kBlockInput);
+
     } else {
       // Block is at the end of the track, simply remove it
 
@@ -1719,49 +1727,51 @@ public:
       // Remove block in question
       track_->RippleRemoveBlock(block_);
     }
-
-    track_->EndOperation();
-
-    track_->Node::InvalidateCache(invalidate_range, Track::kBlockInput);
   }
 
   virtual void undo() override
   {
-    track_->BeginOperation();
+    if (our_gap_ || existing_gap_) {
+      track_->BeginOperation();
 
-    if (our_gap_) {
+      if (our_gap_) {
 
-      // We made this gap, simply swap our gap back
-      track_->ReplaceBlock(our_gap_, block_);
-      our_gap_->setParent(&memory_manager_);
+        // We made this gap, simply swap our gap back
+        track_->ReplaceBlock(our_gap_, block_);
+        our_gap_->setParent(&memory_manager_);
 
-      position_command_->undo();
+        position_command_->undo();
 
-    } else if (existing_gap_) {
-
-      // If we're here, assume that we extended an existing gap
-      rational original_gap_length = existing_gap_->length() - block_->length();
-
-      // If we merged two gaps together, restore the second one now
-      if (existing_merged_gap_) {
-        original_gap_length -= existing_merged_gap_->length();
-        existing_merged_gap_->setParent(track_->parent());
-        track_->InsertBlockAfter(existing_merged_gap_, existing_gap_);
-        existing_merged_gap_ = nullptr;
-      }
-
-      // Restore original block
-      if (existing_gap_precedes_) {
-        track_->InsertBlockAfter(block_, existing_gap_);
       } else {
-        track_->InsertBlockBefore(block_, existing_gap_);
+
+        // If we're here, assume that we extended an existing gap
+        rational original_gap_length = existing_gap_->length() - block_->length();
+
+        // If we merged two gaps together, restore the second one now
+        if (existing_merged_gap_) {
+          original_gap_length -= existing_merged_gap_->length();
+          existing_merged_gap_->setParent(track_->parent());
+          track_->InsertBlockAfter(existing_merged_gap_, existing_gap_);
+          existing_merged_gap_ = nullptr;
+        }
+
+        // Restore original block
+        if (existing_gap_precedes_) {
+          track_->InsertBlockAfter(block_, existing_gap_);
+        } else {
+          track_->InsertBlockBefore(block_, existing_gap_);
+        }
+
+        // Restore gap's original length
+        existing_gap_->set_length_and_media_out(original_gap_length);
+
+        existing_gap_ = nullptr;
+
       }
 
-      // Restore gap's original length
-      existing_gap_->set_length_and_media_out(original_gap_length);
+      track_->EndOperation();
 
-      existing_gap_ = nullptr;
-
+      track_->Node::InvalidateCache(TimeRange(block_->in(), block_->out()), Track::kBlockInput);
     } else {
 
       // Our gap and existing gap were both null, our block must have been at the end and thus
@@ -1778,10 +1788,6 @@ public:
       track_->AppendBlock(block_);
 
     }
-
-    track_->EndOperation();
-
-    track_->Node::InvalidateCache(TimeRange(block_->in(), block_->out()), Track::kBlockInput);
   }
 
 private:

@@ -32,22 +32,15 @@ class FootageViewerWidget : public ViewerWidget
 public:
   FootageViewerWidget(QWidget* parent = nullptr);
 
-  Footage* GetFootage() const;
-  void SetFootage(Footage* footage);
-
 protected:
-  virtual TimelinePoints* GetTimelinePointsToConnect() override;
+  virtual void ConnectNodeEvent(ViewerOutput *) override;
 
-  virtual Project* GetTimelinePointsProject() override;
+  virtual void DisconnectNodeEvent(ViewerOutput *) override;
 
 private:
   void StartFootageDragInternal(bool enable_video, bool enable_audio);
 
-  void TryConnectingType(ViewerOutput *viewer, Footage* footage, Stream::Type type);
-
-  Footage* footage_;
-
-  QHash<Footage*, int64_t> cached_timestamps_;
+  QHash<ViewerOutput*, int64_t> cached_timestamps_;
 
 private slots:
   void StartFootageDrag();

@@ -82,15 +82,17 @@ void H264Section::AddOpts(EncodingParams *params)
 
   } else {
 
-    int64_t target_rate, max_rate;
+    int64_t target_rate, max_rate, min_rate;
 
     if (method == kTargetBitRate) {
       // Use user-supplied values for the bit rate
       target_rate = bitrate_section_->GetTargetBitRate();
+      min_rate = 0;
       max_rate = bitrate_section_->GetMaximumBitRate();
     } else {
       // Calculate the bit rate from the file size divided by the sequence length in seconds (bits per second)
       target_rate = qRound64(static_cast<double>(filesize_section_->GetFileSize()) / params->GetExportLength().toDouble());
+      min_rate = target_rate;
       max_rate = target_rate;
     }
 
@@ -98,6 +100,7 @@ void H264Section::AddOpts(EncodingParams *params)
     params->set_video_option(QStringLiteral("crf"), QStringLiteral("-1"));
 
     params->set_video_bit_rate(target_rate);
+    params->set_video_min_bit_rate(min_rate);
     params->set_video_max_bit_rate(max_rate);
     params->set_video_buffer_size(2000000);
 

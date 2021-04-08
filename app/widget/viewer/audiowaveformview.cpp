@@ -55,7 +55,7 @@ void AudioWaveformView::SetViewer(AudioPlaybackCache *playback)
     connect(playback_, &AudioPlaybackCache::Validated, this, &AudioWaveformView::ForceUpdateOfRange);
     connect(playback_, &AudioPlaybackCache::ParametersChanged, this, &AudioWaveformView::BackendParamsChanged);
 
-    SetTimebase(playback_->GetParameters().time_base());
+    SetTimebase(playback_->GetParameters().sample_rate_as_time_base());
   }
 
   ForceUpdate();
@@ -171,7 +171,7 @@ QPixmap AudioWaveformView::DrawWaveform(QIODevice* fs, CachedWaveformInfo info, 
 
 void AudioWaveformView::BackendParamsChanged()
 {
-  SetTimebase(playback_->GetParameters().time_base());
+  SetTimebase(playback_->GetParameters().sample_rate_as_time_base());
 }
 
 void AudioWaveformView::ForceUpdate()

@@ -24,7 +24,7 @@
 #include "node/math/math/math.h"
 #include "node/math/merge/merge.h"
 #include "node/output/viewer/viewer.h"
-#include "project/item/sequence/sequence.h"
+#include "node/project/sequence/sequence.h"
 
 namespace olive {
 

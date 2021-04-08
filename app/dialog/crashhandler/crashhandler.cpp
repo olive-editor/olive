@@ -236,11 +236,17 @@ void CrashHandlerDialog::SendErrorReport()
 
   // Find symbol file
   QDir symbol_dir(GetSymbolPath());
-#ifdef Q_OS_WINDOWS
-  symbol_dir = QDir(symbol_dir.filePath(QStringLiteral("olive-editor.pdb")));
+
+  QString symbol_bin_name;
+#if defined(OS_WIN)
+  symbol_bin_name = QStringLiteral("olive-editor.pdb");
+#elif defined(OS_APPLE)
+  symbol_bin_name = QStringLiteral("Olive");
 #else
-  symbol_dir = QDir(symbol_dir.filePath(QStringLiteral("olive-editor")));
+  symbol_bin_name = QStringLiteral("olive-editor");
 #endif
+  symbol_dir = QDir(symbol_dir.filePath(symbol_bin_name));
+
   QStringList folders_in_symbol_path = symbol_dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
 
   if (folders_in_symbol_path.size() > 0) {
@@ -253,7 +259,12 @@ void CrashHandlerDialog::SendErrorReport()
   }
 
   // Create sym section
-  QString symbol_filename = QStringLiteral("olive-editor.sym");
+  QString symbol_filename
+#if defined(OS_APPLE)
+  symbol_filename = QStringLiteral("Olive.sym");
+#else
+  symbol_filename = QStringLiteral("olive-editor.sym");
+#endif
   QString symbol_full_path = symbol_dir.filePath(symbol_filename);
   qDebug() << "Tried to access symbol:" << symbol_full_path;
   QHttpPart sym_part;

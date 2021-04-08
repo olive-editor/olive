@@ -128,8 +128,8 @@ void SequenceDialog::accept()
 
   } else {
     // Set sequence values directly with no undo command
-    sequence_->set_video_params(video_params);
-    sequence_->set_audio_params(audio_params);
+    sequence_->SetVideoParams(video_params);
+    sequence_->SetAudioParams(audio_params);
     sequence_->SetLabel(name_field_->text());
   }
 
@@ -144,8 +144,8 @@ SequenceDialog::SequenceParamCommand::SequenceParamCommand(Sequence* s,
   new_video_params_(video_params),
   new_audio_params_(audio_params),
   new_name_(name),
-  old_video_params_(s->video_params()),
-  old_audio_params_(s->audio_params()),
+  old_video_params_(s->GetVideoParams()),
+  old_audio_params_(s->GetAudioParams()),
   old_name_(s->GetLabel())
 {
 }
@@ -157,15 +157,15 @@ Project *SequenceDialog::SequenceParamCommand::GetRelevantProject() const
 
 void SequenceDialog::SequenceParamCommand::redo()
 {
-  sequence_->set_video_params(new_video_params_);
-  sequence_->set_audio_params(new_audio_params_);
+  sequence_->SetVideoParams(new_video_params_);
+  sequence_->SetAudioParams(new_audio_params_);
   sequence_->SetLabel(new_name_);
 }
 
 void SequenceDialog::SequenceParamCommand::undo()
 {
-  sequence_->set_video_params(old_video_params_);
-  sequence_->set_audio_params(old_audio_params_);
+  sequence_->SetVideoParams(old_video_params_);
+  sequence_->SetAudioParams(old_audio_params_);
   sequence_->SetLabel(old_name_);
 }
 

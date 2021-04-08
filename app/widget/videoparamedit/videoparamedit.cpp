@@ -97,6 +97,11 @@ VideoParamEdit::VideoParamEdit(QWidget* parent) :
   connect(frame_rate_combobox_, static_cast<void (FrameRateComboBox::*)(int)>(&FrameRateComboBox::currentIndexChanged), this, &VideoParamEdit::Changed);
   layout->addWidget(frame_rate_combobox_, row, 1);
 
+  // FIXME: Replace with rational slider
+  frame_rate_slider_ = new FloatSlider();
+  connect(frame_rate_slider_, &FloatSlider::ValueChanged, this, &VideoParamEdit::Changed);
+  layout->addWidget(frame_rate_slider_, row, 1);
+
   row++;
 
   // Pixel Aspect Ratio
@@ -215,7 +220,8 @@ void VideoParamEdit::SetParameterMask(uint64_t mask)
   depth_slider_->setVisible(mask & kDepth);
 
   frame_rate_lbl_->setVisible(mask & kFrameRate);
-  frame_rate_combobox_->setVisible(mask & kFrameRate);
+  frame_rate_combobox_->setVisible((mask & kFrameRate) && (mask & ~kFrameRateIsArbitrary));
+  frame_rate_slider_->setVisible((mask & kFrameRate) && (mask & kFrameRateIsArbitrary));
 
   pixel_aspect_lbl_->setVisible(mask & kPixelAspect);
   pixel_aspect_combobox_->setVisible(mask & kPixelAspect);
@@ -263,12 +269,22 @@ VideoParams VideoParamEdit::GetVideoParams() const
   p.set_height(height_slider_->GetValue());
   p.set_depth(depth_slider_->GetValue());
 
-  p.set_frame_rate(frame_rate_combobox_->GetFrameRate());
-  if (mask_ & kFrameRateIsNotTimebase) {
-    // Frame rate editor will only edit the frame rate
-    p.set_time_base(timebase_temp_);
-  } else {
-    p.set_time_base(frame_rate_combobox_->GetFrameRate().flipped());
+  {
+    rational using_frame_rate;
+
+    if (mask_ & kFrameRateIsArbitrary) {
+      using_frame_rate = rational::fromDouble(frame_rate_slider_->GetValue());
+    } else {
+      using_frame_rate = frame_rate_combobox_->GetFrameRate();
+    }
+
+    p.set_frame_rate(using_frame_rate);
+    if (mask_ & kFrameRateIsNotTimebase) {
+      // Frame rate editor will only edit the frame rate
+      p.set_time_base(timebase_temp_);
+    } else {
+      p.set_time_base(using_frame_rate.flipped());
+    }
   }
 
   p.set_pixel_aspect_ratio(pixel_aspect_combobox_->GetPixelAspectRatio());
@@ -295,14 +311,9 @@ void VideoParamEdit::SetVideoParams(const VideoParams &p)
   height_slider_->SetValue(p.height());
   depth_slider_->SetValue(p.depth());
 
-  if (mask_ & kFrameRateIsNotTimebase) {
-    // Frame rate editor will only edit the frame rate
-    frame_rate_combobox_->SetFrameRate(p.frame_rate());
-    timebase_temp_ = p.time_base();
-  } else {
-    // Frame rate editor will edit both frame rate and time base
-    frame_rate_combobox_->SetFrameRate(p.time_base().flipped());
-  }
+  frame_rate_combobox_->SetFrameRate(p.frame_rate());
+  frame_rate_slider_->SetValue(p.frame_rate().toDouble());
+  timebase_temp_ = p.time_base();
 
   pixel_aspect_combobox_->SetPixelAspectRatio(p.pixel_aspect_ratio());
   interlaced_combobox_->SetInterlaceMode(p.interlacing());

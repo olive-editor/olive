@@ -24,14 +24,16 @@
 #include "common/rational.h"
 #include "node/node.h"
 #include "node/output/track/track.h"
-#include "project/item/footage/footage.h"
 #include "render/audioparams.h"
 #include "render/audioplaybackcache.h"
 #include "render/framehashcache.h"
 #include "render/videoparams.h"
 #include "render/videoparams.h"
+#include "timeline/timelinepoints.h"
 
 namespace olive {
+
+class Footage;
 
 /**
  * @brief A bridge between a node system and a ViewerPanel
@@ -42,8 +44,9 @@ class ViewerOutput : public Node
 {
   Q_OBJECT
 public:
-  ViewerOutput();
-  virtual ~ViewerOutput() override;
+  ViewerOutput(bool create_default_streams = true);
+
+  NODE_DEFAULT_DESTRUCTOR(ViewerOutput)
 
   virtual Node* copy() const override;
 
@@ -57,7 +60,7 @@ public:
 
   void set_default_parameters();
 
-  void set_parameters_from_footage(const QVector<Footage *> footage);
+  void set_parameters_from_footage(const QVector<ViewerOutput *> footage);
 
   void ShiftVideoCache(const rational& from, const rational& to);
   void ShiftAudioCache(const rational& from, const rational& to);
@@ -65,25 +68,48 @@ public:
 
   virtual void InvalidateCache(const TimeRange& range, const QString& from, int element, qint64 job_time) override;
 
-  VideoParams video_params() const
+  virtual QVector<QString> inputs_for_output(const QString& output) const override;
+
+  VideoParams GetVideoParams(int index = 0) const
   {
-    return GetStandardValue(kVideoParamsInput).value<VideoParams>();
+    return GetStandardValue(kVideoParamsInput, index).value<VideoParams>();
   }
 
-  AudioParams audio_params() const
+  AudioParams GetAudioParams(int index = 0) const
   {
-    return GetStandardValue(kAudioParamsInput).value<AudioParams>();
+    return GetStandardValue(kAudioParamsInput, index).value<AudioParams>();
   }
 
-  void set_video_params(const VideoParams &video)
+  void SetVideoParams(const VideoParams &video, int index = 0)
   {
-    SetStandardValue(kVideoParamsInput, QVariant::fromValue(video));
+    SetStandardValue(kVideoParamsInput, QVariant::fromValue(video), index);
   }
 
-  void set_audio_params(const AudioParams &audio)
+  void SetAudioParams(const AudioParams &audio, int index = 0)
   {
-    SetStandardValue(kAudioParamsInput, QVariant::fromValue(audio));
+    SetStandardValue(kAudioParamsInput, QVariant::fromValue(audio), index);
   }
+
+  int GetVideoStreamCount() const
+  {
+    return InputArraySize(kVideoParamsInput);
+  }
+
+  int GetAudioStreamCount() const
+  {
+    return InputArraySize(kAudioParamsInput);
+  }
+
+  int GetTotalStreamCount() const
+  {
+    return GetVideoStreamCount() + GetAudioStreamCount();
+  }
+
+  bool HasEnabledVideoStreams() const;
+  bool HasEnabledAudioStreams() const;
+
+  VideoParams GetFirstEnabledVideoStream() const;
+  AudioParams GetFirstEnabledAudioStream() const;
 
   const rational &GetLength() const;
 
@@ -97,11 +123,22 @@ public:
     return &audio_playback_cache_;
   }
 
+  TimelinePoints* GetTimelinePoints()
+  {
+    return &timeline_points_;
+  }
+
+  QVector<Track::Reference> GetEnabledStreamsAsReferences() const;
+
+  QVector<VideoParams> GetEnabledVideoStreams() const;
+
+  QVector<AudioParams> GetEnabledAudioStreams() const;
+
   virtual void Retranslate() override;
 
-  virtual void BeginOperation() override;
+  virtual NodeOutput GetConnectedTextureOutput();
 
-  virtual void EndOperation() override;
+  virtual NodeOutput GetConnectedSampleOutput();
 
   static const QString kVideoParamsInput;
   static const QString kAudioParamsInput;
@@ -112,7 +149,7 @@ public:
   static const uint64_t kVideoParamEditMask;
 
 signals:
-  void TimebaseChanged(const rational&);
+  void FrameRateChanged(const rational&);
 
   void LengthChanged(const rational& length);
 
@@ -126,6 +163,8 @@ signals:
   void AudioParamsChanged();
 
   void TextureInputChanged();
+
+  void SampleRateChanged(int sr);
 
 public slots:
   void VerifyLength();
@@ -143,6 +182,12 @@ protected:
 
   virtual void InputValueChangedEvent(const QString& input, int element) override;
 
+  virtual bool LoadCustom(QXmlStreamReader* reader, XMLNodeData &xml_node_data, uint version, const QAtomicInt* cancelled) override;
+
+  virtual void SaveCustom(QXmlStreamWriter *writer) const override;
+
+  int AddStream(Track::Type type, const QVariant &value);
+
 private:
   rational last_length_;
 
@@ -153,6 +198,13 @@ private:
   int operation_stack_;
 
   VideoParams cached_video_params_;
+
+  AudioParams cached_audio_params_;
+
+  TimelinePoints timeline_points_;
+
+private slots:
+  void InputResized(const QString& input, int old_size, int new_size);
 
 };
 

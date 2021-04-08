@@ -36,7 +36,7 @@ class Sequence : public ViewerOutput
 public:
   Sequence();
 
-  virtual ~Sequence() override;
+  NODE_DEFAULT_DESTRUCTOR(Sequence)
 
   virtual Node* copy() const override
   {
@@ -91,21 +91,12 @@ public:
 
   static const QString kTrackInputFormat;
 
-  TimelinePoints* timeline_points()
-  {
-    return &timeline_points_;
-  }
-
   virtual bool IsItem() const override
   {
     return true;
   }
 
 protected:
-  virtual void LoadInternal(QXmlStreamReader* reader, XMLNodeData &xml_node_data, uint version, const QAtomicInt* cancelled) override;
-
-  virtual void SaveInternal(QXmlStreamWriter *writer) const override;
-
   virtual void ShiftAudioEvent(const rational &from, const rational &to) override;
 
   virtual void InputConnectedEvent(const QString &input, int element, const NodeOutput &output) override;
@@ -122,8 +113,6 @@ private:
   QVector<TrackList*> track_lists_;
 
   QVector<Track*> track_cache_;
-
-  TimelinePoints timeline_points_;
 
 private slots:
   void UpdateTrackCache();

@@ -23,7 +23,7 @@
 
 #ifdef USE_OTIO
 
-#include "project/project.h"
+#include "node/project/project.h"
 #include "task/project/load/loadbasetask.h"
 
 namespace olive {

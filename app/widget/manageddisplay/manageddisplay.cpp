@@ -70,7 +70,7 @@ ManagedDisplayWidget::ManagedDisplayWidget(QWidget *parent) :
 
 ManagedDisplayWidget::~ManagedDisplayWidget()
 {
-  OnDestroy();
+  MANAGEDDISPLAYWIDGET_DEFAULT_DESTRUCTOR_INNER;
 
   if (RenderManager::instance()->backend() == RenderManager::kOpenGL) {
     disconnect(static_cast<ManagedDisplayWidgetOpenGL*>(inner_widget_),

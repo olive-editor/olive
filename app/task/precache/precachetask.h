@@ -21,8 +21,8 @@
 #ifndef PRECACHETASK_H
 #define PRECACHETASK_H
 
-#include "project/item/footage/footage.h"
-#include "project/item/sequence/sequence.h"
+#include "node/project/footage/footage.h"
+#include "node/project/sequence/sequence.h"
 #include "task/render/render.h"
 
 namespace olive {

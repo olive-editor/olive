@@ -21,7 +21,7 @@
 #ifndef FOOTAGEJOB_H
 #define FOOTAGEJOB_H
 
-#include "project/item/footage/footage.h"
+#include "node/project/footage/footage.h"
 
 namespace olive {
 
@@ -29,11 +29,11 @@ class FootageJob
 {
 public:
   FootageJob() :
-    type_(Stream::kUnknown)
+    type_(Track::kNone)
   {
   }
 
-  FootageJob(const QString& decoder, const QString& filename, Stream::Type type) :
+  FootageJob(const QString& decoder, const QString& filename, Track::Type type) :
     decoder_(decoder),
     filename_(filename),
     type_(type)
@@ -50,7 +50,7 @@ public:
     return filename_;
   }
 
-  Stream::Type type() const
+  Track::Type type() const
   {
     return type_;
   }
@@ -90,7 +90,7 @@ private:
 
   QString filename_;
 
-  Stream::Type type_;
+  Track::Type type_;
 
   VideoParams video_params_;
 

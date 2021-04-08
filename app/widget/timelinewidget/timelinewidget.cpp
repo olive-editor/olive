@@ -169,6 +169,8 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
 TimelineWidget::~TimelineWidget()
 {
   // Ensure no blocks are selected before any child widgets are destroyed (prevents corrupt ViewSelectionChanged() signal)
+  ConnectViewerNode(nullptr);
+
   Clear();
 
   qDeleteAll(tools_);
@@ -218,17 +220,18 @@ void TimelineWidget::ScaleChangedEvent(const double &scale)
   }
 }
 
-void TimelineWidget::ConnectNodeInternal(ViewerOutput *n)
+void TimelineWidget::ConnectNodeEvent(ViewerOutput *n)
 {
   Sequence* s = static_cast<Sequence*>(n);
 
   connect(s, &Sequence::TrackAdded, this, &TimelineWidget::AddTrack);
   connect(s, &Sequence::TrackRemoved, this, &TimelineWidget::RemoveTrack);
-  connect(n, &ViewerOutput::TimebaseChanged, this, &TimelineWidget::SetTimebase);
+  connect(s, &Sequence::FrameRateChanged, this, &TimelineWidget::FrameRateChanged);
+  connect(s, &Sequence::SampleRateChanged, this, &TimelineWidget::SampleRateChanged);
 
   ruler()->SetPlaybackCache(n->video_frame_cache());
 
-  SetTimebase(n->video_params().time_base());
+  SetTimebase(n->GetVideoParams().frame_rate_as_time_base());
 
   for (int i=0;i<views_.size();i++) {
     Track::Type track_type = static_cast<Track::Type>(i);
@@ -247,13 +250,14 @@ void TimelineWidget::ConnectNodeInternal(ViewerOutput *n)
   }
 }
 
-void TimelineWidget::DisconnectNodeInternal(ViewerOutput *n)
+void TimelineWidget::DisconnectNodeEvent(ViewerOutput *n)
 {
   Sequence* s = static_cast<Sequence*>(n);
 
   disconnect(s, &Sequence::TrackAdded, this, &TimelineWidget::AddTrack);
   disconnect(s, &Sequence::TrackRemoved, this, &TimelineWidget::RemoveTrack);
-  disconnect(n, &ViewerOutput::TimebaseChanged, this, &TimelineWidget::SetTimebase);
+  disconnect(s, &Sequence::FrameRateChanged, this, &TimelineWidget::FrameRateChanged);
+  disconnect(s, &Sequence::SampleRateChanged, this, &TimelineWidget::SampleRateChanged);
 
   DeselectAll();
 
@@ -496,6 +500,9 @@ void TimelineWidget::DeleteSelected(bool ripple)
   }
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);
+
+  // Ensures any current drag operations are cancelled
+  ClearGhosts();
 }
 
 void TimelineWidget::IncreaseTrackHeight()
@@ -522,12 +529,12 @@ void TimelineWidget::DecreaseTrackHeight()
   }
 }
 
-void TimelineWidget::InsertFootageAtPlayhead(const QVector<Footage*>& footage)
+void TimelineWidget::InsertFootageAtPlayhead(const QVector<ViewerOutput*>& footage)
 {
   import_tool_->PlaceAt(footage, GetTime(), true);
 }
 
-void TimelineWidget::OverwriteFootageAtPlayhead(const QVector<Footage *> &footage)
+void TimelineWidget::OverwriteFootageAtPlayhead(const QVector<ViewerOutput *> &footage)
 {
   import_tool_->PlaceAt(footage, GetTime(), false);
 }
@@ -630,8 +637,7 @@ void TimelineWidget::Paste(bool insert)
 void TimelineWidget::DeleteInToOut(bool ripple)
 {
   if (!GetConnectedNode()
-      || !GetConnectedTimelinePoints()
-      || !GetConnectedTimelinePoints()->workarea()->enabled()) {
+      || !GetConnectedNode()->GetTimelinePoints()->workarea()->enabled()) {
     return;
   }
 
@@ -639,9 +645,10 @@ void TimelineWidget::DeleteInToOut(bool ripple)
 
   if (ripple) {
 
-    command->add_child(new TimelineRippleRemoveAreaCommand(sequence(),
-                                                           GetConnectedTimelinePoints()->workarea()->in(),
-                                                           GetConnectedTimelinePoints()->workarea()->out()));
+    command->add_child(new TimelineRippleRemoveAreaCommand(
+                         sequence(),
+                         GetConnectedNode()->GetTimelinePoints()->workarea()->in(),
+                         GetConnectedNode()->GetTimelinePoints()->workarea()->out()));
 
   } else {
     QVector<Track*> unlocked_tracks = sequence()->GetUnlockedTracks();
@@ -649,7 +656,7 @@ void TimelineWidget::DeleteInToOut(bool ripple)
     foreach (Track* track, unlocked_tracks) {
       GapBlock* gap = new GapBlock();
 
-      gap->set_length_and_media_out(GetConnectedTimelinePoints()->workarea()->length());
+      gap->set_length_and_media_out(GetConnectedNode()->GetTimelinePoints()->workarea()->length());
 
       command->add_child(new NodeAddCommand(static_cast<NodeGraph*>(track->parent()),
                                             gap));
@@ -657,17 +664,17 @@ void TimelineWidget::DeleteInToOut(bool ripple)
       command->add_child(new TrackPlaceBlockCommand(sequence()->track_list(track->type()),
                                                     track->Index(),
                                                     gap,
-                                                    GetConnectedTimelinePoints()->workarea()->in()));
+                                                    GetConnectedNode()->GetTimelinePoints()->workarea()->in()));
     }
   }
 
   // Clear workarea after this
-  command->add_child(new WorkareaSetEnabledCommand(GetTimelinePointsProject(),
-                                                   GetConnectedTimelinePoints(),
+  command->add_child(new WorkareaSetEnabledCommand(GetConnectedNode()->project(),
+                                                   GetConnectedNode()->GetTimelinePoints(),
                                                    false));
 
   if (ripple) {
-    SetTimeAndSignal(Timecode::time_to_timestamp(GetConnectedTimelinePoints()->workarea()->in(),
+    SetTimeAndSignal(Timecode::time_to_timestamp(GetConnectedNode()->GetTimelinePoints()->workarea()->in(),
                                                  timebase()));
   }
 
@@ -1005,7 +1012,7 @@ void TimelineWidget::SetViewTimestamp(const int64_t &ts)
     if (use_audio_time_units_ && i == Track::kAudio) {
       view->view()->SetTime(Timecode::rescale_timestamp(ts,
                                                         timebase(),
-                                                        GetConnectedNode()->audio_params().time_base()));
+                                                        GetConnectedNode()->GetAudioParams().sample_rate_as_time_base()));
     } else {
       view->view()->SetTime(ts);
     }
@@ -1016,7 +1023,7 @@ void TimelineWidget::ViewTimestampChanged(int64_t ts)
 {
   if (use_audio_time_units_ && sender() == views_.at(Track::kAudio)) {
     ts = Timecode::rescale_timestamp(ts,
-                                     GetConnectedNode()->audio_params().time_base(),
+                                     GetConnectedNode()->GetAudioParams().sample_rate_as_time_base(),
                                      timebase());
   }
 
@@ -1037,6 +1044,16 @@ void TimelineWidget::SetViewWaveformsEnabled(bool e)
   }
 }
 
+void TimelineWidget::FrameRateChanged()
+{
+  SetTimebase(GetConnectedNode()->GetVideoParams().frame_rate_as_time_base());
+}
+
+void TimelineWidget::SampleRateChanged()
+{
+  UpdateViewTimebases();
+}
+
 void TimelineWidget::AddGhost(TimelineViewGhostItem *ghost)
 {
   ghost_items_.append(ghost);
@@ -1049,8 +1066,8 @@ void TimelineWidget::UpdateViewTimebases()
   for (int i=0;i<views_.size();i++) {
     TimelineAndTrackView* view = views_.at(i);
 
-    if (use_audio_time_units_ && i == Track::kAudio) {
-      view->view()->SetTimebase(GetConnectedNode()->audio_params().time_base());
+    if (GetConnectedNode() && use_audio_time_units_ && i == Track::kAudio) {
+      view->view()->SetTimebase(GetConnectedNode()->GetAudioParams().sample_rate_as_time_base());
     } else {
       view->view()->SetTimebase(timebase());
     }
@@ -1513,8 +1530,8 @@ bool TimelineWidget::SnapPoint(QVector<rational> start_times, rational* movement
     }
   }
 
-  if ((snap_points & kSnapToMarkers) && GetConnectedTimelinePoints()) {
-    foreach (TimelineMarker* m, GetConnectedTimelinePoints()->markers()->list()) {
+  if ((snap_points & kSnapToMarkers)) {
+    foreach (TimelineMarker* m, GetConnectedNode()->GetTimelinePoints()->markers()->list()) {
       qreal marker_pos = TimeToScene(m->time().in());
       potential_snaps.append(AttemptSnap(screen_pt, marker_pos, start_times, m->time().in()));
 

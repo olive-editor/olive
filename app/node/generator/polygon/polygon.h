@@ -32,6 +32,8 @@ class PolygonGenerator : public Node
 public:
   PolygonGenerator();
 
+  NODE_DEFAULT_DESTRUCTOR(PolygonGenerator)
+
   virtual Node* copy() const override;
 
   virtual QString Name() const override;

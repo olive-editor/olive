@@ -34,18 +34,16 @@ public:
 
   void ConnectViewerNode(ViewerOutput *node);
 
-  void DisconnectViewerNode();
+  void DisconnectViewerNode()
+  {
+    ConnectViewerNode(nullptr);
+  }
 
   rational GetTime();
 
   ViewerOutput *GetConnectedViewer() const
   {
     return widget_->GetConnectedNode();
-  }
-
-  TimelinePoints* GetConnectedTimelinePoints() const
-  {
-    return widget_->GetConnectedTimelinePoints();
   }
 
   TimeRuler* ruler() const
@@ -127,8 +125,18 @@ protected:
 
   virtual void Retranslate() override;
 
+  void SetShowAndRaiseOnConnect()
+  {
+    show_and_raise_on_connect_ = true;
+  }
+
 private:
   TimeBasedWidget* widget_;
+
+  bool show_and_raise_on_connect_;
+
+private slots:
+  void ConnectedNodeChanged(ViewerOutput* old, ViewerOutput* now);
 
 };
 

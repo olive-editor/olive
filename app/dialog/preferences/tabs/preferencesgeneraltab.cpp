@@ -28,7 +28,7 @@
 #include "common/autoscroll.h"
 #include "core.h"
 #include "dialog/sequence/sequence.h"
-#include "project/item/sequence/sequence.h"
+#include "node/project/sequence/sequence.h"
 
 namespace olive {
 

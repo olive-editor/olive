@@ -24,8 +24,8 @@
 #include <QWidget>
 
 #include "colorpreviewbox.h"
+#include "node/color/colormanager/colormanager.h"
 #include "render/color.h"
-#include "render/colormanager.h"
 #include "widget/slider/floatslider.h"
 
 namespace olive {

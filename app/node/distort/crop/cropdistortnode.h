@@ -30,8 +30,11 @@ namespace olive {
 
 class CropDistortNode : public Node
 {
+  Q_OBJECT
 public:
   CropDistortNode();
+
+  NODE_DEFAULT_DESTRUCTOR(CropDistortNode)
 
   virtual Node* copy() const override
   {

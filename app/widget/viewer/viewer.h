@@ -63,8 +63,6 @@ public:
 
   bool IsPlaying() const;
 
-  void ConnectViewerNode(ViewerOutput *node, ColorManager *color_manager = nullptr);
-
   /**
    * @brief Enable or disable the color management menu
    *
@@ -153,9 +151,9 @@ protected:
   virtual void TimebaseChangedEvent(const rational &) override;
   virtual void TimeChangedEvent(const int64_t &) override;
 
-  virtual void ConnectNodeInternal(ViewerOutput *) override;
-  virtual void DisconnectNodeInternal(ViewerOutput *) override;
-  virtual void ConnectedNodeChanged(ViewerOutput*n) override;
+  virtual void ConnectNodeEvent(ViewerOutput *) override;
+  virtual void DisconnectNodeEvent(ViewerOutput *) override;
+  virtual void ConnectedNodeChangeEvent(ViewerOutput *) override;
 
   virtual void ScaleChangedEvent(const double& s) override;
 
@@ -216,8 +214,6 @@ private:
   int64_t last_time_;
 
   bool color_menu_enabled_;
-
-  ColorManager* override_color_manager_;
 
   bool time_changed_from_timer_;
 
@@ -291,6 +287,10 @@ private slots:
   void ManualSwitchToWaveform(bool e);
 
   void TimeChangedFromWaveform(qint64 t);
+
+  void DragEntered(QDragEnterEvent* event);
+
+  void Dropped(QDropEvent* event);
 
 };
 

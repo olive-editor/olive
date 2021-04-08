@@ -31,6 +31,8 @@ class TransitionBlock : public Block
 public:
   TransitionBlock();
 
+  NODE_DEFAULT_DESTRUCTOR(TransitionBlock)
+
   virtual Type type() const override;
 
   virtual void Retranslate() override;

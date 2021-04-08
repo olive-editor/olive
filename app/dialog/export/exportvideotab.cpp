@@ -28,7 +28,7 @@
 
 #include "core.h"
 #include "exportadvancedvideodialog.h"
-#include "render/colormanager.h"
+#include "node/color/colormanager/colormanager.h"
 #include "task/export/exportparams.h"
 
 namespace olive {

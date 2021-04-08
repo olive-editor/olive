@@ -33,14 +33,11 @@
 
 namespace olive {
 
-WaveformScope::WaveformScope(QWidget* parent) :
-  ScopeBase(parent)
-{
-}
+#define super ScopeBase
 
-WaveformScope::~WaveformScope()
+WaveformScope::WaveformScope(QWidget* parent) :
+  super(parent)
 {
-  OnDestroy();
 }
 
 ShaderCode WaveformScope::GenerateShaderCode()

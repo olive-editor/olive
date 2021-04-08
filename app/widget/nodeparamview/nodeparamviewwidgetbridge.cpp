@@ -28,10 +28,10 @@
 
 #include "core.h"
 #include "node/node.h"
+#include "node/project/sequence/sequence.h"
 #include "nodeparamviewarraywidget.h"
 #include "nodeparamviewrichtext.h"
 #include "nodeparamviewundo.h"
-#include "project/item/sequence/sequence.h"
 #include "undo/undostack.h"
 #include "widget/colorbutton/colorbutton.h"
 #include "widget/filefield/filefield.h"

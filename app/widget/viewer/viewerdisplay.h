@@ -24,9 +24,9 @@
 #include <QOpenGLWidget>
 #include <QMatrix4x4>
 
+#include "node/color/colormanager/colormanager.h"
 #include "node/node.h"
 #include "render/color.h"
-#include "render/colormanager.h"
 #include "tool/tool.h"
 #include "viewersafemargininfo.h"
 #include "widget/manageddisplay/manageddisplay.h"
@@ -62,7 +62,7 @@ public:
    */
   ViewerDisplayWidget(QWidget* parent = nullptr);
 
-  virtual ~ViewerDisplayWidget() override;
+  MANAGEDDISPLAYWIDGET_DEFAULT_DESTRUCTOR(ViewerDisplayWidget)
 
   const ViewerSafeMarginInfo& GetSafeMargin() const;
   void SetSafeMargins(const ViewerSafeMarginInfo& safe_margin);
@@ -170,6 +170,12 @@ signals:
    */
   void CursorColor(const Color& reference, const Color& display);
 
+  void DragEntered(QDragEnterEvent* event);
+
+  void DragLeft(QDragLeaveEvent* event);
+
+  void Dropped(QDropEvent* event);
+
 protected:
   /**
    * @brief Override the mouse press event for the DragStarted() signal and gizmos
@@ -185,6 +191,12 @@ protected:
    * @brief Override mouse release event for gizmos
    */
   virtual void mouseReleaseEvent(QMouseEvent* event) override;
+
+  virtual void dragEnterEvent(QDragEnterEvent* event) override;
+
+  virtual void dragLeaveEvent(QDragLeaveEvent* event) override;
+
+  virtual void dropEvent(QDropEvent* event) override;
 
 protected slots:
   /**

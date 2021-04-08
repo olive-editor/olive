@@ -269,10 +269,10 @@ QMimeData *ProjectViewModel::mimeData(const QModelIndexList &indexes) const
       // Check if we've dragged this item before
       if (!dragged_items.contains(index.internalPointer())) {
         // If not, add it to the stream (and also keep track of it in the vector)
-        Footage* footage = dynamic_cast<Footage*>(static_cast<Node*>(index.internalPointer()));
+        ViewerOutput* footage = dynamic_cast<ViewerOutput*>(static_cast<Node*>(index.internalPointer()));
 
         if (footage) {
-          QVector<Footage::StreamReference> streams = footage->GetEnabledStreamsAsReferences();
+          QVector<Track::Reference> streams = footage->GetEnabledStreamsAsReferences();
 
           stream << streams << reinterpret_cast<quintptr>(footage);
 
@@ -319,7 +319,7 @@ bool ProjectViewModel::dropMimeData(const QMimeData *data, Qt::DropAction action
 
     // Variables to deserialize into
     quintptr item_ptr;
-    QList<Footage::StreamReference> streams;
+    QList<Track::Reference> streams;
 
     // Loop through all data
     MultiUndoCommand* move_command = new MultiUndoCommand();
@@ -430,6 +430,9 @@ void ProjectViewModel::ConnectItem(Node *n)
     connect(f, &Folder::BeginRemoveItem, this, &ProjectViewModel::FolderBeginRemoveItem);
     connect(f, &Folder::EndRemoveItem, this, &ProjectViewModel::FolderEndRemoveItem);
 
+    connect(f, &Folder::BeginInsertItem, this, &ProjectViewModel::ItemAdded);
+    connect(f, &Folder::BeginRemoveItem, this, &ProjectViewModel::ItemRemoved);
+
     foreach (Node* c, f->children()) {
       ConnectItem(c);
     }
@@ -446,6 +449,9 @@ void ProjectViewModel::DisconnectItem(Node *n)
     disconnect(f, &Folder::EndInsertItem, this, &ProjectViewModel::FolderEndInsertItem);
     disconnect(f, &Folder::BeginRemoveItem, this, &ProjectViewModel::FolderBeginRemoveItem);
     disconnect(f, &Folder::EndRemoveItem, this, &ProjectViewModel::FolderEndRemoveItem);
+
+    disconnect(f, &Folder::BeginInsertItem, this, &ProjectViewModel::ItemAdded);
+    disconnect(f, &Folder::BeginRemoveItem, this, &ProjectViewModel::ItemRemoved);
 
     foreach (Node* c, f->children()) {
       ConnectItem(c);

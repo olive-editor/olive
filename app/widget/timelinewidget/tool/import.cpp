@@ -33,31 +33,12 @@
 #include "node/distort/transform/transformdistortnode.h"
 #include "node/generator/matrix/matrix.h"
 #include "node/math/math/math.h"
-#include "project/item/sequence/sequence.h"
+#include "node/project/sequence/sequence.h"
 #include "widget/nodeview/nodeviewundo.h"
 #include "window/mainwindow/mainwindow.h"
 #include "window/mainwindow/mainwindowundo.h"
 
 namespace olive {
-
-Track::Type TrackTypeFromStreamType(Stream::Type stream_type)
-{
-  switch (stream_type) {
-  case Stream::kVideo:
-    return Track::kVideo;
-  case Stream::kAudio:
-    return Track::kAudio;
-  case Stream::kSubtitle:
-    // Temporarily disabled until we figure out a better thing to do with this
-    //return Track::kSubtitle;
-  case Stream::kUnknown:
-  case Stream::kData:
-  case Stream::kAttachment:
-    break;
-  }
-
-  return Track::kNone;
-}
 
 ImportTool::ImportTool(TimelineWidget *parent) :
   TimelineTool(parent)
@@ -81,7 +62,7 @@ void ImportTool::DragEnter(TimelineViewMouseEvent *event)
 
     // Variables to deserialize into
     quintptr item_ptr;
-    QVector<Footage::StreamReference> enabled_streams;
+    QVector<Track::Reference> enabled_streams;
 
     // Set drag start position
     drag_start_ = event->GetCoordinates();
@@ -95,15 +76,11 @@ void ImportTool::DragEnter(TimelineViewMouseEvent *event)
       Node* item = reinterpret_cast<Node*>(item_ptr);
 
       // Check if Item is Footage
-      if (dynamic_cast<Footage*>(item)) {
+      ViewerOutput* f = dynamic_cast<ViewerOutput*>(item);
 
-        Footage* f = static_cast<Footage*>(item);
-
-        if (f->IsValid()) {
-          // If the Item is Footage, we can create a Ghost from it
-          dragged_footage_.insert(f, enabled_streams);
-        }
-
+      if (f && f->GetTotalStreamCount()) {
+        // If the Item is Footage, we can create a Ghost from it
+        dragged_footage_.insert(f, enabled_streams);
       }
     }
 
@@ -191,18 +168,18 @@ void ImportTool::DragDrop(TimelineViewMouseEvent *event)
   }
 }
 
-void ImportTool::PlaceAt(const QVector<Footage *> &footage, const rational &start, bool insert)
+void ImportTool::PlaceAt(const QVector<ViewerOutput *> &footage, const rational &start, bool insert)
 {
-  QMap<Footage*, QVector<Footage::StreamReference> > refs;
+  QMap<ViewerOutput*, QVector<Track::Reference> > refs;
 
-  foreach (Footage* f, footage) {
+  foreach (ViewerOutput* f, footage) {
     refs.insert(f, f->GetEnabledStreamsAsReferences());
   }
 
   PlaceAt(refs, start, insert);
 }
 
-void ImportTool::PlaceAt(const QMap<Footage*, QVector<Footage::StreamReference> > &footage, const rational &start, bool insert)
+void ImportTool::PlaceAt(const QMap<ViewerOutput*, QVector<Track::Reference> > &footage, const rational &start, bool insert)
 {
   dragged_footage_ = footage;
 
@@ -214,66 +191,34 @@ void ImportTool::PlaceAt(const QMap<Footage*, QVector<Footage::StreamReference> 
   DropGhosts(insert);
 }
 
-void ImportTool::FootageToGhosts(rational ghost_start, const QMap<Footage *, QVector<Footage::StreamReference> > &sorted, const rational& dest_tb, const int& track_start)
+void ImportTool::FootageToGhosts(rational ghost_start, const QMap<ViewerOutput *, QVector<Track::Reference> > &sorted, const rational& dest_tb, const int& track_start)
 {
   for (auto it=sorted.cbegin(); it!=sorted.cend(); it++) {
+    ViewerOutput* footage = it.key();
+
+    if (footage == sequence()) {
+      // Prevent cyclical dependency
+      continue;
+    }
+
     // Each stream is offset by one track per track "type", we keep track of them in this vector
     QVector<int> track_offsets(Track::kCount);
     track_offsets.fill(track_start);
 
-    QVector<TimelineViewGhostItem*> footage_ghosts;
     rational footage_duration;
-    bool contains_image_stream = false;
+    rational ghost_in;
 
-    foreach (const Footage::StreamReference& ref, it.value()) {
-      Track::Type track_type = TrackTypeFromStreamType(ref.type());
+    TimelineWorkArea* wk = footage->GetTimelinePoints()->workarea();
+    if (wk->enabled()) {
+      footage_duration = wk->length();
+      ghost_in = wk->in();
+    } else {
+      footage_duration = footage->GetLength();
 
-      TimelineViewGhostItem* ghost = new TimelineViewGhostItem();
-
-      if (ref.type() == Stream::kVideo && it.key()->GetVideoParams(ref.index()).video_type() == VideoParams::kVideoTypeStill) {
-        // Stream is essentially length-less - we may use the default still image length in config,
-        // or we may use another stream's length depending on the circumstance
-        contains_image_stream = true;
-      } else {
-        // Rescale stream duration to timeline timebase
-        // Convert to rational time
-        if (it.key()->workarea()->enabled()) {
-          footage_duration = qMax(footage_duration, it.key()->workarea()->range().length());
-          ghost->SetMediaIn(it.key()->workarea()->in());
-        } else {
-          int64_t dur;
-          rational tb;
-
-          if (ref.type() == Stream::kVideo) {
-            VideoParams vp = it.key()->GetVideoParams(ref.index());
-            dur = vp.duration();
-            tb = vp.time_base();
-          } else {
-            AudioParams ap = it.key()->GetAudioParams(ref.index());
-            dur = ap.duration();
-            tb = ap.time_base();
-          }
-
-          int64_t stream_duration = Timecode::rescale_timestamp_ceil(dur, tb, dest_tb);
-          footage_duration = qMax(footage_duration, Timecode::timestamp_to_time(stream_duration, dest_tb));
-        }
+      if (footage_duration.isNull()) {
+        // Fallback to still length if legngth was 0
+        footage_duration = Config::Current()[QStringLiteral("DefaultStillLength")].value<rational>();
       }
-
-      ghost->SetTrack(Track::Reference(track_type, track_offsets.at(track_type)));
-
-      // Increment track count for this track type
-      track_offsets[track_type]++;
-
-      TimelineViewGhostItem::AttachedFootage af = {it.key(), it.key()->GetStringFromReference(ref)};
-      ghost->SetData(TimelineViewGhostItem::kAttachedFootage, QVariant::fromValue(af));
-      ghost->SetMode(Timeline::kMove);
-
-      footage_ghosts.append(ghost);
-    }
-
-    if (contains_image_stream && footage_duration.isNull()) {
-      // Footage must ONLY be image streams so no duration value was found, use default in config
-      footage_duration = Config::Current()["DefaultStillLength"].value<rational>();
     }
 
     // Snap footage duration to timebase
@@ -282,12 +227,26 @@ void ImportTool::FootageToGhosts(rational ghost_start, const QMap<Footage *, QVe
       footage_duration += snap_mvmt;
     }
 
-    foreach (TimelineViewGhostItem* ghost, footage_ghosts) {
+    // Create ghosts
+    foreach (const Track::Reference& ref, it.value()) {
+      Track::Type track_type = ref.type();
+
+      TimelineViewGhostItem* ghost = new TimelineViewGhostItem();
+
       ghost->SetIn(ghost_start);
       ghost->SetOut(ghost_start + footage_duration);
+      ghost->SetMediaIn(ghost_in);
+      ghost->SetTrack(Track::Reference(track_type, track_offsets.at(track_type)));
 
       snap_points_.append(ghost->GetIn());
       snap_points_.append(ghost->GetOut());
+
+      // Increment track count for this track type
+      track_offsets[track_type]++;
+
+      TimelineViewGhostItem::AttachedFootage af = {it.key(), ref.ToString()};
+      ghost->SetData(TimelineViewGhostItem::kAttachedFootage, QVariant::fromValue(af));
+      ghost->SetMode(Timeline::kMove);
 
       parent()->AddGhost(ghost);
     }
@@ -303,7 +262,7 @@ void ImportTool::PrepGhosts(const rational& frame, const int& track_index)
   if (parent()->GetConnectedNode()) {
     FootageToGhosts(frame,
                     dragged_footage_,
-                    parent()->timebase(),
+                    parent()->GetConnectedNode()->GetVideoParams().time_base(),
                     track_index);
   }
 }
@@ -364,7 +323,7 @@ void ImportTool::DropGhosts(bool insert)
 
         if (behavior == kDWSAuto) {
 
-          QVector<Footage*> footage_only;
+          QVector<ViewerOutput*> footage_only;
 
           for (auto it=dragged_footage_.cbegin(); it!=dragged_footage_.cend(); it++) {
             if (!footage_only.contains(it.key())) {
@@ -392,7 +351,7 @@ void ImportTool::DropGhosts(bool insert)
           command->add_child(new FolderAddChild(Core::instance()->GetSelectedFolderInActiveProject(), new_sequence));
           new_sequence->add_default_nodes(command);
 
-          FootageToGhosts(0, dragged_footage_, new_sequence->video_params().time_base(), 0);
+          FootageToGhosts(0, dragged_footage_, new_sequence->GetVideoParams().time_base(), 0);
 
           sequence = new_sequence;
 
@@ -430,8 +389,8 @@ void ImportTool::DropGhosts(bool insert)
       command->add_child(new NodeAddCommand(dst_graph, clip));
       command->add_child(new NodeSetPositionToOffsetOfAnotherNodeCommand(clip, footage_stream.footage, QPointF(2, 0)));
 
-      switch (footage_stream.footage->GetTypeFromOutput(footage_stream.output)) {
-      case Stream::kVideo:
+      switch (Track::Reference::TypeFromString(footage_stream.output)) {
+      case Track::kVideo:
       {
         TransformDistortNode* transform = new TransformDistortNode();
         command->add_child(new NodeAddCommand(dst_graph, transform));
@@ -441,7 +400,7 @@ void ImportTool::DropGhosts(bool insert)
         command->add_child(new NodeSetPositionToOffsetOfAnotherNodeCommand(transform, clip, QPointF(-1, 0)));
         break;
       }
-      case Stream::kAudio:
+      case Track::kAudio:
       {
         VolumeNode* volume_node = new VolumeNode();
         command->add_child(new NodeAddCommand(dst_graph, volume_node));

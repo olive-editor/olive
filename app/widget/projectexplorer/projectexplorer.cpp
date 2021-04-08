@@ -95,6 +95,8 @@ ProjectExplorer::ProjectExplorer(QWidget *parent) :
   connect(tree_view_, &ProjectExplorerTreeView::customContextMenuRequested, this, &ProjectExplorer::ShowContextMenu);
   connect(list_view_, &ProjectExplorerListView::customContextMenuRequested, this, &ProjectExplorer::ShowContextMenu);
   connect(icon_view_, &ProjectExplorerIconView::customContextMenuRequested, this, &ProjectExplorer::ShowContextMenu);
+
+  connect(&model_, &ProjectViewModel::ItemRemoved, this, &ProjectExplorer::ItemRemoved);
 }
 
 const ProjectToolbar::ViewType &ProjectExplorer::view_type() const

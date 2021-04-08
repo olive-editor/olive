@@ -35,8 +35,8 @@ public:
   virtual void DragLeave(QDragLeaveEvent *event) override;
   virtual void DragDrop(TimelineViewMouseEvent *event) override;
 
-  void PlaceAt(const QVector<Footage*> &footage, const rational& start, bool insert);
-  void PlaceAt(const QMap<Footage *, QVector<Footage::StreamReference> > &footage, const rational& start, bool insert);
+  void PlaceAt(const QVector<ViewerOutput *> &footage, const rational& start, bool insert);
+  void PlaceAt(const QMap<ViewerOutput *, QVector<Track::Reference> > &footage, const rational& start, bool insert);
 
   enum DropWithoutSequenceBehavior {
     kDWSAsk,
@@ -46,13 +46,13 @@ public:
   };
 
 private:
-  void FootageToGhosts(rational ghost_start, const QMap<Footage*, QVector<Footage::StreamReference> > &footage, const rational &dest_tb, const int &track_start);
+  void FootageToGhosts(rational ghost_start, const QMap<ViewerOutput *, QVector<Track::Reference> > &footage, const rational &dest_tb, const int &track_start);
 
   void PrepGhosts(const rational &frame, const int &track_index);
 
   void DropGhosts(bool insert);
 
-  QMap<Footage*, QVector<Footage::StreamReference> > dragged_footage_;
+  QMap<ViewerOutput*, QVector<Track::Reference> > dragged_footage_;
 
   int import_pre_buffer_;
 

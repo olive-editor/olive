@@ -17,7 +17,9 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  project/item/folder/folder.h
-  project/item/folder/folder.cpp
+  node/project/footage/footage.cpp
+  node/project/footage/footage.h
+  node/project/footage/footagedescription.cpp
+  node/project/footage/footagedescription.h
   PARENT_SCOPE
 )

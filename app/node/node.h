@@ -45,6 +45,8 @@
 
 namespace olive {
 
+#define NODE_DEFAULT_DESTRUCTOR(x) virtual ~x() override {DisconnectAll();}
+
 class NodeGraph;
 class Folder;
 
@@ -187,6 +189,12 @@ public:
     return input_ids_;
   }
 
+  virtual QVector<QString> inputs_for_output(const QString& output) const
+  {
+    Q_UNUSED(output)
+    return inputs();
+  }
+
   const QVector<QString>& outputs() const
   {
     return outputs_;
@@ -221,6 +229,11 @@ public:
    * @brief Uses config and returns either color() for flat shading or gradient for gradient
    */
   QBrush brush(qreal top, qreal bottom) const;
+
+  int GetOverrideColor() const
+  {
+    return override_color_;
+  }
 
   /**
    * @brief Sets the override color. Set to -1 for no override color.
@@ -808,9 +821,14 @@ protected:
 
   void IgnoreHashingFrom(const QString& input_id);
 
-  virtual void LoadInternal(QXmlStreamReader* reader, XMLNodeData& xml_node_data, uint version, const QAtomicInt* cancelled);
+  int GetOperationStack() const
+  {
+    return operation_stack_;
+  }
 
-  virtual void SaveInternal(QXmlStreamWriter* writer) const;
+  virtual bool LoadCustom(QXmlStreamReader* reader, XMLNodeData& xml_node_data, uint version, const QAtomicInt* cancelled);
+
+  virtual void SaveCustom(QXmlStreamWriter* writer) const;
 
   enum GizmoScaleHandles {
     kGizmoScaleTopLeft,
@@ -876,7 +894,7 @@ signals:
 
   void LinksChanged();
 
-  void InputArraySizeChanged(const QString& input, int new_size);
+  void InputArraySizeChanged(const QString& input, int old_size, int new_size);
 
   void KeyframeAdded(NodeKeyframe* key);
 
@@ -1170,6 +1188,8 @@ private:
   QString tooltip_;
 
   Folder* folder_;
+
+  int operation_stack_;
 
 private slots:
   /**
