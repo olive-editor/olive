@@ -151,9 +151,14 @@ void CrashHandlerDialog::ReplyFinished(QNetworkReply* reply)
     // Close dialog
     QDialog::accept();
   } else {
-    QMessageBox::critical(this, tr("Upload Failed"),
-                          tr("Failed to send error report. Please try again later."),
-                          QMessageBox::Ok);
+    QMessageBox b(this);
+    b.setIcon(QMessageBox::Critical);
+    b.setWindowModality(Qt::WindowModal);
+    b.setWindowTitle(tr("Upload Failed"));
+    b.setText(tr("Failed to send error report. Please try again later."));
+    b.addButton(QMessageBox::Ok);
+    b.exec();
+
     SetGUIObjectsEnabled(true);
   }
 }
@@ -184,10 +189,15 @@ void CrashHandlerDialog::ReadProcessFinished()
 void CrashHandlerDialog::SendErrorReport()
 {
   if (summary_edit_->document()->isEmpty()) {
-    if (QMessageBox::question(this,
-                              tr("No Crash Summary"),
-                              tr("Are you sure you want to send an error report with no crash summary?"),
-                              QMessageBox::Yes | QMessageBox::No) == QMessageBox::No) {
+    QMessageBox b(this);
+    b.setIcon(QMessageBox::Question);
+    b.setWindowModality(Qt::WindowModal);
+    b.setWindowTitle(tr("No Crash Summary"));
+    b.setText(tr("Are you sure you want to send an error report with no crash summary?"));
+    b.addButton(QMessageBox::Yes);
+    b.addButton(QMessageBox::No);
+
+    if (b.exec() == QMessageBox::No) {
       return;
     }
   }
@@ -252,9 +262,15 @@ void CrashHandlerDialog::SendErrorReport()
   if (folders_in_symbol_path.size() > 0) {
     symbol_dir = QDir(symbol_dir.filePath(folders_in_symbol_path.first()));
   } else {
-    QMessageBox::critical(this, tr("Failed to send report"), tr("Failed to find symbols necessary to send report. "
-                                                                "This is a packaging issue. Please notify "
-                                                                "the maintainers of this package."));
+    QMessageBox b(this);
+    b.setIcon(QMessageBox::Critical);
+    b.setWindowModality(Qt::WindowModal);
+    b.setWindowTitle(tr("Failed to send report"));
+    b.setText(tr("Failed to find symbols necessary to send report. "
+                 "This is a packaging issue. Please notify "
+                 "the maintainers of this package."));
+    b.addButton(QMessageBox::Ok);
+    b.exec();
     return;
   }
 
@@ -274,8 +290,14 @@ void CrashHandlerDialog::SendErrorReport()
   QFile sym_file(symbol_full_path);
 
   if (!sym_file.open(QFile::ReadOnly)) {
-    QMessageBox::critical(this, tr("Failed to send report"), tr("Failed to open symbol file. You may not have "
-                                                                "permission to access it."));
+    QMessageBox b(this);
+    b.setIcon(QMessageBox::Critical);
+    b.setWindowModality(Qt::WindowModal);
+    b.setWindowTitle(tr("Failed to send report"));
+    b.setText(tr("Failed to open symbol file. You may not have "
+                 "permission to access it."));
+    b.addButton(QMessageBox::Ok);
+    b.exec();
     return;
   }
 
@@ -293,12 +315,16 @@ void CrashHandlerDialog::SendErrorReport()
 
 void CrashHandlerDialog::closeEvent(QCloseEvent* e)
 {
-  if (waiting_for_upload_
-      && QMessageBox::warning(this,
-                              tr("Confirm Close"),
-                              tr("Crash report is still uploading. Closing now may result in no "
-                                 "report being sent. Are you sure you wish to close?"),
-                              QMessageBox::Ok | QMessageBox::Cancel) == QMessageBox::Cancel) {
+  QMessageBox b(this);
+  b.setIcon(QMessageBox::Warning);
+  b.setWindowModality(Qt::WindowModal);
+  b.setWindowTitle(tr("Confirm Close"));
+  b.setText(tr("Crash report is still uploading. Closing now may result in no "
+               "report being sent. Are you sure you wish to close?"));
+  b.addButton(QMessageBox::Ok);
+  b.addButton(QMessageBox::Cancel);
+
+  if (waiting_for_upload_ && b.exec() == QMessageBox::Cancel) {
     e->ignore();
   } else {
     e->accept();
