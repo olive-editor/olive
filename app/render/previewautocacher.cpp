@@ -370,6 +370,8 @@ void PreviewAutoCacher::ClearHashQueue(bool wait)
     for (auto it=copy.cbegin(); it!=copy.cend(); it++) {
       (*it)->waitForFinished();
     }
+
+    hash_tasks_.clear();
   }
 }
 
@@ -396,6 +398,11 @@ void PreviewAutoCacher::ClearVideoQueue(bool wait)
     foreach (RenderTicketWatcher* watcher, sft_copy) {
       watcher->WaitForFinished();
     }
+
+    // If we're waiting, we prioritize clearing the cache. Otherwise, we assume that tasks can still
+    // finish after this function returns.
+    video_tasks_.clear();
+    single_frame_tasks_.clear();
   }
 
   has_changed_ = true;
@@ -415,6 +422,8 @@ void PreviewAutoCacher::ClearAudioQueue(bool wait)
     for (auto it=copy.cbegin(); it!=copy.cend(); it++) {
       it.key()->WaitForFinished();
     }
+
+    audio_tasks_.clear();
   }
 }
 
@@ -431,6 +440,8 @@ void PreviewAutoCacher::ClearVideoDownloadQueue(bool wait)
     for (auto it=copy.cbegin(); it!=copy.cend(); it++) {
       it.key()->WaitForFinished();
     }
+
+    video_download_tasks_.clear();
   }
 }
 
