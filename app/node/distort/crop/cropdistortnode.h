@@ -30,6 +30,7 @@ namespace olive {
 
 class CropDistortNode : public Node
 {
+  Q_OBJECT
 public:
   CropDistortNode();
 
