@@ -136,10 +136,6 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual void BeginOperation() override;
-
-  virtual void EndOperation() override;
-
   virtual NodeOutput GetConnectedTextureOutput();
 
   virtual NodeOutput GetConnectedSampleOutput();

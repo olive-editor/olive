@@ -343,6 +343,8 @@ public:
     return waveform_;
   }
 
+  virtual void EndOperation() override;
+
   static const double kTrackHeightDefault;
   static const double kTrackHeightMinimum;
   static const double kTrackHeightInterval;
@@ -425,7 +427,9 @@ private:
 
   rational track_length_;
 
-  rational last_invalidated_length_;
+  rational midop_track_length_;
+
+  rational preop_track_length_;
 
   double track_height_;
 

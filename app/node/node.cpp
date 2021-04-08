@@ -47,7 +47,8 @@ Node::Node(bool create_default_output) :
   can_be_deleted_(true),
   override_color_(-1),
   last_change_time_(0),
-  folder_(nullptr)
+  folder_(nullptr),
+  operation_stack_(0)
 {
   if (create_default_output) {
     AddOutput();
@@ -1027,18 +1028,14 @@ void Node::InvalidateCache(const TimeRange &range, const QString &from, int elem
 
 void Node::BeginOperation()
 {
-  // Ripple through graph
-  for (const std::pair<NodeOutput, NodeInput>& output : output_connections_) {
-    output.second.node()->BeginOperation();
-  }
+  // Increase operation stack
+  operation_stack_++;
 }
 
 void Node::EndOperation()
 {
-  // Ripple through graph
-  for (const std::pair<NodeOutput, NodeInput>& output : output_connections_) {
-    output.second.node()->EndOperation();
-  }
+  // Decrease operation stack
+  operation_stack_--;
 }
 
 TimeRange Node::InputTimeAdjustment(const QString &, int, const TimeRange &input_time) const
@@ -1177,11 +1174,13 @@ Node *Node::CopyNodeInGraph(const Node *node, MultiUndoCommand *command)
 
 void Node::SendInvalidateCache(const TimeRange &range, qint64 job_time)
 {
-  for (const OutputConnection& conn : output_connections_) {
-    // Send clear cache signal to the Node
-    const NodeInput& in = conn.second;
+  if (GetOperationStack() == 0) {
+    for (const OutputConnection& conn : output_connections_) {
+      // Send clear cache signal to the Node
+      const NodeInput& in = conn.second;
 
-    in.node()->InvalidateCache(range, in.input(), in.element(), job_time);
+      in.node()->InvalidateCache(range, in.input(), in.element(), job_time);
+    }
   }
 }
 

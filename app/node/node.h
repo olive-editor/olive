@@ -816,6 +816,11 @@ protected:
 
   void IgnoreHashingFrom(const QString& input_id);
 
+  int GetOperationStack() const
+  {
+    return operation_stack_;
+  }
+
   virtual bool LoadCustom(QXmlStreamReader* reader, XMLNodeData& xml_node_data, uint version, const QAtomicInt* cancelled);
 
   virtual void SaveCustom(QXmlStreamWriter* writer) const;
@@ -1178,6 +1183,8 @@ private:
   QString tooltip_;
 
   Folder* folder_;
+
+  int operation_stack_;
 
 private slots:
   /**

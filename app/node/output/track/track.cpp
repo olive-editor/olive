@@ -417,6 +417,10 @@ QVector<Block *> Track::BlocksAtTimeRange(const TimeRange &range) const
 
 void Track::InvalidateCache(const TimeRange& range, const QString& from, int element, qint64 job_time)
 {
+  if (GetOperationStack() != 0) {
+    return;
+  }
+
   TimeRange limited;
 
   const Block* b;
@@ -431,8 +435,8 @@ void Track::InvalidateCache(const TimeRange& range, const QString& from, int ele
 
     limited = TimeRange(qMax(range.in(), b->in()), qMin(range.out(), b->out()));
   } else {
-    limited = TimeRange(qMax(range.in(), rational(0)), qMin(range.out(), qMax(last_invalidated_length_, track_length())));
-    last_invalidated_length_ = track_length();
+    limited = TimeRange(qMax(range.in(), rational(0)), qMin(range.out(), qMax(preop_track_length_, track_length())));
+    preop_track_length_ = track_length_;
   }
 
   Node::InvalidateCache(limited, from, element, job_time);
@@ -578,6 +582,15 @@ void Track::Hash(const QString &output, QCryptographicHash &hash, const rational
   }
 }
 
+void Track::EndOperation()
+{
+  super::EndOperation();
+
+  if (track_length_ != midop_track_length_) {
+    SetLengthInternal(midop_track_length_);
+  }
+}
+
 void Track::SetMuted(bool e)
 {
   SetStandardValue(kMutedInput, e);
@@ -629,13 +642,13 @@ int Track::GetCacheIndexFromArrayIndex(int index) const
 
 void Track::SetLengthInternal(const rational &r, bool invalidate)
 {
-  if (r != track_length_) {
-    // TimeRange will automatically normalize so that the shorter number is the in and the longer
-    // is the out
-    TimeRange invalidate_range(track_length_, r);
+  // Hold track length until operation stack is empty
+  midop_track_length_ = r;
 
+  if (GetOperationStack() == 0 && track_length_ != r) {
+    TimeRange invalidate_range(track_length_, r);
     track_length_ = r;
-    last_invalidated_length_ = qMax(last_invalidated_length_, track_length_);
+    preop_track_length_ = qMax(preop_track_length_, track_length_);
     emit TrackLengthChanged();
 
     if (invalidate) {

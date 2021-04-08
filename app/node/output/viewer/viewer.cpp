@@ -38,8 +38,7 @@ const uint64_t ViewerOutput::kVideoParamEditMask = VideoParamEdit::kWidthHeight 
 
 ViewerOutput::ViewerOutput(bool create_default_streams) :
   video_frame_cache_(this),
-  audio_playback_cache_(this),
-  operation_stack_(0)
+  audio_playback_cache_(this)
 {
   AddInput(kVideoParamsInput, NodeValue::kVideoParams, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable | kInputFlagArray));
   SetInputProperty(kVideoParamsInput, QStringLiteral("mask"), QVariant::fromValue(kVideoParamEditMask));
@@ -218,23 +217,21 @@ void ViewerOutput::InvalidateCache(const TimeRange& range, const QString& from, 
 {
   Q_UNUSED(element)
 
-  if (operation_stack_ == 0) {
-    if (from == kTextureInput || from == kSamplesInput
-        || from == kVideoParamsInput || from == kAudioParamsInput) {
-      TimeRange invalidated_range(qMax(rational(), range.in()),
-                                  qMin(GetLength(), range.out()));
+  if (from == kTextureInput || from == kSamplesInput
+      || from == kVideoParamsInput || from == kAudioParamsInput) {
+    TimeRange invalidated_range(qMax(rational(), range.in()),
+                                qMin(GetLength(), range.out()));
 
-      if (invalidated_range.in() != invalidated_range.out()) {
-        if (from == kTextureInput || from == kVideoParamsInput) {
-          video_frame_cache_.Invalidate(invalidated_range, job_time);
-        } else {
-          audio_playback_cache_.Invalidate(invalidated_range, job_time);
-        }
+    if (invalidated_range.in() != invalidated_range.out()) {
+      if (from == kTextureInput || from == kVideoParamsInput) {
+        video_frame_cache_.Invalidate(invalidated_range, job_time);
+      } else {
+        audio_playback_cache_.Invalidate(invalidated_range, job_time);
       }
     }
-
-    VerifyLength();
   }
+
+  VerifyLength();
 
   super::InvalidateCache(range, from, element, job_time);
 }
@@ -298,10 +295,6 @@ void ViewerOutput::Retranslate()
 
 void ViewerOutput::VerifyLength()
 {
-  if (operation_stack_ != 0) {
-    return;
-  }
-
   NodeTraverser traverser;
 
   rational video_length, audio_length, subtitle_length;
@@ -362,20 +355,6 @@ rational ViewerOutput::GetCustomLength(Track::Type type) const
 {
   Q_UNUSED(type)
   return rational();
-}
-
-void ViewerOutput::BeginOperation()
-{
-  operation_stack_++;
-
-  super::BeginOperation();
-}
-
-void ViewerOutput::EndOperation()
-{
-  operation_stack_--;
-
-  super::EndOperation();
 }
 
 NodeOutput ViewerOutput::GetConnectedTextureOutput()
