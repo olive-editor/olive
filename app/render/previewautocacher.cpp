@@ -386,6 +386,10 @@ void PreviewAutoCacher::ClearVideoQueue(bool wait)
     watcher->Cancel();
   }
   if (wait) {
+    // Re-copy because the above cancels may have deleted these watchers
+    vt_copy = video_tasks_;
+    sft_copy = single_frame_tasks_;
+
     for (auto it=vt_copy.cbegin(); it!=vt_copy.cend(); it++) {
       it.key()->WaitForFinished();
     }
