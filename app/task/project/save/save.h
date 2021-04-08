@@ -21,7 +21,7 @@
 #ifndef PROJECTSAVEMANAGER_H
 #define PROJECTSAVEMANAGER_H
 
-#include "project/project.h"
+#include "node/project/project.h"
 #include "task/task.h"
 
 namespace olive {

@@ -45,7 +45,8 @@ class ViewerOutput : public Node
   Q_OBJECT
 public:
   ViewerOutput(bool create_default_streams = true);
-  virtual ~ViewerOutput() override;
+
+  NODE_DEFAULT_DESTRUCTOR(ViewerOutput)
 
   virtual Node* copy() const override;
 

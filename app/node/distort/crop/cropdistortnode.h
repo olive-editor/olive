@@ -33,6 +33,8 @@ class CropDistortNode : public Node
 public:
   CropDistortNode();
 
+  NODE_DEFAULT_DESTRUCTOR(CropDistortNode)
+
   virtual Node* copy() const override
   {
     return new CropDistortNode();

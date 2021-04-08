@@ -23,7 +23,7 @@
 
 #include "node/graph.h"
 #include "node/node.h"
-#include "project/project.h"
+#include "node/project/project.h"
 #include "undo/undocommand.h"
 
 namespace olive {

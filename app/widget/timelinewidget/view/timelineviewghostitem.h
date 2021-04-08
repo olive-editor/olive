@@ -24,7 +24,7 @@
 #include <QVariant>
 
 #include "node/output/track/track.h"
-#include "project/item/footage/footage.h"
+#include "node/project/footage/footage.h"
 #include "timeline/timelinecommon.h"
 
 namespace olive {

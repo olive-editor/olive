@@ -16,6 +16,7 @@
 
 add_subdirectory(audio)
 add_subdirectory(block)
+add_subdirectory(color)
 add_subdirectory(distort)
 add_subdirectory(filter)
 add_subdirectory(generator)

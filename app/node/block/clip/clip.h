@@ -34,6 +34,8 @@ class ClipBlock : public Block
 public:
   ClipBlock();
 
+  NODE_DEFAULT_DESTRUCTOR(ClipBlock)
+
   virtual Node* copy() const override;
 
   virtual Type type() const override;

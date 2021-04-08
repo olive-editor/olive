@@ -31,6 +31,8 @@ class PanNode : public Node
 public:
   PanNode();
 
+  NODE_DEFAULT_DESTRUCTOR(PanNode)
+
   virtual Node* copy() const override;
 
   virtual QString Name() const override;

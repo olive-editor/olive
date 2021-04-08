@@ -21,7 +21,7 @@
 #ifndef FOOTAGEJOB_H
 #define FOOTAGEJOB_H
 
-#include "project/item/footage/footage.h"
+#include "node/project/footage/footage.h"
 
 namespace olive {
 

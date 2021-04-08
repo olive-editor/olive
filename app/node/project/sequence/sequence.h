@@ -36,7 +36,7 @@ class Sequence : public ViewerOutput
 public:
   Sequence();
 
-  virtual ~Sequence() override;
+  NODE_DEFAULT_DESTRUCTOR(Sequence)
 
   virtual Node* copy() const override
   {

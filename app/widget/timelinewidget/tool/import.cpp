@@ -33,7 +33,7 @@
 #include "node/distort/transform/transformdistortnode.h"
 #include "node/generator/matrix/matrix.h"
 #include "node/math/math/math.h"
-#include "project/item/sequence/sequence.h"
+#include "node/project/sequence/sequence.h"
 #include "widget/nodeview/nodeviewundo.h"
 #include "window/mainwindow/mainwindow.h"
 #include "window/mainwindow/mainwindowundo.h"

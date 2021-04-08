@@ -34,6 +34,8 @@ class MatrixGenerator : public Node
 public:
   MatrixGenerator();
 
+  NODE_DEFAULT_DESTRUCTOR(MatrixGenerator)
+
   virtual Node* copy() const override;
 
   virtual QString Name() const override;

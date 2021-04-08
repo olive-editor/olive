@@ -37,6 +37,8 @@ class Block : public Node
 public:
   Block();
 
+  NODE_DEFAULT_DESTRUCTOR(Block)
+
   enum Type {
     kClip,
     kGap,

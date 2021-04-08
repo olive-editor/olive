@@ -3,7 +3,7 @@
 #include <QApplication>
 #include <QtConcurrent/QtConcurrent>
 
-#include "project/project.h"
+#include "node/project/project.h"
 #include "render/rendermanager.h"
 #include "render/renderprocessor.h"
 

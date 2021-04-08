@@ -5,7 +5,7 @@
 #include <QList>
 #include <QSpinBox>
 
-#include "project/item/sequence/sequence.h"
+#include "node/project/sequence/sequence.h"
 #include "sequencepreset.h"
 #include "widget/slider/integerslider.h"
 #include "widget/standardcombos/standardcombos.h"

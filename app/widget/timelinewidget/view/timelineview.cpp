@@ -31,7 +31,7 @@
 #include "common/flipmodifiers.h"
 #include "common/qtutils.h"
 #include "common/timecodefunctions.h"
-#include "project/item/footage/footage.h"
+#include "node/project/footage/footage.h"
 #include "ui/colorcoding.h"
 
 namespace olive {

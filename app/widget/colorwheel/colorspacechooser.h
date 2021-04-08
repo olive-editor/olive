@@ -24,7 +24,7 @@
 #include <QComboBox>
 #include <QGroupBox>
 
-#include "render/colormanager.h"
+#include "node/color/colormanager/colormanager.h"
 
 namespace olive {
 

@@ -37,6 +37,8 @@ class Folder : public Node
 public:
   Folder();
 
+  NODE_DEFAULT_DESTRUCTOR(Folder)
+
   virtual Node* copy() const override
   {
     return new Folder();

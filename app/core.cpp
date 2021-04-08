@@ -45,11 +45,11 @@
 #include "dialog/sequence/sequence.h"
 #include "dialog/task/task.h"
 #include "dialog/preferences/preferences.h"
+#include "node/color/colormanager/colormanager.h"
 #include "node/factory.h"
 #include "panel/panelmanager.h"
 #include "panel/project/project.h"
 #include "panel/viewer/viewer.h"
-#include "render/colormanager.h"
 #include "render/diskmanager.h"
 #include "render/rendermanager.h"
 #ifdef USE_OTIO

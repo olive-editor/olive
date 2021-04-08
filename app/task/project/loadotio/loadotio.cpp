@@ -31,9 +31,9 @@
 
 #include "node/block/clip/clip.h"
 #include "node/block/gap/gap.h"
-#include "project/item/folder/folder.h"
-#include "project/item/footage/footage.h"
-#include "project/item/sequence/sequence.h"
+#include "node/project/folder/folder.h"
+#include "node/project/footage/footage.h"
+#include "node/project/sequence/sequence.h"
 #include "widget/timelinewidget/timelineundo.h"
 
 #define OTIO opentimelineio::v1_0

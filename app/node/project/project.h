@@ -25,10 +25,10 @@
 #include <QObject>
 #include <QUuid>
 
-#include "node/project/projectsettings/projectsettings.h"
+#include "node/color/colormanager/colormanager.h"
 #include "node/output/viewer/viewer.h"
-#include "render/colormanager.h"
-#include "project/item/folder/folder.h"
+#include "node/project/footage/footage.h"
+#include "node/project/projectsettings/projectsettings.h"
 #include "window/mainwindow/mainwindowlayoutinfo.h"
 
 namespace olive {

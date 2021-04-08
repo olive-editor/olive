@@ -21,9 +21,9 @@
 #include "nodeviewscene.h"
 
 #include "common/functiontimer.h"
+#include "node/project/sequence/sequence.h"
 #include "nodeviewedge.h"
 #include "nodeviewitem.h"
-#include "project/item/sequence/sequence.h"
 
 namespace olive {
 

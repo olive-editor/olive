@@ -24,9 +24,9 @@
 #include <QOpenGLWidget>
 #include <QMatrix4x4>
 
+#include "node/color/colormanager/colormanager.h"
 #include "node/node.h"
 #include "render/color.h"
-#include "render/colormanager.h"
 #include "tool/tool.h"
 #include "viewersafemargininfo.h"
 #include "widget/manageddisplay/manageddisplay.h"

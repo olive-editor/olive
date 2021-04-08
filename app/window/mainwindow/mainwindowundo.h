@@ -21,7 +21,7 @@
 #ifndef MAINWINDOWUNDO_H
 #define MAINWINDOWUNDO_H
 
-#include "project/item/sequence/sequence.h"
+#include "node/project/sequence/sequence.h"
 
 namespace olive {
 

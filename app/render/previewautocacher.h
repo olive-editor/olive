@@ -5,10 +5,10 @@
 
 #include "config/config.h"
 #include "node/graph.h"
+#include "node/color/colormanager/colormanager.h"
 #include "node/node.h"
 #include "node/output/viewer/viewer.h"
-#include "project/project.h"
-#include "render/colormanager.h"
+#include "node/project/project.h"
 #include "threading/threadticketwatcher.h"
 
 namespace olive {

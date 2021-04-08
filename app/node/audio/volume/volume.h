@@ -31,6 +31,8 @@ class VolumeNode : public MathNodeBase
 public:
   VolumeNode();
 
+  NODE_DEFAULT_DESTRUCTOR(VolumeNode)
+
   virtual Node* copy() const override;
 
   virtual QString Name() const override;

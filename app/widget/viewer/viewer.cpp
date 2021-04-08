@@ -35,7 +35,7 @@
 #include "common/ratiodialog.h"
 #include "common/timecodefunctions.h"
 #include "config/config.h"
-#include "project/project.h"
+#include "node/project/project.h"
 #include "render/rendermanager.h"
 #include "task/taskmanager.h"
 #include "widget/menu/menu.h"

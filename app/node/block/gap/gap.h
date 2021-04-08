@@ -34,6 +34,8 @@ class GapBlock : public Block
 public:
   GapBlock();
 
+  NODE_DEFAULT_DESTRUCTOR(GapBlock)
+
   virtual Node * copy() const override;
 
   virtual Type type() const override;

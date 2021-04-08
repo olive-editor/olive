@@ -44,7 +44,7 @@ public:
 
   Track();
 
-  virtual ~Track() override;
+  NODE_DEFAULT_DESTRUCTOR(Track)
 
   const Track::Type& type() const;
   void set_type(const Track::Type& track_type);

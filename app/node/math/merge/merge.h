@@ -31,6 +31,8 @@ class MergeNode : public Node
 public:
   MergeNode();
 
+  NODE_DEFAULT_DESTRUCTOR(MergeNode)
+
   virtual Node* copy() const override;
 
   virtual QString Name() const override;

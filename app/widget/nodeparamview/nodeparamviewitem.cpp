@@ -27,8 +27,8 @@
 
 #include "common/qtutils.h"
 #include "core.h"
+#include "node/project/sequence/sequence.h"
 #include "nodeparamviewundo.h"
-#include "project/item/sequence/sequence.h"
 
 namespace olive {
 

@@ -45,6 +45,8 @@
 
 namespace olive {
 
+#define NODE_DEFAULT_DESTRUCTOR(x) virtual ~x() override {DisconnectAll();}
+
 class NodeGraph;
 class Folder;
 

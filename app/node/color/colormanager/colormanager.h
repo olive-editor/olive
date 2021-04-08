@@ -25,8 +25,8 @@
 #include <QMutex>
 
 #include "codec/frame.h"
-#include "colorprocessor.h"
 #include "node/node.h"
+#include "render/colorprocessor.h"
 
 #define OCIO_SET_C_LOCALE_FOR_SCOPE ColorManager::SetLocale d("C")
 

@@ -57,14 +57,6 @@ ViewerOutput::ViewerOutput(bool create_default_streams) :
   }
 }
 
-ViewerOutput::~ViewerOutput()
-{
-  // Should prevent traversing graph unnecessarily
-  BeginOperation();
-  DisconnectAll();
-  EndOperation();
-}
-
 Node *ViewerOutput::copy() const
 {
   return new ViewerOutput();

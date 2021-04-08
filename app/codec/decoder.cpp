@@ -30,11 +30,11 @@
 #include "common/ffmpegutils.h"
 #include "common/filefunctions.h"
 #include "common/timecodefunctions.h"
+#include "node/project/project.h"
 #ifdef USE_OTIO
 #include "task/project/loadotio/loadotio.h"
 #endif
 #include "task/taskmanager.h"
-#include "project/project.h"
 
 namespace olive {
 

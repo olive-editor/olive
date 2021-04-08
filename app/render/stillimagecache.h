@@ -6,7 +6,7 @@
 
 #include "codec/decoder.h"
 #include "common/rational.h"
-#include "project/item/footage/footage.h"
+#include "node/project/footage/footage.h"
 #include "render/texture.h"
 
 namespace olive {

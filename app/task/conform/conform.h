@@ -21,7 +21,7 @@
 #ifndef CONFORMTASK_H
 #define CONFORMTASK_H
 
-#include "project/item/footage/footage.h"
+#include "node/project/footage/footage.h"
 #include "render/audioparams.h"
 #include "task/task.h"
 

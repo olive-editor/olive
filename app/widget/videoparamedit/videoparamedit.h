@@ -25,7 +25,7 @@
 #include <QLabel>
 #include <QWidget>
 
-#include "render/colormanager.h"
+#include "node/color/colormanager/colormanager.h"
 #include "render/videoparams.h"
 #include "widget/slider/floatslider.h"
 #include "widget/slider/integerslider.h"

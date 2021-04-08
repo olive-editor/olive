@@ -25,7 +25,7 @@
 #include <QVector3D>
 #include <QVector4D>
 
-#include "project/project.h"
+#include "node/project/project.h"
 #include "rendermanager.h"
 
 namespace olive {

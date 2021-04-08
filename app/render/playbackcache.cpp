@@ -21,8 +21,8 @@
 #include "playbackcache.h"
 
 #include "node/output/viewer/viewer.h"
-#include "project/item/sequence/sequence.h"
-#include "project/project.h"
+#include "node/project/project.h"
+#include "node/project/sequence/sequence.h"
 #include "render/diskmanager.h"
 
 namespace olive {

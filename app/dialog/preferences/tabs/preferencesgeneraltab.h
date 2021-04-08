@@ -26,7 +26,7 @@
 #include <QSpinBox>
 
 #include "dialog/configbase/configdialogbase.h"
-#include "project/item/sequence/sequence.h"
+#include "node/project/sequence/sequence.h"
 #include "widget/slider/floatslider.h"
 #include "widget/slider/integerslider.h"
 

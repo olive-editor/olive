@@ -1,8 +1,8 @@
 #ifndef MAINWINDOWLAYOUTINFO_H
 #define MAINWINDOWLAYOUTINFO_H
 
-#include "project/item/folder/folder.h"
-#include "project/item/sequence/sequence.h"
+#include "node/project/folder/folder.h"
+#include "node/project/sequence/sequence.h"
 
 namespace olive {
 

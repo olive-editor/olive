@@ -21,7 +21,7 @@
 #include "export.h"
 
 #include "common/timecodefunctions.h"
-#include "render/colormanager.h"
+#include "node/color/colormanager/colormanager.h"
 
 namespace olive {
 

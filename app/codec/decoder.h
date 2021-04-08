@@ -35,8 +35,8 @@ extern "C" {
 #include "codec/samplebuffer.h"
 #include "codec/waveoutput.h"
 #include "common/rational.h"
-#include "project/item/footage/footage.h"
-#include "project/item/footage/footagedescription.h"
+#include "node/project/footage/footage.h"
+#include "node/project/footage/footagedescription.h"
 
 namespace olive {
 

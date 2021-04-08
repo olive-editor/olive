@@ -25,7 +25,7 @@
 #include <QOpenGLContext>
 #include <QOpenGLWidget>
 
-#include "render/colormanager.h"
+#include "node/color/colormanager/colormanager.h"
 #include "render/renderer.h"
 #include "widget/menu/menu.h"
 

@@ -21,8 +21,8 @@
 #include "folder.h"
 
 #include "common/xmlutils.h"
-#include "project/item/footage/footage.h"
-#include "project/item/sequence/sequence.h"
+#include "node/project/footage/footage.h"
+#include "node/project/sequence/sequence.h"
 #include "ui/icons/icons.h"
 
 namespace olive {

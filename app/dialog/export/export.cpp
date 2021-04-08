@@ -33,8 +33,8 @@
 #include "common/qtutils.h"
 #include "core.h"
 #include "dialog/task/task.h"
-#include "project/item/sequence/sequence.h"
-#include "project/project.h"
+#include "node/project/project.h"
+#include "node/project/sequence/sequence.h"
 #include "ui/icons/icons.h"
 
 namespace olive {

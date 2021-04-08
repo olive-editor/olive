@@ -24,10 +24,10 @@
 #include <QVBoxLayout>
 
 #include "core.h"
+#include "node/project/sequence/sequence.h"
 #include "panel/footageviewer/footageviewer.h"
 #include "panel/timeline/timeline.h"
 #include "panel/panelmanager.h"
-#include "project/item/sequence/sequence.h"
 #include "widget/menu/menushared.h"
 #include "widget/projecttoolbar/projecttoolbar.h"
 #include "window/mainwindow/mainwindow.h"

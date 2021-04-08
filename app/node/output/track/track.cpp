@@ -55,11 +55,6 @@ Track::Track() :
   track_height_ = kTrackHeightDefault;
 }
 
-Track::~Track()
-{
-  DisconnectAll();
-}
-
 void Track::set_type(const Type &track_type)
 {
   track_type_ = track_type;

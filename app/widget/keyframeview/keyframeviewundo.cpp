@@ -21,7 +21,7 @@
 #include "keyframeviewundo.h"
 
 #include "node/node.h"
-#include "project/item/sequence/sequence.h"
+#include "node/project/sequence/sequence.h"
 
 namespace olive {
 
