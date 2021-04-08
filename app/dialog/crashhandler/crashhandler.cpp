@@ -259,7 +259,7 @@ void CrashHandlerDialog::SendErrorReport()
   }
 
   // Create sym section
-  QString symbol_filename
+  QString symbol_filename;
 #if defined(OS_APPLE)
   symbol_filename = QStringLiteral("Olive.sym");
 #else
