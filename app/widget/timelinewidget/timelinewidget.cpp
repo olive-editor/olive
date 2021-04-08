@@ -218,7 +218,7 @@ void TimelineWidget::ScaleChangedEvent(const double &scale)
   }
 }
 
-void TimelineWidget::ConnectNodeInternal(ViewerOutput *n)
+void TimelineWidget::ConnectNodeEvent(ViewerOutput *n)
 {
   Sequence* s = static_cast<Sequence*>(n);
 
@@ -246,7 +246,7 @@ void TimelineWidget::ConnectNodeInternal(ViewerOutput *n)
   }
 }
 
-void TimelineWidget::DisconnectNodeInternal(ViewerOutput *n)
+void TimelineWidget::DisconnectNodeEvent(ViewerOutput *n)
 {
   Sequence* s = static_cast<Sequence*>(n);
 

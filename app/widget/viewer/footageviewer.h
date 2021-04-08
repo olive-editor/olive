@@ -33,9 +33,9 @@ public:
   FootageViewerWidget(QWidget* parent = nullptr);
 
 protected:
-  virtual void ConnectNodeInternal(ViewerOutput *) override;
+  virtual void ConnectNodeEvent(ViewerOutput *) override;
 
-  virtual void DisconnectNodeInternal(ViewerOutput *) override;
+  virtual void DisconnectNodeEvent(ViewerOutput *) override;
 
 private:
   void StartFootageDragInternal(bool enable_video, bool enable_audio);

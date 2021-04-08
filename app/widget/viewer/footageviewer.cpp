@@ -40,20 +40,20 @@ FootageViewerWidget::FootageViewerWidget(QWidget *parent) :
   connect(controls_, &PlaybackControls::AudioPressed, this, &FootageViewerWidget::StartAudioDrag);
 }
 
-void FootageViewerWidget::ConnectNodeInternal(ViewerOutput *n)
+void FootageViewerWidget::ConnectNodeEvent(ViewerOutput *n)
 {
-  super::ConnectNodeInternal(n);
+  super::ConnectNodeEvent(n);
 
   SetTimestamp(cached_timestamps_.value(n, 0));
 }
 
-void FootageViewerWidget::DisconnectNodeInternal(ViewerOutput *n)
+void FootageViewerWidget::DisconnectNodeEvent(ViewerOutput *n)
 {
   // Cache timestamp in case this footage is opened again later
   cached_timestamps_.insert(n, GetTimestamp());
   SetTimestamp(0);
 
-  super::DisconnectNodeInternal(n);
+  super::DisconnectNodeEvent(n);
 }
 
 void FootageViewerWidget::StartFootageDragInternal(bool enable_video, bool enable_audio)

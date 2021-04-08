@@ -151,9 +151,9 @@ protected:
   virtual void TimebaseChangedEvent(const rational &) override;
   virtual void TimeChangedEvent(const int64_t &) override;
 
-  virtual void ConnectNodeInternal(ViewerOutput *) override;
-  virtual void DisconnectNodeInternal(ViewerOutput *) override;
-  virtual void ConnectedNodeChanged(ViewerOutput *) override;
+  virtual void ConnectNodeEvent(ViewerOutput *) override;
+  virtual void DisconnectNodeEvent(ViewerOutput *) override;
+  virtual void ConnectedNodeChangeEvent(ViewerOutput *) override;
 
   virtual void ScaleChangedEvent(const double& s) override;
 

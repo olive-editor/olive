@@ -175,7 +175,7 @@ void ViewerWidget::TimeChangedEvent(const int64_t &i)
   last_time_ = i;
 }
 
-void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
+void ViewerWidget::ConnectNodeEvent(ViewerOutput *n)
 {
   connect(n, &ViewerOutput::SizeChanged, this, &ViewerWidget::SetViewerResolution);
   connect(n, &ViewerOutput::PixelAspectChanged, this, &ViewerWidget::SetViewerPixelAspect);
@@ -217,7 +217,7 @@ void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
   ForceUpdate();
 }
 
-void ViewerWidget::DisconnectNodeInternal(ViewerOutput *n)
+void ViewerWidget::DisconnectNodeEvent(ViewerOutput *n)
 {
   PauseInternal();
 
@@ -248,7 +248,7 @@ void ViewerWidget::DisconnectNodeInternal(ViewerOutput *n)
   QMetaObject::invokeMethod(this, "UpdateStack", Qt::QueuedConnection);
 }
 
-void ViewerWidget::ConnectedNodeChanged(ViewerOutput *n)
+void ViewerWidget::ConnectedNodeChangeEvent(ViewerOutput *n)
 {
   auto_cacher_.SetViewerNode(n);
 }

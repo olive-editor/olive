@@ -135,6 +135,9 @@ private:
 
   bool show_and_raise_on_connect_;
 
+private slots:
+  void ConnectedNodeChanged(ViewerOutput* old, ViewerOutput* now);
+
 };
 
 }

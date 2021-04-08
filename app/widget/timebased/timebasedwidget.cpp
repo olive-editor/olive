@@ -81,7 +81,7 @@ void TimeBasedWidget::ConnectViewerNode(ViewerOutput *node)
 
   if (viewer_node_) {
     // Call potential derivative functions for disconnecting the viewer node
-    DisconnectNodeInternal(viewer_node_);
+    DisconnectNodeEvent(viewer_node_);
 
     // Disconnect length changed signal
     disconnect(viewer_node_, &ViewerOutput::LengthChanged, this, &TimeBasedWidget::UpdateMaximumScroll);
@@ -95,10 +95,12 @@ void TimeBasedWidget::ConnectViewerNode(ViewerOutput *node)
   }
 
   // Set viewer node
+  ViewerOutput* old = viewer_node_;
   viewer_node_ = node;
+  emit ConnectedNodeChanged(old, node);
 
   // Call derivatives
-  ConnectedNodeChanged(viewer_node_);
+  ConnectedNodeChangeEvent(viewer_node_);
 
   if (viewer_node_) {
     // Connect length changed signal
@@ -126,7 +128,7 @@ void TimeBasedWidget::ConnectViewerNode(ViewerOutput *node)
     }
 
     // Call derivatives
-    ConnectNodeInternal(viewer_node_);
+    ConnectNodeEvent(viewer_node_);
   }
 
   UpdateMaximumScroll();

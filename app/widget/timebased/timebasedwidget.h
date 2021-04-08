@@ -105,11 +105,11 @@ protected:
 
   virtual void ScaleChangedEvent(const double &) override;
 
-  virtual void ConnectedNodeChanged(ViewerOutput*){}
+  virtual void ConnectedNodeChangeEvent(ViewerOutput*){}
 
-  virtual void ConnectNodeInternal(ViewerOutput*){}
+  virtual void ConnectNodeEvent(ViewerOutput*){}
 
-  virtual void DisconnectNodeInternal(ViewerOutput*){}
+  virtual void DisconnectNodeEvent(ViewerOutput*){}
 
   void SetAutoMaxScrollBar(bool e);
 
@@ -137,6 +137,8 @@ signals:
   void TimeChanged(const int64_t&);
 
   void TimebaseChanged(const rational&);
+
+  void ConnectedNodeChanged(ViewerOutput* old, ViewerOutput* now);
 
 private:
   class MarkerAddCommand : public UndoCommand
