@@ -1058,7 +1058,7 @@ QVector<Node *> Node::CopyDependencyGraph(const QVector<Node *> &nodes, MultiUnd
 
   for (int i=0; i<nb_nodes; i++) {
     // Create another of the same node
-    Node* c = nodes.at(i)->copy();;
+    Node* c = nodes.at(i)->copy();
 
     // Copy the values, but NOT the connections, since we'll be connecting to our own clones later
     Node::CopyInputs(nodes.at(i), c, false);
