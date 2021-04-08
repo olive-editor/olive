@@ -223,7 +223,7 @@ private:
 
   AudioWaveformView* waveform_view_;
 
-  QList<ViewerWindow*> windows_;
+  QHash<QScreen*, ViewerWindow*> windows_;
 
   ViewerDisplayWidget* display_widget_;
 

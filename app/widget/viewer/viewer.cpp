@@ -129,7 +129,7 @@ ViewerWidget::~ViewerWidget()
 {
   instances_.removeOne(this);
 
-  QList<ViewerWindow*> windows = windows_;
+  auto windows = windows_;
 
   foreach (ViewerWindow* window, windows) {
     delete window;
@@ -311,6 +311,11 @@ void ViewerWidget::SetFullScreen(QScreen *screen)
     }
   }
 
+  if (windows_.contains(screen)) {
+    delete windows_.take(screen);
+    return;
+  }
+
   ViewerWindow* vw = new ViewerWindow(this);
 
   vw->setGeometry(screen->geometry());
@@ -326,7 +331,7 @@ void ViewerWidget::SetFullScreen(QScreen *screen)
 
   vw->display_widget()->SetImage(display_widget_->last_loaded_buffer());
 
-  windows_.append(vw);
+  windows_.insert(screen, vw);
 }
 
 void ViewerWidget::ForceUpdate()
@@ -745,7 +750,7 @@ void ViewerWidget::ContextMenuSetCustomSafeMargins()
 
 void ViewerWidget::WindowAboutToClose()
 {
-  windows_.removeOne(static_cast<ViewerWindow*>(sender()));
+  windows_.remove(windows_.key(static_cast<ViewerWindow*>(sender())));
 }
 
 void ViewerWidget::ContextMenuScopeTriggered(QAction *action)
@@ -854,6 +859,8 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
                                                                             QString::number(s->size().height())));
 
         a->setData(i);
+        a->setCheckable(true);
+        a->setChecked(windows_.contains(QGuiApplication::screens().at(i)));
       }
 
       connect(full_screen_menu, &QMenu::triggered, this, &ViewerWidget::ContextMenuSetFullScreen);
