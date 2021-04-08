@@ -806,6 +806,10 @@ void ViewerWidget::RendererGeneratedFrameForQueue()
 
 void ViewerWidget::ShowContextMenu(const QPoint &pos)
 {
+  if (!GetConnectedNode()) {
+    return;
+  }
+
   Menu menu(static_cast<QWidget*>(sender()));
 
   context_menu_widget_ = dynamic_cast<ViewerDisplayWidget*>(sender());
