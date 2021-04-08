@@ -347,6 +347,10 @@ private slots:
 
   void SetViewWaveformsEnabled(bool e);
 
+  void FrameRateChanged();
+
+  void SampleRateChanged();
+
 };
 
 }

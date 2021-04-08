@@ -228,6 +228,8 @@ private slots:
 
   void CatchUpScrollToPoint(int point);
 
+  void AutoUpdateTimebase();
+
 };
 
 }

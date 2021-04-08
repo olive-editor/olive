@@ -86,6 +86,10 @@ void TimeBasedWidget::ConnectViewerNode(ViewerOutput *node)
     // Disconnect length changed signal
     disconnect(viewer_node_, &ViewerOutput::LengthChanged, this, &TimeBasedWidget::UpdateMaximumScroll);
 
+    // Disconnect rate change signals if they were connected
+    disconnect(viewer_node_, &ViewerOutput::FrameRateChanged, this, &TimeBasedWidget::AutoUpdateTimebase);
+    disconnect(viewer_node_, &ViewerOutput::SampleRateChanged, this, &TimeBasedWidget::AutoUpdateTimebase);
+
     // Reset timebase to null
     SetTimebase(rational());
 
@@ -112,19 +116,9 @@ void TimeBasedWidget::ConnectViewerNode(ViewerOutput *node)
 
     // If we're setting the timebase, set it automatically based on the video and audio parameters
     if (auto_set_timebase_) {
-      rational video_tb = viewer_node_->GetVideoParams().frame_rate_as_time_base();
-
-      if (!video_tb.isNull()) {
-        SetTimebase(video_tb);
-      } else {
-        rational audio_tb = viewer_node_->GetAudioParams().sample_rate_as_time_base();
-
-        if (!audio_tb.isNull()) {
-          SetTimebase(audio_tb);
-        } else {
-          SetTimebase(rational());
-        }
-      }
+      AutoUpdateTimebase();
+      connect(viewer_node_, &ViewerOutput::FrameRateChanged, this, &TimeBasedWidget::AutoUpdateTimebase);
+      connect(viewer_node_, &ViewerOutput::SampleRateChanged, this, &TimeBasedWidget::AutoUpdateTimebase);
     }
 
     // Call derivatives
@@ -203,6 +197,23 @@ void TimeBasedWidget::CatchUpScrollToPlayhead()
 void TimeBasedWidget::CatchUpScrollToPoint(int point)
 {
   PageScrollInternal(point, false);
+}
+
+void TimeBasedWidget::AutoUpdateTimebase()
+{
+  rational video_tb = viewer_node_->GetVideoParams().frame_rate_as_time_base();
+
+  if (!video_tb.isNull()) {
+    SetTimebase(video_tb);
+  } else {
+    rational audio_tb = viewer_node_->GetAudioParams().sample_rate_as_time_base();
+
+    if (!audio_tb.isNull()) {
+      SetTimebase(audio_tb);
+    } else {
+      SetTimebase(rational());
+    }
+  }
 }
 
 TimeRuler *TimeBasedWidget::ruler() const

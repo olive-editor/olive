@@ -431,9 +431,19 @@ void ViewerOutput::InputValueChangedEvent(const QString &input, int element)
 
     } else if (input == kAudioParamsInput) {
 
+      AudioParams new_audio_params = GetAudioParams();
+
+      bool sample_rate_changed = new_audio_params.sample_rate() != cached_audio_params_.sample_rate();
+
+      if (sample_rate_changed) {
+        emit SampleRateChanged(new_audio_params.sample_rate());
+      }
+
       emit AudioParamsChanged();
 
       audio_playback_cache_.SetParameters(GetAudioParams());
+
+      cached_audio_params_ = new_audio_params;
 
     }
   }

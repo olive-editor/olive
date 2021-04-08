@@ -224,6 +224,8 @@ void TimelineWidget::ConnectNodeEvent(ViewerOutput *n)
 
   connect(s, &Sequence::TrackAdded, this, &TimelineWidget::AddTrack);
   connect(s, &Sequence::TrackRemoved, this, &TimelineWidget::RemoveTrack);
+  connect(s, &Sequence::FrameRateChanged, this, &TimelineWidget::FrameRateChanged);
+  connect(s, &Sequence::SampleRateChanged, this, &TimelineWidget::SampleRateChanged);
 
   ruler()->SetPlaybackCache(n->video_frame_cache());
 
@@ -252,6 +254,8 @@ void TimelineWidget::DisconnectNodeEvent(ViewerOutput *n)
 
   disconnect(s, &Sequence::TrackAdded, this, &TimelineWidget::AddTrack);
   disconnect(s, &Sequence::TrackRemoved, this, &TimelineWidget::RemoveTrack);
+  disconnect(s, &Sequence::FrameRateChanged, this, &TimelineWidget::FrameRateChanged);
+  disconnect(s, &Sequence::SampleRateChanged, this, &TimelineWidget::SampleRateChanged);
 
   DeselectAll();
 
@@ -1033,6 +1037,16 @@ void TimelineWidget::SetViewWaveformsEnabled(bool e)
   foreach (TimelineAndTrackView* tview, views_) {
     tview->view()->SetShowWaveforms(e);
   }
+}
+
+void TimelineWidget::FrameRateChanged()
+{
+  SetTimebase(GetConnectedNode()->GetVideoParams().frame_rate_as_time_base());
+}
+
+void TimelineWidget::SampleRateChanged()
+{
+  UpdateViewTimebases();
 }
 
 void TimelineWidget::AddGhost(TimelineViewGhostItem *ghost)
