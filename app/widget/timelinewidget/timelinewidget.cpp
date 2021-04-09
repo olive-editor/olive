@@ -1503,6 +1503,10 @@ QVector<SnapData> AttemptSnap(const QVector<double>& screen_pt,
 
 bool TimelineWidget::SnapPoint(QVector<rational> start_times, rational* movement, int snap_points)
 {
+  if (!GetConnectedNode()) {
+    return false;
+  }
+
   QVector<double> screen_pt;
 
   foreach (const rational& s, start_times) {
