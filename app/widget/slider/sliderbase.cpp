@@ -335,21 +335,17 @@ void SliderBase::LadderDragged(int value, double multiplier)
     d_v = rational::fromDouble(drag_val);
     temp_dragged_value_.setValue(d_v);
 
-    QVariant clamped = ClampValue(temp_dragged_value_);
-    if (clamped.value<rational>() != temp_dragged_value_.value<rational>()) {
-      temp_dragged_value_ = clamped;
-      dragged_diff_ = (temp_dragged_value_.value<rational>() - value_.value<rational>()).toDouble();
-    }
+    clamped_temp_dragged_value_ = ClampValue(temp_dragged_value_);
 
     UpdateLabel(temp_dragged_value_);
 
-    drag_ladder_->SetValue(ValueToString(temp_dragged_value_));
+    drag_ladder_->SetValue(ValueToString(clamped_temp_dragged_value_));
     
     if (!Config::Current()[QStringLiteral("UseSliderLadders")].toBool()) {
       RepositionLadder();
     }
 
-    emit ValueChanged(temp_dragged_value_);
+    emit ValueChanged(clamped_temp_dragged_value_);
     break;
   }
   }

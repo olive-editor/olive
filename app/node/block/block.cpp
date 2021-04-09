@@ -42,6 +42,7 @@ Block::Block() :
   out_transition_(nullptr)
 {
   AddInput(kLengthInput, NodeValue::kRational, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+  SetInputProperty(kLengthInput, "min", QVariant::fromValue(rational(0, 1)));
   IgnoreInvalidationsFrom(kLengthInput);
   IgnoreHashingFrom(kLengthInput);
 

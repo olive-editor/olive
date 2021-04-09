@@ -190,8 +190,6 @@ void RationalSlider::ConvertValue(QVariant v)
 void RationalSlider::changeDisplayType()
 {
   if (!LockDisplayType()) {
-    // Loop through the display types
-    //SetDisplayType(static_cast<RationalSlider::DisplayType>(((int)(display_type_) + 1) % 4));
     Menu m(this);
     MenuShared::instance()->AddItemsForTimeRulerMenu(&m, timebase_);
     MenuShared::instance()->AboutToShowTimeRulerActions();
