@@ -741,14 +741,22 @@ void Core::SaveProjectInternal(Project* project, const QString& override_filenam
     }
   }
 
-  TaskDialog* task_dialog = new TaskDialog(psm, tr("Save Project"), main_window_);
-
-  if (override_filename.isEmpty()) {
-    // Default behavior: set as not modified and push to top of "Open Recent" dialog
-    connect(task_dialog, &TaskDialog::TaskSucceeded, this, &Core::ProjectSaveSucceeded);
+  // We don't use a TaskDialog here because a model save dialog is annoying, particularly when
+  // saving auto-recoveries that the user can't anticipate. Doing this in the main thread will
+  // cause a brief (but often unnoticeable) pause in the GUI, which, while not ideal, is not that
+  // different from what already happened (modal dialog preventing use of the GUI) and in many ways
+  // less annoying (doesn't disrupt any current actions or pull focus from elsewhere).
+  //
+  // Ideally we could do this in a background thread and show progress in the status bar like
+  // Microsoft Word, but that would be far more complex. If it becomes necessary in the future,
+  // we will look into an approach like that.
+  if (psm->Start()) {
+    if (override_filename.isEmpty()) {
+      ProjectSaveSucceeded(psm);
+    }
   }
 
-  task_dialog->open();
+  psm->deleteLater();
 }
 
 ViewerOutput* Core::GetSequenceToExport()
