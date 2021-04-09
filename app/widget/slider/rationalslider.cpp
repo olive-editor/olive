@@ -17,6 +17,8 @@
 
 #include "common/timecodefunctions.h"
 #include "core.h"
+#include "widget/menu/menu.h"
+#include "widget/menu/menushared.h"
 
 namespace olive {
 
@@ -189,7 +191,12 @@ void RationalSlider::changeDisplayType()
 {
   if (!LockDisplayType()) {
     // Loop through the display types
-    SetDisplayType(static_cast<RationalSlider::DisplayType>(((int)(display_type_) + 1) % 4));
+    //SetDisplayType(static_cast<RationalSlider::DisplayType>(((int)(display_type_) + 1) % 4));
+    Menu m(this);
+    MenuShared::instance()->AddItemsForTimeRulerMenu(&m, timebase_);
+    MenuShared::instance()->AboutToShowTimeRulerActions();
+
+    m.exec(QCursor::pos());
     ForceLabelUpdate();
   }
 }

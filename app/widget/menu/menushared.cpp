@@ -162,7 +162,7 @@ void MenuShared::AddItemsForClipEditMenu(Menu *m)
 
 void MenuShared::AddItemsForTimeRulerMenu(Menu *m, const rational& timebase)
 {
-  // If menu is already created (such as the view menu) we need to remove the instance
+  // If a menu is already created (such as the view menu) we need to remove the instance
   // of dropfram or non-dropframe timecode that is already there to avoid double displays
 
   if (m->actions().contains(view_timecode_view_dropframe_item_)) {
