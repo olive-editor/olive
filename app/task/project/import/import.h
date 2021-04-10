@@ -61,6 +61,8 @@ private:
 
   void ValidateImageSequence(Footage *footage, QFileInfoList &info_list, int index);
 
+  void AddItemToFolder(Folder* folder, Node* item, MultiUndoCommand* command);
+
   static bool ItemIsStillImageFootageOnly(Footage *footage);
 
   static bool CompareStillImageSize(Footage *footage, const QSize& sz);

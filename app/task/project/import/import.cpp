@@ -96,13 +96,10 @@ void ProjectImportTask::Import(Folder *folder, QFileInfoList import, int &counte
         // Create a folder corresponding to the directory
         Folder* f = new Folder();
 
-        f->moveToThread(folder->thread());
-
         f->SetLabel(file_info.fileName());
 
         // Create undoable command that adds the items to the model
-        parent_command->add_child(new NodeAddCommand(folder->parent(), f));
-        parent_command->add_child(new FolderAddChild(folder, f));
+        AddItemToFolder(folder, f, parent_command);
 
         // Recursively follow this path
         Import(f, entry_list, counter, parent_command);
@@ -119,11 +116,7 @@ void ProjectImportTask::Import(Folder *folder, QFileInfoList import, int &counte
         ValidateImageSequence(footage, import, i);
 
         // Create undoable command that adds the items to the model
-        NodeAddCommand* nac = new NodeAddCommand(folder->parent(), footage);
-        nac->PushToThread(folder->thread());
-        parent_command->add_child(nac);
-
-        parent_command->add_child(new FolderAddChild(folder, footage));
+        AddItemToFolder(folder, footage, parent_command);
       } else {
         // Add to list so we can tell the user about it later
         invalid_files_.append(file_info.absoluteFilePath());
@@ -221,6 +214,18 @@ void ProjectImportTask::ValidateImageSequence(Footage *footage, QFileInfoList& i
     delete previous_file;
     delete next_file;
   }
+}
+
+void ProjectImportTask::AddItemToFolder(Folder *folder, Node *item, MultiUndoCommand *command)
+{
+  // Create undoable command that adds the items to the model
+  Project* project = model_->project();
+
+  NodeAddCommand* nac = new NodeAddCommand(project, item);
+  nac->PushToThread(project->thread());
+  command->add_child(nac);
+
+  command->add_child(new FolderAddChild(folder, item));
 }
 
 bool ProjectImportTask::ItemIsStillImageFootageOnly(Footage* footage)
