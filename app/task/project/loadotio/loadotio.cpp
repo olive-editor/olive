@@ -38,8 +38,6 @@
 #include "node/project/sequence/sequence.h"
 #include "widget/timelinewidget/timelineundo.h"
 
-#define OTIO opentimelineio::v1_0
-
 namespace olive {
 
 LoadOTIOTask::LoadOTIOTask(const QString& s) :
@@ -243,4 +241,4 @@ bool LoadOTIOTask::Run()
 
 }
 
-#endif
+#endif // USE_OTIO
