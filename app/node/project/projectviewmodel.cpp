@@ -454,7 +454,7 @@ void ProjectViewModel::DisconnectItem(Node *n)
     disconnect(f, &Folder::BeginRemoveItem, this, &ProjectViewModel::ItemRemoved);
 
     foreach (Node* c, f->children()) {
-      ConnectItem(c);
+      DisconnectItem(c);
     }
   }
 }
