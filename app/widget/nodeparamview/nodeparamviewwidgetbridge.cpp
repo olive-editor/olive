@@ -207,14 +207,25 @@ void NodeParamViewWidgetBridge::SetInputValueInternal(const QVariant &value, int
       command->add_child(new NodeParamSetKeyframeValueCommand(existing_key, value));
     } else {
       // No existing key, create a new one
-      NodeKeyframe* new_key = new NodeKeyframe(node_time,
-                                               value,
-                                               input_.node()->GetBestKeyframeTypeForTimeOnTrack(NodeKeyframeTrackReference(input_, track), node_time),
-                                               track,
-                                               input_.element(),
-                                               input_.input());
+      int nb_tracks = NodeValue::get_number_of_keyframe_tracks(input_.node()->GetInputDataType(input_.input()));
+      for (int i=0; i<nb_tracks; i++) {
+        QVariant track_value;
 
-      command->add_child(new NodeParamInsertKeyframeCommand(input_.node(), new_key));
+        if (i == track) {
+          track_value = value;
+        } else {
+          track_value = input_.node()->GetValueAtTime(input_.input(), node_time, input_.element());
+        }
+
+        NodeKeyframe* new_key = new NodeKeyframe(node_time,
+                                                 track_value,
+                                                 input_.node()->GetBestKeyframeTypeForTimeOnTrack(NodeKeyframeTrackReference(input_, i), node_time),
+                                                 i,
+                                                 input_.element(),
+                                                 input_.input());
+
+        command->add_child(new NodeParamInsertKeyframeCommand(input_.node(), new_key));
+      }
     }
   } else {
     command->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(input_, track), value));
