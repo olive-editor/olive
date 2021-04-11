@@ -50,6 +50,7 @@ Footage::Footage(const QString &filename) :
   set_filename(filename);
 
   SetCacheTextures(true);
+  SetViewerCacheEnabled(false);
 }
 
 void Footage::Retranslate()

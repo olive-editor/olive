@@ -188,6 +188,8 @@ protected:
 
   int AddStream(Track::Type type, const QVariant &value);
 
+  void SetViewerCacheEnabled(bool e);
+
 private:
   rational last_length_;
 
@@ -202,6 +204,8 @@ private:
   AudioParams cached_audio_params_;
 
   TimelinePoints timeline_points_;
+
+  bool cache_enabled_;
 
 private slots:
   void InputResized(const QString& input, int old_size, int new_size);
