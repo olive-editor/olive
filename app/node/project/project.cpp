@@ -220,16 +220,6 @@ void Project::set_filename(const QString &s)
   emit NameChanged();
 }
 
-ColorManager *Project::color_manager()
-{
-  return color_manager_;
-}
-
-bool Project::is_modified() const
-{
-  return is_modified_;
-}
-
 void Project::set_modified(bool e)
 {
   is_modified_ = e;
