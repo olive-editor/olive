@@ -640,9 +640,9 @@ void MainWindow::showEvent(QShowEvent *e)
     if (!strcmp(vendor, "nouveau")) {
       QMetaObject::invokeMethod(this, "ShowNouveauWarning", Qt::QueuedConnection);
     }
+#endif
 
     first_show_ = false;
-#endif
   }
 }
 
