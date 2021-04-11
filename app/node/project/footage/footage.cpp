@@ -302,27 +302,23 @@ void Footage::Hash(const QString& output, QCryptographicHash &hash, const ration
 {
   super::Hash(output, hash, time);
 
+  // Footage last modified date
+  hash.addData(QString::number(timestamp()).toUtf8());
+
   // Translate output ID to stream
   Track::Reference ref = Track::Reference::FromString(output);
 
-  QString fn = filename();
-
-  if (!fn.isEmpty()) {
+  if (ref.type() == Track::kVideo) {
     VideoParams params = GetVideoParams(ref.index());
 
     if (params.is_valid()) {
       // Add footage details to hash
-
-      // Footage filename
-      hash.addData(filename().toUtf8());
-
-      // Footage last modified date
-      hash.addData(QString::number(timestamp()).toUtf8());
+      QString fn = filename();
 
       // Footage stream
       hash.addData(QString::number(ref.index()).toUtf8());
 
-      if (ref.type() == Track::kVideo) {
+      if (!fn.isEmpty()) {
         // Current color config and space
         hash.addData(project()->color_manager()->GetConfigFilename().toUtf8());
         hash.addData(GetColorspaceToUse(params).toUtf8());
@@ -338,10 +334,11 @@ void Footage::Hash(const QString& output, QCryptographicHash &hash, const ration
           int64_t video_ts = Timecode::time_to_timestamp(time, params.time_base());
 
           // Add timestamp in units of the video stream's timebase
-          hash.addData(reinterpret_cast<const char*>(&video_ts), sizeof(int64_t));
+          hash.addData(reinterpret_cast<const char*>(&video_ts), sizeof(video_ts));
 
           // Add start time - used for both image sequences and video streams
-          hash.addData(QString::number(params.start_time()).toUtf8());
+          auto start_time = params.start_time();
+          hash.addData(reinterpret_cast<const char*>(&start_time), sizeof(start_time));
         }
       }
     }

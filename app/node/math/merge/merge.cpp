@@ -107,13 +107,16 @@ void MergeNode::Hash(const QString &output, QCryptographicHash &hash, const rati
   // connected node happens to return nothing (a gap for instance). Therefore we only add our
   // fingerprint if the base AND the blend change the hash. Otherwise, we assume it's a passthrough.
 
+  Q_UNUSED(output)
+
   QByteArray current_result = hash.result();
 
   bool base_changed_hash = false;
   bool blend_changed_hash = false;
 
   if (IsInputConnected(kBaseIn)) {
-    GetConnectedNode(kBaseIn)->Hash(output, hash, time);
+    NodeOutput base_output = GetConnectedOutput(kBaseIn);
+    base_output.node()->Hash(base_output.output(), hash, time);
 
     QByteArray post_base_hash = hash.result();
     base_changed_hash = (post_base_hash != current_result);
@@ -121,7 +124,8 @@ void MergeNode::Hash(const QString &output, QCryptographicHash &hash, const rati
   }
 
   if(IsInputConnected(kBlendIn)) {
-    GetConnectedNode(kBlendIn)->Hash(output, hash, time);
+    NodeOutput blend_output = GetConnectedOutput(kBlendIn);
+    blend_output.node()->Hash(blend_output.output(), hash, time);
 
     blend_changed_hash = (hash.result() != current_result);
   }

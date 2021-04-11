@@ -67,7 +67,11 @@ public:
   /**
    * @brief Generate a unique identifier for a certain node at a certain time
    */
-  static QByteArray Hash(const Node *n, const VideoParams &params, const rational &time);
+  static QByteArray Hash(const Node *n, const QString &output, const VideoParams &params, const rational &time);
+  static QByteArray Hash(const NodeOutput &output, const VideoParams &params, const rational &time)
+  {
+    return Hash(output.node(), output.output(), params, time);
+  }
 
   /**
    * @brief Asynchronously generate a frame at a given time

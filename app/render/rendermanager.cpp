@@ -79,7 +79,7 @@ RenderManager::~RenderManager()
   }
 }
 
-QByteArray RenderManager::Hash(const Node *n, const VideoParams &params, const rational &time)
+QByteArray RenderManager::Hash(const Node *n, const QString& output, const VideoParams &params, const rational &time)
 {
   QCryptographicHash hasher(QCryptographicHash::Sha1);
 
@@ -93,7 +93,7 @@ QByteArray RenderManager::Hash(const Node *n, const VideoParams &params, const r
   hasher.addData(reinterpret_cast<const char*>(&format), sizeof(VideoParams::Format));
 
   if (n) {
-    n->Hash(Node::kDefaultOutput, hasher, time);
+    n->Hash(output, hasher, time);
   }
 
   return hasher.result();
