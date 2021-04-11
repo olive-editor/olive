@@ -27,7 +27,7 @@
 #include <QTimer>
 
 #include "common/define.h"
-#include "project/project.h"
+#include "node/project/project.h"
 
 namespace olive {
 
@@ -86,11 +86,11 @@ private:
 
   struct HashTime {
     QString file_name;
-    QByteArray hash;
     qint64 file_size;
+    qint64 access_time;
   };
 
-  std::list<HashTime> disk_data_;
+  QMap<QByteArray, HashTime> disk_data_;
 
   qint64 consumption_;
 

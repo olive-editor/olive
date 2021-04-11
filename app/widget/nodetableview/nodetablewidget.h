@@ -22,7 +22,7 @@
 #define NODETABLEWIDGET_H
 
 #include "nodetableview.h"
-#include "widget/timebased/timebased.h"
+#include "widget/timebased/timebasedwidget.h"
 
 namespace olive {
 
@@ -42,7 +42,7 @@ public:
   }
 
 protected:
-  virtual void TimeChangedEvent(const int64_t& ts) override
+  virtual void TimeChangedEvent(const int64_t&) override
   {
     UpdateView();
   }

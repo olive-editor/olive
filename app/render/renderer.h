@@ -21,6 +21,7 @@
 #ifndef RENDERCONTEXT_H
 #define RENDERCONTEXT_H
 
+#include <QMutex>
 #include <QObject>
 #include <QVariant>
 
@@ -124,6 +125,8 @@ private:
                                 const QMatrix4x4 &matrix);
 
   QHash<QString, ColorContext> color_cache_;
+
+  QMutex color_cache_mutex_;
 
 };
 

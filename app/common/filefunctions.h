@@ -84,6 +84,17 @@ public:
    */
   static bool RenameFileAllowOverwrite(const QString& from, const QString& to);
 
+  inline static QString GetFormattedExecutableForPlatform(QString unformatted)
+  {
+#ifdef Q_OS_WINDOWS
+    unformatted.append(QStringLiteral(".exe"));
+#endif
+
+    return unformatted;
+  }
+
+  static QString GetAutoRecoveryRoot();
+
 };
 
 

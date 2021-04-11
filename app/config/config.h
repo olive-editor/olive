@@ -26,7 +26,7 @@
 #include <QVariant>
 
 #include "common/timecodefunctions.h"
-#include "node/param.h"
+#include "node/value.h"
 
 namespace olive {
 
@@ -44,17 +44,17 @@ public:
 
   QVariant& operator[](const QString&);
 
-  NodeParam::DataType GetConfigEntryType(const QString& key) const;
+  NodeValue::Type GetConfigEntryType(const QString& key) const;
 
 private:
   Config();
 
   struct ConfigEntry {
-    NodeParam::DataType type;
+    NodeValue::Type type;
     QVariant data;
   };
 
-  void SetEntryInternal(const QString& key, NodeParam::DataType type, const QVariant& data);
+  void SetEntryInternal(const QString& key, NodeValue::Type type, const QVariant& data);
 
   QMap<QString, ConfigEntry> config_map_;
 

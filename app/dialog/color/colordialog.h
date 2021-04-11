@@ -23,8 +23,8 @@
 
 #include <QDialog>
 
+#include "node/color/colormanager/colormanager.h"
 #include "render/color.h"
-#include "render/colormanager.h"
 #include "render/managedcolor.h"
 #include "widget/colorwheel/colorgradientwidget.h"
 #include "widget/colorwheel/colorspacechooser.h"

@@ -22,7 +22,7 @@
 #define TIMELINECOORDINATE_H
 
 #include "common/rational.h"
-#include "trackreference.h"
+#include "node/output/track/track.h"
 
 namespace olive {
 
@@ -30,19 +30,19 @@ class TimelineCoordinate
 {
 public:
   TimelineCoordinate();
-  TimelineCoordinate(const rational& frame, const TrackReference& track);
-  TimelineCoordinate(const rational& frame, const Timeline::TrackType& track_type, const int& track_index);
+  TimelineCoordinate(const rational& frame, const Track::Reference& track);
+  TimelineCoordinate(const rational& frame, const Track::Type& track_type, const int& track_index);
 
   const rational& GetFrame() const;
-  const TrackReference& GetTrack() const;
+  const Track::Reference& GetTrack() const;
 
   void SetFrame(const rational& frame);
-  void SetTrack(const TrackReference& track);
+  void SetTrack(const Track::Reference& track);
 
 private:
   rational frame_;
 
-  TrackReference track_;
+  Track::Reference track_;
 
 };
 

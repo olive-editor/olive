@@ -40,7 +40,7 @@
 #include "viewersizer.h"
 #include "viewerwindow.h"
 #include "widget/playbackcontrols/playbackcontrols.h"
-#include "widget/timebased/timebased.h"
+#include "widget/timebased/timebasedwidget.h"
 
 namespace olive {
 
@@ -62,8 +62,6 @@ public:
   void TogglePlayPause();
 
   bool IsPlaying() const;
-
-  void ConnectViewerNode(ViewerOutput* node, ColorManager *color_manager = nullptr);
 
   /**
    * @brief Enable or disable the color management menu
@@ -153,9 +151,9 @@ protected:
   virtual void TimebaseChangedEvent(const rational &) override;
   virtual void TimeChangedEvent(const int64_t &) override;
 
-  virtual void ConnectNodeInternal(ViewerOutput *) override;
-  virtual void DisconnectNodeInternal(ViewerOutput *) override;
-  virtual void ConnectedNodeChanged(ViewerOutput*n) override;
+  virtual void ConnectNodeEvent(ViewerOutput *) override;
+  virtual void DisconnectNodeEvent(ViewerOutput *) override;
+  virtual void ConnectedNodeChangeEvent(ViewerOutput *) override;
 
   virtual void ScaleChangedEvent(const double& s) override;
 
@@ -217,8 +215,6 @@ private:
 
   bool color_menu_enabled_;
 
-  ColorManager* override_color_manager_;
-
   bool time_changed_from_timer_;
 
   bool play_in_to_out_only_;
@@ -227,7 +223,7 @@ private:
 
   AudioWaveformView* waveform_view_;
 
-  QList<ViewerWindow*> windows_;
+  QHash<QScreen*, ViewerWindow*> windows_;
 
   ViewerDisplayWidget* display_widget_;
 
@@ -291,6 +287,10 @@ private slots:
   void ManualSwitchToWaveform(bool e);
 
   void TimeChangedFromWaveform(qint64 t);
+
+  void DragEntered(QDragEnterEvent* event);
+
+  void Dropped(QDropEvent* event);
 
 };
 

@@ -16,7 +16,11 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  widget/timebased/timebased.h
-  widget/timebased/timebased.cpp
+  widget/timebased/timebasedview.cpp
+  widget/timebased/timebasedview.h
+  widget/timebased/timebasedwidget.cpp
+  widget/timebased/timebasedwidget.h
+  widget/timebased/timescaledobject.cpp
+  widget/timebased/timescaledobject.h
   PARENT_SCOPE
 )

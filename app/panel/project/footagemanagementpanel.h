@@ -23,13 +23,13 @@
 
 #include <QList>
 
-#include "project/item/footage/footage.h"
+#include "node/project/footage/footage.h"
 
 namespace olive {
 
 class FootageManagementPanel {
 public:
-  virtual QList<Footage*> GetSelectedFootage() const = 0;
+  virtual QVector<ViewerOutput *> GetSelectedFootage() const = 0;
 };
 
 }

@@ -43,7 +43,7 @@ QString FileFunctions::GetUniqueFileIdentifier(const QString &filename)
 
   hash.addData(info.absoluteFilePath().toUtf8());
 
-  hash.addData(info.lastModified().toString().toUtf8());
+  hash.addData(QString::number(info.lastModified().toMSecsSinceEpoch()).toUtf8());
 
   QByteArray result = hash.result();
 
@@ -238,6 +238,11 @@ bool FileFunctions::RenameFileAllowOverwrite(const QString &from, const QString 
   }
 
   return true;
+}
+
+QString FileFunctions::GetAutoRecoveryRoot()
+{
+  return QDir(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)).filePath(QStringLiteral("autorecovery"));
 }
 
 }

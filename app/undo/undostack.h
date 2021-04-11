@@ -21,20 +21,70 @@
 #ifndef UNDOSTACK_H
 #define UNDOSTACK_H
 
-#include <QUndoStack>
+#include <QAction>
 
 #include "common/define.h"
+#include "undo/undocommand.h"
 
 namespace olive {
 
-class UndoStack : public QUndoStack {
+class UndoStack : public QObject
+{
+  Q_OBJECT
 public:
+  UndoStack();
+
+  virtual ~UndoStack() override;
+
   /**
    * @brief A wrapper for push() that either pushes if the command has children or deletes if not
    *
    * This function takes ownership of `command`, and may delete it so it should never be accessed after this call.
    */
-  void pushIfHasChildren(QUndoCommand* command);
+  void pushIfHasChildren(MultiUndoCommand* command);
+
+  void push(UndoCommand* command);
+
+  void clear();
+
+  bool CanUndo() const
+  {
+    return !commands_.empty();
+  }
+
+  bool CanRedo() const
+  {
+    return !undone_commands_.empty();
+  }
+
+  void UpdateActions();
+
+  QAction* GetUndoAction()
+  {
+    return undo_action_;
+  }
+
+  QAction* GetRedoAction()
+  {
+    return redo_action_;
+  }
+
+public slots:
+  void undo();
+
+  void redo();
+
+private:
+  static const int kMaxUndoCommands;
+
+  std::list<UndoCommand*> commands_;
+
+  std::list<UndoCommand*> undone_commands_;
+
+  QAction* undo_action_;
+
+  QAction* redo_action_;
+
 };
 
 }

@@ -25,7 +25,5 @@ set(OLIVE_SOURCES
   timeline/timelinepoints.cpp
   timeline/timelineworkarea.h
   timeline/timelineworkarea.cpp
-  timeline/trackreference.h
-  timeline/trackreference.cpp
   PARENT_SCOPE
 )

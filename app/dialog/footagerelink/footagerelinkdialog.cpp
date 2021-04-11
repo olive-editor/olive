@@ -23,13 +23,15 @@
 #include <QDialogButtonBox>
 #include <QFileDialog>
 #include <QFileInfo>
+#include <QHeaderView>
 #include <QLabel>
 #include <QPushButton>
+#include <QScrollBar>
 #include <QVBoxLayout>
 
 namespace olive {
 
-FootageRelinkDialog::FootageRelinkDialog(const QList<FootagePtr>& footage, QWidget* parent) :
+FootageRelinkDialog::FootageRelinkDialog(const QVector<Footage *> &footage, QWidget* parent) :
   QDialog(parent),
   footage_(footage)
 {
@@ -43,9 +45,16 @@ FootageRelinkDialog::FootageRelinkDialog(const QList<FootagePtr>& footage, QWidg
   table_->setColumnCount(3);
   table_->setHeaderLabels({tr("Footage"), tr("Filename"), tr("Actions")});
   table_->setRootIsDecorated(false);
+  table_->setSelectionBehavior(QAbstractItemView::SelectRows);
+  table_->header()->setSectionsMovable(false);
+
+  // Prefer stretching URL column (QHeaderView defaults to stretching the last column, which in
+  // our case is just a browse button)
+  table_->header()->setSectionResizeMode(1, QHeaderView::Stretch);
+  table_->header()->setStretchLastSection(false);
 
   for (int i=0; i<footage.size(); i++) {
-    FootagePtr f = footage.at(i);
+    Footage* f = footage.at(i);
     QTreeWidgetItem* item = new QTreeWidgetItem();
 
     QWidget* item_actions = new QWidget();
@@ -56,7 +65,7 @@ FootageRelinkDialog::FootageRelinkDialog(const QList<FootagePtr>& footage, QWidg
     item_actions_layout->addWidget(item_browse_btn);
 
     item->setIcon(0, f->icon());
-    item->setText(0, f->name());
+    item->setText(0, f->GetLabel());
     item->setText(1, f->filename());
 
     table_->addTopLevelItem(item);
@@ -72,31 +81,88 @@ FootageRelinkDialog::FootageRelinkDialog(const QList<FootagePtr>& footage, QWidg
   layout->addWidget(buttons);
 
   setWindowTitle(tr("Relink Footage"));
+
+
+}
+
+void FootageRelinkDialog::UpdateFootageItem(int index)
+{
+  Footage* f = footage_.at(index);
+  QTreeWidgetItem* item = table_->topLevelItem(index);
+  item->setIcon(0, f->icon());
+  item->setText(1, f->filename());
 }
 
 void FootageRelinkDialog::BrowseForFootage()
 {
   int index = sender()->property("index").toInt();
-  FootagePtr f = footage_.at(index);
+  Footage* f = footage_.at(index);
 
   QFileInfo info(f->filename());
 
   QString new_fn = QFileDialog::getOpenFileName(this,
-                                                tr("Relink \"%1\"").arg(f->name()),
+                                                tr("Relink \"%1\"").arg(f->GetLabel()),
                                                 info.absolutePath(),
                                                 QStringLiteral("%1;;%2 (**)").arg(info.fileName(), tr("All Files")));
 
+  // We received a new filename
   if (!new_fn.isEmpty()) {
+    // Store original dir since we might be able to use this to find other files
+    QDir original_dir = info.dir();
+    QDir new_dir = QFileInfo(new_fn).dir();
+
+    // Set new filename since this was set manually by the user
     f->set_filename(new_fn);
 
-    if (Footage::CompareFootageToItsFilename(f)) {
-      // Set footage to valid and update icon
-      f->SetValid();
+    // Assume footage is valid here. We could do some decoder probing to ensure it's a usable file
+    // but otherwise we assume the user knows what they're doing here.
 
-      QTreeWidgetItem* item = table_->topLevelItem(index);
-      item->setIcon(0, f->icon());
-      item->setText(1, f->filename());
+    // Set footage to valid and update icon
+    f->SetValid();
+
+    // Update item visually
+    UpdateFootageItem(index);
+
+    // Check all other footage files for matches
+    for (int it=0; it<footage_.size(); it++) {
+      Footage* other_footage = footage_.at(it);
+
+      // Ignore current footage file and footage that's already valid of course
+      if (index != it && !other_footage->IsValid()) {
+        // Get footage path relative to original directory
+        QString relative_to_original = original_dir.relativeFilePath(other_footage->filename());
+        QString absolute_to_new = new_dir.filePath(relative_to_original);
+
+        // Check if file exists
+        if (QFileInfo::exists(absolute_to_new)) {
+          other_footage->set_filename(absolute_to_new);
+          other_footage->SetValid();
+          UpdateFootageItem(it);
+        }
+      }
     }
+  }
+
+  // Check where the next invalid footage is. If there is none, accept automatically. Otherwise,
+  // jump to that footage so the user knows where it is.
+  int next_invalid = -1;
+  for (int i=0; i<footage_.size(); i++) {
+    if (!footage_.at(i)->IsValid()) {
+      next_invalid = i;
+      break;
+    }
+  }
+
+  if (next_invalid == -1) {
+    // No more invalid footage, just accept
+    this->accept();
+  } else {
+    // Jump to next invalid footage
+    QModelIndex idx = table_->model()->index(next_invalid, 0);
+    table_->selectionModel()->select(idx,
+                                     QItemSelectionModel::Select | QItemSelectionModel::Rows);
+    table_->scrollTo(idx);
+
   }
 }
 

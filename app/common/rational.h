@@ -101,7 +101,8 @@ public:
   AVRational toAVRational() const;
 
 #ifdef USE_OTIO
-  opentime::RationalTime toRationalTime() const;
+  // Convert Olive ratioanls to opentime rationals with the given framerate (defaults to 24)
+  opentime::RationalTime toRationalTime(double framerate = 24) const;
 #endif
 
   // Produce "flipped" version
@@ -138,7 +139,7 @@ private:
 #define RATIONAL_MIN rational(INT64_MIN, 1)
 #define RATIONAL_MAX rational(INT64_MAX, 1)
 
-uint qHash(const rational& r, uint seed);
+uint qHash(const rational& r, uint seed = 0);
 
 }
 

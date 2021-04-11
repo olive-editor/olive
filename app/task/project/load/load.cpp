@@ -37,22 +37,28 @@ ProjectLoadTask::ProjectLoadTask(const QString &filename) :
 bool ProjectLoadTask::Run()
 {
   QFile project_file(GetFilename());
-  uint project_version = Core::kProjectVersion;
 
   if (project_file.open(QFile::ReadOnly | QFile::Text)) {
     QXmlStreamReader reader(&project_file);
+
+    uint project_version = 0;
 
     while (XMLReadNextStartElement(&reader)) {
       if (reader.name() == QStringLiteral("olive")) {
         while(XMLReadNextStartElement(&reader)) {
           if (reader.name() == QStringLiteral("version")) {
-            project_version = reader.readElementText().toUInt();
+            bool ok;
 
-            if (project_version > Core::kProjectVersion) {
+            project_version = reader.readElementText().toUInt(&ok);
+
+            if (!ok) {
+              SetError(tr("Failed to parse project version."));
+              return false;
+            } else if (project_version > Core::kProjectVersion) {
               // Project is newer than we support
               SetError(tr("This project is newer than this version of Olive and cannot be opened."));
               return false;
-            } else if (project_version < 201003) { // Change this if we drop support for a project version
+            } else if (project_version < 210122) { // Change this if we drop support for a project version
               // Project is older than we support
               SetError(tr("This project is from a version of Olive that is no longer supported in this version."));
               return false;
@@ -60,6 +66,12 @@ bool ProjectLoadTask::Run()
           } else if (reader.name() == QStringLiteral("url")) {
             project_saved_url_ = reader.readElementText();
           } else if (reader.name() == QStringLiteral("project")) {
+            if (project_version == 0) {
+              // Failed to find project version, throw error before we create project
+              SetError(tr("Failed to find project version."));
+              return false;
+            }
+
             project_ = new Project();
 
             project_->set_filename(GetFilename());

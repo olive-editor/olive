@@ -22,13 +22,22 @@ set(OLIVE_SOURCES
   main.cpp
 )
 
+# Include resource files for specific platforms
 if (WIN32)
   set(OLIVE_RESOURCES
     ${OLIVE_RESOURCES}
     packaging/windows/resources.rc
   )
+elseif(APPLE)
+  set(OLIVE_ICON packaging/macos/olive.icns)
+
+  set(OLIVE_RESOURCES
+    ${OLIVE_RESOURCES}
+    ${OLIVE_ICON}
+  )
 endif()
 
+# Add subdirectories, which will populate the above variables
 add_subdirectory(audio)
 add_subdirectory(cli)
 add_subdirectory(codec)
@@ -36,8 +45,8 @@ add_subdirectory(common)
 add_subdirectory(config)
 add_subdirectory(dialog)
 add_subdirectory(node)
+add_subdirectory(packaging)
 add_subdirectory(panel)
-add_subdirectory(project)
 add_subdirectory(render)
 add_subdirectory(shaders)
 add_subdirectory(task)
@@ -49,19 +58,6 @@ add_subdirectory(ui)
 add_subdirectory(undo)
 add_subdirectory(widget)
 add_subdirectory(window)
-
-# Create main application target
-set(OLIVE_TARGET "olive-editor")
-if(APPLE)
-  set(OLIVE_TARGET "Olive")
-
-  set(OLIVE_ICON packaging/macos/olive.icns)
-
-  set(OLIVE_RESOURCES
-    ${OLIVE_RESOURCES}
-    ${OLIVE_ICON}
-  )
-endif()
 
 # Add translations
 qt5_add_translation(OLIVE_QM_FILES ${OLIVE_TS_FILES})
@@ -79,26 +75,28 @@ set(OLIVE_RESOURCES
 )
 
 # Add executable
-add_executable(${OLIVE_TARGET}
+add_executable(olive-editor
   ${OLIVE_SOURCES}
   ${OLIVE_RESOURCES}
 )
 
-if(APPLE)
-  set_target_properties(${OLIVE_TARGET} PROPERTIES
-    MACOSX_BUNDLE TRUE
-    MACOSX_BUNDLE_GUI_IDENTIFIER org.olivevideoeditor.Olive
-    MACOSX_BUNDLE_ICON_FILE olive.icns
-    RESOURCE "${OLIVE_ICON}"
-  )
+# Set global definitions
+target_compile_definitions(olive-editor PRIVATE ${OLIVE_DEFINITIONS})
 
-  set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9")
-endif()
+# Set include directories
+target_include_directories(
+  olive-editor
+  PRIVATE
+  ${FFMPEG_INCLUDE_DIRS}
+  ${OCIO_INCLUDE_DIRS}
+  ${OIIO_INCLUDE_DIRS}
+  ${OPENEXR_INCLUDES}
+)
 
 # Set compiler options
 if(MSVC)
   target_compile_options(
-    ${OLIVE_TARGET}
+    olive-editor
     PRIVATE
     /WX
     /wd4267
@@ -111,7 +109,7 @@ if(MSVC)
   )
 else()
   target_compile_options(
-    ${OLIVE_TARGET}
+    olive-editor
     PRIVATE
     "$<$<CONFIG:RELEASE>:-O2>"
     -Werror
@@ -124,32 +122,9 @@ else()
   )
 endif()
 
-if(UNIX AND NOT APPLE)
-  target_link_options(
-    ${OLIVE_TARGET}
-    PRIVATE
-    -rdynamic
-  )
-endif()
-
-# Set include directories
-target_include_directories(
-  ${OLIVE_TARGET}
-  PRIVATE
-  ${FFMPEG_INCLUDE_DIRS}
-  ${OCIO_INCLUDE_DIRS}
-  ${OIIO_INCLUDE_DIRS}
-  ${OPENEXR_INCLUDES}
-
-  # HACK: Brew on macOS separates OpenEXR and IlmBase into two folders even though they seem to
-  #       expect to be in one. This includes the IlmBase files as if they were in the same folders
-  #       as the OpenEXR headers.
-  ${ILMBASE_INCLUDES}/OpenEXR
-)
-
 # Set link libraries
 target_link_libraries(
-  ${OLIVE_TARGET}
+  olive-editor
   PRIVATE
   Qt5::Core
   Qt5::Gui
@@ -170,86 +145,104 @@ target_link_libraries(
   ${OPENEXR_LIBRARIES}
 )
 
-if (WIN32)
-  target_link_libraries(
-    ${OLIVE_TARGET}
-    PRIVATE
-    DbgHelp
+# Set Mac-specific properties for application
+if (APPLE)
+  set_target_properties(olive-editor PROPERTIES
+    MACOSX_BUNDLE TRUE
+    MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/packaging/macos/MacOSXBundleInfo.plist.in
+    MACOSX_BUNDLE_GUI_IDENTIFIER org.olivevideoeditor.Olive
+    MACOSX_BUNDLE_ICON_FILE olive.icns
+    RESOURCE "${OLIVE_ICON}"
+    OUTPUT_NAME "Olive"
   )
-elseif (APPLE)
-  target_link_libraries(
-    ${OLIVE_TARGET}
+
+  # Enables use of special functions for slider dragging
+  if (NOT GoogleCrashpad_FOUND)
+    target_link_libraries(
+      olive-editor
+      PRIVATE
+      "-framework ApplicationServices"
+    )
+  endif()
+
+  # HACK: Brew on macOS separates OpenEXR and IlmBase into two folders even though they seem to
+  #       expect to be in one. This includes the IlmBase files as if they were in the same folders
+  #       as the OpenEXR headers. This would be better rolled into FindOpenEXR.cmake.
+  target_include_directories(
+    olive-editor
     PRIVATE
-    "-framework ApplicationServices"
+    ${ILMBASE_INCLUDES}/OpenEXR
   )
+endif()
+
+# Set Linux-specific properties for application
+if(UNIX AND NOT APPLE)
+  install(TARGETS olive-editor RUNTIME DESTINATION bin)
 endif()
 
 # Enable OTIO if found
 if (OpenTimelineIO_FOUND)
-  set(OLIVE_DEFINITIONS ${OLIVE_DEFINITIONS} USE_OTIO)
+  target_compile_definitions(olive-editor PRIVATE USE_OTIO)
 
   target_include_directories(
-    ${OLIVE_TARGET}
+    olive-editor
     PRIVATE
     ${OTIO_INCLUDE_DIRS}
   )
 
   target_link_libraries(
-    ${OLIVE_TARGET}
+    olive-editor
     PRIVATE
     ${OTIO_LIBRARIES}
   )
 endif()
 
-if(UNIX AND NOT APPLE)
-  install(TARGETS ${OLIVE_TARGET} RUNTIME DESTINATION bin)
-endif()
-
 # Enable Crashpad if found
 if (GoogleCrashpad_FOUND)
-  set(OLIVE_DEFINITIONS ${OLIVE_DEFINITIONS} USE_CRASHPAD)
+  # Signal code to use Crashpad
+  target_compile_definitions(
+    olive-editor
+    PRIVATE
+    USE_CRASHPAD
+  )
 
+  # Include Crashpad headers
   target_include_directories(
-    ${OLIVE_TARGET}
+    olive-editor
     PRIVATE
     ${CRASHPAD_INCLUDE_DIRS}
   )
 
+  # Include Crashpad libs
   target_link_libraries(
-    ${OLIVE_TARGET}
+    olive-editor
     PRIVATE
     ${CRASHPAD_LIBRARIES}
   )
 
-  set(OLIVE_CRASH_TARGET "olive-crashhandler")
-
-  set(OLIVE_CRASH_SOURCES
+  # Create crash handler executable
+  add_executable(
+    olive-crashhandler
     dialog/crashhandler/crashhandler.h
     dialog/crashhandler/crashhandler.cpp
     dialog/crashhandler/crashhandlermain.cpp
   )
 
-  if (WIN32)
-    add_executable(
-      ${OLIVE_CRASH_TARGET}
-      WIN32
-      ${OLIVE_CRASH_SOURCES}
-    )
-  else()
-    add_executable(
-      ${OLIVE_CRASH_TARGET}
-      ${OLIVE_CRASH_SOURCES}
-    )
-  endif()
+  # Disable console appearing on crash handler dialog
+  set_target_properties(olive-crashhandler PROPERTIES
+    WIN32_EXECUTABLE TRUE
+  )
 
+  # Set crash handler includes
   target_include_directories(
-    ${OLIVE_CRASH_TARGET}
+    olive-crashhandler
     PRIVATE
     ${CRASHPAD_INCLUDE_DIRS}
-    )
+  )
 
+  # Set crash handler libs
   target_link_libraries(
-    ${OLIVE_CRASH_TARGET}
+    olive-crashhandler
     PRIVATE
     Qt5::Core
     Qt5::Gui
@@ -258,30 +251,29 @@ if (GoogleCrashpad_FOUND)
     ${CRASHPAD_LIBRARIES}
   )
 
+  # Set global Olive compiler definitions
+  target_compile_definitions(olive-crashhandler PRIVATE ${OLIVE_DEFINITIONS})
+
   set(CRASHPAD_HANDLER "crashpad_handler${CMAKE_EXECUTABLE_SUFFIX}")
   set(MINIDUMP_STACKWALK "minidump_stackwalk${CMAKE_EXECUTABLE_SUFFIX}")
 
   if(UNIX AND NOT APPLE)
-    install(TARGETS ${OLIVE_CRASH_TARGET} RUNTIME DESTINATION bin)
+    install(TARGETS olive-crashhandler RUNTIME DESTINATION bin)
     install(PROGRAMS ${CRASHPAD_LIBRARY_DIRS}/${CRASHPAD_HANDLER} DESTINATION bin)
     install(PROGRAMS ${BREAKPAD_BIN_DIR}/${MINIDUMP_STACKWALK} DESTINATION bin)
   endif()
 
   if(APPLE)
     # Move crash handler executables inside Mac app bundle
-    add_custom_command(TARGET ${OLIVE_CRASH_TARGET} POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy_if_different ${OLIVE_CRASH_TARGET} $<TARGET_FILE_DIR:${OLIVE_TARGET}>
-      COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CRASHPAD_LIBRARY_DIRS}/${CRASHPAD_HANDLER} $<TARGET_FILE_DIR:${OLIVE_TARGET}>
-      COMMAND ${CMAKE_COMMAND} -E copy_if_different ${BREAKPAD_BIN_DIR}/${MINIDUMP_STACKWALK} $<TARGET_FILE_DIR:${OLIVE_TARGET}>
+    add_custom_command(TARGET olive-crashhandler POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different olive-crashhandler $<TARGET_FILE_DIR:olive-editor>
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CRASHPAD_LIBRARY_DIRS}/${CRASHPAD_HANDLER} $<TARGET_FILE_DIR:olive-editor>
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different ${BREAKPAD_BIN_DIR}/${MINIDUMP_STACKWALK} $<TARGET_FILE_DIR:olive-editor>
     )
   endif()
 endif()
 
-# Set compiler definitions
-target_compile_definitions(${OLIVE_TARGET} PRIVATE ${OLIVE_DEFINITIONS})
-
-add_subdirectory(packaging)
-
+# Create docs if doxygen was found
 if(DOXYGEN_FOUND)
   set(DOXYGEN_PROJECT_NAME "Olive")
   set(DOXYGEN_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/docs")

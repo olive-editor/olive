@@ -34,7 +34,8 @@ SeekableWidget::SeekableWidget(QWidget* parent) :
   time_(0),
   timeline_points_(nullptr),
   scroll_(0),
-  snap_service_(nullptr)
+  snap_service_(nullptr),
+  dragging_(false)
 {
   QFontMetrics fm = fontMetrics();
 
@@ -86,6 +87,7 @@ void SeekableWidget::mousePressEvent(QMouseEvent *event)
 {
   if (event->button() == Qt::LeftButton) {
     SeekToScreenPoint(event->pos().x());
+    dragging_ = true;
   }
 }
 
@@ -103,6 +105,8 @@ void SeekableWidget::mouseReleaseEvent(QMouseEvent *event)
   if (snap_service_) {
     snap_service_->HideSnaps();
   }
+
+  dragging_ = false;
 }
 
 void SeekableWidget::ScaleChangedEvent(const double &)
@@ -129,33 +133,37 @@ void SeekableWidget::SetScroll(int s)
   update();
 }
 
-double SeekableWidget::ScreenToUnitFloat(int screen)
+double SeekableWidget::ScreenToUnitFloat(int screen) const
 {
   return (screen + scroll_) / GetScale() / timebase_dbl();
 }
 
-int64_t SeekableWidget::ScreenToUnit(int screen)
+int64_t SeekableWidget::ScreenToUnit(int screen) const
 {
   return qFloor(ScreenToUnitFloat(screen));
 }
 
-int64_t SeekableWidget::ScreenToUnitRounded(int screen)
+int64_t SeekableWidget::ScreenToUnitRounded(int screen) const
 {
   return qRound64(ScreenToUnitFloat(screen));
 }
 
-int SeekableWidget::UnitToScreen(int64_t unit)
+int SeekableWidget::UnitToScreen(int64_t unit) const
 {
   return qFloor(static_cast<double>(unit) * GetScale() * timebase_dbl()) - scroll_;
 }
 
-int SeekableWidget::TimeToScreen(const rational &time)
+int SeekableWidget::TimeToScreen(const rational &time) const
 {
   return qFloor(time.toDouble() * GetScale()) - scroll_;
 }
 
 void SeekableWidget::SeekToScreenPoint(int screen)
 {
+  if (timebase().isNull()) {
+    return;
+  }
+
   int64_t timestamp = qMax(static_cast<int64_t>(0), ScreenToUnitRounded(screen));
 
   if (Core::instance()->snapping() && snap_service_) {

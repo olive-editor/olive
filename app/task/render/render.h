@@ -23,8 +23,8 @@
 
 #include <QtConcurrent/QtConcurrent>
 
+#include "node/color/colormanager/colormanager.h"
 #include "node/output/viewer/viewer.h"
-#include "render/colormanager.h"
 #include "task/task.h"
 #include "threading/threadticket.h"
 #include "threading/threadticketwatcher.h"
@@ -81,9 +81,11 @@ protected:
   }
 
 private:
-  RenderTicketWatcher* CreateWatcher(QThread *thread);
+  void PrepareWatcher(RenderTicketWatcher* watcher, QThread *thread);
 
   void IncrementRunningTickets();
+
+  void StartTicket(const QByteArray &hash, QThread *watcher_thread, ColorManager *manager, const rational &time, RenderMode::Mode mode, FrameHashCache *cache, const QSize &force_size, const QMatrix4x4 &force_matrix, VideoParams::Format force_format, ColorProcessorPtr force_color_output);
 
   ViewerOutput* viewer_;
 

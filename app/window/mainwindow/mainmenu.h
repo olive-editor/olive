@@ -194,7 +194,6 @@ private:
   QAction* file_import_item_;
   Menu* file_export_menu_;
   QAction* file_export_media_item_;
-  QAction* file_project_properties_item_;
   QAction* file_close_project_item_;
   QAction* file_close_all_projects_item_;
   QAction* file_close_all_except_item_;

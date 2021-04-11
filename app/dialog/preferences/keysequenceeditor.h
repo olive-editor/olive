@@ -94,6 +94,12 @@ public:
    * because a default shortcut does not need to be saved to a file.
    */
   QString export_shortcut();
+
+protected:
+  virtual void keyPressEvent(QKeyEvent *e) override;
+
+  virtual void keyReleaseEvent(QKeyEvent *e) override;
+
 private:
   /**
    * @brief Internal reference to the linked QAction

@@ -31,6 +31,8 @@ class VolumeNode : public MathNodeBase
 public:
   VolumeNode();
 
+  NODE_DEFAULT_DESTRUCTOR(VolumeNode)
+
   virtual Node* copy() const override;
 
   virtual QString Name() const override;
@@ -38,20 +40,14 @@ public:
   virtual QVector<CategoryID> Category() const override;
   virtual QString Description() const override;
 
-  virtual NodeValueTable Value(NodeValueDatabase &value) const override;
+  virtual NodeValueTable Value(const QString& output, NodeValueDatabase &value) const override;
 
   virtual void ProcessSamples(NodeValueDatabase &values, const SampleBufferPtr input, SampleBufferPtr output, int index) const override;
 
   virtual void Retranslate() override;
 
-  NodeInput* samples_input() const
-  {
-    return samples_input_;
-  }
-
-private:
-  NodeInput* samples_input_;
-  NodeInput* volume_input_;
+  static const QString kSamplesInput;
+  static const QString kVolumeInput;
 
 };
 

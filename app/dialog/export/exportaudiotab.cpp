@@ -61,6 +61,17 @@ ExportAudioTab::ExportAudioTab(QWidget* parent) :
   layout->addWidget(new QLabel(tr("Format:")), row, 0);
   layout->addWidget(new QComboBox(), row, 1);
 
+  row++;
+
+  layout->addWidget(new QLabel(tr("Bit Rate:")), row, 0);
+
+  bit_rate_slider_ = new IntegerSlider();
+  bit_rate_slider_->SetMinimum(32);
+  bit_rate_slider_->SetMaximum(320);
+  bit_rate_slider_->SetValue(256);
+  bit_rate_slider_->SetFormat(tr("%1 kbps"));
+  layout->addWidget(bit_rate_slider_, row, 1);
+
   outer_layout->addStretch();
 }
 

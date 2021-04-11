@@ -23,17 +23,17 @@
 
 #include <QTreeWidget>
 
-#include "preferencestab.h"
+#include "dialog/configbase/configdialogbase.h"
 
 namespace olive {
 
-class PreferencesBehaviorTab : public PreferencesTab
+class PreferencesBehaviorTab : public ConfigDialogBaseTab
 {
   Q_OBJECT
 public:
   PreferencesBehaviorTab();
 
-  virtual void Accept() override;
+  virtual void Accept(MultiUndoCommand* command) override;
 
 private:
   QTreeWidgetItem *AddParent(const QString& text, const QString &tooltip, QTreeWidgetItem *parent = nullptr);

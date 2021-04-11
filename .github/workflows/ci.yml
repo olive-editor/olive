@@ -36,28 +36,20 @@ jobs:
             compiler-name: GCC 9.3.1
             cmake-gen: Ninja
             os-name: Linux (CentOS 7)
-            vfx-cy: 2021
-            ci-common-version: 2
           - build-type: RelWithDebInfo
             cc-compiler: clang
             cxx-compiler: clang++
             compiler-name: Clang 10.0.0
             cmake-gen: Ninja
             os-name: Linux (CentOS 7)
-            vfx-cy: 2021
-            ci-common-version: 2
     name: |
       ${{ matrix.os-name }}
       <${{ matrix.compiler-name }},
        ${{ matrix.build-type }},
-       ${{ matrix.cmake-gen }},
-       VFX CY${{ matrix.vfx-cy }},
-       CI Common Version ${{ matrix.ci-common-version }}>
+       ${{ matrix.cmake-gen }}>
     runs-on: ubuntu-latest
     container:
-      image: olivevideoeditor/ci-olive:${{ matrix.vfx-cy }}.${{ matrix.ci-common-version }}
-    if: >-
-      !contains(github.event.head_commit.message, '[skip ci]')
+      image: olivevideoeditor/ci-olive:2021.3
 
     steps:
       - name: Checkout Source Code
@@ -88,13 +80,35 @@ jobs:
         env:
           ARCH: x86_64
         run: |
+          # Create install tree
           cmake --install app --prefix appdir/usr
-          VERSION=${GITHUB_SHA::8}
-          export VERSION
+
+          # Inject custom AppRun (linuxdeployqt won't replace if it already exists)
+          cp $GITHUB_WORKSPACE/app/packaging/linux/AppRun appdir
+
+          # Process AppDir
           /usr/local/linuxdeployqt-x86_64.AppImage \
-          appdir/usr/share/applications/org.olivevideoeditor.Olive.desktop \
-          -appimage \
-          --appimage-extract-and-run
+            appdir/usr/share/applications/org.olivevideoeditor.Olive.desktop \
+            -exclude-libs=libQt5Pdf.so,libQt5Qml.so,libQt5QmlModels.so,libQt5Quick.so,libQt5VirtualKeyboard.so \
+            -bundle-non-qt-libs \
+            -executable=appdir/usr/bin/crashpad_handler \
+            -executable=appdir/usr/bin/minidump_stackwalk \
+            -executable=appdir/usr/bin/olive-crashhandler \
+            --appimage-extract-and-run
+
+          # Dump Crashpad symbols
+          dump_syms appdir/usr/bin/olive-editor > olive-editor.sym
+          # HACK: For some reason, minidump_stackwalk reads identifier as all 0s
+          SYM_DIR=appdir/usr/share/olive-editor/symbols/olive-editor/000000000000000000000000000000000
+          mkdir -p "$SYM_DIR"
+          mv olive-editor.sym "$SYM_DIR"
+
+          # Package AppImage
+          $DOWNLOAD_TOOL https://github.com/AppImage/AppImageKit/releases/download/12/appimagetool-x86_64.AppImage
+          chmod +x appimagetool-x86_64.AppImage
+          VERSION=${GITHUB_SHA::8} ./appimagetool-x86_64.AppImage appdir --appimage-extract-and-run
+
+          # Set env variables
           filename=$(echo Olive*.AppImage)
           pkgname="${filename/x86_64/Linux-x86_64}"
           mv "${filename}" "${pkgname}"
@@ -132,16 +146,12 @@ jobs:
             os-arch: x86_64
             os: windows-latest
             cmake-gen: Ninja
-    env:
-      EXTRACT_TOOL: 7z x
     name: |
       ${{ matrix.os-name }}
       <${{ matrix.compiler-name }},
        ${{ matrix.build-type }},
        ${{ matrix.cmake-gen }}>
     runs-on: ${{ matrix.os }}
-    if: >-
-      !contains(github.event.head_commit.message, '[skip ci]')
 
     steps:
       - name: Checkout Source Code
@@ -162,28 +172,20 @@ jobs:
       - name: Enable Developer Command Prompt (Windows)
         uses: ilammy/msvc-dev-cmd@v1
 
-      - name: Acquire Qt
-        uses: jurplel/install-qt-action@v2
-        with:
-          version: 5.15.1
-
       - name: Acquire Dependencies
         shell: bash
+        working-directory: ${{ runner.workspace }}
         run: |
-          $DOWNLOAD_TOOL https://olivevideoeditor.org/deps/dep-win.7z
-          $EXTRACT_TOOL dep-win.7z
-
-      - name: Acquire Crashpad
-        shell: bash
-        run: |
-          $DOWNLOAD_TOOL https://olivevideoeditor.org/deps/crashpad-win.7z
-          $EXTRACT_TOOL crashpad-win.7z
+          $DOWNLOAD_TOOL https://github.com/olive-editor/dependencies/releases/download/continuous/olive-dep-win32.tar.gz
+          tar xzf olive-dep-win32.tar.gz
 
       - name: Configure CMake
         shell: bash
+        env:
+          DEP_LOCATION: ${{ runner.workspace }}/install
         working-directory: ${{ runner.workspace }}/build
         run: |
-          PATH=$GITHUB_WORKSPACE:$PATH \
+          PATH=$DEP_LOCATION:$DEP_LOCATION/crashpad:$PATH \
             cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}"
 
       - name: Build
@@ -201,16 +203,29 @@ jobs:
       - name: Create Package
         working-directory: ${{ runner.workspace }}/build
         shell: bash
+        env:
+          DEP_LOCATION: ${{ runner.workspace }}/install
         run: |
           mkdir olive-editor
           cp app/olive-editor.exe olive-editor
           cp app/olive-crashhandler.exe olive-editor
           cp app/olive-editor.pdb olive-editor
-          windeployqt olive-editor/olive-crashhandler.exe
-          windeployqt olive-editor/olive-editor.exe
-          cp $(cygpath $GITHUB_WORKSPACE)/bin/*.dll olive-editor
-          cp $(cygpath $GITHUB_WORKSPACE)/out/Default/crashpad_handler.exe olive-editor
-          cp $(cygpath $GITHUB_WORKSPACE)/breakpad/bin/* olive-editor
+          $DEP_LOCATION/bin/windeployqt olive-editor/olive-crashhandler.exe
+          $DEP_LOCATION/bin/windeployqt olive-editor/olive-editor.exe
+          cp $(cygpath $DEP_LOCATION)/bin/*.dll olive-editor
+          cp $(cygpath $DEP_LOCATION)/crashpad/out/Default/crashpad_handler.exe olive-editor
+          cp $(cygpath $DEP_LOCATION)/bin/minidump_stackwalk.exe olive-editor
+
+      - name: Export Crashpad symbols
+        working-directory: ${{ runner.workspace }}/build
+        shell: bash
+        run: |
+          curl -fLSs https://github.com/google/breakpad/blob/master/src/tools/windows/binaries/dump_syms.exe?raw=true > dump_syms.exe
+          ./dump_syms app/olive-editor.pdb > olive-editor.sym
+          SYM_HEADER=($(head -n 1 olive-editor.sym)) # Read first line of symbol file
+          SYM_DIR=olive-editor/symbols/olive-editor.pdb/${SYM_HEADER[3]}
+          mkdir -p "$SYM_DIR"
+          mv olive-editor.sym "$SYM_DIR"
 
       - name: Deploy Packages
         working-directory: ${{ runner.workspace }}/build
@@ -220,7 +235,9 @@ jobs:
           $DOWNLOAD_TOOL https://download.microsoft.com/download/3/2/2/3224B87F-CFA0-4E70-BDA3-3DE650EFEBA5/vcredist_x64.exe
           cp $(cygpath $GITHUB_WORKSPACE)/app/packaging/windows/nsis/* .
           cp $(cygpath $GITHUB_WORKSPACE)/LICENSE .
-          makensis -V4 -DX64 "-XOutFile $PKGNAME.exe" olive.nsi
+          $DOWNLOAD_TOOL https://nsis.sourceforge.io/mediawiki/images/c/c7/ShellExecAsUser.zip
+          7z x ShellExecAsUser.zip ShellExecAsUser.dll
+          makensis -V4 -DX64 "-XOutFile $PKGNAME.exe" "-X!AddPluginDir $(pwd -W)" olive.nsi
 
           # Create Portable ZIP
           echo -n > olive-editor/portable
@@ -261,21 +278,6 @@ jobs:
             -F comment="$(git -C $GITHUB_WORKSPACE show -s --format=%B)" \
             https://ci.olivevideoeditor.org/push.php
 
-      - name: Export Crashpad Symbols and Upload To Server
-        working-directory: ${{ runner.workspace }}/build
-        shell: bash
-        env:
-          GH_AUTH_KEY: ${{ secrets.GH_AUTH_KEY }}
-        if: github.event_name == 'push'
-        run: |
-          curl -fLSs --retry 2 --retry-delay 60 \
-            https://github.com/google/breakpad/blob/master/src/tools/windows/binaries/dump_syms.exe?raw=true > dump_syms.exe
-          ./dump_syms app/olive-editor.pdb > olive-editor.sym
-          curl -X POST \
-            -F symfile=@olive-editor.sym \
-            -F key="$GH_AUTH_KEY" \
-            https://olivevideoeditor.org/crashpad/symbols.php
-
   macos:
     strategy:
       matrix:
@@ -285,17 +287,15 @@ jobs:
             os-name: macOS
             os-arch: x86_64
             os: macos-latest
-            cmake-gen: Unix Makefiles
+            cmake-gen: Ninja
     env:
-      EXTRACT_TOOL: sudo unzip -d /usr/local -o
+      DEP_LOCATION: /opt/olive-editor
     name: |
       ${{ matrix.os-name }}
       <${{ matrix.compiler-name }},
        ${{ matrix.build-type }},
        ${{ matrix.cmake-gen }}>
     runs-on: ${{ matrix.os }}
-    if: >-
-      !contains(github.event.head_commit.message, '[skip ci]')
 
     steps:
       - name: Checkout Source Code
@@ -313,53 +313,20 @@ jobs:
         run: |
           cmake -E make_directory ${{ runner.workspace }}/build
 
-      - name: Acquire Qt
-        uses: jurplel/install-qt-action@v2
-        with:
-          version: 5.15.1
-
-      - name: Acquire FFmpeg
+      - name: Acquire Dependencies
         shell: bash
+        working-directory: ${{ runner.workspace }}
         run: |
-          $DOWNLOAD_TOOL https://olivevideoeditor.org/deps/ffmpeg-mac.zip
-          $EXTRACT_TOOL ffmpeg-mac.zip
-
-      - name: Acquire OpenColorIO
-        shell: bash
-        run: |
-          $DOWNLOAD_TOOL https://olivevideoeditor.org/deps/ocio-mac.zip
-          $EXTRACT_TOOL ocio-mac.zip
-
-      - name: Acquire OpenTimelineIO
-        shell: bash
-        run: |
-          $DOWNLOAD_TOOL https://olivevideoeditor.org/deps/otio-mac.zip
-          $EXTRACT_TOOL otio-mac.zip
-
-      - name: Acquire OpenEXR
-        shell: bash
-        run: |
-          $DOWNLOAD_TOOL https://olivevideoeditor.org/deps/openexr-mac.zip
-          $EXTRACT_TOOL openexr-mac.zip
-
-      - name: Acquire OpenImageIO
-        shell: bash
-        run: |
-          $DOWNLOAD_TOOL https://olivevideoeditor.org/deps/oiio-mac.zip
-          $EXTRACT_TOOL oiio-mac.zip
-
-      - name: Acquire Crashpad
-        shell: bash
-        run: |
-          $DOWNLOAD_TOOL https://olivevideoeditor.org/deps/crashpad-mac.zip
-          $EXTRACT_TOOL crashpad-mac.zip
+          $DOWNLOAD_TOOL https://github.com/olive-editor/dependencies/releases/download/continuous/olive-dep-mac-x86_64.tar.gz
+          sudo tar xzf olive-dep-mac-x86_64.tar.gz -C /
 
       - name: Configure CMake
         shell: bash
         working-directory: ${{ runner.workspace }}/build
         run: |
-          PATH=$GITHUB_WORKSPACE:$PATH \
-            cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}"
+          brew install ninja
+          PATH=$DEP_LOCATION:$DEP_LOCATION/crashpad:$PATH \
+            cmake $GITHUB_WORKSPACE -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}" -DCMAKE_INSTALL_PREFIX=$DEP_LOCATION
 
       - name: Build
         working-directory: ${{ runner.workspace }}/build
@@ -375,17 +342,30 @@ jobs:
 
       - name: Create Package
         working-directory: ${{ runner.workspace }}/build
+        env:
+          BUNDLE_NAME: "Olive.app"
         shell: bash
         run: |
-          export BUNDLE_NAME=Olive.app
           mv app/$BUNDLE_NAME .
-
-          # HACK: OCIO doesn't link it's library properly so we need to manually correct
-          install_name_tool -change libOpenColorIO.1.dylib @rpath/libOpenColorIO.1.dylib $BUNDLE_NAME/Contents/MacOS/Olive
-
-          macdeployqt $BUNDLE_NAME
+          $DEP_LOCATION/bin/macdeployqt $BUNDLE_NAME -executable=$BUNDLE_NAME/Contents/MacOS/olive-crashhandler
           $DOWNLOAD_TOOL https://github.com/arl/macdeployqtfix/raw/master/macdeployqtfix.py
-          python2 macdeployqtfix.py $BUNDLE_NAME/Contents/MacOS/Olive /usr/local/Cellar/qt5/5.*/
+          python2 macdeployqtfix.py $BUNDLE_NAME/Contents/MacOS/Olive $DEP_LOCATION
+
+          # Manual fixes
+          cp $DEP_LOCATION/lib/libopentimelineio.dylib $BUNDLE_NAME/Contents/Frameworks
+          cp $DEP_LOCATION/lib/libopentime.dylib $BUNDLE_NAME/Contents/Frameworks
+          cp $DEP_LOCATION/lib/libmodplug.dylib $BUNDLE_NAME/Contents/Frameworks
+          install_name_tool -change @loader_path/libopentimelineio.dylib @rpath/libopentimelineio.dylib $BUNDLE_NAME/Contents/MacOS/Olive
+          install_name_tool -change @loader_path/libopentime.dylib @rpath/libopentime.dylib $BUNDLE_NAME/Contents/MacOS/Olive
+          install_name_tool -change libmodplug.dylib @rpath/libmodplug.dylib $BUNDLE_NAME/Contents/Frameworks/libavformat.*
+          install_name_tool -change libmodplug.dylib @rpath/libmodplug.dylib $BUNDLE_NAME/Contents/Frameworks/libavfilter.*
+
+          # Crashpad symbols
+          $DEP_LOCATION/bin/dump_syms $BUNDLE_NAME/Contents/MacOS/Olive > Olive.sym
+          SYM_HEADER=($(head -n 1 Olive.sym)) # Read first line of symbol file
+          SYM_DIR=$BUNDLE_NAME/Contents/Resources/symbols/Olive/${SYM_HEADER[3]}
+          mkdir -p "$SYM_DIR"
+          mv Olive.sym "$SYM_DIR"
 
       - name: Deploy Packages
         working-directory: ${{ runner.workspace }}/build

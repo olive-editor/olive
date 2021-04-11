@@ -24,35 +24,35 @@
 
 #include "node/output/track/track.h"
 #include "transition/transition.h"
+#include "widget/slider/floatslider.h"
 
 namespace olive {
 
+const QString Block::kLengthInput = QStringLiteral("length_in");
+const QString Block::kMediaInInput = QStringLiteral("media_in_in");
+const QString Block::kEnabledInput = QStringLiteral("enabled_in");
+const QString Block::kSpeedInput = QStringLiteral("speed_in");
+
 Block::Block() :
   previous_(nullptr),
-  next_(nullptr)
+  next_(nullptr),
+  track_(nullptr),
+  index_(-1),
+  in_transition_(nullptr),
+  out_transition_(nullptr)
 {
-  length_input_ = new NodeInput("length_in", NodeParam::kRational);
-  length_input_->set_connectable(false);
-  length_input_->set_is_keyframable(false);
-  AddInput(length_input_);
-  disconnect(length_input_, &NodeInput::ValueChanged, this, &Block::InputChanged);
-  connect(length_input_, &NodeInput::ValueChanged, this, &Block::LengthInputChanged);
+  AddInput(kLengthInput, NodeValue::kRational, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+  IgnoreInvalidationsFrom(kLengthInput);
+  IgnoreHashingFrom(kLengthInput);
 
-  media_in_input_ = new NodeInput("media_in_in", NodeParam::kRational);
-  media_in_input_->set_connectable(false);
-  media_in_input_->set_is_keyframable(false);
-  AddInput(media_in_input_);
+  AddInput(kMediaInInput, NodeValue::kRational, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+  IgnoreHashingFrom(kMediaInInput);
 
-  enabled_input_ = new NodeInput("enabled_in", NodeParam::kBoolean);
-  enabled_input_->set_connectable(false);
-  enabled_input_->set_is_keyframable(false);
-  enabled_input_->set_standard_value(true);
-  AddInput(enabled_input_);
+  AddInput(kEnabledInput, NodeValue::kBoolean, true, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
-  speed_input_ = new NodeInput("speed_in", NodeParam::kFloat);
-  speed_input_->set_standard_value(1.0);
-  speed_input_->setProperty("view", QStringLiteral("percent"));
-  AddInput(speed_input_);
+  AddInput(kSpeedInput, NodeValue::kFloat, 1.0);
+  SetInputProperty(kSpeedInput, QStringLiteral("view"), FloatSlider::kPercentage);
+  IgnoreHashingFrom(kSpeedInput);
 
   // A block's length must be greater than 0
   set_length_and_media_out(1);
@@ -63,29 +63,9 @@ QVector<Node::CategoryID> Block::Category() const
   return {kCategoryTimeline};
 }
 
-const rational &Block::in() const
-{
-  return in_point_;
-}
-
-const rational &Block::out() const
-{
-  return out_point_;
-}
-
-void Block::set_in(const rational &in)
-{
-  in_point_ = in;
-}
-
-void Block::set_out(const rational &out)
-{
-  out_point_ = out;
-}
-
 rational Block::length() const
 {
-  return length_input_->get_standard_value().value<rational>();
+  return GetStandardValue(kLengthInput).value<rational>();
 }
 
 void Block::set_length_and_media_out(const rational &length)
@@ -96,11 +76,7 @@ void Block::set_length_and_media_out(const rational &length)
     return;
   }
 
-  rational old_length = this->length();
-
   set_length_internal(length);
-
-  LengthChangedEvent(old_length, length, Timeline::kTrimOut);
 }
 
 void Block::set_length_and_media_in(const rational &length)
@@ -112,59 +88,30 @@ void Block::set_length_and_media_in(const rational &length)
   }
 
   // Calculate media_in adjustment
-  set_media_in(SequenceToMediaTime(in() + (this->length() - length)));
-
-  rational old_length = this->length();
+  set_media_in(SequenceToMediaTime(this->length() - length));
 
   // Set the length without setting media out
   set_length_internal(length);
-
-  LengthChangedEvent(old_length, length, Timeline::kTrimIn);
-}
-
-TimeRange Block::range() const
-{
-  return TimeRange(in(), out());
-}
-
-Block *Block::previous()
-{
-  return previous_;
-}
-
-Block *Block::next()
-{
-  return next_;
-}
-
-void Block::set_previous(Block *previous)
-{
-  previous_ = previous;
-}
-
-void Block::set_next(Block *next)
-{
-  next_ = next;
 }
 
 rational Block::media_in() const
 {
-  return media_in_input_->get_standard_value().value<rational>();
+  return GetStandardValue(kMediaInInput).value<rational>();
 }
 
 void Block::set_media_in(const rational &media_in)
 {
-  media_in_input_->set_standard_value(QVariant::fromValue(media_in));
+  SetStandardValue(kMediaInInput, QVariant::fromValue(media_in));
 }
 
 bool Block::is_enabled() const
 {
-  return enabled_input_->get_standard_value().toBool();
+  return GetStandardValue(kEnabledInput).toBool();
 }
 
 void Block::set_enabled(bool e)
 {
-  enabled_input_->set_standard_value(e);
+  SetStandardValue(kEnabledInput, e);
 
   emit EnabledChanged();
 }
@@ -176,13 +123,11 @@ rational Block::SequenceToMediaTime(const rational &sequence_time) const
     return sequence_time;
   }
 
-  rational local_time = sequence_time - in();
+  rational local_time = sequence_time;
 
   // FIXME: Doesn't handle reversing
-  if (speed_input_->is_keyframing() || speed_input_->is_connected()) {
-    // FIXME: We'll need to calculate the speed hoo boy
-  } else {
-    double speed_value = speed_input_->get_standard_value().toDouble();
+  if (IsInputStatic(kSpeedInput)) {
+    double speed_value = GetStandardValue(kSpeedInput).toDouble();
 
     if (qIsNull(speed_value)) {
       // Effectively holds the frame at the in point
@@ -191,6 +136,8 @@ rational Block::SequenceToMediaTime(const rational &sequence_time) const
       // Multiply time
       local_time = rational::fromDouble(local_time.toDouble() * speed_value);
     }
+  } else {
+    // FIXME: We'll need to calculate the speed hoo boy
   }
 
   return local_time + media_in();
@@ -206,10 +153,10 @@ rational Block::MediaToSequenceTime(const rational &media_time) const
   rational sequence_time = media_time - media_in();
 
   // FIXME: Doesn't handle reversing
-  if (speed_input_->is_keyframing() || speed_input_->is_connected()) {
+  if (IsInputKeyframing(kSpeedInput) || IsInputConnected(kSpeedInput)) {
     // FIXME: We'll need to calculate the speed hoo boy
   } else {
-    double speed_value = speed_input_->get_standard_value().toDouble();
+    double speed_value = GetStandardValue(kSpeedInput).toDouble();
 
     if (qIsNull(speed_value)) {
       // Effectively holds the frame at the in point, also prevents divide by zero
@@ -220,157 +167,49 @@ rational Block::MediaToSequenceTime(const rational &media_time) const
     }
   }
 
-  return sequence_time + in();
+  return sequence_time;
 }
 
-void Block::LoadInternal(QXmlStreamReader *reader, XMLNodeData &xml_node_data)
+void Block::InputValueChangedEvent(const QString &input, int element)
 {
-  while (XMLReadNextStartElement(reader)) {
-    if (reader->name() == QStringLiteral("link")) {
-      xml_node_data.block_links.append({this, reader->readElementText().toULongLong()});
-    } else {
-      reader->skipCurrentElement();
+  Q_UNUSED(element)
+
+  if (input == kLengthInput) {
+    emit LengthChanged();
+  } else if (input == kEnabledInput) {
+    emit EnabledChanged();
+  }
+}
+
+void Block::LinkChangeEvent()
+{
+  block_links_.clear();
+
+  foreach (Node* n, links()) {
+    Block* b = dynamic_cast<Block*>(n);
+
+    if (b) {
+      block_links_.append(b);
     }
   }
-}
-
-void Block::SaveInternal(QXmlStreamWriter *writer) const
-{
-  foreach (Block* link, linked_clips_) {
-    writer->writeTextElement(QStringLiteral("link"), QString::number(reinterpret_cast<quintptr>(link)));
-  }
-}
-
-QVector<NodeInput *> Block::GetInputsToHash() const
-{
-  QVector<NodeInput*> inputs = Node::GetInputsToHash();
-
-  // Ignore these inputs
-  inputs.removeOne(media_in_input_);
-  inputs.removeOne(speed_input_);
-  inputs.removeOne(length_input_);
-
-  return inputs;
-}
-
-void Block::LengthChangedEvent(const rational &, const rational &, const Timeline::MovementMode &)
-{
 }
 
 void Block::set_length_internal(const rational &length)
 {
-  length_input_->set_standard_value(QVariant::fromValue(length));
-}
-
-void Block::LengthInputChanged()
-{
-  emit LengthChanged(length());
-}
-
-bool Block::Link(Block *a, Block *b)
-{
-  if (a == b || !a || !b) {
-    return false;
-  }
-
-  // Prevent duplicate link entries (assume that we only need to check one clip since this should be the only function
-  // that adds to the linked array)
-  if (Block::AreLinked(a, b)) {
-    return false;
-  }
-
-  a->linked_clips_.append(b);
-  b->linked_clips_.append(a);
-
-  emit a->LinksChanged();
-  emit b->LinksChanged();
-
-  return true;
-}
-
-void Block::Link(const QList<Block*>& blocks)
-{
-  foreach (Block* a, blocks) {
-    foreach (Block* b, blocks) {
-      Link(a, b);
-    }
-  }
-}
-
-bool Block::Unlink(Block *a, Block *b)
-{
-  if (a == b || !a || !b) {
-    return false;
-  }
-
-  if (!Block::AreLinked(a, b)) {
-    return false;
-  }
-
-  a->linked_clips_.removeOne(b);
-  b->linked_clips_.removeOne(a);
-
-  emit a->LinksChanged();
-  emit b->LinksChanged();
-
-  return true;
-}
-
-void Block::Unlink(const QList<Block *> &blocks)
-{
-  foreach (Block* a, blocks) {
-    foreach (Block* b, blocks) {
-      Unlink(a, b);
-    }
-  }
-}
-
-bool Block::AreLinked(Block *a, Block *b)
-{
-  return a->linked_clips_.contains(b);
-}
-
-const QVector<Block*> &Block::linked_clips()
-{
-  return linked_clips_;
-}
-
-bool Block::HasLinks()
-{
-  return !linked_clips_.isEmpty();
-}
-
-bool Block::IsBlock() const
-{
-  return true;
+  SetStandardValue(kLengthInput, QVariant::fromValue(length));
 }
 
 void Block::Retranslate()
 {
   Node::Retranslate();
 
-  length_input_->set_name(tr("Length"));
-  media_in_input_->set_name(tr("Media In"));
-  enabled_input_->set_name(tr("Enabled"));
-  speed_input_->set_name(tr("Speed"));
+  SetInputName(kLengthInput, tr("Length"));
+  SetInputName(kMediaInInput, tr("Media In"));
+  SetInputName(kEnabledInput, tr("Enabled"));
+  SetInputName(kSpeedInput, tr("Speed"));
 }
 
-NodeInput *Block::length_input() const
-{
-  return length_input_;
-}
-
-NodeInput *Block::media_in_input() const
-{
-  return media_in_input_;
-}
-
-NodeInput *Block::speed_input() const
-{
-  return speed_input_;
-}
-
-void Block::Hash(QCryptographicHash &, const rational &) const
+void Block::Hash(const QString &, QCryptographicHash &, const rational &) const
 {
   // A block does nothing by default, so we hash nothing
 }

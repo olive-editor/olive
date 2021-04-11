@@ -25,7 +25,7 @@
 
 namespace olive {
 
-RenderTask::RenderTask(ViewerOutput* viewer, const VideoParams &vparams, const AudioParams &aparams) :
+RenderTask::RenderTask(ViewerOutput *viewer, const VideoParams &vparams, const AudioParams &aparams) :
   viewer_(viewer),
   video_params_(vparams),
   audio_params_(aparams),
@@ -51,7 +51,7 @@ bool RenderTask::Render(ColorManager* manager,
 
   double progress_counter = 0;
   double total_length = 0;
-  double video_frame_sz = video_params().time_base().toDouble();
+  double video_frame_sz = video_params().frame_rate_as_time_base().toDouble();
 
   // Store real time before any rendering takes place
   qint64 job_time = QDateTime::currentMSecsSinceEpoch();
@@ -64,21 +64,20 @@ bool RenderTask::Render(ColorManager* manager,
 
     IncrementRunningTickets();
 
-    RenderTicketWatcher* watcher = CreateWatcher(&watcher_thread);
+    RenderTicketWatcher* watcher = new RenderTicketWatcher();
     watcher->setProperty("range", QVariant::fromValue(r));
+    PrepareWatcher(watcher, &watcher_thread);
     watcher->SetTicket(RenderManager::instance()->RenderAudio(viewer_, r, audio_params_, false));
   }
 
   // Look up hashes
   QMap<QByteArray, QVector<rational> > time_map;
+  QVector<QPair<rational, QByteArray> > frame_render_order;
 
   if (!video_range.isEmpty()) {
     // Get list of discrete frames from range
     QVector<rational> times = viewer()->video_frame_cache()->GetFrameListFromTimeRange(video_range);
     QVector<QByteArray> hashes(times.size());
-
-    // Add to "total progress"
-    total_length += video_frame_sz * times.size();
 
     // Generate hashes
     for (int i=0; i<times.size(); i++) {
@@ -86,7 +85,7 @@ bool RenderTask::Render(ColorManager* manager,
         return true;
       }
 
-      hashes[i] = RenderManager::instance()->Hash(viewer(), video_params_, times.at(i));
+      hashes[i] = RenderManager::instance()->Hash(viewer()->GetConnectedTextureOutput(), video_params_, times.at(i));
     }
 
     // Filter out duplicates
@@ -97,22 +96,28 @@ bool RenderTask::Render(ColorManager* manager,
 
       const QByteArray& hash = hashes.at(i);
 
-      time_map[hash].append(times.at(i));
+      QVector<rational>& hash_time_list = time_map[hash];
+      hash_time_list.append(times.at(i));
 
-      if (time_map[hash].size() == 1) {
-        // This is the first frame with this hash, so we signal a render
-        RenderTicketWatcher* watcher = CreateWatcher(&watcher_thread);
-        watcher->setProperty("hash", hash);
-
-        IncrementRunningTickets();
-
-        watcher->SetTicket(RenderManager::instance()->RenderFrame(viewer_, manager, times.at(i),
-                                                                  mode, video_params_, audio_params_,
-                                                                  force_size, force_matrix,
-                                                                  force_format, force_color_output,
-                                                                  cache));
+      if (hash_time_list.size() == 1) {
+        frame_render_order.append({times.at(i), hash});
       }
     }
+
+    // Add to "total progress"
+    total_length += video_frame_sz * time_map.size();
+  }
+
+  // Start a render of a limited amount, and then render one frame for each frame that gets
+  // finished. This prevents rendered frames from stacking up in memory indefinitely while the
+  // encoder is processing them. The amount is kind of arbitrary, but we use the thread count so
+  // each of the system's threads are utilized as memory allows.
+  const int maximum_rendered_frames = QThread::idealThreadCount();
+  auto frame_iterator = frame_render_order.cbegin();
+
+  for (int i=0; i<maximum_rendered_frames && frame_iterator!=frame_render_order.cend(); i++, frame_iterator++) {
+    StartTicket(frame_iterator->second, &watcher_thread, manager, frame_iterator->first,
+                mode, cache, force_size, force_matrix, force_format, force_color_output);
   }
 
   finished_watcher_mutex_.lock();
@@ -163,6 +168,13 @@ bool RenderTask::Render(ColorManager* manager,
 
         emit ProgressChanged(progress_counter / total_length);
 
+        if (frame_iterator != frame_render_order.cend()) {
+          StartTicket(frame_iterator->second, &watcher_thread, manager, frame_iterator->first,
+                      mode, cache, force_size, force_matrix, force_format, force_color_output);
+
+          frame_iterator++;
+        }
+
       }
 
       delete watcher;
@@ -202,9 +214,9 @@ bool RenderTask::Render(ColorManager* manager,
 
 void RenderTask::DownloadFrame(QThread *thread, FramePtr frame, const QByteArray &hash)
 {
-  RenderTicketWatcher* watcher = CreateWatcher(thread);
-
+  RenderTicketWatcher* watcher = new RenderTicketWatcher();
   watcher->setProperty("hash", hash);
+  PrepareWatcher(watcher, thread);
 
   IncrementRunningTickets();
 
@@ -213,13 +225,11 @@ void RenderTask::DownloadFrame(QThread *thread, FramePtr frame, const QByteArray
                                                                  hash));
 }
 
-RenderTicketWatcher *RenderTask::CreateWatcher(QThread *thread)
+void RenderTask::PrepareWatcher(RenderTicketWatcher *watcher, QThread *thread)
 {
-  RenderTicketWatcher* watcher = new RenderTicketWatcher();
   watcher->moveToThread(thread);
   connect(watcher, &RenderTicketWatcher::Finished, this, &RenderTask::TicketDone, Qt::DirectConnection);
   running_watchers_.append(watcher);
-  return watcher;
 }
 
 void RenderTask::IncrementRunningTickets()
@@ -227,6 +237,24 @@ void RenderTask::IncrementRunningTickets()
   finished_watcher_mutex_.lock();
   running_tickets_++;
   finished_watcher_mutex_.unlock();
+}
+
+void RenderTask::StartTicket(const QByteArray& hash, QThread* watcher_thread, ColorManager* manager,
+                             const rational& time, RenderMode::Mode mode, FrameHashCache* cache,
+                             const QSize &force_size, const QMatrix4x4 &force_matrix,
+                             VideoParams::Format force_format, ColorProcessorPtr force_color_output)
+{
+  RenderTicketWatcher* watcher = new RenderTicketWatcher();
+  watcher->setProperty("hash", hash);
+  PrepareWatcher(watcher, watcher_thread);
+
+  IncrementRunningTickets();
+
+  watcher->SetTicket(RenderManager::instance()->RenderFrame(viewer_, manager, time,
+                                                            mode, video_params_, audio_params_,
+                                                            force_size, force_matrix,
+                                                            force_format, force_color_output,
+                                                            cache));
 }
 
 void RenderTask::TicketDone(RenderTicketWatcher* watcher)

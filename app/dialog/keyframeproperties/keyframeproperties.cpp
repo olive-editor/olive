@@ -30,7 +30,7 @@
 
 namespace olive {
 
-KeyframePropertiesDialog::KeyframePropertiesDialog(const QList<NodeKeyframePtr> &keys, const rational &timebase, QWidget *parent) :
+KeyframePropertiesDialog::KeyframePropertiesDialog(const QVector<NodeKeyframe*> &keys, const rational &timebase, QWidget *parent) :
   QDialog(parent),
   keys_(keys),
   timebase_(timebase)
@@ -92,8 +92,8 @@ KeyframePropertiesDialog::KeyframePropertiesDialog(const QList<NodeKeyframePtr> 
 
   for (int i=0;i<keys_.size();i++) {
     if (i > 0) {
-      NodeKeyframePtr prev_key = keys_.at(i-1);
-      NodeKeyframePtr this_key = keys_.at(i);
+      NodeKeyframe* prev_key = keys_.at(i-1);
+      NodeKeyframe* this_key = keys_.at(i);
 
       // Determine if the keyframes are all the same time or not
       if (all_same_time) {
@@ -194,30 +194,28 @@ KeyframePropertiesDialog::KeyframePropertiesDialog(const QList<NodeKeyframePtr> 
 
 void KeyframePropertiesDialog::accept()
 {
-  QUndoCommand* command = new QUndoCommand();
+  MultiUndoCommand* command = new MultiUndoCommand();
 
   rational new_time = Timecode::timestamp_to_time(time_slider_->GetValue(), timebase_);
   int new_type = type_select_->currentData().toInt();
 
-  foreach (NodeKeyframePtr key, keys_) {
+  foreach (NodeKeyframe* key, keys_) {
     if (time_slider_->isEnabled() && !time_slider_->IsTristate()) {
-      new NodeParamSetKeyframeTimeCommand(key, new_time, command);
+      command->add_child(new NodeParamSetKeyframeTimeCommand(key, new_time));
     }
 
     if (new_type > -1) {
-      new KeyframeSetTypeCommand(key, static_cast<NodeKeyframe::Type>(new_type), command);
+      command->add_child(new KeyframeSetTypeCommand(key, static_cast<NodeKeyframe::Type>(new_type)));
     }
 
     if (bezier_group_->isEnabled()) {
-      new KeyframeSetBezierControlPoint(key,
-                                        NodeKeyframe::kInHandle,
-                                        QPointF(bezier_in_x_slider_->GetValue(), bezier_in_y_slider_->GetValue()),
-                                        command);
+      command->add_child(new KeyframeSetBezierControlPoint(key,
+                                                           NodeKeyframe::kInHandle,
+                                                           QPointF(bezier_in_x_slider_->GetValue(), bezier_in_y_slider_->GetValue())));
 
-      new KeyframeSetBezierControlPoint(key,
-                                        NodeKeyframe::kOutHandle,
-                                        QPointF(bezier_out_x_slider_->GetValue(), bezier_out_y_slider_->GetValue()),
-                                        command);
+      command->add_child(new KeyframeSetBezierControlPoint(key,
+                                                           NodeKeyframe::kOutHandle,
+                                                           QPointF(bezier_out_x_slider_->GetValue(), bezier_out_y_slider_->GetValue())));
     }
   }
 

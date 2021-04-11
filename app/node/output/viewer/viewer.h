@@ -21,20 +21,19 @@
 #ifndef VIEWER_H
 #define VIEWER_H
 
-#include <QUuid>
-
-#include "node/block/block.h"
-#include "node/output/track/track.h"
-#include "node/output/track/tracklist.h"
+#include "common/rational.h"
 #include "node/node.h"
+#include "node/output/track/track.h"
 #include "render/audioparams.h"
 #include "render/audioplaybackcache.h"
 #include "render/framehashcache.h"
 #include "render/videoparams.h"
-#include "timeline/timelinecommon.h"
-#include "timeline/trackreference.h"
+#include "render/videoparams.h"
+#include "timeline/timelinepoints.h"
 
 namespace olive {
+
+class Footage;
 
 /**
  * @brief A bridge between a node system and a ViewerPanel
@@ -45,9 +44,9 @@ class ViewerOutput : public Node
 {
   Q_OBJECT
 public:
-  ViewerOutput();
+  ViewerOutput(bool create_default_streams = true);
 
-  virtual ~ViewerOutput() override;
+  NODE_DEFAULT_DESTRUCTOR(ViewerOutput)
 
   virtual Node* copy() const override;
 
@@ -56,78 +55,101 @@ public:
   virtual QVector<CategoryID> Category() const override;
   virtual QString Description() const override;
 
+  virtual QString duration() const override;
+  virtual QString rate() const override;
+
+  void set_default_parameters();
+
+  void set_parameters_from_footage(const QVector<ViewerOutput *> footage);
+
   void ShiftVideoCache(const rational& from, const rational& to);
   void ShiftAudioCache(const rational& from, const rational& to);
   void ShiftCache(const rational& from, const rational& to);
 
-  NodeInput* texture_input() const {
-    return texture_input_;
+  virtual void InvalidateCache(const TimeRange& range, const QString& from, int element, qint64 job_time) override;
+
+  virtual QVector<QString> inputs_for_output(const QString& output) const override;
+
+  VideoParams GetVideoParams(int index = 0) const
+  {
+    return GetStandardValue(kVideoParamsInput, index).value<VideoParams>();
   }
 
-  NodeInput* samples_input() const {
-    return samples_input_;
+  AudioParams GetAudioParams(int index = 0) const
+  {
+    return GetStandardValue(kAudioParamsInput, index).value<AudioParams>();
   }
 
-  virtual void InvalidateCache(const TimeRange &range, NodeInput *from, NodeInput* source) override;
-
-  const VideoParams& video_params() const {
-    return video_params_;
+  void SetVideoParams(const VideoParams &video, int index = 0)
+  {
+    SetStandardValue(kVideoParamsInput, QVariant::fromValue(video), index);
   }
 
-  const AudioParams& audio_params() const {
-    return audio_params_;
+  void SetAudioParams(const AudioParams &audio, int index = 0)
+  {
+    SetStandardValue(kAudioParamsInput, QVariant::fromValue(audio), index);
   }
 
-  void set_video_params(const VideoParams &video);
-  void set_audio_params(const AudioParams &audio);
-
-  rational GetLength();
-
-  const QUuid& uuid() const {
-    return uuid_;
+  int GetVideoStreamCount() const
+  {
+    return InputArraySize(kVideoParamsInput);
   }
 
-  const QVector<TrackOutput *> &GetTracks() const {
-    return track_cache_;
+  int GetAudioStreamCount() const
+  {
+    return InputArraySize(kAudioParamsInput);
   }
 
-  /**
-   * @brief Same as GetTracks() but omits tracks that are locked.
-   */
-  QVector<TrackOutput *> GetUnlockedTracks() const;
-
-  NodeInput* track_input(Timeline::TrackType type) const {
-    return track_inputs_.at(type);
+  int GetTotalStreamCount() const
+  {
+    return GetVideoStreamCount() + GetAudioStreamCount();
   }
 
-  TrackList* track_list(Timeline::TrackType type) const {
-    return track_lists_.at(type);
-  }
+  bool HasEnabledVideoStreams() const;
+  bool HasEnabledAudioStreams() const;
 
-  virtual void Retranslate() override;
+  VideoParams GetFirstEnabledVideoStream() const;
+  AudioParams GetFirstEnabledAudioStream() const;
 
-  const QString& media_name() const {
-    return media_name_;
-  }
+  const rational &GetLength() const;
 
-  void set_media_name(const QString& name);
-
-  FrameHashCache* video_frame_cache() {
+  FrameHashCache* video_frame_cache()
+  {
     return &video_frame_cache_;
   }
 
-  AudioPlaybackCache* audio_playback_cache() {
+  AudioPlaybackCache* audio_playback_cache()
+  {
     return &audio_playback_cache_;
   }
 
-  virtual void BeginOperation() override;
+  TimelinePoints* GetTimelinePoints()
+  {
+    return &timeline_points_;
+  }
 
-  virtual void EndOperation() override;
+  QVector<Track::Reference> GetEnabledStreamsAsReferences() const;
+
+  QVector<VideoParams> GetEnabledVideoStreams() const;
+
+  QVector<AudioParams> GetEnabledAudioStreams() const;
+
+  virtual void Retranslate() override;
+
+  virtual NodeOutput GetConnectedTextureOutput();
+
+  virtual NodeOutput GetConnectedSampleOutput();
+
+  static const QString kVideoParamsInput;
+  static const QString kAudioParamsInput;
+
+  static const QString kTextureInput;
+  static const QString kSamplesInput;
+
+  static const uint64_t kVideoParamEditMask;
 
 signals:
-  void TimebaseChanged(const rational&);
-
-  void GraphChangedFrom(NodeInput* source);
+  void FrameRateChanged(const rational&);
 
   void LengthChanged(const rational& length);
 
@@ -140,39 +162,34 @@ signals:
   void VideoParamsChanged();
   void AudioParamsChanged();
 
-  void BlockAdded(Block* block, TrackReference track);
-  void BlockRemoved(const QList<Block*>& blocks);
+  void TextureInputChanged();
 
-  void TrackAdded(TrackOutput* track, Timeline::TrackType type);
-  void TrackRemoved(TrackOutput* track);
+  void SampleRateChanged(int sr);
 
-  void TrackHeightChanged(Timeline::TrackType type, int index, int height);
+public slots:
+  void VerifyLength();
 
-  void MediaNameChanged(const QString& name);
+protected:
+  virtual void InputConnectedEvent(const QString &input, int element, const NodeOutput &output) override;
+
+  virtual void InputDisconnectedEvent(const QString &input, int element, const NodeOutput &output) override;
+
+  virtual rational GetCustomLength(Track::Type type) const;
+
+  virtual void ShiftVideoEvent(const rational &from, const rational &to);
+
+  virtual void ShiftAudioEvent(const rational &from, const rational &to);
+
+  virtual void InputValueChangedEvent(const QString& input, int element) override;
+
+  virtual bool LoadCustom(QXmlStreamReader* reader, XMLNodeData &xml_node_data, uint version, const QAtomicInt* cancelled) override;
+
+  virtual void SaveCustom(QXmlStreamWriter *writer) const override;
+
+  int AddStream(Track::Type type, const QVariant &value);
 
 private:
-  QMap<Block*, TrackReference> cached_block_added_;
-  QList<Block*> cached_block_removed_;
-
-  QUuid uuid_;
-
-  NodeInput* texture_input_;
-
-  NodeInput* samples_input_;
-
-  VideoParams video_params_;
-
-  AudioParams audio_params_;
-
-  QVector<NodeInput*> track_inputs_;
-
-  QVector<TrackList*> track_lists_;
-
-  QVector<TrackOutput*> track_cache_;
-
   rational last_length_;
-
-  QString media_name_;
 
   FrameHashCache video_frame_cache_;
 
@@ -180,19 +197,14 @@ private:
 
   int operation_stack_;
 
+  VideoParams cached_video_params_;
+
+  AudioParams cached_audio_params_;
+
+  TimelinePoints timeline_points_;
+
 private slots:
-  void UpdateTrackCache();
-
-  void VerifyLength();
-
-  void TrackListAddedBlock(Block* block, int index);
-
-  void TrackListAddedTrack(TrackOutput* track);
-
-  void TrackHeightChangedSlot(int index, int height);
-
-  void SignalBlockAdded(Block *block, const TrackReference &track);
-  void SignalBlockRemoved(Block *block);
+  void InputResized(const QString& input, int old_size, int new_size);
 
 };
 

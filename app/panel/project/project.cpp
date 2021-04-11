@@ -24,10 +24,10 @@
 #include <QVBoxLayout>
 
 #include "core.h"
+#include "node/project/sequence/sequence.h"
 #include "panel/footageviewer/footageviewer.h"
 #include "panel/timeline/timeline.h"
 #include "panel/panelmanager.h"
-#include "project/item/sequence/sequence.h"
 #include "widget/menu/menushared.h"
 #include "widget/projecttoolbar/projecttoolbar.h"
 #include "window/mainwindow/mainwindow.h"
@@ -57,6 +57,7 @@ ProjectPanel::ProjectPanel(QWidget *parent) :
   explorer_ = new ProjectExplorer(this);
   layout->addWidget(explorer_);
   connect(explorer_, &ProjectExplorer::DoubleClickedItem, this, &ProjectPanel::ItemDoubleClickSlot);
+  connect(explorer_, &ProjectExplorer::ItemRemoved, this, &ProjectPanel::ItemRemoved);
 
   // Set toolbar's view to the explorer's view
   toolbar->SetView(explorer_->view_type());
@@ -103,19 +104,19 @@ void ProjectPanel::set_project(Project* p)
   }
 }
 
-QModelIndex ProjectPanel::get_root_index() const
+Folder *ProjectPanel::get_root() const
 {
-  return explorer_->get_root_index();
+  return explorer_->get_root();
 }
 
-void ProjectPanel::set_root(Item *item)
+void ProjectPanel::set_root(Folder *item)
 {
   explorer_->set_root(item);
 
   Retranslate();
 }
 
-QList<Item *> ProjectPanel::SelectedItems() const
+QVector<Node *> ProjectPanel::SelectedItems() const
 {
   return explorer_->SelectedItems();
 }
@@ -163,14 +164,14 @@ void ProjectPanel::DeleteSelected()
   explorer_->DeleteSelected();
 }
 
-void ProjectPanel::Edit(Item* item)
+void ProjectPanel::Edit(Node* item)
 {
   explorer_->Edit(item);
 }
 
 void ProjectPanel::Retranslate()
 {
-  if (explorer_->get_root_index().isValid()) {
+  if (project() && explorer_->get_root() != project()->root()) {
     SetTitle(tr("Folder"));
   } else {
     SetTitle(tr("Project"));
@@ -179,15 +180,15 @@ void ProjectPanel::Retranslate()
   UpdateSubtitle();
 }
 
-void ProjectPanel::ItemDoubleClickSlot(Item *item)
+void ProjectPanel::ItemDoubleClickSlot(Node *item)
 {
   if (item == nullptr) {
     // If the user double clicks on empty space, show the import dialog
     Core::instance()->DialogImportShow();
-  } else if (item->type() == Item::kFootage) {
+  } else if (dynamic_cast<Footage*>(item)) {
     // Open this footage in a FootageViewer
-    PanelManager::instance()->MostRecentlyFocused<FootageViewerPanel>()->SetFootage(static_cast<Footage*>(item));
-  } else if (item->type() == Item::kSequence) {
+    PanelManager::instance()->MostRecentlyFocused<FootageViewerPanel>()->ConnectViewerNode(static_cast<Footage*>(item));
+  } else if (dynamic_cast<Sequence*>(item)) {
     // Open this sequence in the Timeline
     Core::instance()->main_window()->OpenSequence(static_cast<Sequence*>(item));
   }
@@ -207,15 +208,15 @@ void ProjectPanel::UpdateSubtitle()
   if (project()) {
     QString project_title = QStringLiteral("[*]%1").arg(project()->name());
 
-    if (explorer_->get_root_index().isValid()) {
+    if (explorer_->get_root() != project()->root()) {
       QString folder_path;
 
-      Item* item = static_cast<Item*>(explorer_->get_root_index().internalPointer());
+      Folder* item = explorer_->get_root();
 
       do {
-        folder_path.prepend(QStringLiteral("/%1").arg(item->name()));
+        folder_path.prepend(QStringLiteral("/%1").arg(item->GetLabel()));
 
-        item = item->parent();
+        item = item->folder();
       } while (item != project()->root());
 
       project_title.append(folder_path);
@@ -232,14 +233,24 @@ void ProjectPanel::SaveConnectedProject()
   Core::instance()->SaveProject(this->project());
 }
 
-QList<Footage *> ProjectPanel::GetSelectedFootage() const
+void ProjectPanel::ItemRemoved(Node *item)
 {
-  QList<Item*> items = SelectedItems();
-  QList<Footage*> footage;
+  // Open this footage in a FootageViewer
+  FootageViewerPanel* panel = PanelManager::instance()->MostRecentlyFocused<FootageViewerPanel>();
 
-  foreach (Item* i, items) {
-    if (i->type() == Item::kFootage) {
-      footage.append(static_cast<Footage*>(i));
+  if (panel->GetConnectedViewer() == item) {
+    panel->DisconnectViewerNode();
+  }
+}
+
+QVector<ViewerOutput *> ProjectPanel::GetSelectedFootage() const
+{
+  QVector<Node*> items = SelectedItems();
+  QVector<ViewerOutput*> footage;
+
+  foreach (Node* i, items) {
+    if (dynamic_cast<ViewerOutput*>(i)) {
+      footage.append(static_cast<ViewerOutput*>(i));
     }
   }
 

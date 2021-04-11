@@ -28,10 +28,10 @@
 
 #include "common/rational.h"
 #include "common/timecodefunctions.h"
-#include "project/item/footage/footage.h"
-#include "project/item/sequence/sequence.h"
-#include "project/project.h"
-#include "project/projectviewmodel.h"
+#include "node/project/footage/footage.h"
+#include "node/project/project.h"
+#include "node/project/projectviewmodel.h"
+#include "node/project/sequence/sequence.h"
 #include "task/task.h"
 #include "tool/tool.h"
 #include "undo/undostack.h"
@@ -241,12 +241,12 @@ public:
   /**
    * @brief Show a dialog to the user to rename a set of nodes
    */
-  void LabelNodes(const QVector<Node *> &nodes) const;
+  void LabelNodes(const QVector<Node *> &nodes);
 
   /**
    * @brief Create a new sequence named appropriately for the active project
    */
-  SequencePtr CreateNewSequenceForProject(Project *project) const;
+  Sequence* CreateNewSequenceForProject(Project *project) const;
 
   /**
    * @brief Opens a project from the recently opened list
@@ -290,6 +290,15 @@ public:
    * @brief Saves a specific project
    */
   bool SaveProject(Project *p);
+
+  /**
+   * @brief Show message in main window's status bar
+   *
+   * Shorthand for Core::instance()->main_window()->statusBar()->showMessage();
+   */
+  void ShowStatusBarMessage(const QString& s);
+
+  void OpenRecoveryProject(const QString& filename);
 
   static const uint kProjectVersion;
 
@@ -364,11 +373,6 @@ public slots:
   void DialogPreferencesShow();
 
   /**
-   * @brief Show Project Properties dialog
-   */
-  void DialogProjectPropertiesShow();
-
-  /**
    * @brief Show Export dialog
    */
   void DialogExportShow();
@@ -402,6 +406,10 @@ public slots:
    * @brief Creates a new empty project and opens it
    */
   void CreateNewProject();
+
+  void CheckForAutoRecoveries();
+
+  void BrowseAutoRecoveries();
 
 signals:
   /**
@@ -483,12 +491,16 @@ private:
   /**
    * @brief Internal function for saving a project to a file
    */
-  void SaveProjectInternal(Project *project);
+  void SaveProjectInternal(Project *project, const QString &override_filename = QString());
 
   /**
    * @brief Retrieves the currently most active sequence for exporting
    */
-  ViewerOutput* GetSequenceToExport();
+  ViewerOutput *GetSequenceToExport();
+
+  static QString GetAutoRecoveryIndexFilename();
+
+  void SaveUnrecoveredList();
 
   /**
    * @brief Internal main window object
@@ -550,6 +562,11 @@ private:
    */
   QTranslator* translator_;
 
+  /**
+   * @brief List of projects that are unsaved but have autorecovery projects
+   */
+  QVector<QUuid> autorecovered_projects_;
+
 private slots:
   void SaveAutorecovery();
 
@@ -560,7 +577,7 @@ private slots:
    */
   void AddOpenProject(olive::Project* p);
 
-  void AddOpenProjectFromTask(Task* task);
+  bool AddOpenProjectFromTask(Task* task);
 
   void ImportTaskComplete(Task *task);
 
@@ -572,10 +589,12 @@ private slots:
 
   void OpenStartupProject();
 
+  void AddRecoveryProjectFromTask(Task* task);
+
   /**
    * @brief Internal project open
    */
-  void OpenProjectInternal(const QString& filename);
+  void OpenProjectInternal(const QString& filename, bool recovery_project = false);
 
 };
 

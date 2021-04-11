@@ -24,9 +24,9 @@
 #include <QOpenGLWidget>
 #include <QMatrix4x4>
 
+#include "node/color/colormanager/colormanager.h"
 #include "node/node.h"
 #include "render/color.h"
-#include "render/colormanager.h"
 #include "tool/tool.h"
 #include "viewersafemargininfo.h"
 #include "widget/manageddisplay/manageddisplay.h"
@@ -62,7 +62,7 @@ public:
    */
   ViewerDisplayWidget(QWidget* parent = nullptr);
 
-  virtual ~ViewerDisplayWidget() override;
+  MANAGEDDISPLAYWIDGET_DEFAULT_DESTRUCTOR(ViewerDisplayWidget)
 
   const ViewerSafeMarginInfo& GetSafeMargin() const;
   void SetSafeMargins(const ViewerSafeMarginInfo& safe_margin);
@@ -82,6 +82,23 @@ public:
   bool IsDeinterlacing() const
   {
     return deinterlace_;
+  }
+
+  void ResetFPSTimer();
+
+  bool GetShowFPS() const
+  {
+    return show_fps_;
+  }
+
+  void IncrementSkippedFrames()
+  {
+    frames_skipped_++;
+  }
+
+  void IncrementFrameCount()
+  {
+    fps_timer_update_count_++;
   }
 
 public slots:
@@ -125,6 +142,8 @@ public slots:
    */
   void SetDeinterlacing(bool e);
 
+  void SetShowFPS(bool e);
+
 signals:
   /**
    * @brief Signal emitted when the user starts dragging from the viewer
@@ -151,6 +170,12 @@ signals:
    */
   void CursorColor(const Color& reference, const Color& display);
 
+  void DragEntered(QDragEnterEvent* event);
+
+  void DragLeft(QDragLeaveEvent* event);
+
+  void Dropped(QDropEvent* event);
+
 protected:
   /**
    * @brief Override the mouse press event for the DragStarted() signal and gizmos
@@ -167,6 +192,13 @@ protected:
    */
   virtual void mouseReleaseEvent(QMouseEvent* event) override;
 
+  virtual void dragEnterEvent(QDragEnterEvent* event) override;
+
+  virtual void dragLeaveEvent(QDragLeaveEvent* event) override;
+
+  virtual void dropEvent(QDropEvent* event) override;
+
+protected slots:
   /**
    * @brief Paint function to display the texture (received in SetTexture()) on screen.
    *
@@ -180,6 +212,8 @@ private:
   QPointF GetTexturePosition(const QPoint& screen_pos);
   QPointF GetTexturePosition(const QSize& size);
   QPointF GetTexturePosition(const double& x, const double& y);
+
+  static void DrawTextWithCrudeShadow(QPainter* painter, const QRect& rect, const QString& text);
 
   rational GetGizmoTime();
 
@@ -244,6 +278,15 @@ private:
   bool hand_dragging_;
 
   bool deinterlace_;
+
+  qint64 fps_timer_start_;
+  int fps_timer_update_count_;
+
+  bool show_fps_;
+  int frames_skipped_;
+
+  QVector<double> frame_rate_averages_;
+  int frame_rate_average_count_;
 
 private slots:
   void EmitColorAtCursor(QMouseEvent* e);

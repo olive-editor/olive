@@ -38,6 +38,7 @@ set(OLIVE_SOURCES
   common/functiontimer.h
   common/lerp.h
   common/memorypool.cpp
+  common/otioutils.h
   common/memorypool.h
   common/ocioutils.cpp
   common/ocioutils.h

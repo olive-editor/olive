@@ -200,7 +200,7 @@ QVector<AudioVisualWaveform::SamplePerChannel> AudioVisualWaveform::SumSamples(S
 
   for (int i=start_index; i<end_index; i++) {
     for (int channel=0; channel<samples->audio_params().channel_count(); channel++) {
-      ExpandMinMax<float>(summed_samples[channel], samples->data()[channel][i]);
+      ExpandMinMax<float>(summed_samples[channel], samples->data(channel)[i]);
     }
   }
 

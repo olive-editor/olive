@@ -11,13 +11,16 @@ cd OpenTimelineIO
 #    git checkout "tags/v${OTIO_VERSION}" -b "v${OTIO_VERSION}"
 #fi
 
-pip install --prefix="${OLIVE_INSTALL_PREFIX}" .
+#pip install --prefix="${OLIVE_INSTALL_PREFIX}" .
 
 mkdir build
 cd build
-cmake .. -G "Ninja"
+cmake .. -G "Ninja" \
+  -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+  -DCMAKE_INSTALL_PREFIX="${OLIVE_INSTALL_PREFIX}" \
+  -DOTIO_PYTHON_INSTALL=OFF
 cmake --build .
-cmake --install . --prefix "${OLIVE_INSTALL_PREFIX}"
+cmake --install .
 
 cd ../..
 rm -rf OpenTimelineIO

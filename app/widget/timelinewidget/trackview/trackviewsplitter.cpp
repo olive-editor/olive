@@ -69,7 +69,7 @@ void TrackViewSplitter::HandleReceiver(TrackViewSplitterHandle *h, int diff)
   int new_ele_sz = old_ele_sz + diff;
 
   // Limit by track minimum height
-  new_ele_sz = qMax(new_ele_sz, TrackOutput::GetMinimumTrackHeightInPixels());
+  new_ele_sz = qMax(new_ele_sz, Track::GetMinimumTrackHeightInPixels());
 
   if (alignment_ == Qt::AlignBottom) {
     ele_id = count() - ele_id - 1;

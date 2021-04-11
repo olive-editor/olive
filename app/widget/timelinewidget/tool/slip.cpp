@@ -68,13 +68,13 @@ void SlipTool::FinishDrag(TimelineViewMouseEvent *event)
 {
   Q_UNUSED(event)
 
-  QUndoCommand* command = new QUndoCommand();
+  MultiUndoCommand* command = new MultiUndoCommand();
 
   // Find earliest point to ripple around
   foreach (TimelineViewGhostItem* ghost, parent()->GetGhostItems()) {
     Block* b = Node::ValueToPtr<Block>(ghost->GetData(TimelineViewGhostItem::kAttachedBlock));
 
-    new BlockSetMediaInCommand(b, ghost->GetAdjustedMediaIn(), command);
+    command->add_child(new BlockSetMediaInCommand(b, ghost->GetAdjustedMediaIn()));
   }
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);

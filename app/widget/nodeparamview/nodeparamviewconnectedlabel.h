@@ -21,7 +21,7 @@
 #ifndef NODEPARAMVIEWCONNECTEDLABEL_H
 #define NODEPARAMVIEWCONNECTEDLABEL_H
 
-#include "node/input.h"
+#include "node/param.h"
 #include "widget/clickablelabel/clickablelabel.h"
 
 namespace olive {
@@ -29,20 +29,28 @@ namespace olive {
 class NodeParamViewConnectedLabel : public QWidget {
   Q_OBJECT
 public:
-  NodeParamViewConnectedLabel(NodeInput* input, QWidget* parent = nullptr);
+  NodeParamViewConnectedLabel(const NodeInput& input, QWidget* parent = nullptr);
 
 signals:
-  void ConnectionClicked();
+  void RequestSelectNode(const QVector<Node*>& node);
 
 private slots:
-  void UpdateConnected();
+  void InputConnected(const NodeOutput &output, const NodeInput &input);
+
+  void InputDisconnected(const NodeOutput &output, const NodeInput &input);
 
   void ShowLabelContextMenu();
 
+  void ConnectionClicked();
+
 private:
+  void UpdateLabel();
+
   ClickableLabel* connected_to_lbl_;
 
-  NodeInput* input_;
+  NodeInput input_;
+
+  NodeOutput connected_node_;
 
 };
 

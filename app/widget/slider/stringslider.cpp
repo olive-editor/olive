@@ -25,6 +25,8 @@ namespace olive {
 StringSlider::StringSlider(QWidget* parent) :
   SliderBase(kString, parent)
 {
+  SetValue(QString());
+
   connect(this, SIGNAL(ValueChanged(QVariant)), this, SLOT(ConvertValue(QVariant)));
 }
 

@@ -31,6 +31,8 @@ class MosaicFilterNode : public Node
 public:
   MosaicFilterNode();
 
+  NODE_DEFAULT_DESTRUCTOR(MosaicFilterNode)
+
   virtual Node* copy() const override
   {
     return new MosaicFilterNode();
@@ -58,15 +60,12 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual NodeValueTable Value(NodeValueDatabase &value) const override;
+  virtual NodeValueTable Value(const QString& output, NodeValueDatabase &value) const override;
   virtual ShaderCode GetShaderCode(const QString &shader_id) const override;
 
-private:
-  NodeInput* tex_input_;
-
-  NodeInput* horiz_input_;
-
-  NodeInput* vert_input_;
+  static const QString kTextureInput;
+  static const QString kHorizInput;
+  static const QString kVertInput;
 
 };
 

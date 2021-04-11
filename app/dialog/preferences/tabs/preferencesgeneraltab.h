@@ -25,19 +25,20 @@
 #include <QComboBox>
 #include <QSpinBox>
 
-#include "preferencestab.h"
-#include "project/item/sequence/sequence.h"
+#include "dialog/configbase/configdialogbase.h"
+#include "node/project/sequence/sequence.h"
 #include "widget/slider/floatslider.h"
+#include "widget/slider/integerslider.h"
 
 namespace olive {
 
-class PreferencesGeneralTab : public PreferencesTab
+class PreferencesGeneralTab : public ConfigDialogBaseTab
 {
   Q_OBJECT
 public:
   PreferencesGeneralTab();
 
-  virtual void Accept() override;
+  virtual void Accept(MultiUndoCommand* command) override;
 
 private:
   void AddLanguage(const QString& locale_name);
@@ -49,6 +50,12 @@ private:
   QCheckBox* rectified_waveforms_;
 
   FloatSlider* default_still_length_;
+
+  QCheckBox* autorecovery_enabled_;
+
+  IntegerSlider* autorecovery_interval_;
+
+  IntegerSlider* autorecovery_maximum_;
 
 };
 

@@ -21,7 +21,10 @@
 #ifndef OTIODECODER_H
 #define OTIODECODER_H
 
-#include "project/project.h"
+#ifdef USE_OTIO
+
+#include "common/otioutils.h"
+#include "node/project/project.h"
 #include "task/project/load/loadbasetask.h"
 
 namespace olive {
@@ -38,5 +41,7 @@ protected:
 };
 
 }
+
+#endif
 
 #endif // OTIODECODER_H

@@ -25,38 +25,27 @@
 #include <QLineEdit>
 #include <QPushButton>
 
-#include "preferencestab.h"
+#include "dialog/configbase/configdialogbase.h"
 #include "ui/style/style.h"
+#include "widget/colorlabelmenu/colorcodingcombobox.h"
 
 namespace olive {
 
-class PreferencesAppearanceTab : public PreferencesTab
+class PreferencesAppearanceTab : public ConfigDialogBaseTab
 {
   Q_OBJECT
 public:
   PreferencesAppearanceTab();
 
-  virtual void Accept() override;
+  virtual void Accept(MultiUndoCommand* command) override;
 
 private:
-  /**
-   * @brief Show a file dialog to browse for an external CSS file to load for styling the application.
-   */
-  void BrowseForCSS();
-
-  void UpdateButtonColor(int index);
-
   /**
    * @brief UI widget for selecting the current UI style
    */
   QComboBox* style_combobox_;
 
-  QList<QColor> colors_;
-
-  QList<QPushButton*> color_btns_;
-
-private slots:
-  void ColorButtonClicked();
+  QVector<ColorCodingComboBox*> color_btns_;
 
 };
 

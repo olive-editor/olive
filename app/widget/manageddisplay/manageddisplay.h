@@ -25,7 +25,7 @@
 #include <QOpenGLContext>
 #include <QOpenGLWidget>
 
-#include "render/colormanager.h"
+#include "node/color/colormanager/colormanager.h"
 #include "render/renderer.h"
 #include "widget/menu/menu.h"
 
@@ -81,6 +81,11 @@ private slots:
   }
 
 };
+
+#define MANAGEDDISPLAYWIDGET_DEFAULT_DESTRUCTOR_INNER \
+  makeCurrent();OnDestroy();doneCurrent()
+#define MANAGEDDISPLAYWIDGET_DEFAULT_DESTRUCTOR(x) \
+  virtual ~x() override{MANAGEDDISPLAYWIDGET_DEFAULT_DESTRUCTOR_INNER;}
 
 class ManagedDisplayWidget : public QWidget
 {
@@ -245,6 +250,8 @@ private slots:
    * @brief Sets all color settings to the defaults pertaining to this configuration
    */
   void ColorConfigChanged();
+
+  void ColorManagerValueChanged(const NodeInput &input, const TimeRange &range);
 
   /**
    * @brief The default context menu shown

@@ -21,7 +21,7 @@
 #ifndef PROJECTSAVEMANAGER_H
 #define PROJECTSAVEMANAGER_H
 
-#include "project/project.h"
+#include "node/project/project.h"
 #include "task/task.h"
 
 namespace olive {
@@ -37,11 +37,18 @@ public:
     return project_;
   }
 
+  void SetOverrideFilename(const QString& filename)
+  {
+    override_filename_ = filename;
+  }
+
 protected:
   virtual bool Run() override;
 
 private:
   Project* project_;
+
+  QString override_filename_;
 
 };
 

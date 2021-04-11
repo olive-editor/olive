@@ -36,12 +36,14 @@ class CrashHandlerDialog : public QDialog
 {
   Q_OBJECT
 public:
-  CrashHandlerDialog(const char* report_dir, const char* crash_time);
+  CrashHandlerDialog(const QString& report_path);
 
 private:
   void SetGUIObjectsEnabled(bool e);
 
   void GenerateReport();
+
+  static QString GetSymbolPath();
 
   QTextEdit* summary_edit_;
 
@@ -53,11 +55,12 @@ private:
 
   QString report_filename_;
 
-  time_t crash_time_;
-
-  QString report_dir_;
-
   QByteArray report_data_;
+
+  bool waiting_for_upload_;
+
+protected:
+  virtual void closeEvent(QCloseEvent* e) override;
 
 private slots:
   void ReplyFinished(QNetworkReply *reply);

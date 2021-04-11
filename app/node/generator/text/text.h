@@ -31,6 +31,8 @@ class TextGenerator : public Node
 public:
   TextGenerator();
 
+  NODE_DEFAULT_DESTRUCTOR(TextGenerator)
+
   virtual Node* copy() const override;
 
   virtual QString Name() const override;
@@ -40,20 +42,15 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual NodeValueTable Value(NodeValueDatabase& value) const override;
+  virtual NodeValueTable Value(const QString& output, NodeValueDatabase& value) const override;
 
   virtual void GenerateFrame(FramePtr frame, const GenerateJob &job) const override;
 
-private:
-  NodeInput* text_input_;
-
-  NodeInput* color_input_;
-
-  NodeInput* valign_input_;
-
-  NodeInput* font_input_;
-
-  NodeInput* font_size_input_;
+  static const QString kTextInput;
+  static const QString kColorInput;
+  static const QString kVAlignInput;
+  static const QString kFontInput;
+  static const QString kFontSizeInput;
 
 };
 

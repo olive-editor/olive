@@ -7,7 +7,7 @@ set -ex
 mkdir ocio
 cd ocio
 
-git clone --depth 1 https://github.com/AcademySoftwareFoundation/OpenColorIO.git
+git clone --depth 1 --branch "${OCIO_VERSION}" https://github.com/AcademySoftwareFoundation/OpenColorIO.git
 cd OpenColorIO
 
 mkdir build

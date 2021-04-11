@@ -25,6 +25,7 @@
 #include <QWidget>
 
 #include "common/define.h"
+#include "widget/slider/integerslider.h"
 #include "widget/standardcombos/standardcombos.h"
 
 namespace olive {
@@ -50,10 +51,16 @@ public:
     return channel_layout_combobox_;
   }
 
+  IntegerSlider* bit_rate_slider() const
+  {
+    return bit_rate_slider_;
+  }
+
 private:
   QComboBox* codec_combobox_;
   SampleRateComboBox* sample_rate_combobox_;
   ChannelLayoutComboBox* channel_layout_combobox_;
+  IntegerSlider* bit_rate_slider_;
 
 };
 

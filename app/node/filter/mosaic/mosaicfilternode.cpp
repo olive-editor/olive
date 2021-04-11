@@ -22,49 +22,52 @@
 
 namespace olive {
 
+const QString MosaicFilterNode::kTextureInput = QStringLiteral("tex_in");
+const QString MosaicFilterNode::kHorizInput = QStringLiteral("horiz_in");
+const QString MosaicFilterNode::kVertInput = QStringLiteral("vert_in");
+
 MosaicFilterNode::MosaicFilterNode()
 {
-  tex_input_ = new NodeInput(QStringLiteral("tex_in"), NodeParam::kTexture);
-  AddInput(tex_input_);
+  AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
 
-  horiz_input_ = new NodeInput(QStringLiteral("horiz_in"), NodeParam::kFloat, 32.0);
-  horiz_input_->setProperty("min", 1.0);
-  AddInput(horiz_input_);
+  AddInput(kHorizInput, NodeValue::kFloat, 32.0);
+  SetInputProperty(kHorizInput, QStringLiteral("min"), 1.0);
 
-  vert_input_ = new NodeInput(QStringLiteral("vert_in"), NodeParam::kFloat, 18.0);
-  vert_input_->setProperty("min", 1.0);
-  AddInput(vert_input_);
+  AddInput(kVertInput, NodeValue::kFloat, 18.0);
+  SetInputProperty(kVertInput, QStringLiteral("min"), 1.0);
 }
 
 void MosaicFilterNode::Retranslate()
 {
-  tex_input_->set_name(tr("Texture"));
-  horiz_input_->set_name(tr("Horizontal"));
-  vert_input_->set_name(tr("Vertical"));
+  SetInputName(kTextureInput, tr("Texture"));
+  SetInputName(kHorizInput, tr("Horizontal"));
+  SetInputName(kVertInput, tr("Vertical"));
 }
 
-NodeValueTable MosaicFilterNode::Value(NodeValueDatabase &value) const
+NodeValueTable MosaicFilterNode::Value(const QString &output, NodeValueDatabase &value) const
 {
+  Q_UNUSED(output)
+
   ShaderJob job;
 
-  job.InsertValue(tex_input_, value);
-  job.InsertValue(horiz_input_, value);
-  job.InsertValue(vert_input_, value);
+  job.InsertValue(this, kTextureInput, value);
+  job.InsertValue(this, kHorizInput, value);
+  job.InsertValue(this, kVertInput, value);
 
   // Mipmapping makes this look weird, so we just use bilinear for finding the color of each block
-  job.SetInterpolation(tex_input_, Texture::kLinear);
+  job.SetInterpolation(kTextureInput, Texture::kLinear);
 
   NodeValueTable table = value.Merge();
 
-  if (!job.GetValue(tex_input_).data.isNull()) {
-    TexturePtr texture = job.GetValue(tex_input_).data.value<TexturePtr>();
+  if (!job.GetValue(kTextureInput).data().isNull()) {
+    TexturePtr texture = job.GetValue(kTextureInput).data().value<TexturePtr>();
 
     if (texture
-        && job.GetValue(horiz_input_).data.toInt() != texture->width()
-        && job.GetValue(vert_input_).data.toInt() != texture->height()) {
-      table.Push(NodeParam::kShaderJob, QVariant::fromValue(job), this);
+        && job.GetValue(kHorizInput).data().toInt() != texture->width()
+        && job.GetValue(kVertInput).data().toInt() != texture->height()) {
+      table.Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
     } else {
-      table.Push(job.GetValue(tex_input_), this);
+      table.Push(job.GetValue(kTextureInput));
     }
   }
 

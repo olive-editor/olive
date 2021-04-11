@@ -28,7 +28,7 @@
 
 namespace olive {
 
-TrackViewItem::TrackViewItem(TrackOutput* track, QWidget *parent) :
+TrackViewItem::TrackViewItem(Track* track, QWidget *parent) :
   QWidget(parent),
   track_(track)
 {
@@ -41,7 +41,7 @@ TrackViewItem::TrackViewItem(TrackOutput* track, QWidget *parent) :
 
   label_ = new ClickableLabel();
   connect(label_, &ClickableLabel::MouseDoubleClicked, this, &TrackViewItem::LabelClicked);
-  connect(track_, &TrackOutput::LabelChanged, this, &TrackViewItem::UpdateLabel);
+  connect(track_, &Track::LabelChanged, this, &TrackViewItem::UpdateLabel);
   UpdateLabel();
   stack_->addWidget(label_);
 
@@ -51,19 +51,19 @@ TrackViewItem::TrackViewItem(TrackOutput* track, QWidget *parent) :
   stack_->addWidget(line_edit_);
 
   mute_button_ = CreateMSLButton(tr("M"), Qt::red);
-  connect(mute_button_, &QPushButton::toggled, track_, &TrackOutput::SetMuted);
+  connect(mute_button_, &QPushButton::toggled, track_, &Track::SetMuted);
   layout->addWidget(mute_button_);
 
   /*solo_button_ = CreateMSLButton(tr("S"), Qt::yellow);
   layout->addWidget(solo_button_);*/
 
   lock_button_ = CreateMSLButton(tr("L"), Qt::gray);
-  connect(lock_button_, &QPushButton::toggled, track_, &TrackOutput::SetLocked);
+  connect(lock_button_, &QPushButton::toggled, track_, &Track::SetLocked);
   layout->addWidget(lock_button_);
 
   setMinimumHeight(mute_button_->height());
 
-  connect(track, &TrackOutput::MutedChanged, mute_button_, &QPushButton::setChecked);
+  connect(track, &Track::MutedChanged, mute_button_, &QPushButton::setChecked);
 }
 
 QPushButton *TrackViewItem::CreateMSLButton(const QString& text, const QColor& checked_color) const
@@ -111,7 +111,7 @@ void TrackViewItem::LineEditCancelled()
 void TrackViewItem::UpdateLabel()
 {
   if (track_->GetLabel().isEmpty()) {
-    label_->setText(track_->GetDefaultTrackName(track_->track_type(), track_->Index()));
+    label_->setText(track_->GetDefaultTrackName(track_->type(), track_->Index()));
   } else {
     label_->setText(track_->GetLabel());
   }

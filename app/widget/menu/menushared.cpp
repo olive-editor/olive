@@ -86,7 +86,16 @@ MenuShared::MenuShared()
   view_timecode_view_milliseconds_item_->setCheckable(true);
   frame_view_mode_group_->addAction(view_timecode_view_milliseconds_item_);
 
+  // Color coding menu items
+  color_coding_menu_ = new ColorLabelMenu();
+  connect(color_coding_menu_, &ColorLabelMenu::ColorSelected, this, &MenuShared::ColorLabelTriggered);
+
   Retranslate();
+}
+
+MenuShared::~MenuShared()
+{
+  delete color_coding_menu_;
 }
 
 void MenuShared::CreateInstance()
@@ -109,8 +118,8 @@ void MenuShared::AddItemsForNewMenu(Menu *m)
 
 void MenuShared::AddItemsForEditMenu(Menu *m, bool for_clips)
 {
-  m->addAction(Core::instance()->undo_stack()->createUndoAction(m));
-  m->addAction(Core::instance()->undo_stack()->createRedoAction(m));
+  m->addAction(Core::instance()->undo_stack()->GetUndoAction());
+  m->addAction(Core::instance()->undo_stack()->GetRedoAction());
 
   m->addSeparator();
 
@@ -135,6 +144,11 @@ void MenuShared::AddItemsForInOutMenu(Menu *m)
   m->addAction(inout_reset_in_item_);
   m->addAction(inout_reset_out_item_);
   m->addAction(inout_clear_inout_item_);
+}
+
+void MenuShared::AddColorCodingMenu(Menu *m)
+{
+  m->addMenu(color_coding_menu_);
 }
 
 void MenuShared::AddItemsForClipEditMenu(Menu *m)
@@ -269,6 +283,11 @@ void MenuShared::TimecodeDisplayTriggered()
 
   // Set the current display mode
   Core::instance()->SetTimecodeDisplay(display);
+}
+
+void MenuShared::ColorLabelTriggered(int color_index)
+{
+  PanelManager::instance()->CurrentlyFocused()->SetColorLabel(color_index);
 }
 
 void MenuShared::Retranslate()

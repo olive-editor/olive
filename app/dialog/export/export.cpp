@@ -33,16 +33,15 @@
 #include "common/qtutils.h"
 #include "core.h"
 #include "dialog/task/task.h"
-#include "project/item/sequence/sequence.h"
-#include "project/project.h"
+#include "node/project/project.h"
+#include "node/project/sequence/sequence.h"
 #include "ui/icons/icons.h"
 
 namespace olive {
 
-ExportDialog::ExportDialog(ViewerOutput *viewer_node, TimelinePoints *points, QWidget *parent) :
+ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   QDialog(parent),
-  viewer_node_(viewer_node),
-  points_(points)
+  viewer_node_(viewer_node)
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
 
@@ -105,9 +104,8 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, TimelinePoints *points, QW
   range_combobox_ = new QComboBox();
   range_combobox_->addItem(tr("Entire Sequence"));
   range_combobox_->addItem(tr("In to Out"));
-  if (!points_) {
-    range_combobox_->setEnabled(false);
-  }
+  range_combobox_->setEnabled(viewer_node_->GetTimelinePoints()->workarea()->enabled());
+
   preferences_layout->addWidget(range_combobox_, row, 1, 1, 3);
 
   row++;
@@ -138,7 +136,7 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, TimelinePoints *points, QW
 
   QTabWidget* preferences_tabs = new QTabWidget();
   QScrollArea* video_area = new QScrollArea();
-  color_manager_ = static_cast<Sequence*>(viewer_node_->parent())->project()->color_manager();
+  color_manager_ = viewer_node_->project()->color_manager();
   video_tab_ = new ExportVideoTab(color_manager_);
   video_area->setWidgetResizable(true);
   video_area->setWidget(video_tab_);
@@ -170,6 +168,9 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, TimelinePoints *points, QW
   preview_layout->addWidget(preview_viewer_);
   splitter->addWidget(preview_area);
 
+  // Prioritize preview area
+  splitter->setSizes({1, 99999});
+
   // Set default filename
   SetDefaultFilename();
 
@@ -187,18 +188,21 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, TimelinePoints *points, QW
           &ExportDialog::FormatChanged);
   FormatChanged(ExportFormat::kFormatMPEG4);
 
-  video_tab_->width_slider()->SetValue(viewer_node_->video_params().width());
-  video_tab_->width_slider()->SetDefaultValue(viewer_node_->video_params().width());
-  video_tab_->height_slider()->SetValue(viewer_node_->video_params().height());
-  video_tab_->height_slider()->SetDefaultValue(viewer_node_->video_params().height());
-  video_tab_->frame_rate_combobox()->SetFrameRate(viewer_node_->video_params().time_base().flipped());
-  video_tab_->pixel_aspect_combobox()->SetPixelAspectRatio(viewer_node_->video_params().pixel_aspect_ratio());
-  video_tab_->pixel_format_field()->SetPixelFormat(static_cast<VideoParams::Format>(Config::Current()["OnlinePixelFormat"].toInt()));
-  video_tab_->interlaced_combobox()->SetInterlaceMode(viewer_node_->video_params().interlacing());
-  audio_tab_->sample_rate_combobox()->SetSampleRate(viewer_node_->audio_params().sample_rate());
-  audio_tab_->channel_layout_combobox()->SetChannelLayout(viewer_node_->audio_params().channel_layout());
+  VideoParams vp = viewer_node_->GetVideoParams();
+  AudioParams ap = viewer_node_->GetAudioParams();
 
-  video_aspect_ratio_ = static_cast<double>(viewer_node_->video_params().width()) / static_cast<double>(viewer_node_->video_params().height());
+  video_tab_->width_slider()->SetValue(vp.width());
+  video_tab_->width_slider()->SetDefaultValue(vp.width());
+  video_tab_->height_slider()->SetValue(vp.height());
+  video_tab_->height_slider()->SetDefaultValue(vp.height());
+  video_tab_->frame_rate_combobox()->SetFrameRate(vp.frame_rate());
+  video_tab_->pixel_aspect_combobox()->SetPixelAspectRatio(vp.pixel_aspect_ratio());
+  video_tab_->pixel_format_field()->SetPixelFormat(static_cast<VideoParams::Format>(Config::Current()["OnlinePixelFormat"].toInt()));
+  video_tab_->interlaced_combobox()->SetInterlaceMode(vp.interlacing());
+  audio_tab_->sample_rate_combobox()->SetSampleRate(ap.sample_rate());
+  audio_tab_->channel_layout_combobox()->SetChannelLayout(ap.channel_layout());
+
+  video_aspect_ratio_ = static_cast<double>(vp.width()) / static_cast<double>(vp.height());
 
   connect(video_tab_->width_slider(),
           &IntegerSlider::ValueChanged,
@@ -227,7 +231,7 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, TimelinePoints *points, QW
 
   // Set viewer to view the node
   preview_viewer_->ConnectViewerNode(viewer_node_);
-  preview_viewer_->ruler()->ConnectTimelinePoints(points_);
+  preview_viewer_->ruler()->ConnectTimelinePoints(viewer_node_->GetTimelinePoints());
   preview_viewer_->SetColorMenuEnabled(false);
   preview_viewer_->SetColorTransform(video_tab_->CurrentOCIOColorSpace());
 }
@@ -427,8 +431,7 @@ void ExportDialog::LoadPresets()
 
 void ExportDialog::SetDefaultFilename()
 {
-  Sequence* s = static_cast<Sequence*>(viewer_node_->parent());
-  Project* p = s->project();
+  Project* p = viewer_node_->project();
 
   QDir doc_location;
 
@@ -438,7 +441,7 @@ void ExportDialog::SetDefaultFilename()
     doc_location = QFileInfo(p->filename()).dir();
   }
 
-  QString file_location = doc_location.filePath(s->name());
+  QString file_location = doc_location.filePath(viewer_node_->GetLabel());
   filename_edit_->setText(file_location);
 }
 
@@ -461,10 +464,9 @@ ExportParams ExportDialog::GenerateParams() const
   params.SetFilename(filename_edit_->text().trimmed());
   params.SetExportLength(viewer_node_->GetLength());
 
-  if (range_combobox_->currentIndex() == kRangeInToOut
-      && points_
-      && points_->workarea()->enabled()) {
-    params.set_custom_range(points_->workarea()->range());
+  if (range_combobox_->currentIndex() == kRangeInToOut) {
+    // Assume if this combobox is enabled, workarea is enabled - a check that we make in this dialog's constructor
+    params.set_custom_range(viewer_node_->GetTimelinePoints()->workarea()->range());
   }
 
   if (video_tab_->scaling_method_combobox()->isEnabled()) {
@@ -487,6 +489,8 @@ ExportParams ExportDialog::GenerateParams() const
   if (audio_enabled_->isChecked()) {
     ExportCodec::Codec audio_codec = static_cast<ExportCodec::Codec>(audio_tab_->codec_combobox()->currentData().toInt());
     params.EnableAudio(audio_render_params, audio_codec);
+
+    params.set_audio_bit_rate(audio_tab_->bit_rate_slider()->GetValue() * 1000);
   }
 
   return params;
@@ -497,12 +501,15 @@ void ExportDialog::UpdateViewerDimensions()
   preview_viewer_->SetViewerResolution(static_cast<int>(video_tab_->width_slider()->GetValue()),
                                        static_cast<int>(video_tab_->height_slider()->GetValue()));
 
-  QMatrix4x4 transform =
-      ExportParams::GenerateMatrix(static_cast<ExportParams::VideoScalingMethod>(video_tab_->scaling_method_combobox()->currentData().toInt()),
-                                   viewer_node_->video_params().width(),
-                                   viewer_node_->video_params().height(),
-                                   static_cast<int>(video_tab_->width_slider()->GetValue()),
-                                   static_cast<int>(video_tab_->height_slider()->GetValue()));
+  VideoParams vp = viewer_node_->GetVideoParams();
+
+  QMatrix4x4 transform = ExportParams::GenerateMatrix(
+        static_cast<ExportParams::VideoScalingMethod>(video_tab_->scaling_method_combobox()->currentData().toInt()),
+        vp.width(),
+        vp.height(),
+        static_cast<int>(video_tab_->width_slider()->GetValue()),
+        static_cast<int>(video_tab_->height_slider()->GetValue())
+  );
 
   preview_viewer_->SetMatrix(transform);
 }

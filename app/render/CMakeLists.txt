@@ -26,8 +26,6 @@ set(OLIVE_SOURCES
   render/audioplaybackcache.h
   render/color.cpp
   render/color.h
-  render/colormanager.cpp
-  render/colormanager.h
   render/colorprocessor.cpp
   render/colorprocessor.h
   render/colorprocessorcache.h
@@ -52,7 +50,6 @@ set(OLIVE_SOURCES
   render/renderprocessor.cpp
   render/renderprocessor.h
   render/shadercode.h
-  render/shadervalue.h
   render/stillimagecache.h
   render/texture.cpp
   render/texture.h

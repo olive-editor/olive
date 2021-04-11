@@ -36,19 +36,18 @@ namespace olive {
 const char* StyleManager::kDefaultStyle = "olive-dark";
 QString StyleManager::current_style_;
 QMap<QString, QString> StyleManager::available_themes_;
+QPalette StyleManager::platform_palette_;
 
 void StyleManager::UseOSNativeStyling(QWidget *widget)
 {
-#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0) || QT_VERSION > QT_VERSION_CHECK(5, 15, 2)
 #if defined(Q_OS_WINDOWS)
   QStyle* s = QStyleFactory::create(QStringLiteral("windowsvista"));
   widget->setStyle(s);
-  widget->setPalette(s->standardPalette());
+  widget->setPalette(platform_palette_);
 #elif defined(Q_OS_MAC)
   QStyle* s = QStyleFactory::create(QStringLiteral("macintosh"));
   widget->setStyle(s);
-  widget->setPalette(s->standardPalette());
-#endif
+  widget->setPalette(platform_palette_);
 #endif
 }
 
@@ -141,6 +140,10 @@ void StyleManager::ParsePaletteColor(QSettings *ini, QPalette *palette, QPalette
 
 void StyleManager::Init()
 {
+  // Store standard palette before replacing it with our own
+  platform_palette_ = qApp->palette();
+  platform_palette_.resolve(-1);
+
   qApp->setStyle(QStyleFactory::create("Fusion"));
 
   available_themes_.insert(QStringLiteral("olive-dark"), QStringLiteral("Olive Dark"));

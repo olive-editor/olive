@@ -31,6 +31,8 @@ class TimeInput : public Node
 public:
   TimeInput();
 
+  NODE_DEFAULT_DESTRUCTOR(TimeInput)
+
   virtual Node* copy() const override;
 
   virtual QString Name() const override;
@@ -38,9 +40,9 @@ public:
   virtual QVector<CategoryID> Category() const override;
   virtual QString Description() const override;
 
-  virtual NodeValueTable Value(NodeValueDatabase& value) const override;
+  virtual NodeValueTable Value(const QString& output, NodeValueDatabase& value) const override;
 
-  virtual void Hash(QCryptographicHash& hash, const rational& time) const override;
+  virtual void Hash(const QString& output, QCryptographicHash& hash, const rational& time) const override;
 
 };
 

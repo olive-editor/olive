@@ -20,31 +20,38 @@
 
 #include "precachetask.h"
 
-#include "project/project.h"
+#include "node/project/project.h"
 
 namespace olive {
 
-PreCacheTask::PreCacheTask(VideoStreamPtr footage, Sequence* sequence) :
-  RenderTask(new ViewerOutput(), sequence->video_params(), sequence->audio_params()),
-  footage_(footage)
+PreCacheTask::PreCacheTask(Footage *footage, int index, Sequence* sequence) :
+  RenderTask(new ViewerOutput(), sequence->GetVideoParams(), sequence->GetAudioParams())
 {
-  viewer()->set_video_params(sequence->video_params());
-  viewer()->set_audio_params(sequence->audio_params());
+  // Create new project
+  project_ = new Project();
 
-  video_node_ = new MediaInput();
-  video_node_->SetStream(footage);
+  // Create viewer with same parameters as the sequence
+  viewer()->setParent(project_);
+  viewer()->SetVideoParams(sequence->GetVideoParams());
+  viewer()->SetAudioParams(sequence->GetAudioParams());
 
-  NodeParam::ConnectEdge(video_node_->output(), viewer()->texture_input());
+  // Copy project config nodes
+  Node::CopyInputs(footage->project()->color_manager(), project_->color_manager(), false);
+  Node::CopyInputs(footage->project()->settings(), project_->settings(), false);
 
-  SetTitle(tr("Pre-caching %1:%2").arg(footage->footage()->filename(),
-                                       QString::number(footage->index())));
+  // Copy footage node so it can precache without any modifications from the user screwing it up
+  footage_ = static_cast<Footage*>(footage->copy());
+  footage_->setParent(project_);
+  Node::CopyInputs(footage, footage_, false);
+  Node::ConnectEdge(NodeOutput(footage_, Track::Reference(Track::kVideo, index).ToString()), NodeInput(viewer(), ViewerOutput::kTextureInput));
+
+  SetTitle(tr("Pre-caching %1:%2").arg(footage_->filename(), index));
 }
 
 PreCacheTask::~PreCacheTask()
 {
-  // We created this viewer node ourselves, so now we should delete it
-  delete viewer();
-  delete video_node_;
+  // This should delete the footage we copied and the viewer we created
+  delete project_;
 }
 
 bool PreCacheTask::Run()
@@ -63,7 +70,7 @@ bool PreCacheTask::Run()
   }
   */
 
-  Render(footage_->footage()->project()->color_manager(),
+  Render(footage_->project()->color_manager(),
          video_range,
          TimeRangeList(),
          RenderMode::kOnline,

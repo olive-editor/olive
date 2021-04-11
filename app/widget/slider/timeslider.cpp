@@ -29,6 +29,7 @@ TimeSlider::TimeSlider(QWidget *parent) :
   IntegerSlider(parent)
 {
   SetMinimum(0);
+  SetValue(0);
 
   connect(Core::instance(), &Core::TimecodeDisplayChanged, this, &TimeSlider::TimecodeDisplayChanged);
 }
@@ -48,14 +49,14 @@ QString TimeSlider::ValueToString(const QVariant &v)
     return IntegerSlider::ValueToString(v);
   }
 
-  return Timecode::timestamp_to_timecode(v.toLongLong(),
+  return Timecode::timestamp_to_timecode(v.toLongLong() + GetOffset().toLongLong(),
                                          timebase_,
                                          Core::instance()->GetTimecodeDisplay());
 }
 
 QVariant TimeSlider::StringToValue(const QString &s, bool *ok)
 {
-  return QVariant::fromValue(Timecode::timecode_to_timestamp(s, timebase_, Core::instance()->GetTimecodeDisplay(), ok));
+  return QVariant::fromValue(Timecode::timecode_to_timestamp(s, timebase_, Core::instance()->GetTimecodeDisplay(), ok) - GetOffset().toLongLong());
 }
 
 void TimeSlider::TimecodeDisplayChanged()

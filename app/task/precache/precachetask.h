@@ -21,9 +21,8 @@
 #ifndef PRECACHETASK_H
 #define PRECACHETASK_H
 
-#include "node/input/media/media.h"
-#include "project/item/footage/footage.h"
-#include "project/item/sequence/sequence.h"
+#include "node/project/footage/footage.h"
+#include "node/project/sequence/sequence.h"
 #include "task/render/render.h"
 
 namespace olive {
@@ -32,7 +31,7 @@ class PreCacheTask : public RenderTask
 {
   Q_OBJECT
 public:
-  PreCacheTask(VideoStreamPtr footage, Sequence* sequence);
+  PreCacheTask(Footage* footage, int index, Sequence* sequence);
 
   virtual ~PreCacheTask() override;
 
@@ -44,9 +43,9 @@ protected:
   virtual void AudioDownloaded(const TimeRange& range, SampleBufferPtr samples, qint64 job_time) override;
 
 private:
-  VideoStreamPtr footage_;
+  Project* project_;
 
-  MediaInput* video_node_;
+  Footage* footage_;
 
 };
 

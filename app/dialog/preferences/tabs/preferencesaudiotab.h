@@ -25,19 +25,21 @@
 #include <QComboBox>
 #include <QPushButton>
 
-#include "preferencestab.h"
+#include "dialog/configbase/configdialogbase.h"
 
 namespace olive {
 
-class PreferencesAudioTab : public PreferencesTab
+class PreferencesAudioTab : public ConfigDialogBaseTab
 {
   Q_OBJECT
 public:
   PreferencesAudioTab();
 
-  virtual void Accept() override;
+  virtual void Accept(MultiUndoCommand* command) override;
 
 private:
+  QComboBox* audio_backend_combobox_;
+
   /**
    * @brief UI widget for selecting the output audio device
    */
@@ -47,11 +49,6 @@ private:
    * @brief UI widget for selecting the input audio device
    */
   QComboBox* audio_input_devices_;
-
-  /**
-   * @brief UI widget for selecting the audio sampling rates
-   */
-  QComboBox* audio_sample_rate_;
 
   /**
    * @brief UI widget for editing the recording channels

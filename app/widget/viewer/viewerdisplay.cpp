@@ -37,15 +37,19 @@
 
 namespace olive {
 
+#define super ManagedDisplayWidget
+
 ViewerDisplayWidget::ViewerDisplayWidget(QWidget *parent) :
-  ManagedDisplayWidget(parent),
+  super(parent),
   deinterlace_texture_(nullptr),
   signal_cursor_color_(false),
   gizmos_(nullptr),
   gizmo_click_(false),
   last_loaded_buffer_(nullptr),
   hand_dragging_(false),
-  deinterlace_(false)
+  deinterlace_(false),
+  show_fps_(false),
+  frames_skipped_(0)
 {
   connect(Core::instance(), &Core::ToolChanged, this, &ViewerDisplayWidget::UpdateCursor);
 
@@ -53,11 +57,9 @@ ViewerDisplayWidget::ViewerDisplayWidget(QWidget *parent) :
 
   // Initializes cursor based on tool
   UpdateCursor();
-}
 
-ViewerDisplayWidget::~ViewerDisplayWidget()
-{
-  OnDestroy();
+  const int kFrameRateAverageCount = 8;
+  frame_rate_averages_.resize(kFrameRateAverageCount);
 }
 
 void ViewerDisplayWidget::SetMatrixTranslate(const QMatrix4x4 &mat)
@@ -181,6 +183,14 @@ QPoint ViewerDisplayWidget::TransformViewerSpaceToBufferSpace(QPoint pos)
   return pos * GenerateGizmoTransform().inverted();
 }
 
+void ViewerDisplayWidget::ResetFPSTimer()
+{
+  fps_timer_start_ = QDateTime::currentMSecsSinceEpoch();
+  fps_timer_update_count_ = 0;
+  frames_skipped_ = 0;
+  frame_rate_average_count_ = 0;
+}
+
 void ViewerDisplayWidget::mousePressEvent(QMouseEvent *event)
 {
   if (event->button() == Qt::LeftButton && gizmos_
@@ -206,7 +216,7 @@ void ViewerDisplayWidget::mousePressEvent(QMouseEvent *event)
       emit DragStarted();
     }
 
-    ManagedDisplayWidget::mousePressEvent(event);
+    super::mousePressEvent(event);
 
   }
 }
@@ -233,7 +243,7 @@ void ViewerDisplayWidget::mouseMoveEvent(QMouseEvent *event)
   } else {
 
     // Default behavior
-    ManagedDisplayWidget::mouseMoveEvent(event);
+    super::mouseMoveEvent(event);
 
   }
 }
@@ -256,8 +266,35 @@ void ViewerDisplayWidget::mouseReleaseEvent(QMouseEvent *event)
   } else {
 
     // Default behavior
-    ManagedDisplayWidget::mouseReleaseEvent(event);
+    super::mouseReleaseEvent(event);
 
+  }
+}
+
+void ViewerDisplayWidget::dragEnterEvent(QDragEnterEvent *event)
+{
+  emit DragEntered(event);
+
+  if (!event->isAccepted()) {
+    super::dragEnterEvent(event);
+  }
+}
+
+void ViewerDisplayWidget::dragLeaveEvent(QDragLeaveEvent *event)
+{
+  emit DragLeft(event);
+
+  if (!event->isAccepted()) {
+    super::dragLeaveEvent(event);
+  }
+}
+
+void ViewerDisplayWidget::dropEvent(QDropEvent *event)
+{
+  emit Dropped(event);
+
+  if (!event->isAccepted()) {
+    super::dropEvent(event);
   }
 }
 
@@ -269,6 +306,10 @@ void ViewerDisplayWidget::OnPaint()
 
   // We only draw if we have a pipeline
   if (last_loaded_buffer_ && color_service()) {
+    if (!texture_) {
+      // If no texture, create it now
+      SetImage(last_loaded_buffer_);
+    }
 
     TexturePtr texture_to_draw = texture_;
 
@@ -280,8 +321,8 @@ void ViewerDisplayWidget::OnPaint()
       }
 
       ShaderJob job;
-      job.InsertValue(QStringLiteral("resolution_in"), ShaderValue(QVector2D(texture_to_draw->width(), texture_to_draw->height()), NodeParam::kVec2));
-      job.InsertValue(QStringLiteral("ove_maintex"), ShaderValue(QVariant::fromValue(texture_to_draw), NodeParam::kTexture));
+      job.InsertValue(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, QVector2D(texture_to_draw->width(), texture_to_draw->height())));
+      job.InsertValue(QStringLiteral("ove_maintex"), NodeValue(NodeValue::kTexture, QVariant::fromValue(texture_to_draw)));
 
       renderer()->BlitToTexture(deinterlace_shader_, job, deinterlace_texture_.get());
 
@@ -307,8 +348,8 @@ void ViewerDisplayWidget::OnPaint()
 
     rational node_time = GetGizmoTime();
 
-    gizmo_db_ = gt.GenerateDatabase(gizmos_, TimeRange(node_time,
-                                                       node_time + gizmo_params_.time_base()));
+    gizmo_db_ = gt.GenerateDatabase(gizmos_, QString(),
+                                    TimeRange(node_time, node_time + gizmo_params_.frame_rate_as_time_base()));
 
     QPainter p(inner_widget());
     p.setWorldTransform(GenerateGizmoTransform());
@@ -348,11 +389,44 @@ void ViewerDisplayWidget::OnPaint()
 
     p.drawLines(lines, 2);
   }
+
+  if (show_fps_) {
+    {
+      qint64 now = QDateTime::currentMSecsSinceEpoch();
+      double frame_rate;
+      if (now == fps_timer_start_) {
+        // This will cause a divide by zero, so we do nothing here
+        frame_rate = 0;
+      } else {
+        frame_rate = double(fps_timer_update_count_) / double((now - fps_timer_start_)/1000.0);
+      }
+
+      frame_rate_averages_[frame_rate_average_count_%frame_rate_averages_.size()] = frame_rate;
+      frame_rate_average_count_++;
+    }
+
+    if (frame_rate_average_count_ >= frame_rate_averages_.size()) {
+      QPainter p(inner_widget());
+
+      double average = 0.0;
+      for (int i=0; i<frame_rate_averages_.size(); i++) {
+        average += frame_rate_averages_[i];
+      }
+      average /= double(frame_rate_averages_.size());
+
+      DrawTextWithCrudeShadow(&p, inner_widget()->rect(), tr("%1 FPS").arg(QString::number(average, 'f', 1)));
+
+      if (frames_skipped_ > 0) {
+        DrawTextWithCrudeShadow(&p, inner_widget()->rect().adjusted(0, p.fontMetrics().height(), 0, 0),
+                                tr("%1 frames skipped").arg(frames_skipped_));
+      }
+    }
+  }
 }
 
 void ViewerDisplayWidget::OnDestroy()
 {
-  ManagedDisplayWidget::OnDestroy();
+  super::OnDestroy();
 
   texture_ = nullptr;
 }
@@ -373,9 +447,17 @@ QPointF ViewerDisplayWidget::GetTexturePosition(const double &x, const double &y
                  y / gizmo_params_.height());
 }
 
+void ViewerDisplayWidget::DrawTextWithCrudeShadow(QPainter *painter, const QRect &rect, const QString &text)
+{
+  painter->setPen(Qt::black);
+  painter->drawText(rect.adjusted(1, 1, 0, 0), text);
+  painter->setPen(Qt::white);
+  painter->drawText(rect, text);
+}
+
 rational ViewerDisplayWidget::GetGizmoTime()
 {
-  return GetAdjustedTime(GetTimeTarget(), gizmos_, time_, NodeParam::kInput);
+  return GetAdjustedTime(GetTimeTarget(), gizmos_, time_, true);
 }
 
 bool ViewerDisplayWidget::IsHandDrag(QMouseEvent *event) const
@@ -442,6 +524,13 @@ void ViewerDisplayWidget::EmitColorAtCursor(QMouseEvent *e)
 
     emit CursorColor(reference, display);
   }
+}
+
+void ViewerDisplayWidget::SetShowFPS(bool e)
+{
+  show_fps_ = e;
+
+  update();
 }
 
 }

@@ -34,6 +34,8 @@ class GapBlock : public Block
 public:
   GapBlock();
 
+  NODE_DEFAULT_DESTRUCTOR(GapBlock)
+
   virtual Node * copy() const override;
 
   virtual Type type() const override;
@@ -41,8 +43,6 @@ public:
   virtual QString Name() const override;
   virtual QString id() const override;
   virtual QString Description() const override;
-
-private:
 
 };
 

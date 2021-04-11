@@ -25,6 +25,8 @@ namespace olive {
 IntegerSlider::IntegerSlider(QWidget* parent) :
   SliderBase(kInteger, parent)
 {
+  SetValue(0);
+
   connect(this, SIGNAL(ValueChanged(QVariant)), this, SLOT(ConvertValue(QVariant)));
 }
 
@@ -48,6 +50,11 @@ void IntegerSlider::SetMaximum(const int64_t &d)
   SetMaximumInternal(QVariant::fromValue(d));
 }
 
+QString IntegerSlider::ValueToString(const QVariant &v)
+{
+  return QString::number(v.toLongLong() + GetOffset().toLongLong());
+}
+
 QVariant IntegerSlider::StringToValue(const QString &s, bool *ok)
 {
   bool valid;
@@ -58,6 +65,8 @@ QVariant IntegerSlider::StringToValue(const QString &s, bool *ok)
   if (ok) {
     *ok = valid;
   }
+
+  decimal_val -= GetOffset().toLongLong();
 
   if (valid) {
     // But for an integer, we round it

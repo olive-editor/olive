@@ -21,18 +21,18 @@
 #include "export.h"
 
 #include "common/timecodefunctions.h"
-#include "render/colormanager.h"
+#include "node/color/colormanager/colormanager.h"
 
 namespace olive {
 
-ExportTask::ExportTask(ViewerOutput* viewer_node,
+ExportTask::ExportTask(ViewerOutput *viewer_node,
                        ColorManager* color_manager,
                        const ExportParams& params) :
   RenderTask(viewer_node, params.video_params(), params.audio_params()),
   color_manager_(color_manager),
   params_(params)
 {
-  SetTitle(tr("Exporting \"%1\"").arg(viewer_node->media_name()));
+  SetTitle(tr("Exporting \"%1\"").arg(viewer_node->GetLabel()));
 }
 
 bool ExportTask::Run()
@@ -76,14 +76,15 @@ bool ExportTask::Run()
   if (params_.video_enabled()) {
 
     // If a transformation matrix is applied to this video, create it here
-    if (viewer()->video_params().width() != params_.video_params().width()
+    VideoParams vp = viewer()->GetVideoParams();
+    if (vp.width() != params_.video_params().width()
         || params_.video_params().height() != params_.video_params().height()) {
       video_force_size = QSize(params_.video_params().width(), params_.video_params().height());
 
       if (params_.video_scaling_method() != ExportParams::kStretch) {
         video_force_matrix = ExportParams::GenerateMatrix(params_.video_scaling_method(),
-                                                          viewer()->video_params().width(),
-                                                          viewer()->video_params().height(),
+                                                          vp.width(),
+                                                          vp.height(),
                                                           params_.video_params().width(),
                                                           params_.video_params().height());
       }
@@ -162,7 +163,7 @@ void ExportTask::FrameDownloaded(FramePtr f, const QByteArray &hash, const QVect
 
   forever {
     rational real_time = Timecode::timestamp_to_time(frame_time_,
-                                                     viewer()->video_params().time_base());
+                                                     viewer()->GetVideoParams().frame_rate_as_time_base());
 
     if (!time_map_.contains(real_time)) {
       break;

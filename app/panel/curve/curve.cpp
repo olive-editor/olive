@@ -37,6 +37,16 @@ void CurvePanel::DeleteSelected()
   static_cast<CurveWidget*>(GetTimeBasedWidget())->DeleteSelected();
 }
 
+void CurvePanel::SelectAll()
+{
+  static_cast<CurveWidget*>(GetTimeBasedWidget())->SelectAll();
+}
+
+void CurvePanel::DeselectAll()
+{
+  static_cast<CurveWidget*>(GetTimeBasedWidget())->DeselectAll();
+}
+
 void CurvePanel::SetNodes(const QVector<Node *> &nodes)
 {
   static_cast<CurveWidget*>(GetTimeBasedWidget())->SetNodes(nodes);

@@ -27,7 +27,7 @@
 namespace olive {
 
 class Block;
-class TrackOutput;
+class Track;
 
 class Timeline {
 public:
@@ -38,18 +38,10 @@ public:
     kTrimOut
   };
 
-  enum TrackType {
-    kTrackTypeNone = -1,
-    kTrackTypeVideo,
-    kTrackTypeAudio,
-    kTrackTypeSubtitle,
-    kTrackTypeCount
-  };
-
   static bool IsATrimMode(MovementMode mode) {return mode == kTrimIn || mode == kTrimOut;}
 
   struct EditToInfo {
-    TrackOutput* track;
+    Track* track;
     rational nearest_time;
     Block* nearest_block;
   };

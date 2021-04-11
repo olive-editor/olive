@@ -24,13 +24,12 @@
 
 namespace olive {
 
+const QString SolidGenerator::kColorInput = QStringLiteral("color_in");
+
 SolidGenerator::SolidGenerator()
 {
   // Default to a color that isn't black
-  color_input_ = new NodeInput("color_in",
-                               NodeInput::kColor,
-                               QVariant::fromValue(Color(1.0f, 0.0f, 0.0f, 1.0f)));
-  AddInput(color_input_);
+  AddInput(kColorInput, NodeValue::kColor, QVariant::fromValue(Color(1.0f, 0.0f, 0.0f, 1.0f)));
 }
 
 Node *SolidGenerator::copy() const
@@ -60,16 +59,18 @@ QString SolidGenerator::Description() const
 
 void SolidGenerator::Retranslate()
 {
-  color_input_->set_name(tr("Color"));
+  SetInputName(kColorInput, tr("Color"));
 }
 
-NodeValueTable SolidGenerator::Value(NodeValueDatabase &value) const
+NodeValueTable SolidGenerator::Value(const QString &output, NodeValueDatabase &value) const
 {
+  Q_UNUSED(output)
+
   ShaderJob job;
-  job.InsertValue(color_input_, value);
+  job.InsertValue(this, kColorInput, value);
 
   NodeValueTable table = value.Merge();
-  table.Push(NodeParam::kShaderJob, QVariant::fromValue(job), this);
+  table.Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
   return table;
 }
 

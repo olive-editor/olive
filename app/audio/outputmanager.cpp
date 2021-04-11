@@ -79,6 +79,8 @@ void AudioOutputManager::Close()
   if (output_) {
     output_->stop();
 
+    push_device_ = nullptr;
+
     if (device_proxy_.isOpen()) {
       device_proxy_.close();
     }
@@ -136,7 +138,7 @@ void AudioOutputManager::SetOutputDevice(QAudioDeviceInfo info, QAudioFormat for
 
   // Create a new output device and start it in push mode
   output_ = new QAudioOutput(info, format, this);
-  output_->setBufferSize(131072);
+  output_->setBufferSize(16384);
   output_->setNotifyInterval(1);
   push_device_ = output_->start();
   connect(output_, &QAudioOutput::notify, this, &AudioOutputManager::PushMoreSamples);

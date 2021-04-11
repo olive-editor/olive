@@ -28,7 +28,7 @@
 #include <QStackedWidget>
 #include <QTabWidget>
 
-#include "tabs/preferencestab.h"
+#include "dialog/configbase/configdialogbase.h"
 
 namespace olive {
 
@@ -38,7 +38,7 @@ namespace olive {
  * A dialog for the global application settings. Mostly an interface for Config. Can be loaded from any part of the
  * application.
  */
-class PreferencesDialog : public QDialog
+class PreferencesDialog : public ConfigDialogBase
 {
   Q_OBJECT
 
@@ -50,22 +50,7 @@ public:
    *
    * QWidget parent. Usually MainWindow.
    */
-  explicit PreferencesDialog(QWidget *parent, QMenuBar* main_menu_bar);
-
-private slots:
-  /**
-   * @brief Override of accept to save preferences to Config.
-   */
-  virtual void accept() override;
-
-private:
-  void AddTab(PreferencesTab* tab, const QString& title);
-
-  QListWidget* list_widget_;
-
-  QStackedWidget* preference_pane_stack_;
-
-  QList<PreferencesTab*> tabs_;
+  PreferencesDialog(QWidget *parent, QMenuBar* main_menu_bar);
 
 };
 

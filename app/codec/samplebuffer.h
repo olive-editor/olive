@@ -43,8 +43,6 @@ class SampleBuffer
 public:
   SampleBuffer();
 
-  virtual ~SampleBuffer();
-
   static SampleBufferPtr Create();
   static SampleBufferPtr CreateAllocated(const AudioParams& audio_params, const rational& length);
   static SampleBufferPtr CreateAllocated(const AudioParams& audio_params, int samples_per_channel);
@@ -58,9 +56,15 @@ public:
   const int &sample_count() const;
   void set_sample_count(const int &sample_count);
 
-  float** data();
-  const float** const_data() const;
-  float* channel_data(int channel);
+  float* data(int channel)
+  {
+    return data_[channel].data();
+  }
+
+  const float* data(int channel) const
+  {
+    return data_.at(channel).constData();
+  }
 
   bool is_allocated() const;
   void allocate();
@@ -76,21 +80,20 @@ public:
   void fill(const float& f);
   void fill(const float& f, int start_sample, int end_sample);
 
-  void set(const float** data, int sample_offset, int sample_length);
-  void set(const float** data, int sample_length);
+  void set(int channel, const float* data, int sample_offset, int sample_length);
+  void set(int channel, const float* data, int sample_length)
+  {
+    set(channel, data, 0, sample_length);
+  }
 
   QByteArray toPackedData() const;
 
 private:
-  static void allocate_sample_buffer(float*** data, int nb_channels, int nb_samples);
-
-  static void destroy_sample_buffer(float*** data, int nb_channels);
-
   AudioParams audio_params_;
 
   int sample_count_per_channel_;
 
-  float** data_;
+  QVector< QVector<float> > data_;
 
 };
 

@@ -21,7 +21,9 @@
 #ifndef NODEINPUTDRAGGER_H
 #define NODEINPUTDRAGGER_H
 
-#include "node/input.h"
+#include "common/rational.h"
+#include "node/keyframe.h"
+#include "node/param.h"
 
 namespace olive {
 
@@ -32,16 +34,14 @@ public:
 
   bool IsStarted() const;
 
-  void Start(NodeInput* input, const rational& time, int track);
+  void Start(const NodeKeyframeTrackReference& input, const rational& time, bool create_key_on_all_tracks = true);
 
   void Drag(QVariant value);
 
   void End();
 
 private:
-  NodeInput* input_;
-
-  int track_;
+  NodeKeyframeTrackReference input_;
 
   rational time_;
 
@@ -49,9 +49,8 @@ private:
 
   QVariant end_value_;
 
-  NodeKeyframePtr dragging_key_;
-
-  bool drag_created_key_;
+  NodeKeyframe* dragging_key_;
+  QVector<NodeKeyframe*> created_keys_;
 
 };
 

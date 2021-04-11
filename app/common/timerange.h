@@ -137,7 +137,7 @@ private:
 
 };
 
-uint qHash(const TimeRange& r, uint seed);
+uint qHash(const TimeRange& r, uint seed = 0);
 
 }
 

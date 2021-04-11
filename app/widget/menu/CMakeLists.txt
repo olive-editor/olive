@@ -16,9 +16,9 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  widget/menu/menu.h
   widget/menu/menu.cpp
-  widget/menu/menushared.h
+  widget/menu/menu.h
   widget/menu/menushared.cpp
+  widget/menu/menushared.h
   PARENT_SCOPE
 )

@@ -104,6 +104,7 @@ QList<rational> FrameHashCache::GetFramesWithHash(const QByteArray &hash)
 
 QList<rational> FrameHashCache::TakeFramesWithHash(const QByteArray &hash)
 {
+  TimeRangeList range_to_invalidate;
   QList<rational> times;
 
   auto iterator = time_hash_map_.begin();
@@ -111,6 +112,7 @@ QList<rational> FrameHashCache::TakeFramesWithHash(const QByteArray &hash)
   while (iterator != time_hash_map_.end()) {
     if (iterator.value() == hash) {
       times.append(iterator.key());
+      range_to_invalidate.insert(TimeRange(iterator.key(), iterator.key() + timebase_));
 
       iterator = time_hash_map_.erase(iterator);
     } else {
@@ -118,8 +120,10 @@ QList<rational> FrameHashCache::TakeFramesWithHash(const QByteArray &hash)
     }
   }
 
-  foreach (const rational& r, times) {
-    Invalidate(TimeRange(r, r + timebase_));
+  foreach (const TimeRange& r, range_to_invalidate) {
+    // We apply a 0 job time because the graph hasn't changed to get here, so any renderer should
+    // be up to date already
+    Invalidate(r, 0);
   }
 
   return times;
@@ -183,14 +187,24 @@ bool FrameHashCache::SaveCacheFrame(const QByteArray& hash,
                                     const VideoParams& vparam,
                                     int linesize_bytes) const
 {
-  QString fn = CachePathName(hash);
+  return SaveCacheFrame(GetCacheDirectory(), hash, data, vparam, linesize_bytes);
+}
+
+bool FrameHashCache::SaveCacheFrame(const QByteArray &hash, FramePtr frame) const
+{
+  return SaveCacheFrame(GetCacheDirectory(), hash, frame);
+}
+
+bool FrameHashCache::SaveCacheFrame(const QString &cache_path, const QByteArray &hash, char *data, const VideoParams &vparam, int linesize_bytes)
+{
+  QString fn = CachePathName(cache_path, hash);
 
   if (SaveCacheFrame(fn, data, vparam, linesize_bytes)) {
     // Register frame with the disk manager
     QMetaObject::invokeMethod(DiskManager::instance(),
                               "CreatedFile",
                               Qt::QueuedConnection,
-                              Q_ARG(QString, GetCacheDirectory()),
+                              Q_ARG(QString, cache_path),
                               Q_ARG(QString, fn),
                               Q_ARG(QByteArray, hash));
 
@@ -200,10 +214,10 @@ bool FrameHashCache::SaveCacheFrame(const QByteArray& hash,
   }
 }
 
-bool FrameHashCache::SaveCacheFrame(const QByteArray &hash, FramePtr frame) const
+bool FrameHashCache::SaveCacheFrame(const QString &cache_path, const QByteArray &hash, FramePtr frame)
 {
   if (frame) {
-    return SaveCacheFrame(hash, frame->data(), frame->video_params(), frame->linesize_bytes());
+    return SaveCacheFrame(cache_path, hash, frame->data(), frame->video_params(), frame->linesize_bytes());
   } else {
     qWarning() << "Attempted to save a NULL frame to the cache. This may or may not be desirable.";
     return false;
@@ -351,7 +365,9 @@ void FrameHashCache::HashDeleted(const QString& s, const QByteArray &hash)
   }
 
   foreach (const TimeRange& range, ranges_to_invalidate) {
-    Invalidate(range);
+    // We set job time to 0 because the nodes haven't changed and any render job should be up
+    // to date
+    Invalidate(range, 0);
   }
 }
 
@@ -388,7 +404,7 @@ QString FrameHashCache::CachePathName(const QString &cache_path, const QByteArra
   return cache_dir.filePath(filename);
 }
 
-bool FrameHashCache::SaveCacheFrame(const QString &filename, char *data, const VideoParams &vparam, int linesize_bytes) const
+bool FrameHashCache::SaveCacheFrame(const QString &filename, char *data, const VideoParams &vparam, int linesize_bytes)
 {
   if (!VideoParams::FormatIsFloat(vparam.format())) {
     qCritical() << "Tried to cache frame with non-float pixel format";

@@ -21,6 +21,7 @@
 #include "nodecombobox.h"
 
 #include <QAction>
+#include <QEvent>
 #include <QDebug>
 
 #include "node/factory.h"

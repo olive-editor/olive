@@ -23,7 +23,7 @@
 
 #include <QPushButton>
 
-#include "render/colormanager.h"
+#include "node/color/colormanager/colormanager.h"
 #include "render/managedcolor.h"
 
 namespace olive {

@@ -52,9 +52,6 @@ void AudioPlaybackCache::SetParameters(const AudioParams &params)
   // Restart empty file so there's always "something" to play
   ClearPlaylist();
 
-  // Our current audio cache is unusable, so we truncate it automatically
-  InvalidateAll();
-
   emit ParametersChanged();
 }
 
@@ -65,7 +62,7 @@ void AudioPlaybackCache::WritePCM(const TimeRange &range, SampleBufferPtr sample
     return;
   }
 
-  // Determine if we have enough segments to pull this off
+  // Ensure if we have enough segments to write this data, creating more if not
   qint64 length_diff = params_.time_to_bytes(range.out()) - playlist_.GetLength();
   while (length_diff > 0) {
     qint64 seg_sz = qMin(kDefaultSegmentSize, length_diff);
@@ -73,9 +70,9 @@ void AudioPlaybackCache::WritePCM(const TimeRange &range, SampleBufferPtr sample
     length_diff -= seg_sz;
   }
 
+  // Convert to packed data, which is what we store on disk so it can be played back easily
   QByteArray a;
   if (samples) {
-    // Convert to packed data, which is what we store on disk
     a = samples->toPackedData();
   }
 
@@ -165,28 +162,28 @@ void AudioPlaybackCache::ShiftEvent(const rational &from_in_time, const rational
   qint64 to = params_.time_to_bytes(to_in_time);
   qint64 from = params_.time_to_bytes(from_in_time);
 
-  int to_index = playlist_.GetIndexOfPosition(to);
-  int from_index = playlist_.GetIndexOfPosition(from);
+  int to_seg_index = playlist_.GetIndexOfPosition(to);
+  int from_seg_index = playlist_.GetIndexOfPosition(from);
 
-  qint64 from_start = playlist_.at(from_index).offset();
-  qint64 from_end = playlist_.at(from_index).end();
+  qint64 from_seg_start = playlist_.at(from_seg_index).offset();
+  qint64 from_seg_end = playlist_.at(from_seg_index).end();
 
   if (from < to) {
     // Shifting forwards, we must insert a new region and split a segment in half if necessary
     int insert_index;
 
     // Determine at what part of the array we'll be insert into
-    if (from == from_start) {
-      insert_index = from_index;
+    if (from == from_seg_start) {
+      insert_index = from_seg_index;
     } else {
-      insert_index = from_index + 1;
+      insert_index = from_seg_index + 1;
 
-      if (from < from_end) {
+      if (from < from_seg_end) {
         // Split from segment into two
-        Segment second = CloneSegment(playlist_.at(from_index));
+        Segment second = CloneSegment(playlist_.at(from_seg_index));
 
-        TrimSegmentOut(&playlist_[from_index], from - from_start);
-        TrimSegmentIn(&second, from_end - from);
+        TrimSegmentOut(&playlist_[from_seg_index], from - from_seg_start);
+        TrimSegmentIn(&second, from_seg_end - from);
 
         playlist_.insert(insert_index, second);
       }
@@ -208,49 +205,51 @@ void AudioPlaybackCache::ShiftEvent(const rational &from_in_time, const rational
 
   } else {
     // Shifting backwards, we'll be removing segments and truncating them if necessary
-    qint64 to_start = playlist_.at(to_index).offset();
-    qint64 to_end = playlist_.at(to_index).end();
+    qint64 to_seg_start = playlist_.at(to_seg_index).offset();
+    qint64 to_seg_end = playlist_.at(to_seg_index).end();
 
-    if (from_index == to_index) {
-      // Shift occurs in the same segment
-      if (to > to_start && from < to_end) {
-        // Split into two and process as normal
-        Segment second = CloneSegment(playlist_.at(to_index));
-        from_index++;
-        playlist_.insert(from_index, second);
-      } else if (to == to_start && from == to_end) {
-        RemoveSegmentFromArray(to_index);
-      } else if (to == to_start) {
-        TrimSegmentIn(&playlist_[to_index], to_end - from);
+    if (to_seg_index == from_seg_index) {
+      if (to > to_seg_start && from < from_seg_end) {
+        // Duplicate segment into two segments and trim each side to move the space in between
+        Segment second = CloneSegment(playlist_.at(to_seg_index));
+        from_seg_index++;
+        playlist_.insert(from_seg_index, second);
+
+        TrimSegmentOut(&playlist_[to_seg_index], to - to_seg_start);
+        TrimSegmentIn(&playlist_[from_seg_index], to_seg_end - from);
+      } else if (to == to_seg_start && from == from_seg_end) {
+        // Segment contains entire shift area, just remove it
+        RemoveSegmentFromArray(to_seg_index);
+      } else if (to == to_seg_start) {
+        // Trim segment in
+        TrimSegmentIn(&playlist_[to_seg_index], to_seg_end - from);
       } else {
-        TrimSegmentOut(&playlist_[from_index], to - to_start);
+        // Assume from == to_seg_end
+        TrimSegmentOut(&playlist_[to_seg_index], to_seg_end - to);
       }
     } else {
-      // Remove all central segments (if there are any)
-      while (from_index > to_index + 1) {
-        RemoveSegmentFromArray(to_index + 1);
-        from_index--;
+      // Remove any segments between if there are any
+      while (from_seg_index != to_seg_index+1) {
+        RemoveSegmentFromArray(to_seg_index+1);
+        from_seg_index--;
+      }
+
+      if (from == from_seg_end) {
+        RemoveSegmentFromArray(from_seg_index);
+      } else {
+        // Assume from > from_seg_start and trim its in point
+        TrimSegmentIn(&playlist_[from_seg_index], from_seg_end - from);
+      }
+
+      if (to == to_seg_start) {
+        // Assume from >= to_seg_end, remove "to" segment
+        RemoveSegmentFromArray(to_seg_index);
+      } else {
+        TrimSegmentOut(&playlist_[to_seg_index], to_seg_end - to);
       }
     }
 
-    if (from_index != to_index) {
-      // Remove or trim "to" segment
-      if (to == to_start) {
-        RemoveSegmentFromArray(to_index);
-        from_index--;
-      } else if (to < to_end) {
-        TrimSegmentOut(&playlist_[to_index], to - to_start);
-      }
-
-      // Remove or trim "from" segment
-      if (from == from_end) {
-        RemoveSegmentFromArray(from_index);
-      } else if (from > from_start) {
-        TrimSegmentIn(&playlist_[from_index], from_end - from);
-      }
-    }
-
-    UpdateOffsetsFrom(to_index);
+    UpdateOffsetsFrom(to_seg_index);
   }
 }
 
@@ -324,8 +323,8 @@ void AudioPlaybackCache::TrimSegmentIn(AudioPlaybackCache::Segment *s, qint64 ne
   // Read filename
   QFile f(s->filename());
   if (f.open(QFile::ReadWrite)) {
-    // Read whole segment into memory
-    QByteArray data = f.readAll();
+    // Read segment into memory, according to the size we acknowledge
+    QByteArray data = f.read(s->size());
 
     // Trim to new length
     data = data.right(new_length);
@@ -344,6 +343,7 @@ void AudioPlaybackCache::TrimSegmentIn(AudioPlaybackCache::Segment *s, qint64 ne
 
 void AudioPlaybackCache::TrimSegmentOut(AudioPlaybackCache::Segment *s, qint64 new_length)
 {
+  // For efficiency, we don't truncate the file, we just truncate our usage of it
   s->set_size(new_length);
 }
 

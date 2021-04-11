@@ -21,7 +21,6 @@
 #ifndef FOOTAGEVIEWERWIDGET_H
 #define FOOTAGEVIEWERWIDGET_H
 
-#include "node/input/media/media.h"
 #include "node/output/viewer/viewer.h"
 #include "viewer.h"
 
@@ -33,26 +32,15 @@ class FootageViewerWidget : public ViewerWidget
 public:
   FootageViewerWidget(QWidget* parent = nullptr);
 
-  Footage* GetFootage() const;
-  void SetFootage(Footage* footage);
-
 protected:
-  virtual TimelinePoints* ConnectTimelinePoints() override;
+  virtual void ConnectNodeEvent(ViewerOutput *) override;
 
-  virtual Project* GetTimelinePointsProject() override;
+  virtual void DisconnectNodeEvent(ViewerOutput *) override;
 
 private:
   void StartFootageDragInternal(bool enable_video, bool enable_audio);
 
-  Footage* footage_;
-
-  Sequence sequence_;
-
-  MediaInput* video_node_;
-
-  MediaInput* audio_node_;
-
-  QHash<Footage*, int64_t> cached_timestamps_;
+  QHash<ViewerOutput*, int64_t> cached_timestamps_;
 
 private slots:
   void StartFootageDrag();

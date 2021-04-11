@@ -25,7 +25,7 @@
 #include <QUndoCommand>
 
 #include "codec/decoder.h"
-#include "project/projectviewmodel.h"
+#include "node/project/projectviewmodel.h"
 #include "task/task.h"
 
 namespace olive {
@@ -38,7 +38,7 @@ public:
 
   const int& GetFileCount() const;
 
-  QUndoCommand* GetCommand() const
+  MultiUndoCommand* GetCommand() const
   {
     return command_;
   }
@@ -57,17 +57,19 @@ protected:
   virtual bool Run() override;
 
 private:
-  void Import(Folder* folder, QFileInfoList import, int& counter, QUndoCommand *parent_command);
+  void Import(Folder* folder, QFileInfoList import, int& counter, MultiUndoCommand *parent_command);
 
-  void ValidateImageSequence(ItemPtr item, QFileInfoList &info_list, int index);
+  void ValidateImageSequence(Footage *footage, QFileInfoList &info_list, int index);
 
-  static bool ItemIsStillImageFootageOnly(ItemPtr item);
+  void AddItemToFolder(Folder* folder, Node* item, MultiUndoCommand* command);
 
-  static bool CompareStillImageSize(ItemPtr item, const QSize& sz);
+  static bool ItemIsStillImageFootageOnly(Footage *footage);
+
+  static bool CompareStillImageSize(Footage *footage, const QSize& sz);
 
   static int64_t GetImageSequenceLimit(const QString &start_fn, int64_t start, bool up);
 
-  QUndoCommand* command_;
+  MultiUndoCommand* command_;
 
   ProjectViewModel* model_;
 

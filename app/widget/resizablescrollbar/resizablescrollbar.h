@@ -35,7 +35,11 @@ public:
   ResizableScrollBar(Qt::Orientation orientation, QWidget* parent = nullptr);
 
 signals:
-  void RequestScale(const double& multiplier);
+  void ResizeBegan(int old_bar_width, bool top_handle);
+
+  void ResizeMoved(int movement);
+
+  void ResizeEnded();
 
 protected:
   virtual void mousePressEvent(QMouseEvent* event) override;
@@ -45,6 +49,8 @@ protected:
   virtual void mouseReleaseEvent(QMouseEvent* event) override;
 
 private:
+  QRect GetScrollBarRect();
+
   static const int kHandleWidth;
 
   enum MouseHandleState {
@@ -57,11 +63,13 @@ private:
 
   int GetActiveMousePos(QMouseEvent* event);
 
+  int GetActiveBarSize();
+
   MouseHandleState mouse_handle_state_;
 
-  bool mouse_dragging_;
+  bool dragging_;
 
-  int mouse_drag_start_;
+  int drag_start_point_;
 
 };
 

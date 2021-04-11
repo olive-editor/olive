@@ -57,9 +57,9 @@ private slots:
 
   void TrackHeightChanged(int index, int height);
 
-  void InsertTrack(TrackOutput* track);
+  void InsertTrack(Track* track);
 
-  void RemoveTrack(TrackOutput* track);
+  void RemoveTrack(Track* track);
 
 };
 

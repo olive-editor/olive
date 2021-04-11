@@ -45,10 +45,12 @@ void Encoder::WriteAudio(AudioParams pcm_info, const QString &pcm_filename)
 EncodingParams::EncodingParams() :
   video_enabled_(false),
   video_bit_rate_(0),
+  video_min_bit_rate_(0),
   video_max_bit_rate_(0),
   video_buffer_size_(0),
   video_threads_(0),
-  audio_enabled_(false)
+  audio_enabled_(false),
+  audio_bit_rate_(0)
 {
 }
 
@@ -79,6 +81,11 @@ void EncodingParams::set_video_option(const QString &key, const QString &value)
 void EncodingParams::set_video_bit_rate(const int64_t &rate)
 {
   video_bit_rate_ = rate;
+}
+
+void EncodingParams::set_video_min_bit_rate(const int64_t &rate)
+{
+  video_min_bit_rate_ = rate;
 }
 
 void EncodingParams::set_video_max_bit_rate(const int64_t &rate)
@@ -129,6 +136,11 @@ const QHash<QString, QString> &EncodingParams::video_opts() const
 const int64_t &EncodingParams::video_bit_rate() const
 {
   return video_bit_rate_;
+}
+
+const int64_t &EncodingParams::video_min_bit_rate() const
+{
+  return video_min_bit_rate_;
 }
 
 const int64_t &EncodingParams::video_max_bit_rate() const
@@ -192,6 +204,7 @@ void EncodingParams::Save(QXmlStreamWriter *writer) const
     writer->writeTextElement(QStringLiteral("timebase"), video_params_.time_base().toString());
     writer->writeTextElement(QStringLiteral("divider"), QString::number(video_params_.divider()));
     writer->writeTextElement(QStringLiteral("bitrate"), QString::number(video_bit_rate_));
+    writer->writeTextElement(QStringLiteral("minbitrate"), QString::number(video_max_bit_rate_));
     writer->writeTextElement(QStringLiteral("maxbitrate"), QString::number(video_max_bit_rate_));
     writer->writeTextElement(QStringLiteral("bufsize"), QString::number(video_buffer_size_));
     writer->writeTextElement(QStringLiteral("threads"), QString::number(video_threads_));

@@ -40,6 +40,8 @@ public:
   void SetMaximum(const int64_t& d);
 
 protected:
+  virtual QString ValueToString(const QVariant& v) override;
+
   virtual QVariant StringToValue(const QString& s, bool* ok) override;
 
 signals:

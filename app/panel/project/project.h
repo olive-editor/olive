@@ -22,7 +22,7 @@
 #define PROJECT_PANEL_H
 
 #include "footagemanagementpanel.h"
-#include "project/project.h"
+#include "node/project/project.h"
 #include "widget/panel/panel.h"
 #include "widget/projectexplorer/projectexplorer.h"
 
@@ -40,15 +40,15 @@ public:
   Project* project() const;
   void set_project(Project* p);
 
-  QModelIndex get_root_index() const;
+  Folder *get_root() const;
 
-  void set_root(Item* item);
+  void set_root(Folder* item);
 
-  QList<Item*> SelectedItems() const;
+  QVector<Node *> SelectedItems() const;
 
   Folder* GetSelectedFolder() const;
 
-  virtual QList<Footage*> GetSelectedFootage() const override;
+  virtual QVector<ViewerOutput *> GetSelectedFootage() const override;
 
   ProjectViewModel* model() const;
 
@@ -61,7 +61,7 @@ public:
   virtual void DeleteSelected() override;
 
 public slots:
-  void Edit(Item *item);
+  void Edit(Node *item);
 
 signals:
   void ProjectNameChanged();
@@ -72,13 +72,15 @@ private:
   ProjectExplorer* explorer_;
 
 private slots:
-  void ItemDoubleClickSlot(Item* item);
+  void ItemDoubleClickSlot(Node *item);
 
   void ShowNewMenu();
 
   void UpdateSubtitle();
 
   void SaveConnectedProject();
+
+  void ItemRemoved(Node* item);
 
 };
 

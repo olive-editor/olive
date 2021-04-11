@@ -81,5 +81,5 @@ Section "uninstall"
 SectionEnd
 
 Function LaunchOlive
-    ExecShell "" "$INSTDIR\${APP_TARGET}.exe"
+    ShellExecAsUser::ShellExecAsUser "" "$INSTDIR\${APP_TARGET}.exe"
 FunctionEnd

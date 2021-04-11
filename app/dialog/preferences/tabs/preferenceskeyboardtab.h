@@ -24,18 +24,18 @@
 #include <QMenuBar>
 #include <QTreeWidget>
 
-#include "preferencestab.h"
+#include "dialog/configbase/configdialogbase.h"
 #include "../keysequenceeditor.h"
 
 namespace olive {
 
-class PreferencesKeyboardTab : public PreferencesTab
+class PreferencesKeyboardTab : public ConfigDialogBaseTab
 {
   Q_OBJECT
 public:
   PreferencesKeyboardTab(QMenuBar* menubar);
 
-  virtual void Accept() override;
+  virtual void Accept(MultiUndoCommand* command) override;
 
 private slots:
   /**

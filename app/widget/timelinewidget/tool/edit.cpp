@@ -78,9 +78,9 @@ void EditTool::MouseRelease(TimelineViewMouseEvent *event)
 
 void EditTool::MouseDoubleClick(TimelineViewMouseEvent *event)
 {
-  TimelineViewBlockItem* item = parent()->GetItemAtScenePos(event->GetCoordinates());
+  Block* item = parent()->GetItemAtScenePos(event->GetCoordinates());
 
-  if (item && !parent()->GetTrackFromReference(item->Track())->IsLocked()) {
+  if (item && !item->track()->IsLocked()) {
     parent()->AddSelection(item);
   }
 }

@@ -24,16 +24,13 @@
 
 namespace olive {
 
+#define super ManagedDisplayWidget
+
 ScopeBase::ScopeBase(QWidget* parent) :
-  ManagedDisplayWidget(parent),
+  super(parent),
   buffer_(nullptr)
 {
   EnableDefaultContextMenu();
-}
-
-ScopeBase::~ScopeBase()
-{
-  OnDestroy();
 }
 
 void ScopeBase::SetBuffer(Frame *frame)
@@ -45,7 +42,7 @@ void ScopeBase::SetBuffer(Frame *frame)
 
 void ScopeBase::showEvent(QShowEvent* e)
 {
-  ManagedDisplayWidget::showEvent(e);
+  super::showEvent(e);
 
   UploadTextureFromBuffer();
 }
@@ -54,7 +51,7 @@ void ScopeBase::DrawScope(TexturePtr managed_tex, QVariant pipeline)
 {
   ShaderJob job;
 
-  job.InsertValue(QStringLiteral("ove_maintex"), ShaderValue(QVariant::fromValue(managed_tex), NodeParam::kTexture));
+  job.InsertValue(QStringLiteral("ove_maintex"), NodeValue(NodeValue::kTexture, QVariant::fromValue(managed_tex)));
 
   renderer()->Blit(pipeline, job, VideoParams(width(), height(),
                                               static_cast<VideoParams::Format>(Config::Current()["OfflinePixelFormat"].toInt()),
@@ -92,7 +89,7 @@ void ScopeBase::UploadTextureFromBuffer()
 
 void ScopeBase::OnInit()
 {
-  ManagedDisplayWidget::OnInit();
+  super::OnInit();
 
   UploadTextureFromBuffer();
 
@@ -114,7 +111,7 @@ void ScopeBase::OnPaint()
 
 void ScopeBase::OnDestroy()
 {
-  ManagedDisplayWidget::OnDestroy();
+  super::OnDestroy();
 
   managed_tex_ = nullptr;
   texture_ = nullptr;

@@ -48,6 +48,13 @@ public:
 
   void SetDefaultValue(const QVariant& v);
 
+  const QVariant& GetOffset() const
+  {
+    return offset_;
+  }
+
+  void SetOffset(const QVariant& v);
+
   bool IsTristate() const;
   void SetTristate();
 
@@ -79,9 +86,9 @@ protected:
 
   virtual double AdjustDragDistanceInternal(const double& start, const double& drag);
 
-  virtual QString ValueToString(const QVariant &v);
+  virtual QString ValueToString(const QVariant &v) = 0;
 
-  virtual QVariant StringToValue(const QString& s, bool* ok);
+  virtual QVariant StringToValue(const QString& s, bool* ok) = 0;
 
   virtual void changeEvent(QEvent* e) override;
 
@@ -93,8 +100,6 @@ private:
   const QVariant& ClampValue(const QVariant& v);
 
   QString GetFormat() const;
-
-  void RepositionLadder();
 
   SliderLabel* label_;
 
@@ -114,6 +119,9 @@ private:
   double dragged_diff_;
 
   QVariant temp_dragged_value_;
+  QVariant clamped_temp_dragged_value_;
+
+  QVariant offset_;
 
   bool require_valid_input_;
 
@@ -143,6 +151,9 @@ private slots:
   void LineEditCancelled();
 
   void ResetValue();
+
+  void RepositionLadder();
+
 };
 
 }

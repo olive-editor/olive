@@ -26,7 +26,7 @@
 #include "codec/decoder.h"
 #include "common/cancelableobject.h"
 #include "node/output/track/track.h"
-#include "project/item/footage/stream.h"
+#include "render/job/footagejob.h"
 #include "value.h"
 
 namespace olive {
@@ -36,19 +36,22 @@ class NodeTraverser : public CancelableObject
 public:
   NodeTraverser() = default;
 
-  NodeValueTable GenerateTable(const Node *n, const TimeRange &range);
-  NodeValueTable GenerateTable(const Node *n, const rational &in, const rational& out);
+  NodeValueTable GenerateTable(const Node *n, const QString &output, const TimeRange &range);
+  NodeValueTable GenerateTable(const NodeOutput& output, const TimeRange &range)
+  {
+    return GenerateTable(output.node(), output.output(), range);
+  }
 
-  NodeValueDatabase GenerateDatabase(const Node *node, const TimeRange &range);
+  NodeValueDatabase GenerateDatabase(const Node *node, const QString &output, const TimeRange &range);
 
 protected:
-  NodeValueTable ProcessInput(NodeInput *input, const TimeRange &range);
+  NodeValueTable ProcessInput(const Node *node, const QString &input, const TimeRange &range);
 
-  virtual NodeValueTable GenerateBlockTable(const TrackOutput *track, const TimeRange& range);
+  virtual NodeValueTable GenerateBlockTable(const Track *track, const TimeRange& range);
 
-  virtual QVariant ProcessVideoFootage(StreamPtr stream, const rational &input_time);
+  virtual QVariant ProcessVideoFootage(const FootageJob &stream, const rational &input_time);
 
-  virtual QVariant ProcessAudioFootage(StreamPtr stream, const TimeRange &input_time);
+  virtual QVariant ProcessAudioFootage(const FootageJob &stream, const TimeRange &input_time);
 
   virtual QVariant ProcessShader(const Node *node, const TimeRange &range, const ShaderJob& job);
 
@@ -56,7 +59,19 @@ protected:
 
   virtual QVariant ProcessFrameGeneration(const Node *node, const GenerateJob& job);
 
-  virtual QVariant GetCachedFrame(const Node *node, const rational &time);
+  virtual QVariant GetCachedTexture(const QByteArray& hash);
+
+  virtual void SaveCachedTexture(const QByteArray& hash, const QVariant& texture);
+
+  virtual bool CanCacheFrames()
+  {
+    return false;
+  }
+
+  virtual VideoParams GetCacheVideoParams()
+  {
+    return VideoParams();
+  }
 
   void AddGlobalsToDatabase(NodeValueDatabase& db, const TimeRange &range) const;
 
@@ -66,7 +81,7 @@ protected:
   }
 
 private:
-  void PostProcessTable(const Node *node, const TimeRange &range, NodeValueTable &output_params);
+  void PostProcessTable(const Node *node, const QString &output, const TimeRange &range, NodeValueTable &output_params);
 
 };
 

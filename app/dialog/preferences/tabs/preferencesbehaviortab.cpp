@@ -30,7 +30,6 @@ namespace olive {
 PreferencesBehaviorTab::PreferencesBehaviorTab()
 {
   QVBoxLayout* layout = new QVBoxLayout(this);
-  layout->setMargin(0);
 
   behavior_tree_ = new QTreeWidget();
   layout->addWidget(behavior_tree_);
@@ -45,6 +44,9 @@ PreferencesBehaviorTab::PreferencesBehaviorTab()
   AddItem(tr("Scroll wheel zooms by default instead of scrolling"),
           QStringLiteral("ScrollZooms"),
           tr("Holding CTRL while using Olive toggles this setting"),
+          general_group);
+  AddItem(tr("Enable slider ladder"),
+          QStringLiteral("UseSliderLadders"),
           general_group);
 
   QTreeWidgetItem* audio_group = AddParent(tr("Audio"));
@@ -106,8 +108,10 @@ PreferencesBehaviorTab::PreferencesBehaviorTab()
           node_group);
 }
 
-void PreferencesBehaviorTab::Accept()
+void PreferencesBehaviorTab::Accept(MultiUndoCommand *command)
 {
+  Q_UNUSED(command)
+
   QMap<QTreeWidgetItem*, QString>::const_iterator iterator;
 
   for (iterator=config_map_.begin();iterator!=config_map_.end();iterator++) {

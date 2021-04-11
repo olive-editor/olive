@@ -25,9 +25,10 @@
 #include <QTimer>
 
 #include "node/graph.h"
+#include "node/nodecopypaste.h"
+#include "nodeviewedge.h"
 #include "nodeviewscene.h"
-#include "widget/timelinewidget/view/handmovableview.h"
-#include "widget/nodecopypaste/nodecopypaste.h"
+#include "widget/handmovableview/handmovableview.h"
 
 namespace olive {
 
@@ -37,13 +38,18 @@ namespace olive {
  * This widget takes a NodeGraph object and constructs a QGraphicsScene representing its data, viewing and allowing
  * the user to make modifications to it.
  */
-class NodeView : public HandMovableView, public NodeCopyPasteWidget
+class NodeView : public HandMovableView, public NodeCopyPasteService
 {
   Q_OBJECT
 public:
   NodeView(QWidget* parent);
 
   virtual ~NodeView() override;
+
+  NodeGraph* GetGraph() const
+  {
+    return graph_;
+  }
 
   /**
    * @brief Sets the graph to view
@@ -58,7 +64,7 @@ public:
   void SelectAll();
   void DeselectAll();
 
-  void Select(const QVector<Node*>& nodes);
+  void Select(QVector<Node *> nodes);
   void SelectWithDependencies(QVector<Node *> nodes);
 
   void CopySelected(bool cut);
@@ -66,9 +72,11 @@ public:
 
   void Duplicate();
 
-  void SelectBlocks(const QVector<Block*>& blocks);
+  void SetColorLabel(int index);
 
-  void DeselectBlocks(const QVector<Block*>& blocks);
+  void ZoomIn();
+
+  void ZoomOut();
 
 signals:
   void NodesSelected(const QVector<Node*>& nodes);
@@ -98,14 +106,27 @@ private:
   void ConnectSelectionChangedSignal();
   void DisconnectSelectionChangedSignal();
 
-  void UpdateBlockFilter();
+  void ZoomIntoCursorPosition(double multiplier, const QPointF &cursor_pos);
 
-  void AssociateNodeWithSelectedBlocks(Node* n);
-  void DisassociateNode(Node* n, bool remove_from_map);
+  void ZoomFromKeyboard(double multiplier);
 
-  void QueueSelectBlocksInternal();
+  class NodeViewAttachNodesToCursor : public UndoCommand
+  {
+  public:
+    NodeViewAttachNodesToCursor(NodeView* view, const QVector<Node*>& nodes);
 
-  QTimer select_blocks_internal_timer_;
+    virtual void redo() override;
+
+    virtual void undo() override;
+
+    virtual Project * GetRelevantProject() const override;
+
+  private:
+    NodeView* view_;
+
+    QVector<Node*> nodes_;
+
+  };
 
   NodeGraph* graph_;
 
@@ -117,17 +138,19 @@ private:
   QList<AttachedItem> attached_items_;
 
   NodeViewEdge* drop_edge_;
-  NodeInput* drop_input_;
+  NodeInput drop_input_;
+
+  NodeViewEdge* create_edge_;
+  NodeViewItem* create_edge_src_;
+  NodeViewItem* create_edge_dst_;
+  NodeInput create_edge_dst_input_;
+  bool create_edge_dst_temp_expanded_;
 
   NodeViewScene scene_;
 
   QVector<Node*> selected_nodes_;
 
   QVector<Block*> selected_blocks_;
-
-  QHash<Node*, QVector<Block*> > association_map_;
-
-  QHash<Block*, QVector<Node*> > temporary_association_map_;
 
   enum FilterMode {
     kFilterShowAll,
@@ -138,28 +161,13 @@ private:
 
   double scale_;
 
+  static const double kMinimumScale;
+
 private slots:
-  void ValidateFilter();
-
-  void AssociatedNodeDestroyed();
-
-  void GraphNodeRemoved(Node* node);
-
-  void GraphEdgeAdded(NodeEdgePtr edge);
-
-  void GraphEdgeRemoved(NodeEdgePtr edge);
-
-  /**
-   * @brief Internal function triggered when any change is signalled from the QGraphicsScene
-   *
-   * Current primary function is to inform all NodeViewEdges to re-adjust in case any Nodes have moved
-   */
-  void ItemsChanged();
-
   /**
    * @brief Receiver for when the scene's selected items change
    */
-  void SceneSelectionChangedSlot();
+  void UpdateSelectionCache();
 
   /**
    * @brief Receiver for when the user right clicks (or otherwise requests a context menu)
@@ -185,8 +193,6 @@ private slots:
    * @brief Receiver for the user changing the filter
    */
   void ContextMenuFilterChanged(QAction* action);
-
-  void SelectBlocksInternal();
 
 };
 

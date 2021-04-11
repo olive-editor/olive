@@ -22,15 +22,14 @@
 
 namespace olive {
 
+const QString TrigonometryNode::kMethodIn = QStringLiteral("method_in");
+const QString TrigonometryNode::kXIn = QStringLiteral("x_in");
+
 TrigonometryNode::TrigonometryNode()
 {
-  method_in_ = new NodeInput(QStringLiteral("method_in"), NodeParam::kCombo);
-  method_in_->set_connectable(false);
-  method_in_->set_is_keyframable(false);
-  AddInput(method_in_);
+  AddInput(kMethodIn, NodeValue::kCombo, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
-  x_in_ = new NodeInput(QStringLiteral("x_in"), NodeParam::kFloat, 0.0);
-  AddInput(x_in_);
+  AddInput(kXIn, NodeValue::kFloat, 0.0);
 }
 
 olive::Node *olive::TrigonometryNode::copy() const
@@ -72,18 +71,20 @@ void TrigonometryNode::Retranslate()
                          tr("Hyperbolic Cosine"),
                          tr("Hyperbolic Tangent")};
 
-  method_in_->set_combobox_strings(strings);
+  SetComboBoxStrings(kMethodIn, strings);
 
-  method_in_->set_name(tr("Method"));
+  SetInputName(kMethodIn, tr("Method"));
 }
 
-NodeValueTable TrigonometryNode::Value(NodeValueDatabase &value) const
+NodeValueTable TrigonometryNode::Value(const QString &output, NodeValueDatabase &value) const
 {
-  float x = value[x_in_].Take(NodeParam::kFloat).toFloat();
+  Q_UNUSED(output)
+
+  float x = value[kXIn].Take(NodeValue::kFloat).toFloat();
 
   NodeValueTable table = value.Merge();
 
-  switch (static_cast<Operation>(method_in_->get_standard_value().toInt())) {
+  switch (static_cast<Operation>(GetStandardValue(kMethodIn).toInt())) {
   case kOpSine:
     x = qSin(x);
     break;
@@ -113,7 +114,7 @@ NodeValueTable TrigonometryNode::Value(NodeValueDatabase &value) const
     break;
   }
 
-  table.Push(NodeParam::kFloat, x, this);
+  table.Push(NodeValue::kFloat, x, this);
 
   return table;
 }

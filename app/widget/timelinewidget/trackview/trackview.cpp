@@ -68,11 +68,11 @@ TrackView::TrackView(Qt::Alignment vertical_alignment, QWidget *parent) :
 void TrackView::ConnectTrackList(TrackList *list)
 {
   if (list_ != nullptr) {
-    foreach (TrackOutput* track, list_->GetTracks()) {
-      RemoveTrack(track);
+    // Remove tracks
+    for (int i=0; i<list_->GetTrackCount(); i++) {
+      splitter_->Remove(0);
     }
 
-    disconnect(list_, &TrackList::TrackHeightChanged, splitter_, &TrackViewSplitter::SetTrackHeight);
     disconnect(list_, &TrackList::TrackAdded, this, &TrackView::InsertTrack);
     disconnect(list_, &TrackList::TrackRemoved, this, &TrackView::RemoveTrack);
   }
@@ -80,11 +80,10 @@ void TrackView::ConnectTrackList(TrackList *list)
   list_ = list;
 
   if (list_ != nullptr) {
-    foreach (TrackOutput* track, list_->GetTracks()) {
+    foreach (Track* track, list_->GetTracks()) {
       InsertTrack(track);
     }
 
-    connect(list_, &TrackList::TrackHeightChanged, splitter_, &TrackViewSplitter::SetTrackHeight);
     connect(list_, &TrackList::TrackAdded, this, &TrackView::InsertTrack);
     connect(list_, &TrackList::TrackRemoved, this, &TrackView::RemoveTrack);
   }
@@ -120,14 +119,14 @@ void TrackView::TrackHeightChanged(int index, int height)
   list_->GetTrackAt(index)->SetTrackHeightInPixels(height);
 }
 
-void TrackView::InsertTrack(TrackOutput *track)
+void TrackView::InsertTrack(Track *track)
 {
   splitter_->Insert(track->Index(),
                     track->GetTrackHeightInPixels(),
                     new TrackViewItem(track));
 }
 
-void TrackView::RemoveTrack(TrackOutput *track)
+void TrackView::RemoveTrack(Track *track)
 {
   splitter_->Remove(track->Index());
 }

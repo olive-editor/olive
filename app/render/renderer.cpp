@@ -75,6 +75,8 @@ void Renderer::Destroy()
 
 bool Renderer::GetColorContext(ColorProcessorPtr color_processor, Renderer::ColorContext *ctx)
 {
+  QMutexLocker locker(&color_cache_mutex_);
+
   ColorContext& color_ctx = *ctx;
 
   if (color_cache_.contains(color_processor->id())) {
@@ -234,8 +236,8 @@ void Renderer::BlitColorManagedInternal(ColorProcessorPtr color_processor, Textu
 
   ShaderJob job;
 
-  job.InsertValue(QStringLiteral("ove_maintex"), ShaderValue(QVariant::fromValue(source), NodeParam::kTexture));
-  job.InsertValue(QStringLiteral("ove_mvpmat"), ShaderValue(matrix, NodeParam::kMatrix));
+  job.InsertValue(QStringLiteral("ove_maintex"), NodeValue(NodeValue::kTexture, QVariant::fromValue(source)));
+  job.InsertValue(QStringLiteral("ove_mvpmat"), NodeValue(NodeValue::kMatrix, matrix));
 
   AlphaAssociated associated;
   if (source->channel_count() == VideoParams::kRGBAChannelCount) {
@@ -250,14 +252,14 @@ void Renderer::BlitColorManagedInternal(ColorProcessorPtr color_processor, Textu
     // No assoc/deassoc required
     associated = kAlphaNone;
   }
-  job.InsertValue(QStringLiteral("ove_maintex_alpha"), ShaderValue(associated, NodeParam::kInt));
+  job.InsertValue(QStringLiteral("ove_maintex_alpha"), NodeValue(NodeValue::kInt, associated));
 
   foreach (const ColorContext::LUT& l, color_ctx.lut3d_textures) {
-    job.InsertValue(l.name, ShaderValue(QVariant::fromValue(l.texture), NodeParam::kTexture));
+    job.InsertValue(l.name, NodeValue(NodeValue::kTexture, QVariant::fromValue(l.texture)));
     job.SetInterpolation(l.name, l.interpolation);
   }
   foreach (const ColorContext::LUT& l, color_ctx.lut1d_textures) {
-    job.InsertValue(l.name, ShaderValue(QVariant::fromValue(l.texture), NodeParam::kTexture));
+    job.InsertValue(l.name, NodeValue(NodeValue::kTexture, QVariant::fromValue(l.texture)));
     job.SetInterpolation(l.name, l.interpolation);
   }
 

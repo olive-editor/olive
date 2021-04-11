@@ -107,8 +107,10 @@ bool PreferencesDiskTab::Validate()
   return true;
 }
 
-void PreferencesDiskTab::Accept()
+void PreferencesDiskTab::Accept(MultiUndoCommand *command)
 {
+  Q_UNUSED(command)
+
   if (disk_cache_location_->text() != default_disk_cache_folder_->GetPath()) {
     default_disk_cache_folder_->SetPath(disk_cache_location_->text());
   }

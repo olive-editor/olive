@@ -22,7 +22,7 @@
 #define TIMEBASEDPANEL_H
 
 #include "widget/panel/panel.h"
-#include "widget/timebased/timebased.h"
+#include "widget/timebased/timebasedwidget.h"
 
 namespace olive {
 
@@ -32,15 +32,24 @@ class TimeBasedPanel : public PanelWidget
 public:
   TimeBasedPanel(const QString& object_name, QWidget *parent = nullptr);
 
-  void ConnectViewerNode(ViewerOutput* node);
+  void ConnectViewerNode(ViewerOutput *node);
 
-  void DisconnectViewerNode();
+  void DisconnectViewerNode()
+  {
+    ConnectViewerNode(nullptr);
+  }
 
   rational GetTime();
 
-  ViewerOutput* GetConnectedViewer() const;
+  ViewerOutput *GetConnectedViewer() const
+  {
+    return widget_->GetConnectedNode();
+  }
 
-  TimeRuler* ruler() const;
+  TimeRuler* ruler() const
+  {
+    return widget_->ruler();
+  }
 
   virtual void ZoomIn() override;
 
@@ -107,14 +116,27 @@ signals:
   void ShuttleRightRequested();
 
 protected:
-  TimeBasedWidget* GetTimeBasedWidget() const;
+  TimeBasedWidget* GetTimeBasedWidget() const
+  {
+    return widget_;
+  }
 
   void SetTimeBasedWidget(TimeBasedWidget* widget);
 
   virtual void Retranslate() override;
 
+  void SetShowAndRaiseOnConnect()
+  {
+    show_and_raise_on_connect_ = true;
+  }
+
 private:
   TimeBasedWidget* widget_;
+
+  bool show_and_raise_on_connect_;
+
+private slots:
+  void ConnectedNodeChanged(ViewerOutput* old, ViewerOutput* now);
 
 };
 

@@ -30,13 +30,13 @@ namespace olive {
 class BezierControlPointItem : public QObject, public QGraphicsRectItem
 {
 public:
-  BezierControlPointItem(NodeKeyframePtr key, NodeKeyframe::BezierType mode, QGraphicsItem* parent = nullptr);
+  BezierControlPointItem(NodeKeyframe* key, NodeKeyframe::BezierType mode, QGraphicsItem* parent = nullptr);
 
   void SetXScale(double scale);
 
   void SetYScale(double scale);
 
-  NodeKeyframePtr key() const;
+  NodeKeyframe* key() const;
 
   const NodeKeyframe::BezierType& mode() const;
 
@@ -50,7 +50,7 @@ protected:
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
 private:
-  NodeKeyframePtr key_;
+  NodeKeyframe* key_;
 
   NodeKeyframe::BezierType mode_;
 

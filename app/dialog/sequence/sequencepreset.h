@@ -57,20 +57,20 @@ public:
     SetName(name);
   }
 
-  static PresetPtr Create(const QString& name,
-                          int width,
-                          int height,
-                          const rational& frame_rate,
-                          const rational& pixel_aspect,
-                          VideoParams::Interlacing interlacing,
-                          int sample_rate,
-                          uint64_t channel_layout,
-                          int preview_divider,
-                          VideoParams::Format preview_format)
+  static Preset* Create(const QString& name,
+                        int width,
+                        int height,
+                        const rational& frame_rate,
+                        const rational& pixel_aspect,
+                        VideoParams::Interlacing interlacing,
+                        int sample_rate,
+                        uint64_t channel_layout,
+                        int preview_divider,
+                        VideoParams::Format preview_format)
   {
-    return std::make_shared<SequencePreset>(name, width, height, frame_rate, pixel_aspect,
-                                            interlacing, sample_rate, channel_layout,
-                                            preview_divider, preview_format);
+    return new SequencePreset(name, width, height, frame_rate, pixel_aspect,
+                              interlacing, sample_rate, channel_layout,
+                              preview_divider, preview_format);
   }
 
   virtual void Load(QXmlStreamReader* reader) override

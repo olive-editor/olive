@@ -48,6 +48,12 @@ QVariant RenderTicket::Get()
   return result_;
 }
 
+bool RenderTicket::HasStarted()
+{
+  QMutexLocker locker(&lock_);
+  return started_;
+}
+
 bool RenderTicket::IsFinished(bool lock)
 {
   if (lock) {

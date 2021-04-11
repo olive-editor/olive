@@ -35,39 +35,20 @@ FootageViewerPanel::FootageViewerPanel(QWidget *parent) :
 
   // Set strings
   Retranslate();
+
+  // Show and raise on connect
+  SetShowAndRaiseOnConnect();
 }
 
-QList<Footage *> FootageViewerPanel::GetSelectedFootage() const
+QVector<ViewerOutput *> FootageViewerPanel::GetSelectedFootage() const
 {
-  QList<Footage *> list;
-  Footage* f = static_cast<FootageViewerWidget*>(GetTimeBasedWidget())->GetFootage();
+  QVector<ViewerOutput *> list;
 
-  if (f) {
-    list.append(f);
+  if (GetConnectedViewer()) {
+    list.append(GetConnectedViewer());
   }
 
   return list;
-}
-
-void FootageViewerPanel::SetFootage(Footage *f)
-{
-  if (f && !f->IsValid()) {
-    // Do nothing if footage is invalid
-    return;
-  }
-
-  static_cast<FootageViewerWidget*>(GetTimeBasedWidget())->SetFootage(f);
-
-  if (f) {
-    // SetSubtitle() will call Retranslate(), so we don't need to call it here
-    SetSubtitle(f->name());
-
-    // Pop this panel up so the user doesn't think nothing's happening if it's behind another tab
-    this->show();
-    this->raise();
-  } else {
-    Retranslate();
-  }
 }
 
 void FootageViewerPanel::Retranslate()

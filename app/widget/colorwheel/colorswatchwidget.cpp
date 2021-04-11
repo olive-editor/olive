@@ -22,6 +22,8 @@
 
 #include <QMouseEvent>
 
+#include "ui/colorcoding.h"
+
 namespace olive {
 
 ColorSwatchWidget::ColorSwatchWidget(QWidget *parent) :
@@ -75,11 +77,7 @@ void ColorSwatchWidget::SelectedColorChangedEvent(const Color &, bool)
 
 Qt::GlobalColor ColorSwatchWidget::GetUISelectorColor() const
 {
-  if (GetSelectedColor().GetRoughLuminance() > 0.66) {
-    return Qt::black;
-  } else {
-    return Qt::white;
-  }
+  return ColorCoding::GetUISelectorColor(GetSelectedColor());
 }
 
 Color ColorSwatchWidget::GetManagedColor(const Color &input) const

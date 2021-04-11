@@ -23,8 +23,8 @@
 
 #include "common/rational.h"
 #include "timeline/timelinepoints.h"
-#include "widget/timelinewidget/snapservice.h"
-#include "widget/timelinewidget/timelinescaledobject.h"
+#include "widget/snapservice/snapservice.h"
+#include "widget/timebased/timescaledobject.h"
 
 namespace olive {
 
@@ -41,6 +41,11 @@ public:
   void ConnectTimelinePoints(TimelinePoints* points);
 
   void SetSnapService(SnapService* service);
+
+  bool IsDraggingPlayhead() const
+  {
+    return dragging_;
+  }
 
 public slots:
   void SetTime(const int64_t &r);
@@ -60,14 +65,14 @@ protected:
 
   TimelinePoints* timeline_points() const;
 
-  double ScreenToUnitFloat(int screen);
+  double ScreenToUnitFloat(int screen) const;
 
-  int64_t ScreenToUnit(int screen);
-  int64_t ScreenToUnitRounded(int screen);
+  int64_t ScreenToUnit(int screen) const;
+  int64_t ScreenToUnitRounded(int screen) const;
 
-  int UnitToScreen(int64_t unit);
+  int UnitToScreen(int64_t unit) const;
 
-  int TimeToScreen(const rational& time);
+  int TimeToScreen(const rational& time) const;
 
   void DrawPlayhead(QPainter* p, int x, int y);
 
@@ -97,6 +102,8 @@ private:
   int playhead_width_;
 
   SnapService* snap_service_;
+
+  bool dragging_;
 
 };
 

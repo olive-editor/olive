@@ -28,7 +28,5 @@ set(OLIVE_SOURCES
   dialog/preferences/tabs/preferencesaudiotab.cpp
   dialog/preferences/tabs/preferenceskeyboardtab.h
   dialog/preferences/tabs/preferenceskeyboardtab.cpp
-  dialog/preferences/tabs/preferencestab.h
-  dialog/preferences/tabs/preferencestab.cpp
   PARENT_SCOPE
 )
