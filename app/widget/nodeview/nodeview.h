@@ -110,6 +110,24 @@ private:
 
   void ZoomFromKeyboard(double multiplier);
 
+  class NodeViewAttachNodesToCursor : public UndoCommand
+  {
+  public:
+    NodeViewAttachNodesToCursor(NodeView* view, const QVector<Node*>& nodes);
+
+    virtual void redo() override;
+
+    virtual void undo() override;
+
+    virtual Project * GetRelevantProject() const override;
+
+  private:
+    NodeView* view_;
+
+    QVector<Node*> nodes_;
+
+  };
+
   NodeGraph* graph_;
 
   struct AttachedItem {

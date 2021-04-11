@@ -298,11 +298,11 @@ void NodeView::Paste()
 
   QVector<Node*> pasted_nodes = PasteNodesFromClipboard(graph_, command);
 
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
-
   if (!pasted_nodes.isEmpty()) {
-    AttachNodesToCursor(pasted_nodes);
+    command->add_child(new NodeViewAttachNodesToCursor(this, pasted_nodes));
   }
+
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
 void NodeView::Duplicate()
@@ -321,9 +321,11 @@ void NodeView::Duplicate()
 
   QVector<Node*> duplicated_nodes = Node::CopyDependencyGraph(selected, command);
 
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
+  if (!duplicated_nodes.isEmpty()) {
+    command->add_child(new NodeViewAttachNodesToCursor(this, duplicated_nodes));
+  }
 
-  AttachNodesToCursor(duplicated_nodes);
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
 void NodeView::SetColorLabel(int index)
@@ -837,6 +839,28 @@ void NodeView::ZoomFromKeyboard(double multiplier)
   }
 
   ZoomIntoCursorPosition(multiplier, cursor_pos);
+}
+
+NodeView::NodeViewAttachNodesToCursor::NodeViewAttachNodesToCursor(NodeView *view, const QVector<Node *> &nodes) :
+  view_(view),
+  nodes_(nodes)
+{
+}
+
+void NodeView::NodeViewAttachNodesToCursor::redo()
+{
+  view_->AttachNodesToCursor(nodes_);
+}
+
+void NodeView::NodeViewAttachNodesToCursor::undo()
+{
+  view_->DetachItemsFromCursor();
+}
+
+Project *NodeView::NodeViewAttachNodesToCursor::GetRelevantProject() const
+{
+  // Will either return a project or a nullptr which is also acceptable
+  return dynamic_cast<Project*>(view_->graph_);
 }
 
 }
