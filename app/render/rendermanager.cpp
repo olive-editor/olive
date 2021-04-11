@@ -189,7 +189,7 @@ RenderTicketPtr RenderManager::SaveFrameToCache(FrameHashCache *cache, FramePtr 
   // Create ticket
   RenderTicketPtr ticket = std::make_shared<RenderTicket>();
 
-  ticket->setProperty("cache", Node::PtrToValue(cache));
+  ticket->setProperty("cache", cache->GetCacheDirectory());
   ticket->setProperty("frame", QVariant::fromValue(frame));
   ticket->setProperty("hash", hash);
   ticket->setProperty("type", kTypeVideoDownload);

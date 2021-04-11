@@ -148,11 +148,11 @@ void RenderProcessor::Run()
   }
   case RenderManager::kTypeVideoDownload:
   {
-    FrameHashCache* cache = Node::ValueToPtr<FrameHashCache>(ticket_->property("cache"));
+    QString cache = ticket_->property("cache").toString();
     FramePtr frame = ticket_->property("frame").value<FramePtr>();
     QByteArray hash = ticket_->property("hash").toByteArray();
 
-    ticket_->Finish(cache->SaveCacheFrame(hash, frame), false);
+    ticket_->Finish(FrameHashCache::SaveCacheFrame(cache, hash, frame), false);
     break;
   }
   default:
@@ -534,32 +534,60 @@ QVariant RenderProcessor::ProcessFrameGeneration(const Node *node, const Generat
   return QVariant::fromValue(texture);
 }
 
-QVariant RenderProcessor::GetCachedFrame(const Node *node, const rational &time)
+bool RenderProcessor::CanCacheFrames()
 {
-  if (!ticket_->property("cache").toString().isEmpty()
-      && node->id() == QStringLiteral("org.olivevideoeditor.Olive.videoinput")) {
-    const VideoParams& video_params = ticket_->property("vparam").value<VideoParams>();
+  return true;
+}
 
-    QByteArray hash = RenderManager::Hash(node, video_params, time);
+QVariant RenderProcessor::GetCachedTexture(const QByteArray& hash)
+{
+  VideoParams video_params = GetCacheVideoParams();
+  QString cache_dir = ticket_->property("cache").toString();
 
-    FramePtr f = FrameHashCache::LoadCacheFrame(ticket_->property("cache").toString(), hash);
+  FramePtr f = FrameHashCache::LoadCacheFrame(cache_dir, hash);
 
-    if (f) {
-      // The cached frame won't load with the correct divider by default, so we enforce it here
-      VideoParams p = f->video_params();
+  if (f) {
+    // The cached frame won't load with the correct divider by default, so we enforce it here
+    VideoParams p = f->video_params();
 
-      p.set_width(f->width() * video_params.divider());
-      p.set_height(f->height() * video_params.divider());
-      p.set_divider(video_params.divider());
+    p.set_width(f->width() * video_params.divider());
+    p.set_height(f->height() * video_params.divider());
+    p.set_divider(video_params.divider());
 
-      f->set_video_params(p);
+    f->set_video_params(p);
 
-      TexturePtr texture = render_ctx_->CreateTexture(f->video_params(), f->data(), f->linesize_pixels());
-      return QVariant::fromValue(texture);
-    }
+    TexturePtr texture = render_ctx_->CreateTexture(f->video_params(), f->data(), f->linesize_pixels());
+    qDebug() << "Loaded mid-render frame from cache";
+    return QVariant::fromValue(texture);
   }
 
   return QVariant();
+}
+
+void RenderProcessor::SaveCachedTexture(const QByteArray &hash, const QVariant &tex_var)
+{
+  // FIXME: Temporarily disabled because I don't know how to ensure that the frame saved here is
+  //        not the main frame. If it is, it'll be saved twice which will waste a lot of cycles.
+  //        At least disabled, the frame will still save, and if nothing else alters the hash, it
+  //        will pick up automatically from GetCachedTexture.
+  /*if (!tex_var.isNull()) {
+    QString cache_dir = ticket_->property("cache").toString();
+
+    if (!cache_dir.isEmpty()) {
+      TexturePtr texture = tex_var.value<TexturePtr>();
+      FramePtr frame = Frame::Create();
+      frame->set_video_params(texture->params());
+      frame->allocate();
+      render_ctx_->DownloadFromTexture(texture.get(), frame->data(), frame->linesize_pixels());
+      FrameHashCache::SaveCacheFrame(cache_dir, hash, frame);
+      qDebug() << "Saved mid-render frame to cache";
+    }
+  }*/
+}
+
+VideoParams RenderProcessor::GetCacheVideoParams()
+{
+  return ticket_->property("vparam").value<VideoParams>();
 }
 
 QVector2D RenderProcessor::GenerateResolution() const

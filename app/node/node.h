@@ -756,6 +756,16 @@ public:
     folder_ = folder;
   }
 
+  bool GetCacheTextures() const
+  {
+    return cache_result_;
+  }
+
+  void SetCacheTextures(bool e)
+  {
+    cache_result_ = e;
+  }
+
   static const QString kDefaultOutput;
 
 protected:
@@ -1190,6 +1200,8 @@ private:
   Folder* folder_;
 
   int operation_stack_;
+
+  bool cache_result_;
 
 private slots:
   /**

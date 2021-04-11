@@ -187,14 +187,24 @@ bool FrameHashCache::SaveCacheFrame(const QByteArray& hash,
                                     const VideoParams& vparam,
                                     int linesize_bytes) const
 {
-  QString fn = CachePathName(hash);
+  return SaveCacheFrame(GetCacheDirectory(), hash, data, vparam, linesize_bytes);
+}
+
+bool FrameHashCache::SaveCacheFrame(const QByteArray &hash, FramePtr frame) const
+{
+  return SaveCacheFrame(GetCacheDirectory(), hash, frame);
+}
+
+bool FrameHashCache::SaveCacheFrame(const QString &cache_path, const QByteArray &hash, char *data, const VideoParams &vparam, int linesize_bytes)
+{
+  QString fn = CachePathName(cache_path, hash);
 
   if (SaveCacheFrame(fn, data, vparam, linesize_bytes)) {
     // Register frame with the disk manager
     QMetaObject::invokeMethod(DiskManager::instance(),
                               "CreatedFile",
                               Qt::QueuedConnection,
-                              Q_ARG(QString, GetCacheDirectory()),
+                              Q_ARG(QString, cache_path),
                               Q_ARG(QString, fn),
                               Q_ARG(QByteArray, hash));
 
@@ -204,10 +214,10 @@ bool FrameHashCache::SaveCacheFrame(const QByteArray& hash,
   }
 }
 
-bool FrameHashCache::SaveCacheFrame(const QByteArray &hash, FramePtr frame) const
+bool FrameHashCache::SaveCacheFrame(const QString &cache_path, const QByteArray &hash, FramePtr frame)
 {
   if (frame) {
-    return SaveCacheFrame(hash, frame->data(), frame->video_params(), frame->linesize_bytes());
+    return SaveCacheFrame(cache_path, hash, frame->data(), frame->video_params(), frame->linesize_bytes());
   } else {
     qWarning() << "Attempted to save a NULL frame to the cache. This may or may not be desirable.";
     return false;
@@ -394,7 +404,7 @@ QString FrameHashCache::CachePathName(const QString &cache_path, const QByteArra
   return cache_dir.filePath(filename);
 }
 
-bool FrameHashCache::SaveCacheFrame(const QString &filename, char *data, const VideoParams &vparam, int linesize_bytes) const
+bool FrameHashCache::SaveCacheFrame(const QString &filename, char *data, const VideoParams &vparam, int linesize_bytes)
 {
   if (!VideoParams::FormatIsFloat(vparam.format())) {
     qCritical() << "Tried to cache frame with non-float pixel format";

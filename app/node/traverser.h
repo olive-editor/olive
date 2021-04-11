@@ -59,7 +59,19 @@ protected:
 
   virtual QVariant ProcessFrameGeneration(const Node *node, const GenerateJob& job);
 
-  virtual QVariant GetCachedFrame(const Node *node, const rational &time);
+  virtual QVariant GetCachedTexture(const QByteArray& hash);
+
+  virtual void SaveCachedTexture(const QByteArray& hash, const QVariant& texture);
+
+  virtual bool CanCacheFrames()
+  {
+    return false;
+  }
+
+  virtual VideoParams GetCacheVideoParams()
+  {
+    return VideoParams();
+  }
 
   void AddGlobalsToDatabase(NodeValueDatabase& db, const TimeRange &range) const;
 
@@ -69,7 +81,7 @@ protected:
   }
 
 private:
-  void PostProcessTable(const Node *node, const TimeRange &range, NodeValueTable &output_params);
+  void PostProcessTable(const Node *node, const QString &output, const TimeRange &range, NodeValueTable &output_params);
 
 };
 

@@ -48,6 +48,8 @@ Footage::Footage(const QString &filename) :
   Clear();
 
   set_filename(filename);
+
+  SetCacheTextures(true);
 }
 
 void Footage::Retranslate()

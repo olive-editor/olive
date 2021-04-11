@@ -53,7 +53,13 @@ protected:
 
   virtual QVariant ProcessFrameGeneration(const Node *node, const GenerateJob& job) override;
 
-  virtual QVariant GetCachedFrame(const Node *node, const rational &time) override;
+  virtual bool CanCacheFrames() override;
+
+  virtual QVariant GetCachedTexture(const QByteArray &hash) override;
+
+  virtual void SaveCachedTexture(const QByteArray& hash, const QVariant& texture) override;
+
+  virtual VideoParams GetCacheVideoParams() override;
 
   virtual QVector2D GenerateResolution() const override;
 

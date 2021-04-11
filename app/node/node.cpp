@@ -48,7 +48,8 @@ Node::Node(bool create_default_output) :
   override_color_(-1),
   last_change_time_(0),
   folder_(nullptr),
-  operation_stack_(0)
+  operation_stack_(0),
+  cache_result_(false)
 {
   if (create_default_output) {
     AddOutput();
