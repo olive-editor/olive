@@ -188,10 +188,14 @@ signals:
 
   void ArrayExpandedChanged(bool e);
 
+  void Moved();
+
 protected:
   virtual void changeEvent(QEvent *e) override;
 
   virtual void paintEvent(QPaintEvent *event) override;
+
+  virtual void moveEvent(QMoveEvent *event) override;
 
 private:
   NodeParamViewItemTitleBar* title_bar_;

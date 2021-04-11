@@ -36,8 +36,10 @@ const int NodeParamViewItemBody::kKeyControlColumn = 10;
 const int NodeParamViewItemBody::kArrayInsertColumn = kKeyControlColumn-1;
 const int NodeParamViewItemBody::kArrayRemoveColumn = kArrayInsertColumn-1;
 
+#define super QDockWidget
+
 NodeParamViewItem::NodeParamViewItem(Node *node, QWidget *parent) :
-  QDockWidget(parent),
+  super(parent),
   node_(node),
   highlighted_(false)
 {
@@ -92,12 +94,12 @@ void NodeParamViewItem::changeEvent(QEvent *e)
     Retranslate();
   }
 
-  QWidget::changeEvent(e);
+  super::changeEvent(e);
 }
 
 void NodeParamViewItem::paintEvent(QPaintEvent *event)
 {
-  QDockWidget::paintEvent(event);
+  super::paintEvent(event);
 
   // Draw border if focused
   if (highlighted_) {
@@ -106,6 +108,13 @@ void NodeParamViewItem::paintEvent(QPaintEvent *event)
     p.setPen(palette().highlight().color());
     p.drawRect(rect().adjusted(0, 0, -1, -1));
   }
+}
+
+void NodeParamViewItem::moveEvent(QMoveEvent *event)
+{
+  super::moveEvent(event);
+
+  emit Moved();
 }
 
 void NodeParamViewItem::Retranslate()

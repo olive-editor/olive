@@ -257,7 +257,7 @@ void NodeParamView::UpdateItemTime(const int64_t &timestamp)
 
 void NodeParamView::QueueKeyframePositionUpdate()
 {
-  QMetaObject::invokeMethod(this, "UpdateElementY", Qt::QueuedConnection);
+  QMetaObject::invokeMethod(this, &NodeParamView::UpdateElementY, Qt::QueuedConnection);
 }
 
 void NodeParamView::SignalNodeOrder()
@@ -305,8 +305,9 @@ void NodeParamView::AddNode(Node *n)
   connect(item, &NodeParamViewItem::dockLocationChanged, this, &NodeParamView::QueueKeyframePositionUpdate);
   connect(item, &NodeParamViewItem::dockLocationChanged, this, &NodeParamView::SignalNodeOrder);
   connect(item, &NodeParamViewItem::PinToggled, this, &NodeParamView::PinNode);
-  connect(item, &NodeParamViewItem::ExpandedChanged, this, &NodeParamView::UpdateElementY);
-  connect(item, &NodeParamViewItem::ArrayExpandedChanged, this, &NodeParamView::UpdateElementY);
+  connect(item, &NodeParamViewItem::ArrayExpandedChanged, this, &NodeParamView::QueueKeyframePositionUpdate);
+  connect(item, &NodeParamViewItem::ExpandedChanged, this, &NodeParamView::QueueKeyframePositionUpdate);
+  connect(item, &NodeParamViewItem::Moved, this, &NodeParamView::QueueKeyframePositionUpdate);
 
   // Set time target
   item->SetTimeTarget(GetTimeTarget());
