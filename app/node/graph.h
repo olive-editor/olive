@@ -41,6 +41,11 @@ public:
   NodeGraph();
 
   /**
+   * @brief NodeGraph Destructor
+   */
+  virtual ~NodeGraph() override;
+
+  /**
    * @brief Destructively destroys all nodes in the graph
    */
   void Clear();
