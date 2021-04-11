@@ -2279,7 +2279,7 @@ void NodeSetPositionAndShiftSurroundingsCommand::redo()
     commands_.append(set_pos_command);
 
     // Get bounding rect
-    QRectF bounding_rect(position_.x() - 0.5, position_.y() - 0.5, 1, 1);
+    QRectF bounding_rect(position_.x() - 0.45, position_.y() - 0.45, 0.9, 0.9);
 
     // Start moving other nodes
     foreach (Node* surrounding, node_->parent()->nodes()) {
