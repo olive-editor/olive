@@ -1504,8 +1504,8 @@ bool Core::ValidateFootageInLoadedProject(Project* project, const QString& proje
       }
     }
 
-    // Heuristically compare footage to file
-    if (Footage::CompareFootageToItsFilename(footage)) {
+    if (QFileInfo::exists(footage->filename())) {
+      // Assume valid
       footage->SetValid();
     } else {
       footage_we_couldnt_validate.append(footage);

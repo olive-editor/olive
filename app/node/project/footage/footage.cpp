@@ -298,41 +298,6 @@ QString Footage::DescribeAudioStream(const AudioParams &params)
            QString::number(params.sample_rate()));
 }
 
-bool Footage::CompareFootageToFile(Footage *footage, const QString &filename)
-{
-  // Heuristic to determine if file has changed
-  QFileInfo info(filename);
-
-  if (info.exists()) {
-    /*if (info.lastModified().toMSecsSinceEpoch() == footage->timestamp()) {
-      // Footage has not been modified and is where we expect
-      return true;
-    } else {
-      // Footage may have changed and we'll have to re-probe it. It also may not have, in which
-      // case nothing needs to change.
-      DecoderPtr decoder = Decoder::CreateFromID(footage->decoder());
-
-      Streams probed_streams = decoder->Probe(filename, nullptr);
-
-      if (probed_streams == footage->streams_) {
-        return true;
-      }
-    }*/
-    Q_UNUSED(footage)
-
-    // Simplified, since our footage node is much more tolerant, we'll try this
-    return true;
-  }
-
-  // Footage file couldn't be found or resolved to something we didn't expect
-  return false;
-}
-
-bool Footage::CompareFootageToItsFilename(Footage *footage)
-{
-  return CompareFootageToFile(footage, footage->filename());
-}
-
 void Footage::Hash(const QString& output, QCryptographicHash &hash, const rational &time) const
 {
   super::Hash(output, hash, time);
@@ -490,58 +455,6 @@ void Footage::UpdateTooltip()
   }
 }
 
-/*void Footage::AddStreamAsInput(Track::Type type, int index, QVariant value)
-{
-  QString input_id = GetInputIDOfIndex(type, index);
-
-  Track::Reference ref(type, index);
-
-  // Create input for parameters
-  NodeValue::Type value_type;
-  uint64_t param_mask = 0;
-
-  if (type == Track::kVideo) {
-    VideoParams vp = value.value<VideoParams>();
-    value_type = NodeValue::kVideoParams;
-
-    // Universal parameters for video/image footage
-    param_mask |= VideoParamEdit::kEnabled;
-    param_mask |= VideoParamEdit::kColorspace;
-    param_mask |= VideoParamEdit::kPixelAspect;
-    param_mask |= VideoParamEdit::kInterlacing;
-
-    if (vp.channel_count() == VideoParams::kRGBAChannelCount) {
-      // If this has an alpha channel, add a premultiplied optino
-      param_mask |= VideoParamEdit::kPremultipliedAlpha;
-    }
-
-    if (vp.video_type() != VideoParams::kVideoTypeVideo) {
-      // This is either a still image or an image sequence, add properties for those
-      param_mask |= VideoParamEdit::kIsImageSequence;
-      param_mask |= VideoParamEdit::kStartTime;
-      param_mask |= VideoParamEdit::kEndTime;
-      param_mask |= VideoParamEdit::kFrameRate;
-    } else {
-      // Ensure timebase isn't overwritten by the frame rate field
-      param_mask |= VideoParamEdit::kFrameRateIsNotTimebase;
-    }
-  } else {
-    value_type = NodeValue::kAudioParams;
-    param_mask = 0;
-  }
-
-  AddInput(input_id, value_type,
-           InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
-  SetStandardValue(input_id, value);
-  SetInputProperty(input_id, QStringLiteral("mask"), QVariant::fromValue(param_mask));
-  inputs_for_stream_properties_.insert(ref, input_id);
-
-  // Create output for stream
-  QString output_id = Track::Reference(type, index).ToString();
-  AddOutput(output_id);
-  outputs_for_streams_.insert(ref, output_id);
-}*/
-
 void Footage::CheckFootage()
 {
   QString fn = filename();
@@ -558,22 +471,5 @@ void Footage::CheckFootage()
     }
   }
 }
-
-/*QString Track::Reference::video_colorspace(bool default_if_empty) const
-{
-  if (IsValid()) {
-    VideoParams params = footage_->GetVideoParams(index_);
-
-    if (params.is_valid()) {
-      if (params.colorspace().isEmpty() && default_if_empty) {
-
-      } else {
-        return params.colorspace();
-      }
-    }
-  }
-
-  return QString();
-}*/
 
 }

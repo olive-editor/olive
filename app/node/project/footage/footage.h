@@ -170,9 +170,6 @@ public:
   static QString DescribeVideoStream(const VideoParams& params);
   static QString DescribeAudioStream(const AudioParams& params);
 
-  static bool CompareFootageToFile(Footage* footage, const QString& filename);
-  static bool CompareFootageToItsFilename(Footage* footage);
-
   virtual void Hash(const QString& output, QCryptographicHash &hash, const rational &time) const override;
 
   virtual NodeValueTable Value(const QString &output, NodeValueDatabase& value) const override;

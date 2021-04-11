@@ -114,13 +114,14 @@ void FootageRelinkDialog::BrowseForFootage()
     // Set new filename since this was set manually by the user
     f->set_filename(new_fn);
 
-    if (Footage::CompareFootageToItsFilename(f)) {
-      // Set footage to valid and update icon
-      f->SetValid();
+    // Assume footage is valid here. We could do some decoder probing to ensure it's a usable file
+    // but otherwise we assume the user knows what they're doing here.
 
-      // Update item visually
-      UpdateFootageItem(index);
-    }
+    // Set footage to valid and update icon
+    f->SetValid();
+
+    // Update item visually
+    UpdateFootageItem(index);
 
     // Check all other footage files for matches
     for (int it=0; it<footage_.size(); it++) {
@@ -133,8 +134,7 @@ void FootageRelinkDialog::BrowseForFootage()
         QString absolute_to_new = new_dir.filePath(relative_to_original);
 
         // Check if file exists
-        if (QFileInfo::exists(absolute_to_new)
-            && Footage::CompareFootageToFile(other_footage, absolute_to_new)) {
+        if (QFileInfo::exists(absolute_to_new)) {
           other_footage->set_filename(absolute_to_new);
           other_footage->SetValid();
           UpdateFootageItem(it);
