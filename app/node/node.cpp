@@ -2280,17 +2280,20 @@ void NodeSetPositionAndShiftSurroundingsCommand::redo()
     commands_.append(set_pos_command);
 
     // Get bounding rect
-    QRectF bounding_rect(position_.x() - 0.45, position_.y() - 0.45, 0.9, 0.9);
+    QRectF bounding_rect(position_.x() - 0.5, position_.y() - 0.5, 1, 1);
 
     // Start moving other nodes
     foreach (Node* surrounding, node_->parent()->nodes()) {
       if (bounding_rect.contains(surrounding->GetPosition()) && surrounding != node_) {
         QPointF new_pos = surrounding->GetPosition();
-        if (surrounding->GetPosition().y() > position_.y()) {
-          new_pos.setY(new_pos.y() + 0.5);
-        } else {
-          new_pos.setY(new_pos.y() - 0.5);
+
+        qreal move_rate = 0.50;
+
+        if (surrounding->GetPosition().y() < position_.y()) {
+          move_rate = -move_rate;
         }
+
+        new_pos.setY(new_pos.y() + move_rate);
 
         auto sur_command = new NodeSetPositionAndShiftSurroundingsCommand(surrounding, new_pos, true);
         sur_command->redo();
