@@ -38,6 +38,8 @@ public:
   virtual void Accept(MultiUndoCommand* command) override;
 
 private:
+  QComboBox* audio_backend_combobox_;
+
   /**
    * @brief UI widget for selecting the output audio device
    */
@@ -47,11 +49,6 @@ private:
    * @brief UI widget for selecting the input audio device
    */
   QComboBox* audio_input_devices_;
-
-  /**
-   * @brief UI widget for selecting the audio sampling rates
-   */
-  QComboBox* audio_sample_rate_;
 
   /**
    * @brief UI widget for editing the recording channels

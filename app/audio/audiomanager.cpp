@@ -28,6 +28,18 @@ namespace olive {
 
 AudioManager* AudioManager::instance_ = nullptr;
 
+QString AudioManager::GetAudioBackendName(AudioManager::Backend b)
+{
+  switch (b) {
+  case kAudioBackendQt:
+    return tr("Qt");
+  case kAudioBackendCount:
+    break;
+  }
+
+  return tr("Unknown");
+}
+
 void AudioManager::CreateInstance()
 {
   if (instance_ == nullptr) {

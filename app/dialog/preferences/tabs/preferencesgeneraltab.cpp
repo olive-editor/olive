@@ -35,7 +35,6 @@ namespace olive {
 PreferencesGeneralTab::PreferencesGeneralTab()
 {
   QVBoxLayout* layout = new QVBoxLayout(this);
-  layout->setMargin(0);
 
   {
     QGroupBox* global_groupbox = new QGroupBox(tr("Locale"));

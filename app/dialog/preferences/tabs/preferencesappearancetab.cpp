@@ -36,7 +36,6 @@ namespace olive {
 PreferencesAppearanceTab::PreferencesAppearanceTab()
 {
   QVBoxLayout* layout = new QVBoxLayout(this);
-  layout->setMargin(0);
 
   QGridLayout* appearance_layout = new QGridLayout();
   layout->addLayout(appearance_layout);

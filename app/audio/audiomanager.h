@@ -44,6 +44,13 @@ class AudioManager : public QObject
 {
   Q_OBJECT
 public:
+  enum Backend {
+    kAudioBackendQt,
+    kAudioBackendCount
+  };
+
+  static QString GetAudioBackendName(Backend b);
+
   static void CreateInstance();
   static void DestroyInstance();
 
