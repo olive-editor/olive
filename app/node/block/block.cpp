@@ -50,8 +50,9 @@ Block::Block() :
 
   AddInput(kEnabledInput, NodeValue::kBoolean, true, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
-  AddInput(kSpeedInput, NodeValue::kFloat, 1.0);
+  AddInput(kSpeedInput, NodeValue::kFloat, 1.0, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
   SetInputProperty(kSpeedInput, QStringLiteral("view"), FloatSlider::kPercentage);
+  SetInputProperty(kSpeedInput, QStringLiteral("min"), 0.0);
   IgnoreHashingFrom(kSpeedInput);
 
   // A block's length must be greater than 0
@@ -126,18 +127,14 @@ rational Block::SequenceToMediaTime(const rational &sequence_time) const
   rational local_time = sequence_time;
 
   // FIXME: Doesn't handle reversing
-  if (IsInputStatic(kSpeedInput)) {
-    double speed_value = GetStandardValue(kSpeedInput).toDouble();
+  double speed_value = GetStandardValue(kSpeedInput).toDouble();
 
-    if (qIsNull(speed_value)) {
-      // Effectively holds the frame at the in point
-      local_time = 0;
-    } else if (!qFuzzyCompare(speed_value, 1.0)) {
-      // Multiply time
-      local_time = rational::fromDouble(local_time.toDouble() * speed_value);
-    }
-  } else {
-    // FIXME: We'll need to calculate the speed hoo boy
+  if (qIsNull(speed_value)) {
+    // Effectively holds the frame at the in point
+    local_time = 0;
+  } else if (!qFuzzyCompare(speed_value, 1.0)) {
+    // Multiply time
+    local_time = rational::fromDouble(local_time.toDouble() * speed_value);
   }
 
   return local_time + media_in();
@@ -153,18 +150,14 @@ rational Block::MediaToSequenceTime(const rational &media_time) const
   rational sequence_time = media_time - media_in();
 
   // FIXME: Doesn't handle reversing
-  if (IsInputKeyframing(kSpeedInput) || IsInputConnected(kSpeedInput)) {
-    // FIXME: We'll need to calculate the speed hoo boy
-  } else {
-    double speed_value = GetStandardValue(kSpeedInput).toDouble();
+  double speed_value = GetStandardValue(kSpeedInput).toDouble();
 
-    if (qIsNull(speed_value)) {
-      // Effectively holds the frame at the in point, also prevents divide by zero
-      sequence_time = 0;
-    } else if (!qFuzzyCompare(speed_value, 1.0)) {
-      // Multiply time
-      sequence_time = rational::fromDouble(sequence_time.toDouble() / speed_value);
-    }
+  if (qIsNull(speed_value)) {
+    // Effectively holds the frame at the in point, also prevents divide by zero
+    sequence_time = 0;
+  } else if (!qFuzzyCompare(speed_value, 1.0)) {
+    // Multiply time
+    sequence_time = rational::fromDouble(sequence_time.toDouble() / speed_value);
   }
 
   return sequence_time;

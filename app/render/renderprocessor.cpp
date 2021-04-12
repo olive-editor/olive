@@ -227,18 +227,14 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const Track *track, const Tim
       }
 
       // FIXME: Doesn't handle reversing
-      if (b->IsInputKeyframing(Block::kSpeedInput) || b->IsInputConnected(Block::kSpeedInput)) {
-        // FIXME: We'll need to calculate the speed hoo boy
-      } else {
-        double speed_value = b->GetStandardValue(Block::kSpeedInput).toDouble();
+      double speed_value = b->GetStandardValue(Block::kSpeedInput).toDouble();
 
-        if (qIsNull(speed_value)) {
-          // Just silence, don't think there's any other practical application of 0 speed audio
-          samples_from_this_block->fill(0);
-        } else if (!qFuzzyCompare(speed_value, 1.0)) {
-          // Multiply time
-          samples_from_this_block->speed(speed_value);
-        }
+      if (qIsNull(speed_value)) {
+        // Just silence, don't think there's any other practical application of 0 speed audio
+        samples_from_this_block->fill(0);
+      } else if (!qFuzzyCompare(speed_value, 1.0)) {
+        // Multiply time
+        samples_from_this_block->speed(speed_value);
       }
 
       int copy_length = qMin(max_dest_sz, samples_from_this_block->sample_count());
