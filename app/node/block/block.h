@@ -151,12 +151,23 @@ public:
     return block_links_;
   }
 
+  double speed() const
+  {
+    return GetStandardValue(kSpeedInput).toDouble();
+  }
+
+  bool reverse() const
+  {
+    return GetStandardValue(kReverseInput).toBool();
+  }
+
   virtual void Hash(const QString& output, QCryptographicHash &hash, const rational &time) const override;
 
   static const QString kLengthInput;
   static const QString kMediaInInput;
   static const QString kEnabledInput;
   static const QString kSpeedInput;
+  static const QString kReverseInput;
 
 public slots:
 
@@ -166,7 +177,7 @@ signals:
   void LengthChanged();
 
 protected:
-  rational SequenceToMediaTime(const rational& sequence_time) const;
+  rational SequenceToMediaTime(const rational& sequence_time, bool ignore_reverse = false) const;
 
   rational MediaToSequenceTime(const rational& media_time) const;
 
