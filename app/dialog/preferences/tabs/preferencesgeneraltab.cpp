@@ -103,7 +103,7 @@ PreferencesGeneralTab::PreferencesGeneralTab()
 
     default_still_length_ = new FloatSlider();
     default_still_length_->SetMinimum(0.1);
-    default_still_length_->SetFormat(tr("%1 second(s)"));
+    default_still_length_->SetFormat(tr("%1 seconds"));
     default_still_length_->SetValue(Config::Current()["DefaultStillLength"].value<rational>().toDouble());
     timeline_layout->addWidget(default_still_length_);
 
@@ -136,7 +136,7 @@ PreferencesGeneralTab::PreferencesGeneralTab()
     autorecovery_interval_ = new IntegerSlider();
     autorecovery_interval_->SetMinimum(1);
     autorecovery_interval_->SetMaximum(60);
-    autorecovery_interval_->SetFormat(tr("%1 minute(s)"));
+    autorecovery_interval_->SetFormat(QT_TRANSLATE_N_NOOP("olive::SliderBase", "%n minute(s)"), true);
     autorecovery_interval_->SetValue(Config::Current()[QStringLiteral("AutorecoveryInterval")].toLongLong());
     autorecovery_layout->addWidget(autorecovery_interval_, row, 1);
 
