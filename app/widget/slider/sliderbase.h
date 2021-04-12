@@ -85,6 +85,8 @@ protected:
 
   void UpdateLabel(const QVariant& v);
 
+  QLabel* label() { return label_; }
+
   virtual double AdjustDragDistanceInternal(const double& start, const double& drag);
 
   virtual QString ValueToString(const QVariant &v) = 0;

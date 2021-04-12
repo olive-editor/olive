@@ -47,6 +47,9 @@ SliderLabel::SliderLabel(QWidget *parent) :
 
   // Allow users to tab to this widget
   setFocusPolicy(Qt::TabFocus);
+
+  // Add ccustom context menu
+  setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
 void SliderLabel::mousePressEvent(QMouseEvent *e)
@@ -57,8 +60,6 @@ void SliderLabel::mousePressEvent(QMouseEvent *e)
     } else  {
       emit LabelPressed();
     }
-  } else if (e->button() == Qt::RightButton) {
-    emit ChangeSliderType();
   }
 }
 
