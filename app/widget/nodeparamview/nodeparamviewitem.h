@@ -99,6 +99,8 @@ private:
 
   void UpdateUIForEdgeConnection(const NodeInput &input);
 
+  void PlaceWidgetsFromBridge(QGridLayout *layout, NodeParamViewWidgetBridge* bridge, int row);
+
   struct InputUI {
     InputUI();
 
@@ -106,6 +108,8 @@ private:
     NodeParamViewWidgetBridge* widget_bridge;
     NodeParamViewConnectedLabel* connected_label;
     NodeParamViewKeyframeControl* key_control;
+    QGridLayout* layout;
+    int row;
 
     NodeParamViewArrayButton* array_insert_btn;
     NodeParamViewArrayButton* array_remove_btn;
@@ -134,6 +138,8 @@ private:
   static const int kArrayInsertColumn;
   static const int kArrayRemoveColumn;
 
+  static const int kWidgetStartColumn;
+
 private slots:
   void EdgeChanged(const NodeOutput &output, const NodeInput &input);
 
@@ -148,6 +154,8 @@ private slots:
   void ArrayRemoveClicked();
 
   void ToggleArrayExpanded();
+
+  void ReplaceWidgets(const NodeInput& input);
 
 };
 
@@ -192,10 +200,14 @@ signals:
 
   void ArrayExpandedChanged(bool e);
 
+  void Moved();
+
 protected:
   virtual void changeEvent(QEvent *e) override;
 
   virtual void paintEvent(QPaintEvent *event) override;
+
+  virtual void moveEvent(QMoveEvent *event) override;
 
 private:
   NodeParamViewItemTitleBar* title_bar_;

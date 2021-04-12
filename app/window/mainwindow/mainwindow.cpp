@@ -68,6 +68,8 @@ MainWindow::MainWindow(QWidget *parent) :
   MainMenu* main_menu = new MainMenu(this);
   setMenuBar(main_menu);
 
+  LoadCustomShortcuts();
+
   // Create and set status bar
   MainStatusBar* status_bar = new MainStatusBar(this);
   status_bar->ConnectTaskManager(TaskManager::instance());
@@ -331,19 +333,18 @@ void MainWindow::ProjectOpen(Project *p)
 
 void MainWindow::ProjectClose(Project *p)
 {
-  // Close any open sequences from project
-  QVector<Sequence*> open_sequences = p->root()->ListChildrenOfType<Sequence>();
+  // Close any nodes open in TimeBasedWidgets
+  foreach (PanelWidget* panel, PanelManager::instance()->panels()) {
+    TimeBasedPanel* tbp = dynamic_cast<TimeBasedPanel*>(panel);
 
-  foreach (Sequence* seq, open_sequences) {
-    if (IsSequenceOpen(seq)) {
-      CloseSequence(seq);
+    if (tbp && tbp->GetConnectedViewer() && tbp->GetConnectedViewer()->project() == p) {
+      if (dynamic_cast<TimelinePanel*>(tbp)) {
+        // Prefer our CloseSequence function which will delete any unnecessary timeline panels
+        CloseSequence(static_cast<Sequence*>(tbp->GetConnectedViewer()));
+      } else {
+        tbp->DisconnectViewerNode();
+      }
     }
-  }
-
-  // Close any open footage in footage viewer
-  if (footage_viewer_panel_->GetConnectedViewer()
-      && footage_viewer_panel_->GetConnectedViewer()->project() == p) {
-    footage_viewer_panel_->DisconnectViewerNode();
   }
 
   // Close any extra folder panels
@@ -406,6 +407,8 @@ void MainWindow::closeEvent(QCloseEvent *e)
   }
 
   PanelManager::instance()->DeleteAllPanels();
+
+  SaveCustomShortcuts();
 
   QMainWindow::closeEvent(e);
 }
@@ -523,11 +526,9 @@ void MainWindow::RemoveTimelinePanel(TimelinePanel *panel)
 {
   // Stop showing this timeline in the viewer
   TimelineFocused(nullptr);
+  panel->ConnectViewerNode(nullptr);
 
-  if (timeline_panels_.size() == 1) {
-    // Leave our single remaining timeline panel open
-    panel->ConnectViewerNode(nullptr);
-  } else {
+  if (timeline_panels_.size() != 1) {
     timeline_panels_.removeOne(panel);
     panel->deleteLater();
   }
@@ -548,6 +549,107 @@ void MainWindow::TimelineFocused(ViewerOutput* viewer)
   sequence_viewer_panel_->ConnectViewerNode(viewer);
   param_panel_->ConnectViewerNode(viewer);
   curve_panel_->ConnectViewerNode(viewer);
+}
+
+QString MainWindow::GetCustomShortcutsFile()
+{
+  return QDir(FileFunctions::GetConfigurationLocation()).filePath(QStringLiteral("shortcuts"));
+}
+
+void LoadCustomShortcutsInternal(QMenu* menu, const QMap<QString, QString>& shortcuts)
+{
+  QList<QAction*> actions = menu->actions();
+
+  foreach (QAction* a, actions) {
+    if (a->menu()) {
+      LoadCustomShortcutsInternal(a->menu(), shortcuts);
+    } else if (!a->isSeparator()) {
+      QString action_id = a->property("id").toString();
+
+      if (shortcuts.contains(action_id)) {
+        a->setShortcut(shortcuts.value(action_id));
+      }
+    }
+  }
+}
+
+void MainWindow::LoadCustomShortcuts()
+{
+  QFile shortcut_file(GetCustomShortcutsFile());
+  if (shortcut_file.exists() && shortcut_file.open(QFile::ReadOnly)) {
+    QMap<QString, QString> shortcuts;
+
+    QString shortcut_str = QString::fromUtf8(shortcut_file.readAll());
+
+    QStringList shortcut_list = shortcut_str.split(QStringLiteral("\n"));
+
+    foreach (const QString& s, shortcut_list) {
+      QStringList shortcut_line = s.split(QStringLiteral("\t"));
+      if (shortcut_line.size() >= 2) {
+        shortcuts.insert(shortcut_line.at(0), shortcut_line.at(1));
+      }
+    }
+
+    shortcut_file.close();
+
+    if (!shortcuts.isEmpty()) {
+      QList<QAction*> menus = menuBar()->actions();
+
+      foreach (QAction* menu, menus) {
+        LoadCustomShortcutsInternal(menu->menu(), shortcuts);
+      }
+    }
+  }
+}
+
+void SaveCustomShortcutsInternal(QMenu* menu, QMap<QString, QString>* shortcuts)
+{
+  QList<QAction*> actions = menu->actions();
+
+  foreach (QAction* a, actions) {
+    if (a->menu()) {
+      SaveCustomShortcutsInternal(a->menu(), shortcuts);
+    } else if (!a->isSeparator()) {
+      QString default_shortcut = a->property("keydefault").toString();
+      QString current_shortcut = a->shortcut().toString();
+      if (current_shortcut != default_shortcut) {
+        QString action_id = a->property("id").toString();
+        shortcuts->insert(action_id, current_shortcut);
+      }
+    }
+  }
+}
+
+void MainWindow::SaveCustomShortcuts()
+{
+  QMap<QString, QString> shortcuts;
+  QList<QAction*> menus = menuBar()->actions();
+
+  foreach (QAction* menu, menus) {
+    SaveCustomShortcutsInternal(menu->menu(), &shortcuts);
+  }
+
+  QFile shortcut_file(GetCustomShortcutsFile());
+  if (shortcuts.isEmpty()) {
+    if (shortcut_file.exists()) {
+      // No custom shortcuts, remove any existing file
+      shortcut_file.remove();
+    }
+  } else if (shortcut_file.open(QFile::WriteOnly)) {
+    for (auto it=shortcuts.cbegin(); it!=shortcuts.cend(); it++) {
+      if (it != shortcuts.cbegin()) {
+        shortcut_file.write(QStringLiteral("\n").toUtf8());
+      }
+
+      shortcut_file.write(it.key().toUtf8());
+      shortcut_file.write(QStringLiteral("\t").toUtf8());
+      shortcut_file.write(it.value().toUtf8());
+    }
+    shortcut_file.close();
+  } else {
+    qCritical() << "Failed to save custom keyboard shortcuts";
+  }
+
 }
 
 void MainWindow::FocusedPanelChanged(PanelWidget *panel)
@@ -643,9 +745,9 @@ void MainWindow::showEvent(QShowEvent *e)
     if (!strcmp(vendor, "nouveau")) {
       QMetaObject::invokeMethod(this, "ShowNouveauWarning", Qt::QueuedConnection);
     }
+#endif
 
     first_show_ = false;
-#endif
   }
 }
 

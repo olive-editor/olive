@@ -21,6 +21,7 @@
 #include "preferencesaudiotab.h"
 
 #include <QGridLayout>
+#include <QGroupBox>
 #include <QLabel>
 
 #include "audio/audiomanager.h"
@@ -30,65 +31,88 @@ namespace olive {
 
 PreferencesAudioTab::PreferencesAudioTab()
 {
-  QGridLayout* audio_tab_layout = new QGridLayout(this);
-  audio_tab_layout->setMargin(0);
+  QVBoxLayout* audio_tab_layout = new QVBoxLayout(this);
 
-  int row = 0;
+  {
+    // Backend Layout
+    QGridLayout* main_layout = new QGridLayout();
+    main_layout->setMargin(0);
 
-  // Audio -> Output Device
-  audio_tab_layout->addWidget(new QLabel(tr("Output Device:")), row, 0);
+    int row = 0;
 
-  audio_output_devices_ = new QComboBox();
-  audio_tab_layout->addWidget(audio_output_devices_, row, 1);
+    main_layout->addWidget(new QLabel(tr("Backend:")), row, 0);
 
-  row++;
-
-  // Audio -> Input Device
-  audio_tab_layout->addWidget(new QLabel(tr("Input Device:")), row, 0);
-
-  audio_input_devices_ = new QComboBox();
-  audio_tab_layout->addWidget(audio_input_devices_, row, 1);
-
-  row++;
-
-  // Audio -> Sample Rate
-
-  audio_tab_layout->addWidget(new QLabel(tr("Sample Rate:")), row, 0);
-
-  audio_sample_rate_ = new QComboBox();
-  /*combobox_audio_sample_rates(audio_sample_rate);
-  for (int i=0;i<audio_sample_rate->count();i++) {
-    if (audio_sample_rate->itemData(i).toInt() == olive::config.audio_rate) {
-      audio_sample_rate->setCurrentIndex(i);
-      break;
+    audio_backend_combobox_ = new QComboBox();
+    for (int i=0; i<AudioManager::kAudioBackendCount; i++) {
+      audio_backend_combobox_->addItem(AudioManager::GetAudioBackendName(static_cast<AudioManager::Backend>(i)));
     }
-  }*/
+    main_layout->addWidget(audio_backend_combobox_, row, 1);
 
-  audio_tab_layout->addWidget(audio_sample_rate_, row, 1);
+    audio_tab_layout->addLayout(main_layout);
+  }
 
-  row++;
+  {
+    // Qt-Backend Layout
+    QGroupBox* qt_groupbox = new QGroupBox();
+    audio_tab_layout->addWidget(qt_groupbox);
 
-  // Audio -> Audio Recording
-  audio_tab_layout->addWidget(new QLabel(tr("Audio Recording:"), this), row, 0);
+    QVBoxLayout* qt_layout = new QVBoxLayout(qt_groupbox);
 
-  recording_combobox_ = new QComboBox();
-  recording_combobox_->addItem(tr("Mono"));
-  recording_combobox_->addItem(tr("Stereo"));
-//  recordingComboBox->setCurrentIndex(olive::config.recording_mode - 1);
-  audio_tab_layout->addWidget(recording_combobox_, row, 1);
+    int row = 0;
 
-  row++;
+    {
+      // Output Group
+      QGroupBox* qt_output_group = new QGroupBox();
+      qt_output_group->setTitle(tr("Output"));
+      qt_layout->addWidget(qt_output_group);
 
-  refresh_devices_btn_ = new QPushButton(tr("Refresh Devices"));
-  audio_tab_layout->addWidget(refresh_devices_btn_, row, 1);
+      QGridLayout* qt_output_layout = new QGridLayout(qt_output_group);
 
-  row++;
+      qt_output_layout->addWidget(new QLabel(tr("Device:")), row, 0);
 
-  RetrieveDeviceLists();
+      audio_output_devices_ = new QComboBox();
+      qt_output_layout->addWidget(audio_output_devices_, row, 1);
+    }
 
-  connect(refresh_devices_btn_, &QPushButton::clicked, this, &PreferencesAudioTab::RefreshDevices);
-  connect(AudioManager::instance(), &AudioManager::OutputListReady, this, &PreferencesAudioTab::RetrieveOutputList);
-  connect(AudioManager::instance(), &AudioManager::InputListReady, this, &PreferencesAudioTab::RetrieveInputList);
+    row = 0;
+
+    {
+      QGroupBox* qt_input_group = new QGroupBox();
+      qt_input_group->setTitle(tr("Input"));
+      qt_layout->addWidget(qt_input_group);
+
+      QGridLayout* qt_input_layout = new QGridLayout(qt_input_group);
+
+      qt_input_layout->addWidget(new QLabel(tr("Device:")), row, 0);
+
+      audio_input_devices_ = new QComboBox();
+      qt_input_layout->addWidget(audio_input_devices_, row, 1);
+
+      row++;
+
+      qt_input_layout->addWidget(new QLabel(tr("Recording Mode:"), this), row, 0);
+
+      recording_combobox_ = new QComboBox();
+      recording_combobox_->addItem(tr("Mono"));
+      recording_combobox_->addItem(tr("Stereo"));
+      qt_input_layout->addWidget(recording_combobox_, row, 1);
+    }
+
+    QHBoxLayout* qt_refresh_layout = new QHBoxLayout();
+    qt_layout->addLayout(qt_refresh_layout);
+    qt_refresh_layout->addStretch();
+
+    refresh_devices_btn_ = new QPushButton(tr("Refresh Devices"));
+    qt_refresh_layout->addWidget(refresh_devices_btn_);
+
+    RetrieveDeviceLists();
+
+    connect(refresh_devices_btn_, &QPushButton::clicked, this, &PreferencesAudioTab::RefreshDevices);
+    connect(AudioManager::instance(), &AudioManager::OutputListReady, this, &PreferencesAudioTab::RetrieveOutputList);
+    connect(AudioManager::instance(), &AudioManager::InputListReady, this, &PreferencesAudioTab::RetrieveInputList);
+  }
+
+  audio_tab_layout->addStretch();
 }
 
 void PreferencesAudioTab::Accept(MultiUndoCommand *command)

@@ -48,7 +48,8 @@ Node::Node(bool create_default_output) :
   override_color_(-1),
   last_change_time_(0),
   folder_(nullptr),
-  operation_stack_(0)
+  operation_stack_(0),
+  cache_result_(false)
 {
   if (create_default_output) {
     AddOutput();
@@ -504,10 +505,15 @@ NodeValue::Type Node::GetInputDataType(const QString &id) const
 
 void Node::SetInputDataType(const QString &id, const NodeValue::Type &type)
 {
-  Input* i = GetInternalInputData(id);
+  Input* input_meta = GetInternalInputData(id);
 
-  if (i) {
-    i->type = type;
+  if (input_meta) {
+    input_meta->type = type;
+
+    int array_sz = InputArraySize(id);
+    for (int i=-1; i<array_sz; i++) {
+      GetImmediate(id, i)->set_data_type(type);
+    }
 
     emit InputDataTypeChanged(id, type);
   } else {
@@ -692,7 +698,12 @@ SplitValue Node::GetSplitDefaultValue(const QString &input) const
 
 QVariant Node::GetSplitDefaultValueOnTrack(const QString &input, int track) const
 {
-  return GetSplitDefaultValue(input).at(track);
+  SplitValue val = GetSplitDefaultValue(input);
+  if (track < val.size()) {
+    return val.at(track);
+  } else {
+    return QVariant();
+  }
 }
 
 const QVector<NodeKeyframeTrack> &Node::GetKeyframeTracks(const QString &input, int element) const
@@ -2285,11 +2296,14 @@ void NodeSetPositionAndShiftSurroundingsCommand::redo()
     foreach (Node* surrounding, node_->parent()->nodes()) {
       if (bounding_rect.contains(surrounding->GetPosition()) && surrounding != node_) {
         QPointF new_pos = surrounding->GetPosition();
-        if (surrounding->GetPosition().y() > position_.y()) {
-          new_pos.setY(new_pos.y() + 0.5);
-        } else {
-          new_pos.setY(new_pos.y() - 0.5);
+
+        qreal move_rate = 0.50;
+
+        if (surrounding->GetPosition().y() < position_.y()) {
+          move_rate = -move_rate;
         }
+
+        new_pos.setY(new_pos.y() + move_rate);
 
         auto sur_command = new NodeSetPositionAndShiftSurroundingsCommand(surrounding, new_pos, true);
         sur_command->redo();

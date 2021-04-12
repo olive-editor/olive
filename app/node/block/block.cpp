@@ -32,6 +32,7 @@ const QString Block::kLengthInput = QStringLiteral("length_in");
 const QString Block::kMediaInInput = QStringLiteral("media_in_in");
 const QString Block::kEnabledInput = QStringLiteral("enabled_in");
 const QString Block::kSpeedInput = QStringLiteral("speed_in");
+const QString Block::kReverseInput = QStringLiteral("reverse_in");
 
 Block::Block() :
   previous_(nullptr),
@@ -51,9 +52,13 @@ Block::Block() :
 
   AddInput(kEnabledInput, NodeValue::kBoolean, true, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
-  AddInput(kSpeedInput, NodeValue::kFloat, 1.0);
+  AddInput(kSpeedInput, NodeValue::kFloat, 1.0, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
   SetInputProperty(kSpeedInput, QStringLiteral("view"), FloatSlider::kPercentage);
+  SetInputProperty(kSpeedInput, QStringLiteral("min"), 0.0);
   IgnoreHashingFrom(kSpeedInput);
+
+  AddInput(kReverseInput, NodeValue::kBoolean, false, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+  IgnoreHashingFrom(kReverseInput);
 
   // A block's length must be greater than 0
   set_length_and_media_out(1);
@@ -77,6 +82,11 @@ void Block::set_length_and_media_out(const rational &length)
     return;
   }
 
+  if (reverse()) {
+    // Calculate media_in adjustment
+    set_media_in(SequenceToMediaTime(length - this->length(), true));
+  }
+
   set_length_internal(length);
 }
 
@@ -88,8 +98,10 @@ void Block::set_length_and_media_in(const rational &length)
     return;
   }
 
-  // Calculate media_in adjustment
-  set_media_in(SequenceToMediaTime(this->length() - length));
+  if (!reverse()) {
+    // Calculate media_in adjustment
+    set_media_in(SequenceToMediaTime(this->length() - length));
+  }
 
   // Set the length without setting media out
   set_length_internal(length);
@@ -117,7 +129,7 @@ void Block::set_enabled(bool e)
   emit EnabledChanged();
 }
 
-rational Block::SequenceToMediaTime(const rational &sequence_time) const
+rational Block::SequenceToMediaTime(const rational &sequence_time, bool ignore_reverse) const
 {
   // These constants are not considered "values" per se, so we don't modify them
   if (sequence_time == RATIONAL_MIN || sequence_time == RATIONAL_MAX) {
@@ -126,22 +138,23 @@ rational Block::SequenceToMediaTime(const rational &sequence_time) const
 
   rational local_time = sequence_time;
 
-  // FIXME: Doesn't handle reversing
-  if (IsInputStatic(kSpeedInput)) {
-    double speed_value = GetStandardValue(kSpeedInput).toDouble();
+  double speed_value = speed();
 
-    if (qIsNull(speed_value)) {
-      // Effectively holds the frame at the in point
-      local_time = 0;
-    } else if (!qFuzzyCompare(speed_value, 1.0)) {
-      // Multiply time
-      local_time = rational::fromDouble(local_time.toDouble() * speed_value);
-    }
-  } else {
-    // FIXME: We'll need to calculate the speed hoo boy
+  if (qIsNull(speed_value)) {
+    // Effectively holds the frame at the in point
+    local_time = 0;
+  } else if (!qFuzzyCompare(speed_value, 1.0)) {
+    // Multiply time
+    local_time = rational::fromDouble(local_time.toDouble() * speed_value);
   }
 
-  return local_time + media_in();
+  rational media_time = local_time + media_in();
+
+  if (reverse() && !ignore_reverse) {
+    media_time = length() - media_time;
+  }
+
+  return media_time;
 }
 
 rational Block::MediaToSequenceTime(const rational &media_time) const
@@ -151,21 +164,22 @@ rational Block::MediaToSequenceTime(const rational &media_time) const
     return media_time;
   }
 
-  rational sequence_time = media_time - media_in();
+  rational sequence_time = media_time;
 
-  // FIXME: Doesn't handle reversing
-  if (IsInputKeyframing(kSpeedInput) || IsInputConnected(kSpeedInput)) {
-    // FIXME: We'll need to calculate the speed hoo boy
-  } else {
-    double speed_value = GetStandardValue(kSpeedInput).toDouble();
+  if (reverse()) {
+    sequence_time = length() - sequence_time;
+  }
 
-    if (qIsNull(speed_value)) {
-      // Effectively holds the frame at the in point, also prevents divide by zero
-      sequence_time = 0;
-    } else if (!qFuzzyCompare(speed_value, 1.0)) {
-      // Multiply time
-      sequence_time = rational::fromDouble(sequence_time.toDouble() / speed_value);
-    }
+  sequence_time -= media_in();
+
+  double speed_value = speed();
+
+  if (qIsNull(speed_value)) {
+    // Effectively holds the frame at the in point, also prevents divide by zero
+    sequence_time = 0;
+  } else if (!qFuzzyCompare(speed_value, 1.0)) {
+    // Multiply time
+    sequence_time = rational::fromDouble(sequence_time.toDouble() / speed_value);
   }
 
   return sequence_time;
@@ -208,6 +222,7 @@ void Block::Retranslate()
   SetInputName(kMediaInInput, tr("Media In"));
   SetInputName(kEnabledInput, tr("Enabled"));
   SetInputName(kSpeedInput, tr("Speed"));
+  SetInputName(kReverseInput, tr("Reverse"));
 }
 
 void Block::Hash(const QString &, QCryptographicHash &, const rational &) const

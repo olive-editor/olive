@@ -160,6 +160,10 @@ int SeekableWidget::TimeToScreen(const rational &time) const
 
 void SeekableWidget::SeekToScreenPoint(int screen)
 {
+  if (timebase().isNull()) {
+    return;
+  }
+
   int64_t timestamp = qMax(static_cast<int64_t>(0), ScreenToUnitRounded(screen));
 
   if (Core::instance()->snapping() && snap_service_) {

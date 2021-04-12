@@ -574,11 +574,13 @@ bool Track::IsLocked() const
 
 void Track::Hash(const QString &output, QCryptographicHash &hash, const rational &time) const
 {
+  Q_UNUSED(output)
+
   Block* b = BlockAtTime(time);
 
   // Defer to block at this time, don't add any of our own information to the hash
   if (b) {
-    b->Hash(output, hash, TransformTimeForBlock(b, time));
+    b->Hash(kDefaultOutput, hash, TransformTimeForBlock(b, time));
   }
 }
 

@@ -85,7 +85,7 @@ bool RenderTask::Render(ColorManager* manager,
         return true;
       }
 
-      hashes[i] = RenderManager::instance()->Hash(viewer(), video_params_, times.at(i));
+      hashes[i] = RenderManager::instance()->Hash(viewer()->GetConnectedTextureOutput(), video_params_, times.at(i));
     }
 
     // Filter out duplicates

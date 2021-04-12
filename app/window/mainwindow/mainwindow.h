@@ -132,6 +132,12 @@ private:
 
   void TimelineFocused(ViewerOutput *viewer);
 
+  static QString GetCustomShortcutsFile();
+
+  void LoadCustomShortcuts();
+
+  void SaveCustomShortcuts();
+
   QByteArray premaximized_state_;
 
   // Standard panels

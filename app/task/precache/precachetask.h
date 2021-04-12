@@ -43,9 +43,9 @@ protected:
   virtual void AudioDownloaded(const TimeRange& range, SampleBufferPtr samples, qint64 job_time) override;
 
 private:
-  Footage* footage_;
+  Project* project_;
 
-  int index_;
+  Footage* footage_;
 
 };
 

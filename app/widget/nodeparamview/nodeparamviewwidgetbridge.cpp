@@ -50,6 +50,7 @@ NodeParamViewWidgetBridge::NodeParamViewWidgetBridge(const NodeInput &input, QOb
 
   connect(input_.node(), &Node::ValueChanged, this, &NodeParamViewWidgetBridge::InputValueChanged);
   connect(input_.node(), &Node::InputPropertyChanged, this, &NodeParamViewWidgetBridge::PropertyChanged);
+  connect(input_.node(), &Node::InputDataTypeChanged, this, &NodeParamViewWidgetBridge::InputDataTypeChanged);
 }
 
 void NodeParamViewWidgetBridge::SetTime(const rational &time)
@@ -212,14 +213,25 @@ void NodeParamViewWidgetBridge::SetInputValueInternal(const QVariant &value, int
       command->add_child(new NodeParamSetKeyframeValueCommand(existing_key, value));
     } else {
       // No existing key, create a new one
-      NodeKeyframe* new_key = new NodeKeyframe(node_time,
-                                               value,
-                                               input_.node()->GetBestKeyframeTypeForTimeOnTrack(NodeKeyframeTrackReference(input_, track), node_time),
-                                               track,
-                                               input_.element(),
-                                               input_.input());
+      int nb_tracks = NodeValue::get_number_of_keyframe_tracks(input_.node()->GetInputDataType(input_.input()));
+      for (int i=0; i<nb_tracks; i++) {
+        QVariant track_value;
 
-      command->add_child(new NodeParamInsertKeyframeCommand(input_.node(), new_key));
+        if (i == track) {
+          track_value = value;
+        } else {
+          track_value = input_.node()->GetValueAtTime(input_.input(), node_time, input_.element());
+        }
+
+        NodeKeyframe* new_key = new NodeKeyframe(node_time,
+                                                 track_value,
+                                                 input_.node()->GetBestKeyframeTypeForTimeOnTrack(NodeKeyframeTrackReference(input_, i), node_time),
+                                                 i,
+                                                 input_.element(),
+                                                 input_.input());
+
+        command->add_child(new NodeParamInsertKeyframeCommand(input_.node(), new_key));
+      }
     }
   } else {
     command->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(input_, track), value));
@@ -764,6 +776,22 @@ void NodeParamViewWidgetBridge::PropertyChanged(const QString& input, const QStr
     if (key == QStringLiteral("mask")) {
       edit->SetParameterMask(value.toULongLong());
     }
+  }
+}
+
+void NodeParamViewWidgetBridge::InputDataTypeChanged(const QString &input, NodeValue::Type type)
+{
+  Q_UNUSED(type)
+  if (input == this->input_.input()) {
+    // Delete all widgets
+    qDeleteAll(widgets_);
+    widgets_.clear();
+
+    // Create new widgets
+    CreateWidgets();
+
+    // Signal that widgets are new
+    emit WidgetsRecreated(input_);
   }
 }
 

@@ -34,11 +34,11 @@ CommandLineParser::~CommandLineParser()
   }
 }
 
-const CommandLineParser::Option *CommandLineParser::AddOption(const QStringList &strings, const QString &description, bool takes_arg, const QString &arg_placeholder)
+const CommandLineParser::Option *CommandLineParser::AddOption(const QStringList &strings, const QString &description, bool takes_arg, const QString &arg_placeholder, bool hidden)
 {
   Option* o = new Option();
 
-  options_.append({strings, description, o, takes_arg, arg_placeholder});
+  options_.append({strings, description, o, takes_arg, arg_placeholder, hidden});
 
   return o;
 }
@@ -140,6 +140,10 @@ void CommandLineParser::PrintHelp(const char* filename)
 
   printf("Usage: %s [options] %s\n\n", basename, positional_args.toUtf8().constData());
   foreach (const KnownOption& o, options_) {
+    if (o.hidden) {
+      continue;
+    }
+
     QString all_args;
 
     for (int i=0; i<o.args.size(); i++) {

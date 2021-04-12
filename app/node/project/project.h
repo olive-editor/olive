@@ -62,9 +62,10 @@ public:
   QString pretty_filename() const;
   void set_filename(const QString& s);
 
-  ColorManager* color_manager();
+  ColorManager* color_manager() { return color_manager_; }
+  ProjectSettingsNode* settings() { return settings_; }
 
-  bool is_modified() const;
+  bool is_modified() const { return is_modified_; }
   void set_modified(bool e);
 
   bool has_autorecovery_been_saved() const;

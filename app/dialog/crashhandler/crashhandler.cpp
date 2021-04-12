@@ -148,9 +148,14 @@ void CrashHandlerDialog::ReplyFinished(QNetworkReply* reply)
     // Close dialog
     QDialog::accept();
   } else {
-    QMessageBox::critical(this, tr("Upload Failed"),
-                          tr("Failed to send error report. Please try again later."),
-                          QMessageBox::Ok);
+    QMessageBox b(this);
+    b.setIcon(QMessageBox::Critical);
+    b.setWindowModality(Qt::WindowModal);
+    b.setWindowTitle(tr("Upload Failed"));
+    b.setText(tr("Failed to send error report. Please try again later."));
+    b.addButton(QMessageBox::Ok);
+    b.exec();
+
     SetGUIObjectsEnabled(true);
   }
 }
@@ -181,10 +186,15 @@ void CrashHandlerDialog::ReadProcessFinished()
 void CrashHandlerDialog::SendErrorReport()
 {
   if (summary_edit_->document()->isEmpty()) {
-    if (QMessageBox::question(this,
-                              tr("No Crash Summary"),
-                              tr("Are you sure you want to send an error report with no crash summary?"),
-                              QMessageBox::Yes | QMessageBox::No) == QMessageBox::No) {
+    QMessageBox b(this);
+    b.setIcon(QMessageBox::Question);
+    b.setWindowModality(Qt::WindowModal);
+    b.setWindowTitle(tr("No Crash Summary"));
+    b.setText(tr("Are you sure you want to send an error report with no crash summary?"));
+    b.addButton(QMessageBox::Yes);
+    b.addButton(QMessageBox::No);
+
+    if (b.exec() == QMessageBox::No) {
       return;
     }
   }
@@ -201,21 +211,21 @@ void CrashHandlerDialog::SendErrorReport()
 
   // Create description section
   QHttpPart desc_part;
-  desc_part.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("text/plain"));
+  desc_part.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("text/plain; charset=UTF-8"));
   desc_part.setHeader(QNetworkRequest::ContentDispositionHeader, QStringLiteral("form-data; name=\"description\""));
   desc_part.setBody(summary_edit_->toPlainText().toUtf8());
   multipart->append(desc_part);
 
   // Create report section
   QHttpPart report_part;
-  report_part.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("text/plain"));
+  report_part.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("text/plain; charset=UTF-8"));
   report_part.setHeader(QNetworkRequest::ContentDispositionHeader, QStringLiteral("form-data; name=\"report\""));
   report_part.setBody(report_data_);
   multipart->append(report_part);
 
   // Create commit section
   QHttpPart commit_part;
-  commit_part.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("text/plain"));
+  commit_part.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("text/plain; charset=UTF-8"));
   commit_part.setHeader(QNetworkRequest::ContentDispositionHeader, QStringLiteral("form-data; name=\"commit\""));
   commit_part.setBody(GITHASH);
   multipart->append(commit_part);
@@ -233,24 +243,41 @@ void CrashHandlerDialog::SendErrorReport()
 
   // Find symbol file
   QDir symbol_dir(GetSymbolPath());
-#ifdef Q_OS_WINDOWS
-  symbol_dir = QDir(symbol_dir.filePath(QStringLiteral("olive-editor.pdb")));
+
+  QString symbol_bin_name;
+#if defined(OS_WIN)
+  symbol_bin_name = QStringLiteral("olive-editor.pdb");
+#elif defined(OS_APPLE)
+  symbol_bin_name = QStringLiteral("Olive");
 #else
-  symbol_dir = QDir(symbol_dir.filePath(QStringLiteral("olive-editor")));
+  symbol_bin_name = QStringLiteral("olive-editor");
 #endif
+  symbol_dir = QDir(symbol_dir.filePath(symbol_bin_name));
+
   QStringList folders_in_symbol_path = symbol_dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
 
   if (folders_in_symbol_path.size() > 0) {
     symbol_dir = QDir(symbol_dir.filePath(folders_in_symbol_path.first()));
   } else {
-    QMessageBox::critical(this, tr("Failed to send report"), tr("Failed to find symbols necessary to send report. "
-                                                                "This is a packaging issue. Please notify "
-                                                                "the maintainers of this package."));
+    QMessageBox b(this);
+    b.setIcon(QMessageBox::Critical);
+    b.setWindowModality(Qt::WindowModal);
+    b.setWindowTitle(tr("Failed to send report"));
+    b.setText(tr("Failed to find symbols necessary to send report. "
+                 "This is a packaging issue. Please notify "
+                 "the maintainers of this package."));
+    b.addButton(QMessageBox::Ok);
+    b.exec();
     return;
   }
 
   // Create sym section
-  QString symbol_filename = QStringLiteral("olive-editor.sym");
+  QString symbol_filename;
+#if defined(OS_APPLE)
+  symbol_filename = QStringLiteral("Olive.sym");
+#else
+  symbol_filename = QStringLiteral("olive-editor.sym");
+#endif
   QString symbol_full_path = symbol_dir.filePath(symbol_filename);
   QHttpPart sym_part;
   sym_part.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/octet-stream"));
@@ -259,8 +286,14 @@ void CrashHandlerDialog::SendErrorReport()
   QFile sym_file(symbol_full_path);
 
   if (!sym_file.open(QFile::ReadOnly)) {
-    QMessageBox::critical(this, tr("Failed to send report"), tr("Failed to open symbol file. You may not have "
-                                                                "permission to access it."));
+    QMessageBox b(this);
+    b.setIcon(QMessageBox::Critical);
+    b.setWindowModality(Qt::WindowModal);
+    b.setWindowTitle(tr("Failed to send report"));
+    b.setText(tr("Failed to open symbol file. You may not have "
+                 "permission to access it."));
+    b.addButton(QMessageBox::Ok);
+    b.exec();
     return;
   }
 
@@ -278,12 +311,16 @@ void CrashHandlerDialog::SendErrorReport()
 
 void CrashHandlerDialog::closeEvent(QCloseEvent* e)
 {
-  if (waiting_for_upload_
-      && QMessageBox::warning(this,
-                              tr("Confirm Close"),
-                              tr("Crash report is still uploading. Closing now may result in no "
-                                 "report being sent. Are you sure you wish to close?"),
-                              QMessageBox::Ok | QMessageBox::Cancel) == QMessageBox::Cancel) {
+  QMessageBox b(this);
+  b.setIcon(QMessageBox::Warning);
+  b.setWindowModality(Qt::WindowModal);
+  b.setWindowTitle(tr("Confirm Close"));
+  b.setText(tr("Crash report is still uploading. Closing now may result in no "
+               "report being sent. Are you sure you wish to close?"));
+  b.addButton(QMessageBox::Ok);
+  b.addButton(QMessageBox::Cancel);
+
+  if (waiting_for_upload_ && b.exec() == QMessageBox::Cancel) {
     e->ignore();
   } else {
     e->accept();

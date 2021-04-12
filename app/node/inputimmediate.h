@@ -151,11 +151,18 @@ public:
     return (!is_keyframing() || keyframe_tracks_.at(track).isEmpty());
   }
 
+  void set_data_type(NodeValue::Type type);
+
 private:
   /**
    * @brief Non-keyframed value
    */
   SplitValue standard_value_;
+
+  /**
+   * @brief Default value
+   */
+  SplitValue default_value_;
 
   /**
    * @brief Internal keyframe array

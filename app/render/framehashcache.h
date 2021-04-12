@@ -61,9 +61,11 @@ public:
   QString CachePathName(const QByteArray &hash) const;
   static QString CachePathName(const QString& cache_path, const QByteArray &hash);
 
-  bool SaveCacheFrame(const QString& filename, char *data, const VideoParams &vparam, int linesize_bytes) const;
+  static bool SaveCacheFrame(const QString& filename, char *data, const VideoParams &vparam, int linesize_bytes);
   bool SaveCacheFrame(const QByteArray& hash, char *data, const VideoParams &vparam, int linesize_bytes) const;
   bool SaveCacheFrame(const QByteArray& hash, FramePtr frame) const;
+  static bool SaveCacheFrame(const QString& cache_path, const QByteArray& hash, char *data, const VideoParams &vparam, int linesize_bytes);
+  static bool SaveCacheFrame(const QString& cache_path, const QByteArray& hash, FramePtr frame);
   static FramePtr LoadCacheFrame(const QString& cache_path, const QByteArray& hash);
   FramePtr LoadCacheFrame(const QByteArray& hash) const;
   static FramePtr LoadCacheFrame(const QString& fn);

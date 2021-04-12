@@ -76,31 +76,50 @@ int main(int argc, char *argv[])
 
   CommandLineParser parser;
 
-  const CommandLineParser::Option* help_option =
+  // Our options
+  auto help_option =
       parser.AddOption({QStringLiteral("h"), QStringLiteral("-help")},
                        QCoreApplication::translate("main", "Show this help text"));
 
-  const CommandLineParser::Option* version_option =
+  auto version_option =
       parser.AddOption({QStringLiteral("v"), QStringLiteral("-version")},
                        QCoreApplication::translate("main", "Show application version"));
 
-  const CommandLineParser::Option* fullscreen_option =
+  auto fullscreen_option =
       parser.AddOption({QStringLiteral("f"), QStringLiteral("-fullscreen")},
                        QCoreApplication::translate("main", "Start in full-screen mode"));
 
-  const CommandLineParser::Option* export_option =
+  auto export_option =
       parser.AddOption({QStringLiteral("x"), QStringLiteral("-export")},
                        QCoreApplication::translate("main", "Export only (No GUI)"));
 
-  const CommandLineParser::Option* ts_option =
+  auto ts_option =
       parser.AddOption({QStringLiteral("-ts")},
                        QCoreApplication::translate("main", "Override language with file"),
                        true,
                        QCoreApplication::translate("main", "qm-file"));
 
-  const CommandLineParser::PositionalArgument* project_argument =
+  auto project_argument =
       parser.AddPositionalArgument(QStringLiteral("project"),
                                    QCoreApplication::translate("main", "Project to open on startup"));
+
+  // Qt options re-implemented (add to this as necessary)
+  //
+  // Because we don't use QCommandLineParser, we must filter out Qt's arguments ourselves. Here,
+  // we create them so they're recognized, but never use and also hide them in the "help" text.
+  parser.AddOption({QStringLiteral("platform")}, QString(), true, QString(), true);
+  parser.AddOption({QStringLiteral("platformpluginpath")}, QString(), true, QString(), true);
+  parser.AddOption({QStringLiteral("platformtheme")}, QString(), true, QString(), true);
+  parser.AddOption({QStringLiteral("plugin")}, QString(), true, QString(), true);
+  parser.AddOption({QStringLiteral("qmljsdebugger")}, QString(), true, QString(), true);
+  parser.AddOption({QStringLiteral("qwindowgeometry")}, QString(), true, QString(), true);
+  parser.AddOption({QStringLiteral("qwindowicon")}, QString(), true, QString(), true);
+  parser.AddOption({QStringLiteral("qwindowtitle")}, QString(), true, QString(), true);
+  parser.AddOption({QStringLiteral("reverse")}, QString(), false, QString(), true);
+  parser.AddOption({QStringLiteral("session")}, QString(), true, QString(), true);
+  parser.AddOption({QStringLiteral("style")}, QString(), true, QString(), true);
+  parser.AddOption({QStringLiteral("stylesheet")}, QString(), true, QString(), true);
+  parser.AddOption({QStringLiteral("widgetcount")}, QString(), false, QString(), true);
 
   parser.Process(argc, argv);
 
