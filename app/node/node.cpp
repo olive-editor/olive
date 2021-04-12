@@ -505,10 +505,15 @@ NodeValue::Type Node::GetInputDataType(const QString &id) const
 
 void Node::SetInputDataType(const QString &id, const NodeValue::Type &type)
 {
-  Input* i = GetInternalInputData(id);
+  Input* input_meta = GetInternalInputData(id);
 
-  if (i) {
-    i->type = type;
+  if (input_meta) {
+    input_meta->type = type;
+
+    int array_sz = InputArraySize(id);
+    for (int i=-1; i<array_sz; i++) {
+      GetImmediate(id, i)->set_data_type(type);
+    }
 
     emit InputDataTypeChanged(id, type);
   } else {
@@ -693,7 +698,12 @@ SplitValue Node::GetSplitDefaultValue(const QString &input) const
 
 QVariant Node::GetSplitDefaultValueOnTrack(const QString &input, int track) const
 {
-  return GetSplitDefaultValue(input).at(track);
+  SplitValue val = GetSplitDefaultValue(input);
+  if (track < val.size()) {
+    return val.at(track);
+  } else {
+    return QVariant();
+  }
 }
 
 const QVector<NodeKeyframeTrack> &Node::GetKeyframeTracks(const QString &input, int element) const

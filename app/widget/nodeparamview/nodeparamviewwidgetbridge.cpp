@@ -49,6 +49,7 @@ NodeParamViewWidgetBridge::NodeParamViewWidgetBridge(const NodeInput &input, QOb
 
   connect(input_.node(), &Node::ValueChanged, this, &NodeParamViewWidgetBridge::InputValueChanged);
   connect(input_.node(), &Node::InputPropertyChanged, this, &NodeParamViewWidgetBridge::PropertyChanged);
+  connect(input_.node(), &Node::InputDataTypeChanged, this, &NodeParamViewWidgetBridge::InputDataTypeChanged);
 }
 
 void NodeParamViewWidgetBridge::SetTime(const rational &time)
@@ -753,6 +754,22 @@ void NodeParamViewWidgetBridge::PropertyChanged(const QString& input, const QStr
     if (key == QStringLiteral("mask")) {
       edit->SetParameterMask(value.toULongLong());
     }
+  }
+}
+
+void NodeParamViewWidgetBridge::InputDataTypeChanged(const QString &input, NodeValue::Type type)
+{
+  Q_UNUSED(type)
+  if (input == this->input_.input()) {
+    // Delete all widgets
+    qDeleteAll(widgets_);
+    widgets_.clear();
+
+    // Create new widgets
+    CreateWidgets();
+
+    // Signal that widgets are new
+    emit WidgetsRecreated(input_);
   }
 }
 
