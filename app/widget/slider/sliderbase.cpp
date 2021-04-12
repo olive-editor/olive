@@ -278,7 +278,11 @@ void SliderBase::LabelPressed()
   case kFloat:
   case kRational:
   {
-    drag_ladder_ = new SliderLadder(drag_multiplier_, ladder_element_count_);
+    if (mode_ == kRational) {
+      drag_ladder_ = new SliderLadder(drag_multiplier_, ladder_element_count_, "00:00:00:00");
+    } else {
+      drag_ladder_ = new SliderLadder(drag_multiplier_, ladder_element_count_, "00000000");
+    }
     drag_ladder_->SetValue(ValueToString(value_));
     drag_ladder_->show();
 

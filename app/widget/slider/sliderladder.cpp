@@ -37,8 +37,9 @@
 
 namespace olive {
 
-SliderLadder::SliderLadder(double drag_multiplier, int nb_outer_values, QWidget* parent) :
-  QFrame(parent, Qt::Popup)
+SliderLadder::SliderLadder(double drag_multiplier, int nb_outer_values, QString width_hint, QWidget* parent) :
+  QFrame(parent, Qt::Popup),
+  width_hint_(width_hint)
 {
   QVBoxLayout* layout = new QVBoxLayout(this);
   layout->setMargin(0);
@@ -52,17 +53,17 @@ SliderLadder::SliderLadder(double drag_multiplier, int nb_outer_values, QWidget*
   }
 
   for (int i=nb_outer_values-1;i>=0;i--) {
-    elements_.append(new SliderLadderElement(qPow(10, i + 1) * drag_multiplier));
+    elements_.append(new SliderLadderElement(qPow(10, i + 1) * drag_multiplier, width_hint_));
   }
 
   // Create center entry
-  SliderLadderElement* start_element = new SliderLadderElement(drag_multiplier);
+  SliderLadderElement* start_element = new SliderLadderElement(drag_multiplier, width_hint_);
   active_element_ = elements_.size();
   start_element->SetHighlighted(true);
   elements_.append(start_element);
 
   for (int i=0;i<nb_outer_values;i++) {
-    elements_.append(new SliderLadderElement(qPow(10, - i - 1) * drag_multiplier));
+    elements_.append(new SliderLadderElement(qPow(10, -i - 1) * drag_multiplier, width_hint_));
   }
 
   foreach (SliderLadderElement* e, elements_) {
@@ -226,17 +227,18 @@ void SliderLadder::TimerUpdate()
   }
 }
 
-SliderLadderElement::SliderLadderElement(const double &multiplier, QWidget *parent) :
+SliderLadderElement::SliderLadderElement(const double &multiplier, QString width_hint, QWidget *parent) :
   QWidget(parent),
   multiplier_(multiplier),
   highlighted_(false),
-  multiplier_visible_(true)
+  multiplier_visible_(true),
+  width_hint(width_hint)
 {
   QVBoxLayout* layout = new QVBoxLayout(this);
 
   label_ = new QLabel();
   label_->setAlignment(Qt::AlignCenter);
-  label_->setFixedWidth(QtUtils::QFontMetricsWidth(label_->fontMetrics(), QStringLiteral("0000000")));
+  label_->setFixedWidth(QtUtils::QFontMetricsWidth(label_->fontMetrics(), width_hint));
   layout->addWidget(label_);
 
   QPalette p = palette();
@@ -291,12 +293,6 @@ void SliderLadderElement::UpdateLabel()
   } else {
     label_->setText(value_);
   }
-
-  // Increase the ladder width if displaying timecode
-  if (value_.contains(":")) {
-    label_->setFixedWidth(QtUtils::QFontMetricsWidth(label_->fontMetrics(), QStringLiteral("00:00:00:00")));
-  }
-
 }
 
 }
