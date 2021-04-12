@@ -26,6 +26,16 @@
 
 #include "common/define.h"
 
+/**
+ * @brief Command-line argument parser
+ *
+ * You may be wondering why we don't use QCommandLineParser instead of a custom implmentation like
+ * this. The reason why is because QCommandLineParser requires a QApplication object of some kind
+ * to already have been created before it can parse anything, but we need to be able to control
+ * whether a QApplication (GUI-mode) or a QCoreApplication (CLI-mode) is created which is set by
+ * the user as a command line argument. Therefore we needed a custom implementation that could
+ * parse arguments without the need for a Q(Core)Application to be present already.
+ */
 class CommandLineParser
 {
 public:
@@ -77,7 +87,7 @@ public:
 
   CommandLineParser() = default;
 
-  const Option* AddOption(const QStringList& strings, const QString& description, bool takes_arg = false, const QString& arg_placeholder = QString());
+  const Option* AddOption(const QStringList& strings, const QString& description, bool takes_arg = false, const QString& arg_placeholder = QString(), bool hidden = false);
 
   const PositionalArgument* AddPositionalArgument(const QString& name, const QString& description, bool required = false);
 
@@ -92,6 +102,7 @@ private:
     Option* option;
     bool takes_arg;
     QString arg_placeholder;
+    bool hidden;
   };
 
   struct KnownPositionalArgument {
