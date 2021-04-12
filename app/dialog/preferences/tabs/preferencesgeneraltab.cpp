@@ -126,7 +126,7 @@ PreferencesGeneralTab::PreferencesGeneralTab()
     autorecovery_interval_ = new IntegerSlider();
     autorecovery_interval_->SetMinimum(1);
     autorecovery_interval_->SetMaximum(60);
-    autorecovery_interval_->SetFormat(tr("%1 minute(s)"));
+    autorecovery_interval_->SetFormat(QT_TRANSLATE_N_NOOP("olive::SliderBase", "%n minute(s)"), true);
     autorecovery_interval_->SetValue(Config::Current()[QStringLiteral("AutorecoveryInterval")].toLongLong());
     autorecovery_layout->addWidget(autorecovery_interval_, row, 1);
 

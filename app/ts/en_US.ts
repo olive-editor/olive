@@ -2,7 +2,7 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="en_US">
 <context>
-    <name>Stream</name>
+    <name>olive::Footage</name>
     <message numerus="yes">
         <source>%1: Audio - %n Channel(s), %2Hz</source>
         <translation>
@@ -32,35 +32,6 @@
     </message>
 </context>
 <context>
-    <name>olive::PreferencesGeneralTab</name>
-    <message numerus="yes">
-        <source>%n second(s)</source>
-        <translation>
-            <numerusform>%n second</numerusform>
-            <numerusform>%n seconds</numerusform>
-        </translation>
-    </message>
-</context>
-<context>
-    <name>olive::ProjectExplorer</name>
-    <message numerus="yes">
-        <source>The footage &quot;%1&quot; is currently used in %n sequence(s):
-
-%2
-What would you like to do with these clips?</source>
-        <translation>
-            <numerusform>The footage &quot;%1&quot; is currently used in %n sequence:
-
-%2
-What would you like to do with these clips?</numerusform>
-            <numerusform>The footage &quot;%1&quot; is currently used in %n sequences:
-
-%2
-What would you like to do with these clips?</numerusform>
-        </translation>
-    </message>
-</context>
-<context>
     <name>olive::ProjectImportTask</name>
     <message numerus="yes">
         <source>Importing %n file(s)</source>
@@ -73,17 +44,10 @@ What would you like to do with these clips?</numerusform>
 <context>
     <name>olive::SliderBase</name>
     <message numerus="yes">
-        <source>%n second(s)</source>
-        <translation type="obsolete">
-            <numerusform>%n second</numerusform>
-            <numerusform>%n seconds</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1 second(s)</source>
-        <translation type="unfinished">
-            <numerusform>%1 second</numerusform>
-            <numerusform>%1 seconds</numerusform>
+        <source>%n minute(s)</source>
+        <translation>
+            <numerusform>%n minute</numerusform>
+            <numerusform>%n minutes</numerusform>
         </translation>
     </message>
 </context>
