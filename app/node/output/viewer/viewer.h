@@ -174,7 +174,7 @@ protected:
 
   virtual void InputDisconnectedEvent(const QString &input, int element, const NodeOutput &output) override;
 
-  virtual rational GetCustomLength(Track::Type type) const;
+  virtual rational VerifyLengthInternal(Track::Type type) const;
 
   virtual void ShiftVideoEvent(const rational &from, const rational &to);
 
@@ -187,6 +187,8 @@ protected:
   virtual void SaveCustom(QXmlStreamWriter *writer) const override;
 
   int AddStream(Track::Type type, const QVariant &value);
+
+  void SetViewerCacheEnabled(bool e);
 
 private:
   rational last_length_;
@@ -202,6 +204,8 @@ private:
   AudioParams cached_audio_params_;
 
   TimelinePoints timeline_points_;
+
+  bool cache_enabled_;
 
 private slots:
   void InputResized(const QString& input, int old_size, int new_size);

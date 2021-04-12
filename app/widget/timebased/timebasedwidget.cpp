@@ -85,6 +85,7 @@ void TimeBasedWidget::ConnectViewerNode(ViewerOutput *node)
 
     // Disconnect length changed signal
     disconnect(viewer_node_, &ViewerOutput::LengthChanged, this, &TimeBasedWidget::UpdateMaximumScroll);
+    disconnect(viewer_node_, &ViewerOutput::RemovedFromGraph, this, &TimeBasedWidget::ConnectedNodeRemovedFromGraph);
 
     // Disconnect rate change signals if they were connected
     disconnect(viewer_node_, &ViewerOutput::FrameRateChanged, this, &TimeBasedWidget::AutoUpdateTimebase);
@@ -109,6 +110,7 @@ void TimeBasedWidget::ConnectViewerNode(ViewerOutput *node)
   if (viewer_node_) {
     // Connect length changed signal
     connect(viewer_node_, &ViewerOutput::LengthChanged, this, &TimeBasedWidget::UpdateMaximumScroll);
+    connect(viewer_node_, &ViewerOutput::RemovedFromGraph, this, &TimeBasedWidget::ConnectedNodeRemovedFromGraph);
 
     // Connect ruler and scrollbar to timeline points
     ruler()->ConnectTimelinePoints(viewer_node_->GetTimelinePoints());
@@ -214,6 +216,11 @@ void TimeBasedWidget::AutoUpdateTimebase()
       SetTimebase(rational());
     }
   }
+}
+
+void TimeBasedWidget::ConnectedNodeRemovedFromGraph()
+{
+  ConnectViewerNode(nullptr);
 }
 
 TimeRuler *TimeBasedWidget::ruler() const

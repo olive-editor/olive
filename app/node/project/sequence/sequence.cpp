@@ -107,7 +107,7 @@ void Sequence::Retranslate()
   }
 }
 
-rational Sequence::GetCustomLength(Track::Type type) const
+rational Sequence::VerifyLengthInternal(Track::Type type) const
 {
   if (!track_lists_.isEmpty()) {
     switch (type) {

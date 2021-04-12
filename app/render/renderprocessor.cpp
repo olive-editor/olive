@@ -226,19 +226,18 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const Track *track, const Tim
         continue;
       }
 
-      // FIXME: Doesn't handle reversing
-      if (b->IsInputKeyframing(Block::kSpeedInput) || b->IsInputConnected(Block::kSpeedInput)) {
-        // FIXME: We'll need to calculate the speed hoo boy
-      } else {
-        double speed_value = b->GetStandardValue(Block::kSpeedInput).toDouble();
+      double speed_value = b->GetStandardValue(Block::kSpeedInput).toDouble();
 
-        if (qIsNull(speed_value)) {
-          // Just silence, don't think there's any other practical application of 0 speed audio
-          samples_from_this_block->fill(0);
-        } else if (!qFuzzyCompare(speed_value, 1.0)) {
-          // Multiply time
-          samples_from_this_block->speed(speed_value);
-        }
+      if (qIsNull(speed_value)) {
+        // Just silence, don't think there's any other practical application of 0 speed audio
+        samples_from_this_block->fill(0);
+      } else if (!qFuzzyCompare(speed_value, 1.0)) {
+        // Multiply time
+        samples_from_this_block->speed(speed_value);
+      }
+
+      if (b->GetStandardValue(Block::kReverseInput).toBool()) {
+        samples_from_this_block->reverse();
       }
 
       int copy_length = qMin(max_dest_sz, samples_from_this_block->sample_count());
@@ -274,6 +273,11 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const Track *track, const Tim
 
 QVariant RenderProcessor::ProcessVideoFootage(const FootageJob &stream, const rational &input_time)
 {
+  if (ticket_->property("type").value<RenderManager::TicketType>() != RenderManager::kTypeVideo) {
+    // Video cannot contribute to audio, so we do nothing here
+    return QVariant();
+  }
+
   TexturePtr value = nullptr;
 
   // Check the still frame cache. On large frames such as high resolution still images, uploading

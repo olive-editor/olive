@@ -56,6 +56,7 @@ public:
     kProjectFootage,
     kProjectFolder,
     kProjectSequence,
+    kValueNode,
 
     // Count value
     kInternalNodeCount

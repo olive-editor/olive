@@ -52,6 +52,8 @@ public:
 signals:
   void ArrayWidgetDoubleClicked();
 
+  void WidgetsRecreated(const NodeInput& input);
+
 private:
   void CreateWidgets();
 
@@ -84,6 +86,8 @@ private slots:
   void InputValueChanged(const NodeInput& input, const TimeRange& range);
 
   void PropertyChanged(const QString &input, const QString& key, const QVariant& value);
+
+  void InputDataTypeChanged(const QString& input, NodeValue::Type type);
 
 };
 

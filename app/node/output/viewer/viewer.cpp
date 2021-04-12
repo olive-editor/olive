@@ -38,7 +38,8 @@ const uint64_t ViewerOutput::kVideoParamEditMask = VideoParamEdit::kWidthHeight 
 
 ViewerOutput::ViewerOutput(bool create_default_streams) :
   video_frame_cache_(this),
-  audio_playback_cache_(this)
+  audio_playback_cache_(this),
+  cache_enabled_(true)
 {
   AddInput(kVideoParamsInput, NodeValue::kVideoParams, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable | kInputFlagArray));
   SetInputProperty(kVideoParamsInput, QStringLiteral("mask"), QVariant::fromValue(kVideoParamEditMask));
@@ -53,6 +54,7 @@ ViewerOutput::ViewerOutput(bool create_default_streams) :
   if (create_default_streams) {
     AddStream(Track::kVideo, QVariant());
     AddStream(Track::kAudio, QVariant());
+    set_default_parameters();
   }
 }
 
@@ -195,14 +197,18 @@ void ViewerOutput::set_default_parameters()
 
 void ViewerOutput::ShiftVideoCache(const rational &from, const rational &to)
 {
-  video_frame_cache_.Shift(from, to);
+  if (cache_enabled_) {
+    video_frame_cache_.Shift(from, to);
+  }
 
   ShiftVideoEvent(from, to);
 }
 
 void ViewerOutput::ShiftAudioCache(const rational &from, const rational &to)
 {
-  audio_playback_cache_.Shift(from, to);
+  if (cache_enabled_) {
+    audio_playback_cache_.Shift(from, to);
+  }
 
   ShiftAudioEvent(from, to);
 }
@@ -217,16 +223,18 @@ void ViewerOutput::InvalidateCache(const TimeRange& range, const QString& from, 
 {
   Q_UNUSED(element)
 
-  if (from == kTextureInput || from == kSamplesInput
-      || from == kVideoParamsInput || from == kAudioParamsInput) {
-    TimeRange invalidated_range(qMax(rational(), range.in()),
-                                qMin(GetLength(), range.out()));
+  if (cache_enabled_) {
+    if (from == kTextureInput || from == kSamplesInput
+        || from == kVideoParamsInput || from == kAudioParamsInput) {
+      TimeRange invalidated_range(qMax(rational(), range.in()),
+                                  qMin(GetLength(), range.out()));
 
-    if (invalidated_range.in() != invalidated_range.out()) {
-      if (from == kTextureInput || from == kVideoParamsInput) {
-        video_frame_cache_.Invalidate(invalidated_range, job_time);
-      } else {
-        audio_playback_cache_.Invalidate(invalidated_range, job_time);
+      if (invalidated_range.in() != invalidated_range.out()) {
+        if (from == kTextureInput || from == kVideoParamsInput) {
+          video_frame_cache_.Invalidate(invalidated_range, job_time);
+        } else {
+          audio_playback_cache_.Invalidate(invalidated_range, job_time);
+        }
       }
     }
   }
@@ -295,35 +303,19 @@ void ViewerOutput::Retranslate()
 
 void ViewerOutput::VerifyLength()
 {
-  NodeTraverser traverser;
-
   rational video_length, audio_length, subtitle_length;
 
-  {
-    video_length = GetCustomLength(Track::kVideo);
-
-    if (video_length.isNull() && IsInputConnected(kTextureInput)) {
-      NodeValueTable t = traverser.GenerateTable(GetConnectedOutput(kTextureInput), TimeRange(0, 0));
-      video_length = t.Get(NodeValue::kRational, QStringLiteral("length")).value<rational>();
-    }
-
+  video_length = VerifyLengthInternal(Track::kVideo);
+  if (cache_enabled_) {
     video_frame_cache_.SetLength(video_length);
   }
 
-  {
-    audio_length = GetCustomLength(Track::kAudio);
-
-    if (audio_length.isNull() && IsInputConnected(kSamplesInput)) {
-      NodeValueTable t = traverser.GenerateTable(GetConnectedOutput(kSamplesInput), TimeRange(0, 0));
-      audio_length = t.Get(NodeValue::kRational, QStringLiteral("length")).value<rational>();
-    }
-
+  audio_length = VerifyLengthInternal(Track::kAudio);
+  if (cache_enabled_) {
     audio_playback_cache_.SetLength(audio_length);
   }
 
-  {
-    subtitle_length = GetCustomLength(Track::kSubtitle);
-  }
+  subtitle_length = VerifyLengthInternal(Track::kSubtitle);
 
   rational real_length = qMax(subtitle_length, qMax(video_length, audio_length));
 
@@ -351,9 +343,30 @@ void ViewerOutput::InputDisconnectedEvent(const QString &input, int element, con
   super::InputDisconnectedEvent(input, element, output);
 }
 
-rational ViewerOutput::GetCustomLength(Track::Type type) const
+rational ViewerOutput::VerifyLengthInternal(Track::Type type) const
 {
-  Q_UNUSED(type)
+  NodeTraverser traverser;
+
+  switch (type) {
+  case Track::kVideo:
+    if (IsInputConnected(kTextureInput)) {
+      NodeValueTable t = traverser.GenerateTable(GetConnectedOutput(kTextureInput), TimeRange(0, 0));
+      qDebug() << "Got video length:" << t.Get(NodeValue::kRational, QStringLiteral("length")).value<rational>();
+      return t.Get(NodeValue::kRational, QStringLiteral("length")).value<rational>();
+    }
+    break;
+  case Track::kAudio:
+    if (IsInputConnected(kSamplesInput)) {
+      NodeValueTable t = traverser.GenerateTable(GetConnectedOutput(kSamplesInput), TimeRange(0, 0));
+      return t.Get(NodeValue::kRational, QStringLiteral("length")).value<rational>();
+    }
+    break;
+  case Track::kNone:
+  case Track::kSubtitle:
+  case Track::kCount:
+    break;
+  }
+
   return rational();
 }
 
@@ -392,7 +405,9 @@ void ViewerOutput::InputValueChangedEvent(const QString &input, int element)
       }
 
       if (frame_rate_changed) {
-        video_frame_cache_.SetTimebase(new_video_params.frame_rate_as_time_base());
+        if (cache_enabled_) {
+          video_frame_cache_.SetTimebase(new_video_params.frame_rate_as_time_base());
+        }
         emit FrameRateChanged(new_video_params.frame_rate());
       }
 
@@ -412,7 +427,9 @@ void ViewerOutput::InputValueChangedEvent(const QString &input, int element)
 
       emit AudioParamsChanged();
 
-      audio_playback_cache_.SetParameters(GetAudioParams());
+      if (cache_enabled_) {
+        audio_playback_cache_.SetParameters(GetAudioParams());
+      }
 
       cached_audio_params_ = new_audio_params;
 
@@ -512,6 +529,11 @@ int ViewerOutput::AddStream(Track::Type type, const QVariant& value)
   SetStandardValue(id, value, index);
 
   return index;
+}
+
+void ViewerOutput::SetViewerCacheEnabled(bool e)
+{
+  cache_enabled_ = e;
 }
 
 void ViewerOutput::InputResized(const QString &input, int old_size, int new_size)

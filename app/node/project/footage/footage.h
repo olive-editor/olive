@@ -58,7 +58,7 @@ public:
 
   virtual QString Name() const override
   {
-    return tr("Footage");
+    return tr("Media");
   }
 
   virtual QString id() const override
@@ -195,7 +195,7 @@ protected:
 
   virtual void InputValueChangedEvent(const QString &input, int element) override;
 
-  virtual rational GetCustomLength(Track::Type type) const override;
+  virtual rational VerifyLengthInternal(Track::Type type) const override;
 
 private:
   QString GetColorspaceToUse(const VideoParams& params) const;

@@ -27,14 +27,10 @@
 namespace olive {
 
 NodeInputImmediate::NodeInputImmediate(NodeValue::Type type, const SplitValue &default_val) :
+  default_value_(default_val),
   keyframing_(false)
 {
-  int track_size = NodeValue::get_number_of_keyframe_tracks(type);
-
-  keyframe_tracks_.resize(track_size);
-  standard_value_.resize(track_size);
-
-  set_split_standard_value(default_val);
+  set_data_type(type);
 }
 
 void NodeInputImmediate::set_standard_value_on_track(const QVariant &value, int track)
@@ -177,6 +173,16 @@ bool NodeInputImmediate::has_keyframe_at_time(const rational &time) const
 
   // None match
   return false;
+}
+
+void NodeInputImmediate::set_data_type(NodeValue::Type type)
+{
+  int track_size = NodeValue::get_number_of_keyframe_tracks(type);
+
+  keyframe_tracks_.resize(track_size);
+  standard_value_.resize(track_size);
+
+  set_split_standard_value(default_value_);
 }
 
 NodeKeyframe *NodeInputImmediate::get_earliest_keyframe() const

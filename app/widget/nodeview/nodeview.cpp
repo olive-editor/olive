@@ -668,6 +668,13 @@ void NodeView::ShowContextMenu(const QPoint &pos)
     QAction* autopos = m.addAction(tr("Auto-Position"));
     connect(autopos, &QAction::triggered, this, &NodeView::AutoPositionDescendents);
 
+    ViewerOutput* viewer = dynamic_cast<ViewerOutput*>(selected.first()->GetNode());
+    if (viewer) {
+      m.addSeparator();
+      QAction* open_in_viewer_action = m.addAction(tr("Open in Viewer"));
+      connect(open_in_viewer_action, &QAction::triggered, this, &NodeView::OpenSelectedNodeInViewer);
+    }
+
   } else {
 
     QAction* curved_action = m.addAction(tr("Smooth Edges"));
@@ -754,6 +761,16 @@ void NodeView::AutoPositionDescendents()
 void NodeView::ContextMenuFilterChanged(QAction *action)
 {
   Q_UNUSED(action)
+}
+
+void NodeView::OpenSelectedNodeInViewer()
+{
+  QVector<Node*> selected = scene_.GetSelectedNodes();
+  ViewerOutput* viewer = selected.isEmpty() ? nullptr : dynamic_cast<ViewerOutput*>(selected.first());
+
+  if (viewer) {
+    Core::instance()->OpenNodeInViewer(viewer);
+  }
 }
 
 void NodeView::AttachNodesToCursor(const QVector<Node *> &nodes)

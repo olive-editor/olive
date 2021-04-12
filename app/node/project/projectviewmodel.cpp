@@ -430,9 +430,6 @@ void ProjectViewModel::ConnectItem(Node *n)
     connect(f, &Folder::BeginRemoveItem, this, &ProjectViewModel::FolderBeginRemoveItem);
     connect(f, &Folder::EndRemoveItem, this, &ProjectViewModel::FolderEndRemoveItem);
 
-    connect(f, &Folder::BeginInsertItem, this, &ProjectViewModel::ItemAdded);
-    connect(f, &Folder::BeginRemoveItem, this, &ProjectViewModel::ItemRemoved);
-
     foreach (Node* c, f->children()) {
       ConnectItem(c);
     }
@@ -449,9 +446,6 @@ void ProjectViewModel::DisconnectItem(Node *n)
     disconnect(f, &Folder::EndInsertItem, this, &ProjectViewModel::FolderEndInsertItem);
     disconnect(f, &Folder::BeginRemoveItem, this, &ProjectViewModel::FolderBeginRemoveItem);
     disconnect(f, &Folder::EndRemoveItem, this, &ProjectViewModel::FolderEndRemoveItem);
-
-    disconnect(f, &Folder::BeginInsertItem, this, &ProjectViewModel::ItemAdded);
-    disconnect(f, &Folder::BeginRemoveItem, this, &ProjectViewModel::ItemRemoved);
 
     foreach (Node* c, f->children()) {
       DisconnectItem(c);

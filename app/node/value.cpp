@@ -382,14 +382,26 @@ NodeValueTable NodeValueTable::Merge(QList<NodeValueTable> tables)
   NodeValueTable merged_table;
 
   // Slipstreams all tables together
-  foreach (const NodeValueTable& t, tables) {
-    if (row >= t.Count()) {
-      continue;
+  while (true) {
+    bool all_merged = true;
+
+    foreach (const NodeValueTable& t, tables) {
+      if (row < t.Count()) {
+        all_merged = false;
+      } else {
+        continue;
+      }
+
+      int row_index = t.Count() - 1 - row;
+
+      merged_table.Prepend(t.at(row_index));
     }
 
-    int row_index = t.Count() - 1 - row;
+    row++;
 
-    merged_table.Prepend(t.at(row_index));
+    if (all_merged) {
+      break;
+    }
   }
 
   return merged_table;
