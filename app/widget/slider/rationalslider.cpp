@@ -30,7 +30,6 @@ RationalSlider::RationalSlider(QWidget *parent) :
   lock_display_type_(false)
 {
   connect(this, SIGNAL(ValueChanged(QVariant)), this, SLOT(ConvertValue(QVariant)));
-  connect(this, &SliderBase::changeRationalDisplayType, this, &RationalSlider::changeDisplayType);
   connect(Core::instance(), &Core::TimecodeDisplayChanged, this, &RationalSlider::ChangeTimecodeDisplayType);
   connect(SliderBase::label(), &SliderLabel::customContextMenuRequested, this, &RationalSlider::changeDisplayType);
 

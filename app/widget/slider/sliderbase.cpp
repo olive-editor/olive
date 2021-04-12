@@ -55,7 +55,6 @@ SliderBase::SliderBase(Mode mode, QWidget *parent) :
   connect(label_, &SliderLabel::LabelPressed, this, &SliderBase::LabelPressed);
   connect(label_, &SliderLabel::focused, this, &SliderBase::ShowEditor);
   connect(label_, &SliderLabel::RequestReset, this, &SliderBase::ResetValue);
-  connect(label_, &SliderLabel::ChangeSliderType, this, &SliderBase::ChangeSliderType);
   connect(editor_, &FocusableLineEdit::Confirmed, this, &SliderBase::LineEditConfirmed);
   connect(editor_, &FocusableLineEdit::Cancelled, this, &SliderBase::LineEditCancelled);
 
@@ -451,13 +450,6 @@ void SliderBase::RepositionLadder()
     }
 
     drag_ladder_->StartListeningToMouseInput();
-  }
-}
-
-void SliderBase::ChangeSliderType()
-{
-  if (mode_ == kRational) {
-    emit changeRationalDisplayType();
   }
 }
 
