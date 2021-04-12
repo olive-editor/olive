@@ -174,7 +174,7 @@ protected:
 
   virtual void InputDisconnectedEvent(const QString &input, int element, const NodeOutput &output) override;
 
-  virtual rational GetCustomLength(Track::Type type) const;
+  virtual rational VerifyLengthInternal(Track::Type type) const;
 
   virtual void ShiftVideoEvent(const rational &from, const rational &to);
 

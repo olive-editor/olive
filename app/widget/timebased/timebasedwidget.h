@@ -230,6 +230,8 @@ private slots:
 
   void AutoUpdateTimebase();
 
+  void ConnectedNodeRemovedFromGraph();
+
 };
 
 }

@@ -54,6 +54,7 @@ ViewerOutput::ViewerOutput(bool create_default_streams) :
   if (create_default_streams) {
     AddStream(Track::kVideo, QVariant());
     AddStream(Track::kAudio, QVariant());
+    set_default_parameters();
   }
 }
 
@@ -302,39 +303,19 @@ void ViewerOutput::Retranslate()
 
 void ViewerOutput::VerifyLength()
 {
-  NodeTraverser traverser;
-
   rational video_length, audio_length, subtitle_length;
 
-  {
-    video_length = GetCustomLength(Track::kVideo);
-
-    if (video_length.isNull() && IsInputConnected(kTextureInput)) {
-      NodeValueTable t = traverser.GenerateTable(GetConnectedOutput(kTextureInput), TimeRange(0, 0));
-      video_length = t.Get(NodeValue::kRational, QStringLiteral("length")).value<rational>();
-    }
-
-    if (cache_enabled_) {
-      video_frame_cache_.SetLength(video_length);
-    }
+  video_length = VerifyLengthInternal(Track::kVideo);
+  if (cache_enabled_) {
+    video_frame_cache_.SetLength(video_length);
   }
 
-  {
-    audio_length = GetCustomLength(Track::kAudio);
-
-    if (audio_length.isNull() && IsInputConnected(kSamplesInput)) {
-      NodeValueTable t = traverser.GenerateTable(GetConnectedOutput(kSamplesInput), TimeRange(0, 0));
-      audio_length = t.Get(NodeValue::kRational, QStringLiteral("length")).value<rational>();
-    }
-
-    if (cache_enabled_) {
-      audio_playback_cache_.SetLength(audio_length);
-    }
+  audio_length = VerifyLengthInternal(Track::kAudio);
+  if (cache_enabled_) {
+    audio_playback_cache_.SetLength(audio_length);
   }
 
-  {
-    subtitle_length = GetCustomLength(Track::kSubtitle);
-  }
+  subtitle_length = VerifyLengthInternal(Track::kSubtitle);
 
   rational real_length = qMax(subtitle_length, qMax(video_length, audio_length));
 
@@ -362,9 +343,30 @@ void ViewerOutput::InputDisconnectedEvent(const QString &input, int element, con
   super::InputDisconnectedEvent(input, element, output);
 }
 
-rational ViewerOutput::GetCustomLength(Track::Type type) const
+rational ViewerOutput::VerifyLengthInternal(Track::Type type) const
 {
-  Q_UNUSED(type)
+  NodeTraverser traverser;
+
+  switch (type) {
+  case Track::kVideo:
+    if (IsInputConnected(kTextureInput)) {
+      NodeValueTable t = traverser.GenerateTable(GetConnectedOutput(kTextureInput), TimeRange(0, 0));
+      qDebug() << "Got video length:" << t.Get(NodeValue::kRational, QStringLiteral("length")).value<rational>();
+      return t.Get(NodeValue::kRational, QStringLiteral("length")).value<rational>();
+    }
+    break;
+  case Track::kAudio:
+    if (IsInputConnected(kSamplesInput)) {
+      NodeValueTable t = traverser.GenerateTable(GetConnectedOutput(kSamplesInput), TimeRange(0, 0));
+      return t.Get(NodeValue::kRational, QStringLiteral("length")).value<rational>();
+    }
+    break;
+  case Track::kNone:
+  case Track::kSubtitle:
+  case Track::kCount:
+    break;
+  }
+
   return rational();
 }
 

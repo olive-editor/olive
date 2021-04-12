@@ -926,6 +926,10 @@ signals:
 
   void InputDataTypeChanged(const QString& id, NodeValue::Type type);
 
+  void AddedToGraph(NodeGraph* graph);
+
+  void RemovedFromGraph(NodeGraph* graph);
+
 private:
   class ArrayInsertCommand : public UndoCommand
   {

@@ -180,7 +180,7 @@ void Footage::InputValueChangedEvent(const QString &input, int element)
   }
 }
 
-rational Footage::GetCustomLength(Track::Type type) const
+rational Footage::VerifyLengthInternal(Track::Type type) const
 {
   if (type == Track::kVideo) {
     VideoParams first_stream = GetFirstEnabledVideoStream();
@@ -196,7 +196,7 @@ rational Footage::GetCustomLength(Track::Type type) const
     }
   }
 
-  return super::GetCustomLength(type);
+  return super::VerifyLengthInternal(type);
 }
 
 QString Footage::GetColorspaceToUse(const VideoParams &params) const

@@ -194,6 +194,11 @@ private slots:
    */
   void ContextMenuFilterChanged(QAction* action);
 
+  /**
+   * @brief Opens the selected node in a Viewer
+   */
+  void OpenSelectedNodeInViewer();
+
 };
 
 }

@@ -104,11 +104,6 @@ public:
    */
   QModelIndex CreateIndexFromItem(Node *item, int column = 0);
 
-signals:
-  void ItemAdded(Node* node);
-
-  void ItemRemoved(Node* node);
-
 private:
   /**
    * @brief Retrieve the index of `item` in its parent

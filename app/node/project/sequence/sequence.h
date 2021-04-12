@@ -103,7 +103,7 @@ protected:
 
   virtual void InputDisconnectedEvent(const QString &input, int element, const NodeOutput &output) override;
 
-  virtual rational GetCustomLength(Track::Type type) const override;
+  virtual rational VerifyLengthInternal(Track::Type type) const override;
 
 signals:
   void TrackAdded(Track* track);

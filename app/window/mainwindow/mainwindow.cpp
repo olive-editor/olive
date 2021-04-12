@@ -261,6 +261,27 @@ ScopePanel *MainWindow::AppendScopePanel()
   return AppendFloatingPanelInternal<ScopePanel>(scope_panels_);
 }
 
+void MainWindow::OpenNodeInViewer(ViewerOutput *node)
+{
+  if (viewer_panels_.contains(node)) {
+    // This node already has a viewer, raise it
+    viewer_panels_.value(node)->raise();
+  } else {
+    // Create a viewer for this node
+    ViewerPanel* viewer = PanelManager::instance()->CreatePanel<ViewerPanel>(this);
+
+    viewer->SetSignalInsteadOfClose(true);
+    viewer->setFloating(true);
+    viewer->setVisible(true);
+    viewer->ConnectViewerNode(node);
+
+    connect(viewer, &ViewerPanel::CloseRequested, this, &MainWindow::ViewerCloseRequested);
+    connect(node, &ViewerOutput::RemovedFromGraph, this, &MainWindow::ViewerWithPanelRemovedFromGraph);
+
+    viewer_panels_.insert(node, viewer);
+  }
+}
+
 void MainWindow::SetFullscreen(bool fullscreen)
 {
   if (fullscreen) {
@@ -479,6 +500,22 @@ void MainWindow::ProjectCloseRequested()
   Project* p = panel->project();
 
   Core::instance()->CloseProject(p, true);
+}
+
+void MainWindow::ViewerCloseRequested()
+{
+  ViewerPanel* panel = static_cast<ViewerPanel*>(sender());
+
+  viewer_panels_.remove(viewer_panels_.key(panel));
+
+  panel->deleteLater();
+}
+
+void MainWindow::ViewerWithPanelRemovedFromGraph()
+{
+  ViewerOutput* vo = static_cast<ViewerOutput*>(sender());
+  viewer_panels_.take(vo)->deleteLater();
+  disconnect(vo, &ViewerOutput::RemovedFromGraph, this, &MainWindow::ViewerWithPanelRemovedFromGraph);
 }
 
 void MainWindow::FloatingPanelCloseRequested()

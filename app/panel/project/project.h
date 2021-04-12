@@ -80,8 +80,6 @@ private slots:
 
   void SaveConnectedProject();
 
-  void ItemRemoved(Node* item);
-
 };
 
 }
