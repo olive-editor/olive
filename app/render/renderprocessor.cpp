@@ -273,6 +273,11 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const Track *track, const Tim
 
 QVariant RenderProcessor::ProcessVideoFootage(const FootageJob &stream, const rational &input_time)
 {
+  if (ticket_->property("type").value<RenderManager::TicketType>() != RenderManager::kTypeVideo) {
+    // Video cannot contribute to audio, so we do nothing here
+    return QVariant();
+  }
+
   TexturePtr value = nullptr;
 
   // Check the still frame cache. On large frames such as high resolution still images, uploading
