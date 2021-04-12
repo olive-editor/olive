@@ -303,10 +303,7 @@ void MainMenu::ViewMenuAboutToShow()
   // Parent is QMainWindow
   view_full_screen_item_->setChecked(parentWidget()->isFullScreen());
 
-  // Ensure checked timecode display mode is correct
-  MenuShared::instance()->AboutToShowTimeRulerActions();
-
-  
+  // Make sure we're displaying the correct options for the timebase
   TimeBasedPanel* p = PanelManager::instance()->MostRecentlyFocused<TimeBasedPanel>();
   if (p) {
     if (p->timebase().denominator() != 0) {
@@ -314,6 +311,9 @@ void MainMenu::ViewMenuAboutToShow()
       MenuShared::instance()->AddItemsForTimeRulerMenu(view_menu_, p->timebase());
     }
   }
+
+  // Ensure checked timecode display mode is correct
+  MenuShared::instance()->AboutToShowTimeRulerActions();
 }
 
 void MainMenu::ToolsMenuAboutToShow()

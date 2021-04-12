@@ -175,6 +175,7 @@ void MenuShared::AddItemsForTimeRulerMenu(Menu *m, const rational& timebase)
     
   if (Timecode::TimebaseIsDropFrame(timebase)) {
     m->addAction(view_timecode_view_dropframe_item_);
+    m->addAction(view_timecode_view_nondropframe_item_);
   } else {
     m->addAction(view_timecode_view_nondropframe_item_);
   }

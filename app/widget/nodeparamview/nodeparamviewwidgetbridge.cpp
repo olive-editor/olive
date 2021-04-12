@@ -288,7 +288,7 @@ void NodeParamViewWidgetBridge::WidgetCallback()
   {
     // Widget is a RationalSlider
     RationalSlider* slider = static_cast<RationalSlider*>(sender());
-    ProcessSlider(slider, QVariant::fromValue(slider->GetValue()));;
+    ProcessSlider(slider, QVariant::fromValue(slider->GetValue()));
     break;
   }
   case NodeValue::kVec2:
@@ -528,8 +528,6 @@ rational NodeParamViewWidgetBridge::GetCurrentTimeAsNodeTime() const
 
 void NodeParamViewWidgetBridge::SetTimebase(const rational& timebase)
 {
-  timebase_ = timebase;
-
   if (input_.GetDataType() == NodeValue::kRational) {
     static_cast<RationalSlider*>(widgets_.first())->SetTimebase(timebase);
   }

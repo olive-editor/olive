@@ -41,7 +41,7 @@ public:
 
   rational GetTime();
 
-  rational timebase();
+  const rational& timebase();
 
   ViewerOutput *GetConnectedViewer() const
   {

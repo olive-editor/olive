@@ -34,7 +34,7 @@ rational TimeBasedPanel::GetTime()
   return widget_->GetTime();
 }
 
-rational TimeBasedPanel::timebase()
+const rational& TimeBasedPanel::timebase()
 {
   return widget_->timebase();
 }
