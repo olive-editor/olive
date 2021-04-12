@@ -105,7 +105,7 @@ bool SliderBase::IsDragging() const
 void SliderBase::SetFormat(const QString &s, const bool plural)
 {
   custom_format_ = s;
-  if (plural) format_plural_ = true;
+  format_plural_ = plural;
   ForceLabelUpdate();
 }
 
@@ -217,7 +217,7 @@ void SliderBase::UpdateLabel(const QVariant &v)
   if (tristate_) {
     label_->setText("---");
   } else if (format_plural_) {
-    label_->setText(tr(GetFormat().toUtf8().constData(), nullptr, qCeil(v.toReal())).arg(ValueToString(v)));
+    label_->setText(tr(GetFormat().toUtf8().constData(), nullptr, v.toInt()));
   } else {
     label_->setText(GetFormat().arg(ValueToString(v)));
   }
