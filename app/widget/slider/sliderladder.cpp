@@ -231,8 +231,7 @@ SliderLadderElement::SliderLadderElement(const double &multiplier, QString width
   QWidget(parent),
   multiplier_(multiplier),
   highlighted_(false),
-  multiplier_visible_(true),
-  width_hint(width_hint)
+  multiplier_visible_(true)
 {
   QVBoxLayout* layout = new QVBoxLayout(this);
 

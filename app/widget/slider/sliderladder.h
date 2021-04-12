@@ -58,8 +58,6 @@ private:
 
   bool multiplier_visible_;
 
-  QString width_hint;
-
 };
 
 class SliderLadder : public QFrame
