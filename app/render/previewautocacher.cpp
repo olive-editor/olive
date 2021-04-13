@@ -678,10 +678,6 @@ void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
     copied_viewer_node_ = static_cast<ViewerOutput*>(copy_map_.value(viewer_node_));
     copied_color_manager_ = static_cast<ColorManager*>(copy_map_.value(viewer_node_->project()->color_manager()));
 
-    // Copy parameters
-    copied_viewer_node_->SetVideoParams(viewer_node_->GetVideoParams());
-    copied_viewer_node_->SetAudioParams(viewer_node_->GetAudioParams());
-
     // Add all connections
     foreach (Node* node, graph->nodes()) {
       for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
