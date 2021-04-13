@@ -258,11 +258,6 @@ QVector<QString> ViewerOutput::inputs_for_output(const QString &output) const
   return inputs;
 }
 
-const rational& ViewerOutput::GetLength() const
-{
-  return last_length_;
-}
-
 QVector<Track::Reference> ViewerOutput::GetEnabledStreamsAsReferences() const
 {
   QVector<Track::Reference> refs;
@@ -303,21 +298,21 @@ void ViewerOutput::Retranslate()
 
 void ViewerOutput::VerifyLength()
 {
-  rational video_length, audio_length, subtitle_length;
+  rational subtitle_length;
 
-  video_length = VerifyLengthInternal(Track::kVideo);
+  video_length_ = VerifyLengthInternal(Track::kVideo);
   if (cache_enabled_) {
-    video_frame_cache_.SetLength(video_length);
+    video_frame_cache_.SetLength(video_length_);
   }
 
-  audio_length = VerifyLengthInternal(Track::kAudio);
+  audio_length_ = VerifyLengthInternal(Track::kAudio);
   if (cache_enabled_) {
-    audio_playback_cache_.SetLength(audio_length);
+    audio_playback_cache_.SetLength(audio_length_);
   }
 
   subtitle_length = VerifyLengthInternal(Track::kSubtitle);
 
-  rational real_length = qMax(subtitle_length, qMax(video_length, audio_length));
+  rational real_length = qMax(subtitle_length, qMax(video_length_, audio_length_));
 
   if (real_length != last_length_) {
     last_length_ = real_length;

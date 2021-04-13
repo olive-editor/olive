@@ -111,7 +111,9 @@ public:
   VideoParams GetFirstEnabledVideoStream() const;
   AudioParams GetFirstEnabledAudioStream() const;
 
-  const rational &GetLength() const;
+  const rational &GetLength() const { return last_length_; }
+  const rational &GetVideoLength() const { return video_length_; }
+  const rational &GetAudioLength() const { return audio_length_; }
 
   FrameHashCache* video_frame_cache()
   {
@@ -192,6 +194,8 @@ protected:
 
 private:
   rational last_length_;
+  rational video_length_;
+  rational audio_length_;
 
   FrameHashCache video_frame_cache_;
 
