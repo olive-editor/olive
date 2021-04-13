@@ -127,6 +127,8 @@ QPixmap AudioWaveformView::DrawWaveform(QIODevice* fs, CachedWaveformInfo info, 
   QPixmap pixmap(slice_end - slice_start, info.size.height());
   pixmap.fill(Qt::transparent);
 
+  bool rectified = Config::Current()[QStringLiteral("RectifiedWaveforms")].toBool();
+
   if (fs->open(QFile::ReadOnly)) {
 
     QPainter wave_painter(&pixmap);
@@ -154,7 +156,7 @@ QPixmap AudioWaveformView::DrawWaveform(QIODevice* fs, CachedWaveformInfo info, 
                                                                                                info.params.channel_count());
 
       for (int i=0;i<info.params.channel_count();i++) {
-        AudioVisualWaveform::DrawSample(&wave_painter, samples, x - slice_start, 0, info.size.height());
+        AudioVisualWaveform::DrawSample(&wave_painter, samples, x - slice_start, 0, info.size.height(), rectified);
 
         drew++;
       }
