@@ -99,6 +99,8 @@ VideoParamEdit::VideoParamEdit(QWidget* parent) :
 
   // FIXME: Replace with rational slider
   frame_rate_slider_ = new FloatSlider();
+  frame_rate_slider_->SetMinimum(0);
+  frame_rate_slider_->SetDecimalPlaces(2);
   connect(frame_rate_slider_, &FloatSlider::ValueChanged, this, &VideoParamEdit::Changed);
   layout->addWidget(frame_rate_slider_, row, 1);
 
@@ -211,6 +213,8 @@ VideoParamEdit::VideoParamEdit(QWidget* parent) :
 
 void VideoParamEdit::SetParameterMask(uint64_t mask)
 {
+  mask_ = mask;
+
   width_lbl_->setVisible(mask & kWidthHeight);
   width_slider_->setVisible(mask & kWidthHeight);
   height_lbl_->setVisible(mask & kWidthHeight);
@@ -220,7 +224,7 @@ void VideoParamEdit::SetParameterMask(uint64_t mask)
   depth_slider_->setVisible(mask & kDepth);
 
   frame_rate_lbl_->setVisible(mask & kFrameRate);
-  frame_rate_combobox_->setVisible((mask & kFrameRate) && (mask & ~kFrameRateIsArbitrary));
+  frame_rate_combobox_->setVisible((mask & kFrameRate) && !(mask & kFrameRateIsArbitrary));
   frame_rate_slider_->setVisible((mask & kFrameRate) && (mask & kFrameRateIsArbitrary));
 
   pixel_aspect_lbl_->setVisible(mask & kPixelAspect);
