@@ -398,6 +398,7 @@ bool ViewerWidget::ShouldForceWaveform() const
 void ViewerWidget::UpdateTextureFromNode(const rational& time)
 {
   bool frame_exists_at_time = FrameExistsAtTime(time);
+  bool frame_might_be_still = GetConnectedNode() && GetConnectedNode()->GetVideoLength().isNull();
 
   // Check playback queue for a frame
   if (IsPlaying()) {
@@ -434,13 +435,13 @@ void ViewerWidget::UpdateTextureFromNode(const rational& time)
     }
 
     // Only show warning if frame actually exists
-    if (frame_exists_at_time) {
+    if (frame_exists_at_time && !frame_might_be_still) {
       qWarning() << "Playback queue failed to keep up";
     }
 
   }
 
-  if (frame_exists_at_time) {
+  if (frame_exists_at_time || frame_might_be_still) {
     // Frame was not in queue, will require rendering or decoding from cache
     RenderTicketWatcher* watcher = new RenderTicketWatcher();
     connect(watcher, &RenderTicketWatcher::Finished, this, &ViewerWidget::RendererGeneratedFrame);
