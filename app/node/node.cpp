@@ -1245,7 +1245,7 @@ bool Node::AreLinked(Node *a, Node *b)
   return a->links_.contains(b);
 }
 
-void Node::AddInput(const QString &id, NodeValue::Type type, const QVariant &default_value, Node::InputFlags flags)
+void Node::InsertInput(const QString &id, NodeValue::Type type, const QVariant &default_value, Node::InputFlags flags, int index)
 {
   if (id.isEmpty()) {
     qWarning() << "Rejected adding input with an empty ID on node" << this->id();
@@ -1264,8 +1264,8 @@ void Node::AddInput(const QString &id, NodeValue::Type type, const QVariant &def
   i.flags = flags;
   i.array_size = 0;
 
-  input_ids_.append(id);
-  input_data_.append(i);
+  input_ids_.insert(index, id);
+  input_data_.insert(index, i);
 
   if (!standard_immediates_.value(id, nullptr)) {
     standard_immediates_.insert(id, CreateImmediate(id));

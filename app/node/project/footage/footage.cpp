@@ -43,7 +43,7 @@ Footage::Footage(const QString &filename) :
   ViewerOutput(false),
   cancelled_(nullptr)
 {
-  AddInput(kFilenameInput, NodeValue::kFile, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+  PrependInput(kFilenameInput, NodeValue::kFile, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
   Clear();
 

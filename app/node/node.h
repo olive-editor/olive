@@ -799,7 +799,23 @@ protected:
 
   };
 
-  void AddInput(const QString& id, NodeValue::Type type, const QVariant& default_value, InputFlags flags = InputFlags(kInputFlagNormal));
+  void InsertInput(const QString& id, NodeValue::Type type, const QVariant& default_value, InputFlags flags, int index);
+
+  void PrependInput(const QString& id, NodeValue::Type type, const QVariant& default_value, InputFlags flags = InputFlags(kInputFlagNormal))
+  {
+    InsertInput(id, type, default_value, flags, 0);
+  }
+
+  void PrependInput(const QString& id, NodeValue::Type type, InputFlags flags = InputFlags(kInputFlagNormal))
+  {
+    PrependInput(id, type, QVariant(), flags);
+  }
+
+  void AddInput(const QString& id, NodeValue::Type type, const QVariant& default_value, InputFlags flags = InputFlags(kInputFlagNormal))
+  {
+    InsertInput(id, type, default_value, flags, input_ids_.size());
+  }
+
   void AddInput(const QString& id, NodeValue::Type type, InputFlags flags = InputFlags(kInputFlagNormal))
   {
     AddInput(id, type, QVariant(), flags);
