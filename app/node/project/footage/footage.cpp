@@ -43,14 +43,14 @@ Footage::Footage(const QString &filename) :
   ViewerOutput(false),
   cancelled_(nullptr)
 {
+  SetCacheTextures(true);
+  SetViewerCacheEnabled(false);
+
   PrependInput(kFilenameInput, NodeValue::kFile, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
   Clear();
 
   set_filename(filename);
-
-  SetCacheTextures(true);
-  SetViewerCacheEnabled(false);
 }
 
 void Footage::Retranslate()
