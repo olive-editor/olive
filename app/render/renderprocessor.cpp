@@ -545,8 +545,12 @@ bool RenderProcessor::CanCacheFrames()
 
 QVariant RenderProcessor::GetCachedTexture(const QByteArray& hash)
 {
-  VideoParams video_params = GetCacheVideoParams();
   QString cache_dir = ticket_->property("cache").toString();
+  if (cache_dir.isEmpty()) {
+    return QVariant();
+  }
+
+  VideoParams video_params = GetCacheVideoParams();
 
   FramePtr f = FrameHashCache::LoadCacheFrame(cache_dir, hash);
 
