@@ -50,8 +50,10 @@
 
 namespace olive {
 
+#define super TimeBasedWidget
+
 TimelineWidget::TimelineWidget(QWidget *parent) :
-  TimeBasedWidget(true, true, parent),
+  super(true, true, parent),
   rubberband_(QRubberBand::Rectangle, this),
   active_tool_(nullptr),
   use_audio_time_units_(false)
@@ -110,8 +112,6 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   connect(scrollbar(), &QScrollBar::valueChanged, ruler(), &TimeRuler::SetScroll);
   connect(views_.first()->view()->horizontalScrollBar(), &QScrollBar::rangeChanged, scrollbar(), &QScrollBar::setRange);
   vert_layout->addWidget(scrollbar());
-
-  connect(ruler(), &TimeRuler::TimeChanged, this, &TimelineWidget::SetViewTimestamp);
 
   foreach (TimelineAndTrackView* tview, views_) {
     TimelineView* view = tview->view();
@@ -187,7 +187,7 @@ void TimelineWidget::Clear()
 
 void TimelineWidget::TimebaseChangedEvent(const rational &timebase)
 {
-  TimeBasedWidget::TimebaseChangedEvent(timebase);
+  super::TimebaseChangedEvent(timebase);
 
   timecode_label_->SetTimebase(timebase);
 
@@ -198,7 +198,7 @@ void TimelineWidget::TimebaseChangedEvent(const rational &timebase)
 
 void TimelineWidget::resizeEvent(QResizeEvent *event)
 {
-  TimeBasedWidget::resizeEvent(event);
+  super::resizeEvent(event);
 
   // Update timecode label size
   UpdateTimecodeWidthFromSplitters(views_.first()->splitter());
@@ -206,6 +206,8 @@ void TimelineWidget::resizeEvent(QResizeEvent *event)
 
 void TimelineWidget::TimeChangedEvent(const int64_t& timestamp)
 {
+  super::TimeChangedEvent(timestamp);
+
   SetViewTimestamp(timestamp);
 
   timecode_label_->SetValue(timestamp);
@@ -213,7 +215,7 @@ void TimelineWidget::TimeChangedEvent(const int64_t& timestamp)
 
 void TimelineWidget::ScaleChangedEvent(const double &scale)
 {
-  TimeBasedWidget::ScaleChangedEvent(scale);
+  super::ScaleChangedEvent(scale);
 
   foreach (TimelineAndTrackView* view, views_) {
     view->view()->SetScale(scale);

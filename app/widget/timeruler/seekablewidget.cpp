@@ -180,9 +180,11 @@ void SeekableWidget::SeekToScreenPoint(int screen)
     }
   }
 
-  SetTime(timestamp);
+  if (timestamp != GetTime()) {
+    SetTime(timestamp);
 
-  emit TimeChanged(timestamp);
+    emit TimeChanged(timestamp);
+  }
 }
 
 void SeekableWidget::DrawTimelinePoints(QPainter* p, int marker_bottom)
