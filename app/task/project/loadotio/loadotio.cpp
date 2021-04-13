@@ -232,8 +232,8 @@ bool LoadOTIOTask::Run()
 
             Node::ConnectEdge(NodeOutput(probed_item, output_id), NodeInput(block, ClipBlock::kBufferIn));
 
-            FolderAddChild c(project_->root(), probed_item, false);
-            c.redo();
+            FolderAddChild add(project_->root(), probed_item, false);
+            add.redo();
           }
         }
 
