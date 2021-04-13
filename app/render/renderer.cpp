@@ -20,8 +20,6 @@
 
 #include "renderer.h"
 
-#include <QFloat16>
-
 #include "common/ocioutils.h"
 
 namespace olive {

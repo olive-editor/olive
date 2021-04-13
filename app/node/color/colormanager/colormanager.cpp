@@ -21,7 +21,6 @@
 #include "colormanager.h"
 
 #include <QDir>
-#include <QFloat16>
 #include <QStandardPaths>
 
 #include "common/define.h"
