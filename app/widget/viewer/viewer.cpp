@@ -72,6 +72,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
 
   display_widget_ = new ViewerDisplayWidget();
   display_widget_->setAcceptDrops(true);
+  display_widget_->SetShowWidgetBackground(true);
   connect(display_widget_, &ViewerDisplayWidget::customContextMenuRequested, this, &ViewerWidget::ShowContextMenu);
   connect(display_widget_, &ViewerDisplayWidget::CursorColor, this, &ViewerWidget::CursorColor);
   connect(display_widget_, &ViewerDisplayWidget::ColorProcessorChanged, this, &ViewerWidget::ColorProcessorChanged);
