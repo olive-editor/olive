@@ -72,12 +72,24 @@ public:
 
   VideoParams GetVideoParams(int index = 0) const
   {
-    return GetStandardValue(kVideoParamsInput, index).value<VideoParams>();
+    // This check isn't strictly necessary (GetStandardValue will return a null VideoParams anyway),
+    // but it does suppress a warning message that we don't need
+    if (index < InputArraySize(kVideoParamsInput)) {
+      return GetStandardValue(kVideoParamsInput, index).value<VideoParams>();
+    } else {
+      return VideoParams();
+    }
   }
 
   AudioParams GetAudioParams(int index = 0) const
   {
-    return GetStandardValue(kAudioParamsInput, index).value<AudioParams>();
+    // This check isn't strictly necessary (GetStandardValue will return a null VideoParams anyway),
+    // but it does suppress a warning message that we don't need
+    if (index < InputArraySize(kAudioParamsInput)) {
+      return GetStandardValue(kAudioParamsInput, index).value<AudioParams>();
+    } else {
+      return AudioParams();
+    }
   }
 
   void SetVideoParams(const VideoParams &video, int index = 0)
