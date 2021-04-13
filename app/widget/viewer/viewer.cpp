@@ -390,8 +390,8 @@ void ViewerWidget::DecodeCachedImage(RenderTicketPtr ticket, const QString &fn, 
 bool ViewerWidget::ShouldForceWaveform() const
 {
   return GetConnectedNode()
-      && !GetConnectedNode()->IsInputConnected(ViewerOutput::kTextureInput)
-      && GetConnectedNode()->IsInputConnected(ViewerOutput::kSamplesInput);
+      && !GetConnectedNode()->GetConnectedTextureOutput().IsValid()
+      && GetConnectedNode()->GetConnectedSampleOutput().IsValid();
 }
 
 void ViewerWidget::UpdateTextureFromNode(const rational& time)
@@ -439,18 +439,18 @@ void ViewerWidget::UpdateTextureFromNode(const rational& time)
 
   }
 
-  if (!frame_exists_at_time) {
+  if (frame_exists_at_time) {
+    // Frame was not in queue, will require rendering or decoding from cache
+    RenderTicketWatcher* watcher = new RenderTicketWatcher();
+    connect(watcher, &RenderTicketWatcher::Finished, this, &ViewerWidget::RendererGeneratedFrame);
+    nonqueue_watchers_.append(watcher);
+    watcher->SetTicket(GetFrame(time, true));
+  } else {
     // There is definitely no frame here, we can immediately flip to showing nothing
     nonqueue_watchers_.clear();
     SetDisplayImage(nullptr, false);
     return;
   }
-
-  // Frame was not in queue, will require rendering or decoding from cache
-  RenderTicketWatcher* watcher = new RenderTicketWatcher();
-  connect(watcher, &RenderTicketWatcher::Finished, this, &ViewerWidget::RendererGeneratedFrame);
-  nonqueue_watchers_.append(watcher);
-  watcher->SetTicket(GetFrame(time, true));
 }
 
 void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
@@ -593,9 +593,7 @@ QString ViewerWidget::GetCachedFilenameFromTime(const rational &time)
 
 bool ViewerWidget::FrameExistsAtTime(const rational &time)
 {
-  return GetConnectedNode()
-      && ((time >= 0 && time < GetConnectedNode()->video_frame_cache()->GetLength())
-          || GetConnectedNode()->video_frame_cache()->GetLength().isNull());
+  return GetConnectedNode() && time >= 0 && time < GetConnectedNode()->video_frame_cache()->GetLength();
 }
 
 void ViewerWidget::SetDisplayImage(FramePtr frame, bool main_only)
