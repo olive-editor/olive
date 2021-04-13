@@ -139,7 +139,8 @@ void ProjectImportTask::ValidateImageSequence(Footage *footage, QFileInfoList& i
   // By this point we've established that video contains a single still image stream. Now we'll
   // see if it ends with numbers.
   if (Decoder::GetImageSequenceDigitCount(footage->filename()) > 0
-      && !image_sequence_ignore_files_.contains(footage->filename())) {
+      && !image_sequence_ignore_files_.contains(footage->filename())
+      && footage->InputArraySize(Footage::kVideoParamsInput)) {
     VideoParams video_stream = footage->GetVideoParams(0);
     QSize dim(video_stream.width(), video_stream.height());
 
