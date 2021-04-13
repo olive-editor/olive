@@ -535,7 +535,7 @@ void NodeParamViewWidgetBridge::InputValueChanged(const NodeInput &input, const 
 
 void NodeParamViewWidgetBridge::PropertyChanged(const QString& input, const QString &key, const QVariant &value)
 {
-  if (input != input_.input()) {
+  if (input != input_.input() || (input_.IsArray() && input_.element() == -1)) {
     return;
   }
 
