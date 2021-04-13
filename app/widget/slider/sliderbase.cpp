@@ -212,6 +212,11 @@ QString SliderBase::GetFormat() const
   }
 }
 
+bool SliderBase::UsingLadders() const
+{
+  return ladder_element_count_ > 0 && Config::Current()[QStringLiteral("UseSliderLadders")].toBool();
+}
+
 void SliderBase::UpdateLabel(const QVariant &v)
 {
   if (tristate_) {
@@ -303,7 +308,7 @@ void SliderBase::LadderDragged(int value, double multiplier)
 
     drag_ladder_->SetValue(ValueToString(clamped_temp_dragged_value_));
 
-    if (!Config::Current()[QStringLiteral("UseSliderLadders")].toBool()) {
+    if (!UsingLadders()) {
       RepositionLadder();
     }
 
@@ -394,7 +399,7 @@ void SliderBase::ResetValue()
 void SliderBase::RepositionLadder()
 {
   if (drag_ladder_) {
-    if (Config::Current()[QStringLiteral("UseSliderLadders")].toBool()) {
+    if (UsingLadders()) {
       drag_ladder_->move(QCursor::pos() - QPoint(drag_ladder_->width()/2, drag_ladder_->height()/2));
     } else {
       QPoint label_global_pos = label_->mapToGlobal(label_->pos());

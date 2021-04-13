@@ -101,6 +101,8 @@ private:
 
   QString GetFormat() const;
 
+  bool UsingLadders() const;
+
   SliderLabel* label_;
 
   FocusableLineEdit* editor_;

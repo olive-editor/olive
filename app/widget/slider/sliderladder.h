@@ -83,6 +83,8 @@ signals:
   void Released();
 
 private:
+  bool UsingLadders() const;
+
   int drag_start_x_;
   int drag_start_y_;
 

@@ -76,7 +76,7 @@ SliderLadder::SliderLadder(double drag_multiplier, int nb_outer_values, QWidget*
   drag_timer_.setInterval(10);
   connect(&drag_timer_, &QTimer::timeout, this, &SliderLadder::TimerUpdate);
 
-  if (Config::Current()[QStringLiteral("UseSliderLadders")].toBool()) {
+  if (UsingLadders()) {
     drag_start_x_ = -1;
   } else {
 #if defined(Q_OS_MAC)
@@ -94,7 +94,7 @@ SliderLadder::SliderLadder(double drag_multiplier, int nb_outer_values, QWidget*
 
 SliderLadder::~SliderLadder()
 {
-  if (Config::Current()[QStringLiteral("UseSliderLadders")].toBool()) {
+  if (UsingLadders()) {
 
   } else {
 #if defined(Q_OS_MAC)
@@ -142,7 +142,7 @@ void SliderLadder::TimerUpdate()
   int ladder_right = this->x() + this->width() - 1;
   int now_pos = QCursor::pos().x();
 
-  if (Config::Current()[QStringLiteral("UseSliderLadders")].toBool()) {
+  if (UsingLadders()) {
 
     bool is_under_mouse = (now_pos >= ladder_left && now_pos <= ladder_right);
 
@@ -224,6 +224,11 @@ void SliderLadder::TimerUpdate()
       emit DraggedByValue(x_mvmt + y_mvmt, multiplier);
     }
   }
+}
+
+bool SliderLadder::UsingLadders() const
+{
+  return elements_.size() > 1;
 }
 
 SliderLadderElement::SliderLadderElement(const double &multiplier, QWidget *parent) :
