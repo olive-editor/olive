@@ -244,6 +244,10 @@ AudioVisualWaveform::Sample AudioVisualWaveform::ReSumSamples(const SamplePerCha
 
 void AudioVisualWaveform::DrawSample(QPainter *painter, const Sample& sample, int x, int y, int height, bool rectified)
 {
+  if (sample.isEmpty()) {
+    return;
+  }
+
   int channel_height = height / sample.size();
   int channel_half_height = channel_height / 2;
 
