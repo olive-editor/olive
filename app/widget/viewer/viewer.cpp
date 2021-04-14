@@ -322,7 +322,9 @@ void ViewerWidget::SetFullScreen(QScreen *screen)
   }
 
   if (windows_.contains(screen)) {
-    delete windows_.take(screen);
+    ViewerWindow* vw = windows_.take(screen);
+    vw->hide();
+    vw->deleteLater();
     return;
   }
 
