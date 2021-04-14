@@ -85,6 +85,8 @@ public:
 
   void Shift(const rational& from, const rational& to);
 
+  Sample GetSummaryFromTime(const rational& start, const rational& length) const;
+
   static Sample SumSamples(const float* samples, int nb_samples, int nb_channels);
   static Sample SumSamples(SampleBufferPtr samples, int start_index, int length);
 
@@ -107,6 +109,8 @@ private:
 
   int time_to_samples(const rational& time, double sample_rate) const;
   int time_to_samples(const double& time, double sample_rate) const;
+
+  std::map<rational, Sample>::const_iterator GetMipmapForScale(double scale) const;
 
   int channels_;
 

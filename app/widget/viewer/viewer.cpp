@@ -412,6 +412,8 @@ void ViewerWidget::StartAudioOutput()
     AudioManager::instance()->StartOutput(audio_cache,
                                           audio_cache->GetParameters().time_to_bytes(GetTime()),
                                           playback_speed_);
+    emit AudioManager::instance()->OutputWaveformStarted(waveform_view_->waveform(),
+                                                         GetTime(), playback_speed_);
   }
 }
 

@@ -203,6 +203,19 @@ void AudioVisualWaveform::Shift(const rational &from, const rational &to)
   }
 }
 
+AudioVisualWaveform::Sample AudioVisualWaveform::GetSummaryFromTime(const rational &start, const rational &length) const
+{
+  // Find mipmap that requries
+  auto using_mipmap = GetMipmapForScale(length.flipped().toDouble());
+
+  double rate_dbl = using_mipmap->first.toDouble();
+
+  int start_sample = time_to_samples(start, rate_dbl);
+  int sample_length = time_to_samples(length, rate_dbl);
+
+  return ReSumSamples(&using_mipmap->second.constData()[start_sample], sample_length, channels_);
+}
+
 AudioVisualWaveform::Sample AudioVisualWaveform::SumSamples(const float *samples, int nb_samples, int nb_channels)
 {
   return SumSamplesInternal(samples, nb_samples, nb_channels);
@@ -285,15 +298,7 @@ void AudioVisualWaveform::DrawWaveform(QPainter *painter, const QRect& rect, con
     return;
   }
 
-  // Find largest mipmap for this scale (or the largest if we don't find one sufficient)
-  auto using_mipmap = samples.mipmapped_data_.cend();
-  using_mipmap--;
-  for (auto it=samples.mipmapped_data_.cbegin(); it!=samples.mipmapped_data_.cend(); it++) {
-    if (it->first.toDouble() >= scale) {
-      using_mipmap = it;
-      break;
-    }
-  }
+  auto using_mipmap = samples.GetMipmapForScale(scale);
 
   rational rate = using_mipmap->first;
   double rate_dbl = rate.toDouble();
@@ -348,6 +353,20 @@ int AudioVisualWaveform::time_to_samples(const rational &time, double sample_rat
 int AudioVisualWaveform::time_to_samples(const double &time, double sample_rate) const
 {
   return qFloor(time * sample_rate) * channels_;
+}
+
+std::map<rational, AudioVisualWaveform::Sample>::const_iterator AudioVisualWaveform::GetMipmapForScale(double scale) const
+{
+  // Find largest mipmap for this scale (or the largest if we don't find one sufficient)
+  auto using_mipmap = mipmapped_data_.cend();
+  using_mipmap--;
+  for (auto it=mipmapped_data_.cbegin(); it!=mipmapped_data_.cend(); it++) {
+    if (it->first.toDouble() >= scale) {
+      using_mipmap = it;
+      break;
+    }
+  }
+  return using_mipmap;
 }
 
 template<typename T>

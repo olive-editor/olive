@@ -27,6 +27,7 @@
 #include <QtConcurrent/QtConcurrent>
 #include <QThread>
 
+#include "audiovisualwaveform.h"
 #include "common/define.h"
 #include "outputmanager.h"
 #include "render/audioparams.h"
@@ -93,6 +94,8 @@ signals:
   void OutputNotified();
 
   void OutputDeviceStarted(AudioPlaybackCache* cache, qint64 offset, int playback_speed);
+
+  void OutputWaveformStarted(const AudioVisualWaveform* waveform, const rational &start, int playback_speed);
 
   void AudioParamsChanged(const AudioParams& params);
 

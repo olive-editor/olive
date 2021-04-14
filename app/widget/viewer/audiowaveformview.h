@@ -41,6 +41,11 @@ public:
 
   void SetViewer(AudioPlaybackCache *playback);
 
+  const AudioVisualWaveform* waveform() const
+  {
+    return &waveform_;
+  }
+
 protected:
   virtual void paintEvent(QPaintEvent* event) override;
 
