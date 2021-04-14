@@ -39,6 +39,7 @@ SliderBase::SliderBase(Mode mode, QWidget *parent) :
   dragged_diff_(0),
   require_valid_input_(true),
   tristate_(false),
+  format_plural_(false),
   drag_ladder_(nullptr),
   ladder_element_count_(0),
   dragged_(false)
@@ -102,9 +103,10 @@ bool SliderBase::IsDragging() const
   return drag_ladder_;
 }
 
-void SliderBase::SetFormat(const QString &s)
+void SliderBase::SetFormat(const QString &s, const bool plural)
 {
   custom_format_ = s;
+  format_plural_ = plural;
   ForceLabelUpdate();
 }
 
@@ -112,6 +114,11 @@ void SliderBase::ClearFormat()
 {
   custom_format_.clear();
   ForceLabelUpdate();
+}
+
+bool SliderBase::IsFormatPlural() const
+{
+  return format_plural_;
 }
 
 void SliderBase::ForceLabelUpdate()
@@ -228,10 +235,17 @@ QString SliderBase::GetFormat() const
   }
 }
 
+bool SliderBase::UsingLadders() const
+{
+  return ladder_element_count_ > 0 && Config::Current()[QStringLiteral("UseSliderLadders")].toBool();
+}
+
 void SliderBase::UpdateLabel(const QVariant &v)
 {
   if (tristate_) {
     label_->setText("---");
+  } else if (format_plural_) {
+    label_->setText(tr(GetFormat().toUtf8().constData(), nullptr, v.toInt()));
   } else {
     label_->setText(GetFormat().arg(ValueToString(v)));
   }
@@ -322,7 +336,7 @@ void SliderBase::LadderDragged(int value, double multiplier)
 
     drag_ladder_->SetValue(ValueToString(clamped_temp_dragged_value_));
 
-    if (!Config::Current()[QStringLiteral("UseSliderLadders")].toBool()) {
+    if (!UsingLadders()) {
       RepositionLadder();
     }
 
@@ -437,7 +451,7 @@ void SliderBase::ResetValue()
 void SliderBase::RepositionLadder()
 {
   if (drag_ladder_) {
-    if (Config::Current()[QStringLiteral("UseSliderLadders")].toBool()) {
+    if (UsingLadders()) {
       drag_ladder_->move(QCursor::pos() - QPoint(drag_ladder_->width()/2, drag_ladder_->height()/2));
     } else {
       QPoint label_global_pos = label_->mapToGlobal(label_->pos());

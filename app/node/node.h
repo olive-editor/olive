@@ -799,7 +799,23 @@ protected:
 
   };
 
-  void AddInput(const QString& id, NodeValue::Type type, const QVariant& default_value, InputFlags flags = InputFlags(kInputFlagNormal));
+  void InsertInput(const QString& id, NodeValue::Type type, const QVariant& default_value, InputFlags flags, int index);
+
+  void PrependInput(const QString& id, NodeValue::Type type, const QVariant& default_value, InputFlags flags = InputFlags(kInputFlagNormal))
+  {
+    InsertInput(id, type, default_value, flags, 0);
+  }
+
+  void PrependInput(const QString& id, NodeValue::Type type, InputFlags flags = InputFlags(kInputFlagNormal))
+  {
+    PrependInput(id, type, QVariant(), flags);
+  }
+
+  void AddInput(const QString& id, NodeValue::Type type, const QVariant& default_value, InputFlags flags = InputFlags(kInputFlagNormal))
+  {
+    InsertInput(id, type, default_value, flags, input_ids_.size());
+  }
+
   void AddInput(const QString& id, NodeValue::Type type, InputFlags flags = InputFlags(kInputFlagNormal))
   {
     AddInput(id, type, QVariant(), flags);
@@ -925,6 +941,10 @@ signals:
   void InputNameChanged(const QString& id, const QString& name);
 
   void InputDataTypeChanged(const QString& id, NodeValue::Type type);
+
+  void AddedToGraph(NodeGraph* graph);
+
+  void RemovedFromGraph(NodeGraph* graph);
 
 private:
   class ArrayInsertCommand : public UndoCommand
@@ -1331,7 +1351,8 @@ public:
   NodeSetPositionAndShiftSurroundingsCommand(Node* node, const QPointF& pos, bool move_dependencies_relatively) :
     node_(node),
     position_(pos),
-    move_dependencies_(move_dependencies_relatively)
+    move_dependencies_(move_dependencies_relatively),
+    ignore_node_(nullptr)
   {}
 
   virtual ~NodeSetPositionAndShiftSurroundingsCommand() override
@@ -1353,6 +1374,11 @@ public:
     }
   }
 
+  void SetIgnoreNode(Node* n)
+  {
+    ignore_node_ = n;
+  }
+
 private:
   Node* node_;
 
@@ -1361,6 +1387,8 @@ private:
   bool move_dependencies_;
 
   QVector<UndoCommand*> commands_;
+
+  Node* ignore_node_;
 
 };
 

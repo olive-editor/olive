@@ -300,6 +300,8 @@ public:
 
   void OpenRecoveryProject(const QString& filename);
 
+  void OpenNodeInViewer(ViewerOutput* viewer);
+
   static const uint kProjectVersion;
 
 public slots:

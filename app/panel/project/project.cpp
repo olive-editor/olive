@@ -57,7 +57,6 @@ ProjectPanel::ProjectPanel(QWidget *parent) :
   explorer_ = new ProjectExplorer(this);
   layout->addWidget(explorer_);
   connect(explorer_, &ProjectExplorer::DoubleClickedItem, this, &ProjectPanel::ItemDoubleClickSlot);
-  connect(explorer_, &ProjectExplorer::ItemRemoved, this, &ProjectPanel::ItemRemoved);
 
   // Set toolbar's view to the explorer's view
   toolbar->SetView(explorer_->view_type());
@@ -231,16 +230,6 @@ void ProjectPanel::UpdateSubtitle()
 void ProjectPanel::SaveConnectedProject()
 {
   Core::instance()->SaveProject(this->project());
-}
-
-void ProjectPanel::ItemRemoved(Node *item)
-{
-  // Open this footage in a FootageViewer
-  FootageViewerPanel* panel = PanelManager::instance()->MostRecentlyFocused<FootageViewerPanel>();
-
-  if (panel->GetConnectedViewer() == item) {
-    panel->DisconnectViewerNode();
-  }
 }
 
 QVector<ViewerOutput *> ProjectPanel::GetSelectedFootage() const

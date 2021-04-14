@@ -71,6 +71,8 @@ public:
 
   ScopePanel* AppendScopePanel();
 
+  void OpenNodeInViewer(ViewerOutput* node);
+
   enum ProgressStatus {
     kProgressNone,
     kProgressShow,
@@ -155,6 +157,7 @@ private:
   PixelSamplerPanel* pixel_sampler_panel_;
   QList<ScopePanel*> scope_panels_;
   NodeTablePanel* table_panel_;
+  QMap<ViewerOutput*, ViewerPanel*> viewer_panels_;
 
 #ifdef Q_OS_WINDOWS
   unsigned int taskbar_btn_id_;
@@ -172,6 +175,10 @@ private slots:
   void TimelineCloseRequested();
 
   void ProjectCloseRequested();
+
+  void ViewerCloseRequested();
+
+  void ViewerWithPanelRemovedFromGraph();
 
   void FloatingPanelCloseRequested();
 

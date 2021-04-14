@@ -18,7 +18,6 @@ cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
 
 project(olive-editor VERSION 0.2.0 LANGUAGES CXX)
 
-option(UPDATE_TS "Update translations" OFF)
 option(BUILD_DOXYGEN "Build Doxygen documentation" OFF)
 
 set(CMAKE_CXX_STANDARD 11)

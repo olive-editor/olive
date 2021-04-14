@@ -479,6 +479,7 @@ qint64 AudioPlaybackCache::PlaybackDevice::readData(char *data, qint64 maxSize)
       }
     } else {
       qWarning() << "Failed to read data from segment";
+      break;
     }
   }
 

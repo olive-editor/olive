@@ -540,13 +540,17 @@ QVariant RenderProcessor::ProcessFrameGeneration(const Node *node, const Generat
 
 bool RenderProcessor::CanCacheFrames()
 {
-  return true;
+  return ticket_->property("type").value<RenderManager::TicketType>() == RenderManager::kTypeVideo;
 }
 
 QVariant RenderProcessor::GetCachedTexture(const QByteArray& hash)
 {
-  VideoParams video_params = GetCacheVideoParams();
   QString cache_dir = ticket_->property("cache").toString();
+  if (cache_dir.isEmpty()) {
+    return QVariant();
+  }
+
+  VideoParams video_params = GetCacheVideoParams();
 
   FramePtr f = FrameHashCache::LoadCacheFrame(cache_dir, hash);
 

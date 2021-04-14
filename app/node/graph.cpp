@@ -61,6 +61,7 @@ void NodeGraph::childEvent(QChildEvent *event)
       connect(node, &Node::ValueChanged, this, &NodeGraph::ValueChanged);
 
       emit NodeAdded(node);
+      emit node->AddedToGraph(this);
 
     } else if (event->type() == QEvent::ChildRemoved) {
 
@@ -72,6 +73,7 @@ void NodeGraph::childEvent(QChildEvent *event)
       disconnect(node, &Node::ValueChanged, this, &NodeGraph::ValueChanged);
 
       emit NodeRemoved(node);
+      emit node->RemovedFromGraph(this);
 
     }
   }

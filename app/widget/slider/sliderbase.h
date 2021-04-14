@@ -61,8 +61,10 @@ public:
 
   bool IsDragging() const;
 
-  void SetFormat(const QString& s);
+  void SetFormat(const QString& s, const bool plural=false);
   void ClearFormat();
+
+  bool IsFormatPlural() const;
 
   void SetLadderElementCount(int b)
   {
@@ -102,6 +104,8 @@ private:
 
   QString GetFormat() const;
 
+  bool UsingLadders() const;
+
   SliderLabel* label_;
 
   FocusableLineEdit* editor_;
@@ -129,6 +133,8 @@ private:
   bool tristate_;
 
   QString custom_format_;
+
+  bool format_plural_;
 
   SliderLadder* drag_ladder_;
 

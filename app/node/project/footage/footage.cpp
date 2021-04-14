@@ -43,14 +43,14 @@ Footage::Footage(const QString &filename) :
   ViewerOutput(false),
   cancelled_(nullptr)
 {
-  AddInput(kFilenameInput, NodeValue::kFile, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+  SetCacheTextures(true);
+  SetViewerVideoCacheEnabled(false);
+
+  PrependInput(kFilenameInput, NodeValue::kFile, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
   Clear();
 
   set_filename(filename);
-
-  SetCacheTextures(true);
-  SetViewerCacheEnabled(false);
 }
 
 void Footage::Retranslate()
@@ -180,7 +180,7 @@ void Footage::InputValueChangedEvent(const QString &input, int element)
   }
 }
 
-rational Footage::GetCustomLength(Track::Type type) const
+rational Footage::VerifyLengthInternal(Track::Type type) const
 {
   if (type == Track::kVideo) {
     VideoParams first_stream = GetFirstEnabledVideoStream();
@@ -196,7 +196,7 @@ rational Footage::GetCustomLength(Track::Type type) const
     }
   }
 
-  return super::GetCustomLength(type);
+  return super::VerifyLengthInternal(type);
 }
 
 QString Footage::GetColorspaceToUse(const VideoParams &params) const
@@ -295,10 +295,9 @@ QString Footage::DescribeVideoStream(const VideoParams &params)
 
 QString Footage::DescribeAudioStream(const AudioParams &params)
 {
-  return tr("%1: Audio - %2 Channel(s), %3Hz")
-      .arg(QString::number(params.stream_index()),
-           QString::number(params.channel_count()),
-           QString::number(params.sample_rate()));
+  return tr("%1: Audio - %n Channel(s), %2Hz", nullptr, params.channel_count())
+    .arg(QString::number(params.stream_index()),
+         QString::number(params.sample_rate()));
 }
 
 void Footage::Hash(const QString& output, QCryptographicHash &hash, const rational &time) const

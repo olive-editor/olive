@@ -197,6 +197,11 @@ bool FrameHashCache::SaveCacheFrame(const QByteArray &hash, FramePtr frame) cons
 
 bool FrameHashCache::SaveCacheFrame(const QString &cache_path, const QByteArray &hash, char *data, const VideoParams &vparam, int linesize_bytes)
 {
+  if (cache_path.isEmpty()) {
+    qWarning() << "Failed to save cache frame with empty path";
+    return false;
+  }
+
   QString fn = CachePathName(cache_path, hash);
 
   if (SaveCacheFrame(fn, data, vparam, linesize_bytes)) {
@@ -226,6 +231,11 @@ bool FrameHashCache::SaveCacheFrame(const QString &cache_path, const QByteArray 
 
 FramePtr FrameHashCache::LoadCacheFrame(const QString &cache_path, const QByteArray &hash)
 {
+  if (cache_path.isEmpty()) {
+    qWarning() << "Failed to save cache frame with empty path";
+    return nullptr;
+  }
+
   return LoadCacheFrame(CachePathName(cache_path, hash));
 }
 

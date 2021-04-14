@@ -160,13 +160,15 @@ public:
 
     static Type TypeFromString(const QString& s)
     {
-      if (s.at(1) == ':') {
-        if (s.at(0) == 'v') {
-          // Video stream
-          return Track::kVideo;
-        } else if (s.at(0) == 'a') {
-          // Audio stream
-          return Track::kAudio;
+      if (s.size() >= 3) {
+        if (s.at(1) == ':') {
+          if (s.at(0) == 'v') {
+            // Video stream
+            return Track::kVideo;
+          } else if (s.at(0) == 'a') {
+            // Audio stream
+            return Track::kAudio;
+          }
         }
       }
 

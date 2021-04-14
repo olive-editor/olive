@@ -245,6 +245,8 @@ private:
 
   PreviewAutoCacher auto_cacher_;
 
+  QTimer audio_restart_timer_;
+
   static QVector<ViewerWidget*> instances_;
 
 private slots:
@@ -291,6 +293,11 @@ private slots:
   void DragEntered(QDragEnterEvent* event);
 
   void Dropped(QDropEvent* event);
+
+  void AudioCacheInvalidated();
+  void AudioCacheValidated();
+
+  void StartAudioOutput();
 
 };
 

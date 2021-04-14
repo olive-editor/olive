@@ -41,51 +41,27 @@ public:
 
   void SetViewer(AudioPlaybackCache *playback);
 
+  const AudioVisualWaveform* waveform() const
+  {
+    return &waveform_;
+  }
+
 protected:
   virtual void paintEvent(QPaintEvent* event) override;
 
 private:
-  struct CachedWaveformInfo {
-    QSize size;
-    double scale;
-    int scroll;
-    AudioParams params;
+  void RenderRange(const TimeRange& range);
 
-    bool operator==(const CachedWaveformInfo& rhs) const
-    {
-      return size == rhs.size
-          && qFuzzyCompare(scale, rhs.scale)
-          && scroll == rhs.scroll
-          && params == rhs.params;
-    }
-
-    bool operator!=(const CachedWaveformInfo& rhs) const
-    {
-      return !(*this == rhs);
-    }
-  };
-
-  struct ActiveCache {
-    QPixmap pixmap;
-    CachedWaveformInfo info;
-    CachedWaveformInfo caching_info;
-    QFutureWatcher<QPixmap>* watcher = nullptr;
-  };
-
-  QPixmap DrawWaveform(QIODevice *fs, CachedWaveformInfo info, int slice_start, int slice_end) const;
+  QThreadPool pool_;
 
   AudioPlaybackCache *playback_;
 
-  QVector<ActiveCache> cached_waveform_;
+  AudioVisualWaveform waveform_;
+
+  QHash<TimeRange, QFutureWatcher<AudioVisualWaveform>*> jobs_;
 
 private slots:
-  void BackendParamsChanged();
-
-  void ForceUpdate();
-
-  void ForceUpdateOfRange(const TimeRange& range);
-
-  void BackgroundCacheFinished();
+  void BackgroundFinished();
 
 };
 

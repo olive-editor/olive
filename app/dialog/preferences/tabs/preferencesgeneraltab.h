@@ -57,6 +57,11 @@ private:
 
   IntegerSlider* autorecovery_maximum_;
 
+  Sequence default_sequence_;
+
+private slots:
+  void EditDefaultSequenceSettings();
+
 };
 
 }

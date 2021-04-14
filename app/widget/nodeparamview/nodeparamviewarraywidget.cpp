@@ -53,7 +53,7 @@ void NodeParamViewArrayWidget::UpdateCounter(const QString& input, int old_size,
 {
   Q_UNUSED(old_size)
   if (input == input_) {
-    count_lbl_->setText(tr("%1 element(s)").arg(new_size));
+    count_lbl_->setText(tr("%n element(s)", nullptr, new_size));
   }
 }
 

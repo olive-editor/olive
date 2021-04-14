@@ -71,6 +71,12 @@ public:
   void SetVideoParams(const VideoParams &params);
   void SetTime(const rational& time);
 
+  void SetShowWidgetBackground(bool e)
+  {
+    show_widget_background_ = e;
+    update();
+  }
+
   FramePtr last_loaded_buffer() const;
 
   /**
@@ -287,6 +293,8 @@ private:
 
   QVector<double> frame_rate_averages_;
   int frame_rate_average_count_;
+
+  bool show_widget_background_;
 
 private slots:
   void EmitColorAtCursor(QMouseEvent* e);

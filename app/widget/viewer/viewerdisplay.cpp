@@ -49,7 +49,8 @@ ViewerDisplayWidget::ViewerDisplayWidget(QWidget *parent) :
   hand_dragging_(false),
   deinterlace_(false),
   show_fps_(false),
-  frames_skipped_(0)
+  frames_skipped_(0),
+  show_widget_background_(false)
 {
   connect(Core::instance(), &Core::ToolChanged, this, &ViewerDisplayWidget::UpdateCursor);
 
@@ -301,7 +302,7 @@ void ViewerDisplayWidget::dropEvent(QDropEvent *event)
 void ViewerDisplayWidget::OnPaint()
 {
   // Clear background to empty
-  QColor bg_color = palette().window().color();
+  QColor bg_color = show_widget_background_ ? palette().window().color() : Qt::black;
   renderer()->ClearDestination(bg_color.redF(), bg_color.greenF(), bg_color.blueF());
 
   // We only draw if we have a pipeline

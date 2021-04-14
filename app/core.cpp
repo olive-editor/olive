@@ -396,9 +396,6 @@ void Core::CreateNewSequence()
   // Create new sequence
   Sequence* new_sequence = CreateNewSequenceForProject(active_project);
 
-  // Set all defaults for the sequence
-  new_sequence->set_default_parameters();
-
   SequenceDialog sd(new_sequence, SequenceDialog::kNew, main_window_);
 
   // Make sure SequenceDialog doesn't make an undo command for editing the sequence, since we make an undo command for
@@ -1089,6 +1086,11 @@ void Core::ShowStatusBarMessage(const QString &s)
 void Core::OpenRecoveryProject(const QString &filename)
 {
   OpenProjectInternal(filename, true);
+}
+
+void Core::OpenNodeInViewer(ViewerOutput *viewer)
+{
+  main_window_->OpenNodeInViewer(viewer);
 }
 
 void Core::CheckForAutoRecoveries()

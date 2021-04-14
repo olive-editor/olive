@@ -1245,7 +1245,7 @@ bool Node::AreLinked(Node *a, Node *b)
   return a->links_.contains(b);
 }
 
-void Node::AddInput(const QString &id, NodeValue::Type type, const QVariant &default_value, Node::InputFlags flags)
+void Node::InsertInput(const QString &id, NodeValue::Type type, const QVariant &default_value, Node::InputFlags flags, int index)
 {
   if (id.isEmpty()) {
     qWarning() << "Rejected adding input with an empty ID on node" << this->id();
@@ -1264,8 +1264,8 @@ void Node::AddInput(const QString &id, NodeValue::Type type, const QVariant &def
   i.flags = flags;
   i.array_size = 0;
 
-  input_ids_.append(id);
-  input_data_.append(i);
+  input_ids_.insert(index, id);
+  input_data_.insert(index, i);
 
   if (!standard_immediates_.value(id, nullptr)) {
     standard_immediates_.insert(id, CreateImmediate(id));
@@ -2294,7 +2294,7 @@ void NodeSetPositionAndShiftSurroundingsCommand::redo()
 
     // Start moving other nodes
     foreach (Node* surrounding, node_->parent()->nodes()) {
-      if (bounding_rect.contains(surrounding->GetPosition()) && surrounding != node_) {
+      if (bounding_rect.contains(surrounding->GetPosition()) && surrounding != node_ && surrounding != ignore_node_) {
         QPointF new_pos = surrounding->GetPosition();
 
         qreal move_rate = 0.50;
@@ -2306,6 +2306,7 @@ void NodeSetPositionAndShiftSurroundingsCommand::redo()
         new_pos.setY(new_pos.y() + move_rate);
 
         auto sur_command = new NodeSetPositionAndShiftSurroundingsCommand(surrounding, new_pos, true);
+        sur_command->SetIgnoreNode(node_);
         sur_command->redo();
         commands_.append(sur_command);
       }
