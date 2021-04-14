@@ -95,7 +95,6 @@ void RationalSlider::SetDisplayType(const RationalSlider::DisplayType &type)
 
   switch (display_type_) {
     case kTimecode:
-    case kRational:
       ClearFormat();
       break;
     case kTimestamp:
@@ -126,8 +125,6 @@ QString RationalSlider::ValueToString(const QVariant &v)
       return Timecode::time_to_timecode(v.value<rational>(), timebase_, Core::instance()->GetTimecodeDisplay());
     case kTimestamp:
       return QString::number(Timecode::time_to_timestamp(time, timebase_));
-    case kRational:
-      return v.value<rational>().toString();
     case kFloat:
     {
       QString s = QString::number(time, 'f', decimal_places_);
@@ -157,12 +154,6 @@ QVariant RationalSlider::StringToValue(const QString &s, bool *ok)
     }
     case kTimestamp:
       r = rational(s.toInt(ok), timebase_.denominator());
-      break;
-    case kRational:
-      r = rational::fromString(s);
-      if (!r.isNull()) {
-        *ok = true;
-      }
       break;
     case kFloat:
       r = rational::fromDouble(s.toDouble(ok));
