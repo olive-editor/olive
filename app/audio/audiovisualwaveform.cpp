@@ -133,22 +133,26 @@ void AudioVisualWaveform::OverwriteSums(const AudioVisualWaveform &sums, const r
 
     double rate_dbl = rate.toDouble();
 
-    int start_index = time_to_samples(dest, rate_dbl);
-    int sample_start = time_to_samples(offset, rate_dbl);
+    // Get our destination sample
+    int our_start_index = time_to_samples(dest, rate_dbl);
 
-    int copy_len = their_arr.size() - sample_start;
+    // Get our source sample
+    int their_start_index = time_to_samples(offset, rate_dbl);
+
+    // Determine how much we're copying
+    int copy_len = their_arr.size() - their_start_index;
     if (!length.isNull()) {
       copy_len = qMin(copy_len, time_to_samples(length, rate_dbl));
     }
 
-    int end_index = start_index + copy_len;
-
+    // Determine end index of our array
+    int end_index = our_start_index + copy_len;
     if (our_arr.size() < end_index) {
       our_arr.resize(end_index);
     }
 
-    memcpy(reinterpret_cast<char*>(our_arr.data()) + start_index * sizeof(SamplePerChannel),
-           reinterpret_cast<const char*>(their_arr.constData()) + time_to_samples(offset, rate_dbl) * sizeof(SamplePerChannel),
+    memcpy(reinterpret_cast<char*>(our_arr.data()) + our_start_index * sizeof(SamplePerChannel),
+           reinterpret_cast<const char*>(their_arr.constData()) + their_start_index * sizeof(SamplePerChannel),
            copy_len * sizeof(SamplePerChannel));
   }
 }
