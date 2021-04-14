@@ -30,21 +30,38 @@
 
 namespace olive {
 
+#define super SeekableWidget
+
 AudioWaveformView::AudioWaveformView(QWidget *parent) :
-  SeekableWidget(parent),
+  super(parent),
   playback_(nullptr)
 {
   setAutoFillBackground(true);
   setBackgroundRole(QPalette::Base);
+}
 
-  cached_waveform_.resize(QThread::idealThreadCount());
+AudioVisualWaveform GenerateWaveform(QIODevice* device, AudioParams params, TimeRange range)
+{
+  device->open(QFile::ReadOnly);
+  device->seek(params.time_to_bytes(range.in()));
+
+  SampleBufferPtr samples = SampleBuffer::CreateFromPackedData(params, device->read(params.time_to_bytes(range.length())));
+  AudioVisualWaveform waveform;
+  waveform.set_channel_count(params.channel_count());
+  waveform.OverwriteSamples(samples, params.sample_rate());
+  device->close();
+  delete device;
+  return waveform;
 }
 
 void AudioWaveformView::SetViewer(AudioPlaybackCache *playback)
 {
   if (playback_) {
-    disconnect(playback_, &AudioPlaybackCache::Validated, this, &AudioWaveformView::ForceUpdateOfRange);
-    disconnect(playback_, &AudioPlaybackCache::ParametersChanged, this, &AudioWaveformView::BackendParamsChanged);
+    pool_.clear();
+    pool_.waitForDone();
+
+    disconnect(playback_, &AudioPlaybackCache::Validated, this, &AudioWaveformView::RenderRange);
+    //disconnect(playback_, &AudioPlaybackCache::ParametersChanged, this, &AudioWaveformView::RenderRange);
 
     SetTimebase(0);
   }
@@ -52,18 +69,20 @@ void AudioWaveformView::SetViewer(AudioPlaybackCache *playback)
   playback_ = playback;
 
   if (playback_) {
-    connect(playback_, &AudioPlaybackCache::Validated, this, &AudioWaveformView::ForceUpdateOfRange);
-    connect(playback_, &AudioPlaybackCache::ParametersChanged, this, &AudioWaveformView::BackendParamsChanged);
+    connect(playback_, &AudioPlaybackCache::Validated, this, &AudioWaveformView::RenderRange);
+    //connect(playback_, &AudioPlaybackCache::ParametersChanged, this, &AudioWaveformView::RenderRange);
 
     SetTimebase(playback_->GetParameters().sample_rate_as_time_base());
-  }
 
-  ForceUpdate();
+    waveform_.set_channel_count(playback_->GetParameters().channel_count());
+
+    RenderRange(TimeRange(0, playback_->GetLength()));
+  }
 }
 
 void AudioWaveformView::paintEvent(QPaintEvent *event)
 {
-  QWidget::paintEvent(event);
+  super::paintEvent(event);
 
   if (!playback_) {
     return;
@@ -80,40 +99,9 @@ void AudioWaveformView::paintEvent(QPaintEvent *event)
   // Draw in/out points
   DrawTimelinePoints(&p);
 
-  CachedWaveformInfo wanted_info = {size(), GetScale(), GetScroll(), params};
-
-  for (int i=0; i<cached_waveform_.size(); i++) {
-    ActiveCache& cache = cached_waveform_[i];
-
-    int slice_start = width()/cached_waveform_.size() * i;
-
-    if (cache.info == wanted_info) {
-
-      // Draw pixmap
-      p.drawPixmap(slice_start, 0, cache.pixmap);
-
-    } else if (cache.caching_info != wanted_info) {
-
-      int slice_end = width()/cached_waveform_.size() * (i+1);
-
-      // Pixmap is obsolete, will need to draw again
-
-      // Delete any existing watcher so we don't receive the signal
-      delete cache.watcher;
-
-      // Queue a new background cache operation
-      cache.caching_info = wanted_info;
-      cache.watcher = new QFutureWatcher<QPixmap>();
-      connect(cache.watcher, &QFutureWatcher<QPixmap>::finished, this, &AudioWaveformView::BackgroundCacheFinished);
-      cache.watcher->setFuture(QtConcurrent::run(this,
-                                                 &AudioWaveformView::DrawWaveform,
-                                                 playback_->CreatePlaybackDevice(),
-                                                 wanted_info,
-                                                 slice_start,
-                                                 slice_end));
-
-    }
-  }
+  // Draw waveform
+  p.setPen(QColor(64, 255, 160)); // FIXME: Hardcoded color
+  AudioVisualWaveform::DrawWaveform(&p, rect(), GetScale(), waveform_, SceneToTime(GetScroll()));
 
   // Draw playhead
   p.setPen(PLAYHEAD_COLOR);
@@ -122,119 +110,38 @@ void AudioWaveformView::paintEvent(QPaintEvent *event)
   p.drawLine(playhead_x, 0, playhead_x, height());
 }
 
-QPixmap AudioWaveformView::DrawWaveform(QIODevice* fs, CachedWaveformInfo info, int slice_start, int slice_end) const
+void AudioWaveformView::RenderRange(const TimeRange &range)
 {
-  QPixmap pixmap(slice_end - slice_start, info.size.height());
-  pixmap.fill(Qt::transparent);
+  // Floor to second increments
+  int64_t start = qFloor(range.in().toDouble());
+  int64_t end = qCeil(range.out().toDouble());
 
-  bool rectified = Config::Current()[QStringLiteral("RectifiedWaveforms")].toBool();
+  for (; start!=end; start++) {
+    TimeRange this_range(start, start+1);
 
-  if (fs->open(QFile::ReadOnly)) {
+    QFutureWatcher<AudioVisualWaveform>* watcher = new QFutureWatcher<AudioVisualWaveform>();
+    connect(watcher, &QFutureWatcher<AudioVisualWaveform>::finished, this, &AudioWaveformView::BackgroundFinished);
 
-    QPainter wave_painter(&pixmap);
+    jobs_.insert(this_range, watcher);
 
-    // FIXME: Hardcoded color
-    wave_painter.setPen(QColor(64, 255, 160));
-
-    int drew = 0;
-
-    fs->seek(info.params.samples_to_bytes(ScreenToUnitRounded(slice_start)));
-
-    for (int x=slice_start; x<slice_end && !fs->atEnd(); x++) {
-      int samples_len = ScreenToUnitRounded(x+1) - ScreenToUnitRounded(x);
-      int max_read_size = info.params.samples_to_bytes(samples_len);
-
-      QByteArray read_buffer = fs->read(max_read_size);
-
-      // Detect whether we've reached EOF and recalculate sample count if so
-      if (read_buffer.size() < max_read_size) {
-        samples_len = info.params.bytes_to_samples(read_buffer.size());
-      }
-
-      QVector<AudioVisualWaveform::SamplePerChannel> samples = AudioVisualWaveform::SumSamples(reinterpret_cast<const float*>(read_buffer.constData()),
-                                                                                               samples_len,
-                                                                                               info.params.channel_count());
-
-      for (int i=0;i<info.params.channel_count();i++) {
-        AudioVisualWaveform::DrawSample(&wave_painter, samples, x - slice_start, 0, info.size.height(), rectified);
-
-        drew++;
-      }
-    }
-
-    fs->close();
-
+    watcher->setFuture(QtConcurrent::run(&pool_, GenerateWaveform, playback_->CreatePlaybackDevice(), playback_->GetParameters(), this_range));
   }
-
-  delete fs;
-
-  return pixmap;
 }
 
-void AudioWaveformView::BackendParamsChanged()
+void AudioWaveformView::BackgroundFinished()
 {
-  SetTimebase(playback_->GetParameters().sample_rate_as_time_base());
-}
+  QFutureWatcher<AudioVisualWaveform>* watcher = static_cast<QFutureWatcher<AudioVisualWaveform>*>(sender());
 
-void AudioWaveformView::ForceUpdate()
-{
-  // Forces the cache to invalidate
-  for (int i=0; i<cached_waveform_.size(); i++) {
-    cached_waveform_[i].info.size = QSize();
-  }
-
-  update();
-}
-
-void AudioWaveformView::ForceUpdateOfRange(const TimeRange &range)
-{
-  int in = TimeToScreen(range.in());
-  int out = TimeToScreen(range.out());
-
-  // Don't need to redraw anything
-  if (out < 0 || in >= width()) {
-    return;
-  }
-
-  int start_invalidate = qMax(0, in/cached_waveform_.size());
-  int end_invalidate = qMin(cached_waveform_.size()-1, out/cached_waveform_.size());
-
-  for (int i=start_invalidate; i<=end_invalidate; i++) {
-    // Invalidate these
-    cached_waveform_[i].info.size = QSize();
-  }
-
-  update();
-}
-
-void AudioWaveformView::BackgroundCacheFinished()
-{
-  // Retrieve sender
-  QFutureWatcher<QPixmap>* watcher = static_cast<QFutureWatcher<QPixmap>*>(sender());
-
-  // Determine index
-  int index = -1;
-  for (int i=0; i<cached_waveform_.size(); i++) {
-    if (cached_waveform_.at(i).watcher == watcher) {
-      index = i;
+  for (auto it=jobs_.begin(); it!=jobs_.end(); it++) {
+    if (it.value() == watcher) {
+      AudioVisualWaveform rendered = watcher->result();
+      waveform_.OverwriteSums(rendered, it.key().in());
+      jobs_.erase(it);
+      update();
       break;
     }
   }
 
-  if (index > -1) {
-    // Store generated pixmap
-    cached_waveform_[index].info = cached_waveform_[index].caching_info;
-    cached_waveform_[index].pixmap = watcher->result();
-    cached_waveform_[index].watcher = nullptr;
-
-    // Reset size
-    cached_waveform_[index].caching_info.size = QSize();
-
-    // Update with new pixmap
-    update();
-  }
-
-  // Clean up
   delete watcher;
 }
 
