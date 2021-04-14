@@ -418,7 +418,7 @@ void ViewerWidget::StartAudioOutput()
 void ViewerWidget::UpdateTextureFromNode(const rational& time)
 {
   bool frame_exists_at_time = FrameExistsAtTime(time);
-  bool frame_might_be_still = GetConnectedNode() && GetConnectedNode()->GetVideoLength().isNull();
+  bool frame_might_be_still = GetConnectedNode() && GetConnectedNode()->GetConnectedTextureOutput().IsValid() && GetConnectedNode()->GetVideoLength().isNull();
 
   // Check playback queue for a frame
   if (IsPlaying()) {
