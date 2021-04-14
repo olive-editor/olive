@@ -296,7 +296,7 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
       DrawNodeTitle(painter, node_label, safe_label_bounds, Qt::AlignTop);
       f.setPointSizeF(font_sz * 0.6);
       painter->setFont(f);
-      DrawNodeTitle(painter, node_shortname, safe_label_bounds, Qt::AlignBottom);
+      DrawNodeTitle(painter, node_shortname, safe_label_bounds, Qt::AlignBottom, false);
     }
 
   }
@@ -367,22 +367,24 @@ void NodeViewItem::ReadjustAllEdges()
   }
 }
 
-void NodeViewItem::DrawNodeTitle(QPainter* painter, QString text, const QRectF& rect, Qt::Alignment vertical_align)
+void NodeViewItem::DrawNodeTitle(QPainter* painter, QString text, const QRectF& rect, Qt::Alignment vertical_align, bool draw_arrow)
 {
   QFontMetrics fm = painter->fontMetrics();
 
   painter->setRenderHint(QPainter::SmoothPixmapTransform);
 
   // Draw right or down arrow based on expanded state
-  int icon_size = fm.height() / 2;
-  int icon_padding = title_bar_rect_.height() / 2 - icon_size / 2;
-  int icon_full_size = icon_size + icon_padding * 2;
-  const QIcon& expand_icon = IsExpanded() ? icon::TriDown : icon::TriRight;
-  int icon_size_scaled = icon_size * painter->transform().m11();
-  painter->drawPixmap(QRect(title_bar_rect_.x() + icon_padding,
-                            title_bar_rect_.y() + icon_padding,
-                            icon_size,
-                            icon_size), expand_icon.pixmap(QSize(icon_size_scaled, icon_size_scaled)));
+  int icon_full_size = 0;
+  if (draw_arrow) {
+    int icon_size = fm.height() / 2;
+    int icon_padding = title_bar_rect_.height() / 2 - icon_size / 2;
+    icon_full_size = icon_size + icon_padding * 2;
+    const QIcon &expand_icon = IsExpanded() ? icon::TriDown : icon::TriRight;
+    int icon_size_scaled = icon_size * painter->transform().m11();
+    painter->drawPixmap(
+        QRect(title_bar_rect_.x() + icon_padding, title_bar_rect_.y() + icon_padding, icon_size, icon_size),
+        expand_icon.pixmap(QSize(icon_size_scaled, icon_size_scaled)));
+  }
 
   // Calculate how much space we have for text
   int item_width = title_bar_rect_.width();

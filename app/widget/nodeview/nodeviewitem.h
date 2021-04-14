@@ -124,7 +124,7 @@ protected:
 private:
   void ReadjustAllEdges();
 
-  void DrawNodeTitle(QPainter *painter, QString text, const QRectF &rect, Qt::Alignment vertical_align);
+  void DrawNodeTitle(QPainter *painter, QString text, const QRectF &rect, Qt::Alignment vertical_align, bool draw_arrow = true);
 
   /**
    * @brief Returns local rect of a NodeInput in array node_inputs_[index]
