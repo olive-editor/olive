@@ -1,6 +1,6 @@
 /***
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
@@ -27,10 +27,8 @@ namespace olive {
  /**
  * @brief A olive::rational based slider
  * 
- * A slider that can display rationals as either timecode, a timestamp (frames), a rational (a/b)
+ * A slider that can display rationals as either timecode (drop or non-drop), a timestamp (frames),
  * or a float (seconds). 
- * 
- * Control clikcing the slider (see sliderlabel.h) changes thedisplay type
  */
 class RationalSlider : public SliderBase
 {
@@ -42,7 +40,6 @@ public:
   enum DisplayType {
     kTimecode,
     kTimestamp,
-    kRational,
     kFloat
   };
 

@@ -1,6 +1,6 @@
 /***
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
@@ -127,7 +127,6 @@ QString RationalSlider::ValueToString(const QVariant &v)
     case kTimestamp:
       return QString::number(Timecode::time_to_timestamp(time, timebase_));
     case kRational:
-      // Might we want to call reduce() on r here?
       return v.value<rational>().toString();
     case kFloat:
     {

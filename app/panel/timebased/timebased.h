@@ -41,6 +41,7 @@ public:
 
   rational GetTime();
 
+  // Get the timebase of this panels widget
   const rational& timebase();
 
   ViewerOutput *GetConnectedViewer() const

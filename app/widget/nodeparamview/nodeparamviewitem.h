@@ -85,6 +85,7 @@ public:
 
   int GetElementY(NodeInput c) const;
 
+  // Set the timebase of any timebased widgets contained here
    void SetTimebase(const rational& timebase);
 
 signals:
@@ -169,6 +170,7 @@ public:
 
   void SetTime(const rational& time);
 
+  // Set the timebase of the NodeParamViewItemBody
   void SetTimebase(const rational& timebase);
 
   Node* GetNode() const;

@@ -133,7 +133,6 @@ NodeParamView::NodeParamView(QWidget *parent) :
           &QApplication::focusChanged,
           this,
           &NodeParamView::FocusChanged);
-
 }
 
 void NodeParamView::SelectNodes(const QVector<Node *> &nodes)

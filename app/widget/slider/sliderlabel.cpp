@@ -57,7 +57,7 @@ void SliderLabel::mousePressEvent(QMouseEvent *e)
   if (e->button() == Qt::LeftButton) {
     if (e->modifiers() & Qt::AltModifier) {
       emit RequestReset();
-    } else  {
+    } else {
       emit LabelPressed();
     }
   }
