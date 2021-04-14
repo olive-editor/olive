@@ -549,6 +549,7 @@ void ViewerWidget::PauseInternal()
 
     playback_queue_.clear();
     playback_backup_timer_.stop();
+    audio_restart_timer_.stop();
   }
 
   prequeuing_ = false;
