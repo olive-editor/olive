@@ -39,7 +39,8 @@ const uint64_t ViewerOutput::kVideoParamEditMask = VideoParamEdit::kWidthHeight 
 ViewerOutput::ViewerOutput(bool create_default_streams) :
   video_frame_cache_(this),
   audio_playback_cache_(this),
-  cache_enabled_(true)
+  video_cache_enabled_(true),
+  audio_cache_enabled_(true)
 {
   AddInput(kVideoParamsInput, NodeValue::kVideoParams, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable | kInputFlagArray));
   SetInputProperty(kVideoParamsInput, QStringLiteral("mask"), QVariant::fromValue(kVideoParamEditMask));
@@ -197,7 +198,7 @@ void ViewerOutput::set_default_parameters()
 
 void ViewerOutput::ShiftVideoCache(const rational &from, const rational &to)
 {
-  if (cache_enabled_) {
+  if (video_cache_enabled_) {
     video_frame_cache_.Shift(from, to);
   }
 
@@ -206,7 +207,7 @@ void ViewerOutput::ShiftVideoCache(const rational &from, const rational &to)
 
 void ViewerOutput::ShiftAudioCache(const rational &from, const rational &to)
 {
-  if (cache_enabled_) {
+  if (audio_cache_enabled_) {
     audio_playback_cache_.Shift(from, to);
   }
 
@@ -223,18 +224,16 @@ void ViewerOutput::InvalidateCache(const TimeRange& range, const QString& from, 
 {
   Q_UNUSED(element)
 
-  if (cache_enabled_) {
-    if (from == kTextureInput || from == kSamplesInput
-        || from == kVideoParamsInput || from == kAudioParamsInput) {
-      TimeRange invalidated_range(qMax(rational(), range.in()),
-                                  qMin(GetLength(), range.out()));
+  if ((video_cache_enabled_ && (from == kTextureInput || from == kVideoParamsInput))
+      || (audio_cache_enabled_ && (from == kSamplesInput || from == kAudioParamsInput))) {
+    TimeRange invalidated_range(qMax(rational(), range.in()),
+                                qMin(GetLength(), range.out()));
 
-      if (invalidated_range.in() != invalidated_range.out()) {
-        if (from == kTextureInput || from == kVideoParamsInput) {
-          video_frame_cache_.Invalidate(invalidated_range, job_time);
-        } else {
-          audio_playback_cache_.Invalidate(invalidated_range, job_time);
-        }
+    if (invalidated_range.in() != invalidated_range.out()) {
+      if (from == kTextureInput || from == kVideoParamsInput) {
+        video_frame_cache_.Invalidate(invalidated_range, job_time);
+      } else {
+        audio_playback_cache_.Invalidate(invalidated_range, job_time);
       }
     }
   }
@@ -301,12 +300,12 @@ void ViewerOutput::VerifyLength()
   rational subtitle_length;
 
   video_length_ = VerifyLengthInternal(Track::kVideo);
-  if (cache_enabled_) {
+  if (video_cache_enabled_) {
     video_frame_cache_.SetLength(video_length_);
   }
 
   audio_length_ = VerifyLengthInternal(Track::kAudio);
-  if (cache_enabled_) {
+  if (audio_cache_enabled_) {
     audio_playback_cache_.SetLength(audio_length_);
   }
 
@@ -400,7 +399,7 @@ void ViewerOutput::InputValueChangedEvent(const QString &input, int element)
       }
 
       if (frame_rate_changed) {
-        if (cache_enabled_) {
+        if (video_cache_enabled_) {
           video_frame_cache_.SetTimebase(new_video_params.frame_rate_as_time_base());
         }
         emit FrameRateChanged(new_video_params.frame_rate());
@@ -422,7 +421,7 @@ void ViewerOutput::InputValueChangedEvent(const QString &input, int element)
 
       emit AudioParamsChanged();
 
-      if (cache_enabled_) {
+      if (audio_cache_enabled_) {
         audio_playback_cache_.SetParameters(GetAudioParams());
       }
 
@@ -524,11 +523,6 @@ int ViewerOutput::AddStream(Track::Type type, const QVariant& value)
   SetStandardValue(id, value, index);
 
   return index;
-}
-
-void ViewerOutput::SetViewerCacheEnabled(bool e)
-{
-  cache_enabled_ = e;
 }
 
 void ViewerOutput::InputResized(const QString &input, int old_size, int new_size)

@@ -202,7 +202,8 @@ protected:
 
   int AddStream(Track::Type type, const QVariant &value);
 
-  void SetViewerCacheEnabled(bool e);
+  void SetViewerVideoCacheEnabled(bool e) { video_cache_enabled_ = e; }
+  void SetViewerAudioCacheEnabled(bool e) { audio_cache_enabled_ = e; }
 
 private:
   rational last_length_;
@@ -221,7 +222,8 @@ private:
 
   TimelinePoints timeline_points_;
 
-  bool cache_enabled_;
+  bool video_cache_enabled_;
+  bool audio_cache_enabled_;
 
 private slots:
   void InputResized(const QString& input, int old_size, int new_size);
