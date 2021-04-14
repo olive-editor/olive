@@ -218,7 +218,13 @@ AudioVisualWaveform::Sample AudioVisualWaveform::GetSummaryFromTime(const ration
 
 AudioVisualWaveform::Sample AudioVisualWaveform::SumSamples(const float *samples, int nb_samples, int nb_channels)
 {
-  return SumSamplesInternal(samples, nb_samples, nb_channels);
+  AudioVisualWaveform::Sample summed_samples(nb_channels);
+
+  for (int i=0;i<nb_samples;i++) {
+    ExpandMinMax(summed_samples[i%nb_channels], samples[i]);
+  }
+
+  return summed_samples;
 }
 
 AudioVisualWaveform::Sample AudioVisualWaveform::SumSamples(SampleBufferPtr samples, int start_index, int length)
@@ -229,7 +235,7 @@ AudioVisualWaveform::Sample AudioVisualWaveform::SumSamples(SampleBufferPtr samp
 
   for (int i=start_index; i<end_index; i++) {
     for (int channel=0; channel<samples->audio_params().channel_count(); channel++) {
-      ExpandMinMax<float>(summed_samples[channel], samples->data(channel)[i]);
+      ExpandMinMax(summed_samples[channel], samples->data(channel)[i]);
     }
   }
 
@@ -369,20 +375,7 @@ std::map<rational, AudioVisualWaveform::Sample>::const_iterator AudioVisualWavef
   return using_mipmap;
 }
 
-template<typename T>
-AudioVisualWaveform::Sample AudioVisualWaveform::SumSamplesInternal(const T *samples, int nb_samples, int nb_channels)
-{
-  AudioVisualWaveform::Sample summed_samples(nb_channels);
-
-  for (int i=0;i<nb_samples;i++) {
-    ExpandMinMax<T>(summed_samples[i%nb_channels], samples[i]);
-  }
-
-  return summed_samples;
-}
-
-template<typename T>
-void AudioVisualWaveform::ExpandMinMax(AudioVisualWaveform::SamplePerChannel &sum, T value)
+void AudioVisualWaveform::ExpandMinMax(AudioVisualWaveform::SamplePerChannel &sum, float value)
 {
   if (value < sum.min) {
     sum.min = value;

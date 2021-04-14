@@ -97,11 +97,7 @@ public:
   static void DrawWaveform(QPainter* painter, const QRect &rect, const double &scale, const AudioVisualWaveform& samples, const rational &start_time);
 
 private:
-  template <typename T>
-  static Sample SumSamplesInternal(const T* samples, int nb_samples, int nb_channels);
-
-  template <typename T>
-  static void ExpandMinMax(SamplePerChannel &sum, T value);
+  static void ExpandMinMax(SamplePerChannel &sum, float value);
 
   void OverwriteSamplesFromBuffer(SampleBufferPtr samples, int sample_rate, const rational& start, double target_rate, Sample &data, int &start_index, int &samples_length);
 
