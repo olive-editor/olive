@@ -1351,8 +1351,7 @@ public:
   NodeSetPositionAndShiftSurroundingsCommand(Node* node, const QPointF& pos, bool move_dependencies_relatively) :
     node_(node),
     position_(pos),
-    move_dependencies_(move_dependencies_relatively),
-    ignore_node_(nullptr)
+    move_dependencies_(move_dependencies_relatively)
   {}
 
   virtual ~NodeSetPositionAndShiftSurroundingsCommand() override
@@ -1374,11 +1373,6 @@ public:
     }
   }
 
-  void SetIgnoreNode(Node* n)
-  {
-    ignore_node_ = n;
-  }
-
 private:
   Node* node_;
 
@@ -1387,8 +1381,6 @@ private:
   bool move_dependencies_;
 
   QVector<UndoCommand*> commands_;
-
-  Node* ignore_node_;
 
 };
 

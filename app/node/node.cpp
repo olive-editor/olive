@@ -2294,7 +2294,7 @@ void NodeSetPositionAndShiftSurroundingsCommand::redo()
 
     // Start moving other nodes
     foreach (Node* surrounding, node_->parent()->nodes()) {
-      if (bounding_rect.contains(surrounding->GetPosition()) && surrounding != node_ && surrounding != ignore_node_) {
+      if (bounding_rect.contains(surrounding->GetPosition()) && surrounding != node_) {
         QPointF new_pos = surrounding->GetPosition();
 
         qreal move_rate = 0.50;
@@ -2306,7 +2306,6 @@ void NodeSetPositionAndShiftSurroundingsCommand::redo()
         new_pos.setY(new_pos.y() + move_rate);
 
         auto sur_command = new NodeSetPositionAndShiftSurroundingsCommand(surrounding, new_pos, true);
-        sur_command->SetIgnoreNode(node_);
         sur_command->redo();
         commands_.append(sur_command);
       }
