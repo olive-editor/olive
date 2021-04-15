@@ -807,6 +807,10 @@ void TimelineWidget::ViewMouseReleased(TimelineViewMouseEvent *event)
 
 void TimelineWidget::ViewMouseDoubleClicked(TimelineViewMouseEvent *event)
 {
+  // kHand tool is handled differently to the other tools
+  if (Core::instance()->tool() == olive::Tool::kHand) {
+    return;
+  }
   if (GetConnectedNode()) {
     GetActiveTool()->MouseDoubleClick(event);
     UpdateViewports();
