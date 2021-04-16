@@ -91,8 +91,6 @@ void ScopeBase::OnInit()
 {
   super::OnInit();
 
-  UploadTextureFromBuffer();
-
   pipeline_ = renderer()->CreateNativeShader(GenerateShaderCode());
 }
 
@@ -103,6 +101,10 @@ void ScopeBase::OnPaint()
 
   if (buffer_) {
     // Convert reference frame to display space
+    if (!texture_ || !managed_tex_) {
+      UploadTextureFromBuffer();
+      makeCurrent(); // UploadTextureFromBuffer calls "doneCurrent", so we re-call "makeCurrent"
+    }
     renderer()->BlitColorManaged(color_service(), texture_, true, managed_tex_.get());
 
     DrawScope(managed_tex_, pipeline_);
