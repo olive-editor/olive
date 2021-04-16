@@ -807,8 +807,10 @@ void TimelineWidget::ViewMouseReleased(TimelineViewMouseEvent *event)
 
 void TimelineWidget::ViewMouseDoubleClicked(TimelineViewMouseEvent *event)
 {
-  // kHand tool is handled differently to the other tools
-  if (Core::instance()->tool() == olive::Tool::kHand) {
+  // kHand tool will return nullptr
+  if (!GetActiveTool()) {
+    // Only kHand should return a nullptr
+    Q_ASSERT(Core::instance()->tool() == olive::Tool::kHand);
     return;
   }
   if (GetConnectedNode()) {
