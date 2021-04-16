@@ -49,6 +49,9 @@ public:
     return widgets_;
   }
 
+  // Set the timebase of certain Timebased widgets
+  void SetTimebase(const rational& timebase);
+
 signals:
   void ArrayWidgetDoubleClicked();
 

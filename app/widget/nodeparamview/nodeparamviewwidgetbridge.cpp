@@ -37,6 +37,7 @@
 #include "widget/filefield/filefield.h"
 #include "widget/slider/floatslider.h"
 #include "widget/slider/integerslider.h"
+#include "widget/slider/rationalslider.h"
 #include "widget/videoparamedit/videoparamedit.h"
 
 namespace olive {
@@ -77,7 +78,6 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     case NodeValue::kNone:
     case NodeValue::kTexture:
     case NodeValue::kMatrix:
-    case NodeValue::kRational:
     case NodeValue::kSamples:
     case NodeValue::kFootageJob:
     case NodeValue::kShaderJob:
@@ -92,6 +92,11 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     case NodeValue::kFloat:
     {
       CreateSliders<FloatSlider>(1);
+      break;
+    }
+    case NodeValue::kRational:
+    {
+      CreateSliders<RationalSlider>(1);
       break;
     }
     case NodeValue::kVec2:
@@ -270,7 +275,6 @@ void NodeParamViewWidgetBridge::WidgetCallback()
   case NodeValue::kTexture:
   case NodeValue::kMatrix:
   case NodeValue::kSamples:
-  case NodeValue::kRational:
   case NodeValue::kFootageJob:
   case NodeValue::kShaderJob:
   case NodeValue::kSampleJob:
@@ -290,6 +294,13 @@ void NodeParamViewWidgetBridge::WidgetCallback()
     FloatSlider* slider = static_cast<FloatSlider*>(sender());
 
     ProcessSlider(slider, slider->GetValue());
+    break;
+  }
+  case NodeValue::kRational:
+  {
+    // Widget is a RationalSlider
+    RationalSlider* slider = static_cast<RationalSlider*>(sender());
+    ProcessSlider(slider, QVariant::fromValue(slider->GetValue()));
     break;
   }
   case NodeValue::kVec2:
@@ -416,7 +427,6 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
   case NodeValue::kNone:
   case NodeValue::kTexture:
   case NodeValue::kMatrix:
-  case NodeValue::kRational:
   case NodeValue::kSamples:
   case NodeValue::kFootageJob:
   case NodeValue::kShaderJob:
@@ -431,6 +441,11 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
   case NodeValue::kFloat:
   {
     static_cast<FloatSlider*>(widgets_.first())->SetValue(input_.GetValueAtTime(node_time).toDouble());
+    break;
+  }
+  case NodeValue::kRational:
+  {
+    static_cast<RationalSlider*>(widgets_.first())->SetValue(input_.GetValueAtTime(node_time).value<rational>());
     break;
   }
   case NodeValue::kVec2:
@@ -523,6 +538,13 @@ rational NodeParamViewWidgetBridge::GetCurrentTimeAsNodeTime() const
   return GetAdjustedTime(GetTimeTarget(), input_.node(), time_, true);
 }
 
+void NodeParamViewWidgetBridge::SetTimebase(const rational& timebase)
+{
+  if (input_.GetDataType() == NodeValue::kRational) {
+    static_cast<RationalSlider*>(widgets_.first())->SetTimebase(timebase);
+  }
+}
+
 void NodeParamViewWidgetBridge::InputValueChanged(const NodeInput &input, const TimeRange &range)
 {
   if (input_ == input
@@ -572,7 +594,7 @@ void NodeParamViewWidgetBridge::PropertyChanged(const QString& input, const QStr
         static_cast<FloatSlider*>(widgets_.first())->SetMinimum(value.toDouble());
         break;
       case NodeValue::kRational:
-        // FIXME: Rational doesn't have a UI implementation yet
+        static_cast<RationalSlider*>(widgets_.first())->SetMinimum(value.value<rational>());
         break;
       case NodeValue::kVec2:
       {
@@ -610,7 +632,7 @@ void NodeParamViewWidgetBridge::PropertyChanged(const QString& input, const QStr
         static_cast<FloatSlider*>(widgets_.first())->SetMaximum(value.toDouble());
         break;
       case NodeValue::kRational:
-        // FIXME: Rational doesn't have a UI implementation yet
+        static_cast<RationalSlider*>(widgets_.first())->SetMaximum(value.value<rational>());
         break;
       case NodeValue::kVec2:
       {
@@ -648,7 +670,7 @@ void NodeParamViewWidgetBridge::PropertyChanged(const QString& input, const QStr
         static_cast<FloatSlider*>(widgets_.first())->SetOffset(value);
         break;
       case NodeValue::kRational:
-        // FIXME: Rational doesn't have a UI implementation yet
+        static_cast<RationalSlider*>(widgets_.first())->SetOffset(value);
         break;
       case NodeValue::kVec2:
       {

@@ -214,6 +214,10 @@ void NodeParamView::TimebaseChangedEvent(const rational &timebase)
 
   keyframe_view_->SetTimebase(timebase);
 
+  foreach (NodeParamViewItem* item, items_) {
+      item->SetTimebase(timebase);
+  }
+
   UpdateItemTime(GetTimestamp());
 }
 
@@ -311,6 +315,9 @@ void NodeParamView::AddNode(Node *n)
 
   // Set time target
   item->SetTimeTarget(GetTimeTarget());
+
+  // Set the timebase
+  item->SetTimebase(timebase());
 
   items_.insert(n, item);
   param_widget_area_->addDockWidget(Qt::LeftDockWidgetArea, item);

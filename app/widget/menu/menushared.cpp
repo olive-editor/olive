@@ -21,6 +21,7 @@
 #include "menushared.h"
 
 #include "core.h"
+#include "common/timecodefunctions.h"
 #include "panel/panelmanager.h"
 #include "panel/timeline/timeline.h"
 
@@ -159,10 +160,25 @@ void MenuShared::AddItemsForClipEditMenu(Menu *m)
   m->addAction(clip_nest_item_);
 }
 
-void MenuShared::AddItemsForTimeRulerMenu(Menu *m)
+void MenuShared::AddItemsForTimeRulerMenu(Menu *m, const rational& timebase)
 {
-  m->addAction(view_timecode_view_dropframe_item_);
-  m->addAction(view_timecode_view_nondropframe_item_);
+  // If a menu is already created (such as the view menu) we need to remove the instance
+  // of dropframe or non-dropframe timecode that is already there to avoid double displays
+
+  if (m->actions().contains(view_timecode_view_dropframe_item_)) {
+    m->removeAction(view_timecode_view_dropframe_item_);
+  }
+
+  if (m->actions().contains(view_timecode_view_nondropframe_item_)) {
+    m->removeAction(view_timecode_view_nondropframe_item_);
+  }
+    
+  if (Timecode::TimebaseIsDropFrame(timebase)) {
+    m->addAction(view_timecode_view_dropframe_item_);
+    m->addAction(view_timecode_view_nondropframe_item_);
+  } else {
+    m->addAction(view_timecode_view_nondropframe_item_);
+  }
   m->addAction(view_timecode_view_seconds_item_);
   m->addAction(view_timecode_view_frames_item_);
   m->addAction(view_timecode_view_milliseconds_item_);

@@ -20,6 +20,8 @@ set(OLIVE_SOURCES
   widget/slider/floatslider.cpp
   widget/slider/integerslider.h
   widget/slider/integerslider.cpp
+  widget/slider/rationalslider.h
+  widget/slider/rationalslider.cpp
   widget/slider/sliderbase.h
   widget/slider/sliderbase.cpp
   widget/slider/sliderlabel.h

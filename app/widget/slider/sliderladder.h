@@ -33,7 +33,7 @@ class SliderLadderElement : public QWidget
 {
   Q_OBJECT
 public:
-  SliderLadderElement(const double& multiplier, QWidget* parent = nullptr);
+  SliderLadderElement(const double& multiplier, QString width_hint, QWidget* parent = nullptr);
 
   void SetHighlighted(bool e);
 
@@ -64,7 +64,7 @@ class SliderLadder : public QFrame
 {
   Q_OBJECT
 public:
-  SliderLadder(double drag_multiplier, int nb_outer_values, QWidget* parent = nullptr);
+  SliderLadder(double drag_multiplier, int nb_outer_values, QString width_hint, QWidget* parent = nullptr);
 
   virtual ~SliderLadder() override;
 
@@ -93,6 +93,8 @@ private:
   int active_element_;
 
   QTimer drag_timer_;
+
+  QString width_hint_;
 
 private slots:
   void TimerUpdate();

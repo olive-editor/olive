@@ -66,6 +66,7 @@ SliderBase::SliderBase(Mode mode, QWidget *parent) :
     break;
   case kInteger:
   case kFloat:
+  case kRational:
     setCursor(Qt::SizeHorCursor);
     break;
   }
@@ -166,8 +167,14 @@ void SliderBase::SetMinimumInternal(const QVariant &v)
   has_min_ = true;
 
   // Limit value by this new minimum value
-  if (value_.toDouble() < min_value_.toDouble()) {
-    SetValue(min_value_);
+  if (mode_ == kRational) {
+    if (value_.value<rational>().toDouble() < min_value_.value<rational>().toDouble()) {
+      SetValue(min_value_);
+    }
+  } else {
+    if (value_.toDouble() < min_value_.toDouble()) {
+      SetValue(min_value_);
+    }
   }
 }
 
@@ -177,8 +184,14 @@ void SliderBase::SetMaximumInternal(const QVariant &v)
   has_max_ = true;
 
   // Limit value by this new maximum value
-  if (value_.toDouble() > max_value_.toDouble()) {
-    SetValue(max_value_);
+  if (mode_ == kRational) {
+    if (value_.value<rational>().toDouble() > max_value_.value<rational>().toDouble()) {
+      SetValue(max_value_);
+    }
+  } else {
+    if (value_.toDouble() > max_value_.toDouble()) {
+      SetValue(max_value_);
+    }
   }
 }
 
@@ -192,11 +205,21 @@ void SliderBase::changeEvent(QEvent *e)
 
 const QVariant &SliderBase::ClampValue(const QVariant &v)
 {
-  if (has_min_ && v.toDouble() < min_value_.toDouble()) {
-    return min_value_;
+  double value, min, max;
+    
+  if (mode_ == kRational) {
+    value = v.value<rational>().toDouble();
+    min = min_value_.value<rational>().toDouble();
+    max = max_value_.value<rational>().toDouble();
+  } else {
+    value = v.toDouble();
+    min = min_value_.toDouble();
+    max = max_value_.toDouble();
   }
-
-  if (has_max_ && v.toDouble() > max_value_.toDouble()) {
+    
+  if (has_min_ && value < min) {
+    return min_value_;
+  }else if (has_max_ && value > max) {
     return max_value_;
   }
 
@@ -266,8 +289,13 @@ void SliderBase::LabelPressed()
     break;
   case kInteger:
   case kFloat:
+  case kRational:
   {
-    drag_ladder_ = new SliderLadder(drag_multiplier_, ladder_element_count_);
+    if (mode_ == kRational) {
+      drag_ladder_ = new SliderLadder(drag_multiplier_, ladder_element_count_, "00:00:00:00");
+    } else {
+      drag_ladder_ = new SliderLadder(drag_multiplier_, ladder_element_count_, "00000000");
+    }
     drag_ladder_->SetValue(ValueToString(value_));
     drag_ladder_->show();
 
@@ -315,6 +343,28 @@ void SliderBase::LadderDragged(int value, double multiplier)
     emit ValueChanged(clamped_temp_dragged_value_);
     break;
   }
+  
+  case kRational:
+  {
+    dragged_diff_ += value * drag_multiplier_ * multiplier;
+    double drag_val = AdjustDragDistanceInternal(value_.value<rational>().toDouble(), dragged_diff_);
+    rational d_v;
+    d_v = rational::fromDouble(drag_val);
+    temp_dragged_value_.setValue(d_v);
+
+    clamped_temp_dragged_value_ = ClampValue(temp_dragged_value_);
+
+    UpdateLabel(temp_dragged_value_);
+
+    drag_ladder_->SetValue(ValueToString(clamped_temp_dragged_value_));
+    
+    if (!Config::Current()[QStringLiteral("UseSliderLadders")].toBool()) {
+      RepositionLadder();
+    }
+
+    emit ValueChanged(clamped_temp_dragged_value_);
+    break;
+  }
   }
 }
 
@@ -336,6 +386,8 @@ void SliderBase::LadderReleased()
     case kFloat:
       SetValue(clamped_temp_dragged_value_.toDouble());
       break;
+    case kRational:
+      SetValue(temp_dragged_value_);
     }
 
     emit ValueChanged(value_);

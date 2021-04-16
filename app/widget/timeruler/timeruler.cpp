@@ -306,7 +306,7 @@ void TimeRuler::ShowContextMenu()
 {
   Menu m(this);
 
-  MenuShared::instance()->AddItemsForTimeRulerMenu(&m);
+  MenuShared::instance()->AddItemsForTimeRulerMenu(&m, timebase());
   MenuShared::instance()->AboutToShowTimeRulerActions();
 
   m.exec(QCursor::pos());

@@ -35,7 +35,8 @@ public:
   enum Mode {
     kString,
     kInteger,
-    kFloat
+    kFloat,
+    kRational
   };
 
   SliderBase(Mode mode, QWidget* parent = nullptr);
@@ -83,6 +84,8 @@ protected:
   void SetMaximumInternal(const QVariant& v);
 
   void UpdateLabel(const QVariant& v);
+
+  QLabel* label() { return label_; }
 
   virtual double AdjustDragDistanceInternal(const double& start, const double& drag);
 
@@ -155,7 +158,6 @@ private slots:
   void ResetValue();
 
   void RepositionLadder();
-
 };
 
 }
