@@ -327,8 +327,8 @@ void OpenGLRenderer::DownloadFromTexture(Texture* texture, void *data, int lines
     PRINT_GL_ERRORS;
     functions_->glReadPixels(0,
                              0,
-                             p.width(),
-                             p.height(),
+                             p.effective_width(),
+                             p.effective_height(),
                              (QOpenGLContext::openGLModuleType() == QOpenGLContext::LibGLES) ? GL_RGBA : GetPixelFormat(p.channel_count()),
                              GetPixelType(p.format()),
                              data);
