@@ -322,7 +322,7 @@ void FrameHashCache::ShiftEvent(const rational &from, const rational &to)
   // POSITIVE if moving forward ->
   // NEGATIVE if moving backward <-
   rational diff = to - from;
-  bool diff_is_negative = (diff < rational());
+  bool diff_is_negative = (diff < 0);
 
   QList<HashTimePair> shifted_times;
 
@@ -353,10 +353,12 @@ void FrameHashCache::ShiftEvent(const rational &from, const rational &to)
 
 void FrameHashCache::InvalidateEvent(const TimeRange &range)
 {
-  QVector<rational> invalid_frames = GetFrameListFromTimeRange({range});
+  if (!timebase_.isNull()) {
+    QVector<rational> invalid_frames = GetFrameListFromTimeRange({range});
 
-  foreach (const rational& r, invalid_frames) {
-    time_hash_map_.remove(r);
+    foreach (const rational& r, invalid_frames) {
+      time_hash_map_.remove(r);
+    }
   }
 }
 

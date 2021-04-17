@@ -203,7 +203,7 @@ void ViewerWidget::ConnectNodeEvent(ViewerOutput *n)
 
   SetViewerResolution(vp.width(), vp.height());
   SetViewerPixelAspect(vp.pixel_aspect_ratio());
-  last_length_ = rational();
+  last_length_ = 0;
   LengthChangedSlot(n->GetLength());
 
   ColorManager* color_manager = n->project()->color_manager();
@@ -358,7 +358,7 @@ void ViewerWidget::SetAutoCacheEnabled(bool e)
 
 void ViewerWidget::CacheEntireSequence()
 {
-  auto_cacher_.ForceCacheRange(TimeRange(rational(), GetConnectedNode()->video_frame_cache()->GetLength()));
+  auto_cacher_.ForceCacheRange(TimeRange(0, GetConnectedNode()->video_frame_cache()->GetLength()));
 }
 
 void ViewerWidget::CacheSequenceInOut()

@@ -37,6 +37,9 @@ const uint64_t ViewerOutput::kVideoParamEditMask = VideoParamEdit::kWidthHeight 
 #define super Node
 
 ViewerOutput::ViewerOutput(bool create_default_streams) :
+  last_length_(0),
+  video_length_(0),
+  audio_length_(0),
   video_frame_cache_(this),
   audio_playback_cache_(this),
   video_cache_enabled_(true),
@@ -226,7 +229,7 @@ void ViewerOutput::InvalidateCache(const TimeRange& range, const QString& from, 
 
   if ((video_cache_enabled_ && (from == kTextureInput || from == kVideoParamsInput))
       || (audio_cache_enabled_ && (from == kSamplesInput || from == kAudioParamsInput))) {
-    TimeRange invalidated_range(qMax(rational(), range.in()),
+    TimeRange invalidated_range(qMax(rational(0), range.in()),
                                 qMin(GetLength(), range.out()));
 
     if (invalidated_range.in() != invalidated_range.out()) {
@@ -297,8 +300,6 @@ void ViewerOutput::Retranslate()
 
 void ViewerOutput::VerifyLength()
 {
-  rational subtitle_length;
-
   video_length_ = VerifyLengthInternal(Track::kVideo);
   if (video_cache_enabled_) {
     video_frame_cache_.SetLength(video_length_);
@@ -309,7 +310,7 @@ void ViewerOutput::VerifyLength()
     audio_playback_cache_.SetLength(audio_length_);
   }
 
-  subtitle_length = VerifyLengthInternal(Track::kSubtitle);
+  rational subtitle_length = VerifyLengthInternal(Track::kSubtitle);
 
   rational real_length = qMax(subtitle_length, qMax(video_length_, audio_length_));
 
@@ -345,14 +346,19 @@ rational ViewerOutput::VerifyLengthInternal(Track::Type type) const
   case Track::kVideo:
     if (IsInputConnected(kTextureInput)) {
       NodeValueTable t = traverser.GenerateTable(GetConnectedOutput(kTextureInput), TimeRange(0, 0));
-      qDebug() << "Got video length:" << t.Get(NodeValue::kRational, QStringLiteral("length")).value<rational>();
-      return t.Get(NodeValue::kRational, QStringLiteral("length")).value<rational>();
+      rational r = t.Get(NodeValue::kRational, QStringLiteral("length")).value<rational>();
+      if (!r.isNaN()) {
+        return r;
+      }
     }
     break;
   case Track::kAudio:
     if (IsInputConnected(kSamplesInput)) {
       NodeValueTable t = traverser.GenerateTable(GetConnectedOutput(kSamplesInput), TimeRange(0, 0));
-      return t.Get(NodeValue::kRational, QStringLiteral("length")).value<rational>();
+      rational r = t.Get(NodeValue::kRational, QStringLiteral("length")).value<rational>();;
+      if (!r.isNaN()) {
+        return r;
+      }
     }
     break;
   case Track::kNone:
@@ -361,7 +367,7 @@ rational ViewerOutput::VerifyLengthInternal(Track::Type type) const
     break;
   }
 
-  return rational();
+  return 0;
 }
 
 NodeOutput ViewerOutput::GetConnectedTextureOutput()

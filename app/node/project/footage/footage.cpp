@@ -196,7 +196,7 @@ rational Footage::VerifyLengthInternal(Track::Type type) const
     }
   }
 
-  return super::VerifyLengthInternal(type);
+  return 0;
 }
 
 QString Footage::GetColorspaceToUse(const VideoParams &params) const

@@ -18,8 +18,7 @@ PreviewAutoCacher::PreviewAutoCacher() :
   last_update_time_(0),
   ignore_next_mouse_button_(false)
 {
-  // Set default autocache range
-  SetPlayhead(rational());
+  SetPlayhead(0);
 
   delayed_requeue_timer_.setInterval(Config::Current()[QStringLiteral("AutoCacheDelay")].toInt());
   delayed_requeue_timer_.setSingleShot(true);

@@ -35,7 +35,8 @@ class PlaybackCache : public QObject
   Q_OBJECT
 public:
   PlaybackCache(QObject* parent = nullptr) :
-    QObject(parent)
+    QObject(parent),
+    length_(0)
   {
   }
 

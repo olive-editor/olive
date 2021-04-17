@@ -1224,7 +1224,7 @@ void TimelineWidget::RippleTo(Timeline::MovementMode mode)
   }
 
   // Find each track's nearest point and determine the overall timeline's nearest point
-  rational closest_point_to_playhead = (mode == Timeline::kTrimIn) ? rational() : RATIONAL_MAX;
+  rational closest_point_to_playhead = (mode == Timeline::kTrimIn) ? 0 : RATIONAL_MAX;
 
   foreach (const Timeline::EditToInfo& info, tracks) {
     if (info.nearest_block) {

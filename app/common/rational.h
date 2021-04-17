@@ -34,13 +34,9 @@ class rational
 public:
   //constructors
   rational(const intType &numerator = 0) :
-    numer_(numerator)
+    numer_(numerator),
+    denom_(1)
   {
-    if (numer_ == 0) {
-      denom_ = 0;
-    } else {
-      denom_ = 1;
-    }
   }
 
   rational(const intType &numerator, const intType &denominator) :
@@ -87,10 +83,6 @@ public:
   bool operator!=(const rational &rhs) const;
 
   //Unary operators
-  const rational& operator++(); //prefix
-  rational operator++(int);     //postfix
-  const rational& operator--(); //prefix
-  rational operator--(int);     //postfix
   const rational& operator+() const;
   rational operator-() const;
   bool operator!() const;
@@ -108,11 +100,13 @@ public:
   // Produce "flipped" version
   rational flipped() const;
 
-  // Returns whether the rational is null or not
+  // Returns whether the rational is valid but equal to zero or not
+  //
+  // A NaN is always a null, but a null is not always a NaN
   bool isNull() const;
 
-  //Function: print number to cout
-  void print(std::ostream &out = std::cout) const;
+  // Returns whether this rational is not a valid number
+  bool isNaN() const;
 
   //IO
   friend std::ostream& operator<<(std::ostream &out, const rational &value);

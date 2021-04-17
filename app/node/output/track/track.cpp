@@ -40,6 +40,9 @@ const QString Track::kMutedInput = QStringLiteral("muted_in");
 
 Track::Track() :
   track_type_(Track::kNone),
+  track_length_(0),
+  midop_track_length_(0),
+  preop_track_length_(0),
   index_(-1),
   locked_(false)
 {
@@ -276,7 +279,7 @@ void Track::InputDisconnectedEvent(const QString &input, int element, const Node
     if (next) {
       UpdateInOutFrom(blocks_.indexOf(next));
     } else if (blocks_.isEmpty()) {
-      SetLengthInternal(rational());
+      SetLengthInternal(0);
     } else {
       SetLengthInternal(blocks_.last()->out());
     }

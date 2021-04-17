@@ -60,7 +60,7 @@ public:
    *
    * Starting at `start`, writes samples over anything in the buffer, expanding it if necessary.
    */
-  void OverwriteSamples(SampleBufferPtr samples, int sample_rate, const rational& start = rational());
+  void OverwriteSamples(SampleBufferPtr samples, int sample_rate, const rational& start = 0);
 
   /**
    * @brief Replaces sums at a certain range in this visual waveform
@@ -81,7 +81,7 @@ public:
    *
    * Maximum length of `sums` to overwrite with.
    */
-  void OverwriteSums(const AudioVisualWaveform& sums, const rational& dest, const rational& offset = rational(), const rational &length = rational());
+  void OverwriteSums(const AudioVisualWaveform& sums, const rational& dest, const rational& offset = 0, const rational &length = 0);
 
   void Shift(const rational& from, const rational& to);
 
