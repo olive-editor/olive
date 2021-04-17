@@ -274,7 +274,8 @@ public:
         || type == kVec2
         || type == kVec3
         || type == kVec4
-        || type == kColor;
+        || type == kColor
+        || type == kRational;
   }
 
   static bool type_is_numeric(NodeValue::Type type)

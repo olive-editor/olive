@@ -57,6 +57,7 @@ public:
     kProjectFolder,
     kProjectSequence,
     kValueNode,
+    kTimeRemapNode,
 
     // Count value
     kInternalNodeCount

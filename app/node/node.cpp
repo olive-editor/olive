@@ -602,13 +602,15 @@ QVariant Node::GetSplitValueAtTimeOnTrack(const QString &input, const rational &
       return key_track.last()->value();
     }
 
+    NodeValue::Type type = GetInputDataType(input);
+
     // If we're here, the time must be somewhere in between the keyframes
     for (int i=0;i<key_track.size()-1;i++) {
       NodeKeyframe* before = key_track.at(i);
       NodeKeyframe* after = key_track.at(i+1);
 
       if (before->time() == time
-          || !NodeValue::type_can_be_interpolated(GetInputDataType(input))
+          || !NodeValue::type_can_be_interpolated(type)
           || (before->type() == NodeKeyframe::kHold && after->time() > time)) {
 
         // Time == keyframe time, so value is precise
@@ -622,6 +624,15 @@ QVariant Node::GetSplitValueAtTimeOnTrack(const QString &input, const rational &
       } else if (before->time() < time && after->time() > time) {
         // We must interpolate between these keyframes
 
+        double before_val, after_val, interpolated;
+        if (type == NodeValue::kRational) {
+          before_val = before->value().value<rational>().toDouble();
+          after_val = after->value().value<rational>().toDouble();
+        } else {
+          before_val = before->value().toDouble();
+          after_val = after->value().toDouble();
+        }
+
         if (before->type() == NodeKeyframe::kBezier && after->type() == NodeKeyframe::kBezier) {
           // Perform a cubic bezier with two control points
 
@@ -631,13 +642,13 @@ QVariant Node::GetSplitValueAtTimeOnTrack(const QString &input, const rational &
                                        after->time().toDouble() + after->valid_bezier_control_in().x(),
                                        after->time().toDouble());
 
-          double y = Bezier::CubicTtoY(before->value().toDouble(),
-                                       before->value().toDouble() + before->valid_bezier_control_out().y(),
-                                       after->value().toDouble() + after->valid_bezier_control_in().y(),
-                                       after->value().toDouble(),
+          double y = Bezier::CubicTtoY(before_val,
+                                       before_val + before->valid_bezier_control_out().y(),
+                                       after_val + after->valid_bezier_control_in().y(),
+                                       after_val,
                                        t);
 
-          return y;
+          interpolated = y;
 
         } else if (before->type() == NodeKeyframe::kBezier || after->type() == NodeKeyframe::kBezier) {
           // Perform a quadratic bezier with only one control point
@@ -649,26 +660,32 @@ QVariant Node::GetSplitValueAtTimeOnTrack(const QString &input, const rational &
           if (before->type() == NodeKeyframe::kBezier) {
             control_point = before->valid_bezier_control_out();
             control_point_time = before->time().toDouble() + control_point.x();
-            control_point_value = before->value().toDouble() + control_point.y();
+            control_point_value = before_val + control_point.y();
           } else {
             control_point = after->valid_bezier_control_in();
             control_point_time = after->time().toDouble() + control_point.x();
-            control_point_value = after->value().toDouble() + control_point.y();
+            control_point_value = after_val + control_point.y();
           }
 
           // Generate T from time values - used to determine bezier progress
           double t = Bezier::QuadraticXtoT(time.toDouble(), before->time().toDouble(), control_point_time, after->time().toDouble());
 
           // Generate value using T
-          double y = Bezier::QuadraticTtoY(before->value().toDouble(), control_point_value, after->value().toDouble(), t);
+          double y = Bezier::QuadraticTtoY(before_val, control_point_value, after_val, t);
 
-          return y;
+          interpolated = y;
 
         } else {
           // To have arrived here, the keyframes must both be linear
           qreal period_progress = (time.toDouble() - before->time().toDouble()) / (after->time().toDouble() - before->time().toDouble());
 
-          return lerp(before->value().toDouble(), after->value().toDouble(), period_progress);
+          interpolated = lerp(before_val, after_val, period_progress);
+        }
+
+        if (type == NodeValue::kRational) {
+          return QVariant::fromValue(rational::fromDouble(interpolated));
+        } else {
+          return interpolated;
         }
       }
     }

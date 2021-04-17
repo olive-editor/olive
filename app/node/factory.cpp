@@ -46,7 +46,7 @@
 #include "project/folder/folder.h"
 #include "project/footage/footage.h"
 #include "project/sequence/sequence.h"
-#include "node/input/value/valuenode.h"
+#include "time/timeremap/timeremap.h"
 
 namespace olive {
 QList<Node*> NodeFactory::library_;
@@ -237,6 +237,8 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new Sequence();
   case kValueNode:
     return new ValueNode();
+  case kTimeRemapNode:
+    return new TimeRemapNode();
 
   case kInternalNodeCount:
     break;
