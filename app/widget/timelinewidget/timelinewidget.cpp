@@ -807,6 +807,12 @@ void TimelineWidget::ViewMouseReleased(TimelineViewMouseEvent *event)
 
 void TimelineWidget::ViewMouseDoubleClicked(TimelineViewMouseEvent *event)
 {
+  // kHand tool will return nullptr
+  if (!GetActiveTool()) {
+    // Only kHand should return a nullptr
+    Q_ASSERT(Core::instance()->tool() == olive::Tool::kHand);
+    return;
+  }
   if (GetConnectedNode()) {
     GetActiveTool()->MouseDoubleClick(event);
     UpdateViewports();

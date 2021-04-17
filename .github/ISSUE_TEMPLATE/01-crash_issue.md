@@ -22,9 +22,9 @@ assignees: ''
 2. 
 3. 
 
-<details><summary><strong>Backtrace</strong></summary><pre><code>
+<details><summary><strong>Crash Report</strong></summary><pre><code>
 
-<!-- Paste backtrace here -->
+<!-- You should have received a crash report from Olive to paste here. -->
 
 </code></pre></details>
 
