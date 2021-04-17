@@ -14,42 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(audio)
-add_subdirectory(block)
-add_subdirectory(color)
-add_subdirectory(distort)
-add_subdirectory(filter)
-add_subdirectory(generator)
-add_subdirectory(input)
-add_subdirectory(math)
-add_subdirectory(output)
-add_subdirectory(project)
-add_subdirectory(time)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  node/factory.cpp
-  node/factory.h
-  node/graph.cpp
-  node/graph.h
-  node/inputdragger.cpp
-  node/inputdragger.h
-  node/inputimmediate.cpp
-  node/inputimmediate.h
-  node/keyframe.cpp
-  node/keyframe.h
-  node/node.cpp
-  node/node.h
-  node/nodecopypaste.cpp
-  node/nodecopypaste.h
-  node/param.cpp
-  node/param.h
-  node/splitvalue.h
-  node/traverser.cpp
-  node/traverser.h
-  node/value.cpp
-  node/value.h
-  node/valuedatabase.cpp
-  node/valuedatabase.h
+  node/time/timeremap/timeremap.cpp
+  node/time/timeremap/timeremap.h
   PARENT_SCOPE
 )
