@@ -47,8 +47,13 @@ public:
 
   virtual QVector<QString> inputs_for_output(const QString &output) const override;
 
+  virtual void Hash(const QString &output, QCryptographicHash &hash, const rational &time) const override;
+
   static const QString kTimeInput;
   static const QString kInputInput;
+
+private:
+  rational GetRemappedTime(const rational& input) const;
 
 };
 

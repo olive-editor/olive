@@ -35,9 +35,6 @@ TimeRemapNode::TimeRemapNode()
   SetInputProperty(kTimeInput, QStringLiteral("view"), RationalSlider::kTime);
   SetInputProperty(kTimeInput, QStringLiteral("viewlock"), true);
 
-  // Ignore the hashing from time since we just pass through to the input
-  IgnoreHashingFrom(kTimeInput);
-
   AddInput(kInputInput, NodeValue::kNone, InputFlags(kInputFlagNotKeyframable));
 }
 
@@ -69,7 +66,7 @@ QString TimeRemapNode::Description() const
 TimeRange TimeRemapNode::InputTimeAdjustment(const QString &input, int element, const TimeRange &input_time) const
 {
   if (input == kInputInput) {
-    rational target_time = GetValueAtTime(kTimeInput, input_time.in()).value<rational>();
+    rational target_time = GetRemappedTime(input_time.in());
 
     return TimeRange(target_time, target_time + input_time.length());
   } else {
@@ -99,6 +96,21 @@ QVector<QString> TimeRemapNode::inputs_for_output(const QString &output) const
 {
   Q_UNUSED(output)
   return {kInputInput};
+}
+
+void TimeRemapNode::Hash(const QString &output, QCryptographicHash &hash, const rational &time) const
+{
+  // Don't hash anything of our own, just pass-through to the connected node at the remapped tmie
+  Q_UNUSED(output)
+  if (IsInputConnected(kInputInput)) {
+    NodeOutput out = GetConnectedOutput(kInputInput);
+    out.node()->Hash(out.output(), hash, GetRemappedTime(time));
+  }
+}
+
+rational TimeRemapNode::GetRemappedTime(const rational &input) const
+{
+  return GetValueAtTime(kTimeInput, input).value<rational>();
 }
 
 }
