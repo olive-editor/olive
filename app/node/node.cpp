@@ -1461,7 +1461,8 @@ void Node::Hash(const QString &output, QCryptographicHash &hash, const rational&
   hash.addData(id().toUtf8());
   hash.addData(output.toUtf8());
 
-  foreach (const QString& input, input_ids_) {
+  auto inputs = inputs_for_output(output);
+  foreach (const QString& input, inputs) {
     // For each input, try to hash its value
     if (ignore_when_hashing_.contains(input)) {
       continue;
