@@ -2304,7 +2304,6 @@ private:
 
     if (!blocks_to_split.isEmpty()) {
       split_command_ = new BlockSplitPreservingLinksCommand(blocks_to_split, {point_});
-      split_command_->redo();
     }
 
     foreach (Block* block, blocks_to_append_gap_to) {
