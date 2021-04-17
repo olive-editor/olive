@@ -1,4 +1,4 @@
-# Copyright (C) 2020 Olive Team
+# Copyright (C) 2021 Olive Team
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # Build image (default):
