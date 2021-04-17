@@ -672,6 +672,17 @@ void Track::BlockLengthChanged()
 
   TimeRange invalidate_region(qMin(old_out, new_out), track_length());
 
+  // The cache won't start while dragging, so we store up our invalidations if it's held down
+  // and release them once the mouse is no longer pressed
+  if (qApp->mouseButtons() & Qt::LeftButton) {
+    block_length_pending_invalidations_.insert(invalidate_region);
+  } else if (!block_length_pending_invalidations_.isEmpty()) {
+    foreach (const TimeRange& r, block_length_pending_invalidations_) {
+      Node::InvalidateCache(r, kBlockInput);
+    }
+    block_length_pending_invalidations_.clear();
+  }
+
   Node::InvalidateCache(invalidate_region, kBlockInput);
 }
 

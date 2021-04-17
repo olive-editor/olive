@@ -422,6 +422,8 @@ private:
 
   void SetLengthInternal(const rational& r, bool invalidate = true);
 
+  TimeRangeList block_length_pending_invalidations_;
+
   QVector<Block*> blocks_;
   QVector<int> block_array_indexes_;
 
