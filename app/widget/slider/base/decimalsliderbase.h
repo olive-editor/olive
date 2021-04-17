@@ -18,39 +18,33 @@
 
 ***/
 
-#ifndef STRINGSLIDER_H
-#define STRINGSLIDER_H
+#ifndef DECIMALSLIDERBASE_H
+#define DECIMALSLIDERBASE_H
 
-#include "base/sliderbase.h"
+#include "numericsliderbase.h"
 
 namespace olive {
 
-class StringSlider : public SliderBase
+class DecimalSliderBase : public NumericSliderBase
 {
-  Q_OBJECT
 public:
-  StringSlider(QWidget* parent = nullptr);
+  DecimalSliderBase(QWidget* parent = nullptr);
 
-  void SetDragMultiplier(const double& d) = delete;
+  int GetDecimalPlaces() const { return decimal_places_; }
+  void SetDecimalPlaces(int i);
 
-  QString GetValue() const;
+  bool GetAutoTrimDecimalPlaces() const { return autotrim_decimal_places_; };
+  void SetAutoTrimDecimalPlaces(bool e);
 
-  void SetValue(const QString& v);
+  static QString FloatToString(double val, int decimal_places, bool autotrim_decimal_places);
 
-  void SetDefaultValue(const QString& v);
+private:
+  int decimal_places_;
 
-signals:
-  void ValueChanged(const QString& str);
-
-protected:
-  virtual QString ValueToString(const QVariant& value) const override;
-
-  virtual QVariant StringToValue(const QString &s, bool *ok) const override;
-
-  virtual void ValueSignalEvent(const QVariant &value) override;
+  bool autotrim_decimal_places_;
 
 };
 
 }
 
-#endif // STRINGSLIDER_H
+#endif // DECIMALSLIDERBASE_H

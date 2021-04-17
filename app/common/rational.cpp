@@ -5,23 +5,42 @@
 
 namespace olive {
 
-rational rational::fromDouble(const double &flt)
+rational rational::fromDouble(const double &flt, bool* ok)
 {
   // Use FFmpeg function for the time being
-  return av_d2q(flt, INT_MAX);
+  AVRational r = av_d2q(flt, INT_MAX);
+  if (r.den == 0) {
+    // If den == 0, we were unable to convert to a rational
+    if (ok) {
+      *ok = false;
+    }
+
+    return rational();
+  } else {
+    // Otherwise, assume we received a real rational
+    if (ok) {
+      *ok = true;
+    }
+
+    return r;
+  }
+
 }
 
-rational rational::fromString(const QString &str)
+rational rational::fromString(const QString &str, bool* ok)
 {
   QStringList elements = str.split('/');
 
   switch (elements.size()) {
-  case 0:
-    return rational();
   case 1:
-    return rational(elements.first().toLongLong());
+    return rational(elements.first().toLongLong(ok));
+  case 2:
+    return rational(elements.at(0).toLongLong(ok), elements.at(1).toLongLong(ok));
   default:
-    return rational(elements.at(0).toLongLong(), elements.at(1).toLongLong());
+    if (ok) {
+      *ok = false;
+    }
+    return rational();
   }
 }
 

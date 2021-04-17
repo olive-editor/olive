@@ -97,11 +97,13 @@ VideoParamEdit::VideoParamEdit(QWidget* parent) :
   connect(frame_rate_combobox_, static_cast<void (FrameRateComboBox::*)(int)>(&FrameRateComboBox::currentIndexChanged), this, &VideoParamEdit::Changed);
   layout->addWidget(frame_rate_combobox_, row, 1);
 
-  // FIXME: Replace with rational slider
-  frame_rate_slider_ = new FloatSlider();
+  frame_rate_slider_ = new RationalSlider();
   frame_rate_slider_->SetMinimum(0);
-  frame_rate_slider_->SetDecimalPlaces(2);
-  connect(frame_rate_slider_, &FloatSlider::ValueChanged, this, &VideoParamEdit::Changed);
+  frame_rate_slider_->SetDecimalPlaces(3);
+  frame_rate_slider_->SetAutoTrimDecimalPlaces(true);
+  frame_rate_slider_->SetTimebase(rational(1, 1000)); // Drag interval
+  frame_rate_slider_->DisableDisplayType(RationalSlider::kTime);
+  connect(frame_rate_slider_, &RationalSlider::ValueChanged, this, &VideoParamEdit::Changed);
   layout->addWidget(frame_rate_slider_, row, 1);
 
   row++;
@@ -277,7 +279,7 @@ VideoParams VideoParamEdit::GetVideoParams() const
     rational using_frame_rate;
 
     if (mask_ & kFrameRateIsArbitrary) {
-      using_frame_rate = rational::fromDouble(frame_rate_slider_->GetValue());
+      using_frame_rate = frame_rate_slider_->GetValue();
     } else {
       using_frame_rate = frame_rate_combobox_->GetFrameRate();
     }
@@ -316,7 +318,7 @@ void VideoParamEdit::SetVideoParams(const VideoParams &p)
   depth_slider_->SetValue(p.depth());
 
   frame_rate_combobox_->SetFrameRate(p.frame_rate());
-  frame_rate_slider_->SetValue(p.frame_rate().toDouble());
+  frame_rate_slider_->SetValue(p.frame_rate());
   timebase_temp_ = p.time_base();
 
   pixel_aspect_combobox_->SetPixelAspectRatio(p.pixel_aspect_ratio());

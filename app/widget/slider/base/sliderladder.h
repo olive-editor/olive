@@ -94,8 +94,6 @@ private:
 
   QTimer drag_timer_;
 
-  QString width_hint_;
-
 private slots:
   void TimerUpdate();
 

@@ -160,35 +160,30 @@ void MenuShared::AddItemsForClipEditMenu(Menu *m)
   m->addAction(clip_nest_item_);
 }
 
-void MenuShared::AddItemsForTimeRulerMenu(Menu *m, const rational& timebase)
+void MenuShared::AddItemsForTimeRulerMenu(Menu *m)
 {
-  // If a menu is already created (such as the view menu) we need to remove the instance
-  // of dropframe or non-dropframe timecode that is already there to avoid double displays
-
-  if (m->actions().contains(view_timecode_view_dropframe_item_)) {
-    m->removeAction(view_timecode_view_dropframe_item_);
-  }
-
-  if (m->actions().contains(view_timecode_view_nondropframe_item_)) {
-    m->removeAction(view_timecode_view_nondropframe_item_);
-  }
-    
-  if (Timecode::TimebaseIsDropFrame(timebase)) {
-    m->addAction(view_timecode_view_dropframe_item_);
-    m->addAction(view_timecode_view_nondropframe_item_);
-  } else {
-    m->addAction(view_timecode_view_nondropframe_item_);
-  }
+  m->addAction(view_timecode_view_dropframe_item_);
+  m->addAction(view_timecode_view_nondropframe_item_);
   m->addAction(view_timecode_view_seconds_item_);
   m->addAction(view_timecode_view_frames_item_);
   m->addAction(view_timecode_view_milliseconds_item_);
 }
 
-void MenuShared::AboutToShowTimeRulerActions()
+void MenuShared::AboutToShowTimeRulerActions(const rational& timebase)
 {
   QList<QAction*> timecode_display_actions = frame_view_mode_group_->actions();
+  Timecode::Display current_timecode_display = Core::instance()->GetTimecodeDisplay();
+
+  // Only show the drop-frame option if the timebase is drop-frame
+  view_timecode_view_dropframe_item_->setVisible(!timebase.isNull() && Timecode::TimebaseIsDropFrame(timebase));
+
+  if (!view_timecode_view_dropframe_item_->isVisible() && current_timecode_display == Timecode::kTimecodeDropFrame) {
+    // If the current setting is drop-frame, correct to non-drop frame
+    current_timecode_display = Timecode::kTimecodeNonDropFrame;
+  }
+
   foreach (QAction* a, timecode_display_actions) {
-    if (a->data() == Core::instance()->GetTimecodeDisplay()) {
+    if (a->data() == current_timecode_display) {
       a->setChecked(true);
       break;
     }

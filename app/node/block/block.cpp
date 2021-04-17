@@ -25,6 +25,7 @@
 #include "node/output/track/track.h"
 #include "transition/transition.h"
 #include "widget/slider/floatslider.h"
+#include "widget/slider/rationalslider.h"
 
 namespace olive {
 
@@ -43,11 +44,15 @@ Block::Block() :
   out_transition_(nullptr)
 {
   AddInput(kLengthInput, NodeValue::kRational, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
-  SetInputProperty(kLengthInput, "min", QVariant::fromValue(rational(0, 1)));
+  SetInputProperty(kLengthInput, QStringLiteral("min"), QVariant::fromValue(rational(0, 1)));
+  SetInputProperty(kLengthInput, QStringLiteral("view"), RationalSlider::kTime);
+  SetInputProperty(kLengthInput, QStringLiteral("viewlock"), true);
   IgnoreInvalidationsFrom(kLengthInput);
   IgnoreHashingFrom(kLengthInput);
 
   AddInput(kMediaInInput, NodeValue::kRational, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+  SetInputProperty(kMediaInInput, QStringLiteral("view"), RationalSlider::kTime);
+  SetInputProperty(kMediaInInput, QStringLiteral("viewlock"), true);
   IgnoreHashingFrom(kMediaInInput);
 
   AddInput(kEnabledInput, NodeValue::kBoolean, true, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));

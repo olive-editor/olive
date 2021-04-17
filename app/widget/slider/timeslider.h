@@ -35,15 +35,12 @@ public:
   void SetTimebase(const rational& timebase);
 
 protected:
-  virtual QString ValueToString(const QVariant& v) override;
+  virtual QString ValueToString(const QVariant& v) const override;
 
-  virtual QVariant StringToValue(const QString& s, bool* ok) override;
+  virtual QVariant StringToValue(const QString& s, bool* ok) const override;
 
 private:
   rational timebase_;
-
-private slots:
-  void TimecodeDisplayChanged();
 
 };
 

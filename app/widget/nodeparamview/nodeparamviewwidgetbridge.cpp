@@ -238,7 +238,7 @@ void NodeParamViewWidgetBridge::SetInputValueInternal(const QVariant &value, int
   }
 }
 
-void NodeParamViewWidgetBridge::ProcessSlider(SliderBase *slider, const QVariant &value)
+void NodeParamViewWidgetBridge::ProcessSlider(NumericSliderBase *slider, const QVariant &value)
 {
   rational node_time = GetCurrentTimeAsNodeTime();
 
@@ -406,7 +406,7 @@ void NodeParamViewWidgetBridge::CreateSliders(int count)
 {
   for (int i=0;i<count;i++) {
     T* fs = new T();
-    fs->SetDefaultValue(input_.GetSplitDefaultValueForTrack(i));
+    fs->SliderBase::SetDefaultValue(input_.GetSplitDefaultValueForTrack(i));
     fs->SetLadderElementCount(2);
     widgets_.append(fs);
     connect(fs, &T::ValueChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
@@ -754,6 +754,22 @@ void NodeParamViewWidgetBridge::PropertyChanged(const QString& input, const QStr
 
       foreach (QWidget* w, widgets_) {
         static_cast<FloatSlider*>(w)->SetAutoTrimDecimalPlaces(autotrim);
+      }
+    }
+  }
+
+  if (data_type == NodeValue::kRational) {
+    if (key == QStringLiteral("view")) {
+      RationalSlider::DisplayType display_type = static_cast<RationalSlider::DisplayType>(value.toInt());
+
+      foreach (QWidget* w, widgets_) {
+        static_cast<RationalSlider*>(w)->SetDisplayType(display_type);
+      }
+    } else if (key == QStringLiteral("viewlock")) {
+      bool locked = value.toBool();
+
+      foreach (QWidget* w, widgets_) {
+        static_cast<RationalSlider*>(w)->SetLockDisplayType(locked);
       }
     }
   }

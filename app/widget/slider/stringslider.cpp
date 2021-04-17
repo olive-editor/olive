@@ -22,33 +22,46 @@
 
 namespace olive {
 
+#define super SliderBase
+
 StringSlider::StringSlider(QWidget* parent) :
-  SliderBase(kString, parent)
+  super(parent)
 {
   SetValue(QString());
 
-  connect(this, SIGNAL(ValueChanged(QVariant)), this, SLOT(ConvertValue(QVariant)));
+  connect(label(), &SliderLabel::LabelReleased, this, &SliderBase::ShowEditor);
 }
 
-QString StringSlider::GetValue()
+QString StringSlider::GetValue() const
 {
-  return Value().toString();
+  return GetValueInternal().toString();
 }
 
 void StringSlider::SetValue(const QString &v)
 {
-  SliderBase::SetValue(v);
+  SetValueInternal(v);
 }
 
-QString StringSlider::ValueToString(const QVariant &v)
+void StringSlider::SetDefaultValue(const QString &v)
+{
+  super::SetDefaultValue(v);
+}
+
+QString StringSlider::ValueToString(const QVariant &v) const
 {
   QString vstr = v.toString();
   return (vstr.isEmpty()) ? tr("(none)") : vstr;
 }
 
-void StringSlider::ConvertValue(QVariant v)
+QVariant StringSlider::StringToValue(const QString &s, bool *ok) const
 {
-  emit ValueChanged(v.toString());
+  *ok = true;
+  return s;
+}
+
+void StringSlider::ValueSignalEvent(const QVariant &value)
+{
+  emit ValueChanged(value.toString());
 }
 
 }

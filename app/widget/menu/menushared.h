@@ -46,9 +46,9 @@ public:
   void AddItemsForInOutMenu(Menu* m);
   void AddColorCodingMenu(Menu* m);
   void AddItemsForClipEditMenu(Menu* m);
-  void AddItemsForTimeRulerMenu(Menu* m, const rational& timebase);
+  void AddItemsForTimeRulerMenu(Menu* m);
 
-  void AboutToShowTimeRulerActions();
+  void AboutToShowTimeRulerActions(const rational& timebase);
 
   static MenuShared* instance();
 

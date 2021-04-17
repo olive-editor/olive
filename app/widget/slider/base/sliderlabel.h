@@ -34,12 +34,16 @@ public:
   SliderLabel(QWidget* parent);
 
 protected:
-  virtual void mousePressEvent(QMouseEvent *ev) override;
+  virtual void mousePressEvent(QMouseEvent *e) override;
+
+  virtual void mouseReleaseEvent(QMouseEvent *e) override;
 
   virtual void focusInEvent(QFocusEvent *event) override;
 
 signals:
   void LabelPressed();
+
+  void LabelReleased();
 
   void focused();
 

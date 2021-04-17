@@ -61,9 +61,9 @@ public:
     reduce();
   }
 
-  static rational fromDouble(const double& flt);
+  static rational fromDouble(const double& flt, bool *ok = nullptr);
 
-  static rational fromString(const QString& str);
+  static rational fromString(const QString& str, bool* ok = nullptr);
 
   //Assignment Operators
   const rational& operator=(const rational &rhs);

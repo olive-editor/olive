@@ -14,19 +14,17 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(base)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  widget/slider/floatslider.h
-  widget/slider/floatslider.cpp
-  widget/slider/integerslider.h
-  widget/slider/integerslider.cpp
-  widget/slider/rationalslider.h
-  widget/slider/rationalslider.cpp
-  widget/slider/stringslider.h
-  widget/slider/stringslider.cpp
-  widget/slider/timeslider.h
-  widget/slider/timeslider.cpp
+  widget/slider/base/decimalsliderbase.h
+  widget/slider/base/decimalsliderbase.cpp
+  widget/slider/base/numericsliderbase.h
+  widget/slider/base/numericsliderbase.cpp
+  widget/slider/base/sliderbase.h
+  widget/slider/base/sliderbase.cpp
+  widget/slider/base/sliderlabel.h
+  widget/slider/base/sliderlabel.cpp
+  widget/slider/base/sliderladder.h
+  widget/slider/base/sliderladder.cpp
   PARENT_SCOPE
 )

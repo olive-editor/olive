@@ -27,7 +27,7 @@
 
 #include "dialog/configbase/configdialogbase.h"
 #include "node/project/sequence/sequence.h"
-#include "widget/slider/floatslider.h"
+#include "widget/slider/rationalslider.h"
 #include "widget/slider/integerslider.h"
 
 namespace olive {
@@ -49,7 +49,7 @@ private:
 
   QCheckBox* rectified_waveforms_;
 
-  FloatSlider* default_still_length_;
+  RationalSlider* default_still_length_;
 
   QCheckBox* autorecovery_enabled_;
 

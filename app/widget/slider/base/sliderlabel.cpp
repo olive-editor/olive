@@ -63,6 +63,15 @@ void SliderLabel::mousePressEvent(QMouseEvent *e)
   }
 }
 
+void SliderLabel::mouseReleaseEvent(QMouseEvent *e)
+{
+  if (e->button() == Qt::LeftButton) {
+    if (!(e->modifiers() & Qt::AltModifier)) {
+      emit LabelReleased();
+    }
+  }
+}
+
 void SliderLabel::focusInEvent(QFocusEvent *event)
 {
   QWidget::focusInEvent(event);

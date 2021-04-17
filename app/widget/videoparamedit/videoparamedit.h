@@ -27,8 +27,8 @@
 
 #include "node/color/colormanager/colormanager.h"
 #include "render/videoparams.h"
-#include "widget/slider/floatslider.h"
 #include "widget/slider/integerslider.h"
+#include "widget/slider/rationalslider.h"
 #include "widget/standardcombos/frameratecombobox.h"
 #include "widget/standardcombos/interlacedcombobox.h"
 #include "widget/standardcombos/pixelaspectratiocombobox.h"
@@ -145,7 +145,7 @@ private:
   IntegerSlider* depth_slider_;
   QLabel* frame_rate_lbl_;
   FrameRateComboBox* frame_rate_combobox_;
-  FloatSlider* frame_rate_slider_;
+  RationalSlider* frame_rate_slider_;
   QLabel* pixel_aspect_lbl_;
   PixelAspectRatioComboBox* pixel_aspect_combobox_;
   QLabel* interlaced_lbl_;

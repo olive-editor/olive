@@ -101,10 +101,11 @@ PreferencesGeneralTab::PreferencesGeneralTab()
 
     timeline_layout->addWidget(new QLabel(tr("Default Still Image Length:")), row, 0);
 
-    default_still_length_ = new FloatSlider();
-    default_still_length_->SetMinimum(0.1);
+    default_still_length_ = new RationalSlider();
+    default_still_length_->SetMinimum(rational(100, 1000));
+    default_still_length_->SetTimebase(rational(100, 1000));
     default_still_length_->SetFormat(tr("%1 seconds"));
-    default_still_length_->SetValue(Config::Current()["DefaultStillLength"].value<rational>().toDouble());
+    default_still_length_->SetValue(Config::Current()["DefaultStillLength"].value<rational>());
     timeline_layout->addWidget(default_still_length_);
 
     row++;
@@ -168,7 +169,7 @@ void PreferencesGeneralTab::Accept(MultiUndoCommand *command)
 
   Config::Current()[QStringLiteral("Autoscroll")] = autoscroll_method_->currentData();
 
-  Config::Current()[QStringLiteral("DefaultStillLength")] = QVariant::fromValue(rational::fromDouble(default_still_length_->GetValue()));
+  Config::Current()[QStringLiteral("DefaultStillLength")] = QVariant::fromValue(default_still_length_->GetValue());
 
   QString set_language = language_combobox_->currentData().toString();
   if (QLocale::system().name() == set_language) {

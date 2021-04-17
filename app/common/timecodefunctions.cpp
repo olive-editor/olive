@@ -233,6 +233,12 @@ err_fatal:
   return 0;
 }
 
+rational Timecode::timecode_to_time(const QString &timecode, const rational &timebase, const Timecode::Display &display, bool *ok)
+{
+  int64_t timestamp = timecode_to_timestamp(timecode, timebase, display, ok);
+  return timestamp_to_time(timestamp, timebase);
+}
+
 rational Timecode::snap_time_to_timebase(const rational &time, const rational &timebase)
 {
   // Just convert to a timestamp in timebase units and back

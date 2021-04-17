@@ -24,7 +24,7 @@
 #include <QObject>
 
 #include "node/inputdragger.h"
-#include "widget/slider/sliderbase.h"
+#include "widget/slider/base/numericsliderbase.h"
 #include "widget/timetarget/timetarget.h"
 
 namespace olive {
@@ -64,7 +64,7 @@ private:
 
   void SetInputValueInternal(const QVariant& value, int track, MultiUndoCommand *command);
 
-  void ProcessSlider(SliderBase* slider, const QVariant& value);
+  void ProcessSlider(NumericSliderBase* slider, const QVariant& value);
 
   template <typename T>
   void CreateSliders(int count);

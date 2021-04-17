@@ -21,11 +21,11 @@
 #ifndef FLOATSLIDER_H
 #define FLOATSLIDER_H
 
-#include "sliderbase.h"
+#include "base/decimalsliderbase.h"
 
 namespace olive {
 
-class FloatSlider : public SliderBase
+class FloatSlider : public DecimalSliderBase
 {
   Q_OBJECT
 public:
@@ -37,34 +37,31 @@ public:
     kPercentage
   };
 
-  double GetValue();
+  double GetValue() const;
 
   void SetValue(const double& d);
+
+  void SetDefaultValue(const double& d);
 
   void SetMinimum(const double& d);
 
   void SetMaximum(const double& d);
 
-  void SetDecimalPlaces(int i);
-
   void SetDisplayType(const DisplayType& type);
-
-  void SetAutoTrimDecimalPlaces(bool e);
 
   static QString ValueToString(double val, DisplayType display, int decimal_places, bool autotrim_decimal_places);
 
 protected:
-  virtual QString ValueToString(const QVariant& v) override;
+  virtual QString ValueToString(const QVariant& v) const override;
 
-  virtual QVariant StringToValue(const QString& s, bool* ok) override;
+  virtual QVariant StringToValue(const QString& s, bool* ok) const override;
 
-  virtual double AdjustDragDistanceInternal(const double& start, const double& drag) override;
+  virtual QVariant AdjustDragDistanceInternal(const QVariant &start, const double &drag) const override;
+
+  virtual void ValueSignalEvent(const QVariant &value) override;
 
 signals:
   void ValueChanged(double);
-
-private slots:
-  void ConvertValue(QVariant v);
 
 private:
   static double LinearToDecibel(double linear);
@@ -72,10 +69,6 @@ private:
   static double DecibelToLinear(double decibel);
 
   DisplayType display_type_;
-
-  int decimal_places_;
-
-  bool autotrim_decimal_places_;
 
 };
 

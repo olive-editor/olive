@@ -21,11 +21,11 @@
 #ifndef INTEGERSLIDER_H
 #define INTEGERSLIDER_H
 
-#include "sliderbase.h"
+#include "base/numericsliderbase.h"
 
 namespace olive {
 
-class IntegerSlider : public SliderBase
+class IntegerSlider : public NumericSliderBase
 {
   Q_OBJECT
 public:
@@ -39,16 +39,20 @@ public:
 
   void SetMaximum(const int64_t& d);
 
-protected:
-  virtual QString ValueToString(const QVariant& v) override;
+  void SetDefaultValue(const int64_t& d);
 
-  virtual QVariant StringToValue(const QString& s, bool* ok) override;
+protected:
+  virtual QString ValueToString(const QVariant& v) const override;
+
+  virtual QVariant StringToValue(const QString& s, bool* ok) const override;
+
+  virtual void ValueSignalEvent(const QVariant &value) override;
+
+  virtual QVariant AdjustDragDistanceInternal(const QVariant &start, const double &drag) const override;
 
 signals:
   void ValueChanged(int64_t);
 
-private slots:
-  void ConvertValue(QVariant v);
 };
 
 }

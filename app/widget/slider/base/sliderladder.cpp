@@ -38,8 +38,7 @@
 namespace olive {
 
 SliderLadder::SliderLadder(double drag_multiplier, int nb_outer_values, QString width_hint, QWidget* parent) :
-  QFrame(parent, Qt::Popup),
-  width_hint_(width_hint)
+  QFrame(parent, Qt::Popup)
 {
   QVBoxLayout* layout = new QVBoxLayout(this);
   layout->setMargin(0);
@@ -53,17 +52,17 @@ SliderLadder::SliderLadder(double drag_multiplier, int nb_outer_values, QString 
   }
 
   for (int i=nb_outer_values-1;i>=0;i--) {
-    elements_.append(new SliderLadderElement(qPow(10, i + 1) * drag_multiplier, width_hint_));
+    elements_.append(new SliderLadderElement(qPow(10, i + 1) * drag_multiplier, width_hint));
   }
 
   // Create center entry
-  SliderLadderElement* start_element = new SliderLadderElement(drag_multiplier, width_hint_);
+  SliderLadderElement* start_element = new SliderLadderElement(drag_multiplier, width_hint);
   active_element_ = elements_.size();
   start_element->SetHighlighted(true);
   elements_.append(start_element);
 
   for (int i=0;i<nb_outer_values;i++) {
-    elements_.append(new SliderLadderElement(qPow(10, -i - 1) * drag_multiplier, width_hint_));
+    elements_.append(new SliderLadderElement(qPow(10, -i - 1) * drag_multiplier, width_hint));
   }
 
   foreach (SliderLadderElement* e, elements_) {
@@ -232,7 +231,7 @@ bool SliderLadder::UsingLadders() const
   return elements_.size() > 1;
 }
 
-  SliderLadderElement::SliderLadderElement(const double &multiplier, QString width_hint, QWidget *parent) :
+SliderLadderElement::SliderLadderElement(const double &multiplier, QString width_hint, QWidget *parent) :
   QWidget(parent),
   multiplier_(multiplier),
   highlighted_(false),

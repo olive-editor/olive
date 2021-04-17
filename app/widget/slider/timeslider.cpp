@@ -25,13 +25,14 @@
 
 namespace olive {
 
+#define super IntegerSlider
+
 TimeSlider::TimeSlider(QWidget *parent) :
-  IntegerSlider(parent)
+  super(parent)
 {
   SetMinimum(0);
-  SetValue(0);
 
-  connect(Core::instance(), &Core::TimecodeDisplayChanged, this, &TimeSlider::TimecodeDisplayChanged);
+  connect(Core::instance(), &Core::TimecodeDisplayChanged, this, &TimeSlider::UpdateLabel);
 }
 
 void TimeSlider::SetTimebase(const rational &timebase)
@@ -39,14 +40,14 @@ void TimeSlider::SetTimebase(const rational &timebase)
   timebase_ = timebase;
 
   // Refresh label since we have a new timebase to generate a timecode with
-  UpdateLabel(Value());
+  UpdateLabel();
 }
 
-QString TimeSlider::ValueToString(const QVariant &v)
+QString TimeSlider::ValueToString(const QVariant &v) const
 {
   if (timebase_.isNull()) {
     // We can't generate a timecode without a timebase, so we just return the number
-    return IntegerSlider::ValueToString(v);
+    return super::ValueToString(v);
   }
 
   return Timecode::timestamp_to_timecode(v.toLongLong() + GetOffset().toLongLong(),
@@ -54,14 +55,9 @@ QString TimeSlider::ValueToString(const QVariant &v)
                                          Core::instance()->GetTimecodeDisplay());
 }
 
-QVariant TimeSlider::StringToValue(const QString &s, bool *ok)
+QVariant TimeSlider::StringToValue(const QString &s, bool *ok) const
 {
   return QVariant::fromValue(Timecode::timecode_to_timestamp(s, timebase_, Core::instance()->GetTimecodeDisplay(), ok) - GetOffset().toLongLong());
-}
-
-void TimeSlider::TimecodeDisplayChanged()
-{
-  UpdateLabel(Value());
 }
 
 }

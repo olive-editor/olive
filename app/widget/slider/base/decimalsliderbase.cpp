@@ -18,39 +18,46 @@
 
 ***/
 
-#ifndef STRINGSLIDER_H
-#define STRINGSLIDER_H
-
-#include "base/sliderbase.h"
+#include "decimalsliderbase.h"
 
 namespace olive {
 
-class StringSlider : public SliderBase
+#define super NumericSliderBase
+
+DecimalSliderBase::DecimalSliderBase(QWidget *parent) :
+  super(parent),
+  decimal_places_(2),
+  autotrim_decimal_places_(false)
 {
-  Q_OBJECT
-public:
-  StringSlider(QWidget* parent = nullptr);
-
-  void SetDragMultiplier(const double& d) = delete;
-
-  QString GetValue() const;
-
-  void SetValue(const QString& v);
-
-  void SetDefaultValue(const QString& v);
-
-signals:
-  void ValueChanged(const QString& str);
-
-protected:
-  virtual QString ValueToString(const QVariant& value) const override;
-
-  virtual QVariant StringToValue(const QString &s, bool *ok) const override;
-
-  virtual void ValueSignalEvent(const QVariant &value) override;
-
-};
 
 }
 
-#endif // STRINGSLIDER_H
+void DecimalSliderBase::SetAutoTrimDecimalPlaces(bool e)
+{
+  autotrim_decimal_places_ = e;
+
+  UpdateLabel();
+}
+
+QString DecimalSliderBase::FloatToString(double val, int decimal_places, bool autotrim_decimal_places)
+{
+  QString s = QString::number(val, 'f', decimal_places);
+
+  if (autotrim_decimal_places) {
+    while (s.endsWith('0')
+           && s.at(s.size() - 2).isDigit()) {
+      s = s.left(s.size() - 1);
+    }
+  }
+
+  return s;
+}
+
+void DecimalSliderBase::SetDecimalPlaces(int i)
+{
+  decimal_places_ = i;
+
+  UpdateLabel();
+}
+
+}

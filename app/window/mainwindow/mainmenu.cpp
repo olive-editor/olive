@@ -308,12 +308,12 @@ void MainMenu::ViewMenuAboutToShow()
   if (p) {
     if (p->timebase().denominator() != 0) {
       view_menu_->addSeparator();
-      MenuShared::instance()->AddItemsForTimeRulerMenu(view_menu_, p->timebase());
+      MenuShared::instance()->AddItemsForTimeRulerMenu(view_menu_);
     }
   }
 
   // Ensure checked timecode display mode is correct
-  MenuShared::instance()->AboutToShowTimeRulerActions();
+  MenuShared::instance()->AboutToShowTimeRulerActions(p->timebase());
 }
 
 void MainMenu::ToolsMenuAboutToShow()
