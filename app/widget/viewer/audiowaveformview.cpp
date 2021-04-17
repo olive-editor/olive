@@ -110,8 +110,11 @@ void AudioWaveformView::paintEvent(QPaintEvent *event)
   p.drawLine(playhead_x, 0, playhead_x, height());
 }
 
-void AudioWaveformView::RenderRange(const TimeRange &range)
+void AudioWaveformView::RenderRange(TimeRange range)
 {
+  // Limit range to length
+  range = TimeRange(qMax(rational(0), range.in()), qMin(playback_->GetLength(), range.out()));
+
   // Floor to second increments
   int64_t start = qFloor(range.in().toDouble());
   int64_t end = qCeil(range.out().toDouble());

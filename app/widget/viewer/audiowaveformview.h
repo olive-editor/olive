@@ -50,7 +50,7 @@ protected:
   virtual void paintEvent(QPaintEvent* event) override;
 
 private:
-  void RenderRange(const TimeRange& range);
+  void RenderRange(TimeRange range);
 
   QThreadPool pool_;
 
