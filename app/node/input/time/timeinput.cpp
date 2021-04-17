@@ -48,7 +48,7 @@ QVector<Node::CategoryID> TimeInput::Category() const
 
 QString TimeInput::Description() const
 {
-  return tr("Generates the time (in seconds) at this frame");
+  return tr("Generates the time (in seconds) at this frame.");
 }
 
 NodeValueTable TimeInput::Value(const QString &output, NodeValueDatabase &value) const
