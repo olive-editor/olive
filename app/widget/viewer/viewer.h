@@ -203,6 +203,8 @@ private:
 
   bool ShouldForceWaveform() const;
 
+  void SetEmptyImage();
+
   QStackedWidget* stack_;
 
   ViewerSizer* sizer_;
@@ -246,6 +248,9 @@ private:
   PreviewAutoCacher auto_cacher_;
 
   QTimer audio_restart_timer_;
+
+  FramePtr last_loaded_buffer_;
+  bool last_loaded_buffer_is_empty_;
 
   static QVector<ViewerWidget*> instances_;
 
