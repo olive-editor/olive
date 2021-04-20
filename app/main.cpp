@@ -165,6 +165,9 @@ int main(int argc, char *argv[])
   format.setProfile(QSurfaceFormat::CoreProfile);
   format.setOption(QSurfaceFormat::DeprecatedFunctions);
 
+  // Prevent various UI rendering issues that occur with Wayland (#1507)
+  QCoreApplication::setAttribute(Qt::AA_DontCreateNativeWidgetSiblings);
+
   format.setDepthBufferSize(24);
   QSurfaceFormat::setDefaultFormat(format);
 

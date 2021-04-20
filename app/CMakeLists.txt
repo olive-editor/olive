@@ -130,7 +130,6 @@ target_link_libraries(
   Qt5::Gui
   Qt5::Widgets
   Qt5::Multimedia
-  Qt5::OpenGL
   Qt5::Svg
   Qt5::Concurrent
   OpenGL::GL
