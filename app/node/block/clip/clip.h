@@ -38,8 +38,6 @@ public:
 
   virtual Node* copy() const override;
 
-  virtual Type type() const override;
-
   virtual QString Name() const override;
   virtual QString id() const override;
   virtual QString Description() const override;

@@ -39,9 +39,9 @@ Section "Olive"
     WriteUninstaller "$INSTDIR\uninstall.exe"
 
     # Install Visual C++ 2010 Redistributable
-    File "vcredist_x64.exe"
-    ExecWait '"$INSTDIR\vcredist_x64.exe" /quiet'
-    Delete "$INSTDIR\vcredist_x64.exe"
+    #File "vcredist_x64.exe"
+    #ExecWait '"$INSTDIR\vcredist_x64.exe" /quiet'
+    #Delete "$INSTDIR\vcredist_x64.exe"
 SectionEnd
 
 Section "Create Desktop shortcut"

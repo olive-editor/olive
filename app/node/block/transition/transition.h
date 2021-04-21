@@ -33,8 +33,6 @@ public:
 
   NODE_DEFAULT_DESTRUCTOR(TransitionBlock)
 
-  virtual Type type() const override;
-
   virtual void Retranslate() override;
 
   rational in_offset() const;

@@ -18,36 +18,7 @@
 
 ***/
 
-#include "crashhandler.h"
+#define OLIVE_ASSERT(x) if (!(x)) return false
+#define OLIVE_TEST_END return true
 
-#include <QApplication>
-
-int main(int argc, char *argv[])
-{
-  QString report;
-
-#ifdef Q_OS_WINDOWS
-  int num_args;
-  LPWSTR *args = CommandLineToArgvW(GetCommandLineW(), &num_args);
-  if (num_args < 2) {
-    LocalFree(args);
-    return 1;
-  }
-
-  report = QString::fromWCharArray(args[1]);
-  LocalFree(args);
-#else
-  if (argc < 2) {
-    return 1;
-  }
-
-  report = argv[1];
-#endif
-
-  QApplication a(argc, argv);
-
-  olive::CrashHandlerDialog chd(report);
-  chd.open();
-
-  return a.exec();
-}
+#define OLIVE_ADD_TEST(x) bool Test##x()

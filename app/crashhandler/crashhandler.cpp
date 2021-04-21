@@ -135,6 +135,9 @@ void CrashHandlerDialog::GenerateReport()
 
   QString stackwalk_filename = FileFunctions::GetFormattedExecutableForPlatform(QStringLiteral("minidump_stackwalk"));
 
+  qDebug() << "Looking for symbols in:" << GetSymbolPath();
+  qDebug() << "Reading report:" << report_filename_;
+
   QString stackwalk_bin = QDir(qApp->applicationDirPath()).filePath(stackwalk_filename);
   p->start(stackwalk_bin, {report_filename_, GetSymbolPath()});
   crash_report_->setText(QStringLiteral("Trying to run: %1").arg(stackwalk_bin));
@@ -279,6 +282,7 @@ void CrashHandlerDialog::SendErrorReport()
   symbol_filename = QStringLiteral("olive-editor.sym");
 #endif
   QString symbol_full_path = symbol_dir.filePath(symbol_filename);
+  qDebug() << "Tried to access symbol:" << symbol_full_path;
   QHttpPart sym_part;
   sym_part.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/octet-stream"));
   sym_part.setHeader(QNetworkRequest::ContentDispositionHeader, QStringLiteral("form-data; name=\"sym\"; filename=\"%1\"")
@@ -327,4 +331,34 @@ void CrashHandlerDialog::closeEvent(QCloseEvent* e)
   }
 }
 
+}
+
+int main(int argc, char *argv[])
+{
+  QString report;
+
+#ifdef Q_OS_WINDOWS
+  int num_args;
+  LPWSTR *args = CommandLineToArgvW(GetCommandLineW(), &num_args);
+  if (num_args < 2) {
+    LocalFree(args);
+    return 1;
+  }
+
+  report = QString::fromWCharArray(args[1]);
+  LocalFree(args);
+#else
+  if (argc < 2) {
+    return 1;
+  }
+
+  report = argv[1];
+#endif
+
+  QApplication a(argc, argv);
+
+  olive::CrashHandlerDialog chd(report);
+  chd.open();
+
+  return a.exec();
 }

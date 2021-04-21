@@ -29,6 +29,8 @@
 #include <opentimelineio/serializableObject.h>
 #include <opentimelineio/transition.h>
 
+#include "node/block/clip/clip.h"
+#include "node/block/gap/gap.h"
 #include "node/block/transition/transition.h"
 #include "node/project/footage/footage.h"
 
@@ -130,9 +132,7 @@ OTIO::Track *SaveOTIOTask::SerializeTrack(Track *track)
   foreach (Block* block, track->Blocks()) {
     OTIO::Composable* otio_block = nullptr;
 
-    switch (block->type()) {
-    case Block::kClip:
-    {
+    if (dynamic_cast<ClipBlock*>(block)) {
       auto otio_clip = new OTIO::Clip(block->GetLabel().toStdString());
 
       otio_clip->set_source_range(OTIO::TimeRange(block->in().toRationalTime(),
@@ -145,18 +145,12 @@ OTIO::Track *SaveOTIOTask::SerializeTrack(Track *track)
       }
 
       otio_block = otio_clip;
-      break;
-    }
-    case Block::kGap:
-    {
+    } else if (dynamic_cast<GapBlock*>(block)) {
       otio_block = new OTIO::Gap(OTIO::TimeRange(block->in().toRationalTime(),
                                  block->length().toRationalTime()),
                                  block->GetLabel().toStdString()
                                  );
-      break;
-    }
-    case Block::kTransition:
-    {
+    } else if (dynamic_cast<TransitionBlock*>(block)) {
       auto otio_transition = new OTIO::Transition(block->GetLabel().toStdString());
 
       TransitionBlock* our_transition = static_cast<TransitionBlock*>(block);
@@ -165,8 +159,6 @@ OTIO::Track *SaveOTIOTask::SerializeTrack(Track *track)
       otio_transition->set_out_offset(our_transition->out_offset().toRationalTime());
 
       otio_block = new OTIO::Transition();
-      break;
-    }
     }
 
     if (!otio_block) {

@@ -77,8 +77,6 @@ public:
     update();
   }
 
-  FramePtr last_loaded_buffer() const;
-
   /**
    * @brief Transform a point from viewer space to the buffer space.
    * Multiplies by the inverted transform matrix to undo the scaling and translation.

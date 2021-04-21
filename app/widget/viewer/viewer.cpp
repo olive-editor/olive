@@ -56,7 +56,9 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   color_menu_enabled_(true),
   time_changed_from_timer_(false),
   pause_autocache_during_playback_(false),
-  prequeuing_(false)
+  prequeuing_(false),
+  last_loaded_buffer_(nullptr),
+  last_loaded_buffer_is_empty_(false)
 {
   // Set up main layout
   QVBoxLayout* layout = new QVBoxLayout(this);
@@ -340,7 +342,7 @@ void ViewerWidget::SetFullScreen(QScreen *screen)
     vw->display_widget()->SetDeinterlacing(vw->display_widget()->IsDeinterlacing());
   }
 
-  vw->display_widget()->SetImage(display_widget_->last_loaded_buffer());
+  vw->display_widget()->SetImage(last_loaded_buffer_);
 
   windows_.insert(screen, vw);
 }
@@ -403,6 +405,38 @@ bool ViewerWidget::ShouldForceWaveform() const
   return GetConnectedNode()
       && !GetConnectedNode()->GetConnectedTextureOutput().IsValid()
       && GetConnectedNode()->GetConnectedSampleOutput().IsValid();
+}
+
+void ViewerWidget::SetEmptyImage()
+{
+  FramePtr frame = nullptr;
+
+  if (GetConnectedNode()) {
+    frame = last_loaded_buffer_;
+
+    if (!frame) {
+      frame = Frame::Create();
+    }
+
+    if (frame->video_params() != GetConnectedNode()->GetVideoParams()) {
+      frame->destroy();
+      frame->set_video_params(GetConnectedNode()->GetVideoParams());
+    }
+
+    if (!frame->is_allocated()) {
+      frame->allocate();
+    }
+
+    if (!last_loaded_buffer_is_empty_) {
+      memset(frame->data(), 0, frame->allocated_size());
+    }
+  }
+
+  SetDisplayImage(frame, false);
+
+  if (frame) {
+    last_loaded_buffer_is_empty_ = true;
+  }
 }
 
 void ViewerWidget::StartAudioOutput()
@@ -473,7 +507,7 @@ void ViewerWidget::UpdateTextureFromNode(const rational& time)
   } else {
     // There is definitely no frame here, we can immediately flip to showing nothing
     nonqueue_watchers_.clear();
-    SetDisplayImage(nullptr, false);
+    SetEmptyImage();
     return;
   }
 }
@@ -632,6 +666,8 @@ void ViewerWidget::SetDisplayImage(FramePtr frame, bool main_only)
     }
   }
 
+  last_loaded_buffer_ = frame;
+  last_loaded_buffer_is_empty_ = false;
   emit LoadedBuffer(frame.get());
 }
 

@@ -23,6 +23,8 @@
 
 #include <QVariant>
 
+#include "node/block/clip/clip.h"
+#include "node/block/transition/transition.h"
 #include "node/output/track/track.h"
 #include "node/project/footage/footage.h"
 #include "timeline/timelinecommon.h"
@@ -67,16 +69,11 @@ public:
     ghost->SetTrack(block->track()->ToReference());
     ghost->SetData(kAttachedBlock, Node::PtrToValue(block));
 
-    switch (block->type()) {
-    case Block::kClip:
+    if (dynamic_cast<ClipBlock*>(block)) {
       ghost->can_have_zero_length_ = false;
-      break;
-    case Block::kTransition:
+    } else if (dynamic_cast<TransitionBlock*>(block)) {
       ghost->can_have_zero_length_ = false;
       ghost->SetCanMoveTracks(false);
-      break;
-    case Block::kGap:
-      break;
     }
 
     return ghost;

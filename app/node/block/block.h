@@ -39,14 +39,6 @@ public:
 
   NODE_DEFAULT_DESTRUCTOR(Block)
 
-  enum Type {
-    kClip,
-    kGap,
-    kTransition
-  };
-
-  virtual Type type() const = 0;
-
   virtual QVector<CategoryID> Category() const override;
 
   const rational& in() const

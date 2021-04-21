@@ -34,7 +34,7 @@ const QString ColorManager::kConfigFilenameIn = QStringLiteral("config");
 const QString ColorManager::kDefaultColorspaceIn = QStringLiteral("default_input");
 const QString ColorManager::kReferenceSpaceIn = QStringLiteral("reference_space");
 
-OCIO::ConstConfigRcPtr ColorManager::default_config_;
+OCIO::ConstConfigRcPtr ColorManager::default_config_ = nullptr;
 
 ColorManager::ColorManager() :
   config_(nullptr)
@@ -235,10 +235,12 @@ QStringList ColorManager::ListAvailableColorspaces(OCIO::ConstConfigRcPtr config
 {
   QStringList spaces;
 
-  int number_of_colorspaces = config->getNumColorSpaces();
+  if (config) {
+    int number_of_colorspaces = config->getNumColorSpaces();
 
-  for (int i=0;i<number_of_colorspaces;i++) {
-    spaces.append(config->getColorSpaceNameByIndex(i));
+    for (int i=0;i<number_of_colorspaces;i++) {
+      spaces.append(config->getColorSpaceNameByIndex(i));
+    }
   }
 
   return spaces;

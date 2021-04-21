@@ -63,7 +63,7 @@ public:
     return tr("A series of cuts that result in an edited video. Also called a timeline.");
   }
 
-  void add_default_nodes(MultiUndoCommand *command);
+  void add_default_nodes(MultiUndoCommand *command = nullptr);
 
   virtual QIcon icon() const override;
 

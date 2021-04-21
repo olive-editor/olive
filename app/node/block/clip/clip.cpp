@@ -34,11 +34,6 @@ Node *ClipBlock::copy() const
   return new ClipBlock();
 }
 
-Block::Type ClipBlock::type() const
-{
-  return kClip;
-}
-
 QString ClipBlock::Name() const
 {
   return tr("Clip");

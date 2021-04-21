@@ -170,11 +170,6 @@ void ViewerDisplayWidget::SetTime(const rational &time)
   }
 }
 
-FramePtr ViewerDisplayWidget::last_loaded_buffer() const
-{
-  return last_loaded_buffer_;
-}
-
 QPoint ViewerDisplayWidget::TransformViewerSpaceToBufferSpace(QPoint pos)
 {
   /*
