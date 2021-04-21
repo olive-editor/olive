@@ -56,8 +56,18 @@ Sequence::Sequence()
 void Sequence::add_default_nodes(MultiUndoCommand* command)
 {
   // Create tracks and connect them to the viewer
-  command->add_child(new TimelineAddTrackCommand(track_list(Track::kVideo)));
-  command->add_child(new TimelineAddTrackCommand(track_list(Track::kAudio)));
+  UndoCommand* video_track_command = new TimelineAddTrackCommand(track_list(Track::kVideo));
+  UndoCommand* audio_track_command = new TimelineAddTrackCommand(track_list(Track::kAudio));
+
+  if (command) {
+    command->add_child(video_track_command);
+    command->add_child(audio_track_command);
+  } else {
+    video_track_command->redo();
+    audio_track_command->redo();
+    delete video_track_command;
+    delete audio_track_command;
+  }
 }
 
 QIcon Sequence::icon() const
