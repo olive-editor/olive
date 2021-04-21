@@ -17,9 +17,8 @@
 # Create crash handler executable
 add_executable(
   olive-crashhandler
-  crashhandler/crashhandler.h
-  crashhandler/crashhandler.cpp
-  crashhandler/crashhandlermain.cpp
+  crashhandler.cpp
+  crashhandler.h
 )
 
 # Disable console appearing on crash handler dialog
