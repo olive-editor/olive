@@ -197,8 +197,10 @@ jobs:
       - name: Test
         working-directory: ${{ runner.workspace }}/build
         shell: bash
+        env:
+          DEP_LOCATION: ${{ runner.workspace }}/install
         run: |
-          ctest -C ${{ matrix.build-type }}
+          PATH=$PATH:$DEP_LOCATION/bin ctest -C ${{ matrix.build-type }}
 
       - name: Create Package
         working-directory: ${{ runner.workspace }}/build
