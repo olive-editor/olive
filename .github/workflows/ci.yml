@@ -234,7 +234,7 @@ jobs:
         shell: bash
         run: |
           # Create Installer Executable
-          $DOWNLOAD_TOOL https://download.microsoft.com/download/3/2/2/3224B87F-CFA0-4E70-BDA3-3DE650EFEBA5/vcredist_x64.exe
+          #$DOWNLOAD_TOOL http://web.archive.org/web/20210226132532/http://download.microsoft.com/download/3/2/2/3224B87F-CFA0-4E70-BDA3-3DE650EFEBA5/vcredist_x64.exe
           cp $(cygpath $GITHUB_WORKSPACE)/app/packaging/windows/nsis/* .
           cp $(cygpath $GITHUB_WORKSPACE)/LICENSE .
           $DOWNLOAD_TOOL https://nsis.sourceforge.io/mediawiki/images/c/c7/ShellExecAsUser.zip
