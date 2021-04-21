@@ -46,7 +46,7 @@ add_subdirectory(window)
 
 # Add main library
 add_library(libolive-editor
-  SHARED
+  OBJECT
   ${OLIVE_SOURCES}
   ${OLIVE_RESOURCES}
 )
@@ -57,6 +57,7 @@ set_target_properties(libolive-editor PROPERTIES PREFIX "")
 # Add applicaton
 add_executable(olive-editor
   main.cpp
+  $<TARGET_OBJECTS:libolive-editor>
 )
 
 # Create docs if doxygen was found
@@ -83,17 +84,16 @@ elseif(APPLE)
     MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/packaging/macos/MacOSXBundleInfo.plist.in
     MACOSX_BUNDLE_GUI_IDENTIFIER org.olivevideoeditor.Olive
     MACOSX_BUNDLE_ICON_FILE olive.icns
-    RESOURCE "${OLIVE_ICON} libolive-editor"
+    RESOURCE "${OLIVE_ICON}"
     OUTPUT_NAME "Olive"
   )
 elseif(UNIX)
   # Set Linux-specific properties for application
   install(TARGETS olive-editor RUNTIME DESTINATION bin)
-  install(TARGETS libolive-editor RUNTIME DESTINATION lib)
 endif()
 
 # Set link libraries
-target_link_libraries(olive-editor PRIVATE libolive-editor ${OLIVE_LIBRARIES})
+target_link_libraries(olive-editor PRIVATE ${OLIVE_LIBRARIES})
 target_link_libraries(libolive-editor PRIVATE ${OLIVE_LIBRARIES})
 
 # Set compile options
