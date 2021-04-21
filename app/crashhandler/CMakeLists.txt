@@ -30,6 +30,7 @@ set_target_properties(olive-crashhandler PROPERTIES
 target_include_directories(
   olive-crashhandler
   PRIVATE
+  ${CMAKE_SOURCE_DIR}/app
   ${CRASHPAD_INCLUDE_DIRS}
 )
 
