@@ -52,7 +52,6 @@ if(APPLE)
   # Move crash handler executables inside Mac app bundle
   add_custom_command(TARGET olive-crashhandler POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different olive-crashhandler $<TARGET_FILE_DIR:olive-editor>
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different libolive-editor $<TARGET_FILE_DIR:olive-editor>
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CRASHPAD_LIBRARY_DIRS}/${CRASHPAD_HANDLER} $<TARGET_FILE_DIR:olive-editor>
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${BREAKPAD_BIN_DIR}/${MINIDUMP_STACKWALK} $<TARGET_FILE_DIR:olive-editor>
   )

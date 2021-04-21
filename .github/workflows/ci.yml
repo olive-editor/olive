@@ -91,17 +91,18 @@ jobs:
             appdir/usr/share/applications/org.olivevideoeditor.Olive.desktop \
             -exclude-libs=libQt5Pdf.so,libQt5Qml.so,libQt5QmlModels.so,libQt5Quick.so,libQt5VirtualKeyboard.so \
             -bundle-non-qt-libs \
+            -executable=appdir/usr/lib/libolive-editor \
             -executable=appdir/usr/bin/crashpad_handler \
             -executable=appdir/usr/bin/minidump_stackwalk \
             -executable=appdir/usr/bin/olive-crashhandler \
             --appimage-extract-and-run
 
           # Dump Crashpad symbols
-          dump_syms appdir/usr/bin/olive-editor > olive-editor.sym
+          dump_syms appdir/usr/lib/libolive-editor.so > libolive-editor.sym
           # HACK: For some reason, minidump_stackwalk reads identifier as all 0s
-          SYM_DIR=appdir/usr/share/olive-editor/symbols/olive-editor/000000000000000000000000000000000
+          SYM_DIR=appdir/usr/share/olive-editor/symbols/libolive-editor.so/000000000000000000000000000000000
           mkdir -p "$SYM_DIR"
-          mv olive-editor.sym "$SYM_DIR"
+          mv libolive-editor.sym "$SYM_DIR"
 
           # Package AppImage
           $DOWNLOAD_TOOL https://github.com/AppImage/AppImageKit/releases/download/12/appimagetool-x86_64.AppImage
@@ -208,8 +209,9 @@ jobs:
         run: |
           mkdir olive-editor
           cp app/olive-editor.exe olive-editor
-          cp app/olive-crashhandler.exe olive-editor
+          cp app/crashhandler/olive-crashhandler.exe olive-editor
           cp app/olive-editor.pdb olive-editor
+          cp app/libolive-editor.pdb olive-editor
           $DEP_LOCATION/bin/windeployqt olive-editor/olive-crashhandler.exe
           $DEP_LOCATION/bin/windeployqt olive-editor/olive-editor.exe
           cp $(cygpath $DEP_LOCATION)/bin/*.dll olive-editor
@@ -221,11 +223,11 @@ jobs:
         shell: bash
         run: |
           curl -fLSs https://github.com/google/breakpad/blob/master/src/tools/windows/binaries/dump_syms.exe?raw=true > dump_syms.exe
-          ./dump_syms app/olive-editor.pdb > olive-editor.sym
-          SYM_HEADER=($(head -n 1 olive-editor.sym)) # Read first line of symbol file
-          SYM_DIR=olive-editor/symbols/olive-editor.pdb/${SYM_HEADER[3]}
+          ./dump_syms app/libolive-editor.pdb > libolive-editor.sym
+          SYM_HEADER=($(head -n 1 libolive-editor.sym)) # Read first line of symbol file
+          SYM_DIR=olive-editor/symbols/libolive-editor.pdb/${SYM_HEADER[3]}
           mkdir -p "$SYM_DIR"
-          mv olive-editor.sym "$SYM_DIR"
+          mv libolive-editor.sym "$SYM_DIR"
 
       - name: Deploy Packages
         working-directory: ${{ runner.workspace }}/build
@@ -361,9 +363,9 @@ jobs:
           install_name_tool -change libmodplug.dylib @rpath/libmodplug.dylib $BUNDLE_NAME/Contents/Frameworks/libavfilter.*
 
           # Crashpad symbols
-          $DEP_LOCATION/bin/dump_syms $BUNDLE_NAME/Contents/MacOS/Olive > Olive.sym
-          SYM_HEADER=($(head -n 1 Olive.sym)) # Read first line of symbol file
-          SYM_DIR=$BUNDLE_NAME/Contents/Resources/symbols/Olive/${SYM_HEADER[3]}
+          $DEP_LOCATION/bin/dump_syms $BUNDLE_NAME/Contents/Resources/libolive-editor.dylib > libolive-editor.sym
+          SYM_HEADER=($(head -n 1 libolive-editor.sym)) # Read first line of symbol file
+          SYM_DIR=$BUNDLE_NAME/Contents/Resources/symbols/libolive-editor.dylib/${SYM_HEADER[3]}
           mkdir -p "$SYM_DIR"
           mv Olive.sym "$SYM_DIR"
 

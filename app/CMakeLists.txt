@@ -83,13 +83,13 @@ elseif(APPLE)
     MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/packaging/macos/MacOSXBundleInfo.plist.in
     MACOSX_BUNDLE_GUI_IDENTIFIER org.olivevideoeditor.Olive
     MACOSX_BUNDLE_ICON_FILE olive.icns
-    RESOURCE "${OLIVE_ICON}"
+    RESOURCE "${OLIVE_ICON}" libolive-editor
     OUTPUT_NAME "Olive"
   )
 elseif(UNIX)
   # Set Linux-specific properties for application
-  #install(TARGETS olive-editor RUNTIME DESTINATION bin)
-  #install(TARGETS libolive-editor RUNTIME DESTINATION lib)
+  install(TARGETS olive-editor RUNTIME DESTINATION bin)
+  install(TARGETS libolive-editor RUNTIME DESTINATION lib)
 endif()
 
 # Set link libraries
