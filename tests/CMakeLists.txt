@@ -39,7 +39,7 @@ function(olive_add_test GROUP NAME SOURCE)
   string(APPEND TEST_FILE_CONTENT "\n${TEST_BODY}")
   file(WRITE "${OUTPUT_FILE}" "${TEST_FILE_CONTENT}")
 
-  add_executable(${NAME} ${OUTPUT_FILE})
+  add_executable(${NAME} ${OUTPUT_FILE} $<TARGET_OBJECTS:libolive-editor>)
   target_include_directories(
     ${NAME}
     PRIVATE
@@ -49,7 +49,6 @@ function(olive_add_test GROUP NAME SOURCE)
   target_link_libraries(
     ${NAME}
     PRIVATE
-    libolive-editor
     ${OLIVE_LIBRARIES}
   )
   target_compile_definitions(
