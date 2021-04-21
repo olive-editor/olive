@@ -1666,8 +1666,8 @@ public:
       Block* previous = block_->previous();
       Block* next = block_->next();
 
-      bool previous_is_a_gap = (previous && previous->type() == Block::kGap);
-      bool next_is_a_gap = (next && next->type() == Block::kGap);
+      bool previous_is_a_gap = dynamic_cast<GapBlock*>(previous);
+      bool next_is_a_gap = dynamic_cast<GapBlock*>(next);
 
       if (previous_is_a_gap && next_is_a_gap) {
         // Clip is preceded and followed by a gap, so we'll merge the two
@@ -1717,7 +1717,7 @@ public:
 
       // Determine if it's proceeded by a gap, and remove that gap if so
       Block* preceding = block_->previous();
-      if (preceding && preceding->type() == Block::kGap) {
+      if (dynamic_cast<GapBlock*>(preceding)) {
         track_->RippleRemoveBlock(preceding);
         preceding->setParent(&memory_manager_);
 
@@ -1836,7 +1836,7 @@ public:
           Block* block_at_time = track->NearestBlockBeforeOrAt(range.in());
 
           if (block_at_time) {
-            if (block_at_time->type() == Block::kGap) {
+            if (dynamic_cast<GapBlock*>(block_at_time)) {
               max_ripple_length = qMin(block_at_time->length(), max_ripple_length);
             } else {
               max_ripple_length = 0;
@@ -2287,11 +2287,11 @@ private:
 
     foreach (Track* track, working_tracks_) {
       foreach (Block* b, track->Blocks()) {
-        if (b->type() == Block::kGap && b->in() <= point_ && b->out() >= point_) {
+        if (dynamic_cast<GapBlock*>(b) && b->in() <= point_ && b->out() >= point_) {
           // Found a gap at the location
           gaps_to_extend_.append(b);
           break;
-        } else if (b->type() == Block::kClip && b->out() >= point_) {
+        } else if (dynamic_cast<ClipBlock*>(b) && b->out() >= point_) {
           if (b->out() > point_) {
             blocks_to_split.append(b);
           }

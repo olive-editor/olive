@@ -396,7 +396,7 @@ void TimelineWidget::SplitAtPlayhead()
   foreach (Track* track, sequence()->GetTracks()) {
     Block* b = track->BlockContainingTime(playhead_time);
 
-    if (b && b->type() == Block::kClip) {
+    if (dynamic_cast<ClipBlock*>(b)) {
       bool selected = false;
 
       // See if this block is selected
@@ -434,7 +434,7 @@ void TimelineWidget::ReplaceBlocksWithGaps(const QVector<Block *> &blocks,
                                            MultiUndoCommand *command)
 {
   foreach (Block* b, blocks) {
-    if (b->type() == Block::kGap) {
+    if (dynamic_cast<GapBlock*>(b)) {
       // No point in replacing a gap with a gap, and TrackReplaceBlockWithGapCommand will clear
       // up any extraneous gaps
       continue;
@@ -470,9 +470,9 @@ void TimelineWidget::DeleteSelected(bool ripple)
   QVector<TransitionBlock*> transitions_to_delete;
 
   foreach (Block* b, blocks_to_delete) {
-    if (b->type() == Block::kClip) {
+    if (dynamic_cast<ClipBlock*>(b)) {
       clips_to_delete.append(b);
-    } else if (b->type() == Block::kTransition) {
+    } else if (dynamic_cast<TransitionBlock*>(b)) {
       transitions_to_delete.append(static_cast<TransitionBlock*>(b));
     }
   }
@@ -548,7 +548,7 @@ void TimelineWidget::ToggleLinksOnSelected()
 
   foreach (Block* item, GetSelectedBlocks()) {
     // Only clips can be linked
-    if (item->type() != Block::kClip) {
+    if (!dynamic_cast<ClipBlock*>(item)) {
       continue;
     }
 
@@ -1279,7 +1279,7 @@ void TimelineWidget::EditTo(Timeline::MovementMode mode)
 
   foreach (const Timeline::EditToInfo& info, tracks) {
     if (info.nearest_block
-        && info.nearest_block->type() != Block::kGap
+        && !dynamic_cast<GapBlock*>(info.nearest_block)
         && info.nearest_time != playhead_time) {
       rational new_len;
 
@@ -1410,7 +1410,7 @@ void TimelineWidget::MoveRubberBandSelect(bool enable_selecting, bool select_lin
   rubberband_now_selected_.clear();
 
   foreach (Block* b, items_in_rubberband) {
-    if (b->type() == Block::kGap) {
+    if (dynamic_cast<GapBlock*>(b)) {
       continue;
     }
 
