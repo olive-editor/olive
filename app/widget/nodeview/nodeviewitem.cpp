@@ -283,9 +283,11 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
       }
     }
 
+    int icon_size = painter->fontMetrics().height()/2;
+
     if (node_label.isEmpty()) {
       // Draw shortname only
-      DrawNodeTitle(painter, node_shortname, title_bar_rect_, Qt::AlignVCenter);
+      DrawNodeTitle(painter, node_shortname, title_bar_rect_, Qt::AlignVCenter, icon_size, true);
     } else {
       int text_pad = DefaultTextPadding()/2;
       QRectF safe_label_bounds = title_bar_rect_.adjusted(text_pad, text_pad, -text_pad, -text_pad);
@@ -293,10 +295,10 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
       qreal font_sz = f.pointSizeF();
       f.setPointSizeF(font_sz * 0.8);
       painter->setFont(f);
-      DrawNodeTitle(painter, node_label, safe_label_bounds, Qt::AlignTop);
+      DrawNodeTitle(painter, node_label, safe_label_bounds, Qt::AlignTop, icon_size, true);
       f.setPointSizeF(font_sz * 0.6);
       painter->setFont(f);
-      DrawNodeTitle(painter, node_shortname, safe_label_bounds, Qt::AlignBottom);
+      DrawNodeTitle(painter, node_shortname, safe_label_bounds, Qt::AlignBottom, icon_size, false);
     }
 
   }
@@ -367,22 +369,23 @@ void NodeViewItem::ReadjustAllEdges()
   }
 }
 
-void NodeViewItem::DrawNodeTitle(QPainter* painter, QString text, const QRectF& rect, Qt::Alignment vertical_align)
+void NodeViewItem::DrawNodeTitle(QPainter* painter, QString text, const QRectF& rect, Qt::Alignment vertical_align, int icon_size, bool draw_arrow)
 {
   QFontMetrics fm = painter->fontMetrics();
 
   painter->setRenderHint(QPainter::SmoothPixmapTransform);
 
   // Draw right or down arrow based on expanded state
-  int icon_size = fm.height() / 2;
   int icon_padding = title_bar_rect_.height() / 2 - icon_size / 2;
   int icon_full_size = icon_size + icon_padding * 2;
-  const QIcon& expand_icon = IsExpanded() ? icon::TriDown : icon::TriRight;
-  int icon_size_scaled = icon_size * painter->transform().m11();
-  painter->drawPixmap(QRect(title_bar_rect_.x() + icon_padding,
-                            title_bar_rect_.y() + icon_padding,
-                            icon_size,
-                            icon_size), expand_icon.pixmap(QSize(icon_size_scaled, icon_size_scaled)));
+  if (draw_arrow) {
+    const QIcon& expand_icon = IsExpanded() ? icon::TriDown : icon::TriRight;
+    int icon_size_scaled = icon_size * painter->transform().m11();
+    painter->drawPixmap(QRect(title_bar_rect_.x() + icon_padding,
+                              title_bar_rect_.y() + icon_padding,
+                              icon_size,
+                              icon_size), expand_icon.pixmap(QSize(icon_size_scaled, icon_size_scaled)));
+  }
 
   // Calculate how much space we have for text
   int item_width = title_bar_rect_.width();
