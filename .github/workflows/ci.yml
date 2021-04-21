@@ -348,19 +348,11 @@ jobs:
           BUNDLE_NAME: "Olive.app"
         shell: bash
         run: |
+          # Use macdeployqt and macdeployqt to bundle dependencies
           mv app/$BUNDLE_NAME .
           $DEP_LOCATION/bin/macdeployqt $BUNDLE_NAME -executable=$BUNDLE_NAME/Contents/MacOS/olive-crashhandler
           $DOWNLOAD_TOOL https://github.com/arl/macdeployqtfix/raw/master/macdeployqtfix.py
           python2 macdeployqtfix.py $BUNDLE_NAME/Contents/MacOS/Olive $DEP_LOCATION
-
-          # Manual fixes
-          cp $DEP_LOCATION/lib/libopentimelineio.dylib $BUNDLE_NAME/Contents/Frameworks
-          cp $DEP_LOCATION/lib/libopentime.dylib $BUNDLE_NAME/Contents/Frameworks
-          cp $DEP_LOCATION/lib/libmodplug.dylib $BUNDLE_NAME/Contents/Frameworks
-          install_name_tool -change @loader_path/libopentimelineio.dylib @rpath/libopentimelineio.dylib $BUNDLE_NAME/Contents/MacOS/Olive
-          install_name_tool -change @loader_path/libopentime.dylib @rpath/libopentime.dylib $BUNDLE_NAME/Contents/MacOS/Olive
-          install_name_tool -change libmodplug.dylib @rpath/libmodplug.dylib $BUNDLE_NAME/Contents/Frameworks/libavformat.*
-          install_name_tool -change libmodplug.dylib @rpath/libmodplug.dylib $BUNDLE_NAME/Contents/Frameworks/libavfilter.*
 
           # Crashpad symbols
           $DEP_LOCATION/bin/dump_syms $BUNDLE_NAME/Contents/MacOS/Olive > Olive.sym
