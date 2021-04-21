@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -218,16 +218,6 @@ void Project::set_filename(const QString &s)
 #endif
 
   emit NameChanged();
-}
-
-ColorManager *Project::color_manager()
-{
-  return color_manager_;
-}
-
-bool Project::is_modified() const
-{
-  return is_modified_;
 }
 
 void Project::set_modified(bool e)

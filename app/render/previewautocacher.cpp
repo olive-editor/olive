@@ -18,8 +18,7 @@ PreviewAutoCacher::PreviewAutoCacher() :
   last_update_time_(0),
   ignore_next_mouse_button_(false)
 {
-  // Set default autocache range
-  SetPlayhead(rational());
+  SetPlayhead(0);
 
   delayed_requeue_timer_.setInterval(Config::Current()[QStringLiteral("AutoCacheDelay")].toInt());
   delayed_requeue_timer_.setSingleShot(true);
@@ -69,7 +68,7 @@ void PreviewAutoCacher::GenerateHashes(ViewerOutput *viewer, FrameHashCache* cac
 
   foreach (const rational& time, times) {
     // See if hash already exists in disk cache
-    QByteArray hash = RenderManager::Hash(viewer->GetConnectedNode(ViewerOutput::kTextureInput), viewer->GetVideoParams(), time);
+    QByteArray hash = RenderManager::Hash(viewer->GetConnectedTextureOutput(), viewer->GetVideoParams(), time);
 
     // Check memory list since disk checking is slow
     bool hash_exists = (std::find(existing_hashes.begin(), existing_hashes.end(), hash) != existing_hashes.end());
@@ -677,10 +676,6 @@ void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
     // Find copied viewer node
     copied_viewer_node_ = static_cast<ViewerOutput*>(copy_map_.value(viewer_node_));
     copied_color_manager_ = static_cast<ColorManager*>(copy_map_.value(viewer_node_->project()->color_manager()));
-
-    // Copy parameters
-    copied_viewer_node_->SetVideoParams(viewer_node_->GetVideoParams());
-    copied_viewer_node_->SetAudioParams(viewer_node_->GetAudioParams());
 
     // Add all connections
     foreach (Node* node, graph->nodes()) {

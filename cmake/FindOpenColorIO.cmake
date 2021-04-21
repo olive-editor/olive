@@ -1,6 +1,6 @@
 #
 # Copyright 2019 Pixar
-# Modifications: Copyright (C) 2020 Olive Team
+# Modifications: Copyright (C) 2021 Olive Team
 #
 # Licensed under the Apache License, Version 2.0 (the "Apache License")
 # with the following modification; you may not use this file except in

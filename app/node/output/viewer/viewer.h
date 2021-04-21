@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -72,12 +72,24 @@ public:
 
   VideoParams GetVideoParams(int index = 0) const
   {
-    return GetStandardValue(kVideoParamsInput, index).value<VideoParams>();
+    // This check isn't strictly necessary (GetStandardValue will return a null VideoParams anyway),
+    // but it does suppress a warning message that we don't need
+    if (index < InputArraySize(kVideoParamsInput)) {
+      return GetStandardValue(kVideoParamsInput, index).value<VideoParams>();
+    } else {
+      return VideoParams();
+    }
   }
 
   AudioParams GetAudioParams(int index = 0) const
   {
-    return GetStandardValue(kAudioParamsInput, index).value<AudioParams>();
+    // This check isn't strictly necessary (GetStandardValue will return a null VideoParams anyway),
+    // but it does suppress a warning message that we don't need
+    if (index < InputArraySize(kAudioParamsInput)) {
+      return GetStandardValue(kAudioParamsInput, index).value<AudioParams>();
+    } else {
+      return AudioParams();
+    }
   }
 
   void SetVideoParams(const VideoParams &video, int index = 0)
@@ -111,7 +123,9 @@ public:
   VideoParams GetFirstEnabledVideoStream() const;
   AudioParams GetFirstEnabledAudioStream() const;
 
-  const rational &GetLength() const;
+  const rational &GetLength() const { return last_length_; }
+  const rational &GetVideoLength() const { return video_length_; }
+  const rational &GetAudioLength() const { return audio_length_; }
 
   FrameHashCache* video_frame_cache()
   {
@@ -174,7 +188,7 @@ protected:
 
   virtual void InputDisconnectedEvent(const QString &input, int element, const NodeOutput &output) override;
 
-  virtual rational GetCustomLength(Track::Type type) const;
+  virtual rational VerifyLengthInternal(Track::Type type) const;
 
   virtual void ShiftVideoEvent(const rational &from, const rational &to);
 
@@ -188,8 +202,13 @@ protected:
 
   int AddStream(Track::Type type, const QVariant &value);
 
+  void SetViewerVideoCacheEnabled(bool e) { video_cache_enabled_ = e; }
+  void SetViewerAudioCacheEnabled(bool e) { audio_cache_enabled_ = e; }
+
 private:
   rational last_length_;
+  rational video_length_;
+  rational audio_length_;
 
   FrameHashCache video_frame_cache_;
 
@@ -202,6 +221,9 @@ private:
   AudioParams cached_audio_params_;
 
   TimelinePoints timeline_points_;
+
+  bool video_cache_enabled_;
+  bool audio_cache_enabled_;
 
 private slots:
   void InputResized(const QString& input, int old_size, int new_size);

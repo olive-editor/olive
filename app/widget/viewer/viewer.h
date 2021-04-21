@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -203,6 +203,8 @@ private:
 
   bool ShouldForceWaveform() const;
 
+  void SetEmptyImage();
+
   QStackedWidget* stack_;
 
   ViewerSizer* sizer_;
@@ -244,6 +246,11 @@ private:
   int prequeue_length_;
 
   PreviewAutoCacher auto_cacher_;
+
+  QTimer audio_restart_timer_;
+
+  FramePtr last_loaded_buffer_;
+  bool last_loaded_buffer_is_empty_;
 
   static QVector<ViewerWidget*> instances_;
 
@@ -291,6 +298,11 @@ private slots:
   void DragEntered(QDragEnterEvent* event);
 
   void Dropped(QDropEvent* event);
+
+  void AudioCacheInvalidated();
+  void AudioCacheValidated();
+
+  void StartAudioOutput();
 
 };
 

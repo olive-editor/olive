@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -187,14 +187,29 @@ bool FrameHashCache::SaveCacheFrame(const QByteArray& hash,
                                     const VideoParams& vparam,
                                     int linesize_bytes) const
 {
-  QString fn = CachePathName(hash);
+  return SaveCacheFrame(GetCacheDirectory(), hash, data, vparam, linesize_bytes);
+}
+
+bool FrameHashCache::SaveCacheFrame(const QByteArray &hash, FramePtr frame) const
+{
+  return SaveCacheFrame(GetCacheDirectory(), hash, frame);
+}
+
+bool FrameHashCache::SaveCacheFrame(const QString &cache_path, const QByteArray &hash, char *data, const VideoParams &vparam, int linesize_bytes)
+{
+  if (cache_path.isEmpty()) {
+    qWarning() << "Failed to save cache frame with empty path";
+    return false;
+  }
+
+  QString fn = CachePathName(cache_path, hash);
 
   if (SaveCacheFrame(fn, data, vparam, linesize_bytes)) {
     // Register frame with the disk manager
     QMetaObject::invokeMethod(DiskManager::instance(),
                               "CreatedFile",
                               Qt::QueuedConnection,
-                              Q_ARG(QString, GetCacheDirectory()),
+                              Q_ARG(QString, cache_path),
                               Q_ARG(QString, fn),
                               Q_ARG(QByteArray, hash));
 
@@ -204,10 +219,10 @@ bool FrameHashCache::SaveCacheFrame(const QByteArray& hash,
   }
 }
 
-bool FrameHashCache::SaveCacheFrame(const QByteArray &hash, FramePtr frame) const
+bool FrameHashCache::SaveCacheFrame(const QString &cache_path, const QByteArray &hash, FramePtr frame)
 {
   if (frame) {
-    return SaveCacheFrame(hash, frame->data(), frame->video_params(), frame->linesize_bytes());
+    return SaveCacheFrame(cache_path, hash, frame->data(), frame->video_params(), frame->linesize_bytes());
   } else {
     qWarning() << "Attempted to save a NULL frame to the cache. This may or may not be desirable.";
     return false;
@@ -216,6 +231,11 @@ bool FrameHashCache::SaveCacheFrame(const QByteArray &hash, FramePtr frame) cons
 
 FramePtr FrameHashCache::LoadCacheFrame(const QString &cache_path, const QByteArray &hash)
 {
+  if (cache_path.isEmpty()) {
+    qWarning() << "Failed to save cache frame with empty path";
+    return nullptr;
+  }
+
   return LoadCacheFrame(CachePathName(cache_path, hash));
 }
 
@@ -302,7 +322,7 @@ void FrameHashCache::ShiftEvent(const rational &from, const rational &to)
   // POSITIVE if moving forward ->
   // NEGATIVE if moving backward <-
   rational diff = to - from;
-  bool diff_is_negative = (diff < rational());
+  bool diff_is_negative = (diff < 0);
 
   QList<HashTimePair> shifted_times;
 
@@ -333,10 +353,12 @@ void FrameHashCache::ShiftEvent(const rational &from, const rational &to)
 
 void FrameHashCache::InvalidateEvent(const TimeRange &range)
 {
-  QVector<rational> invalid_frames = GetFrameListFromTimeRange({range});
+  if (!timebase_.isNull()) {
+    QVector<rational> invalid_frames = GetFrameListFromTimeRange({range});
 
-  foreach (const rational& r, invalid_frames) {
-    time_hash_map_.remove(r);
+    foreach (const rational& r, invalid_frames) {
+      time_hash_map_.remove(r);
+    }
   }
 }
 
@@ -394,7 +416,7 @@ QString FrameHashCache::CachePathName(const QString &cache_path, const QByteArra
   return cache_dir.filePath(filename);
 }
 
-bool FrameHashCache::SaveCacheFrame(const QString &filename, char *data, const VideoParams &vparam, int linesize_bytes) const
+bool FrameHashCache::SaveCacheFrame(const QString &filename, char *data, const VideoParams &vparam, int linesize_bytes)
 {
   if (!VideoParams::FormatIsFloat(vparam.format())) {
     qCritical() << "Tried to cache frame with non-float pixel format";

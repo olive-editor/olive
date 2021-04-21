@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -85,6 +85,7 @@ void TimeBasedWidget::ConnectViewerNode(ViewerOutput *node)
 
     // Disconnect length changed signal
     disconnect(viewer_node_, &ViewerOutput::LengthChanged, this, &TimeBasedWidget::UpdateMaximumScroll);
+    disconnect(viewer_node_, &ViewerOutput::RemovedFromGraph, this, &TimeBasedWidget::ConnectedNodeRemovedFromGraph);
 
     // Disconnect rate change signals if they were connected
     disconnect(viewer_node_, &ViewerOutput::FrameRateChanged, this, &TimeBasedWidget::AutoUpdateTimebase);
@@ -109,6 +110,7 @@ void TimeBasedWidget::ConnectViewerNode(ViewerOutput *node)
   if (viewer_node_) {
     // Connect length changed signal
     connect(viewer_node_, &ViewerOutput::LengthChanged, this, &TimeBasedWidget::UpdateMaximumScroll);
+    connect(viewer_node_, &ViewerOutput::RemovedFromGraph, this, &TimeBasedWidget::ConnectedNodeRemovedFromGraph);
 
     // Connect ruler and scrollbar to timeline points
     ruler()->ConnectTimelinePoints(viewer_node_->GetTimelinePoints());
@@ -216,6 +218,11 @@ void TimeBasedWidget::AutoUpdateTimebase()
   }
 }
 
+void TimeBasedWidget::ConnectedNodeRemovedFromGraph()
+{
+  ConnectViewerNode(nullptr);
+}
+
 TimeRuler *TimeBasedWidget::ruler() const
 {
   return ruler_;
@@ -281,29 +288,27 @@ void TimeBasedWidget::PassWheelEventsToScrollBar(QObject *object)
 
 void TimeBasedWidget::SetTimestamp(int64_t timestamp)
 {
-  if (GetTime() != timestamp) {
-    if (UserIsDraggingPlayhead()) {
-      // If the user is dragging the playhead, we will simply nudge over and not use autoscroll rules.
-      QMetaObject::invokeMethod(this, "CatchUpScrollToPlayhead", Qt::QueuedConnection);
-    } else {
-      // Otherwise, assume we jumped to this out of nowhere and must now autoscroll
-      switch (static_cast<AutoScroll::Method>(Config::Current()["Autoscroll"].toInt())) {
-      case AutoScroll::kNone:
-        // Do nothing
-        break;
-      case AutoScroll::kPage:
-        QMetaObject::invokeMethod(this, "PageScrollToPlayhead", Qt::QueuedConnection);
-        break;
-      case AutoScroll::kSmooth:
-        QMetaObject::invokeMethod(this, "CenterScrollOnPlayhead", Qt::QueuedConnection);
-        break;
-      }
+  if (UserIsDraggingPlayhead()) {
+    // If the user is dragging the playhead, we will simply nudge over and not use autoscroll rules.
+    QMetaObject::invokeMethod(this, "CatchUpScrollToPlayhead", Qt::QueuedConnection);
+  } else {
+    // Otherwise, assume we jumped to this out of nowhere and must now autoscroll
+    switch (static_cast<AutoScroll::Method>(Config::Current()["Autoscroll"].toInt())) {
+    case AutoScroll::kNone:
+      // Do nothing
+      break;
+    case AutoScroll::kPage:
+      QMetaObject::invokeMethod(this, "PageScrollToPlayhead", Qt::QueuedConnection);
+      break;
+    case AutoScroll::kSmooth:
+      QMetaObject::invokeMethod(this, "CenterScrollOnPlayhead", Qt::QueuedConnection);
+      break;
     }
-
-    ruler_->SetTime(timestamp);
-
-    TimeChangedEvent(timestamp);
   }
+
+  ruler_->SetTime(timestamp);
+
+  TimeChangedEvent(timestamp);
 }
 
 void TimeBasedWidget::SetTimebase(const rational &timebase)

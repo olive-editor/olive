@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -384,7 +384,7 @@ void TimelineView::DrawBlocks(QPainter *painter, bool foreground)
     Block* block = track->NearestBlockBeforeOrAt(start_time);
 
     while (block) {
-      if (block->type() == Block::kClip || block->type() == Block::kTransition) {
+      if (dynamic_cast<ClipBlock*>(block) || dynamic_cast<TransitionBlock*>(block)) {
 
         qreal block_left = qMax(left_bound, TimeToScene(block->in()));
         qreal block_right = qMin(right_bound, TimeToScene(block->out())) - 1;

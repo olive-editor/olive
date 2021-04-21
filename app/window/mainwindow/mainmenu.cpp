@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -112,9 +112,6 @@ MainMenu::MainMenu(MainWindow *parent) :
   view_decrease_track_height_item_ = view_menu_->AddItem("vzoomout", this, &MainMenu::DecreaseTrackHeightTriggered, "Ctrl+-");
   view_show_all_item_ = view_menu_->AddItem("showall", this, &MainMenu::ToggleShowAllTriggered, "\\");
   view_show_all_item_->setCheckable(true);
-  view_menu_->addSeparator();
-
-  MenuShared::instance()->AddItemsForTimeRulerMenu(view_menu_);
 
   view_menu_->addSeparator();
 
@@ -306,8 +303,17 @@ void MainMenu::ViewMenuAboutToShow()
   // Parent is QMainWindow
   view_full_screen_item_->setChecked(parentWidget()->isFullScreen());
 
+  // Make sure we're displaying the correct options for the timebase
+  TimeBasedPanel* p = PanelManager::instance()->MostRecentlyFocused<TimeBasedPanel>();
+  if (p) {
+    if (p->timebase().denominator() != 0) {
+      view_menu_->addSeparator();
+      MenuShared::instance()->AddItemsForTimeRulerMenu(view_menu_);
+    }
+  }
+
   // Ensure checked timecode display mode is correct
-  MenuShared::instance()->AboutToShowTimeRulerActions();
+  MenuShared::instance()->AboutToShowTimeRulerActions(p->timebase());
 }
 
 void MainMenu::ToolsMenuAboutToShow()

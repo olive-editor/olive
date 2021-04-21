@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -37,8 +37,10 @@ void HandMovableView::ApplicationToolChanged(Tool::Item tool)
 {
   if (tool == Tool::kHand) {
     setDragMode(ScrollHandDrag);
+    setInteractive(false);
   } else {
     setDragMode(default_drag_mode_);
+    setInteractive(true);
   }
 
   ToolChangedEvent(tool);
@@ -51,6 +53,7 @@ bool HandMovableView::HandPress(QMouseEvent *event)
     dragging_hand_ = true;
 
     setDragMode(ScrollHandDrag);
+    setInteractive(false);
 
     // Transform mouse event to act like the left button is pressed
     QMouseEvent transformed(event->type(),
@@ -94,6 +97,7 @@ bool HandMovableView::HandRelease(QMouseEvent *event)
 
     QGraphicsView::mouseReleaseEvent(&transformed);
 
+    setInteractive(true);
     setDragMode(pre_hand_drag_mode_);
 
     dragging_hand_ = false;

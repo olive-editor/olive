@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -110,6 +110,24 @@ private:
 
   void ZoomFromKeyboard(double multiplier);
 
+  class NodeViewAttachNodesToCursor : public UndoCommand
+  {
+  public:
+    NodeViewAttachNodesToCursor(NodeView* view, const QVector<Node*>& nodes);
+
+    virtual void redo() override;
+
+    virtual void undo() override;
+
+    virtual Project * GetRelevantProject() const override;
+
+  private:
+    NodeView* view_;
+
+    QVector<Node*> nodes_;
+
+  };
+
   NodeGraph* graph_;
 
   struct AttachedItem {
@@ -175,6 +193,11 @@ private slots:
    * @brief Receiver for the user changing the filter
    */
   void ContextMenuFilterChanged(QAction* action);
+
+  /**
+   * @brief Opens the selected node in a Viewer
+   */
+  void OpenSelectedNodeInViewer();
 
 };
 

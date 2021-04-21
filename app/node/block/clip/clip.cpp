@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -32,11 +32,6 @@ ClipBlock::ClipBlock()
 Node *ClipBlock::copy() const
 {
   return new ClipBlock();
-}
-
-Block::Type ClipBlock::type() const
-{
-  return kClip;
 }
 
 QString ClipBlock::Name() const
@@ -114,12 +109,15 @@ void ClipBlock::Retranslate()
   SetInputName(kBufferIn, tr("Buffer"));
 }
 
-void ClipBlock::Hash(const QString &output, QCryptographicHash &hash, const rational &time) const
+void ClipBlock::Hash(const QString &out, QCryptographicHash &hash, const rational &time) const
 {
+  Q_UNUSED(out)
+
   if (IsInputConnected(kBufferIn)) {
     rational t = InputTimeAdjustment(kBufferIn, -1, TimeRange(time, time)).in();
 
-    GetConnectedNode(kBufferIn)->Hash(output, hash, t);
+    NodeOutput output = GetConnectedOutput(kBufferIn);
+    output.node()->Hash(output.output(), hash, t);
   }
 }
 

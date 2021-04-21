@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -47,6 +47,9 @@ SliderLabel::SliderLabel(QWidget *parent) :
 
   // Allow users to tab to this widget
   setFocusPolicy(Qt::TabFocus);
+
+  // Add ccustom context menu
+  setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
 void SliderLabel::mousePressEvent(QMouseEvent *e)
@@ -56,6 +59,15 @@ void SliderLabel::mousePressEvent(QMouseEvent *e)
       emit RequestReset();
     } else {
       emit LabelPressed();
+    }
+  }
+}
+
+void SliderLabel::mouseReleaseEvent(QMouseEvent *e)
+{
+  if (e->button() == Qt::LeftButton) {
+    if (!(e->modifiers() & Qt::AltModifier)) {
+      emit LabelReleased();
     }
   }
 }

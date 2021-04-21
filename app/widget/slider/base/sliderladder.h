@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@ class SliderLadderElement : public QWidget
 {
   Q_OBJECT
 public:
-  SliderLadderElement(const double& multiplier, QWidget* parent = nullptr);
+  SliderLadderElement(const double& multiplier, QString width_hint, QWidget* parent = nullptr);
 
   void SetHighlighted(bool e);
 
@@ -64,7 +64,7 @@ class SliderLadder : public QFrame
 {
   Q_OBJECT
 public:
-  SliderLadder(double drag_multiplier, int nb_outer_values, QWidget* parent = nullptr);
+  SliderLadder(double drag_multiplier, int nb_outer_values, QString width_hint, QWidget* parent = nullptr);
 
   virtual ~SliderLadder() override;
 
@@ -83,6 +83,8 @@ signals:
   void Released();
 
 private:
+  bool UsingLadders() const;
+
   int drag_start_x_;
   int drag_start_y_;
 

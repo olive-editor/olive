@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -56,8 +56,18 @@ Sequence::Sequence()
 void Sequence::add_default_nodes(MultiUndoCommand* command)
 {
   // Create tracks and connect them to the viewer
-  command->add_child(new TimelineAddTrackCommand(track_list(Track::kVideo)));
-  command->add_child(new TimelineAddTrackCommand(track_list(Track::kAudio)));
+  UndoCommand* video_track_command = new TimelineAddTrackCommand(track_list(Track::kVideo));
+  UndoCommand* audio_track_command = new TimelineAddTrackCommand(track_list(Track::kAudio));
+
+  if (command) {
+    command->add_child(video_track_command);
+    command->add_child(audio_track_command);
+  } else {
+    video_track_command->redo();
+    audio_track_command->redo();
+    delete video_track_command;
+    delete audio_track_command;
+  }
 }
 
 QIcon Sequence::icon() const
@@ -107,7 +117,7 @@ void Sequence::Retranslate()
   }
 }
 
-rational Sequence::GetCustomLength(Track::Type type) const
+rational Sequence::VerifyLengthInternal(Track::Type type) const
 {
   if (!track_lists_.isEmpty()) {
     switch (type) {
@@ -123,7 +133,7 @@ rational Sequence::GetCustomLength(Track::Type type) const
     }
   }
 
-  return rational();
+  return 0;
 }
 
 void Sequence::InputConnectedEvent(const QString &input, int element, const NodeOutput &output)

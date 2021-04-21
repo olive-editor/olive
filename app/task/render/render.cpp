@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -85,7 +85,7 @@ bool RenderTask::Render(ColorManager* manager,
         return true;
       }
 
-      hashes[i] = RenderManager::instance()->Hash(viewer(), video_params_, times.at(i));
+      hashes[i] = RenderManager::instance()->Hash(viewer()->GetConnectedTextureOutput(), video_params_, times.at(i));
     }
 
     // Filter out duplicates

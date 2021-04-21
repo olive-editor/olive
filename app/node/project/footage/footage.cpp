@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -43,7 +43,10 @@ Footage::Footage(const QString &filename) :
   ViewerOutput(false),
   cancelled_(nullptr)
 {
-  AddInput(kFilenameInput, NodeValue::kFile, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+  SetCacheTextures(true);
+  SetViewerVideoCacheEnabled(false);
+
+  PrependInput(kFilenameInput, NodeValue::kFile, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
   Clear();
 
@@ -177,7 +180,7 @@ void Footage::InputValueChangedEvent(const QString &input, int element)
   }
 }
 
-rational Footage::GetCustomLength(Track::Type type) const
+rational Footage::VerifyLengthInternal(Track::Type type) const
 {
   if (type == Track::kVideo) {
     VideoParams first_stream = GetFirstEnabledVideoStream();
@@ -193,7 +196,7 @@ rational Footage::GetCustomLength(Track::Type type) const
     }
   }
 
-  return super::GetCustomLength(type);
+  return 0;
 }
 
 QString Footage::GetColorspaceToUse(const VideoParams &params) const
@@ -292,72 +295,32 @@ QString Footage::DescribeVideoStream(const VideoParams &params)
 
 QString Footage::DescribeAudioStream(const AudioParams &params)
 {
-  return tr("%1: Audio - %2 Channel(s), %3Hz")
-      .arg(QString::number(params.stream_index()),
-           QString::number(params.channel_count()),
-           QString::number(params.sample_rate()));
-}
-
-bool Footage::CompareFootageToFile(Footage *footage, const QString &filename)
-{
-  // Heuristic to determine if file has changed
-  QFileInfo info(filename);
-
-  if (info.exists()) {
-    /*if (info.lastModified().toMSecsSinceEpoch() == footage->timestamp()) {
-      // Footage has not been modified and is where we expect
-      return true;
-    } else {
-      // Footage may have changed and we'll have to re-probe it. It also may not have, in which
-      // case nothing needs to change.
-      DecoderPtr decoder = Decoder::CreateFromID(footage->decoder());
-
-      Streams probed_streams = decoder->Probe(filename, nullptr);
-
-      if (probed_streams == footage->streams_) {
-        return true;
-      }
-    }*/
-    Q_UNUSED(footage)
-
-    // Simplified, since our footage node is much more tolerant, we'll try this
-    return true;
-  }
-
-  // Footage file couldn't be found or resolved to something we didn't expect
-  return false;
-}
-
-bool Footage::CompareFootageToItsFilename(Footage *footage)
-{
-  return CompareFootageToFile(footage, footage->filename());
+  return tr("%1: Audio - %n Channel(s), %2Hz", nullptr, params.channel_count())
+    .arg(QString::number(params.stream_index()),
+         QString::number(params.sample_rate()));
 }
 
 void Footage::Hash(const QString& output, QCryptographicHash &hash, const rational &time) const
 {
   super::Hash(output, hash, time);
 
+  // Footage last modified date
+  hash.addData(QString::number(timestamp()).toUtf8());
+
   // Translate output ID to stream
   Track::Reference ref = Track::Reference::FromString(output);
 
-  QString fn = filename();
-
-  if (!fn.isEmpty()) {
+  if (ref.type() == Track::kVideo) {
     VideoParams params = GetVideoParams(ref.index());
 
     if (params.is_valid()) {
       // Add footage details to hash
-
-      // Footage filename
-      hash.addData(filename().toUtf8());
-
-      // Footage last modified date
-      hash.addData(QString::number(timestamp()).toUtf8());
+      QString fn = filename();
 
       // Footage stream
       hash.addData(QString::number(ref.index()).toUtf8());
 
-      if (ref.type() == Track::kVideo) {
+      if (!fn.isEmpty()) {
         // Current color config and space
         hash.addData(project()->color_manager()->GetConfigFilename().toUtf8());
         hash.addData(GetColorspaceToUse(params).toUtf8());
@@ -373,10 +336,11 @@ void Footage::Hash(const QString& output, QCryptographicHash &hash, const ration
           int64_t video_ts = Timecode::time_to_timestamp(time, params.time_base());
 
           // Add timestamp in units of the video stream's timebase
-          hash.addData(reinterpret_cast<const char*>(&video_ts), sizeof(int64_t));
+          hash.addData(reinterpret_cast<const char*>(&video_ts), sizeof(video_ts));
 
           // Add start time - used for both image sequences and video streams
-          hash.addData(QString::number(params.start_time()).toUtf8());
+          auto start_time = params.start_time();
+          hash.addData(reinterpret_cast<const char*>(&start_time), sizeof(start_time));
         }
       }
     }
@@ -490,58 +454,6 @@ void Footage::UpdateTooltip()
   }
 }
 
-/*void Footage::AddStreamAsInput(Track::Type type, int index, QVariant value)
-{
-  QString input_id = GetInputIDOfIndex(type, index);
-
-  Track::Reference ref(type, index);
-
-  // Create input for parameters
-  NodeValue::Type value_type;
-  uint64_t param_mask = 0;
-
-  if (type == Track::kVideo) {
-    VideoParams vp = value.value<VideoParams>();
-    value_type = NodeValue::kVideoParams;
-
-    // Universal parameters for video/image footage
-    param_mask |= VideoParamEdit::kEnabled;
-    param_mask |= VideoParamEdit::kColorspace;
-    param_mask |= VideoParamEdit::kPixelAspect;
-    param_mask |= VideoParamEdit::kInterlacing;
-
-    if (vp.channel_count() == VideoParams::kRGBAChannelCount) {
-      // If this has an alpha channel, add a premultiplied optino
-      param_mask |= VideoParamEdit::kPremultipliedAlpha;
-    }
-
-    if (vp.video_type() != VideoParams::kVideoTypeVideo) {
-      // This is either a still image or an image sequence, add properties for those
-      param_mask |= VideoParamEdit::kIsImageSequence;
-      param_mask |= VideoParamEdit::kStartTime;
-      param_mask |= VideoParamEdit::kEndTime;
-      param_mask |= VideoParamEdit::kFrameRate;
-    } else {
-      // Ensure timebase isn't overwritten by the frame rate field
-      param_mask |= VideoParamEdit::kFrameRateIsNotTimebase;
-    }
-  } else {
-    value_type = NodeValue::kAudioParams;
-    param_mask = 0;
-  }
-
-  AddInput(input_id, value_type,
-           InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
-  SetStandardValue(input_id, value);
-  SetInputProperty(input_id, QStringLiteral("mask"), QVariant::fromValue(param_mask));
-  inputs_for_stream_properties_.insert(ref, input_id);
-
-  // Create output for stream
-  QString output_id = Track::Reference(type, index).ToString();
-  AddOutput(output_id);
-  outputs_for_streams_.insert(ref, output_id);
-}*/
-
 void Footage::CheckFootage()
 {
   QString fn = filename();
@@ -558,22 +470,5 @@ void Footage::CheckFootage()
     }
   }
 }
-
-/*QString Track::Reference::video_colorspace(bool default_if_empty) const
-{
-  if (IsValid()) {
-    VideoParams params = footage_->GetVideoParams(index_);
-
-    if (params.is_valid()) {
-      if (params.colorspace().isEmpty() && default_if_empty) {
-
-      } else {
-        return params.colorspace();
-      }
-    }
-  }
-
-  return QString();
-}*/
 
 }

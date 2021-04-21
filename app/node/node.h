@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -756,6 +756,16 @@ public:
     folder_ = folder;
   }
 
+  bool GetCacheTextures() const
+  {
+    return cache_result_;
+  }
+
+  void SetCacheTextures(bool e)
+  {
+    cache_result_ = e;
+  }
+
   static const QString kDefaultOutput;
 
 protected:
@@ -789,7 +799,23 @@ protected:
 
   };
 
-  void AddInput(const QString& id, NodeValue::Type type, const QVariant& default_value, InputFlags flags = InputFlags(kInputFlagNormal));
+  void InsertInput(const QString& id, NodeValue::Type type, const QVariant& default_value, InputFlags flags, int index);
+
+  void PrependInput(const QString& id, NodeValue::Type type, const QVariant& default_value, InputFlags flags = InputFlags(kInputFlagNormal))
+  {
+    InsertInput(id, type, default_value, flags, 0);
+  }
+
+  void PrependInput(const QString& id, NodeValue::Type type, InputFlags flags = InputFlags(kInputFlagNormal))
+  {
+    PrependInput(id, type, QVariant(), flags);
+  }
+
+  void AddInput(const QString& id, NodeValue::Type type, const QVariant& default_value, InputFlags flags = InputFlags(kInputFlagNormal))
+  {
+    InsertInput(id, type, default_value, flags, input_ids_.size());
+  }
+
   void AddInput(const QString& id, NodeValue::Type type, InputFlags flags = InputFlags(kInputFlagNormal))
   {
     AddInput(id, type, QVariant(), flags);
@@ -915,6 +941,10 @@ signals:
   void InputNameChanged(const QString& id, const QString& name);
 
   void InputDataTypeChanged(const QString& id, NodeValue::Type type);
+
+  void AddedToGraph(NodeGraph* graph);
+
+  void RemovedFromGraph(NodeGraph* graph);
 
 private:
   class ArrayInsertCommand : public UndoCommand
@@ -1190,6 +1220,8 @@ private:
   Folder* folder_;
 
   int operation_stack_;
+
+  bool cache_result_;
 
 private slots:
   /**

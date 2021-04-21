@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,7 +21,6 @@
 #ifndef SUMSAMPLES_H
 #define SUMSAMPLES_H
 
-#include <QFloat16>
 #include <QPainter>
 #include <QVector>
 
@@ -37,11 +36,11 @@ namespace olive {
  */
 class AudioVisualWaveform {
 public:
-  AudioVisualWaveform() = default;
+  AudioVisualWaveform();
 
   struct SamplePerChannel {
-    qfloat16 min;
-    qfloat16 max;
+    float min;
+    float max;
   };
 
   using Sample = QVector<SamplePerChannel>;
@@ -56,19 +55,12 @@ public:
     channels_ = channels;
   }
 
-  int nb_samples() const
-  {
-    return data_.size();
-  }
-
-  const SamplePerChannel* const_data() const
-  {
-    return data_.constData();
-  }
-
-  void AddSum(const float* samples, int nb_samples, int nb_channels);
-
-  void OverwriteSamples(SampleBufferPtr samples, int sample_rate, const rational& start = rational());
+  /**
+   * @brief Writes samples into the visual waveform buffer
+   *
+   * Starting at `start`, writes samples over anything in the buffer, expanding it if necessary.
+   */
+  void OverwriteSamples(SampleBufferPtr samples, int sample_rate, const rational& start = 0);
 
   /**
    * @brief Replaces sums at a certain range in this visual waveform
@@ -89,42 +81,36 @@ public:
    *
    * Maximum length of `sums` to overwrite with.
    */
-  void OverwriteSums(const AudioVisualWaveform& sums, const rational& dest, const rational& offset = rational(), const rational &length = rational());
+  void OverwriteSums(const AudioVisualWaveform& sums, const rational& dest, const rational& offset = 0, const rational &length = 0);
 
-  AudioVisualWaveform Mid(const rational& time) const;
-  void Append(const AudioVisualWaveform& waveform);
-  void TrimIn(const rational& time);
-  void TrimOut(const rational& time);
-  void PrependSilence(const rational& time);
-  void AppendSilence(const rational& time);
   void Shift(const rational& from, const rational& to);
 
-  // FIXME: Move to dynamic
-  static const int kSumSampleRate;
+  Sample GetSummaryFromTime(const rational& start, const rational& length) const;
 
-  static QVector<SamplePerChannel> SumSamples(const float* samples, int nb_samples, int nb_channels);
-  static QVector<SamplePerChannel> SumSamples(const qfloat16* samples, int nb_samples, int nb_channels);
-  static QVector<SamplePerChannel> SumSamples(SampleBufferPtr samples, int start_index, int length);
+  static Sample SumSamples(const float* samples, int nb_samples, int nb_channels);
+  static Sample SumSamples(SampleBufferPtr samples, int start_index, int length);
 
-  static QVector<SamplePerChannel> ReSumSamples(const SamplePerChannel *samples, int nb_samples, int nb_channels);
+  static Sample ReSumSamples(const SamplePerChannel *samples, int nb_samples, int nb_channels);
 
-  static void DrawSample(QPainter* painter, const QVector<SamplePerChannel> &sample, int x, int y, int height);
+  static void DrawSample(QPainter* painter, const Sample &sample, int x, int y, int height, bool rectified);
 
   static void DrawWaveform(QPainter* painter, const QRect &rect, const double &scale, const AudioVisualWaveform& samples, const rational &start_time);
 
 private:
-  template <typename T>
-  static QVector<SamplePerChannel> SumSamplesInternal(const T* samples, int nb_samples, int nb_channels);
+  static void ExpandMinMax(SamplePerChannel &sum, float value);
 
-  template <typename T>
-  static void ExpandMinMax(SamplePerChannel &sum, T value);
+  void OverwriteSamplesFromBuffer(SampleBufferPtr samples, int sample_rate, const rational& start, double target_rate, Sample &data, int &start_index, int &samples_length);
 
-  int time_to_samples(const rational& time) const;
-  int time_to_samples(const double& time) const;
+  void OverwriteSamplesFromMipmap(const Sample& input, double input_sample_rate, int &input_start, int &input_length, const rational& start, double output_rate, Sample &output_data);
 
-  int channels_ = 0;
+  int time_to_samples(const rational& time, double sample_rate) const;
+  int time_to_samples(const double& time, double sample_rate) const;
 
-  QVector<SamplePerChannel> data_;
+  std::map<rational, Sample>::const_iterator GetMipmapForScale(double scale) const;
+
+  int channels_;
+
+  std::map<rational, Sample> mipmapped_data_;
 
 };
 

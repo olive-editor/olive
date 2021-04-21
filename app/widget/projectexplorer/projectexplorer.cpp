@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -95,8 +95,6 @@ ProjectExplorer::ProjectExplorer(QWidget *parent) :
   connect(tree_view_, &ProjectExplorerTreeView::customContextMenuRequested, this, &ProjectExplorer::ShowContextMenu);
   connect(list_view_, &ProjectExplorerListView::customContextMenuRequested, this, &ProjectExplorer::ShowContextMenu);
   connect(icon_view_, &ProjectExplorerIconView::customContextMenuRequested, this, &ProjectExplorer::ShowContextMenu);
-
-  connect(&model_, &ProjectViewModel::ItemRemoved, this, &ProjectExplorer::ItemRemoved);
 }
 
 const ProjectToolbar::ViewType &ProjectExplorer::view_type() const
@@ -490,15 +488,19 @@ void ProjectExplorer::ContextMenuStartProxy(QAction *a)
   Sequence* sequence = Node::ValueToPtr<Sequence>(a->data());
 
   // To get here, the `context_menu_items_` must be all kFootage
-  foreach (Node* i, context_menu_items_) {
-    Footage* f = static_cast<Footage*>(i);
+  foreach (Node* item, context_menu_items_) {
+    Footage* f = static_cast<Footage*>(item);
 
-    QVector<VideoParams> enabled_streams = f->GetEnabledVideoStreams();
+    int sz = f->InputArraySize(Footage::kVideoParamsInput);
 
-    foreach (const VideoParams& stream, enabled_streams) {
-      // Start a background task for proxying
-      PreCacheTask* proxy_task = new PreCacheTask(f, stream.stream_index(), sequence);
-      TaskManager::instance()->AddTask(proxy_task);
+    for (int j=0; j<sz; j++) {
+      VideoParams vp = f->GetVideoParams(j);
+
+      if (vp.enabled()) {
+        // Start a background task for proxying
+        PreCacheTask* proxy_task = new PreCacheTask(f, j, sequence);
+        TaskManager::instance()->AddTask(proxy_task);
+      }
     }
   }
 }

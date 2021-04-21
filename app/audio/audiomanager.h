@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@
 #include <QtConcurrent/QtConcurrent>
 #include <QThread>
 
+#include "audiovisualwaveform.h"
 #include "common/define.h"
 #include "outputmanager.h"
 #include "render/audioparams.h"
@@ -44,6 +45,13 @@ class AudioManager : public QObject
 {
   Q_OBJECT
 public:
+  enum Backend {
+    kAudioBackendQt,
+    kAudioBackendCount
+  };
+
+  static QString GetAudioBackendName(Backend b);
+
   static void CreateInstance();
   static void DestroyInstance();
 
@@ -86,6 +94,8 @@ signals:
   void OutputNotified();
 
   void OutputDeviceStarted(AudioPlaybackCache* cache, qint64 offset, int playback_speed);
+
+  void OutputWaveformStarted(const AudioVisualWaveform* waveform, const rational &start, int playback_speed);
 
   void AudioParamsChanged(const AudioParams& params);
 

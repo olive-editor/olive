@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -40,6 +40,9 @@ const QString Track::kMutedInput = QStringLiteral("muted_in");
 
 Track::Track() :
   track_type_(Track::kNone),
+  track_length_(0),
+  midop_track_length_(0),
+  preop_track_length_(0),
   index_(-1),
   locked_(false)
 {
@@ -276,7 +279,7 @@ void Track::InputDisconnectedEvent(const QString &input, int element, const Node
     if (next) {
       UpdateInOutFrom(blocks_.indexOf(next));
     } else if (blocks_.isEmpty()) {
-      SetLengthInternal(rational());
+      SetLengthInternal(0);
     } else {
       SetLengthInternal(blocks_.last()->out());
     }
@@ -574,11 +577,13 @@ bool Track::IsLocked() const
 
 void Track::Hash(const QString &output, QCryptographicHash &hash, const rational &time) const
 {
+  Q_UNUSED(output)
+
   Block* b = BlockAtTime(time);
 
   // Defer to block at this time, don't add any of our own information to the hash
   if (b) {
-    b->Hash(output, hash, TransformTimeForBlock(b, time));
+    b->Hash(kDefaultOutput, hash, TransformTimeForBlock(b, time));
   }
 }
 
@@ -669,6 +674,17 @@ void Track::BlockLengthChanged()
   rational new_out = b->out();
 
   TimeRange invalidate_region(qMin(old_out, new_out), track_length());
+
+  // The cache won't start while dragging, so we store up our invalidations if it's held down
+  // and release them once the mouse is no longer pressed
+  if (qApp->mouseButtons() & Qt::LeftButton) {
+    block_length_pending_invalidations_.insert(invalidate_region);
+  } else if (!block_length_pending_invalidations_.isEmpty()) {
+    foreach (const TimeRange& r, block_length_pending_invalidations_) {
+      Node::InvalidateCache(r, kBlockInput);
+    }
+    block_length_pending_invalidations_.clear();
+  }
 
   Node::InvalidateCache(invalidate_region, kBlockInput);
 }

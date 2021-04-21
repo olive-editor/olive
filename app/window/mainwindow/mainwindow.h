@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -71,6 +71,8 @@ public:
 
   ScopePanel* AppendScopePanel();
 
+  void OpenNodeInViewer(ViewerOutput* node);
+
   enum ProgressStatus {
     kProgressNone,
     kProgressShow,
@@ -132,6 +134,12 @@ private:
 
   void TimelineFocused(ViewerOutput *viewer);
 
+  static QString GetCustomShortcutsFile();
+
+  void LoadCustomShortcuts();
+
+  void SaveCustomShortcuts();
+
   QByteArray premaximized_state_;
 
   // Standard panels
@@ -149,6 +157,7 @@ private:
   PixelSamplerPanel* pixel_sampler_panel_;
   QList<ScopePanel*> scope_panels_;
   NodeTablePanel* table_panel_;
+  QMap<ViewerOutput*, ViewerPanel*> viewer_panels_;
 
 #ifdef Q_OS_WINDOWS
   unsigned int taskbar_btn_id_;
@@ -166,6 +175,10 @@ private slots:
   void TimelineCloseRequested();
 
   void ProjectCloseRequested();
+
+  void ViewerCloseRequested();
+
+  void ViewerWithPanelRemovedFromGraph();
 
   void FloatingPanelCloseRequested();
 

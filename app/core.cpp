@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -396,9 +396,6 @@ void Core::CreateNewSequence()
   // Create new sequence
   Sequence* new_sequence = CreateNewSequenceForProject(active_project);
 
-  // Set all defaults for the sequence
-  new_sequence->set_default_parameters();
-
   SequenceDialog sd(new_sequence, SequenceDialog::kNew, main_window_);
 
   // Make sure SequenceDialog doesn't make an undo command for editing the sequence, since we make an undo command for
@@ -741,14 +738,22 @@ void Core::SaveProjectInternal(Project* project, const QString& override_filenam
     }
   }
 
-  TaskDialog* task_dialog = new TaskDialog(psm, tr("Save Project"), main_window_);
-
-  if (override_filename.isEmpty()) {
-    // Default behavior: set as not modified and push to top of "Open Recent" dialog
-    connect(task_dialog, &TaskDialog::TaskSucceeded, this, &Core::ProjectSaveSucceeded);
+  // We don't use a TaskDialog here because a model save dialog is annoying, particularly when
+  // saving auto-recoveries that the user can't anticipate. Doing this in the main thread will
+  // cause a brief (but often unnoticeable) pause in the GUI, which, while not ideal, is not that
+  // different from what already happened (modal dialog preventing use of the GUI) and in many ways
+  // less annoying (doesn't disrupt any current actions or pull focus from elsewhere).
+  //
+  // Ideally we could do this in a background thread and show progress in the status bar like
+  // Microsoft Word, but that would be far more complex. If it becomes necessary in the future,
+  // we will look into an approach like that.
+  if (psm->Start()) {
+    if (override_filename.isEmpty()) {
+      ProjectSaveSucceeded(psm);
+    }
   }
 
-  task_dialog->open();
+  psm->deleteLater();
 }
 
 ViewerOutput* Core::GetSequenceToExport()
@@ -1081,6 +1086,11 @@ void Core::ShowStatusBarMessage(const QString &s)
 void Core::OpenRecoveryProject(const QString &filename)
 {
   OpenProjectInternal(filename, true);
+}
+
+void Core::OpenNodeInViewer(ViewerOutput *viewer)
+{
+  main_window_->OpenNodeInViewer(viewer);
 }
 
 void Core::CheckForAutoRecoveries()
@@ -1496,8 +1506,8 @@ bool Core::ValidateFootageInLoadedProject(Project* project, const QString& proje
       }
     }
 
-    // Heuristically compare footage to file
-    if (Footage::CompareFootageToItsFilename(footage)) {
+    if (QFileInfo::exists(footage->filename())) {
+      // Assume valid
       footage->SetValid();
     } else {
       footage_we_couldnt_validate.append(footage);

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -71,7 +71,11 @@ public:
   void SetVideoParams(const VideoParams &params);
   void SetTime(const rational& time);
 
-  FramePtr last_loaded_buffer() const;
+  void SetShowWidgetBackground(bool e)
+  {
+    show_widget_background_ = e;
+    update();
+  }
 
   /**
    * @brief Transform a point from viewer space to the buffer space.
@@ -287,6 +291,8 @@ private:
 
   QVector<double> frame_rate_averages_;
   int frame_rate_average_count_;
+
+  bool show_widget_background_;
 
 private slots:
   void EmitColorAtCursor(QMouseEvent* e);

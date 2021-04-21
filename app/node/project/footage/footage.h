@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -58,7 +58,7 @@ public:
 
   virtual QString Name() const override
   {
-    return tr("Footage");
+    return tr("Media");
   }
 
   virtual QString id() const override
@@ -170,9 +170,6 @@ public:
   static QString DescribeVideoStream(const VideoParams& params);
   static QString DescribeAudioStream(const AudioParams& params);
 
-  static bool CompareFootageToFile(Footage* footage, const QString& filename);
-  static bool CompareFootageToItsFilename(Footage* footage);
-
   virtual void Hash(const QString& output, QCryptographicHash &hash, const rational &time) const override;
 
   virtual NodeValueTable Value(const QString &output, NodeValueDatabase& value) const override;
@@ -198,7 +195,7 @@ protected:
 
   virtual void InputValueChangedEvent(const QString &input, int element) override;
 
-  virtual rational GetCustomLength(Track::Type type) const override;
+  virtual rational VerifyLengthInternal(Track::Type type) const override;
 
 private:
   QString GetColorspaceToUse(const VideoParams& params) const;

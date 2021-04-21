@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -71,7 +71,7 @@ void RazorTool::MouseRelease(TimelineViewMouseEvent *event)
     // Ensure there's a valid block here
     if (block_at_time
         && block_at_time->out() != split_time
-        && block_at_time->type() == Block::kClip
+        && dynamic_cast<ClipBlock*>(block_at_time)
         && !blocks_to_split.contains(block_at_time)) {
       blocks_to_split.append(block_at_time);
 

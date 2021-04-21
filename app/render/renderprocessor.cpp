@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -148,11 +148,11 @@ void RenderProcessor::Run()
   }
   case RenderManager::kTypeVideoDownload:
   {
-    FrameHashCache* cache = Node::ValueToPtr<FrameHashCache>(ticket_->property("cache"));
+    QString cache = ticket_->property("cache").toString();
     FramePtr frame = ticket_->property("frame").value<FramePtr>();
     QByteArray hash = ticket_->property("hash").toByteArray();
 
-    ticket_->Finish(cache->SaveCacheFrame(hash, frame), false);
+    ticket_->Finish(FrameHashCache::SaveCacheFrame(cache, hash, frame), false);
     break;
   }
   default:
@@ -226,19 +226,18 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const Track *track, const Tim
         continue;
       }
 
-      // FIXME: Doesn't handle reversing
-      if (b->IsInputKeyframing(Block::kSpeedInput) || b->IsInputConnected(Block::kSpeedInput)) {
-        // FIXME: We'll need to calculate the speed hoo boy
-      } else {
-        double speed_value = b->GetStandardValue(Block::kSpeedInput).toDouble();
+      double speed_value = b->GetStandardValue(Block::kSpeedInput).toDouble();
 
-        if (qIsNull(speed_value)) {
-          // Just silence, don't think there's any other practical application of 0 speed audio
-          samples_from_this_block->fill(0);
-        } else if (!qFuzzyCompare(speed_value, 1.0)) {
-          // Multiply time
-          samples_from_this_block->speed(speed_value);
-        }
+      if (qIsNull(speed_value)) {
+        // Just silence, don't think there's any other practical application of 0 speed audio
+        samples_from_this_block->fill(0);
+      } else if (!qFuzzyCompare(speed_value, 1.0)) {
+        // Multiply time
+        samples_from_this_block->speed(speed_value);
+      }
+
+      if (b->GetStandardValue(Block::kReverseInput).toBool()) {
+        samples_from_this_block->reverse();
       }
 
       int copy_length = qMin(max_dest_sz, samples_from_this_block->sample_count());
@@ -274,6 +273,11 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const Track *track, const Tim
 
 QVariant RenderProcessor::ProcessVideoFootage(const FootageJob &stream, const rational &input_time)
 {
+  if (ticket_->property("type").value<RenderManager::TicketType>() != RenderManager::kTypeVideo) {
+    // Video cannot contribute to audio, so we do nothing here
+    return QVariant();
+  }
+
   TexturePtr value = nullptr;
 
   // Check the still frame cache. On large frames such as high resolution still images, uploading
@@ -534,32 +538,64 @@ QVariant RenderProcessor::ProcessFrameGeneration(const Node *node, const Generat
   return QVariant::fromValue(texture);
 }
 
-QVariant RenderProcessor::GetCachedFrame(const Node *node, const rational &time)
+bool RenderProcessor::CanCacheFrames()
 {
-  if (!ticket_->property("cache").toString().isEmpty()
-      && node->id() == QStringLiteral("org.olivevideoeditor.Olive.videoinput")) {
-    const VideoParams& video_params = ticket_->property("vparam").value<VideoParams>();
+  return ticket_->property("type").value<RenderManager::TicketType>() == RenderManager::kTypeVideo;
+}
 
-    QByteArray hash = RenderManager::Hash(node, video_params, time);
+QVariant RenderProcessor::GetCachedTexture(const QByteArray& hash)
+{
+  QString cache_dir = ticket_->property("cache").toString();
+  if (cache_dir.isEmpty()) {
+    return QVariant();
+  }
 
-    FramePtr f = FrameHashCache::LoadCacheFrame(ticket_->property("cache").toString(), hash);
+  VideoParams video_params = GetCacheVideoParams();
 
-    if (f) {
-      // The cached frame won't load with the correct divider by default, so we enforce it here
-      VideoParams p = f->video_params();
+  FramePtr f = FrameHashCache::LoadCacheFrame(cache_dir, hash);
 
-      p.set_width(f->width() * video_params.divider());
-      p.set_height(f->height() * video_params.divider());
-      p.set_divider(video_params.divider());
+  if (f) {
+    // The cached frame won't load with the correct divider by default, so we enforce it here
+    VideoParams p = f->video_params();
 
-      f->set_video_params(p);
+    p.set_width(f->width() * video_params.divider());
+    p.set_height(f->height() * video_params.divider());
+    p.set_divider(video_params.divider());
 
-      TexturePtr texture = render_ctx_->CreateTexture(f->video_params(), f->data(), f->linesize_pixels());
-      return QVariant::fromValue(texture);
-    }
+    f->set_video_params(p);
+
+    TexturePtr texture = render_ctx_->CreateTexture(f->video_params(), f->data(), f->linesize_pixels());
+    qDebug() << "Loaded mid-render frame from cache";
+    return QVariant::fromValue(texture);
   }
 
   return QVariant();
+}
+
+void RenderProcessor::SaveCachedTexture(const QByteArray &hash, const QVariant &tex_var)
+{
+  // FIXME: Temporarily disabled because I don't know how to ensure that the frame saved here is
+  //        not the main frame. If it is, it'll be saved twice which will waste a lot of cycles.
+  //        At least disabled, the frame will still save, and if nothing else alters the hash, it
+  //        will pick up automatically from GetCachedTexture.
+  /*if (!tex_var.isNull()) {
+    QString cache_dir = ticket_->property("cache").toString();
+
+    if (!cache_dir.isEmpty()) {
+      TexturePtr texture = tex_var.value<TexturePtr>();
+      FramePtr frame = Frame::Create();
+      frame->set_video_params(texture->params());
+      frame->allocate();
+      render_ctx_->DownloadFromTexture(texture.get(), frame->data(), frame->linesize_pixels());
+      FrameHashCache::SaveCacheFrame(cache_dir, hash, frame);
+      qDebug() << "Saved mid-render frame to cache";
+    }
+  }*/
+}
+
+VideoParams RenderProcessor::GetCacheVideoParams()
+{
+  return ticket_->property("vparam").value<VideoParams>();
 }
 
 QVector2D RenderProcessor::GenerateResolution() const

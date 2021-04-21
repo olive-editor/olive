@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,28 +27,31 @@ namespace olive {
 PreCacheTask::PreCacheTask(Footage *footage, int index, Sequence* sequence) :
   RenderTask(new ViewerOutput(), sequence->GetVideoParams(), sequence->GetAudioParams())
 {
+  // Create new project
+  project_ = new Project();
+
+  // Create viewer with same parameters as the sequence
+  viewer()->setParent(project_);
   viewer()->SetVideoParams(sequence->GetVideoParams());
   viewer()->SetAudioParams(sequence->GetAudioParams());
 
-  // FIXME: I've been lazy and haven't included support for anything connected to a footage input.
-  //        At the moment, footage nodes have no connectable inputs so it's not a problem, but if
-  //        they ever do, that needs to be addressed immediately.
-  Q_ASSERT(footage->inputs().isEmpty());
+  // Copy project config nodes
+  Node::CopyInputs(footage->project()->color_manager(), project_->color_manager(), false);
+  Node::CopyInputs(footage->project()->settings(), project_->settings(), false);
 
   // Copy footage node so it can precache without any modifications from the user screwing it up
   footage_ = static_cast<Footage*>(footage->copy());
-  index_ = index;
+  footage_->setParent(project_);
   Node::CopyInputs(footage, footage_, false);
+  Node::ConnectEdge(NodeOutput(footage_, Track::Reference(Track::kVideo, index).ToString()), NodeInput(viewer(), ViewerOutput::kTextureInput));
 
-  Node::ConnectEdge(footage_, NodeInput(viewer(), ViewerOutput::kTextureInput));
-
-  SetTitle(tr("Pre-caching %1:%2").arg(footage_->filename()));
+  SetTitle(tr("Pre-caching %1:%2").arg(footage_->filename(), index));
 }
 
 PreCacheTask::~PreCacheTask()
 {
-  // We created this viewer node ourselves, so now we should delete it
-  delete viewer();
+  // This should delete the footage we copied and the viewer we created
+  delete project_;
 }
 
 bool PreCacheTask::Run()

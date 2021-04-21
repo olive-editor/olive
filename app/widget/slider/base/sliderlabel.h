@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -18,36 +18,41 @@
 
 ***/
 
-#include "crashhandler.h"
+#ifndef SLIDERLABEL_H
+#define SLIDERLABEL_H
 
-#include <QApplication>
+#include <QLabel>
 
-int main(int argc, char *argv[])
+#include "common/define.h"
+
+namespace olive {
+
+class SliderLabel : public QLabel
 {
-  QString report;
+  Q_OBJECT
+public:
+  SliderLabel(QWidget* parent);
 
-#ifdef Q_OS_WINDOWS
-  int num_args;
-  LPWSTR *args = CommandLineToArgvW(GetCommandLineW(), &num_args);
-  if (num_args < 2) {
-    LocalFree(args);
-    return 1;
-  }
+protected:
+  virtual void mousePressEvent(QMouseEvent *e) override;
 
-  report = QString::fromWCharArray(args[1]);
-  LocalFree(args);
-#else
-  if (argc < 2) {
-    return 1;
-  }
+  virtual void mouseReleaseEvent(QMouseEvent *e) override;
 
-  report = argv[1];
-#endif
+  virtual void focusInEvent(QFocusEvent *event) override;
 
-  QApplication a(argc, argv);
+signals:
+  void LabelPressed();
 
-  olive::CrashHandlerDialog chd(report);
-  chd.open();
+  void LabelReleased();
 
-  return a.exec();
+  void focused();
+
+  void RequestReset();
+
+  void ChangeSliderType();
+
+};
+
 }
+
+#endif // SLIDERLABEL_H

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -430,9 +430,6 @@ void ProjectViewModel::ConnectItem(Node *n)
     connect(f, &Folder::BeginRemoveItem, this, &ProjectViewModel::FolderBeginRemoveItem);
     connect(f, &Folder::EndRemoveItem, this, &ProjectViewModel::FolderEndRemoveItem);
 
-    connect(f, &Folder::BeginInsertItem, this, &ProjectViewModel::ItemAdded);
-    connect(f, &Folder::BeginRemoveItem, this, &ProjectViewModel::ItemRemoved);
-
     foreach (Node* c, f->children()) {
       ConnectItem(c);
     }
@@ -450,11 +447,8 @@ void ProjectViewModel::DisconnectItem(Node *n)
     disconnect(f, &Folder::BeginRemoveItem, this, &ProjectViewModel::FolderBeginRemoveItem);
     disconnect(f, &Folder::EndRemoveItem, this, &ProjectViewModel::FolderEndRemoveItem);
 
-    disconnect(f, &Folder::BeginInsertItem, this, &ProjectViewModel::ItemAdded);
-    disconnect(f, &Folder::BeginRemoveItem, this, &ProjectViewModel::ItemRemoved);
-
     foreach (Node* c, f->children()) {
-      ConnectItem(c);
+      DisconnectItem(c);
     }
   }
 }

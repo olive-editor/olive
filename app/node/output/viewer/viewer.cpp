@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -37,8 +37,13 @@ const uint64_t ViewerOutput::kVideoParamEditMask = VideoParamEdit::kWidthHeight 
 #define super Node
 
 ViewerOutput::ViewerOutput(bool create_default_streams) :
+  last_length_(0),
+  video_length_(0),
+  audio_length_(0),
   video_frame_cache_(this),
-  audio_playback_cache_(this)
+  audio_playback_cache_(this),
+  video_cache_enabled_(true),
+  audio_cache_enabled_(true)
 {
   AddInput(kVideoParamsInput, NodeValue::kVideoParams, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable | kInputFlagArray));
   SetInputProperty(kVideoParamsInput, QStringLiteral("mask"), QVariant::fromValue(kVideoParamEditMask));
@@ -53,6 +58,7 @@ ViewerOutput::ViewerOutput(bool create_default_streams) :
   if (create_default_streams) {
     AddStream(Track::kVideo, QVariant());
     AddStream(Track::kAudio, QVariant());
+    set_default_parameters();
   }
 }
 
@@ -195,14 +201,18 @@ void ViewerOutput::set_default_parameters()
 
 void ViewerOutput::ShiftVideoCache(const rational &from, const rational &to)
 {
-  video_frame_cache_.Shift(from, to);
+  if (video_cache_enabled_) {
+    video_frame_cache_.Shift(from, to);
+  }
 
   ShiftVideoEvent(from, to);
 }
 
 void ViewerOutput::ShiftAudioCache(const rational &from, const rational &to)
 {
-  audio_playback_cache_.Shift(from, to);
+  if (audio_cache_enabled_) {
+    audio_playback_cache_.Shift(from, to);
+  }
 
   ShiftAudioEvent(from, to);
 }
@@ -217,9 +227,9 @@ void ViewerOutput::InvalidateCache(const TimeRange& range, const QString& from, 
 {
   Q_UNUSED(element)
 
-  if (from == kTextureInput || from == kSamplesInput
-      || from == kVideoParamsInput || from == kAudioParamsInput) {
-    TimeRange invalidated_range(qMax(rational(), range.in()),
+  if ((video_cache_enabled_ && (from == kTextureInput || from == kVideoParamsInput))
+      || (audio_cache_enabled_ && (from == kSamplesInput || from == kAudioParamsInput))) {
+    TimeRange invalidated_range(qMax(rational(0), range.in()),
                                 qMin(GetLength(), range.out()));
 
     if (invalidated_range.in() != invalidated_range.out()) {
@@ -248,11 +258,6 @@ QVector<QString> ViewerOutput::inputs_for_output(const QString &output) const
   }
 
   return inputs;
-}
-
-const rational& ViewerOutput::GetLength() const
-{
-  return last_length_;
 }
 
 QVector<Track::Reference> ViewerOutput::GetEnabledStreamsAsReferences() const
@@ -295,37 +300,19 @@ void ViewerOutput::Retranslate()
 
 void ViewerOutput::VerifyLength()
 {
-  NodeTraverser traverser;
-
-  rational video_length, audio_length, subtitle_length;
-
-  {
-    video_length = GetCustomLength(Track::kVideo);
-
-    if (video_length.isNull() && IsInputConnected(kTextureInput)) {
-      NodeValueTable t = traverser.GenerateTable(GetConnectedOutput(kTextureInput), TimeRange(0, 0));
-      video_length = t.Get(NodeValue::kRational, QStringLiteral("length")).value<rational>();
-    }
-
-    video_frame_cache_.SetLength(video_length);
+  video_length_ = VerifyLengthInternal(Track::kVideo);
+  if (video_cache_enabled_) {
+    video_frame_cache_.SetLength(video_length_);
   }
 
-  {
-    audio_length = GetCustomLength(Track::kAudio);
-
-    if (audio_length.isNull() && IsInputConnected(kSamplesInput)) {
-      NodeValueTable t = traverser.GenerateTable(GetConnectedOutput(kSamplesInput), TimeRange(0, 0));
-      audio_length = t.Get(NodeValue::kRational, QStringLiteral("length")).value<rational>();
-    }
-
-    audio_playback_cache_.SetLength(audio_length);
+  audio_length_ = VerifyLengthInternal(Track::kAudio);
+  if (audio_cache_enabled_) {
+    audio_playback_cache_.SetLength(audio_length_);
   }
 
-  {
-    subtitle_length = GetCustomLength(Track::kSubtitle);
-  }
+  rational subtitle_length = VerifyLengthInternal(Track::kSubtitle);
 
-  rational real_length = qMax(subtitle_length, qMax(video_length, audio_length));
+  rational real_length = qMax(subtitle_length, qMax(video_length_, audio_length_));
 
   if (real_length != last_length_) {
     last_length_ = real_length;
@@ -351,10 +338,36 @@ void ViewerOutput::InputDisconnectedEvent(const QString &input, int element, con
   super::InputDisconnectedEvent(input, element, output);
 }
 
-rational ViewerOutput::GetCustomLength(Track::Type type) const
+rational ViewerOutput::VerifyLengthInternal(Track::Type type) const
 {
-  Q_UNUSED(type)
-  return rational();
+  NodeTraverser traverser;
+
+  switch (type) {
+  case Track::kVideo:
+    if (IsInputConnected(kTextureInput)) {
+      NodeValueTable t = traverser.GenerateTable(GetConnectedOutput(kTextureInput), TimeRange(0, 0));
+      rational r = t.Get(NodeValue::kRational, QStringLiteral("length")).value<rational>();
+      if (!r.isNaN()) {
+        return r;
+      }
+    }
+    break;
+  case Track::kAudio:
+    if (IsInputConnected(kSamplesInput)) {
+      NodeValueTable t = traverser.GenerateTable(GetConnectedOutput(kSamplesInput), TimeRange(0, 0));
+      rational r = t.Get(NodeValue::kRational, QStringLiteral("length")).value<rational>();;
+      if (!r.isNaN()) {
+        return r;
+      }
+    }
+    break;
+  case Track::kNone:
+  case Track::kSubtitle:
+  case Track::kCount:
+    break;
+  }
+
+  return 0;
 }
 
 NodeOutput ViewerOutput::GetConnectedTextureOutput()
@@ -392,7 +405,9 @@ void ViewerOutput::InputValueChangedEvent(const QString &input, int element)
       }
 
       if (frame_rate_changed) {
-        video_frame_cache_.SetTimebase(new_video_params.frame_rate_as_time_base());
+        if (video_cache_enabled_) {
+          video_frame_cache_.SetTimebase(new_video_params.frame_rate_as_time_base());
+        }
         emit FrameRateChanged(new_video_params.frame_rate());
       }
 
@@ -412,7 +427,9 @@ void ViewerOutput::InputValueChangedEvent(const QString &input, int element)
 
       emit AudioParamsChanged();
 
-      audio_playback_cache_.SetParameters(GetAudioParams());
+      if (audio_cache_enabled_) {
+        audio_playback_cache_.SetParameters(GetAudioParams());
+      }
 
       cached_audio_params_ = new_audio_params;
 

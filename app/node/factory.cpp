@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -38,6 +38,7 @@
 #include "filter/mosaic/mosaicfilternode.h"
 #include "filter/stroke/stroke.h"
 #include "input/time/timeinput.h"
+#include "input/value/valuenode.h"
 #include "math/math/math.h"
 #include "math/merge/merge.h"
 #include "math/trigonometry/trigonometry.h"
@@ -46,6 +47,7 @@
 #include "project/folder/folder.h"
 #include "project/footage/footage.h"
 #include "project/sequence/sequence.h"
+#include "time/timeremap/timeremap.h"
 
 namespace olive {
 QList<Node*> NodeFactory::library_;
@@ -234,6 +236,10 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new Folder();
   case kProjectSequence:
     return new Sequence();
+  case kValueNode:
+    return new ValueNode();
+  case kTimeRemapNode:
+    return new TimeRemapNode();
 
   case kInternalNodeCount:
     break;

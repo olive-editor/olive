@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -63,7 +63,7 @@ public:
     return tr("A series of cuts that result in an edited video. Also called a timeline.");
   }
 
-  void add_default_nodes(MultiUndoCommand *command);
+  void add_default_nodes(MultiUndoCommand *command = nullptr);
 
   virtual QIcon icon() const override;
 
@@ -103,7 +103,7 @@ protected:
 
   virtual void InputDisconnectedEvent(const QString &input, int element, const NodeOutput &output) override;
 
-  virtual rational GetCustomLength(Track::Type type) const override;
+  virtual rational VerifyLengthInternal(Track::Type type) const override;
 
 signals:
   void TrackAdded(Track* track);

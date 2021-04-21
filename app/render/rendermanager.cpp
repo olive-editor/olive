@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -79,7 +79,7 @@ RenderManager::~RenderManager()
   }
 }
 
-QByteArray RenderManager::Hash(const Node *n, const VideoParams &params, const rational &time)
+QByteArray RenderManager::Hash(const Node *n, const QString& output, const VideoParams &params, const rational &time)
 {
   QCryptographicHash hasher(QCryptographicHash::Sha1);
 
@@ -93,7 +93,7 @@ QByteArray RenderManager::Hash(const Node *n, const VideoParams &params, const r
   hasher.addData(reinterpret_cast<const char*>(&format), sizeof(VideoParams::Format));
 
   if (n) {
-    n->Hash(Node::kDefaultOutput, hasher, time);
+    n->Hash(output, hasher, time);
   }
 
   return hasher.result();
@@ -189,7 +189,7 @@ RenderTicketPtr RenderManager::SaveFrameToCache(FrameHashCache *cache, FramePtr 
   // Create ticket
   RenderTicketPtr ticket = std::make_shared<RenderTicket>();
 
-  ticket->setProperty("cache", Node::PtrToValue(cache));
+  ticket->setProperty("cache", cache->GetCacheDirectory());
   ticket->setProperty("frame", QVariant::fromValue(frame));
   ticket->setProperty("hash", hash);
   ticket->setProperty("type", kTypeVideoDownload);

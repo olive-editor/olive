@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -75,7 +75,7 @@ void PointerTool::MousePress(TimelineViewMouseEvent *event)
     // the block is not a gap)
     if (drag_movement_mode_ == Timeline::kNone
         && movement_allowed_
-        && clicked_item_->type() != Block::kGap) {
+        && !dynamic_cast<GapBlock*>(clicked_item_)) {
       drag_movement_mode_ = Timeline::kMove;
     }
 
@@ -250,18 +250,14 @@ void PointerTool::InitiateDragInternal(Block *clicked_item,
 
   if (trim_mode == Timeline::kMove) {
 
-    // Each block type has different behavior, so we determine the type of the block that was
-    // clicked and filter out any others.
-    Block::Type clicked_block_type = clicked_item->type();
-
     // Gaps are not allowed to move, and since we only allow moving one block type at a time,
     // dragging a gap is a no-op
-    if (clicked_block_type == Block::kGap) {
+    if (dynamic_cast<GapBlock*>(clicked_item)) {
       return;
     }
 
     // Determine if this move is a slide, which is determined by either
-    bool clips_are_sliding = (slide_instead_of_moving || clicked_block_type == Block::kTransition);
+    bool clips_are_sliding = (slide_instead_of_moving || dynamic_cast<TransitionBlock*>(clicked_item));
 
     if (clips_are_sliding) {
       // This is a slide. What we do here is move clips within their own track, between the clips
@@ -325,7 +321,7 @@ void PointerTool::InitiateDragInternal(Block *clicked_item,
     } else {
       // Prepare for a standard pointer move
       foreach (Block* block, clips) {
-        if (block->type() == Block::kGap || block->type() == Block::kTransition) {
+        if (dynamic_cast<GapBlock*>(block) || dynamic_cast<TransitionBlock*>(block)) {
           // Gaps cannot move, and we handle transitions further down
           continue;
         }
@@ -378,7 +374,7 @@ void PointerTool::InitiateDragInternal(Block *clicked_item,
       // transition than a trim/roll
       bool treat_trim_as_slide = false;
 
-      if (block->type() == Block::kClip) {
+      if (dynamic_cast<ClipBlock*>(block)) {
         // See if this clip has a transition attached, and move it with the trim if so
         TransitionBlock* connected_transition;
 
@@ -416,9 +412,9 @@ void PointerTool::InitiateDragInternal(Block *clicked_item,
         }
 
         // See if we can roll the adjacent or if we'll need to create our own gap
-        if (block->type() != Block::kGap
-            && !allow_nongap_rolling && adjacent && adjacent->type() != Block::kGap
-            && !(block->type() == Block::kTransition
+        if (!dynamic_cast<GapBlock*>(block)
+            && !allow_nongap_rolling && adjacent && !dynamic_cast<GapBlock*>(adjacent)
+            && !(dynamic_cast<TransitionBlock*>(block)
                  && ((trim_mode == Timeline::kTrimIn && static_cast<TransitionBlock*>(block)->connected_out_block() == adjacent)
                      || (trim_mode == Timeline::kTrimOut && static_cast<TransitionBlock*>(block)->connected_in_block() == adjacent)))) {
           adjacent = nullptr;
@@ -445,7 +441,7 @@ void PointerTool::InitiateDragInternal(Block *clicked_item,
           if (treat_trim_as_slide) {
             // We're sliding a transition rather than a pure trim/roll
             SetGhostToSlideMode(adjacent_ghost);
-          } else if (block->type() == Block::kGap) {
+          } else if (dynamic_cast<GapBlock*>(block)) {
             ghost->SetData(TimelineViewGhostItem::kTrimShouldBeIgnored, true);
           } else {
             adjacent_ghost->SetData(TimelineViewGhostItem::kTrimShouldBeIgnored, true);

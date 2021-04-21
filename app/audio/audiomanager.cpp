@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,6 +27,18 @@
 namespace olive {
 
 AudioManager* AudioManager::instance_ = nullptr;
+
+QString AudioManager::GetAudioBackendName(AudioManager::Backend b)
+{
+  switch (b) {
+  case kAudioBackendQt:
+    return tr("Qt");
+  case kAudioBackendCount:
+    break;
+  }
+
+  return tr("Unknown");
+}
 
 void AudioManager::CreateInstance()
 {

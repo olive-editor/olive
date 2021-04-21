@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -231,6 +231,12 @@ int64_t Timecode::timecode_to_timestamp(const QString &timecode, const rational 
 err_fatal:
   if (ok) *ok = false;
   return 0;
+}
+
+rational Timecode::timecode_to_time(const QString &timecode, const rational &timebase, const Timecode::Display &display, bool *ok)
+{
+  int64_t timestamp = timecode_to_timestamp(timecode, timebase, display, ok);
+  return timestamp_to_time(timestamp, timebase);
 }
 
 rational Timecode::snap_time_to_timebase(const rational &time, const rational &timebase)

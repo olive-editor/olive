@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -214,6 +214,10 @@ void NodeParamView::TimebaseChangedEvent(const rational &timebase)
 
   keyframe_view_->SetTimebase(timebase);
 
+  foreach (NodeParamViewItem* item, items_) {
+      item->SetTimebase(timebase);
+  }
+
   UpdateItemTime(GetTimestamp());
 }
 
@@ -257,7 +261,7 @@ void NodeParamView::UpdateItemTime(const int64_t &timestamp)
 
 void NodeParamView::QueueKeyframePositionUpdate()
 {
-  QMetaObject::invokeMethod(this, "UpdateElementY", Qt::QueuedConnection);
+  QMetaObject::invokeMethod(this, &NodeParamView::UpdateElementY, Qt::QueuedConnection);
 }
 
 void NodeParamView::SignalNodeOrder()
@@ -305,11 +309,15 @@ void NodeParamView::AddNode(Node *n)
   connect(item, &NodeParamViewItem::dockLocationChanged, this, &NodeParamView::QueueKeyframePositionUpdate);
   connect(item, &NodeParamViewItem::dockLocationChanged, this, &NodeParamView::SignalNodeOrder);
   connect(item, &NodeParamViewItem::PinToggled, this, &NodeParamView::PinNode);
-  connect(item, &NodeParamViewItem::ExpandedChanged, this, &NodeParamView::UpdateElementY);
-  connect(item, &NodeParamViewItem::ArrayExpandedChanged, this, &NodeParamView::UpdateElementY);
+  connect(item, &NodeParamViewItem::ArrayExpandedChanged, this, &NodeParamView::QueueKeyframePositionUpdate);
+  connect(item, &NodeParamViewItem::ExpandedChanged, this, &NodeParamView::QueueKeyframePositionUpdate);
+  connect(item, &NodeParamViewItem::Moved, this, &NodeParamView::QueueKeyframePositionUpdate);
 
   // Set time target
   item->SetTimeTarget(GetTimeTarget());
+
+  // Set the timebase
+  item->SetTimebase(timebase());
 
   items_.insert(n, item);
   param_widget_area_->addDockWidget(Qt::LeftDockWidgetArea, item);

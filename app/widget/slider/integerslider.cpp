@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,22 +22,22 @@
 
 namespace olive {
 
+#define super NumericSliderBase
+
 IntegerSlider::IntegerSlider(QWidget* parent) :
-  SliderBase(kInteger, parent)
+  super(parent)
 {
   SetValue(0);
-
-  connect(this, SIGNAL(ValueChanged(QVariant)), this, SLOT(ConvertValue(QVariant)));
 }
 
 int64_t IntegerSlider::GetValue()
 {
-  return Value().toLongLong();
+  return GetValueInternal().toLongLong();
 }
 
 void IntegerSlider::SetValue(const int64_t &v)
 {
-  SliderBase::SetValue(QVariant::fromValue(v));
+  SetValueInternal(QVariant::fromValue(v));
 }
 
 void IntegerSlider::SetMinimum(const int64_t &d)
@@ -50,12 +50,17 @@ void IntegerSlider::SetMaximum(const int64_t &d)
   SetMaximumInternal(QVariant::fromValue(d));
 }
 
-QString IntegerSlider::ValueToString(const QVariant &v)
+void IntegerSlider::SetDefaultValue(const int64_t &d)
+{
+  super::SetDefaultValue(QVariant::fromValue(d));
+}
+
+QString IntegerSlider::ValueToString(const QVariant &v) const
 {
   return QString::number(v.toLongLong() + GetOffset().toLongLong());
 }
 
-QVariant IntegerSlider::StringToValue(const QString &s, bool *ok)
+QVariant IntegerSlider::StringToValue(const QString &s, bool *ok) const
 {
   bool valid;
 
@@ -76,9 +81,14 @@ QVariant IntegerSlider::StringToValue(const QString &s, bool *ok)
   return QVariant();
 }
 
-void IntegerSlider::ConvertValue(QVariant v)
+void IntegerSlider::ValueSignalEvent(const QVariant &value)
 {
-  emit ValueChanged(v.toInt());
+  emit ValueChanged(value.toInt());
+}
+
+QVariant IntegerSlider::AdjustDragDistanceInternal(const QVariant &start, const double &drag) const
+{
+  return qRound64(super::AdjustDragDistanceInternal(start, drag).toDouble());
 }
 
 }

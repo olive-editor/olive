@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -50,8 +50,10 @@
 
 namespace olive {
 
+#define super TimeBasedWidget
+
 TimelineWidget::TimelineWidget(QWidget *parent) :
-  TimeBasedWidget(true, true, parent),
+  super(true, true, parent),
   rubberband_(QRubberBand::Rectangle, this),
   active_tool_(nullptr),
   use_audio_time_units_(false)
@@ -110,8 +112,6 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   connect(scrollbar(), &QScrollBar::valueChanged, ruler(), &TimeRuler::SetScroll);
   connect(views_.first()->view()->horizontalScrollBar(), &QScrollBar::rangeChanged, scrollbar(), &QScrollBar::setRange);
   vert_layout->addWidget(scrollbar());
-
-  connect(ruler(), &TimeRuler::TimeChanged, this, &TimelineWidget::SetViewTimestamp);
 
   foreach (TimelineAndTrackView* tview, views_) {
     TimelineView* view = tview->view();
@@ -187,7 +187,7 @@ void TimelineWidget::Clear()
 
 void TimelineWidget::TimebaseChangedEvent(const rational &timebase)
 {
-  TimeBasedWidget::TimebaseChangedEvent(timebase);
+  super::TimebaseChangedEvent(timebase);
 
   timecode_label_->SetTimebase(timebase);
 
@@ -198,7 +198,7 @@ void TimelineWidget::TimebaseChangedEvent(const rational &timebase)
 
 void TimelineWidget::resizeEvent(QResizeEvent *event)
 {
-  TimeBasedWidget::resizeEvent(event);
+  super::resizeEvent(event);
 
   // Update timecode label size
   UpdateTimecodeWidthFromSplitters(views_.first()->splitter());
@@ -206,6 +206,8 @@ void TimelineWidget::resizeEvent(QResizeEvent *event)
 
 void TimelineWidget::TimeChangedEvent(const int64_t& timestamp)
 {
+  super::TimeChangedEvent(timestamp);
+
   SetViewTimestamp(timestamp);
 
   timecode_label_->SetValue(timestamp);
@@ -213,7 +215,7 @@ void TimelineWidget::TimeChangedEvent(const int64_t& timestamp)
 
 void TimelineWidget::ScaleChangedEvent(const double &scale)
 {
-  TimeBasedWidget::ScaleChangedEvent(scale);
+  super::ScaleChangedEvent(scale);
 
   foreach (TimelineAndTrackView* view, views_) {
     view->view()->SetScale(scale);
@@ -394,7 +396,7 @@ void TimelineWidget::SplitAtPlayhead()
   foreach (Track* track, sequence()->GetTracks()) {
     Block* b = track->BlockContainingTime(playhead_time);
 
-    if (b && b->type() == Block::kClip) {
+    if (dynamic_cast<ClipBlock*>(b)) {
       bool selected = false;
 
       // See if this block is selected
@@ -432,7 +434,7 @@ void TimelineWidget::ReplaceBlocksWithGaps(const QVector<Block *> &blocks,
                                            MultiUndoCommand *command)
 {
   foreach (Block* b, blocks) {
-    if (b->type() == Block::kGap) {
+    if (dynamic_cast<GapBlock*>(b)) {
       // No point in replacing a gap with a gap, and TrackReplaceBlockWithGapCommand will clear
       // up any extraneous gaps
       continue;
@@ -468,9 +470,9 @@ void TimelineWidget::DeleteSelected(bool ripple)
   QVector<TransitionBlock*> transitions_to_delete;
 
   foreach (Block* b, blocks_to_delete) {
-    if (b->type() == Block::kClip) {
+    if (dynamic_cast<ClipBlock*>(b)) {
       clips_to_delete.append(b);
-    } else if (b->type() == Block::kTransition) {
+    } else if (dynamic_cast<TransitionBlock*>(b)) {
       transitions_to_delete.append(static_cast<TransitionBlock*>(b));
     }
   }
@@ -546,7 +548,7 @@ void TimelineWidget::ToggleLinksOnSelected()
 
   foreach (Block* item, GetSelectedBlocks()) {
     // Only clips can be linked
-    if (item->type() != Block::kClip) {
+    if (!dynamic_cast<ClipBlock*>(item)) {
       continue;
     }
 
@@ -805,6 +807,12 @@ void TimelineWidget::ViewMouseReleased(TimelineViewMouseEvent *event)
 
 void TimelineWidget::ViewMouseDoubleClicked(TimelineViewMouseEvent *event)
 {
+  // kHand tool will return nullptr
+  if (!GetActiveTool()) {
+    // Only kHand should return a nullptr
+    Q_ASSERT(Core::instance()->tool() == olive::Tool::kHand);
+    return;
+  }
   if (GetConnectedNode()) {
     GetActiveTool()->MouseDoubleClick(event);
     UpdateViewports();
@@ -1009,7 +1017,7 @@ void TimelineWidget::SetViewTimestamp(const int64_t &ts)
   for (int i=0;i<views_.size();i++) {
     TimelineAndTrackView* view = views_.at(i);
 
-    if (use_audio_time_units_ && i == Track::kAudio) {
+    if (GetConnectedNode() && use_audio_time_units_ && i == Track::kAudio) {
       view->view()->SetTime(Timecode::rescale_timestamp(ts,
                                                         timebase(),
                                                         GetConnectedNode()->GetAudioParams().sample_rate_as_time_base()));
@@ -1021,7 +1029,7 @@ void TimelineWidget::SetViewTimestamp(const int64_t &ts)
 
 void TimelineWidget::ViewTimestampChanged(int64_t ts)
 {
-  if (use_audio_time_units_ && sender() == views_.at(Track::kAudio)) {
+  if (GetConnectedNode() && use_audio_time_units_ && sender() == views_.at(Track::kAudio)) {
     ts = Timecode::rescale_timestamp(ts,
                                      GetConnectedNode()->GetAudioParams().sample_rate_as_time_base(),
                                      timebase());
@@ -1216,7 +1224,7 @@ void TimelineWidget::RippleTo(Timeline::MovementMode mode)
   }
 
   // Find each track's nearest point and determine the overall timeline's nearest point
-  rational closest_point_to_playhead = (mode == Timeline::kTrimIn) ? rational() : RATIONAL_MAX;
+  rational closest_point_to_playhead = (mode == Timeline::kTrimIn) ? 0 : RATIONAL_MAX;
 
   foreach (const Timeline::EditToInfo& info, tracks) {
     if (info.nearest_block) {
@@ -1271,7 +1279,7 @@ void TimelineWidget::EditTo(Timeline::MovementMode mode)
 
   foreach (const Timeline::EditToInfo& info, tracks) {
     if (info.nearest_block
-        && info.nearest_block->type() != Block::kGap
+        && !dynamic_cast<GapBlock*>(info.nearest_block)
         && info.nearest_time != playhead_time) {
       rational new_len;
 
@@ -1402,7 +1410,7 @@ void TimelineWidget::MoveRubberBandSelect(bool enable_selecting, bool select_lin
   rubberband_now_selected_.clear();
 
   foreach (Block* b, items_in_rubberband) {
-    if (b->type() == Block::kGap) {
+    if (dynamic_cast<GapBlock*>(b)) {
       continue;
     }
 
@@ -1503,6 +1511,10 @@ QVector<SnapData> AttemptSnap(const QVector<double>& screen_pt,
 
 bool TimelineWidget::SnapPoint(QVector<rational> start_times, rational* movement, int snap_points)
 {
+  if (!GetConnectedNode()) {
+    return false;
+  }
+
   QVector<double> screen_pt;
 
   foreach (const rational& s, start_times) {

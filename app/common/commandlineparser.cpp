@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -34,11 +34,11 @@ CommandLineParser::~CommandLineParser()
   }
 }
 
-const CommandLineParser::Option *CommandLineParser::AddOption(const QStringList &strings, const QString &description, bool takes_arg, const QString &arg_placeholder)
+const CommandLineParser::Option *CommandLineParser::AddOption(const QStringList &strings, const QString &description, bool takes_arg, const QString &arg_placeholder, bool hidden)
 {
   Option* o = new Option();
 
-  options_.append({strings, description, o, takes_arg, arg_placeholder});
+  options_.append({strings, description, o, takes_arg, arg_placeholder, hidden});
 
   return o;
 }
@@ -107,7 +107,7 @@ void CommandLineParser::PrintHelp(const char* filename)
          QCoreApplication::applicationName().toUtf8().constData(),
          QCoreApplication::applicationVersion().toUtf8().constData());
 
-  printf("Copyright (C) 2018-2020 Olive Team\n");
+  printf("Copyright (C) 2018-2021 Olive Team\n");
 
   QString positional_args;
   for (int i=0; i<positional_args_.size(); i++) {
@@ -140,6 +140,10 @@ void CommandLineParser::PrintHelp(const char* filename)
 
   printf("Usage: %s [options] %s\n\n", basename, positional_args.toUtf8().constData());
   foreach (const KnownOption& o, options_) {
+    if (o.hidden) {
+      continue;
+    }
+
     QString all_args;
 
     for (int i=0; i<o.args.size(); i++) {

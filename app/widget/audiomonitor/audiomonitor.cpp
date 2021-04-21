@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -36,11 +36,12 @@ const int kMaximumSmoothness = 8;
 AudioMonitor::AudioMonitor(QWidget *parent) :
   QOpenGLWidget(parent),
   file_(nullptr),
+  waveform_(nullptr),
   cached_channels_(0)
 {
   values_.resize(kMaximumSmoothness);
 
-  connect(AudioManager::instance(), &AudioManager::OutputDeviceStarted, this, &AudioMonitor::OutputDeviceSet);
+  connect(AudioManager::instance(), &AudioManager::OutputWaveformStarted, this, &AudioMonitor::OutputAudioVisualWaveformSet);
   connect(AudioManager::instance(), &AudioManager::OutputPushed, this, &AudioMonitor::OutputPushed);
   connect(AudioManager::instance(), &AudioManager::AudioParamsChanged, this, &AudioMonitor::SetParams);
   connect(AudioManager::instance(), &AudioManager::Stopped, this, &AudioMonitor::Stop);
@@ -84,6 +85,7 @@ void AudioMonitor::Stop()
 {
   delete file_;
   file_ = nullptr;
+  waveform_ = nullptr;
 }
 
 void AudioMonitor::OutputPushed(const QByteArray &d)
@@ -93,6 +95,20 @@ void AudioMonitor::OutputPushed(const QByteArray &d)
   BytesToSampleSummary(d, v);
 
   PushValue(v);
+
+  SetUpdateLoop(true);
+}
+
+void AudioMonitor::OutputAudioVisualWaveformSet(const AudioVisualWaveform *waveform, const rational &start, int playback_speed)
+{
+  Stop();
+
+  waveform_ = waveform;
+  waveform_time_ = start;
+
+  playback_speed_ = playback_speed;
+
+  last_time_ = QDateTime::currentMSecsSinceEpoch();
 
   SetUpdateLoop(true);
 }
@@ -211,8 +227,24 @@ void AudioMonitor::paintGL()
 
   QVector<double> v(params_.channel_count(), 0);
 
-  if (file_) {
-    UpdateValuesFromFile(v);
+  if (file_ || waveform_) {
+    // Determines how many milliseconds have passed since last update
+    qint64 current_time = QDateTime::currentMSecsSinceEpoch();
+    qint64 delta_time = current_time - last_time_;
+    int abs_speed = qAbs(playback_speed_);
+
+    // Multiply by speed if the speed is not 1
+    if (abs_speed != 1) {
+      delta_time *= abs_speed;
+    }
+
+    if (file_) {
+      UpdateValuesFromFile(v, delta_time);
+    } else if (waveform_) {
+      UpdateValuesFromWaveform(v, delta_time);
+    }
+
+    last_time_ = current_time;
   }
 
   PushValue(v);
@@ -254,7 +286,7 @@ void AudioMonitor::paintGL()
     }
   }
 
-  if (all_zeroes && !file_) {
+  if (all_zeroes && !file_ && !waveform_) {
     // Optimize by disabling the update loop
     SetUpdateLoop(false);
   }
@@ -266,20 +298,10 @@ void AudioMonitor::mousePressEvent(QMouseEvent *)
   update();
 }
 
-void AudioMonitor::UpdateValuesFromFile(QVector<double>& v)
+void AudioMonitor::UpdateValuesFromFile(QVector<double>& v, qint64 delta_time)
 {
-  // Determines how many milliseconds have passed since last update
-  qint64 current_time = QDateTime::currentMSecsSinceEpoch();
-  qint64 time_passed = current_time - last_time_;
-  int abs_speed = qAbs(playback_speed_);
-
-  // Multiply by speed if the speed is not 1
-  if (abs_speed != 1) {
-    time_passed *= abs_speed;
-  }
-
   // Convert ms to float seconds and determine how many bytes that is
-  qint64 bytes_to_read = params_.time_to_bytes(static_cast<double>(time_passed) * 0.001);
+  qint64 bytes_to_read = params_.time_to_bytes(static_cast<double>(delta_time) * 0.001);
 
   if (playback_speed_ < 0) {
     // If reversing, jump back by the amount of bytes we're going to read
@@ -297,31 +319,35 @@ void AudioMonitor::UpdateValuesFromFile(QVector<double>& v)
     file_->seek(file_->pos() - bytes_to_read);
   }
 
-  // If speed is not 1, transform it here
-  if (abs_speed != 1) {
-    int sample_sz = params_.samples_to_bytes(1);
-    int in_nb_samples = params_.bytes_to_samples(b.size());
-    int out_nb_samples = in_nb_samples / abs_speed;
-    QByteArray speed_adjusted(out_nb_samples * sample_sz, Qt::Uninitialized);
+  BytesToSampleSummary(b, v);
+}
 
-    for (int i=0;i<out_nb_samples;i++) {
-      memcpy(speed_adjusted.data() + i * sample_sz,
-             b.constData() + i * abs_speed * sample_sz,
-             sample_sz);
+void AudioMonitor::UpdateValuesFromWaveform(QVector<double> &v, qint64 delta_time)
+{
+  // Delta time is provided in milliseconds, so we convert to seconds in rational
+  rational length(delta_time, 1000);
+
+  AudioVisualWaveform::Sample sum = waveform_->GetSummaryFromTime(waveform_time_, length);
+
+  for (int i=0; i<sum.size(); i++) {
+    float max = qMax(qAbs(sum.at(i).min), qAbs(sum.at(i).max));
+
+    int output_index = i%v.size();
+    if (max > v.at(output_index)) {
+      v[output_index] = max;
     }
-
-    b = speed_adjusted;
   }
 
-  BytesToSampleSummary(b, v);
-
-  last_time_ = current_time;
+  waveform_time_ += length;
 }
 
 void AudioMonitor::PushValue(const QVector<double> &v)
 {
-  values_.removeFirst();
-  values_.append(v);
+  int lim = values_.size()-1;
+  for (int i=0; i<lim; i++) {
+    values_[i] = values_[i+1];
+  }
+  values_[lim] = v;
 }
 
 void AudioMonitor::BytesToSampleSummary(const QByteArray &b, QVector<double> &v)

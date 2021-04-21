@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -35,7 +35,6 @@ namespace olive {
 PreferencesGeneralTab::PreferencesGeneralTab()
 {
   QVBoxLayout* layout = new QVBoxLayout(this);
-  layout->setMargin(0);
 
   {
     QGroupBox* global_groupbox = new QGroupBox(tr("Locale"));
@@ -78,7 +77,9 @@ PreferencesGeneralTab::PreferencesGeneralTab()
 
     int row = 0;
 
-    timeline_layout->addWidget(new QLabel(tr("Auto-Scroll Method:")), row, 0);
+    QLabel* autoscroll_lbl = new QLabel(tr("Auto-Scroll Method:"));
+    autoscroll_lbl->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    timeline_layout->addWidget(autoscroll_lbl, row, 0);
 
     // ComboBox indices match enum indices
     autoscroll_method_ = new QComboBox();
@@ -100,11 +101,20 @@ PreferencesGeneralTab::PreferencesGeneralTab()
 
     timeline_layout->addWidget(new QLabel(tr("Default Still Image Length:")), row, 0);
 
-    default_still_length_ = new FloatSlider();
-    default_still_length_->SetMinimum(0.1);
-    default_still_length_->SetFormat(tr("%1 second(s)"));
-    default_still_length_->SetValue(Config::Current()["DefaultStillLength"].value<rational>().toDouble());
+    default_still_length_ = new RationalSlider();
+    default_still_length_->SetMinimum(rational(100, 1000));
+    default_still_length_->SetTimebase(rational(100, 1000));
+    default_still_length_->SetFormat(tr("%1 seconds"));
+    default_still_length_->SetValue(Config::Current()["DefaultStillLength"].value<rational>());
     timeline_layout->addWidget(default_still_length_);
+
+    row++;
+
+    timeline_layout->addWidget(new QLabel(tr("Default Sequence Parameters:")), row, 0);
+
+    QPushButton* default_sequence_params_btn = new QPushButton(tr("Edit"));
+    connect(default_sequence_params_btn, &QPushButton::clicked, this, &PreferencesGeneralTab::EditDefaultSequenceSettings);
+    timeline_layout->addWidget(default_sequence_params_btn, row, 1);
   }
 
   {
@@ -127,7 +137,7 @@ PreferencesGeneralTab::PreferencesGeneralTab()
     autorecovery_interval_ = new IntegerSlider();
     autorecovery_interval_->SetMinimum(1);
     autorecovery_interval_->SetMaximum(60);
-    autorecovery_interval_->SetFormat(tr("%1 minute(s)"));
+    autorecovery_interval_->SetFormat(QT_TRANSLATE_N_NOOP("olive::SliderBase", "%n minute(s)"), true);
     autorecovery_interval_->SetValue(Config::Current()[QStringLiteral("AutorecoveryInterval")].toLongLong());
     autorecovery_layout->addWidget(autorecovery_interval_, row, 1);
 
@@ -159,7 +169,7 @@ void PreferencesGeneralTab::Accept(MultiUndoCommand *command)
 
   Config::Current()[QStringLiteral("Autoscroll")] = autoscroll_method_->currentData();
 
-  Config::Current()[QStringLiteral("DefaultStillLength")] = QVariant::fromValue(rational::fromDouble(default_still_length_->GetValue()));
+  Config::Current()[QStringLiteral("DefaultStillLength")] = QVariant::fromValue(default_still_length_->GetValue());
 
   QString set_language = language_combobox_->currentData().toString();
   if (QLocale::system().name() == set_language) {
@@ -177,6 +187,17 @@ void PreferencesGeneralTab::Accept(MultiUndoCommand *command)
   Config::Current()[QStringLiteral("AutorecoveryInterval")] = QVariant::fromValue(autorecovery_interval_->GetValue());
   Config::Current()[QStringLiteral("AutorecoveryMaximum")] = QVariant::fromValue(autorecovery_maximum_->GetValue());
   Core::instance()->SetAutorecoveryInterval(autorecovery_interval_->GetValue());
+
+  // Default sequence parameters
+  VideoParams dsvp = default_sequence_.GetVideoParams();
+  AudioParams dsap = default_sequence_.GetAudioParams();
+  Config::Current()[QStringLiteral("DefaultSequenceWidth")] = dsvp.width();
+  Config::Current()[QStringLiteral("DefaultSequenceHeight")] = dsvp.height();
+  Config::Current()[QStringLiteral("DefaultSequencePixelAspect")] = QVariant::fromValue(dsvp.pixel_aspect_ratio());
+  Config::Current()[QStringLiteral("DefaultSequenceFrameRate")] = QVariant::fromValue(dsvp.frame_rate().flipped());
+  Config::Current()[QStringLiteral("DefaultSequenceInterlacing")] = dsvp.interlacing();
+  Config::Current()[QStringLiteral("DefaultSequenceAudioFrequency")] = dsap.sample_rate();
+  Config::Current()[QStringLiteral("DefaultSequenceAudioLayout")] = QVariant::fromValue(dsap.channel_layout());
 }
 
 void PreferencesGeneralTab::AddLanguage(const QString &locale_name)
@@ -184,6 +205,13 @@ void PreferencesGeneralTab::AddLanguage(const QString &locale_name)
   language_combobox_->addItem(tr("%1 (%2)").arg(QLocale(locale_name).nativeLanguageName(),
                                                 locale_name));;
   language_combobox_->setItemData(language_combobox_->count() - 1, locale_name);
+}
+
+void PreferencesGeneralTab::EditDefaultSequenceSettings()
+{
+  SequenceDialog sd(&default_sequence_, SequenceDialog::kExisting, this);
+  sd.SetNameIsEditable(false);
+  sd.exec();
 }
 
 }

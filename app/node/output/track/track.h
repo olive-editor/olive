@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -160,13 +160,15 @@ public:
 
     static Type TypeFromString(const QString& s)
     {
-      if (s.at(1) == ':') {
-        if (s.at(0) == 'v') {
-          // Video stream
-          return Track::kVideo;
-        } else if (s.at(0) == 'a') {
-          // Audio stream
-          return Track::kAudio;
+      if (s.size() >= 3) {
+        if (s.at(1) == ':') {
+          if (s.at(0) == 'v') {
+            // Video stream
+            return Track::kVideo;
+          } else if (s.at(0) == 'a') {
+            // Audio stream
+            return Track::kAudio;
+          }
         }
       }
 
@@ -419,6 +421,8 @@ private:
   int GetCacheIndexFromArrayIndex(int index) const;
 
   void SetLengthInternal(const rational& r, bool invalidate = true);
+
+  TimeRangeList block_length_pending_invalidations_;
 
   QVector<Block*> blocks_;
   QVector<int> block_array_indexes_;

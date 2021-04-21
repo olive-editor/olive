@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -82,7 +82,7 @@ void RippleTool::InitiateDrag(Block *clicked_item,
       if (block_after_ripple) {
         TimelineViewGhostItem* ghost;
 
-        if (block_after_ripple->type() == Block::kGap) {
+        if (dynamic_cast<GapBlock*>(block_after_ripple)) {
           // If this Block is already a Gap, ghost it now
           ghost = AddGhostFromBlock(block_after_ripple, trim_mode);
         } else {
@@ -90,7 +90,7 @@ void RippleTool::InitiateDrag(Block *clicked_item,
           // or we'll have to create a new gap ourselves
           Block* previous = block_after_ripple->previous();
 
-          if (previous && previous->type() == Block::kGap) {
+          if (dynamic_cast<GapBlock*>(previous)) {
             // Previous is a gap, that'll make a fine substitute
             ghost = AddGhostFromBlock(previous, trim_mode);
           } else {

@@ -5,45 +5,68 @@
 
 namespace olive {
 
-rational rational::fromDouble(const double &flt)
+rational rational::fromDouble(const double &flt, bool* ok)
 {
+  if (qIsNaN(flt)) {
+    // Return NaN rational
+    if (ok) *ok = false;
+    return rational(0, 0);
+  }
+
   // Use FFmpeg function for the time being
-  return av_d2q(flt, INT_MAX);
+  AVRational r = av_d2q(flt, INT_MAX);
+
+  if (r.den == 0) {
+    // If den == 0, we were unable to convert to a rational
+    if (ok) {
+      *ok = false;
+    }
+  } else {
+    // Otherwise, assume we received a real rational
+    if (ok) {
+      *ok = true;
+    }
+  }
+
+  return r;
 }
 
-rational rational::fromString(const QString &str)
+rational rational::fromString(const QString &str, bool* ok)
 {
   QStringList elements = str.split('/');
 
   switch (elements.size()) {
-  case 0:
-    return rational();
   case 1:
-    return rational(elements.first().toLongLong());
+    return rational(elements.first().toLongLong(ok));
+  case 2:
+    return rational(elements.at(0).toLongLong(ok), elements.at(1).toLongLong(ok));
   default:
-    return rational(elements.at(0).toLongLong(), elements.at(1).toLongLong());
+    // Returns NaN with ok set to false
+    if (ok) {
+      *ok = false;
+    }
+    return rational(0, 0);
   }
-}
-
-//Function: print number to cout
-
-void rational::print(std::ostream &out) const
-{
-  out << this->numer_ << "/" << this->denom_;
 }
 
 //Function: ensures denom >= 0
 
 void rational::fix_signs()
 {
+  // Normalize so that denominator is always positive and only numerator is positive
   if (denom_ < 0) {
     denom_ = -denom_;
     numer_ = -numer_;
   }
 
-  if (numer_ == intType(0) || denom_ == intType(0)) {
+  // Normalize to 0/1 if numerator is zero
+  if (numer_ == intType(0)) {
+    denom_ = intType(1);
+  }
+
+  // Normalize to 0/0 (aka NaN) if denominator is zero
+  if (denom_ == intType(0)) {
     numer_ = intType(0);
-    denom_ = intType(0);
   }
 }
 
@@ -88,7 +111,7 @@ double rational::toDouble() const
   if (denom_ != 0) {
     return static_cast<double>(numer_) / static_cast<double>(denom_);
   } else {
-    return static_cast<double>(0);
+    return qSNaN();
   }
 }
 
@@ -103,10 +126,12 @@ AVRational rational::toAVRational() const
 }
 
 #ifdef USE_OTIO
-opentime::RationalTime rational::toRationalTime() const
+opentime::RationalTime rational::toRationalTime(double framerate) const
 {
   // Is this the best way of doing this?
-  return opentime::RationalTime::from_seconds(toDouble());
+  // Olive can store rationals as 0/0 which causes errors in OTIO
+  opentime::RationalTime time = opentime::RationalTime(numer_, denom_ == 0 ? 1 : denom_);
+  return time.rescaled_to(framerate);
 }
 #endif
 
@@ -116,6 +141,11 @@ rational rational::flipped() const
 }
 
 bool rational::isNull() const
+{
+  return numerator() == 0;
+}
+
+bool rational::isNaN() const
 {
   return denominator() == 0;
 }
@@ -149,15 +179,21 @@ const rational& rational::operator=(const rational &rhs)
 
 const rational& rational::operator+=(const rational &rhs)
 {
-  if (!rhs.isNull()) {
-    if (isNull()) {
-      numer_ = rhs.numer_;
-      denom_ = rhs.denom_;
-    } else {
-      numer_ = (numer_ * rhs.denom_) + (rhs.numer_ * denom_);
-      denom_ = denom_ * rhs.denom_;
+  if (!isNaN()) {
+    if (rhs.isNaN()) {
+      // Set to NaN
+      denom_ = 0;
       fix_signs();
-      reduce();
+    } else if (!rhs.isNull()) {
+      if (isNull()) {
+        numer_ = rhs.numer_;
+        denom_ = rhs.denom_;
+      } else {
+        numer_ = (numer_ * rhs.denom_) + (rhs.numer_ * denom_);
+        denom_ = denom_ * rhs.denom_;
+        fix_signs();
+        reduce();
+      }
     }
   }
 
@@ -166,15 +202,21 @@ const rational& rational::operator+=(const rational &rhs)
 
 const rational& rational::operator-=(const rational &rhs)
 {
-  if (!rhs.isNull()) {
-    if (isNull()) {
-      numer_ = -rhs.numer_;
-      denom_ = rhs.denom_;
-    } else {
-      numer_ = (numer_ * rhs.denom_) - (rhs.numer_ * denom_);
-      denom_ = denom_ * rhs.denom_;
+  if (!isNaN()) {
+    if (rhs.isNaN()) {
+      // Set to NaN
+      denom_ = 0;
       fix_signs();
-      reduce();
+    } else if (!rhs.isNull()) {
+      if (isNull()) {
+        numer_ = -rhs.numer_;
+        denom_ = rhs.denom_;
+      } else {
+        numer_ = (numer_ * rhs.denom_) - (rhs.numer_ * denom_);
+        denom_ = denom_ * rhs.denom_;
+        fix_signs();
+        reduce();
+      }
     }
   }
 
@@ -183,19 +225,36 @@ const rational& rational::operator-=(const rational &rhs)
 
 const rational& rational::operator/=(const rational &rhs)
 {
-  numer_ = numer_ * rhs.denom_;
-  denom_ = denom_ * rhs.numer_;
-  fix_signs();
-  reduce();
+  if (!isNaN()) {
+    if (rhs.isNaN()) {
+      // Set to NaN
+      denom_ = 0;
+      fix_signs();
+    } else {
+      numer_ = numer_ * rhs.denom_;
+      denom_ = denom_ * rhs.numer_;
+      fix_signs();
+      reduce();
+    }
+  }
+
   return *this;
 }
 
 const rational& rational::operator*=(const rational &rhs)
 {
-  numer_ = numer_ * rhs.numer_;
-  denom_ = denom_ * rhs.denom_;
-  fix_signs();
-  reduce();
+  if (!isNaN()) {
+    if (rhs.isNaN()) {
+      denom_ = 0;
+      fix_signs();
+    } else {
+      numer_ = numer_ * rhs.numer_;
+      denom_ = denom_ * rhs.denom_;
+      fix_signs();
+      reduce();
+    }
+  }
+
   return *this;
 }
 
@@ -233,6 +292,10 @@ rational rational::operator*(const rational &rhs) const
 
 bool rational::operator<(const rational &rhs) const
 {
+  if (isNaN() || rhs.isNaN()) {
+    return false;
+  }
+
   if (isNull() && rhs.isNull()) {
     return false;
   }
@@ -262,6 +325,10 @@ bool rational::operator<(const rational &rhs) const
 
 bool rational::operator<=(const rational &rhs) const
 {
+  if (isNaN() || rhs.isNaN()) {
+    return false;
+  }
+
   if (isNull() && rhs.isNull()) {
     return true;
   }
@@ -301,40 +368,16 @@ bool rational::operator>=(const rational &rhs) const
 
 bool rational::operator==(const rational &rhs) const
 {
+  if (isNaN() || rhs.isNaN()) {
+    return false;
+  }
+
   return (numer_ == rhs.numer_ && denom_ == rhs.denom_);
 }
 
 bool rational::operator!=(const rational &rhs) const
 {
-  return (numer_ != rhs.numer_) || (denom_ != rhs.denom_);
-}
-
-//Unary operators
-
-const rational& rational::operator++()
-{
-  numer_ += denom_;
-  return *this;
-}
-
-rational rational::operator++(int)
-{
-  rational tmp = *this;
-  numer_ += denom_;
-  return tmp;
-}
-
-const rational& rational::operator--()
-{
-  numer_ -= denom_;
-  return *this;
-}
-
-rational rational::operator--(int)
-{
-  rational tmp;
-  numer_ -= denom_;
-  return tmp;
+  return !(*this == rhs);
 }
 
 const rational& rational::operator+() const
@@ -396,8 +439,4 @@ uint qHash(const rational &r, uint seed)
 QDebug operator<<(QDebug debug, const olive::rational &r)
 {
   return debug.space() << r.toDouble();
-  /*
-  debug.nospace() << r.numerator() << "/" << r.denominator();
-  return debug.space();
-  */
 }

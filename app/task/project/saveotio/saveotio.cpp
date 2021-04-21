@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,8 +26,11 @@
 #include <opentimelineio/externalReference.h>
 #include <opentimelineio/gap.h>
 #include <opentimelineio/serializableCollection.h>
+#include <opentimelineio/serializableObject.h>
 #include <opentimelineio/transition.h>
 
+#include "node/block/clip/clip.h"
+#include "node/block/gap/gap.h"
 #include "node/block/transition/transition.h"
 #include "node/project/footage/footage.h"
 
@@ -48,7 +51,7 @@ bool SaveOTIOTask::Run()
     return false;
   }
 
-  std::vector<opentimelineio::v1_0::SerializableObject*> serialized;
+  std::vector<OTIO::SerializableObject*> serialized;
 
   foreach (Sequence* seq, sequences) {
     auto otio_timeline = SerializeTimeline(seq);
@@ -69,7 +72,7 @@ bool SaveOTIOTask::Run()
     }
   }
 
-  opentimelineio::v1_0::ErrorStatus es;
+  OTIO::ErrorStatus es;
 
   if (serialized.size() == 1) {
     // Serialize timeline on its own
@@ -78,7 +81,7 @@ bool SaveOTIOTask::Run()
     t->possibly_delete();
   } else {
     // Serialize all into a SerializableCollection
-    auto collection = new opentimelineio::v1_0::SerializableCollection("Sequences", serialized);
+    auto collection = new OTIO::SerializableCollection("Sequences", serialized);
     collection->to_json_file(project_->filename().toStdString(), &es);
     collection->possibly_delete();
 
@@ -88,12 +91,16 @@ bool SaveOTIOTask::Run()
     }
   }
 
-  return (es == opentimelineio::v1_0::ErrorStatus::OK);
+  return (es == OTIO::ErrorStatus::OK);
 }
 
-opentimelineio::v1_0::Timeline *SaveOTIOTask::SerializeTimeline(Sequence *sequence)
+OTIO::Timeline *SaveOTIOTask::SerializeTimeline(Sequence *sequence)
 {
-  auto otio_timeline = new opentimelineio::v1_0::Timeline(sequence->GetLabel().toStdString());
+  auto otio_timeline = new OTIO::Timeline(sequence->GetLabel().toStdString());
+  // Retainers clean themselves up when the final user is removed
+  OTIO::Timeline::Retainer<OTIO::Timeline>* timeline_retainer = new OTIO::Timeline::Retainer<OTIO::Timeline>(otio_timeline);
+  // Suppress unused variable warning
+  Q_UNUSED(timeline_retainer);
 
   if (!SerializeTrackList(sequence->track_list(Track::kVideo), otio_timeline)
       || !SerializeTrackList(sequence->track_list(Track::kAudio), otio_timeline)) {
@@ -104,11 +111,11 @@ opentimelineio::v1_0::Timeline *SaveOTIOTask::SerializeTimeline(Sequence *sequen
   return otio_timeline;
 }
 
-opentimelineio::v1_0::Track *SaveOTIOTask::SerializeTrack(Track *track)
+OTIO::Track *SaveOTIOTask::SerializeTrack(Track *track)
 {
-  auto otio_track = new opentimelineio::v1_0::Track();
+  auto otio_track = new OTIO::Track();
 
-  opentimelineio::v1_0::ErrorStatus es;
+  OTIO::ErrorStatus es;
 
   switch (track->type()) {
   case Track::kVideo:
@@ -123,45 +130,35 @@ opentimelineio::v1_0::Track *SaveOTIOTask::SerializeTrack(Track *track)
   }
 
   foreach (Block* block, track->Blocks()) {
-    opentimelineio::v1_0::Composable* otio_block = nullptr;
+    OTIO::Composable* otio_block = nullptr;
 
-    switch (block->type()) {
-    case Block::kClip:
-    {
-      auto otio_clip = new opentimelineio::v1_0::Clip(block->GetLabel().toStdString());
+    if (dynamic_cast<ClipBlock*>(block)) {
+      auto otio_clip = new OTIO::Clip(block->GetLabel().toStdString());
 
-      otio_clip->set_source_range(opentimelineio::v1_0::TimeRange(block->in().toRationalTime(),
-                                                                  block->length().toRationalTime()));
+      otio_clip->set_source_range(OTIO::TimeRange(block->in().toRationalTime(),
+                                                  block->length().toRationalTime()));
 
       QVector<Footage*> media_nodes = block->FindInputNodes<Footage>();
       if (!media_nodes.isEmpty()) {
-        auto media_ref = new opentimelineio::v1_0::ExternalReference(media_nodes.first()->filename().toStdString());
+        auto media_ref = new OTIO::ExternalReference(media_nodes.first()->filename().toStdString());
         otio_clip->set_media_reference(media_ref);
       }
 
       otio_block = otio_clip;
-      break;
-    }
-    case Block::kGap:
-    {
-      otio_block = new opentimelineio::v1_0::Gap(
-            opentimelineio::v1_0::TimeRange(block->in().toRationalTime(), block->length().toRationalTime()),
-            block->GetLabel().toStdString()
-      );
-      break;
-    }
-    case Block::kTransition:
-    {
-      auto otio_transition = new opentimelineio::v1_0::Transition(block->GetLabel().toStdString());
+    } else if (dynamic_cast<GapBlock*>(block)) {
+      otio_block = new OTIO::Gap(OTIO::TimeRange(block->in().toRationalTime(),
+                                 block->length().toRationalTime()),
+                                 block->GetLabel().toStdString()
+                                 );
+    } else if (dynamic_cast<TransitionBlock*>(block)) {
+      auto otio_transition = new OTIO::Transition(block->GetLabel().toStdString());
 
       TransitionBlock* our_transition = static_cast<TransitionBlock*>(block);
 
       otio_transition->set_in_offset(our_transition->in_offset().toRationalTime());
       otio_transition->set_out_offset(our_transition->out_offset().toRationalTime());
 
-      otio_block = new opentimelineio::v1_0::Transition();
-      break;
-    }
+      otio_block = new OTIO::Transition();
     }
 
     if (!otio_block) {
@@ -171,7 +168,7 @@ opentimelineio::v1_0::Track *SaveOTIOTask::SerializeTrack(Track *track)
 
     otio_track->append_child(otio_block, &es);
 
-    if (es != opentimelineio::v1_0::ErrorStatus::OK) {
+    if (es != OTIO::ErrorStatus::OK) {
       goto fail;
     }
   }
@@ -184,9 +181,9 @@ fail:
   return nullptr;
 }
 
-bool SaveOTIOTask::SerializeTrackList(TrackList *list, opentimelineio::v1_0::Timeline* otio_timeline)
+bool SaveOTIOTask::SerializeTrackList(TrackList *list, OTIO::Timeline* otio_timeline)
 {
-  opentimelineio::v1_0::ErrorStatus es;
+  OTIO::ErrorStatus es;
 
   foreach (Track* track, list->GetTracks()) {
     auto otio_track = SerializeTrack(track);
@@ -197,7 +194,7 @@ bool SaveOTIOTask::SerializeTrackList(TrackList *list, opentimelineio::v1_0::Tim
 
     otio_timeline->tracks()->append_child(otio_track, &es);
 
-    if (es != opentimelineio::v1_0::ErrorStatus::OK) {
+    if (es != OTIO::ErrorStatus::OK) {
       otio_track->possibly_delete();
       return false;
     }
@@ -208,4 +205,4 @@ bool SaveOTIOTask::SerializeTrackList(TrackList *list, opentimelineio::v1_0::Tim
 
 }
 
-#endif
+#endif // USE_OTIO

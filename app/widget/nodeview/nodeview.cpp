@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -298,11 +298,11 @@ void NodeView::Paste()
 
   QVector<Node*> pasted_nodes = PasteNodesFromClipboard(graph_, command);
 
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
-
   if (!pasted_nodes.isEmpty()) {
-    AttachNodesToCursor(pasted_nodes);
+    command->add_child(new NodeViewAttachNodesToCursor(this, pasted_nodes));
   }
+
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
 void NodeView::Duplicate()
@@ -321,9 +321,11 @@ void NodeView::Duplicate()
 
   QVector<Node*> duplicated_nodes = Node::CopyDependencyGraph(selected, command);
 
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
+  if (!duplicated_nodes.isEmpty()) {
+    command->add_child(new NodeViewAttachNodesToCursor(this, duplicated_nodes));
+  }
 
-  AttachNodesToCursor(duplicated_nodes);
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
 void NodeView::SetColorLabel(int index)
@@ -666,6 +668,13 @@ void NodeView::ShowContextMenu(const QPoint &pos)
     QAction* autopos = m.addAction(tr("Auto-Position"));
     connect(autopos, &QAction::triggered, this, &NodeView::AutoPositionDescendents);
 
+    ViewerOutput* viewer = dynamic_cast<ViewerOutput*>(selected.first()->GetNode());
+    if (viewer) {
+      m.addSeparator();
+      QAction* open_in_viewer_action = m.addAction(tr("Open in Viewer"));
+      connect(open_in_viewer_action, &QAction::triggered, this, &NodeView::OpenSelectedNodeInViewer);
+    }
+
   } else {
 
     QAction* curved_action = m.addAction(tr("Smooth Edges"));
@@ -754,6 +763,16 @@ void NodeView::ContextMenuFilterChanged(QAction *action)
   Q_UNUSED(action)
 }
 
+void NodeView::OpenSelectedNodeInViewer()
+{
+  QVector<Node*> selected = scene_.GetSelectedNodes();
+  ViewerOutput* viewer = selected.isEmpty() ? nullptr : dynamic_cast<ViewerOutput*>(selected.first());
+
+  if (viewer) {
+    Core::instance()->OpenNodeInViewer(viewer);
+  }
+}
+
 void NodeView::AttachNodesToCursor(const QVector<Node *> &nodes)
 {
   QVector<NodeViewItem*> items(nodes.size());
@@ -837,6 +856,28 @@ void NodeView::ZoomFromKeyboard(double multiplier)
   }
 
   ZoomIntoCursorPosition(multiplier, cursor_pos);
+}
+
+NodeView::NodeViewAttachNodesToCursor::NodeViewAttachNodesToCursor(NodeView *view, const QVector<Node *> &nodes) :
+  view_(view),
+  nodes_(nodes)
+{
+}
+
+void NodeView::NodeViewAttachNodesToCursor::redo()
+{
+  view_->AttachNodesToCursor(nodes_);
+}
+
+void NodeView::NodeViewAttachNodesToCursor::undo()
+{
+  view_->DetachItemsFromCursor();
+}
+
+Project *NodeView::NodeViewAttachNodesToCursor::GetRelevantProject() const
+{
+  // Will either return a project or a nullptr which is also acceptable
+  return dynamic_cast<Project*>(view_->graph_);
 }
 
 }

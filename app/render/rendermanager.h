@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -67,7 +67,11 @@ public:
   /**
    * @brief Generate a unique identifier for a certain node at a certain time
    */
-  static QByteArray Hash(const Node *n, const VideoParams &params, const rational &time);
+  static QByteArray Hash(const Node *n, const QString &output, const VideoParams &params, const rational &time);
+  static QByteArray Hash(const NodeOutput &output, const VideoParams &params, const rational &time)
+  {
+    return Hash(output.node(), output.output(), params, time);
+  }
 
   /**
    * @brief Asynchronously generate a frame at a given time

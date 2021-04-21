@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@
 
 #include "node.h"
 #include "render/job/footagejob.h"
+#include "render/rendermanager.h"
 
 namespace olive {
 
@@ -110,7 +111,7 @@ NodeValueTable NodeTraverser::GenerateTable(const Node *n, const QString& output
   // By this point, the node should have all the inputs it needs to render correctly
   NodeValueTable table = n->Value(output, database);
 
-  PostProcessTable(n, range, table);
+  PostProcessTable(n, output, range, table);
 
   return table;
 }
@@ -171,10 +172,15 @@ QVariant NodeTraverser::ProcessFrameGeneration(const Node *node, const GenerateJ
   return QVariant();
 }
 
-QVariant NodeTraverser::GetCachedFrame(const Node *node, const rational &time)
+void NodeTraverser::SaveCachedTexture(const QByteArray &hash, const QVariant &texture)
 {
-  Q_UNUSED(node)
-  Q_UNUSED(time)
+  Q_UNUSED(hash)
+  Q_UNUSED(texture)
+}
+
+QVariant NodeTraverser::GetCachedTexture(const QByteArray& hash)
+{
+  Q_UNUSED(hash)
 
   return QVariant();
 }
@@ -190,17 +196,23 @@ void NodeTraverser::AddGlobalsToDatabase(NodeValueDatabase &db, const TimeRange&
   db.Insert(QStringLiteral("global"), global);
 }
 
-void NodeTraverser::PostProcessTable(const Node *node, const TimeRange &range, NodeValueTable &output_params)
+void NodeTraverser::PostProcessTable(const Node *node, const QString& output, const TimeRange &range, NodeValueTable &output_params)
 {
   bool got_cached_frame = false;
+  QByteArray cached_node_hash;
 
   // Convert footage to image/sample buffers
-  QVariant cached_frame = GetCachedFrame(node, range.in());
-  if (!cached_frame.isNull()) {
-    output_params.Push(NodeValue::kTexture, cached_frame, node);
+  if (CanCacheFrames() && node->GetCacheTextures()) {
+    // This node is set to cache the result, see if we can retrieved a previously cached version
+    cached_node_hash = RenderManager::Hash(node, output, GetCacheVideoParams(), range.in());
 
-    // No more to do here
-    got_cached_frame = true;
+    QVariant cached_frame = GetCachedTexture(cached_node_hash);
+    if (!cached_frame.isNull()) {
+      output_params.Push(NodeValue::kTexture, cached_frame, node);
+
+      // No more to do here
+      got_cached_frame = true;
+    }
   }
 
   // Strip out any jobs or footage
@@ -284,6 +296,11 @@ void NodeTraverser::PostProcessTable(const Node *node, const TimeRange &range, N
     if (!value.isNull()) {
       output_params.Push(NodeValue::kSamples, value, node);
     }
+  }
+
+  if (CanCacheFrames() && node->GetCacheTextures() && !got_cached_frame) {
+    // Save cached texture
+    SaveCachedTexture(cached_node_hash, output_params.Get(NodeValue::kTexture));
   }
 }
 

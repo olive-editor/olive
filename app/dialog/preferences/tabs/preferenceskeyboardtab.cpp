@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -32,7 +32,6 @@ namespace olive {
 PreferencesKeyboardTab::PreferencesKeyboardTab(QMenuBar *menubar)
 {
   QVBoxLayout* shortcut_layout = new QVBoxLayout(this);
-  shortcut_layout->setMargin(0);
 
   QLineEdit* key_search_line = new QLineEdit();
   key_search_line->setPlaceholderText(tr("Search for action or shortcut"));

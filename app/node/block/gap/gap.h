@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -37,8 +37,6 @@ public:
   NODE_DEFAULT_DESTRUCTOR(GapBlock)
 
   virtual Node * copy() const override;
-
-  virtual Type type() const override;
 
   virtual QString Name() const override;
   virtual QString id() const override;

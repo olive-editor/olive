@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -37,7 +37,7 @@
 
 namespace olive {
 
-SliderLadder::SliderLadder(double drag_multiplier, int nb_outer_values, QWidget* parent) :
+SliderLadder::SliderLadder(double drag_multiplier, int nb_outer_values, QString width_hint, QWidget* parent) :
   QFrame(parent, Qt::Popup)
 {
   QVBoxLayout* layout = new QVBoxLayout(this);
@@ -52,17 +52,17 @@ SliderLadder::SliderLadder(double drag_multiplier, int nb_outer_values, QWidget*
   }
 
   for (int i=nb_outer_values-1;i>=0;i--) {
-    elements_.append(new SliderLadderElement(qPow(10, i + 1) * drag_multiplier));
+    elements_.append(new SliderLadderElement(qPow(10, i + 1) * drag_multiplier, width_hint));
   }
 
   // Create center entry
-  SliderLadderElement* start_element = new SliderLadderElement(drag_multiplier);
+  SliderLadderElement* start_element = new SliderLadderElement(drag_multiplier, width_hint);
   active_element_ = elements_.size();
   start_element->SetHighlighted(true);
   elements_.append(start_element);
 
   for (int i=0;i<nb_outer_values;i++) {
-    elements_.append(new SliderLadderElement(qPow(10, - i - 1) * drag_multiplier));
+    elements_.append(new SliderLadderElement(qPow(10, -i - 1) * drag_multiplier, width_hint));
   }
 
   foreach (SliderLadderElement* e, elements_) {
@@ -76,7 +76,7 @@ SliderLadder::SliderLadder(double drag_multiplier, int nb_outer_values, QWidget*
   drag_timer_.setInterval(10);
   connect(&drag_timer_, &QTimer::timeout, this, &SliderLadder::TimerUpdate);
 
-  if (Config::Current()[QStringLiteral("UseSliderLadders")].toBool()) {
+  if (UsingLadders()) {
     drag_start_x_ = -1;
   } else {
 #if defined(Q_OS_MAC)
@@ -94,7 +94,7 @@ SliderLadder::SliderLadder(double drag_multiplier, int nb_outer_values, QWidget*
 
 SliderLadder::~SliderLadder()
 {
-  if (Config::Current()[QStringLiteral("UseSliderLadders")].toBool()) {
+  if (UsingLadders()) {
 
   } else {
 #if defined(Q_OS_MAC)
@@ -142,7 +142,7 @@ void SliderLadder::TimerUpdate()
   int ladder_right = this->x() + this->width() - 1;
   int now_pos = QCursor::pos().x();
 
-  if (Config::Current()[QStringLiteral("UseSliderLadders")].toBool()) {
+  if (UsingLadders()) {
 
     bool is_under_mouse = (now_pos >= ladder_left && now_pos <= ladder_right);
 
@@ -226,7 +226,12 @@ void SliderLadder::TimerUpdate()
   }
 }
 
-SliderLadderElement::SliderLadderElement(const double &multiplier, QWidget *parent) :
+bool SliderLadder::UsingLadders() const
+{
+  return elements_.size() > 1;
+}
+
+SliderLadderElement::SliderLadderElement(const double &multiplier, QString width_hint, QWidget *parent) :
   QWidget(parent),
   multiplier_(multiplier),
   highlighted_(false),
@@ -236,7 +241,7 @@ SliderLadderElement::SliderLadderElement(const double &multiplier, QWidget *pare
 
   label_ = new QLabel();
   label_->setAlignment(Qt::AlignCenter);
-  label_->setFixedWidth(QtUtils::QFontMetricsWidth(label_->fontMetrics(), QStringLiteral("0000000")));
+  label_->setFixedWidth(QtUtils::QFontMetricsWidth(label_->fontMetrics(), width_hint));
   layout->addWidget(label_);
 
   QPalette p = palette();

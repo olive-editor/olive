@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -37,11 +37,6 @@ TransitionBlock::TransitionBlock() :
   AddInput(kInBlockInput, NodeValue::kNone, InputFlags(kInputFlagNotKeyframable));
 
   AddInput(kCurveInput, NodeValue::kCombo, InputFlags(kInputFlagNotKeyframable | kInputFlagNotConnectable));
-}
-
-Block::Type TransitionBlock::type() const
-{
-  return kTransition;
 }
 
 void TransitionBlock::Retranslate()
@@ -255,7 +250,7 @@ void TransitionBlock::InputConnectedEvent(const QString &input, int element, con
     // If node is not a block, this will just be null
     if ((connected_out_block_ = dynamic_cast<Block*>(output.node()))) {
 
-      Q_ASSERT(connected_out_block_->type() != Block::kTransition
+      Q_ASSERT(!dynamic_cast<TransitionBlock*>(connected_out_block_)
           && !connected_out_block_->out_transition()
           && connected_out_block_ == this->previous());
 
@@ -265,7 +260,7 @@ void TransitionBlock::InputConnectedEvent(const QString &input, int element, con
     // If node is not a block, this will just be null
     if ((connected_in_block_ = dynamic_cast<Block*>(output.node()))) {
 
-      Q_ASSERT(connected_in_block_->type() != Block::kTransition
+      Q_ASSERT(!dynamic_cast<TransitionBlock*>(connected_in_block_)
           && !connected_in_block_->in_transition()
           && connected_in_block_ == this->next());
 

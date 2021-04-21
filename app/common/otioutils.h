@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2019 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -18,35 +18,12 @@
 
 ***/
 
-#ifndef SLIDERLABEL_H
-#define SLIDERLABEL_H
+#ifndef OTIOUTILS_H
+#define OTIOUTILS_H
 
-#include <QLabel>
+#ifdef USE_OTIO
+#include <opentimelineio/version.h>
+namespace OTIO = opentimelineio::OPENTIMELINEIO_VERSION;
+#endif
 
-#include "common/define.h"
-
-namespace olive {
-
-class SliderLabel : public QLabel
-{
-  Q_OBJECT
-public:
-  SliderLabel(QWidget* parent);
-
-protected:
-  virtual void mousePressEvent(QMouseEvent *ev) override;
-
-  virtual void focusInEvent(QFocusEvent *event) override;
-
-signals:
-  void LabelPressed();
-
-  void focused();
-
-  void RequestReset();
-
-};
-
-}
-
-#endif // SLIDERLABEL_H
+#endif // OTIOUTILS

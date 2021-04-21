@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -32,6 +32,11 @@ TimeBasedPanel::TimeBasedPanel(const QString &object_name, QWidget *parent) :
 rational TimeBasedPanel::GetTime()
 {
   return widget_->GetTime();
+}
+
+const rational& TimeBasedPanel::timebase()
+{
+  return widget_->timebase();
 }
 
 void TimeBasedPanel::GoToStart()

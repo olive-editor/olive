@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,25 +26,28 @@
 
 namespace olive {
 
+#define super DecimalSliderBase
+
 FloatSlider::FloatSlider(QWidget *parent) :
-  SliderBase(kFloat, parent),
-  display_type_(kNormal),
-  decimal_places_(1),
-  autotrim_decimal_places_(false)
+  super(parent),
+  display_type_(kNormal)
 {
   SetValue(0.0);
-
-  connect(this, SIGNAL(ValueChanged(QVariant)), this, SLOT(ConvertValue(QVariant)));
 }
 
-double FloatSlider::GetValue()
+double FloatSlider::GetValue() const
 {
-  return Value().toDouble();
+  return GetValueInternal().toDouble();
 }
 
 void FloatSlider::SetValue(const double &d)
 {
-  SliderBase::SetValue(d);
+  SetValueInternal(d);
+}
+
+void FloatSlider::SetDefaultValue(const double &d)
+{
+  super::SetDefaultValue(d);
 }
 
 void FloatSlider::SetMinimum(const double &d)
@@ -55,13 +58,6 @@ void FloatSlider::SetMinimum(const double &d)
 void FloatSlider::SetMaximum(const double &d)
 {
   SetMaximumInternal(d);
-}
-
-void FloatSlider::SetDecimalPlaces(int i)
-{
-  decimal_places_ = i;
-
-  ForceLabelUpdate();
 }
 
 void FloatSlider::SetDisplayType(const FloatSlider::DisplayType &type)
@@ -79,13 +75,6 @@ void FloatSlider::SetDisplayType(const FloatSlider::DisplayType &type)
     SetFormat(tr("%1%"));
     break;
   }
-}
-
-void FloatSlider::SetAutoTrimDecimalPlaces(bool e)
-{
-  autotrim_decimal_places_ = e;
-
-  ForceLabelUpdate();
 }
 
 QString FloatSlider::ValueToString(double val, FloatSlider::DisplayType display, int decimal_places, bool autotrim_decimal_places)
@@ -110,24 +99,15 @@ QString FloatSlider::ValueToString(double val, FloatSlider::DisplayType display,
     break;
   }
 
-  QString s = QString::number(val, 'f', decimal_places);
-
-  if (autotrim_decimal_places) {
-    while (s.endsWith('0')
-           && s.at(s.size() - 2).isDigit()) {
-      s = s.left(s.size() - 1);
-    }
-  }
-
-  return s;
+  return FloatToString(val, decimal_places, autotrim_decimal_places);
 }
 
-QString FloatSlider::ValueToString(const QVariant &v)
+QString FloatSlider::ValueToString(const QVariant &v) const
 {
-  return ValueToString(v.toDouble() + GetOffset().toDouble(), display_type_, decimal_places_, autotrim_decimal_places_);
+  return ValueToString(v.toDouble() + GetOffset().toDouble(), display_type_, GetDecimalPlaces(), GetAutoTrimDecimalPlaces());
 }
 
-QVariant FloatSlider::StringToValue(const QString &s, bool *ok)
+QVariant FloatSlider::StringToValue(const QString &s, bool *ok) const
 {
   switch (display_type_) {
   case kNormal:
@@ -171,7 +151,7 @@ QVariant FloatSlider::StringToValue(const QString &s, bool *ok)
   return s.toDouble(ok) - GetOffset().toDouble();
 }
 
-double FloatSlider::AdjustDragDistanceInternal(const double &start, const double &drag)
+QVariant FloatSlider::AdjustDragDistanceInternal(const QVariant &start, const double &drag) const
 {
   switch (display_type_) {
   case kNormal:
@@ -179,22 +159,22 @@ double FloatSlider::AdjustDragDistanceInternal(const double &start, const double
     break;
   case kDecibel:
   {
-    double current_db = LinearToDecibel(start);
+    double current_db = LinearToDecibel(start.toDouble());
     current_db += drag;
     double adjusted_linear = DecibelToLinear(current_db);
 
     return adjusted_linear;
   }
   case kPercentage:
-    return SliderBase::AdjustDragDistanceInternal(start, drag * 0.01);
+    return super::AdjustDragDistanceInternal(start, drag * 0.01);
   }
 
-  return SliderBase::AdjustDragDistanceInternal(start, drag);
+  return super::AdjustDragDistanceInternal(start, drag);
 }
 
-void FloatSlider::ConvertValue(QVariant v)
+void FloatSlider::ValueSignalEvent(const QVariant &value)
 {
-  emit ValueChanged(v.toDouble());
+  emit ValueChanged(value.toDouble());
 }
 
 double FloatSlider::LinearToDecibel(double linear)

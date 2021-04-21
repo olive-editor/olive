@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -49,7 +49,8 @@ ViewerDisplayWidget::ViewerDisplayWidget(QWidget *parent) :
   hand_dragging_(false),
   deinterlace_(false),
   show_fps_(false),
-  frames_skipped_(0)
+  frames_skipped_(0),
+  show_widget_background_(false)
 {
   connect(Core::instance(), &Core::ToolChanged, this, &ViewerDisplayWidget::UpdateCursor);
 
@@ -167,11 +168,6 @@ void ViewerDisplayWidget::SetTime(const rational &time)
   if (gizmos_) {
     update();
   }
-}
-
-FramePtr ViewerDisplayWidget::last_loaded_buffer() const
-{
-  return last_loaded_buffer_;
 }
 
 QPoint ViewerDisplayWidget::TransformViewerSpaceToBufferSpace(QPoint pos)
@@ -301,7 +297,7 @@ void ViewerDisplayWidget::dropEvent(QDropEvent *event)
 void ViewerDisplayWidget::OnPaint()
 {
   // Clear background to empty
-  QColor bg_color = palette().window().color();
+  QColor bg_color = show_widget_background_ ? palette().window().color() : Qt::black;
   renderer()->ClearDestination(bg_color.redF(), bg_color.greenF(), bg_color.blueF());
 
   // We only draw if we have a pipeline

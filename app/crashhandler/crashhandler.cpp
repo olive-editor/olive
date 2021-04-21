@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -214,21 +214,21 @@ void CrashHandlerDialog::SendErrorReport()
 
   // Create description section
   QHttpPart desc_part;
-  desc_part.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("text/plain"));
+  desc_part.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("text/plain; charset=UTF-8"));
   desc_part.setHeader(QNetworkRequest::ContentDispositionHeader, QStringLiteral("form-data; name=\"description\""));
   desc_part.setBody(summary_edit_->toPlainText().toUtf8());
   multipart->append(desc_part);
 
   // Create report section
   QHttpPart report_part;
-  report_part.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("text/plain"));
+  report_part.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("text/plain; charset=UTF-8"));
   report_part.setHeader(QNetworkRequest::ContentDispositionHeader, QStringLiteral("form-data; name=\"report\""));
   report_part.setBody(report_data_);
   multipart->append(report_part);
 
   // Create commit section
   QHttpPart commit_part;
-  commit_part.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("text/plain"));
+  commit_part.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("text/plain; charset=UTF-8"));
   commit_part.setHeader(QNetworkRequest::ContentDispositionHeader, QStringLiteral("form-data; name=\"commit\""));
   commit_part.setBody(GITHASH);
   multipart->append(commit_part);

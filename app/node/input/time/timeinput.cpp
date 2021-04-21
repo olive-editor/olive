@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -48,7 +48,7 @@ QVector<Node::CategoryID> TimeInput::Category() const
 
 QString TimeInput::Description() const
 {
-  return tr("Generates the time (in seconds) at this frame");
+  return tr("Generates the time (in seconds) at this frame.");
 }
 
 NodeValueTable TimeInput::Value(const QString &output, NodeValueDatabase &value) const

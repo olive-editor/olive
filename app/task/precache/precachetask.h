@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -43,9 +43,9 @@ protected:
   virtual void AudioDownloaded(const TimeRange& range, SampleBufferPtr samples, qint64 job_time) override;
 
 private:
-  Footage* footage_;
+  Project* project_;
 
-  int index_;
+  Footage* footage_;
 
 };
 
