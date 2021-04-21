@@ -210,7 +210,7 @@ jobs:
         run: |
           mkdir olive-editor
           cp app/olive-editor.exe olive-editor
-          cp app/olive-crashhandler.exe olive-editor
+          cp app/crashhandler/olive-crashhandler.exe olive-editor
           cp app/olive-editor.pdb olive-editor
           $DEP_LOCATION/bin/windeployqt olive-editor/olive-crashhandler.exe
           $DEP_LOCATION/bin/windeployqt olive-editor/olive-editor.exe
