@@ -128,16 +128,7 @@ private:
  */
 class BlockTrimCommand : public UndoCommand {
 public:
-  BlockTrimCommand(Track *track, Block* block, rational new_length, Timeline::MovementMode mode) :
-    prepped_(false),
-    track_(track),
-    block_(block),
-    new_length_(new_length),
-    mode_(mode),
-    deleted_adjacent_command_(nullptr),
-    trim_is_a_roll_edit_(false)
-  {
-  }
+  BlockTrimCommand(Track *track, Block* block, rational new_length, Timeline::MovementMode mode);
 
   virtual ~BlockTrimCommand() override
   {
@@ -169,173 +160,11 @@ public:
     remove_block_from_graph_ = e;
   }
 
-  virtual void redo() override
-  {
-    if (!prepped_) {
-      prep();
-      prepped_ = true;
-    }
-
-    if (doing_nothing_) {
-      return;
-    }
-
-    // Begin an operation since we'll be doing a lot
-    track_->BeginOperation();
-
-    // Determine how much time to invalidate
-    TimeRange invalidate_range;
-
-    if (mode_ == Timeline::kTrimIn) {
-      invalidate_range = TimeRange(block_->in(), block_->in() + trim_diff_);
-      block_->set_length_and_media_in(new_length_);
-    } else {
-      invalidate_range = TimeRange(block_->out(), block_->out() - trim_diff_);
-      block_->set_length_and_media_out(new_length_);
-    }
-
-    if (needs_adjacent_) {
-      if (we_created_adjacent_) {
-        // Add adjacent and insert it
-        adjacent_->setParent(track_->parent());
-
-        if (mode_ == Timeline::kTrimIn) {
-          track_->InsertBlockBefore(adjacent_, block_);
-        } else {
-          track_->InsertBlockAfter(adjacent_, block_);
-        }
-      } else if (we_removed_adjacent_) {
-        track_->RippleRemoveBlock(adjacent_);
-
-        // It no longer inputs/outputs anything, remove it
-        if (remove_block_from_graph_ && NodeCanBeRemoved(adjacent_)) {
-          if (!deleted_adjacent_command_) {
-            deleted_adjacent_command_ = CreateAndRunRemoveCommand(adjacent_);
-          } else {
-            deleted_adjacent_command_->redo();
-          }
-        }
-      } else {
-        rational adjacent_length = adjacent_->length() + trim_diff_;
-
-        if (mode_ == Timeline::kTrimIn) {
-          adjacent_->set_length_and_media_out(adjacent_length);
-        } else {
-          adjacent_->set_length_and_media_in(adjacent_length);
-        }
-      }
-    }
-
-    track_->EndOperation();
-
-    if (block_->type() == Block::kTransition) {
-      // Whole transition needs to be invalidated
-      invalidate_range = block_->range();
-    }
-
-    track_->Node::InvalidateCache(invalidate_range, Track::kBlockInput);
-  }
-
-  virtual void undo() override
-  {
-    if (doing_nothing_) {
-      return;
-    }
-
-    track_->BeginOperation();
-
-    // Will be POSITIVE if trimming shorter and NEGATIVE if trimming longer
-    if (needs_adjacent_) {
-      if (we_created_adjacent_) {
-        // Adjacent is ours, just delete it
-        track_->RippleRemoveBlock(adjacent_);
-        adjacent_->setParent(&memory_manager_);
-      } else {
-        if (we_removed_adjacent_) {
-          if (deleted_adjacent_command_) {
-            // We deleted adjacent, restore it now
-            deleted_adjacent_command_->undo();
-          }
-
-          if (mode_ == Timeline::kTrimIn) {
-            track_->InsertBlockBefore(adjacent_, block_);
-          } else {
-            track_->InsertBlockAfter(adjacent_, block_);
-          }
-        } else {
-          rational adjacent_length = adjacent_->length() - trim_diff_;
-
-          if (mode_ == Timeline::kTrimIn) {
-            adjacent_->set_length_and_media_out(adjacent_length);
-          } else {
-            adjacent_->set_length_and_media_in(adjacent_length);
-          }
-        }
-      }
-    }
-
-    TimeRange invalidate_range;
-
-    if (mode_ == Timeline::kTrimIn) {
-      block_->set_length_and_media_in(old_length_);
-
-      invalidate_range = TimeRange(block_->in(), block_->in() + trim_diff_);
-    } else {
-      block_->set_length_and_media_out(old_length_);
-
-      invalidate_range = TimeRange(block_->out(), block_->out() - trim_diff_);
-    }
-
-    if (block_->type() == Block::kTransition) {
-      // Whole transition needs to be invalidated
-      invalidate_range = block_->range();
-    }
-
-    track_->EndOperation();
-
-    track_->Node::InvalidateCache(invalidate_range, Track::kBlockInput);
-  }
+  virtual void redo() override;
+  virtual void undo() override;
 
 private:
-  void prep()
-  {
-    // Store old length
-    old_length_ = block_->length();
-
-    // Determine if the length isn't changing, in which case we set a flag to do nothing
-    if ((doing_nothing_ = (old_length_ == new_length_))) {
-      return;
-    }
-
-    // Will be POSITIVE if trimming shorter and NEGATIVE if trimming longer
-    trim_diff_ = old_length_ - new_length_;
-
-    // Retrieve our adjacent block (or nullptr if none)
-    if (mode_ == Timeline::kTrimIn) {
-      adjacent_ = block_->previous();
-    } else {
-      adjacent_ = block_->next();
-    }
-
-    // Ignore when trimming the out with no adjacent, because the user must have trimmed the end
-    // of the last block in the track, so we don't need to do anything elses
-    needs_adjacent_ = (mode_ == Timeline::kTrimIn || adjacent_);
-
-    if (needs_adjacent_) {
-      // If we're trimming shorter, we need an adjacent, so check if we have a viable one.
-      we_created_adjacent_ = (trim_diff_ > 0 && (!adjacent_ || (adjacent_->type() != Block::kGap && !trim_is_a_roll_edit_)));
-
-      if (we_created_adjacent_) {
-        // We shortened but don't have a viable adjacent to lengthen, so we create one
-        adjacent_ = new GapBlock();
-        adjacent_->set_length_and_media_out(trim_diff_);
-      } else {
-        // Determine if we're removing the adjacent
-        rational adjacent_length = adjacent_->length() + trim_diff_;
-        we_removed_adjacent_ = adjacent_length.isNull();
-      }
-    }
-  }
+  void prep();
 
   bool prepped_;
   bool doing_nothing_;
@@ -1323,27 +1152,28 @@ private:
 
 class TimelineAddTrackCommand : public UndoCommand {
 public:
-  TimelineAddTrackCommand(TrackList *timeline) :
-    timeline_(timeline),
-    position_command_(nullptr)
+  TimelineAddTrackCommand(TrackList *timeline)
   {
-    track_ = new Track();
-    track_->setParent(&memory_manager_);
+    Init(timeline, Config::Current()[QStringLiteral("AutoMergeTracks")].toBool());
+  }
 
-    if (timeline->GetTrackCount() > 0 && Config::Current()[QStringLiteral("AutoMergeTracks")].toBool()) {
-      if (timeline_->type() == Track::kVideo) {
-        merge_ = new MergeNode();
-        base_ = NodeInput(merge_, MergeNode::kBaseIn);
-        blend_ = NodeInput(merge_, MergeNode::kBlendIn);
-      } else {
-        merge_ = new MathNode();
-        base_ = NodeInput(merge_, MathNode::kParamAIn);
-        blend_ = NodeInput(merge_, MathNode::kParamBIn);
-      }
-      merge_->setParent(&memory_manager_);
-    } else {
-      merge_ = nullptr;
-    }
+  TimelineAddTrackCommand(TrackList *timeline, bool automerge_tracks)
+  {
+    Init(timeline, automerge_tracks);
+  }
+
+  static Track* RunImmediately(TrackList *timeline)
+  {
+    TimelineAddTrackCommand c(timeline);
+    c.redo();
+    return c.track();
+  }
+
+  static Track* RunImmediately(TrackList *timeline, bool automerge)
+  {
+    TimelineAddTrackCommand c(timeline, automerge);
+    c.redo();
+    return c.track();
   }
 
   virtual ~TimelineAddTrackCommand() override
@@ -1446,6 +1276,30 @@ public:
   }
 
 private:
+  void Init(TrackList* timeline, bool automerge)
+  {
+    timeline_ = timeline;
+    position_command_ = nullptr;
+
+    track_ = new Track();
+    track_->setParent(&memory_manager_);
+
+    if (timeline->GetTrackCount() > 0 && automerge) {
+      if (timeline_->type() == Track::kVideo) {
+        merge_ = new MergeNode();
+        base_ = NodeInput(merge_, MergeNode::kBaseIn);
+        blend_ = NodeInput(merge_, MergeNode::kBlendIn);
+      } else {
+        merge_ = new MathNode();
+        base_ = NodeInput(merge_, MathNode::kParamAIn);
+        blend_ = NodeInput(merge_, MathNode::kParamBIn);
+      }
+      merge_->setParent(&memory_manager_);
+    } else {
+      merge_ = nullptr;
+    }
+  }
+
   TrackList* timeline_;
 
   Track* track_;

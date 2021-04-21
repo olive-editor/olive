@@ -22,6 +22,7 @@ set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
   widget/timelinewidget/timelineandtrackview.cpp
   widget/timelinewidget/timelineandtrackview.h
+  widget/timelinewidget/timelineundo.cpp
   widget/timelinewidget/timelineundo.h
   widget/timelinewidget/timelinewidget.cpp
   widget/timelinewidget/timelinewidget.h
