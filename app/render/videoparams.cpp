@@ -234,6 +234,7 @@ void VideoParams::calculate_effective_size()
   effective_width_ = GetScaledDimension(width(), divider_);
   effective_height_ = GetScaledDimension(height(), divider_);
   effective_depth_ = GetScaledDimension(depth(), divider_);
+  calculate_square_pixel_width();
 }
 
 void VideoParams::validate_pixel_aspect_ratio()
@@ -241,6 +242,7 @@ void VideoParams::validate_pixel_aspect_ratio()
   if (pixel_aspect_ratio_.isNull()) {
     pixel_aspect_ratio_ = 1;
   }
+  calculate_square_pixel_width();
 }
 
 void VideoParams::set_defaults_for_footage()
@@ -251,6 +253,15 @@ void VideoParams::set_defaults_for_footage()
   start_time_ = 0;
   duration_ = 0;
   premultiplied_alpha_ = false;
+}
+
+void VideoParams::calculate_square_pixel_width()
+{
+  if (pixel_aspect_ratio_.denominator() != 0) {
+    par_width_ = width_ * pixel_aspect_ratio_.numerator() / pixel_aspect_ratio_.denominator();
+  } else {
+    par_width_ = width_;
+  }
 }
 
 bool VideoParams::is_valid() const

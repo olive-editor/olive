@@ -132,10 +132,9 @@ NodeValueTable NodeTraverser::GenerateBlockTable(const Track *track, const TimeR
 
 QVariant NodeTraverser::ProcessVideoFootage(const FootageJob &stream, const rational &input_time)
 {
-  Q_UNUSED(stream)
   Q_UNUSED(input_time)
 
-  return QVariant();
+  return QVariant::fromValue(stream.video_params());
 }
 
 QVariant NodeTraverser::ProcessAudioFootage(const FootageJob& stream, const TimeRange &input_time)
@@ -152,7 +151,7 @@ QVariant NodeTraverser::ProcessShader(const Node *node, const TimeRange &range, 
   Q_UNUSED(range)
   Q_UNUSED(job)
 
-  return QVariant();
+  return QVariant::fromValue(video_params_);
 }
 
 QVariant NodeTraverser::ProcessSamples(const Node *node, const TimeRange &range, const SampleJob &job)
@@ -169,7 +168,7 @@ QVariant NodeTraverser::ProcessFrameGeneration(const Node *node, const GenerateJ
   Q_UNUSED(node)
   Q_UNUSED(job)
 
-  return QVariant();
+  return QVariant::fromValue(video_params_);
 }
 
 void NodeTraverser::SaveCachedTexture(const QByteArray &hash, const QVariant &texture)
@@ -194,6 +193,11 @@ void NodeTraverser::AddGlobalsToDatabase(NodeValueDatabase &db, const TimeRange&
   global.Push(NodeValue::kVec2, GenerateResolution(), nullptr, false, QStringLiteral("resolution"));
 
   db.Insert(QStringLiteral("global"), global);
+}
+
+QVector2D NodeTraverser::GenerateResolution() const
+{
+  return QVector2D(video_params_.square_pixel_width(), video_params_.height());
 }
 
 void NodeTraverser::PostProcessTable(const Node *node, const QString& output, const TimeRange &range, NodeValueTable &output_params)

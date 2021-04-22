@@ -56,6 +56,7 @@ void RenderProcessor::Run()
   {
     ViewerOutput* viewer = Node::ValueToPtr<ViewerOutput>(ticket_->property("viewer"));
     const VideoParams& video_params = ticket_->property("vparam").value<VideoParams>();
+    SetCacheVideoParams(video_params);
     rational time = ticket_->property("time").value<rational>();
 
     NodeValueTable table;
@@ -591,19 +592,6 @@ void RenderProcessor::SaveCachedTexture(const QByteArray &hash, const QVariant &
       qDebug() << "Saved mid-render frame to cache";
     }
   }*/
-}
-
-VideoParams RenderProcessor::GetCacheVideoParams()
-{
-  return ticket_->property("vparam").value<VideoParams>();
-}
-
-QVector2D RenderProcessor::GenerateResolution() const
-{
-  // Set resolution to the destination to the "logical" resolution of the destination
-  const VideoParams& video_params = ticket_->property("vparam").value<VideoParams>();
-  return QVector2D(video_params.width() * video_params.pixel_aspect_ratio().toDouble(),
-                   video_params.height());
 }
 
 }

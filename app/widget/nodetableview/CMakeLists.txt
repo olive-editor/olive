@@ -16,11 +16,9 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  widget/nodetableview/nodetabletraverser.h
-  widget/nodetableview/nodetabletraverser.cpp
-  widget/nodetableview/nodetableview.h
   widget/nodetableview/nodetableview.cpp
-  widget/nodetableview/nodetablewidget.h
+  widget/nodetableview/nodetableview.h
   widget/nodetableview/nodetablewidget.cpp
+  widget/nodetableview/nodetablewidget.h
   PARENT_SCOPE
 )

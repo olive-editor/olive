@@ -23,7 +23,7 @@
 #include <QCheckBox>
 #include <QHeaderView>
 
-#include "nodetabletraverser.h"
+#include "node/traverser.h"
 
 namespace olive {
 
@@ -63,10 +63,9 @@ void NodeTableView::SetTime(const rational &time)
 {
   last_time_ = time;
 
-  NodeTableTraverser traverser;
+  NodeTraverser traverser;
 
-  QMap<Node*, QTreeWidgetItem*>::const_iterator i;
-  for (i=top_level_item_map_.constBegin(); i!=top_level_item_map_.constEnd(); i++) {
+  for (auto i=top_level_item_map_.constBegin(); i!=top_level_item_map_.constEnd(); i++) {
     Node* node = i.key();
     QTreeWidgetItem* item = i.value();
 
@@ -150,7 +149,7 @@ void NodeTableView::SetTime(const rational &time)
           break;
         case NodeValue::kTexture:
         {
-          // NodeTableTraverser puts video params in here
+          // NodeTraverser puts video params in here
           for (int k=0;k<VideoParams::kRGBAChannelCount;k++) {
             this->setItemWidget(sub_item, 2 + k, new QCheckBox());
           }
@@ -168,102 +167,5 @@ void NodeTableView::SetTime(const rational &time)
     }
   }
 }
-
-/*
-void NodeTableView::SetNode(Node *n, const rational &time)
-{
-  NodeTableTraverser traverser;
-  NodeValueDatabase db = traverser.GenerateDatabase(n, TimeRange(time, time));
-
-  // Remove top items if necessary
-  for (int i=0;i<this->topLevelItemCount();i++) {
-    if (!db.contains(this->topLevelItem(i)->data(0, Qt::UserRole).toString())) {
-      delete this->takeTopLevelItem(i);
-      i--;
-    }
-  }
-
-  NodeValueDatabase::const_iterator i;
-
-  for (i=db.begin(); i!=db.end(); i++) {
-    const NodeValueTable& table = i.value();
-
-    NodeInput* input = n->GetInputWithID(i.key());
-    if (!input) {
-      // Filters out table entries that aren't inputs (like "global")
-      continue;
-    }
-
-    QTreeWidgetItem* top_item = nullptr;
-
-    for (int j=0;j<this->topLevelItemCount();j++) {
-      QTreeWidgetItem* compare = this->topLevelItem(j);
-
-      if (compare->data(0, Qt::UserRole).toString() == input->id()) {
-        top_item = compare;
-        break;
-      }
-    }
-
-    if (!top_item) {
-      top_item = new QTreeWidgetItem();
-      top_item->setText(0, input->name());
-      top_item->setData(0, Qt::UserRole, input->id());
-      top_item->setFirstColumnSpanned(true);
-      this->addTopLevelItem(top_item);
-    }
-
-    // Create children if necessary
-    while (top_item->childCount() < table.Count())  {
-      top_item->addChild(new QTreeWidgetItem());
-    }
-
-    // Remove children if necessary
-    while (top_item->childCount() > table.Count()) {
-      delete top_item->takeChild(top_item->childCount() - 1);
-    }
-
-    for (int j=0;j<table.Count();j++) {
-      const NodeValue& value = table.at(table.Count() - 1 - j);
-
-      // Create item
-      QTreeWidgetItem* sub_item = top_item->child(j);
-
-      // Set data type name
-      sub_item->setText(0, NodeParam::GetPrettyDataTypeName(value.type()));
-
-      // Determine source
-      QString source_name;
-      if (value.source()) {
-        source_name = value.source()->Name();
-      } else {
-        source_name = tr("(unknown)");
-      }
-      sub_item->setText(1, source_name);
-
-      switch (value.type()) {
-      case NodeParam::kTexture:
-      {
-        // NodeTableTraverser puts video params in here
-        VideoParams p = value.data().value<VideoParams>();
-        int channel_count = PixelFormat::ChannelCount(p.format());
-
-        for (int k=0;k<channel_count;k++) {
-          this->setItemWidget(sub_item, 2 + k, new QCheckBox());
-        }
-        break;
-      }
-      default:
-      {
-        QVector<QVariant> split_values = input->split_normal_value_into_track_values(value.data());
-        for (int k=0;k<split_values.size();k++) {
-          sub_item->setText(2 + k, NodeInput::ValueToString(value.type(), split_values.at(k)));
-        }
-      }
-      }
-    }
-  }
-}
-*/
 
 }

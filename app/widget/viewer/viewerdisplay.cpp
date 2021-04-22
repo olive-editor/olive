@@ -33,7 +33,7 @@
 #include "common/functiontimer.h"
 #include "config/config.h"
 #include "core.h"
-#include "gizmotraverser.h"
+#include "node/traverser.h"
 
 namespace olive {
 
@@ -339,8 +339,8 @@ void ViewerDisplayWidget::OnPaint()
 
   // Draw gizmos if we have any
   if (gizmos_) {
-    GizmoTraverser gt(QVector2D(gizmo_params_.width() * gizmo_params_.pixel_aspect_ratio().toDouble(),
-                                gizmo_params_.height()));
+    NodeTraverser gt;
+    gt.SetCacheVideoParams(gizmo_params_);
 
     rational node_time = GetGizmoTime();
 

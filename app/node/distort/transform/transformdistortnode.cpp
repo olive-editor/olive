@@ -68,7 +68,7 @@ NodeValueTable TransformDistortNode::Value(const QString &output, NodeValueDatab
   if (texture) {
     // Adjust our matrix by the resolutions involved
     QVector2D sequence_res = value[QStringLiteral("global")].Get(NodeValue::kVec2, QStringLiteral("resolution")).value<QVector2D>();
-    QVector2D texture_res(texture->params().width() * texture->pixel_aspect_ratio().toDouble(), texture->params().height());
+    QVector2D texture_res(texture->params().square_pixel_width(), texture->params().height());
     AutoScaleType autoscale = static_cast<AutoScaleType>(value[kAutoscaleInput].Get(NodeValue::kCombo).toInt());
 
     QMatrix4x4 real_matrix = AdjustMatrixByResolutions(generated_matrix,
@@ -141,7 +141,8 @@ bool TransformDistortNode::GizmoPress(NodeValueDatabase &db, const QPointF &p)
     }
 
     // Store texture size
-    QVector2D texture_sz = db[kTextureInput].Get(NodeValue::kTexture).value<QVector2D>();
+    VideoParams texture_params = db[kTextureInput].Get(NodeValue::kTexture).value<VideoParams>();
+    QVector2D texture_sz(texture_params.square_pixel_width(), texture_params.height());
     gizmo_scale_anchor_ = db[kAnchorInput].Get(NodeValue::kVec2).value<QVector2D>() + texture_sz/2;
 
     if (gizmo_scale_active[kGizmoScaleTopRight]
@@ -372,7 +373,8 @@ void TransformDistortNode::DrawGizmos(NodeValueDatabase &db, QPainter *p)
   QPointF sequence_half_res_pt = sequence_half_res.toPointF();
 
   // GizmoTraverser just returns the sizes of the textures and no other data
-  QVector2D tex_sz = db[kTextureInput].Get(NodeValue::kTexture).value<QVector2D>();
+  VideoParams tex_params = db[kTextureInput].Get(NodeValue::kTexture).value<VideoParams>();
+  QVector2D tex_sz(tex_params.square_pixel_width(), tex_params.height());
 
   // Retrieve autoscale value
   AutoScaleType autoscale = static_cast<AutoScaleType>(db[kAutoscaleInput].Get(NodeValue::kCombo).toInt());

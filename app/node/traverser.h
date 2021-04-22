@@ -44,6 +44,16 @@ public:
 
   NodeValueDatabase GenerateDatabase(const Node *node, const QString &output, const TimeRange &range);
 
+  const VideoParams& GetCacheVideoParams() const
+  {
+    return video_params_;
+  }
+
+  void SetCacheVideoParams(const VideoParams& params)
+  {
+    video_params_ = params;
+  }
+
 protected:
   NodeValueTable ProcessInput(const Node *node, const QString &input, const TimeRange &range);
 
@@ -68,20 +78,14 @@ protected:
     return false;
   }
 
-  virtual VideoParams GetCacheVideoParams()
-  {
-    return VideoParams();
-  }
-
   void AddGlobalsToDatabase(NodeValueDatabase& db, const TimeRange &range) const;
 
-  virtual QVector2D GenerateResolution() const
-  {
-    return QVector2D(0, 0);
-  }
+  QVector2D GenerateResolution() const;
 
 private:
   void PostProcessTable(const Node *node, const QString &output, const TimeRange &range, NodeValueTable &output_params);
+
+  VideoParams video_params_;
 
 };
 

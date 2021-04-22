@@ -90,6 +90,14 @@ public:
     calculate_effective_size();
   }
 
+  /**
+   * @brief Returns width multiplied by pixel aspect ratio where applicable
+   */
+  int square_pixel_width() const
+  {
+    return par_width_;
+  }
+
   int height() const
   {
     return height_;
@@ -348,6 +356,8 @@ private:
 
   void set_defaults_for_footage();
 
+  void calculate_square_pixel_width();
+
   int width_;
   int height_;
   int depth_;
@@ -367,6 +377,7 @@ private:
   int effective_width_;
   int effective_height_;
   int effective_depth_;
+  int par_width_;
 
   bool enabled_;
   int stream_index_;
