@@ -48,7 +48,7 @@ public:
   static const QString kBaseIn;
   static const QString kBlendIn;
 
-  virtual void Hash(const QString& output, QCryptographicHash &hash, const rational &time) const override;
+  virtual void Hash(const QString& output, QCryptographicHash &hash, const rational &time, const VideoParams& video_params) const override;
 
 private:
   NodeInput* base_in_;

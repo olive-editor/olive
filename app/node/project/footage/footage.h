@@ -170,7 +170,7 @@ public:
   static QString DescribeVideoStream(const VideoParams& params);
   static QString DescribeAudioStream(const AudioParams& params);
 
-  virtual void Hash(const QString& output, QCryptographicHash &hash, const rational &time) const override;
+  virtual void Hash(const QString& output, QCryptographicHash &hash, const rational &time, const VideoParams& video_params) const override;
 
   virtual NodeValueTable Value(const QString &output, NodeValueDatabase& value) const override;
 

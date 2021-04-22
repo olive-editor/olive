@@ -47,7 +47,7 @@ public:
 
   virtual QVector<QString> inputs_for_output(const QString &output) const override;
 
-  virtual void Hash(const QString &output, QCryptographicHash &hash, const rational &time) const override;
+  virtual void Hash(const QString &output, QCryptographicHash &hash, const rational &time, const VideoParams& video_params) const override;
 
   static const QString kTimeInput;
   static const QString kInputInput;

@@ -300,9 +300,9 @@ QString Footage::DescribeAudioStream(const AudioParams &params)
          QString::number(params.sample_rate()));
 }
 
-void Footage::Hash(const QString& output, QCryptographicHash &hash, const rational &time) const
+void Footage::Hash(const QString& output, QCryptographicHash &hash, const rational &time, const VideoParams &video_params) const
 {
-  super::Hash(output, hash, time);
+  super::Hash(output, hash, time, video_params);
 
   // Footage last modified date
   hash.addData(QString::number(timestamp()).toUtf8());

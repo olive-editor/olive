@@ -153,7 +153,7 @@ public:
     return GetStandardValue(kReverseInput).toBool();
   }
 
-  virtual void Hash(const QString& output, QCryptographicHash &hash, const rational &time) const override;
+  virtual void Hash(const QString& output, QCryptographicHash &hash, const rational &time, const VideoParams& video_params) const override;
 
   static const QString kLengthInput;
   static const QString kMediaInInput;

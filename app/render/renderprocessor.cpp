@@ -556,15 +556,6 @@ QVariant RenderProcessor::GetCachedTexture(const QByteArray& hash)
   FramePtr f = FrameHashCache::LoadCacheFrame(cache_dir, hash);
 
   if (f) {
-    // The cached frame won't load with the correct divider by default, so we enforce it here
-    VideoParams p = f->video_params();
-
-    p.set_width(f->width() * video_params.divider());
-    p.set_height(f->height() * video_params.divider());
-    p.set_divider(video_params.divider());
-
-    f->set_video_params(p);
-
     TexturePtr texture = render_ctx_->CreateTexture(f->video_params(), f->data(), f->linesize_pixels());
     qDebug() << "Loaded mid-render frame from cache";
     return QVariant::fromValue(texture);

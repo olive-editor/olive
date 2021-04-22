@@ -230,7 +230,7 @@ void Block::Retranslate()
   SetInputName(kReverseInput, tr("Reverse"));
 }
 
-void Block::Hash(const QString &, QCryptographicHash &, const rational &) const
+void Block::Hash(const QString &, QCryptographicHash &, const rational &, const VideoParams &) const
 {
   // A block does nothing by default, so we hash nothing
 }

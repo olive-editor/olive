@@ -109,7 +109,7 @@ void ClipBlock::Retranslate()
   SetInputName(kBufferIn, tr("Buffer"));
 }
 
-void ClipBlock::Hash(const QString &out, QCryptographicHash &hash, const rational &time) const
+void ClipBlock::Hash(const QString &out, QCryptographicHash &hash, const rational &time, const VideoParams &video_params) const
 {
   Q_UNUSED(out)
 
@@ -117,7 +117,7 @@ void ClipBlock::Hash(const QString &out, QCryptographicHash &hash, const rationa
     rational t = InputTimeAdjustment(kBufferIn, -1, TimeRange(time, time)).in();
 
     NodeOutput output = GetConnectedOutput(kBufferIn);
-    output.node()->Hash(output.output(), hash, t);
+    output.node()->Hash(output.output(), hash, t, video_params);
   }
 }
 

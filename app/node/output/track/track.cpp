@@ -575,7 +575,7 @@ bool Track::IsLocked() const
   return locked_;
 }
 
-void Track::Hash(const QString &output, QCryptographicHash &hash, const rational &time) const
+void Track::Hash(const QString &output, QCryptographicHash &hash, const rational &time, const VideoParams &video_params) const
 {
   Q_UNUSED(output)
 
@@ -583,7 +583,7 @@ void Track::Hash(const QString &output, QCryptographicHash &hash, const rational
 
   // Defer to block at this time, don't add any of our own information to the hash
   if (b) {
-    b->Hash(kDefaultOutput, hash, TransformTimeForBlock(b, time));
+    b->Hash(kDefaultOutput, hash, TransformTimeForBlock(b, time), video_params);
   }
 }
 

@@ -733,7 +733,7 @@ public:
   const QString& GetLabel() const;
   void SetLabel(const QString& s);
 
-  virtual void Hash(const QString& output, QCryptographicHash& hash, const rational &time) const;
+  virtual void Hash(const QString& output, QCryptographicHash& hash, const rational &time, const VideoParams& video_params) const;
 
   void InvalidateAll(const QString& input, int element = -1);
 
@@ -1145,7 +1145,7 @@ private:
 
   QVector<Node*> GetDependenciesInternal(bool traverse, bool exclusive_only) const;
 
-  void HashInputElement(QCryptographicHash& hash, const QString &input, int element, const rational& time) const;
+  void HashInputElement(QCryptographicHash& hash, const QString &input, int element, const rational& time, const VideoParams &video_params) const;
 
   void ParameterValueChanged(const QString &input, int element, const olive::TimeRange &range);
   void ParameterValueChanged(const NodeInput& input, const olive::TimeRange &range)

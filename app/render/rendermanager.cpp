@@ -93,7 +93,7 @@ QByteArray RenderManager::Hash(const Node *n, const QString& output, const Video
   hasher.addData(reinterpret_cast<const char*>(&format), sizeof(VideoParams::Format));
 
   if (n) {
-    n->Hash(output, hasher, time);
+    n->Hash(output, hasher, time, params);
   }
 
   return hasher.result();

@@ -1453,7 +1453,7 @@ void Node::SetLabel(const QString &s)
   }
 }
 
-void Node::Hash(const QString &output, QCryptographicHash &hash, const rational& time) const
+void Node::Hash(const QString &output, QCryptographicHash &hash, const rational& time, const VideoParams &video_params) const
 {
   Q_UNUSED(output)
 
@@ -1470,7 +1470,7 @@ void Node::Hash(const QString &output, QCryptographicHash &hash, const rational&
 
     int arr_sz = InputArraySize(input);
     for (int i=-1; i<arr_sz; i++) {
-      HashInputElement(hash, input, i, time);
+      HashInputElement(hash, input, i, time, video_params);
     }
   }
 }
@@ -1593,7 +1593,7 @@ QVector<Node *> Node::GetDependenciesInternal(bool traverse, bool exclusive_only
   return list;
 }
 
-void Node::HashInputElement(QCryptographicHash &hash, const QString& input, int element, const rational &time) const
+void Node::HashInputElement(QCryptographicHash &hash, const QString& input, int element, const rational &time, const VideoParams& video_params) const
 {
   // Get time adjustment
   // For a single frame, we only care about one of the times
@@ -1603,7 +1603,7 @@ void Node::HashInputElement(QCryptographicHash &hash, const QString& input, int 
     // Traverse down this edge
     NodeOutput output = GetConnectedOutput(input, element);
 
-    output.node()->Hash(output.output(), hash, input_time);
+    output.node()->Hash(output.output(), hash, input_time, video_params);
   } else {
     // Grab the value at this time
     QVariant value = GetValueAtTime(input, input_time, element);

@@ -22,6 +22,7 @@
 
 #include <OpenEXR/ImfFloatAttribute.h>
 #include <OpenEXR/ImfInputFile.h>
+#include <OpenEXR/ImfIntAttribute.h>
 #include <OpenEXR/ImfOutputFile.h>
 #include <OpenEXR/ImfChannelList.h>
 #include <QDir>
@@ -257,6 +258,8 @@ FramePtr FrameHashCache::LoadCacheFrame(const QString &fn)
     int height = dw.max.y - dw.min.y + 1;
     bool has_alpha = file.header().channels().findChannel("A");
 
+    int div = qMax(1, static_cast<const Imf::IntAttribute&>(file.header()["oliveDivider"]).value());
+
     VideoParams::Format image_format;
     if (pix_type == Imf::HALF) {
       image_format = VideoParams::kFormatFloat16;
@@ -267,11 +270,13 @@ FramePtr FrameHashCache::LoadCacheFrame(const QString &fn)
     int channel_count = has_alpha ? VideoParams::kRGBAChannelCount : VideoParams::kRGBChannelCount;
 
     frame = Frame::Create();
-    frame->set_video_params(VideoParams(width,
-                                        height,
+    frame->set_video_params(VideoParams(width * div,
+                                        height * div,
                                         image_format,
                                         channel_count,
-                                        rational::fromDouble(file.header().pixelAspectRatio())));
+                                        rational::fromDouble(file.header().pixelAspectRatio()),
+                                        VideoParams::kInterlaceNone,
+                                        div));
 
     frame->allocate();
 
@@ -444,6 +449,8 @@ bool FrameHashCache::SaveCacheFrame(const QString &filename, char *data, const V
   header.compression() = Imf::DWAA_COMPRESSION;
   header.insert("dwaCompressionLevel", Imf::FloatAttribute(200.0f));
   header.pixelAspectRatio() = vparam.pixel_aspect_ratio().toDouble();
+
+  header.insert("oliveDivider", Imf::IntAttribute(vparam.divider()));
 
   Imf::OutputFile out(filename.toUtf8(), header, 0);
 

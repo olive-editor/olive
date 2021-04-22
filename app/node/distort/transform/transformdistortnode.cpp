@@ -23,12 +23,15 @@
 #include <QGuiApplication>
 
 #include "common/range.h"
+#include "node/traverser.h"
 
 namespace olive {
 
 const QString TransformDistortNode::kTextureInput = QStringLiteral("tex_in");
 const QString TransformDistortNode::kAutoscaleInput = QStringLiteral("autoscale_in");
 const QString TransformDistortNode::kInterpolationInput = QStringLiteral("interpolation_in");
+
+#define super Node
 
 TransformDistortNode::TransformDistortNode()
 {
@@ -67,14 +70,7 @@ NodeValueTable TransformDistortNode::Value(const QString &output, NodeValueDatab
   // If we have a texture, generate a matrix and make it happen
   if (texture) {
     // Adjust our matrix by the resolutions involved
-    QVector2D sequence_res = value[QStringLiteral("global")].Get(NodeValue::kVec2, QStringLiteral("resolution")).value<QVector2D>();
-    QVector2D texture_res(texture->params().square_pixel_width(), texture->params().height());
-    AutoScaleType autoscale = static_cast<AutoScaleType>(value[kAutoscaleInput].Get(NodeValue::kCombo).toInt());
-
-    QMatrix4x4 real_matrix = AdjustMatrixByResolutions(generated_matrix,
-                                                       sequence_res,
-                                                       texture_res,
-                                                       autoscale);
+    QMatrix4x4 real_matrix = GenerateAutoScaledMatrix(generated_matrix, value, texture->params());
 
     if (real_matrix.isIdentity()) {
       // We don't expect any changes, just push as normal
@@ -312,6 +308,36 @@ void TransformDistortNode::GizmoRelease()
   gizmo_drag_ = nullptr;
 }
 
+void TransformDistortNode::Hash(const QString &output, QCryptographicHash &hash, const rational &time, const VideoParams &video_params) const
+{
+  NodeOutput out = GetConnectedOutput(kTextureInput);
+  if (!out.IsValid()) {
+    // No texture connected, this node will produce nothing
+    return;
+  }
+
+  // Use a traverser to determine if the matrix is identity
+  NodeTraverser traverser;
+  traverser.SetCacheVideoParams(video_params);
+
+  NodeValueDatabase db = traverser.GenerateDatabase(this, output, TimeRange(time, time + video_params.frame_rate_as_time_base()));
+  VideoParams tex_params = db[kTextureInput].Get(NodeValue::kTexture).value<VideoParams>();
+  QMatrix4x4 matrix = GenerateMatrix(db, true, false, false, false);
+  matrix = GenerateAutoScaledMatrix(matrix, db, tex_params);
+
+  if (matrix.isIdentity()) {
+    qDebug() << "Detected identity matrix, skipping hashing";
+  } else {
+    qDebug() << "Detected NON-IDENTITY, hashing...";
+
+    // Add fingerprint
+    hash.addData(id().toUtf8());
+    hash.addData(reinterpret_cast<const char*>(&matrix), sizeof(matrix));
+  }
+
+  out.node()->Hash(out.output(), hash, time, video_params);
+}
+
 QMatrix4x4 TransformDistortNode::AdjustMatrixByResolutions(const QMatrix4x4 &mat, const QVector2D &sequence_res, const QVector2D &texture_res, AutoScaleType autoscale_type)
 {
   // First, create an identity matrix
@@ -360,6 +386,20 @@ QMatrix4x4 TransformDistortNode::AdjustMatrixByResolutions(const QMatrix4x4 &mat
 QPointF TransformDistortNode::CreateScalePoint(double x, double y, const QPointF &half_res, const QMatrix4x4 &mat)
 {
   return mat.map(QPointF(x, y)) + half_res;
+}
+
+QMatrix4x4 TransformDistortNode::GenerateAutoScaledMatrix(const QMatrix4x4& generated_matrix, NodeValueDatabase& value, const VideoParams& texture_params) const
+{
+  QVector2D sequence_res = value[QStringLiteral("global")].Get(NodeValue::kVec2, QStringLiteral("resolution")).value<QVector2D>();
+  QVector2D texture_res(texture_params.square_pixel_width(), texture_params.height());
+  AutoScaleType autoscale = static_cast<AutoScaleType>(value[kAutoscaleInput].Get(NodeValue::kCombo).toInt());
+
+  qDebug() << "Doing transform with" << texture_params.square_pixel_width() << "x" << texture_params.height() << "vs" << sequence_res.x() << "x" << sequence_res.y();
+
+  return AdjustMatrixByResolutions(generated_matrix,
+                                   sequence_res,
+                                   texture_res,
+                                   autoscale);
 }
 
 void TransformDistortNode::DrawGizmos(NodeValueDatabase &db, QPainter *p)

@@ -338,7 +338,7 @@ public:
 
   bool IsLocked() const;
 
-  virtual void Hash(const QString& output, QCryptographicHash& hash, const rational &time) const override;
+  virtual void Hash(const QString& output, QCryptographicHash& hash, const rational &time, const VideoParams& video_params) const override;
 
   AudioVisualWaveform& waveform()
   {
