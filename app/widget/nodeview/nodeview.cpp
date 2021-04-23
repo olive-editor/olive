@@ -407,8 +407,13 @@ void NodeView::mouseMoveEvent(QMouseEvent *event)
     // Find if the cursor is currently inside an item
     NodeViewItem* item_at_cursor = dynamic_cast<NodeViewItem*>(itemAt(event->pos()));
 
-    // Filter out connecting to self1
+    // Filter out connecting to self
     if (item_at_cursor == create_edge_src_) {
+      item_at_cursor = nullptr;
+    }
+
+    // Filter out connecting to a node that connects to us
+    if (item_at_cursor && item_at_cursor->GetNode()->OutputsTo(create_edge_src_->GetNode(), true)) {
       item_at_cursor = nullptr;
     }
 
