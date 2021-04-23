@@ -66,4 +66,5 @@ function(olive_add_test GROUP NAME SOURCE)
 endfunction()
 
 add_subdirectory(compositing)
+add_subdirectory(general)
 add_subdirectory(timeline)

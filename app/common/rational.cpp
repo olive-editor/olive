@@ -5,12 +5,14 @@
 
 namespace olive {
 
+const rational rational::NaN = rational(0, 0);
+
 rational rational::fromDouble(const double &flt, bool* ok)
 {
   if (qIsNaN(flt)) {
     // Return NaN rational
     if (ok) *ok = false;
-    return rational(0, 0);
+    return NaN;
   }
 
   // Use FFmpeg function for the time being
@@ -45,7 +47,7 @@ rational rational::fromString(const QString &str, bool* ok)
     if (ok) {
       *ok = false;
     }
-    return rational(0, 0);
+    return NaN;
   }
 }
 
@@ -57,16 +59,12 @@ void rational::fix_signs()
   if (denom_ < 0) {
     denom_ = -denom_;
     numer_ = -numer_;
-  }
-
-  // Normalize to 0/1 if numerator is zero
-  if (numer_ == intType(0)) {
-    denom_ = intType(1);
-  }
-
-  // Normalize to 0/0 (aka NaN) if denominator is zero
-  if (denom_ == intType(0)) {
+  } else if (denom_ == intType(0)) {
+    // Normalize to 0/0 (aka NaN) if denominator is zero
     numer_ = intType(0);
+  } else if (numer_ == intType(0)) {
+    // Normalize to 0/1 if numerator is zero
+    denom_ = intType(1);
   }
 }
 
@@ -438,5 +436,9 @@ uint qHash(const rational &r, uint seed)
 
 QDebug operator<<(QDebug debug, const olive::rational &r)
 {
-  return debug.space() << r.toDouble();
+  if (r.isNaN()) {
+    return debug.space() << "NaN";
+  } else {
+    return debug.space() << r.toDouble();
+  }
 }

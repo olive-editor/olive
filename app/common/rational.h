@@ -58,8 +58,9 @@ public:
   }
 
   static rational fromDouble(const double& flt, bool *ok = nullptr);
-
   static rational fromString(const QString& str, bool* ok = nullptr);
+
+  static const rational NaN;
 
   //Assignment Operators
   const rational& operator=(const rational &rhs);
