@@ -163,7 +163,7 @@ public:
    *
    * This function is thread safe and can only run while the decoder is open. \see Open()
    */
-  SampleBufferPtr RetrieveAudio(const TimeRange& range, const AudioParams& params, const QString &cache_path, const QAtomicInt *cancelled);
+  SampleBufferPtr RetrieveAudio(const TimeRange& range, const AudioParams& params, const QString &cache_path, Footage::LoopMode loop_mode, const QAtomicInt *cancelled);
 
   /**
    * @brief Generate a Footage object from a file
@@ -276,7 +276,7 @@ signals:
   void IndexProgress(double);
 
 private:
-  SampleBufferPtr RetrieveAudioFromConform(const QString& conform_filename, const TimeRange &range);
+  SampleBufferPtr RetrieveAudioFromConform(const QString& conform_filename, const TimeRange &range, Footage::LoopMode loop_mode);
 
   CodecStream stream_;
 

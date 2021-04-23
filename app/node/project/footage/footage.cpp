@@ -25,6 +25,7 @@
 #include <QStandardPaths>
 
 #include "codec/decoder.h"
+#include "common/clamp.h"
 #include "common/filefunctions.h"
 #include "common/xmlutils.h"
 #include "config/config.h"
@@ -36,6 +37,7 @@
 namespace olive {
 
 const QString Footage::kFilenameInput = QStringLiteral("file_in");
+const QString Footage::kLoopModeInput = QStringLiteral("loop_in");
 
 #define super ViewerOutput
 
@@ -45,6 +47,9 @@ Footage::Footage(const QString &filename) :
 {
   SetCacheTextures(true);
   SetViewerVideoCacheEnabled(false);
+
+  PrependInput(kLoopModeInput, NodeValue::kCombo, 0, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+  IgnoreHashingFrom(kLoopModeInput);
 
   PrependInput(kFilenameInput, NodeValue::kFile, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
@@ -58,12 +63,14 @@ void Footage::Retranslate()
   super::Retranslate();
 
   SetInputName(kFilenameInput, tr("Filename"));
+  SetInputName(kLoopModeInput, tr("Loop Mode"));
+  SetComboBoxStrings(kLoopModeInput, {tr("None"), tr("Loop"), tr("Clamp")});
 }
 
 QVector<QString> Footage::inputs_for_output(const QString &output) const
 {
   Q_UNUSED(output)
-  return {kFilenameInput};
+  return {kFilenameInput, kLoopModeInput};
 }
 
 bool Footage::LoadCustom(QXmlStreamReader *reader, XMLNodeData &xml_node_data, uint version, const QAtomicInt* cancelled)
@@ -226,6 +233,11 @@ void Footage::SetValid()
   valid_ = true;
 }
 
+Footage::LoopMode Footage::loop_mode() const
+{
+  return static_cast<LoopMode>(GetStandardValue(kLoopModeInput).toInt());
+}
+
 QString Footage::filename() const
 {
   return GetStandardValue(kFilenameInput).toString();
@@ -333,10 +345,14 @@ void Footage::Hash(const QString& output, QCryptographicHash &hash, const ration
 
         // Footage timestamp
         if (params.video_type() != VideoParams::kVideoTypeStill) {
-          int64_t video_ts = Timecode::time_to_timestamp(time, params.time_base());
+          rational adjusted_time = AdjustTimeByLoopMode(time, loop_mode(), GetLength());
 
-          // Add timestamp in units of the video stream's timebase
-          hash.addData(reinterpret_cast<const char*>(&video_ts), sizeof(video_ts));
+          if (!adjusted_time.isNaN()) {
+            int64_t video_ts = Timecode::time_to_timestamp(adjusted_time, params.time_base());
+
+            // Add timestamp in units of the video stream's timebase
+            hash.addData(reinterpret_cast<const char*>(&video_ts), sizeof(video_ts));
+          }
 
           // Add start time - used for both image sequences and video streams
           auto start_time = params.start_time();
@@ -354,32 +370,29 @@ NodeValueTable Footage::Value(const QString &output, NodeValueDatabase &value) c
   // Pop filename from table
   QString file = value[kFilenameInput].Take(NodeValue::kFile).toString();
 
+  LoopMode loop_mode = static_cast<LoopMode>(value[kLoopModeInput].Take(NodeValue::kCombo).toInt());
+
   // Merge table
   NodeValueTable table = value.Merge();
 
   // If the file exists and the reference is valid, push a footage job to the renderer
   if (QFileInfo(file).exists()) {
-    FootageJob job(decoder_, filename(), ref.type());
-
-    rational length;
+    FootageJob job(decoder_, filename(), ref.type(), GetLength(), loop_mode);
 
     if (ref.type() == Track::kVideo) {
       VideoParams vp = GetVideoParams(ref.index());
 
       // Ensure the colorspace is valid and not empty
       vp.set_colorspace(GetColorspaceToUse(vp));
-      length = Timecode::timestamp_to_time(vp.duration(), vp.time_base());
 
       job.set_video_params(vp);
     } else {
       AudioParams ap = GetAudioParams(ref.index());
       job.set_audio_params(ap);
       job.set_cache_path(project()->cache_path());
-      length = Timecode::timestamp_to_time(ap.duration(), ap.time_base());
     }
 
-    table.Push(NodeValue::kRational, QVariant::fromValue(length), this, false, QStringLiteral("length"));
-
+    table.Push(NodeValue::kRational, QVariant::fromValue(GetLength()), this, false, QStringLiteral("length"));
     table.Push(NodeValue::kFootageJob, QVariant::fromValue(job), this);
   }
 
@@ -421,6 +434,38 @@ NodeOutput Footage::GetConnectedSampleOutput()
   } else {
     return NodeOutput();
   }
+}
+
+bool TimeIsOutOfBounds(const rational& time, const rational& length)
+{
+  return time < 0 || time >= length;
+}
+
+rational Footage::AdjustTimeByLoopMode(rational time, Footage::LoopMode loop_mode, const rational &length)
+{
+  if (TimeIsOutOfBounds(time, length)) {
+    switch (loop_mode) {
+    case kLoopModeOff:
+      // Return no time to indicate no frame should be shown here
+      time = rational::NaN;
+      break;
+    case kLoopModeClamp:
+      // Clamp footage time to length
+      time = clamp(time, rational(0), length);
+      break;
+    case kLoopModeLoop:
+      // Loop footage time around job length
+      do {
+        if (time >= length) {
+          time -= length;
+        } else {
+          time += length;
+        }
+      } while (TimeIsOutOfBounds(time, length));
+    }
+  }
+
+  return time;
 }
 
 void Footage::UpdateTooltip()

@@ -29,14 +29,17 @@ class FootageJob
 {
 public:
   FootageJob() :
-    type_(Track::kNone)
+    type_(Track::kNone),
+    loop_mode_(Footage::kLoopModeOff)
   {
   }
 
-  FootageJob(const QString& decoder, const QString& filename, Track::Type type) :
+  FootageJob(const QString& decoder, const QString& filename, Track::Type type, const rational& length, Footage::LoopMode loop_mode) :
     decoder_(decoder),
     filename_(filename),
-    type_(type)
+    type_(type),
+    length_(length),
+    loop_mode_(loop_mode)
   {
   }
 
@@ -85,6 +88,26 @@ public:
     cache_path_ = p;
   }
 
+  const rational& length() const
+  {
+    return length_;
+  }
+
+  void set_length(const rational& length)
+  {
+    length_ = length;
+  }
+
+  Footage::LoopMode loop_mode() const
+  {
+    return loop_mode_;
+  }
+
+  void set_loop_mode(Footage::LoopMode loop_mode)
+  {
+    loop_mode_ = loop_mode;
+  }
+
 private:
   QString decoder_;
 
@@ -97,6 +120,10 @@ private:
   AudioParams audio_params_;
 
   QString cache_path_;
+
+  rational length_;
+
+  Footage::LoopMode loop_mode_;
 
 };
 

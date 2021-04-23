@@ -44,6 +44,12 @@ class Footage : public ViewerOutput
 {
   Q_OBJECT
 public:
+  enum LoopMode {
+    kLoopModeOff,
+    kLoopModeLoop,
+    kLoopModeClamp
+  };
+
   /**
    * @brief Footage Constructor
    */
@@ -101,6 +107,11 @@ public:
    * @brief Sets this footage to valid and ready to use
    */
   void SetValid();
+
+  /**
+   * @brief Get currently set loop mode
+   */
+  LoopMode loop_mode() const;
 
   /**
    * @brief Return the current filename of this Footage object
@@ -180,7 +191,10 @@ public:
 
   virtual NodeOutput GetConnectedSampleOutput() override;
 
+  static rational AdjustTimeByLoopMode(rational time, LoopMode loop_mode, const rational& length);
+
   static const QString kFilenameInput;
+  static const QString kLoopModeInput;
 
 protected:
   /**

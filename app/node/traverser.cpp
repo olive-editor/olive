@@ -285,10 +285,14 @@ void NodeTraverser::PostProcessTable(const Node *node, const QString& output, co
       FootageJob job = v.data().value<FootageJob>();
 
       if (job.type() == Track::kVideo) {
-        QVariant value = ProcessVideoFootage(job, range.in());
+        rational footage_time = Footage::AdjustTimeByLoopMode(range.in(), job.loop_mode(), job.length());
 
-        if (!value.isNull()) {
-          output_params.Push(NodeValue::kTexture, value, node);
+        if (!footage_time.isNaN()) {
+          QVariant value = ProcessVideoFootage(job, footage_time);
+
+          if (!value.isNull()) {
+            output_params.Push(NodeValue::kTexture, value, node);
+          }
         }
       }
     }

@@ -158,38 +158,40 @@ bool WaveInput::is_open() const
   return file_.isOpen();
 }
 
-QByteArray WaveInput::read(int length)
+QByteArray WaveInput::read(qint64 length)
 {
   if (!is_open()) {
     return QByteArray();
   }
 
-  return file_.read(qMin(calculate_max_read(), static_cast<qint64>(length)));
+  return file_.read(qMin(calculate_max_read(), length));
 }
 
-QByteArray WaveInput::read(int offset, int length)
+QByteArray WaveInput::read(qint64 offset, qint64 length)
 {
   if (!is_open()) {
     return QByteArray();
   }
 
   seek(offset);
-  return file_.read(qMin(calculate_max_read(), static_cast<qint64>(length)));
+  return file_.read(qMin(calculate_max_read(), length));
 }
 
-qint64 WaveInput::read(int offset, char *buffer, int length)
+qint64 WaveInput::read(qint64 offset, char *buffer, qint64 length)
 {
   if (!is_open()) {
     return 0;
   }
 
+  Q_ASSERT(length > 0);
+
   seek(offset);
-  return file_.read(buffer, qMin(calculate_max_read(), static_cast<qint64>(length)));
+  return file_.read(buffer, qMin(calculate_max_read(), length));
 }
 
 bool WaveInput::seek(qint64 pos)
 {
-  return file_.seek(data_position_ + qMin(pos, static_cast<qint64>(data_size_)));
+  return file_.seek(data_position_ + qMin(pos, qint64(data_size_)));
 }
 
 bool WaveInput::at_end() const
@@ -216,7 +218,7 @@ const quint32 &WaveInput::data_length() const
 
 int WaveInput::sample_count() const
 {
-  return params_.bytes_to_samples(static_cast<int>(data_size_));
+  return params_.bytes_to_samples(data_size_);
 }
 
 bool WaveInput::find_str(QFile *f, const char *str)

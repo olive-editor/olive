@@ -424,6 +424,7 @@ QVariant RenderProcessor::ProcessAudioFootage(const FootageJob &stream, const Ti
 
     SampleBufferPtr frame = decoder->RetrieveAudio(input_time, audio_params,
                                                    stream.cache_path(),
+                                                   stream.loop_mode(),
                                                    &IsCancelled());
 
     if (frame) {
