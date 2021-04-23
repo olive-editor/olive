@@ -28,12 +28,16 @@ const Texture::Interpolation Texture::kDefaultInterpolation = Texture::kMipmappe
 
 Texture::~Texture()
 {
-  renderer_->DestroyNativeTexture(id_);
+  if (renderer_) {
+    renderer_->DestroyNativeTexture(id_);
+  }
 }
 
 void Texture::Upload(void *data, int linesize)
 {
-  renderer_->UploadToTexture(this, data, linesize);
+  if (renderer_) {
+    renderer_->UploadToTexture(this, data, linesize);
+  }
 }
 
 }

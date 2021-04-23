@@ -456,22 +456,7 @@ QVariant RenderProcessor::ProcessShader(const Node *node, const TimeRange &range
 
   VideoParams tex_params = ticket_->property("vparam").value<VideoParams>();
 
-  bool input_textures_have_alpha = false;
-  for (auto it=job.GetValues().cbegin(); it!=job.GetValues().cend(); it++) {
-    if (it.value().type() == NodeValue::kTexture) {
-      TexturePtr tex = it.value().data().value<TexturePtr>();
-      if (tex && tex->channel_count() == VideoParams::kRGBAChannelCount) {
-        input_textures_have_alpha = true;
-        break;
-      }
-    }
-  }
-
-  if (input_textures_have_alpha || job.GetAlphaChannelRequired()) {
-    tex_params.set_channel_count(VideoParams::kRGBAChannelCount);
-  } else {
-    tex_params.set_channel_count(VideoParams::kRGBChannelCount);
-  }
+  tex_params.set_channel_count(GetChannelCountFromJob(job));
 
   TexturePtr destination = render_ctx_->CreateTexture(tex_params);
 
@@ -521,12 +506,7 @@ QVariant RenderProcessor::ProcessFrameGeneration(const Node *node, const Generat
   FramePtr frame = Frame::Create();
 
   VideoParams frame_params = ticket_->property("vparam").value<VideoParams>();
-  if (job.GetAlphaChannelRequired()) {
-    frame_params.set_channel_count(VideoParams::kRGBAChannelCount);
-  } else {
-    frame_params.set_channel_count(VideoParams::kRGBChannelCount);
-  }
-
+  frame_params.set_channel_count(GetChannelCountFromJob(job));
   frame->set_video_params(frame_params);
   frame->allocate();
 

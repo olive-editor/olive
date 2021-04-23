@@ -27,23 +27,29 @@ namespace olive {
 
 class GenerateJob : public AcceleratedJob {
 public:
+  enum AlphaChannelSetting {
+    kAlphaAuto,
+    kAlphaForceOn,
+    kAlphaForceOff
+  };
+
   GenerateJob()
   {
-    alpha_channel_required_ = false;
+    alpha_channel_required_ = kAlphaAuto;
   }
 
-  bool GetAlphaChannelRequired() const
+  AlphaChannelSetting GetAlphaChannelRequired() const
   {
     return alpha_channel_required_;
   }
 
-  void SetAlphaChannelRequired(bool e)
+  void SetAlphaChannelRequired(AlphaChannelSetting e)
   {
     alpha_channel_required_ = e;
   }
 
 private:
-  bool alpha_channel_required_;
+  AlphaChannelSetting alpha_channel_required_;
 
 };
 

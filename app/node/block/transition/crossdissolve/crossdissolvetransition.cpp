@@ -63,7 +63,7 @@ void CrossDissolveTransition::ShaderJobEvent(NodeValueDatabase &value, ShaderJob
 {
   Q_UNUSED(value)
 
-  job.SetAlphaChannelRequired(true);
+  job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
 }
 
 void CrossDissolveTransition::SampleJobEvent(SampleBufferPtr from_samples, SampleBufferPtr to_samples, SampleBufferPtr out_samples, double time_in) const

@@ -26,7 +26,7 @@
 #include "node/project/sequence/sequence.h"
 #include "undo/undocommand.h"
 #include "widget/timelinewidget/timelineundo.h"
-#include "../testutil.h"
+#include "testutil.h"
 
 namespace olive {
 

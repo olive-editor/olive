@@ -95,7 +95,7 @@ NodeValueTable TextGenerator::Value(const QString &output, NodeValueDatabase &va
   job.InsertValue(this, kVAlignInput, value);
   job.InsertValue(this, kFontInput, value);
   job.InsertValue(this, kFontSizeInput, value);
-  job.SetAlphaChannelRequired(true);
+  job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
 
   NodeValueTable table = value.Merge();
 

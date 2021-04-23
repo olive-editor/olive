@@ -45,6 +45,32 @@ NodeValueDatabase NodeTraverser::GenerateDatabase(const Node* node, const QStrin
   return database;
 }
 
+int NodeTraverser::GetChannelCountFromJob(const GenerateJob &job)
+{
+  switch (job.GetAlphaChannelRequired()) {
+  case GenerateJob::kAlphaForceOn:
+    return VideoParams::kRGBAChannelCount;
+  case GenerateJob::kAlphaForceOff:
+    return VideoParams::kRGBChannelCount;
+  case GenerateJob::kAlphaAuto:
+    for (auto it=job.GetValues().cbegin(); it!=job.GetValues().cend(); it++) {
+      if (it.value().type() == NodeValue::kTexture) {
+        TexturePtr tex = it.value().data().value<TexturePtr>();
+        if (tex && tex->channel_count() == VideoParams::kRGBAChannelCount) {
+          // An input texture has an alpha channel so assume we need one too
+          return VideoParams::kRGBAChannelCount;
+        }
+      }
+    }
+
+    // No textures had alpha so assume we don't need one
+    return VideoParams::kRGBChannelCount;
+  }
+
+  // Default fallback, should never get here
+  return VideoParams::kRGBAChannelCount;
+}
+
 NodeValueTable NodeTraverser::ProcessInput(const Node* node, const QString& input, const TimeRange& range)
 {
   // If input is connected, retrieve value directly
@@ -134,7 +160,8 @@ QVariant NodeTraverser::ProcessVideoFootage(const FootageJob &stream, const rati
 {
   Q_UNUSED(input_time)
 
-  return QVariant::fromValue(stream.video_params());
+  // Create dummy texture with footage params
+  return QVariant::fromValue(std::make_shared<Texture>(stream.video_params()));
 }
 
 QVariant NodeTraverser::ProcessAudioFootage(const FootageJob& stream, const TimeRange &input_time)
@@ -151,7 +178,10 @@ QVariant NodeTraverser::ProcessShader(const Node *node, const TimeRange &range, 
   Q_UNUSED(range)
   Q_UNUSED(job)
 
-  return QVariant::fromValue(video_params_);
+  // Create dummy texture with sequence params
+  VideoParams tex_params = video_params_;
+  tex_params.set_channel_count(GetChannelCountFromJob(job));
+  return QVariant::fromValue(std::make_shared<Texture>(tex_params));
 }
 
 QVariant NodeTraverser::ProcessSamples(const Node *node, const TimeRange &range, const SampleJob &job)
@@ -168,7 +198,10 @@ QVariant NodeTraverser::ProcessFrameGeneration(const Node *node, const GenerateJ
   Q_UNUSED(node)
   Q_UNUSED(job)
 
-  return QVariant::fromValue(video_params_);
+  // Create dummy texture with sequence params
+  VideoParams tex_params = video_params_;
+  tex_params.set_channel_count(GetChannelCountFromJob(job));
+  return QVariant::fromValue(std::make_shared<Texture>(tex_params));
 }
 
 void NodeTraverser::SaveCachedTexture(const QByteArray &hash, const QVariant &texture)

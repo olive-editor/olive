@@ -324,7 +324,7 @@ NodeValueTable MathNodeBase::ValueInternal(NodeValueDatabase &value, Operation o
                         NodeValue(NodeValue::kMatrix, adjusted_matrix, this));
 
         // It's likely an alpha channel will result from this operation
-        job.SetAlphaChannelRequired(true);
+        job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
       }
     }
 

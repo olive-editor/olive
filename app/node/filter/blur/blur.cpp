@@ -118,7 +118,7 @@ NodeValueTable BlurFilterNode::Value(const QString &output, NodeValueDatabase &v
 
       // If we're not repeating pixels, expect an alpha channel to appear
       if (!job.GetValue(kRepeatEdgePixelsInput).data().toBool()) {
-        job.SetAlphaChannelRequired(true);
+        job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
       }
 
       table.Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);

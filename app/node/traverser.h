@@ -54,6 +54,8 @@ public:
     video_params_ = params;
   }
 
+  static int GetChannelCountFromJob(const GenerateJob& job);
+
 protected:
   NodeValueTable ProcessInput(const Node *node, const QString &input, const TimeRange &range);
 

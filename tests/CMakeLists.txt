@@ -44,6 +44,7 @@ function(olive_add_test GROUP NAME SOURCE)
     ${NAME}
     PRIVATE
     ${CMAKE_SOURCE_DIR}/app
+    ${CMAKE_SOURCE_DIR}/tests
     ${OLIVE_INCLUDE_DIRS}
   )
   target_link_libraries(
@@ -64,4 +65,5 @@ function(olive_add_test GROUP NAME SOURCE)
   add_test(${NAME} ${NAME})
 endfunction()
 
+add_subdirectory(compositing)
 add_subdirectory(timeline)

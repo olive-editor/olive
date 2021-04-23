@@ -68,7 +68,7 @@ NodeValueTable CropDistortNode::Value(const QString &output, NodeValueDatabase &
   job.InsertValue(this, kFeatherInput, value);
   job.InsertValue(QStringLiteral("resolution_in"),
                   NodeValue(NodeValue::kVec2, value[QStringLiteral("global")].Get(NodeValue::kVec2, QStringLiteral("resolution")), this));
-  job.SetAlphaChannelRequired(true);
+  job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
 
   NodeValueTable table = value.Merge();
 

@@ -62,10 +62,11 @@ NodeValueTable TransformDistortNode::Value(const QString &output, NodeValueDatab
   QMatrix4x4 generated_matrix = GenerateMatrix(value, true, false, false, false);
 
   // Pop texture
-  TexturePtr texture = value[kTextureInput].Take(NodeValue::kTexture).value<TexturePtr>();
+  NodeValue texture_meta = value[kTextureInput].TakeWithMeta(NodeValue::kTexture);
+  TexturePtr texture = texture_meta.data().value<TexturePtr>();
 
   // Merge table
-  NodeValueTable table = value.Merge();
+  NodeValueTable table = value[kTextureInput];
 
   // If we have a texture, generate a matrix and make it happen
   if (texture) {
@@ -74,7 +75,7 @@ NodeValueTable TransformDistortNode::Value(const QString &output, NodeValueDatab
 
     if (real_matrix.isIdentity()) {
       // We don't expect any changes, just push as normal
-      table.Push(NodeValue::kTexture, QVariant::fromValue(texture), this);
+      table.Push(texture_meta);
     } else {
       // The matrix will transform things
       ShaderJob job;
@@ -84,7 +85,7 @@ NodeValueTable TransformDistortNode::Value(const QString &output, NodeValueDatab
 
       // FIXME: This should be optimized, we can use matrix math to determine if this operation will
       //        end up with gaps in the screen that will require an alpha channel.
-      job.SetAlphaChannelRequired(true);
+      job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
 
       table.Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
     }
@@ -103,6 +104,11 @@ ShaderCode TransformDistortNode::GetShaderCode(const QString &shader_id) const
 
 bool TransformDistortNode::GizmoPress(NodeValueDatabase &db, const QPointF &p)
 {
+  TexturePtr tex = db[kTextureInput].Get(NodeValue::kTexture).value<TexturePtr>();
+  if (!tex) {
+    return false;
+  }
+
   // Store cursor position
   gizmo_drag_pos_ = p;
 
@@ -137,7 +143,7 @@ bool TransformDistortNode::GizmoPress(NodeValueDatabase &db, const QPointF &p)
     }
 
     // Store texture size
-    VideoParams texture_params = db[kTextureInput].Get(NodeValue::kTexture).value<VideoParams>();
+    VideoParams texture_params = tex->params();
     QVector2D texture_sz(texture_params.square_pixel_width(), texture_params.height());
     gizmo_scale_anchor_ = db[kAnchorInput].Get(NodeValue::kVec2).value<QVector2D>() + texture_sz/2;
 
@@ -310,9 +316,9 @@ void TransformDistortNode::GizmoRelease()
 
 void TransformDistortNode::Hash(const QString &output, QCryptographicHash &hash, const rational &time, const VideoParams &video_params) const
 {
+  // If not connected to output, this will produce nothing
   NodeOutput out = GetConnectedOutput(kTextureInput);
   if (!out.IsValid()) {
-    // No texture connected, this node will produce nothing
     return;
   }
 
@@ -321,18 +327,17 @@ void TransformDistortNode::Hash(const QString &output, QCryptographicHash &hash,
   traverser.SetCacheVideoParams(video_params);
 
   NodeValueDatabase db = traverser.GenerateDatabase(this, output, TimeRange(time, time + video_params.frame_rate_as_time_base()));
-  VideoParams tex_params = db[kTextureInput].Get(NodeValue::kTexture).value<VideoParams>();
-  QMatrix4x4 matrix = GenerateMatrix(db, true, false, false, false);
-  matrix = GenerateAutoScaledMatrix(matrix, db, tex_params);
+  TexturePtr tex = db[kTextureInput].Get(NodeValue::kTexture).value<TexturePtr>();
+  if (tex) {
+    VideoParams tex_params = tex->params();
+    QMatrix4x4 matrix = GenerateMatrix(db, true, false, false, false);
+    matrix = GenerateAutoScaledMatrix(matrix, db, tex_params);
 
-  if (matrix.isIdentity()) {
-    qDebug() << "Detected identity matrix, skipping hashing";
-  } else {
-    qDebug() << "Detected NON-IDENTITY, hashing...";
-
-    // Add fingerprint
-    hash.addData(id().toUtf8());
-    hash.addData(reinterpret_cast<const char*>(&matrix), sizeof(matrix));
+    if (!matrix.isIdentity()) {
+      // Add fingerprint
+      hash.addData(id().toUtf8());
+      hash.addData(reinterpret_cast<const char*>(&matrix), sizeof(matrix));
+    }
   }
 
   out.node()->Hash(out.output(), hash, time, video_params);
@@ -394,8 +399,6 @@ QMatrix4x4 TransformDistortNode::GenerateAutoScaledMatrix(const QMatrix4x4& gene
   QVector2D texture_res(texture_params.square_pixel_width(), texture_params.height());
   AutoScaleType autoscale = static_cast<AutoScaleType>(value[kAutoscaleInput].Get(NodeValue::kCombo).toInt());
 
-  qDebug() << "Doing transform with" << texture_params.square_pixel_width() << "x" << texture_params.height() << "vs" << sequence_res.x() << "x" << sequence_res.y();
-
   return AdjustMatrixByResolutions(generated_matrix,
                                    sequence_res,
                                    texture_res,
@@ -404,6 +407,11 @@ QMatrix4x4 TransformDistortNode::GenerateAutoScaledMatrix(const QMatrix4x4& gene
 
 void TransformDistortNode::DrawGizmos(NodeValueDatabase &db, QPainter *p)
 {
+  TexturePtr tex = db[kTextureInput].Get(NodeValue::kTexture).value<TexturePtr>();
+  if (!tex) {
+    return;
+  }
+
   // 0 pen width is always 1px wide despite any transform
   p->setPen(QPen(Qt::white, 0));
 
@@ -413,7 +421,7 @@ void TransformDistortNode::DrawGizmos(NodeValueDatabase &db, QPainter *p)
   QPointF sequence_half_res_pt = sequence_half_res.toPointF();
 
   // GizmoTraverser just returns the sizes of the textures and no other data
-  VideoParams tex_params = db[kTextureInput].Get(NodeValue::kTexture).value<VideoParams>();
+  VideoParams tex_params = tex->params();
   QVector2D tex_sz(tex_params.square_pixel_width(), tex_params.height());
 
   // Retrieve autoscale value
