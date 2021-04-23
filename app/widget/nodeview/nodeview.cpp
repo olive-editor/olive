@@ -421,6 +421,7 @@ void NodeView::mouseMoveEvent(QMouseEvent *event)
         if (create_edge_dst_temp_expanded_) {
           // We expanded this item, so we can un-expand it
           create_edge_dst_->SetExpanded(false);
+          create_edge_dst_->setZValue(0);
         }
       }
 
@@ -431,6 +432,7 @@ void NodeView::mouseMoveEvent(QMouseEvent *event)
       if (create_edge_dst_) {
         if ((create_edge_dst_temp_expanded_ = (!create_edge_dst_->IsExpanded()))) {
           create_edge_dst_->SetExpanded(true, true);
+          create_edge_dst_->setZValue(100); // Ensure item is in front
         }
       }
     }
@@ -537,6 +539,7 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
       // Collapse if we expanded it
       if (create_edge_dst_temp_expanded_) {
         create_edge_dst_->SetExpanded(false);
+        create_edge_dst_->setZValue(0);
       }
 
       if (create_edge_dst_input_.IsValid()) {
