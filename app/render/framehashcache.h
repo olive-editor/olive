@@ -92,6 +92,9 @@ private:
 
   rational timebase_;
 
+  static QMutex currently_saving_frames_mutex_;
+  static QMap<QByteArray, FramePtr> currently_saving_frames_;
+
 private slots:
   void HashDeleted(const QString &s, const QByteArray& hash);
 

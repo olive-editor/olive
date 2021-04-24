@@ -35,6 +35,9 @@
 
 namespace olive {
 
+QMutex FrameHashCache::currently_saving_frames_mutex_;
+QMap<QByteArray, FramePtr> FrameHashCache::currently_saving_frames_;
+
 FrameHashCache::FrameHashCache(QObject *parent) :
   PlaybackCache(parent)
 {
@@ -223,7 +226,17 @@ bool FrameHashCache::SaveCacheFrame(const QString &cache_path, const QByteArray 
 bool FrameHashCache::SaveCacheFrame(const QString &cache_path, const QByteArray &hash, FramePtr frame)
 {
   if (frame) {
-    return SaveCacheFrame(cache_path, hash, frame->data(), frame->video_params(), frame->linesize_bytes());
+    QMutexLocker locker(&currently_saving_frames_mutex_);
+    currently_saving_frames_.insert(hash, frame);
+    locker.unlock();
+
+    bool ret = SaveCacheFrame(cache_path, hash, frame->data(), frame->video_params(), frame->linesize_bytes());
+
+    locker.relock();
+    currently_saving_frames_.remove(hash);
+    locker.unlock();
+
+    return ret;
   } else {
     qWarning() << "Attempted to save a NULL frame to the cache. This may or may not be desirable.";
     return false;
@@ -232,8 +245,17 @@ bool FrameHashCache::SaveCacheFrame(const QString &cache_path, const QByteArray 
 
 FramePtr FrameHashCache::LoadCacheFrame(const QString &cache_path, const QByteArray &hash)
 {
+  // Minor optimization, we store frames currently being saved just in case something tries to load
+  // while we're saving. This should *occasionally* optimize and also prevent scenarios where
+  // we try to load a frame that's half way through being saved.
+  QMutexLocker locker(&currently_saving_frames_mutex_);
+  if (currently_saving_frames_.contains(hash)) {
+    return currently_saving_frames_.value(hash);
+  }
+  locker.unlock();
+
   if (cache_path.isEmpty()) {
-    qWarning() << "Failed to save cache frame with empty path";
+    qWarning() << "Failed to load cache frame with empty path";
     return nullptr;
   }
 
@@ -242,7 +264,7 @@ FramePtr FrameHashCache::LoadCacheFrame(const QString &cache_path, const QByteAr
 
 FramePtr FrameHashCache::LoadCacheFrame(const QByteArray &hash) const
 {
-  return LoadCacheFrame(CachePathName(hash));
+  return LoadCacheFrame(GetCacheDirectory(), hash);
 }
 
 FramePtr FrameHashCache::LoadCacheFrame(const QString &fn)
