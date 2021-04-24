@@ -23,20 +23,37 @@
 namespace olive {
 
 RenderTicket::RenderTicket() :
-  started_(false),
-  finished_(false),
-  cancelled_(false)
+  is_running_(false),
+  has_result_(false),
+  finish_count_(0)
 {
   SetJobTime();
 }
 
-void RenderTicket::WaitForFinished()
+void RenderTicket::WaitForFinished(QMutex *mutex)
+{
+  if (is_running_) {
+    wait_.wait(mutex);
+  }
+}
+
+void RenderTicket::Start()
 {
   QMutexLocker locker(&lock_);
 
-  if (!finished_) {
-    wait_.wait(&lock_);
-  }
+  is_running_ = true;
+  has_result_ = false;
+  result_.clear();
+}
+
+void RenderTicket::Finish()
+{
+  FinishInternal(false, QVariant());
+}
+
+void RenderTicket::Finish(QVariant result)
+{
+  FinishInternal(true, result);
 }
 
 QVariant RenderTicket::Get()
@@ -48,82 +65,67 @@ QVariant RenderTicket::Get()
   return result_;
 }
 
-bool RenderTicket::HasStarted()
+void RenderTicket::WaitForFinished()
 {
   QMutexLocker locker(&lock_);
-  return started_;
+
+  WaitForFinished(&lock_);
 }
 
-bool RenderTicket::IsFinished(bool lock)
+bool RenderTicket::IsRunning(bool lock)
 {
   if (lock) {
     lock_.lock();
   }
 
-  bool finished = finished_;
+  bool running = is_running_;
 
   if (lock) {
     lock_.unlock();
   }
 
-  return finished;
+  return running;
 }
 
-bool RenderTicket::WasCancelled()
+int RenderTicket::GetFinishCount(bool lock)
 {
-  QMutexLocker locker(&lock_);
-
-  return cancelled_;
-}
-
-void RenderTicket::Start()
-{
-  QMutexLocker locker(&lock_);
-
-  if (!started_ && !finished_) {
-    started_ = true;
+  if (lock) {
+    lock_.lock();
   }
+
+  int count = finish_count_;
+
+  if (lock) {
+    lock_.unlock();
+  }
+
+  return count;
 }
 
-void RenderTicket::Finish(QVariant result, bool cancelled)
+bool RenderTicket::HasResult()
 {
   QMutexLocker locker(&lock_);
 
-  if (!started_) {
-    qWarning() << "Tried to finish a ticket that hadn't started";
-  } else if (finished_) {
-    // Do nothing
-    return;
-  } else {
-    finished_ = true;
-    cancelled_ = cancelled;
+  return has_result_;
+}
 
+void RenderTicket::FinishInternal(bool has_result, QVariant result)
+{
+  QMutexLocker locker(&lock_);
+
+  if (!is_running_) {
+    qWarning() << "Tried to finish ticket that wasn't running";
+  } else {
+    is_running_ = false;
+    has_result_ = has_result;
     result_ = result;
+    finish_count_++;
 
     wait_.wakeAll();
 
     locker.unlock();
 
     emit Finished();
-  }
-}
-
-void RenderTicket::Cancel()
-{
-  QMutexLocker locker(&lock_);
-
-  if (!finished_) {
-    cancelled_ = true;
-
-    if (!started_) {
-      finished_ = true;
-
-      wait_.wakeAll();
-
-      locker.unlock();
-
-      emit Finished();
-    }
   }
 }
 

@@ -104,6 +104,15 @@ private:
 
   void UpdateLastSyncedValue();
 
+  void CancelQueuedSingleFrameRender();
+
+  template <typename T, typename Func>
+  void ClearQueueInternal(T& list, bool hard, Func member);
+
+  void ClearQueueRemoveEventInternal(QMap<RenderTicketWatcher*, QByteArray>::iterator it);
+  void ClearQueueRemoveEventInternal(QMap<RenderTicketWatcher*, TimeRange>::iterator it);
+  void ClearQueueRemoveEventInternal(QVector<RenderTicketWatcher*>::iterator it);
+
   class QueuedJob {
   public:
     enum Type {

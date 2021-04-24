@@ -38,25 +38,22 @@ public:
 
   void SetTicket(RenderTicketPtr ticket);
 
-  void Cancel();
-
-  bool WasCancelled();
-
-  bool IsFinished();
-
-  bool HasStarted();
+  bool IsRunning();
 
   void WaitForFinished();
 
   QVariant Get();
 
+  bool HasResult();
+
 signals:
   void Finished(RenderTicketWatcher* watcher);
 
 private:
-  void TicketFinished();
-
   RenderTicketPtr ticket_;
+
+private slots:
+  void TicketFinished();
 
 };
 

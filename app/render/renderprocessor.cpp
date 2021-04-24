@@ -45,12 +45,6 @@ void RenderProcessor::Run()
   // Depending on the render ticket type, start a job
   RenderManager::TicketType type = ticket_->property("type").value<RenderManager::TicketType>();
 
-  ticket_->Start();
-
-  if (ticket_->WasCancelled()) {
-    return;
-  }
-
   switch (type) {
   case RenderManager::kTypeVideo:
   {
@@ -82,13 +76,7 @@ void RenderProcessor::Run()
       frame_params.set_format(frame_format);
     }
 
-    if (RenderManager::instance()->backend() == RenderManager::kOpenGL
-        && QOpenGLContext::openGLModuleType() == QOpenGLContext::LibGLES) {
-      // HACK: From what I can tell, ANGLE only supports texture reading to RGBA
-      frame_params.set_channel_count(VideoParams::kRGBAChannelCount);
-    } else if (texture) {
-      frame_params.set_channel_count(texture->channel_count());
-    }
+    frame_params.set_channel_count(texture ? texture->channel_count() : VideoParams::kRGBChannelCount);
 
     FramePtr frame = Frame::Create();
     frame->set_timestamp(time);
@@ -130,7 +118,7 @@ void RenderProcessor::Run()
       render_ctx_->DownloadFromTexture(texture.get(), frame->data(), frame->linesize_pixels());
     }
 
-    ticket_->Finish(QVariant::fromValue(frame), IsCancelled());
+    ticket_->Finish(QVariant::fromValue(frame));
     break;
   }
   case RenderManager::kTypeAudio:
@@ -144,7 +132,7 @@ void RenderProcessor::Run()
       table = GenerateTable(texture_output.node(), texture_output.output(), time);
     }
 
-    ticket_->Finish(table.Get(NodeValue::kSamples), IsCancelled());
+    ticket_->Finish(table.Get(NodeValue::kSamples));
     break;
   }
   case RenderManager::kTypeVideoDownload:
@@ -153,12 +141,12 @@ void RenderProcessor::Run()
     FramePtr frame = ticket_->property("frame").value<FramePtr>();
     QByteArray hash = ticket_->property("hash").toByteArray();
 
-    ticket_->Finish(FrameHashCache::SaveCacheFrame(cache, hash, frame), false);
+    ticket_->Finish(FrameHashCache::SaveCacheFrame(cache, hash, frame));
     break;
   }
   default:
     // Fail
-    ticket_->Cancel();
+    ticket_->Finish();
   }
 }
 

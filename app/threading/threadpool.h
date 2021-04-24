@@ -42,6 +42,8 @@ public:
 
   virtual void RunTicket(RenderTicketPtr ticket) const = 0;
 
+  bool RemoveTicket(RenderTicketPtr ticket);
+
 public slots:
   void AddTicket(olive::RenderTicketPtr ticket, bool prioritize = false);
 

@@ -397,7 +397,7 @@ FramePtr ViewerWidget::DecodeCachedImage(const QString &fn, const rational& time
 void ViewerWidget::DecodeCachedImage(RenderTicketPtr ticket, const QString &fn, const rational& time) const
 {
   ticket->Start();
-  ticket->Finish(QVariant::fromValue(DecodeCachedImage(fn, time)), false);
+  ticket->Finish(QVariant::fromValue(DecodeCachedImage(fn, time)));
 }
 
 bool ViewerWidget::ShouldForceWaveform() const
@@ -816,7 +816,7 @@ void ViewerWidget::RendererGeneratedFrame()
 {
   RenderTicketWatcher* ticket = static_cast<RenderTicketWatcher*>(sender());
 
-  if (!ticket->WasCancelled()) {
+  if (ticket->HasResult()) {
     FramePtr frame = ticket->Get().value<FramePtr>();
 
     if (nonqueue_watchers_.contains(ticket)) {
@@ -837,7 +837,7 @@ void ViewerWidget::RendererGeneratedFrameForQueue()
 {
   RenderTicketWatcher* watcher = static_cast<RenderTicketWatcher*>(sender());
 
-  if (!watcher->WasCancelled()) {
+  if (watcher->HasResult()) {
     FramePtr frame = watcher->Get().value<FramePtr>();
 
     // Ignore this signal if we've paused now

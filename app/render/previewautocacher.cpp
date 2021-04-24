@@ -33,20 +33,17 @@ PreviewAutoCacher::~PreviewAutoCacher()
 
 RenderTicketPtr PreviewAutoCacher::GetSingleFrame(const rational &t)
 {
-  if (single_frame_render_) {
-    single_frame_render_->Cancel();
-  }
+  CancelQueuedSingleFrameRender();
 
-  single_frame_render_ = std::make_shared<RenderTicket>();
+  auto sfr = std::make_shared<RenderTicket>();
+  sfr->Start();
+  sfr->setProperty("time", QVariant::fromValue(t));
 
-  single_frame_render_->setProperty("time", QVariant::fromValue(t));
-
-  // Copy because TryRender() might set this to null and we still want to return a handle to this
-  RenderTicketPtr copy = single_frame_render_;
-
+  // Attempt to queue
+  single_frame_render_ = sfr;
   TryRender();
 
-  return copy;
+  return sfr;
 }
 
 void PreviewAutoCacher::SetPaused(bool paused)
@@ -139,7 +136,7 @@ void PreviewAutoCacher::AudioRendered()
   RenderTicketWatcher* watcher = static_cast<RenderTicketWatcher*>(sender());
 
   if (audio_tasks_.contains(watcher)) {
-    if (!watcher->WasCancelled()) {
+    if (watcher->HasResult()) {
       viewer_node_->audio_playback_cache()->WritePCM(audio_tasks_.value(watcher),
                                                      watcher->Get().value<SampleBufferPtr>(),
                                                      watcher->GetTicket()->GetJobTime());
@@ -190,10 +187,7 @@ void PreviewAutoCacher::VideoRendered()
   RenderTicketWatcher* watcher = static_cast<RenderTicketWatcher*>(sender());
 
   if (video_tasks_.contains(watcher)) {
-    if (watcher->WasCancelled()) {
-      // We didn't get this hash
-      currently_caching_hashes_.removeOne(watcher->property("hash").toByteArray());
-    } else {
+    if (watcher->HasResult()) {
       const QByteArray& hash = video_tasks_.value(watcher);
 
       // Download frame in another thread
@@ -204,6 +198,9 @@ void PreviewAutoCacher::VideoRendered()
                                                                watcher->Get().value<FramePtr>(),
                                                                hash,
                                                                true));
+    } else {
+      // We didn't get this hash
+      currently_caching_hashes_.removeOne(watcher->property("hash").toByteArray());
     }
 
     video_tasks_.remove(watcher);
@@ -222,7 +219,7 @@ void PreviewAutoCacher::VideoDownloaded()
   RenderTicketWatcher* watcher = static_cast<RenderTicketWatcher*>(sender());
 
   if (video_download_tasks_.contains(watcher)) {
-    if (!watcher->WasCancelled()) {
+    if (watcher->HasResult()) {
       if (watcher->Get().toBool()) {
         const QByteArray& hash = video_download_tasks_.value(watcher);
 
@@ -237,6 +234,11 @@ void PreviewAutoCacher::VideoDownloaded()
     video_download_tasks_.remove(watcher);
   }
 
+  // The cacher might be waiting for this job to finish
+  if (!graph_update_queue_.isEmpty()) {
+    TryRender();
+  }
+
   delete watcher;
 }
 
@@ -244,7 +246,13 @@ void PreviewAutoCacher::SingleFrameFinished()
 {
   RenderTicketWatcher* watcher = static_cast<RenderTicketWatcher*>(sender());
   RenderTicketPtr passthrough = watcher->property("passthrough").value<RenderTicketPtr>();
-  passthrough->Finish(watcher->GetTicket()->Get(), watcher->GetTicket()->WasCancelled());
+
+  if (watcher->HasResult()) {
+    passthrough->Finish(watcher->Get());
+  } else {
+    passthrough->Finish();
+  }
+
   single_frame_tasks_.removeOne(watcher);
   delete watcher;
 }
@@ -346,6 +354,15 @@ void PreviewAutoCacher::UpdateLastSyncedValue()
   last_update_time_ = QDateTime::currentMSecsSinceEpoch();
 }
 
+void PreviewAutoCacher::CancelQueuedSingleFrameRender()
+{
+  if (single_frame_render_) {
+    // Signal that this ticket was cancelled with no value
+    single_frame_render_->Finish();
+    single_frame_render_ = nullptr;
+  }
+}
+
 void PreviewAutoCacher::SetPlayhead(const rational &playhead)
 {
   cache_range_ = TimeRange(playhead - Config::Current()[QStringLiteral("DiskCacheBehind")].value<rational>(),
@@ -374,74 +391,26 @@ void PreviewAutoCacher::ClearHashQueue(bool wait)
   }
 }
 
-void PreviewAutoCacher::ClearVideoQueue(bool wait)
+void PreviewAutoCacher::ClearVideoQueue(bool hard)
 {
-  // Copy because tasks that cancel immediately will be automatically removed from the list
-  auto vt_copy = video_tasks_;
-  auto sft_copy = single_frame_tasks_;
+  ClearQueueInternal(video_tasks_, hard, &PreviewAutoCacher::VideoRendered);
 
-  for (auto it=vt_copy.cbegin(); it!=vt_copy.cend(); it++) {
-    it.key()->Cancel();
-  }
-  foreach (RenderTicketWatcher* watcher, sft_copy) {
-    watcher->Cancel();
-  }
-  if (wait) {
-    // Re-copy because the above cancels may have deleted these watchers
-    vt_copy = video_tasks_;
-    sft_copy = single_frame_tasks_;
-
-    for (auto it=vt_copy.cbegin(); it!=vt_copy.cend(); it++) {
-      it.key()->WaitForFinished();
-    }
-    foreach (RenderTicketWatcher* watcher, sft_copy) {
-      watcher->WaitForFinished();
-    }
-
-    // If we're waiting, we prioritize clearing the cache. Otherwise, we assume that tasks can still
-    // finish after this function returns.
-    video_tasks_.clear();
-    single_frame_tasks_.clear();
+  if (hard) {
+    ClearQueueInternal(single_frame_tasks_, hard, &PreviewAutoCacher::SingleFrameFinished);
   }
 
   has_changed_ = true;
   use_custom_range_ = false;
 }
 
-void PreviewAutoCacher::ClearAudioQueue(bool wait)
+void PreviewAutoCacher::ClearAudioQueue(bool hard)
 {
-  // Create a copy because otherwise
-  auto copy = audio_tasks_;
-
-  for (auto it=copy.cbegin(); it!=copy.cend(); it++) {
-    it.key()->Cancel();
-  }
-  if (wait) {
-    copy = audio_tasks_;
-    for (auto it=copy.cbegin(); it!=copy.cend(); it++) {
-      it.key()->WaitForFinished();
-    }
-
-    audio_tasks_.clear();
-  }
+  ClearQueueInternal(audio_tasks_, hard, &PreviewAutoCacher::AudioRendered);
 }
 
-void PreviewAutoCacher::ClearVideoDownloadQueue(bool wait)
+void PreviewAutoCacher::ClearVideoDownloadQueue(bool hard)
 {
-  // Create a copy because otherwise
-  auto copy = video_download_tasks_;
-
-  for (auto it=copy.cbegin(); it!=copy.cend(); it++) {
-    it.key()->Cancel();
-  }
-  if (wait) {
-    copy = video_download_tasks_;
-    for (auto it=copy.cbegin(); it!=copy.cend(); it++) {
-      it.key()->WaitForFinished();
-    }
-
-    video_download_tasks_.clear();
-  }
+  ClearQueueInternal(video_download_tasks_, hard, &PreviewAutoCacher::VideoDownloaded);
 }
 
 void PreviewAutoCacher::NodeAdded(Node *node)
@@ -474,6 +443,7 @@ void PreviewAutoCacher::TryRender()
   if (!graph_update_queue_.isEmpty()) {
     if (HasActiveJobs()) {
       // Still waiting for jobs to finish
+      qDebug() << "Returning because active jobs still running:" << video_tasks_.size() << video_download_tasks_.size() << audio_tasks_.size() << single_frame_tasks_.size();
       return;
     }
 
@@ -519,8 +489,6 @@ void PreviewAutoCacher::TryRender()
 
     connect(watcher, &RenderTicketWatcher::Finished, this, &PreviewAutoCacher::SingleFrameFinished);
     single_frame_tasks_.append(watcher);
-
-    single_frame_render_->Start();
 
     watcher->SetTicket(RenderManager::instance()->RenderFrame(copied_viewer_node_,
                                                               copied_color_manager_,
@@ -578,8 +546,14 @@ void PreviewAutoCacher::RequeueFrames()
       } else if (currently_caching_hash) {
         // Cancel this frame unless it's already started
         RenderTicketWatcher* watcher = video_tasks_.key(hash);
-        if (watcher && watcher->HasStarted()) {
-          watcher->Cancel();
+        if (watcher) {
+          QMutexLocker locker(watcher->GetTicket()->lock());
+
+          if (!watcher->GetTicket()->IsRunning(false)) {
+            video_tasks_.remove(watcher);
+            currently_caching_hashes_.removeOne(hash);
+            delete watcher;
+          }
         }
       }
     }
@@ -626,7 +600,7 @@ void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
     ClearVideoDownloadQueue(true);
 
     // Clear any single frame render that might be queued
-    single_frame_render_ = nullptr;
+    CancelQueuedSingleFrameRender();
 
     // No longer caching any hashes
     currently_caching_hashes_.clear();
@@ -708,6 +682,73 @@ void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
             &PreviewAutoCacher::AudioInvalidated);
 
     TryRender();
+  }
+}
+
+RenderTicketWatcher* RetrieveFromQueueIterator(QMap<RenderTicketWatcher*, QByteArray>::iterator it)
+{
+  return it.key();
+}
+
+RenderTicketWatcher* RetrieveFromQueueIterator(QMap<RenderTicketWatcher*, TimeRange>::iterator it)
+{
+  return it.key();
+}
+
+RenderTicketWatcher* RetrieveFromQueueIterator(QVector<RenderTicketWatcher*>::iterator it)
+{
+  return *it;
+}
+
+void PreviewAutoCacher::ClearQueueRemoveEventInternal(QMap<RenderTicketWatcher*, QByteArray>::iterator it)
+{
+  currently_caching_hashes_.removeOne(it.value());
+}
+
+void PreviewAutoCacher::ClearQueueRemoveEventInternal(QMap<RenderTicketWatcher*, TimeRange>::iterator it)
+{
+  Q_UNUSED(it)
+}
+
+void PreviewAutoCacher::ClearQueueRemoveEventInternal(QVector<RenderTicketWatcher*>::iterator it)
+{
+  Q_UNUSED(it)
+}
+
+template<typename T, typename Func>
+void PreviewAutoCacher::ClearQueueInternal(T& list, bool hard, Func member)
+{
+  for (auto it=list.begin(); it!=list.end(); ) {
+    RenderTicketWatcher* ticket = RetrieveFromQueueIterator(it);
+
+    QMutexLocker locker(ticket->GetTicket()->lock());
+
+    bool ticket_is_running = ticket->GetTicket()->IsRunning(false);
+
+    if (hard || !ticket_is_running) {
+      // Override default signalling
+      disconnect(ticket, &RenderTicketWatcher::Finished, this, member);
+
+      if (ticket_is_running) {
+        // If ticket is running, assume we're hard clearing and wait for the ticket to finish
+        ticket->GetTicket()->WaitForFinished(ticket->GetTicket()->lock());
+      } else {
+        // Just remove the ticket from the queue
+        RenderManager::instance()->RemoveTicket(ticket->GetTicket());
+      }
+
+      // Special functionality for certain queues
+      ClearQueueRemoveEventInternal(it);
+
+      // Destroy ticket
+      locker.unlock();
+      delete ticket;
+
+      it = list.erase(it);
+    } else {
+      // We can't clear this, probably because we're soft clearing and the ticket is currently running
+      it++;
+    }
   }
 }
 

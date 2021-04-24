@@ -54,6 +54,17 @@ ThreadPool::~ThreadPool()
   }
 }
 
+bool ThreadPool::RemoveTicket(RenderTicketPtr ticket)
+{
+  auto it = std::find(ticket_queue_.begin(), ticket_queue_.end(), ticket);
+  if (it == ticket_queue_.end()) {
+    return false;
+  }
+
+  ticket_queue_.erase(it);
+  return true;
+}
+
 void ThreadPool::AddTicket(RenderTicketPtr ticket, bool prioritize)
 {
   if (prioritize) {
@@ -72,16 +83,15 @@ void ThreadPool::RunNext()
     RenderTicketPtr ticket = ticket_queue_.front();
     ticket_queue_.pop_front();
 
-    if (!ticket->WasCancelled()) {
-      ThreadPoolThread* thread = available_threads_.front();
-      available_threads_.pop_front();
+    ThreadPoolThread* thread = available_threads_.front();
+    available_threads_.pop_front();
 
-      // Move ticket to other thread so event processing can occur there
-      ticket->moveToThread(thread);
+    // Move ticket to other thread so event processing can occur there
+    ticket->Start();
+    ticket->moveToThread(thread);
 
-      // Run the ticket in the thread, which actually just calls our virtual function RunTicket
-      thread->RunTicket(ticket);
-    }
+    // Run the ticket in the thread, which actually just calls our virtual function RunTicket
+    thread->RunTicket(ticket);
   }
 }
 
