@@ -62,7 +62,7 @@ function(olive_add_test GROUP NAME SOURCE)
     PRIVATE
     ${OLIVE_COMPILE_OPTIONS}
   )
-  add_test(${NAME} ${NAME})
+  add_test("OliveLib.Tests.${NAME}" ${NAME})
 endfunction()
 
 add_subdirectory(compositing)
