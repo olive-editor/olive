@@ -66,6 +66,9 @@ public:
     format_(kFormatInvalid)
   {
     set_default_footage_parameters();
+
+    // Cache channel count
+    channel_count_ = av_get_channel_layout_nb_channels(channel_layout());
   }
 
   AudioParams(const int& sample_rate, const uint64_t& channel_layout, const Format& format) :
@@ -75,6 +78,9 @@ public:
   {
     set_default_footage_parameters();
     timebase_ = sample_rate_as_time_base();
+
+    // Cache channel count
+    channel_count_ = av_get_channel_layout_nb_channels(this->channel_layout());
   }
 
   int sample_rate() const
@@ -200,6 +206,8 @@ private:
   int sample_rate_;
 
   uint64_t channel_layout_;
+
+  int channel_count_;
 
   Format format_;
 

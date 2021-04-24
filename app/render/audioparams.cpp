@@ -141,7 +141,7 @@ rational AudioParams::bytes_to_time(const qint64 &bytes) const
 
 int AudioParams::channel_count() const
 {
-  return av_get_channel_layout_nb_channels(channel_layout());
+  return channel_count_;
 }
 
 int AudioParams::bytes_per_sample_per_channel() const
