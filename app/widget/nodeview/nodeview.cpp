@@ -27,6 +27,7 @@
 #include "core.h"
 #include "nodeviewundo.h"
 #include "node/factory.h"
+#include "node/traverser.h"
 #include "widget/menu/menushared.h"
 #include "widget/timebased/timebasedview.h"
 
@@ -493,14 +494,30 @@ void NodeView::mouseMoveEvent(QMouseEvent *event)
         if (new_drop_edge) {
           drop_input_.Reset();
 
+          NodeValue::Type drop_edge_data_type = new_drop_edge->input().GetDataType();
+
+          // If no data type could be determined from this input, run the Node and guess what type
+          // it's actually returning
+          if (drop_edge_data_type == NodeValue::kNone) {
+            NodeTraverser traverser;
+            NodeValueTable table = traverser.GenerateTable(new_drop_edge->output(), TimeRange(0, 0));
+            if (table.Count() > 0) {
+              drop_edge_data_type = table.at(table.Count() - 1).type();
+            }
+          }
+
+          // Iterate through the inputs of our dragging node and see if our node has any acceptable
+          // inputs to connect to for this type
           foreach (const QString& input, attached_node->inputs()) {
             NodeInput i(attached_node, input);
 
             if (attached_node->IsInputConnectable(input)) {
-              if (attached_node->GetInputDataType(input) == new_drop_edge->input().GetDataType()) {
+              if (attached_node->GetInputDataType(input) == drop_edge_data_type) {
+                // Found exactly the type we're looking for, set and break this loop
                 drop_input_ = i;
                 break;
               } else if (!drop_input_.IsValid()) {
+                // Default to first connectable input
                 drop_input_ = i;
               }
             }
