@@ -64,14 +64,10 @@ void AudioPlaybackCache::WritePCM(const TimeRange &range, SampleBufferPtr sample
 
   // Ensure if we have enough segments to write this data, creating more if not
   qint64 length_diff = params_.time_to_bytes(range.out()) - playlist_.GetLength();
-  qint64 whole_segments = length_diff / kDefaultSegmentSize;
-  qint64 remainder = length_diff % kDefaultSegmentSize;
-
-  for (int i = 0; i < whole_segments; i++) {
-    playlist_.push_back(CreateSegment(kDefaultSegmentSize, playlist_.GetLength()));
-  }
-  if (remainder > 0) {
-    playlist_.push_back(CreateSegment(remainder, playlist_.GetLength()));
+  while (length_diff > 0) {
+    qint64 seg_sz = qMin(kDefaultSegmentSize, length_diff);
+    playlist_.push_back(CreateSegment(seg_sz, playlist_.GetLength()));
+    length_diff -= seg_sz;
   }
 
   // Convert to packed data, which is what we store on disk so it can be played back easily
