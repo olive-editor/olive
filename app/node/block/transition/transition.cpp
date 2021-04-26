@@ -249,21 +249,11 @@ void TransitionBlock::InputConnectedEvent(const QString &input, int element, con
   if (input == kOutBlockInput) {
     // If node is not a block, this will just be null
     if ((connected_out_block_ = dynamic_cast<Block*>(output.node()))) {
-
-      Q_ASSERT(!dynamic_cast<TransitionBlock*>(connected_out_block_)
-          && !connected_out_block_->out_transition()
-          && connected_out_block_ == this->previous());
-
       connected_out_block_->set_out_transition(this);
     }
   } else if (input == kInBlockInput) {
     // If node is not a block, this will just be null
     if ((connected_in_block_ = dynamic_cast<Block*>(output.node()))) {
-
-      Q_ASSERT(!dynamic_cast<TransitionBlock*>(connected_in_block_)
-          && !connected_in_block_->in_transition()
-          && connected_in_block_ == this->next());
-
       connected_in_block_->set_in_transition(this);
     }
   }

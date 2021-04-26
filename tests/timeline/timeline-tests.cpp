@@ -20,6 +20,7 @@
 
 #include "core.h"
 #include "node/block/clip/clip.h"
+#include "node/block/transition/crossdissolve/crossdissolvetransition.h"
 #include "node/math/math/math.h"
 #include "node/math/merge/merge.h"
 #include "node/project/project.h"
@@ -119,12 +120,12 @@ OLIVE_ADD_TEST(Trim)
 
   ClipBlock* block1 = new ClipBlock();
   block1->set_length_and_media_out(2);
-  project.setParent(block1);
+  block1->setParent(&project);
   track->AppendBlock(block1);
 
   ClipBlock* block2 = new ClipBlock();
   block2->set_length_and_media_out(2);
-  project.setParent(block2);
+  block2->setParent(&project);
   track->AppendBlock(block2);
 
   // There should be two blocks right now
@@ -211,6 +212,277 @@ OLIVE_ADD_TEST(Trim)
     OLIVE_ASSERT(track->Blocks().size() == 2);
     OLIVE_ASSERT(block2->length() == 2);
     OLIVE_ASSERT(block1->length() == 2);
+  }
+
+  OLIVE_TEST_END;
+}
+
+OLIVE_ADD_TEST(ReplaceBlockWithGap_ClipsOnly)
+{
+  TIMELINE_TEST_START;
+
+  // Create a track that goes clip -> clip -> clip
+  sequence.add_default_nodes();
+  Track* track = sequence.track_list(Track::kVideo)->GetTracks().first();
+
+  ClipBlock* a = new ClipBlock();
+  a->setParent(&project);
+  track->AppendBlock(a);
+
+  ClipBlock* b = new ClipBlock();
+  b->setParent(&project);
+  track->AppendBlock(b);
+
+  ClipBlock* c = new ClipBlock();
+  c->setParent(&project);
+  track->AppendBlock(c);
+
+  {
+    // Replace clip C with a gap
+    TrackReplaceBlockWithGapCommand command(track, c);
+    command.redo();
+
+    // Clip should be removed without any gap actually taking its place, since the clip is at the
+    // end of the track
+    OLIVE_ASSERT(track->Blocks().size() == 2);
+    OLIVE_ASSERT(track->Blocks().at(0) == a);
+    OLIVE_ASSERT(track->Blocks().at(1) == b);
+
+    command.undo();
+
+    OLIVE_ASSERT(track->Blocks().size() == 3);
+    OLIVE_ASSERT(track->Blocks().at(0) == a);
+    OLIVE_ASSERT(track->Blocks().at(1) == b);
+    OLIVE_ASSERT(track->Blocks().at(2) == c);
+  }
+
+  {
+    // Replace clip B with a gap
+    TrackReplaceBlockWithGapCommand command(track, b);
+    command.redo();
+
+    // B should be replaced with a gap
+    OLIVE_ASSERT(track->Blocks().size() == 3);
+    OLIVE_ASSERT(track->Blocks().at(0) == a);
+    OLIVE_ASSERT(track->Blocks().at(1) != b);
+    OLIVE_ASSERT(dynamic_cast<GapBlock*>(track->Blocks().at(1)));
+    OLIVE_ASSERT(track->Blocks().at(1)->length() == b->length());
+    OLIVE_ASSERT(track->Blocks().at(2) == c);
+
+    command.undo();
+
+    OLIVE_ASSERT(track->Blocks().size() == 3);
+    OLIVE_ASSERT(track->Blocks().at(0) == a);
+    OLIVE_ASSERT(track->Blocks().at(1) == b);
+    OLIVE_ASSERT(track->Blocks().at(2) == c);
+  }
+
+  OLIVE_TEST_END;
+}
+
+OLIVE_ADD_TEST(ReplaceBlockWithGap_ClipsAndGaps)
+{
+  TIMELINE_TEST_START;
+
+  // Create a track that goes clip -> gap -> clip -> clip -> gap -> clip
+  sequence.add_default_nodes();
+  Track* track = sequence.track_list(Track::kVideo)->GetTracks().first();
+
+  ClipBlock* a = new ClipBlock();
+  a->setParent(&project);
+  track->AppendBlock(a);
+
+  GapBlock* b = new GapBlock();
+  b->setParent(&project);
+  track->AppendBlock(b);
+
+  ClipBlock* c = new ClipBlock();
+  c->setParent(&project);
+  track->AppendBlock(c);
+
+  GapBlock* d = new GapBlock();
+  d->setParent(&project);
+  track->AppendBlock(d);
+
+  ClipBlock* e = new ClipBlock();
+  e->setParent(&project);
+  track->AppendBlock(e);
+
+  {
+    // Replace clip E with a gap
+    TrackReplaceBlockWithGapCommand command(track, e);
+    command.redo();
+
+    // Both clips D and E should be removed because this command should remove any trailing gaps
+    OLIVE_ASSERT(track->Blocks().size() == 3);
+    OLIVE_ASSERT(track->Blocks().at(0) == a);
+    OLIVE_ASSERT(track->Blocks().at(1) == b);
+    OLIVE_ASSERT(track->Blocks().at(2) == c);
+
+    // Test undo
+    command.undo();
+
+    OLIVE_ASSERT(track->Blocks().size() == 5);
+    OLIVE_ASSERT(track->Blocks().at(0) == a);
+    OLIVE_ASSERT(track->Blocks().at(1) == b);
+    OLIVE_ASSERT(track->Blocks().at(2) == c);
+    OLIVE_ASSERT(track->Blocks().at(3) == d);
+    OLIVE_ASSERT(track->Blocks().at(4) == e);
+  }
+
+  {
+    // Replace clip A with a gap
+    rational original_length_of_a = a->length();
+    rational original_length_of_b = b->length();
+
+    TrackReplaceBlockWithGapCommand command(track, a);
+    command.redo();
+
+    // A should be removed and B should take its place
+    OLIVE_ASSERT(track->Blocks().size() == 4);
+
+    OLIVE_ASSERT(track->Blocks().at(0) == b);
+    OLIVE_ASSERT(track->Blocks().at(1) == c);
+    OLIVE_ASSERT(track->Blocks().at(2) == d);
+    OLIVE_ASSERT(track->Blocks().at(3) == e);
+    OLIVE_ASSERT(b->length() == original_length_of_a + original_length_of_b);
+
+    // Test undo
+    command.undo();
+
+    OLIVE_ASSERT(track->Blocks().size() == 5);
+    OLIVE_ASSERT(track->Blocks().at(0) == a);
+    OLIVE_ASSERT(track->Blocks().at(1) == b);
+    OLIVE_ASSERT(track->Blocks().at(2) == c);
+    OLIVE_ASSERT(track->Blocks().at(3) == d);
+    OLIVE_ASSERT(track->Blocks().at(4) == e);
+    OLIVE_ASSERT(a->length() == original_length_of_a);
+    OLIVE_ASSERT(b->length() == original_length_of_b);
+  }
+
+  {
+    // Replace clip C with a gap
+    rational original_length_of_b = b->length();
+    rational original_length_of_c = c->length();
+    rational original_length_of_d = d->length();
+
+    TrackReplaceBlockWithGapCommand command(track, c);
+    command.redo();
+
+    // C and D should be removed, and B should take both of their places
+    OLIVE_ASSERT(track->Blocks().size() == 3);
+    OLIVE_ASSERT(track->Blocks().at(0) == a);
+    OLIVE_ASSERT(track->Blocks().at(1) == b);
+    OLIVE_ASSERT(track->Blocks().at(2) == e);
+    OLIVE_ASSERT(b->length() == original_length_of_b + original_length_of_c + original_length_of_d);
+
+    // Test undo
+    command.undo();
+
+    OLIVE_ASSERT(track->Blocks().size() == 5);
+    OLIVE_ASSERT(track->Blocks().at(0) == a);
+    OLIVE_ASSERT(track->Blocks().at(1) == b);
+    OLIVE_ASSERT(track->Blocks().at(2) == c);
+    OLIVE_ASSERT(track->Blocks().at(3) == d);
+    OLIVE_ASSERT(track->Blocks().at(4) == e);
+    OLIVE_ASSERT(b->length() == original_length_of_b);
+    OLIVE_ASSERT(c->length() == original_length_of_c);
+    OLIVE_ASSERT(d->length() == original_length_of_d);
+  }
+
+  {
+    // Add a fourth clip at the end of the track
+    ClipBlock* f = new ClipBlock();
+    f->setParent(&project);
+    track->AppendBlock(f);
+
+    // Try replacing E with a block again
+    TrackReplaceBlockWithGapCommand command(track, e);
+    rational original_length_of_d = d->length();
+    rational original_length_of_e = e->length();
+    command.redo();
+
+    // E should be removed and D should have taken its place
+    OLIVE_ASSERT(track->Blocks().size() == 5);
+    OLIVE_ASSERT(track->Blocks().at(0) == a);
+    OLIVE_ASSERT(track->Blocks().at(1) == b);
+    OLIVE_ASSERT(track->Blocks().at(2) == c);
+    OLIVE_ASSERT(track->Blocks().at(3) == d);
+    OLIVE_ASSERT(track->Blocks().at(4) == f);
+    OLIVE_ASSERT(d->length() == original_length_of_d + original_length_of_e);
+
+    command.undo();
+
+    OLIVE_ASSERT(track->Blocks().size() == 6);
+    OLIVE_ASSERT(track->Blocks().at(0) == a);
+    OLIVE_ASSERT(track->Blocks().at(1) == b);
+    OLIVE_ASSERT(track->Blocks().at(2) == c);
+    OLIVE_ASSERT(track->Blocks().at(3) == d);
+    OLIVE_ASSERT(track->Blocks().at(4) == e);
+    OLIVE_ASSERT(track->Blocks().at(5) == f);
+    OLIVE_ASSERT(d->length() == original_length_of_d);
+    OLIVE_ASSERT(e->length() == original_length_of_e);
+  }
+
+  OLIVE_TEST_END;
+}
+
+#define UsingTransition CrossDissolveTransition
+
+OLIVE_ADD_TEST(ReplaceBlockWithGap_ClipsAndTransitions)
+{
+  TIMELINE_TEST_START;
+
+  // Create a track that goes clip -> gap -> clip -> clip -> gap -> clip
+  sequence.add_default_nodes();
+  Track* track = sequence.track_list(Track::kVideo)->GetTracks().first();
+
+  UsingTransition* a_in = new UsingTransition();
+  a_in->setParent(&project);
+  track->AppendBlock(a_in);
+
+  ClipBlock* a = new ClipBlock();
+  a->setParent(&project);
+  track->AppendBlock(a);
+
+  UsingTransition* a_to_b = new UsingTransition();
+  a_to_b->setParent(&project);
+  track->AppendBlock(a_to_b);
+
+  ClipBlock* b = new ClipBlock();
+  b->setParent(&project);
+  track->AppendBlock(b);
+
+  UsingTransition* b_out = new UsingTransition();
+  b_out->setParent(&project);
+  track->AppendBlock(b_out);
+
+  Node::ConnectEdge(a, NodeInput(a_in, UsingTransition::kInBlockInput));
+  Node::ConnectEdge(a, NodeInput(a_to_b, UsingTransition::kOutBlockInput));
+  Node::ConnectEdge(b, NodeInput(a_to_b, UsingTransition::kInBlockInput));
+  Node::ConnectEdge(b, NodeInput(b_out, UsingTransition::kOutBlockInput));
+
+  {
+    // Replace A with gap
+    TrackReplaceBlockWithGapCommand command(track, a);
+    command.redo();
+
+    // A should be replaced with a gap and so should A_IN since A was the only clip connected to it.
+    // Also A_TO_B should only be connected to B now
+    OLIVE_ASSERT(track->Blocks().size() == 4);
+    OLIVE_ASSERT(dynamic_cast<GapBlock*>(track->Blocks().at(0)));
+    OLIVE_ASSERT(track->Blocks().at(1) == a_to_b);
+    OLIVE_ASSERT(track->Blocks().at(2) == b);
+    OLIVE_ASSERT(track->Blocks().at(3) == b_out);
+
+    command.undo();
+
+    OLIVE_ASSERT(track->Blocks().size() == 5);
+    OLIVE_ASSERT(track->Blocks().at(0) == a_in);
+    OLIVE_ASSERT(track->Blocks().at(1) == a);
+    OLIVE_ASSERT(track->Blocks().at(2) == a_to_b);
+    OLIVE_ASSERT(track->Blocks().at(3) == b);
+    OLIVE_ASSERT(track->Blocks().at(4) == b_out);
   }
 
   OLIVE_TEST_END;

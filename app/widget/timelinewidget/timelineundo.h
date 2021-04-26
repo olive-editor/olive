@@ -1484,6 +1484,114 @@ private:
 
 };
 
+class TransitionRemoveCommand : public UndoCommand {
+public:
+  TransitionRemoveCommand(TransitionBlock* block, bool remove_from_graph) :
+    block_(block),
+    remove_from_graph_(remove_from_graph),
+    remove_command_(nullptr)
+  {
+  }
+
+  virtual Project* GetRelevantProject() const override
+  {
+    return track_->project();
+  }
+
+  virtual void redo() override
+  {
+    track_ = block_->track();
+    out_block_ = block_->connected_out_block();
+    in_block_ = block_->connected_in_block();
+
+    Q_ASSERT(out_block_ || in_block_);
+
+    track_->BeginOperation();
+
+    TimeRange invalidate_range(block_->in(), block_->out());
+
+    if (in_block_) {
+      in_block_->set_length_and_media_in(in_block_->length() + block_->in_offset());
+    }
+
+    if (out_block_) {
+      out_block_->set_length_and_media_out(out_block_->length() + block_->out_offset());
+    }
+
+    if (in_block_) {
+      Node::DisconnectEdge(in_block_, NodeInput(block_, TransitionBlock::kInBlockInput));
+    }
+
+    if (out_block_) {
+      Node::DisconnectEdge(out_block_, NodeInput(block_, TransitionBlock::kOutBlockInput));
+    }
+
+    track_->RippleRemoveBlock(block_);
+
+    track_->EndOperation();
+
+    track_->Node::InvalidateCache(invalidate_range, Track::kBlockInput);
+
+    if (remove_from_graph_) {
+      if (!remove_command_) {
+        remove_command_ = CreateRemoveCommand(block_);
+      }
+
+      remove_command_->redo();
+    }
+  }
+
+  virtual void undo() override
+  {
+    if (remove_from_graph_) {
+      remove_command_->undo();
+    }
+
+    track_->BeginOperation();
+
+    if (in_block_) {
+      track_->InsertBlockBefore(block_, in_block_);
+    } else {
+      track_->InsertBlockAfter(block_, out_block_);
+    }
+
+    if (in_block_) {
+      Node::ConnectEdge(in_block_, NodeInput(block_, TransitionBlock::kInBlockInput));
+    }
+
+    if (out_block_) {
+      Node::ConnectEdge(out_block_, NodeInput(block_, TransitionBlock::kOutBlockInput));
+    }
+
+    // These if statements must be separated because in_offset and out_offset report different things
+    // if only one block is connected vs two. So we have to connect the blocks first before we have
+    // an accurate return value from these offset functions.
+    if (in_block_) {
+      in_block_->set_length_and_media_in(in_block_->length() - block_->in_offset());
+    }
+
+    if (out_block_) {
+      out_block_->set_length_and_media_out(out_block_->length() - block_->out_offset());
+    }
+
+    track_->EndOperation();
+
+    track_->Node::InvalidateCache(TimeRange(block_->in(), block_->out()), Track::kBlockInput);
+  }
+
+private:
+  TransitionBlock* block_;
+
+  Track* track_;
+
+  Block* out_block_;
+  Block* in_block_;
+
+  bool remove_from_graph_;
+  UndoCommand* remove_command_;
+
+};
+
 class TrackReplaceBlockWithGapCommand : public UndoCommand {
 public:
   TrackReplaceBlockWithGapCommand(Track* track, Block* block) :
@@ -1506,145 +1614,13 @@ public:
     return block_->project();
   }
 
-  virtual void redo() override
-  {
-    if (block_->next()) {
-      track_->BeginOperation();
+  virtual void redo() override;
 
-      // Invalidate the range inhabited by this block
-      TimeRange invalidate_range(block_->in(), block_->out());
-
-      // Block has a next, which means it's NOT at the end of the sequence and thus requires a gap
-      rational new_gap_length = block_->length();
-
-      Block* previous = block_->previous();
-      Block* next = block_->next();
-
-      bool previous_is_a_gap = dynamic_cast<GapBlock*>(previous);
-      bool next_is_a_gap = dynamic_cast<GapBlock*>(next);
-
-      if (previous_is_a_gap && next_is_a_gap) {
-        // Clip is preceded and followed by a gap, so we'll merge the two
-        existing_gap_ = static_cast<GapBlock*>(previous);
-
-        existing_merged_gap_ = static_cast<GapBlock*>(next);
-        new_gap_length += existing_merged_gap_->length();
-        track_->RippleRemoveBlock(existing_merged_gap_);
-        existing_merged_gap_->setParent(&memory_manager_);
-      } else if (previous_is_a_gap) {
-        // Extend this gap to fill space left by block
-        existing_gap_ = static_cast<GapBlock*>(previous);
-      } else if (next_is_a_gap) {
-        // Extend this gap to fill space left by block
-        existing_gap_ = static_cast<GapBlock*>(next);
-      }
-
-      if (existing_gap_) {
-        // Extend an existing gap
-        new_gap_length += existing_gap_->length();
-        existing_gap_->set_length_and_media_out(new_gap_length);
-        track_->RippleRemoveBlock(block_);
-
-        existing_gap_precedes_ = (existing_gap_ == previous);
-      } else {
-        // No gap exists to fill this space, create a new one and swap it in
-        if (!our_gap_) {
-          our_gap_ = new GapBlock();
-          our_gap_->set_length_and_media_out(new_gap_length);
-        }
-
-        our_gap_->setParent(track_->parent());
-        track_->ReplaceBlock(block_, our_gap_);
-
-        if (!position_command_) {
-          position_command_ = new NodeSetPositionAsChildCommand(our_gap_, track_, our_gap_->index(), track_->Blocks().size(), true);
-        }
-        position_command_->redo();
-      }
-
-      track_->EndOperation();
-
-      track_->Node::InvalidateCache(invalidate_range, Track::kBlockInput);
-
-    } else {
-      // Block is at the end of the track, simply remove it
-
-      // Determine if it's proceeded by a gap, and remove that gap if so
-      Block* preceding = block_->previous();
-      if (dynamic_cast<GapBlock*>(preceding)) {
-        track_->RippleRemoveBlock(preceding);
-        preceding->setParent(&memory_manager_);
-
-        existing_merged_gap_ = static_cast<GapBlock*>(preceding);
-      }
-
-      // Remove block in question
-      track_->RippleRemoveBlock(block_);
-    }
-  }
-
-  virtual void undo() override
-  {
-    if (our_gap_ || existing_gap_) {
-      track_->BeginOperation();
-
-      if (our_gap_) {
-
-        // We made this gap, simply swap our gap back
-        track_->ReplaceBlock(our_gap_, block_);
-        our_gap_->setParent(&memory_manager_);
-
-        position_command_->undo();
-
-      } else {
-
-        // If we're here, assume that we extended an existing gap
-        rational original_gap_length = existing_gap_->length() - block_->length();
-
-        // If we merged two gaps together, restore the second one now
-        if (existing_merged_gap_) {
-          original_gap_length -= existing_merged_gap_->length();
-          existing_merged_gap_->setParent(track_->parent());
-          track_->InsertBlockAfter(existing_merged_gap_, existing_gap_);
-          existing_merged_gap_ = nullptr;
-        }
-
-        // Restore original block
-        if (existing_gap_precedes_) {
-          track_->InsertBlockAfter(block_, existing_gap_);
-        } else {
-          track_->InsertBlockBefore(block_, existing_gap_);
-        }
-
-        // Restore gap's original length
-        existing_gap_->set_length_and_media_out(original_gap_length);
-
-        existing_gap_ = nullptr;
-
-      }
-
-      track_->EndOperation();
-
-      track_->Node::InvalidateCache(TimeRange(block_->in(), block_->out()), Track::kBlockInput);
-    } else {
-
-      // Our gap and existing gap were both null, our block must have been at the end and thus
-      // required no gap extension/replacement
-
-      // However, we may have removed an unnecessary gap that preceded it
-      if (existing_merged_gap_) {
-        existing_merged_gap_->setParent(track_->parent());
-        track_->AppendBlock(existing_merged_gap_);
-        existing_merged_gap_ = nullptr;
-      }
-
-      // Restore block
-      track_->AppendBlock(block_);
-
-    }
-  }
+  virtual void undo() override;
 
 private:
+  void CreateRemoveTransitionCommandIfNecessary(bool next);
+
   Track* track_;
   Block* block_;
 
@@ -1656,6 +1632,8 @@ private:
   NodeSetPositionAsChildCommand* position_command_;
 
   QObject memory_manager_;
+
+  QVector<TransitionRemoveCommand*> transition_remove_commands_;
 
 };
 
@@ -2190,97 +2168,6 @@ private:
   BlockSplitPreservingLinksCommand* split_command_;
 
   QObject memory_manager_;
-
-};
-
-class TransitionRemoveCommand : public UndoCommand {
-public:
-  TransitionRemoveCommand(TransitionBlock* block) :
-    block_(block)
-  {
-  }
-
-  virtual Project* GetRelevantProject() const override
-  {
-    return track_->project();
-  }
-
-  virtual void redo() override
-  {
-    track_ = block_->track();
-    out_block_ = block_->connected_out_block();
-    in_block_ = block_->connected_in_block();
-
-    Q_ASSERT(out_block_ || in_block_);
-
-    track_->BeginOperation();
-
-    TimeRange invalidate_range(block_->in(), block_->out());
-
-    if (in_block_) {
-      in_block_->set_length_and_media_in(in_block_->length() + block_->in_offset());
-    }
-
-    if (out_block_) {
-      out_block_->set_length_and_media_out(out_block_->length() + block_->out_offset());
-    }
-
-    if (in_block_) {
-      Node::DisconnectEdge(in_block_, NodeInput(block_, TransitionBlock::kInBlockInput));
-    }
-
-    if (out_block_) {
-      Node::DisconnectEdge(out_block_, NodeInput(block_, TransitionBlock::kOutBlockInput));
-    }
-
-    track_->RippleRemoveBlock(block_);
-
-    track_->EndOperation();
-
-    track_->Node::InvalidateCache(invalidate_range, Track::kBlockInput);
-  }
-
-  virtual void undo() override
-  {
-    track_->BeginOperation();
-
-    if (in_block_) {
-      track_->InsertBlockBefore(block_, in_block_);
-    } else {
-      track_->InsertBlockAfter(block_, out_block_);
-    }
-
-    if (in_block_) {
-      Node::ConnectEdge(in_block_, NodeInput(block_, TransitionBlock::kInBlockInput));
-    }
-
-    if (out_block_) {
-      Node::ConnectEdge(out_block_, NodeInput(block_, TransitionBlock::kOutBlockInput));
-    }
-
-    // These if statements must be separated because in_offset and out_offset report different things
-    // if only one block is connected vs two. So we have to connect the blocks first before we have
-    // an accurate return value from these offset functions.
-    if (in_block_) {
-      in_block_->set_length_and_media_in(in_block_->length() - block_->in_offset());
-    }
-
-    if (out_block_) {
-      out_block_->set_length_and_media_out(out_block_->length() - block_->out_offset());
-    }
-
-    track_->EndOperation();
-
-    track_->Node::InvalidateCache(TimeRange(block_->in(), block_->out()), Track::kBlockInput);
-  }
-
-private:
-  TransitionBlock* block_;
-
-  Track* track_;
-
-  Block* out_block_;
-  Block* in_block_;
 
 };
 

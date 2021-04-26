@@ -479,9 +479,7 @@ void TimelineWidget::DeleteSelected(bool ripple)
 
   // For transitions, remove them but extend their attached blocks to fill their place
   foreach (TransitionBlock* transition, transitions_to_delete) {
-    command->add_child(new TransitionRemoveCommand(transition));
-
-    command->add_child(new NodeRemoveWithExclusiveDependenciesAndDisconnect(transition));
+    command->add_child(new TransitionRemoveCommand(transition, true));
   }
 
   // Replace clips with gaps (effectively deleting them)
