@@ -520,8 +520,6 @@ QVariant RenderProcessor::GetCachedTexture(const QByteArray& hash)
     return QVariant();
   }
 
-  VideoParams video_params = GetCacheVideoParams();
-
   FramePtr f = FrameHashCache::LoadCacheFrame(cache_dir, hash);
 
   if (f) {
