@@ -296,7 +296,7 @@ public:
    *
    * Shorthand for Core::instance()->main_window()->statusBar()->showMessage();
    */
-  void ShowStatusBarMessage(const QString& s);
+  void ShowStatusBarMessage(const QString& s, int timeout = 0);
 
   void OpenRecoveryProject(const QString& filename);
 

@@ -1078,9 +1078,9 @@ bool Core::SaveProject(Project* p)
   }
 }
 
-void Core::ShowStatusBarMessage(const QString &s)
+void Core::ShowStatusBarMessage(const QString &s, int timeout)
 {
-  main_window_->statusBar()->showMessage(s);
+  main_window_->statusBar()->showMessage(s, timeout);
 }
 
 void Core::OpenRecoveryProject(const QString &filename)
