@@ -35,6 +35,11 @@ class AudioMonitorPanel : public PanelWidget
 public:
   AudioMonitorPanel(QWidget* parent = nullptr);
 
+  void SetParams(const AudioParams& params)
+  {
+    audio_monitor_->SetParams(params);
+  }
+
 private:
   virtual void Retranslate() override;
 

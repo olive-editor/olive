@@ -194,6 +194,7 @@ TimelinePanel* MainWindow::OpenSequence(Sequence *sequence, bool enable_focus)
 
   if (enable_focus) {
     TimelineFocused(sequence);
+    UpdateAudioMonitorParams(sequence);
   }
 
   return panel;
@@ -689,17 +690,28 @@ void MainWindow::SaveCustomShortcuts()
 
 }
 
+void MainWindow::UpdateAudioMonitorParams(ViewerOutput *viewer)
+{
+  audio_monitor_panel_->SetParams(viewer ? viewer->GetAudioParams() : AudioParams());
+}
+
 void MainWindow::FocusedPanelChanged(PanelWidget *panel)
 {
-  TimelinePanel* timeline = dynamic_cast<TimelinePanel*>(panel);
+  // Update audio monitor panel
+  TimeBasedPanel* tbp = dynamic_cast<TimeBasedPanel*>(panel);
+  if (tbp) {
+    UpdateAudioMonitorParams(tbp->GetConnectedViewer());
+  }
 
+  // Signal timeline focus
+  TimelinePanel* timeline = dynamic_cast<TimelinePanel*>(panel);
   if (timeline) {
     TimelineFocused(timeline->GetConnectedViewer());
     return;
   }
 
+  // Signal project panel focus
   ProjectPanel* project = dynamic_cast<ProjectPanel*>(panel);
-
   if (project) {
     UpdateTitle();
     node_panel_->SetGraph(project->project());

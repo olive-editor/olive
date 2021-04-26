@@ -140,6 +140,8 @@ private:
 
   void SaveCustomShortcuts();
 
+  void UpdateAudioMonitorParams(ViewerOutput* viewer);
+
   QByteArray premaximized_state_;
 
   // Standard panels

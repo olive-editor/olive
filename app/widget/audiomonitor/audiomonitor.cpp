@@ -58,6 +58,8 @@ void AudioMonitor::SetParams(const AudioParams &params)
 
   peaked_.resize(params_.channel_count());
   peaked_.fill(false);
+
+  update();
 }
 
 void AudioMonitor::OutputDeviceSet(AudioPlaybackCache *cache, qint64 offset, int playback_speed)
@@ -68,6 +70,11 @@ void AudioMonitor::OutputDeviceSet(AudioPlaybackCache *cache, qint64 offset, int
 
   if (!file_->open(QFile::ReadOnly)) {
     qWarning() << "Failed to open IO device for AudioMonitor display";
+    Stop();
+    return;
+  }
+
+  if (offset > file_->size()) {
     Stop();
     return;
   }
@@ -86,6 +93,8 @@ void AudioMonitor::Stop()
   delete file_;
   file_ = nullptr;
   waveform_ = nullptr;
+
+  SetUpdateLoop(false);
 }
 
 void AudioMonitor::OutputPushed(const QByteArray &d)
@@ -102,6 +111,10 @@ void AudioMonitor::OutputPushed(const QByteArray &d)
 void AudioMonitor::OutputAudioVisualWaveformSet(const AudioVisualWaveform *waveform, const rational &start, int playback_speed)
 {
   Stop();
+
+  if (start >= waveform->length()) {
+    return;
+  }
 
   waveform_ = waveform;
   waveform_time_ = start;
@@ -240,8 +253,16 @@ void AudioMonitor::paintGL()
 
     if (file_) {
       UpdateValuesFromFile(v, delta_time);
+
+      if (file_->atEnd()) {
+        Stop();
+      }
     } else if (waveform_) {
       UpdateValuesFromWaveform(v, delta_time);
+
+      if (waveform_time_ >= waveform_->length()) {
+        Stop();
+      }
     }
 
     last_time_ = current_time;
