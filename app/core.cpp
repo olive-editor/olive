@@ -1083,6 +1083,11 @@ void Core::ShowStatusBarMessage(const QString &s, int timeout)
   main_window_->statusBar()->showMessage(s, timeout);
 }
 
+void Core::ClearStatusBarMessage()
+{
+  main_window_->statusBar()->clearMessage();
+}
+
 void Core::OpenRecoveryProject(const QString &filename)
 {
   OpenProjectInternal(filename, true);

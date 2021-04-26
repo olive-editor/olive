@@ -298,6 +298,8 @@ public:
    */
   void ShowStatusBarMessage(const QString& s, int timeout = 0);
 
+  void ClearStatusBarMessage();
+
   void OpenRecoveryProject(const QString& filename);
 
   void OpenNodeInViewer(ViewerOutput* viewer);
