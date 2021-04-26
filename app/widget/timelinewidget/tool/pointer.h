@@ -107,8 +107,6 @@ private:
 
   void ProcessGhostsForRolling();
 
-  bool AddMovingTransitionsToClipGhost(Block *block, Timeline::MovementMode movement, const QVector<Block*> &selected_items);
-
   bool movement_allowed_;
   bool trimming_allowed_;
   bool track_movement_allowed_;

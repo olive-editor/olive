@@ -319,33 +319,19 @@ void PointerTool::InitiateDragInternal(Block *clicked_item,
         } while (b != latest);
       }
     } else {
-      // Prepare for a standard pointer move
+      // Prepare for a standard pointer move by creating ghosts for them and any related blocks
       foreach (Block* block, clips) {
         if (dynamic_cast<GapBlock*>(block) || dynamic_cast<TransitionBlock*>(block)) {
           // Gaps cannot move, and we handle transitions further down
           continue;
         }
 
-        // Create ghost
-        TimelineViewGhostItem* ghost = AddGhostFromBlock(block,
-                                                         trim_mode);
-        Q_UNUSED(ghost)
+        // Create ghost for this block
+        AddGhostFromBlock(block, trim_mode, true);
 
-        // Add transitions if this has any
-        TransitionBlock* opening_transition = block->in_transition();
-        TransitionBlock* closing_transition = block->out_transition();
-
-        if (opening_transition) {
-          TimelineViewGhostItem* ot_ghost = AddGhostFromBlock(opening_transition,
-                                                              trim_mode);
-          Q_UNUSED(ot_ghost)
-        }
-
-        if (closing_transition) {
-          TimelineViewGhostItem* cl_ghost = AddGhostFromBlock(closing_transition,
-                                                              trim_mode);
-          Q_UNUSED(cl_ghost)
-        }
+        // Create ghosts for this block's transitions if any
+        AddGhostFromBlock(block->in_transition(), trim_mode, true);
+        AddGhostFromBlock(block->out_transition(), trim_mode, true);
       }
     }
 
@@ -733,6 +719,10 @@ void PointerTool::InitiateDrag(Block *clicked_item,
 
 TimelineViewGhostItem* PointerTool::AddGhostFromBlock(Block* block, Timeline::MovementMode mode, bool check_if_exists)
 {
+  if (!block) {
+    return nullptr;
+  }
+
   if (check_if_exists) {
     foreach (TimelineViewGhostItem* ghost, parent()->GetGhostItems()) {
       if (Node::ValueToPtr<Block>(ghost->GetData(TimelineViewGhostItem::kAttachedBlock)) == block) {
@@ -808,54 +798,6 @@ bool PointerTool::IsClipTrimmable(Block *clip,
   }
 
   return true;
-}
-
-bool PointerTool::AddMovingTransitionsToClipGhost(Block* block,
-                                                  Timeline::MovementMode movement,
-                                                  const QVector<Block *> &selected_items)
-{
-  // Assume block is a clip and see if it has any transitions
-  TransitionBlock* transitions[2];
-
-  if (movement == Timeline::kMove || movement == Timeline::kTrimOut) {
-    transitions[0] = block->out_transition();
-  } else {
-    transitions[0] = nullptr;
-  }
-
-  if (movement == Timeline::kMove || movement == Timeline::kTrimIn) {
-    transitions[1] = block->in_transition();
-  } else {
-    transitions[1] = nullptr;
-  }
-
-  bool ret = false;
-
-  for (int i=0;i<2;i++) {
-    if (!transitions[i]) {
-      continue;
-    }
-
-    bool found = false;
-
-    foreach (Block* item, selected_items) {
-      if (item == transitions[i]) {
-        // Do nothing
-        found = true;
-        break;
-      }
-    }
-
-    if (!found) {
-      TimelineViewGhostItem* transition_ghost = AddGhostFromBlock(transitions[i], Timeline::kMove);
-
-      Q_UNUSED(transition_ghost)
-
-      ret = true;
-    }
-  }
-
-  return ret;
 }
 
 rational PointerTool::ValidateInTrimming(rational movement)
