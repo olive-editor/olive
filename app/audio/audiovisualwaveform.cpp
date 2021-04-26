@@ -121,6 +121,9 @@ void AudioVisualWaveform::OverwriteSamples(SampleBufferPtr samples, int sample_r
                                input_start, input_length, start, current_mipmap->first.toDouble(),
                                current_mipmap->second);
   }
+
+  rational sample_length(samples->sample_count(), sample_rate);
+  length_ = qMax(length_, start + sample_length);
 }
 
 void AudioVisualWaveform::OverwriteSums(const AudioVisualWaveform &sums, const rational &dest, const rational& offset, const rational& length)
@@ -155,6 +158,8 @@ void AudioVisualWaveform::OverwriteSums(const AudioVisualWaveform &sums, const r
            reinterpret_cast<const char*>(their_arr.constData()) + their_start_index * sizeof(SamplePerChannel),
            copy_len * sizeof(SamplePerChannel));
   }
+
+  length_ = qMax(length_, dest + length);
 }
 
 void AudioVisualWaveform::Shift(const rational &from, const rational &to)
@@ -201,6 +206,8 @@ void AudioVisualWaveform::Shift(const rational &from, const rational &to)
       memset(reinterpret_cast<char*>(&data[from_index]), 0, distance * sizeof(SamplePerChannel));
     }
   }
+
+  length_ += (to-from);
 }
 
 AudioVisualWaveform::Sample AudioVisualWaveform::GetSummaryFromTime(const rational &start, const rational &length) const

@@ -55,6 +55,11 @@ public:
     channels_ = channels;
   }
 
+  const rational& length() const
+  {
+    return length_;
+  }
+
   /**
    * @brief Writes samples into the visual waveform buffer
    *
@@ -111,6 +116,8 @@ private:
   int channels_;
 
   std::map<rational, Sample> mipmapped_data_;
+
+  rational length_;
 
 };
 
