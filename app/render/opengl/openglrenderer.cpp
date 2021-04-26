@@ -162,7 +162,6 @@ void OpenGLRenderer::ClearDestination(double r, double g, double b, double a)
 
 QVariant OpenGLRenderer::CreateNativeTexture2D(int width, int height, VideoParams::Format format, int channel_count, const void *data, int linesize)
 {
-
   GLuint texture;
   functions_->glGenTextures(1, &texture);
 
@@ -370,7 +369,7 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
     const NodeValue& value = it.value();
 
     if (value.array()) {
-      qWarning() << "FIXME: Array support is currently a stub";
+      continue;
     }
 
     switch (value.type()) {
