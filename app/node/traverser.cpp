@@ -85,8 +85,9 @@ NodeValueTable NodeTraverser::ProcessInput(const Node* node, const QString& inpu
 
     // Store node
     QVariant return_val;
+    bool is_array = node->InputIsArray(input);
 
-    if (node->InputIsArray(input)) {
+    if (is_array) {
 
       // Value is an array, we will return a list of NodeValueTables
       QVector<NodeValueTable> array_tbl(node->InputArraySize(input));
@@ -115,7 +116,7 @@ NodeValueTable NodeTraverser::ProcessInput(const Node* node, const QString& inpu
     }
 
     NodeValueTable return_table;
-    return_table.Push(node->GetInputDataType(input), return_val, node, true);
+    return_table.Push(node->GetInputDataType(input), return_val, node, is_array);
     return return_table;
 
   }
