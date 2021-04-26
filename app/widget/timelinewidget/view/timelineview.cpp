@@ -406,13 +406,15 @@ void TimelineView::DrawBlocks(QPainter *painter, bool foreground)
         if (foreground) {
           painter->setBrush(Qt::NoBrush);
 
+          QString using_label = block->GetLabel().isEmpty() ? block->Name() : block->GetLabel();
+
           QRectF text_rect = r.adjusted(text_padding, text_padding, -text_padding, -text_padding);
           painter->setPen(block->is_enabled() ? ColorCoding::GetUISelectorColor(block->color()) : Qt::lightGray);
-          painter->drawText(text_rect, Qt::AlignLeft | Qt::AlignTop, block->GetLabel());
+          painter->drawText(text_rect, Qt::AlignLeft | Qt::AlignTop, using_label);
 
           if (block->HasLinks()) {
             int text_width = qMin(qRound(text_rect.width()),
-                                  QtUtils::QFontMetricsWidth(fm, block->GetLabel()));
+                                  QtUtils::QFontMetricsWidth(fm, using_label));
 
             int underline_y = text_rect.y() + text_height;
 
@@ -438,6 +440,23 @@ void TimelineView::DrawBlocks(QPainter *painter, bool foreground)
             QRect waveform_rect = r.adjusted(0, text_total_height, 0, 0).toRect();
             painter->setPen(shadow_color);
             AudioVisualWaveform::DrawWaveform(painter, waveform_rect, this->GetScale(), track->waveform(), SceneToTime(block_left));
+          }
+
+          // For transitions, show lines representing a transition
+          TransitionBlock* transition = dynamic_cast<TransitionBlock*>(block);
+          if (transition) {
+            QVector<QLineF> lines;
+
+            if (transition->connected_in_block()) {
+              lines.append(QLineF(r.bottomLeft(), r.topRight()));
+            }
+
+            if (transition->connected_out_block()) {
+              lines.append(QLineF(r.topLeft(), r.bottomRight()));
+            }
+
+            painter->setPen(shadow_color);
+            painter->drawLines(lines);
           }
         }
 

@@ -24,6 +24,8 @@
 
 namespace olive {
 
+#define super Block
+
 const QString TransitionBlock::kOutBlockInput = QStringLiteral("out_block_in");
 const QString TransitionBlock::kInBlockInput = QStringLiteral("in_block_in");
 const QString TransitionBlock::kCurveInput = QStringLiteral("curve_in");
@@ -41,7 +43,7 @@ TransitionBlock::TransitionBlock() :
 
 void TransitionBlock::Retranslate()
 {
-  Block::Retranslate();
+  super::Retranslate();
 
   SetInputName(kOutBlockInput, tr("From"));
   SetInputName(kInBlockInput, tr("To"));
@@ -154,15 +156,9 @@ NodeValueTable TransitionBlock::Value(const QString &output, NodeValueDatabase &
 {
   Q_UNUSED(output)
 
-  NodeValue::Type data_type;
-
-  if (IsInputConnected(kOutBlockInput)) {
-    data_type = value[kOutBlockInput].GetWithMeta(NodeValue::kBuffer).type();
-  } else if (IsInputConnected(kInBlockInput)) {
-    data_type = value[kInBlockInput].GetWithMeta(NodeValue::kBuffer).type();
-  } else {
-    data_type = NodeValue::kNone;
-  }
+  NodeValue out_buffer = value[kOutBlockInput].TakeWithMeta(NodeValue::kBuffer);
+  NodeValue in_buffer = value[kInBlockInput].TakeWithMeta(NodeValue::kBuffer);
+  NodeValue::Type data_type = (out_buffer.type() != NodeValue::kNone) ? out_buffer.type() : in_buffer.type();
 
   NodeValue::Type job_type = NodeValue::kNone;
   QVariant push_job;
@@ -171,8 +167,14 @@ NodeValueTable TransitionBlock::Value(const QString &output, NodeValueDatabase &
     // This must be a visual transition
     ShaderJob job;
 
-    job.InsertValue(this, kOutBlockInput, value);
-    job.InsertValue(this, kInBlockInput, value);
+    if (out_buffer.type() != NodeValue::kNone) {
+      job.InsertValue(kOutBlockInput, out_buffer);
+    }
+
+    if (in_buffer.type() != NodeValue::kNone) {
+      job.InsertValue(kInBlockInput, in_buffer);
+    }
+
     job.InsertValue(this, kCurveInput, value);
 
     double time = value[QStringLiteral("global")].Get(NodeValue::kFloat, QStringLiteral("time_in")).toDouble();
@@ -184,8 +186,8 @@ NodeValueTable TransitionBlock::Value(const QString &output, NodeValueDatabase &
     push_job = QVariant::fromValue(job);
   } else if (data_type == NodeValue::kSamples) {
     // This must be an audio transition
-    SampleBufferPtr from_samples = value[kOutBlockInput].Take(NodeValue::kSamples).value<SampleBufferPtr>();
-    SampleBufferPtr to_samples = value[kInBlockInput].Take(NodeValue::kSamples).value<SampleBufferPtr>();
+    SampleBufferPtr from_samples = out_buffer.data().value<SampleBufferPtr>();
+    SampleBufferPtr to_samples = in_buffer.data().value<SampleBufferPtr>();
 
     if (from_samples || to_samples) {
       double time_in = value[QStringLiteral("global")].Get(NodeValue::kFloat, QStringLiteral("time_in")).toDouble();
@@ -275,6 +277,30 @@ void TransitionBlock::InputDisconnectedEvent(const QString &input, int element, 
       connected_in_block_ = nullptr;
     }
   }
+}
+
+TimeRange TransitionBlock::InputTimeAdjustment(const QString &input, int element, const TimeRange &input_time) const
+{
+  if (input == kInBlockInput || input == kOutBlockInput) {
+    Block* block = dynamic_cast<Block*>(GetConnectedNode(input));
+    if (block) {
+      return input_time + in() - block->in();
+    }
+  }
+
+  return super::InputTimeAdjustment(input, element, input_time);
+}
+
+TimeRange TransitionBlock::OutputTimeAdjustment(const QString &input, int element, const TimeRange &input_time) const
+{
+  if (input == kInBlockInput || input == kOutBlockInput) {
+    Block* block = dynamic_cast<Block*>(GetConnectedNode(input));
+    if (block) {
+      return input_time + block->in() - in();
+    }
+  }
+
+  return super::OutputTimeAdjustment(input, element, input_time);
 }
 
 }
