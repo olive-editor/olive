@@ -185,6 +185,15 @@ void ViewerDisplayWidget::ResetFPSTimer()
   fps_timer_update_count_ = 0;
   frames_skipped_ = 0;
   frame_rate_average_count_ = 0;
+
+  Core::instance()->ClearStatusBarMessage();
+}
+
+void ViewerDisplayWidget::IncrementSkippedFrames()
+{
+  frames_skipped_++;
+
+  Core::instance()->ShowStatusBarMessage(tr("%n skipped frame(s) detected during playback", nullptr, frames_skipped_), 10000);
 }
 
 void ViewerDisplayWidget::mousePressEvent(QMouseEvent *event)
@@ -292,6 +301,20 @@ void ViewerDisplayWidget::dropEvent(QDropEvent *event)
   if (!event->isAccepted()) {
     super::dropEvent(event);
   }
+}
+
+void ViewerDisplayWidget::showEvent(QShowEvent *event)
+{
+  emit VisibilityChanged(true);
+
+  super::showEvent(event);
+}
+
+void ViewerDisplayWidget::hideEvent(QHideEvent *event)
+{
+  emit VisibilityChanged(false);
+
+  super::hideEvent(event);
 }
 
 void ViewerDisplayWidget::OnPaint()

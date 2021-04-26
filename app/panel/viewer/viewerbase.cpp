@@ -113,7 +113,7 @@ void ViewerPanelBase::CreateScopePanel(ScopePanel::Type type)
 
   p->SetColorManager(vw->color_manager());
 
-  vw->ForceUpdate();
+  vw->UpdateTextureFromNode();
 }
 
 void ViewerPanelBase::closeEvent(QCloseEvent *e)

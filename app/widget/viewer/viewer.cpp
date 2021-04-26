@@ -47,7 +47,7 @@ namespace olive {
 
 QVector<ViewerWidget*> ViewerWidget::instances_;
 
-const int kMaxPreQueueSize = 16;
+const int kMaxPreQueueSize = QThread::idealThreadCount();
 
 ViewerWidget::ViewerWidget(QWidget *parent) :
   super(false, true, parent),
@@ -81,6 +81,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   connect(display_widget_, &ViewerDisplayWidget::ColorManagerChanged, this, &ViewerWidget::ColorManagerChanged);
   connect(display_widget_, &ViewerDisplayWidget::DragEntered, this, &ViewerWidget::DragEntered);
   connect(display_widget_, &ViewerDisplayWidget::Dropped, this, &ViewerWidget::Dropped);
+  connect(display_widget_, &ViewerDisplayWidget::VisibilityChanged, this, &ViewerWidget::Pause);
   connect(sizer_, &ViewerSizer::RequestScale, display_widget_, &ViewerDisplayWidget::SetMatrixZoom);
   connect(sizer_, &ViewerSizer::RequestTranslate, display_widget_, &ViewerDisplayWidget::SetMatrixTranslate);
   connect(display_widget_, &ViewerDisplayWidget::HandDragMoved, sizer_, &ViewerSizer::HandDragMove);
@@ -168,7 +169,7 @@ void ViewerWidget::TimeChangedEvent(const int64_t &i)
     rational time_set = Timecode::timestamp_to_time(i, timebase());
 
     if (!IsPlaying()) {
-      UpdateTextureFromNode(time_set);
+      UpdateTextureFromNode();
 
       PushScrubbedAudio();
     }
@@ -224,7 +225,7 @@ void ViewerWidget::ConnectNodeEvent(ViewerOutput *n)
   UpdateRendererAudioParameters();
 
   // Set texture to new texture (or null if no viewer node is available)
-  ForceUpdate();
+  UpdateTextureFromNode();
 }
 
 void ViewerWidget::DisconnectNodeEvent(ViewerOutput *n)
@@ -347,12 +348,6 @@ void ViewerWidget::SetFullScreen(QScreen *screen)
   windows_.insert(screen, vw);
 }
 
-void ViewerWidget::ForceUpdate()
-{
-  // Hack that forces the viewer to update
-  UpdateTextureFromNode(GetTime());
-}
-
 void ViewerWidget::SetAutoCacheEnabled(bool e)
 {
   auto_cacher_.SetPaused(!e);
@@ -452,8 +447,9 @@ void ViewerWidget::StartAudioOutput()
   }
 }
 
-void ViewerWidget::UpdateTextureFromNode(const rational& time)
+void ViewerWidget::UpdateTextureFromNode()
 {
+  rational time = GetTime();
   bool frame_exists_at_time = FrameExistsAtTime(time);
   bool frame_might_be_still = GetConnectedNode() && GetConnectedNode()->GetConnectedTextureOutput().IsValid() && GetConnectedNode()->GetVideoLength().isNull();
 
@@ -496,14 +492,32 @@ void ViewerWidget::UpdateTextureFromNode(const rational& time)
       qWarning() << "Playback queue failed to keep up";
     }
 
+  } else {
+
+    // We don't clear the FPS timer on pause in case users want to see it immediately after, but by
+    // the time a new texture is drawn, assume that the FPS no longer needs to be shown.
+    display_widget_->ResetFPSTimer();
+
   }
 
   if (frame_exists_at_time || frame_might_be_still) {
     // Frame was not in queue, will require rendering or decoding from cache
-    RenderTicketWatcher* watcher = new RenderTicketWatcher();
-    connect(watcher, &RenderTicketWatcher::Finished, this, &ViewerWidget::RendererGeneratedFrame);
-    nonqueue_watchers_.append(watcher);
-    watcher->SetTicket(GetFrame(time, true));
+    if (IsPlaying()) {
+      // Is playing, yet the queue above failed to retrieve the frame. We effectively do a quick
+      // reboot of the queue here, assuming the above loop has emptied it so far.
+      playback_queue_next_frame_ = GetTimestamp() + playback_speed_;
+      int new_queue_length = DeterminePlaybackQueueSize();
+      for (int i=0; i<new_queue_length; i++) {
+        RequestNextFrameForQueue();
+      }
+      display_widget_->update();
+    } else {
+      // Not playing, run a task to get the frame either from the cache or the renderer
+      RenderTicketWatcher* watcher = new RenderTicketWatcher();
+      connect(watcher, &RenderTicketWatcher::Finished, this, &ViewerWidget::RendererGeneratedFrame);
+      nonqueue_watchers_.append(watcher);
+      watcher->SetTicket(GetFrame(time, true));
+    }
   } else {
     // There is definitely no frame here, we can immediately flip to showing nothing
     nonqueue_watchers_.clear();
@@ -554,7 +568,7 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
   controls_->ShowPauseButton();
 
   // Attempt to fill playback queue
-  if (stack_->currentWidget() == sizer_) {
+  if (display_widget_->isVisible()) {
     prequeue_length_ = DeterminePlaybackQueueSize();
 
     if (prequeue_length_ > 0) {
@@ -578,7 +592,7 @@ void ViewerWidget::PauseInternal()
     playback_speed_ = 0;
     controls_->ShowPlayButton();
 
-    disconnect(display_widget_, &ViewerDisplayWidget::frameSwapped, this, &ViewerWidget::ForceUpdate);
+    disconnect(display_widget_, &ViewerDisplayWidget::frameSwapped, this, &ViewerWidget::PlaybackTimerUpdate);
 
     foreach (ViewerWindow* window, windows_) {
       window->Pause();
@@ -719,10 +733,12 @@ void ViewerWidget::FinishPlayPreprocess()
     window->Play(playback_start_time, playback_speed_, timebase());
   }
 
-  connect(display_widget_, &ViewerDisplayWidget::frameSwapped, this, &ViewerWidget::ForceUpdate);
-
-  playback_backup_timer_.setInterval(qFloor(timebase_dbl()));
-  playback_backup_timer_.start();
+  if (display_widget_->isVisible()) {
+    connect(display_widget_, &ViewerDisplayWidget::frameSwapped, this, &ViewerWidget::PlaybackTimerUpdate);
+  } else {
+    playback_backup_timer_.setInterval(qFloor(timebase_dbl()));
+    playback_backup_timer_.start();
+  }
 
   PlaybackTimerUpdate();
 }
@@ -738,7 +754,7 @@ int ViewerWidget::DeterminePlaybackQueueSize()
     end_ts = 0;
   }
 
-  int remaining_frames = (end_ts - GetTimestamp()) * playback_speed_;
+  int remaining_frames = (end_ts - GetTimestamp()) / playback_speed_;
 
   return qMin(kMaxPreQueueSize, remaining_frames);
 }
@@ -1182,10 +1198,9 @@ void ViewerWidget::PlaybackTimerUpdate()
 
   }
 
-  if (!isVisible()) {
-    while (!playback_queue_.empty() && playback_queue_.front().timestamp != GetTime()) {
-      PopOldestFrameFromPlaybackQueue();
-    }
+  if (display_widget_->isVisible()) {
+    // Updating display widget
+    UpdateTextureFromNode();
   }
 }
 
@@ -1214,7 +1229,7 @@ void ViewerWidget::LengthChangedSlot(const rational &length)
     UpdateMinimumScale();
 
     if (length < last_length_ && GetTime() >= length) {
-      ForceUpdate();
+      UpdateTextureFromNode();
     }
 
     last_length_ = length;
@@ -1254,7 +1269,7 @@ void ViewerWidget::ViewerInvalidatedVideoRange(const TimeRange &range)
 {
   // If our current frame is within this range, we need to update
   if (GetTime() >= range.in() && (GetTime() < range.out() || range.in() == range.out())) {
-    QMetaObject::invokeMethod(this, "ForceUpdate", Qt::QueuedConnection);
+    QMetaObject::invokeMethod(this, "UpdateTextureFromNode", Qt::QueuedConnection);
   }
 }
 
@@ -1280,7 +1295,7 @@ void ViewerWidget::TimeChangedFromWaveform(qint64 t)
 void ViewerWidget::ViewerShiftedRange(const rational &from, const rational &to)
 {
   if (GetTime() >= qMin(from, to)) {
-    QMetaObject::invokeMethod(this, "ForceUpdate", Qt::QueuedConnection);
+    QMetaObject::invokeMethod(this, "UpdateTextureFromNode", Qt::QueuedConnection);
   }
 }
 

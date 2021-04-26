@@ -95,10 +95,7 @@ public:
     return show_fps_;
   }
 
-  void IncrementSkippedFrames()
-  {
-    frames_skipped_++;
-  }
+  void IncrementSkippedFrames();
 
   void IncrementFrameCount()
   {
@@ -180,6 +177,8 @@ signals:
 
   void Dropped(QDropEvent* event);
 
+  void VisibilityChanged(bool visible);
+
 protected:
   /**
    * @brief Override the mouse press event for the DragStarted() signal and gizmos
@@ -201,6 +200,10 @@ protected:
   virtual void dragLeaveEvent(QDragLeaveEvent* event) override;
 
   virtual void dropEvent(QDropEvent* event) override;
+
+  virtual void showEvent(QShowEvent* event) override;
+
+  virtual void hideEvent(QHideEvent* event) override;
 
 protected slots:
   /**

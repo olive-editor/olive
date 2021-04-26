@@ -107,8 +107,6 @@ public slots:
    */
   void SetSignalCursorColorEnabled(bool e);
 
-  void ForceUpdate();
-
   void SetAutoCacheEnabled(bool e);
 
   void CacheEntireSequence();
@@ -118,6 +116,8 @@ public slots:
   void SetViewerResolution(int width, int height);
 
   void SetViewerPixelAspect(const rational& ratio);
+
+  void UpdateTextureFromNode();
 
 signals:
   /**
@@ -168,8 +168,6 @@ protected:
 
 private:
   void UpdateTimeInternal(int64_t i);
-
-  void UpdateTextureFromNode(const rational &time);
 
   void PlayInternal(int speed, bool in_to_out_only);
 
