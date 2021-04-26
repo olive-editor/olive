@@ -39,7 +39,8 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
   bar_->setVisible(false);
 
   showMessage(tr("Welcome to %1 %2").arg(QCoreApplication::applicationName(),
-                                         QCoreApplication::applicationVersion()));
+                                         QCoreApplication::applicationVersion()),
+              10000);
 }
 
 void MainStatusBar::ConnectTaskManager(TaskManager *manager)
