@@ -388,7 +388,7 @@ signals:
   /**
    * @brief Signal emitted when the index has changed
    */
-  void IndexChanged(int i);
+  void IndexChanged(int old, int now);
 
   /**
    * @brief Signal emitted when preview (waveform) has changed and UI should be updated

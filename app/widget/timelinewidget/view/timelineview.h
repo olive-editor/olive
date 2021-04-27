@@ -141,6 +141,9 @@ private:
 
   bool show_waveforms_;
 
+private slots:
+  void TrackListChanged();
+
 };
 
 }

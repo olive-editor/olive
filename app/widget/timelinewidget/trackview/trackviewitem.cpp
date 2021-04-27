@@ -42,6 +42,7 @@ TrackViewItem::TrackViewItem(Track* track, QWidget *parent) :
   label_ = new ClickableLabel();
   connect(label_, &ClickableLabel::MouseDoubleClicked, this, &TrackViewItem::LabelClicked);
   connect(track_, &Track::LabelChanged, this, &TrackViewItem::UpdateLabel);
+  connect(track_, &Track::IndexChanged, this, &TrackViewItem::UpdateLabel);
   UpdateLabel();
   stack_->addWidget(label_);
 

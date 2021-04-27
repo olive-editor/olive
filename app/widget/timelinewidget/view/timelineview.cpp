@@ -533,7 +533,15 @@ void TimelineView::SetScrollCoordinates(const QPoint &pt)
 
 void TimelineView::ConnectTrackList(TrackList *list)
 {
+  if (connected_track_list_) {
+    disconnect(connected_track_list_, &TrackList::TrackListChanged, this, &TimelineView::TrackListChanged);
+  }
+
   connected_track_list_ = list;
+
+  if (connected_track_list_) {
+    connect(connected_track_list_, &TrackList::TrackListChanged, this, &TimelineView::TrackListChanged);
+  }
 }
 
 void TimelineView::SetBeamCursor(const TimelineCoordinate &coord)
@@ -587,6 +595,12 @@ void TimelineView::UserSetTime(const int64_t &time)
 {
   SetTime(time);
   emit TimeChanged(time);
+}
+
+void TimelineView::TrackListChanged()
+{
+  UpdateSceneRect();
+  viewport()->update();
 }
 
 }

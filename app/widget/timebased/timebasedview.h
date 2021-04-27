@@ -98,6 +98,12 @@ protected:
     y_axis_enabled_ = e;
   }
 
+protected slots:
+  /**
+   * @brief Slot called whenever the view resizes or the scene contents change to enforce minimum scene sizes
+   */
+  void UpdateSceneRect();
+
 private:
   qreal GetPlayheadX();
 
@@ -120,12 +126,6 @@ private:
   bool y_axis_enabled_;
 
   double y_scale_;
-
-private slots:
-  /**
-   * @brief Slot called whenever the view resizes or the scene contents change to enforce minimum scene sizes
-   */
-  void UpdateSceneRect();
 
 };
 

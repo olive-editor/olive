@@ -309,9 +309,11 @@ void Track::Retranslate()
 
 void Track::SetIndex(const int &index)
 {
+  int old = index_;
+
   index_ = index;
 
-  emit IndexChanged(index);
+  emit IndexChanged(old, index_);
 }
 
 Block *Track::BlockContainingTime(const rational &time) const

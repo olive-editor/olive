@@ -351,6 +351,8 @@ private slots:
 
   void SampleRateChanged();
 
+  void TrackIndexChanged(int old, int now);
+
 };
 
 }

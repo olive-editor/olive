@@ -882,6 +882,7 @@ void TimelineWidget::AddTrack(Track *track)
   }
 
   connect(track, &Track::IndexChanged, this, &TimelineWidget::TrackUpdated);
+  connect(track, &Track::IndexChanged, this, &TimelineWidget::TrackIndexChanged);
   connect(track, &Track::PreviewChanged, this, &TimelineWidget::TrackUpdated);
   connect(track, &Track::BlocksRefreshed, this, &TimelineWidget::TrackUpdated);
   connect(track, &Track::TrackHeightChangedInPixels, this, &TimelineWidget::TrackUpdated);
@@ -892,11 +893,14 @@ void TimelineWidget::AddTrack(Track *track)
 void TimelineWidget::RemoveTrack(Track *track)
 {
   disconnect(track, &Track::IndexChanged, this, &TimelineWidget::TrackUpdated);
+  disconnect(track, &Track::IndexChanged, this, &TimelineWidget::TrackIndexChanged);
   disconnect(track, &Track::PreviewChanged, this, &TimelineWidget::TrackUpdated);
   disconnect(track, &Track::BlocksRefreshed, this, &TimelineWidget::TrackUpdated);
   disconnect(track, &Track::TrackHeightChangedInPixels, this, &TimelineWidget::TrackUpdated);
   disconnect(track, &Track::BlockAdded, this, &TimelineWidget::AddBlock);
   disconnect(track, &Track::BlockRemoved, this, &TimelineWidget::RemoveBlock);
+
+  RemoveSelection(TimeRange(0, RATIONAL_MAX), track->ToReference());
 
   foreach (Block* b, track->Blocks()) {
     RemoveBlock(b);
@@ -1058,6 +1062,19 @@ void TimelineWidget::FrameRateChanged()
 void TimelineWidget::SampleRateChanged()
 {
   UpdateViewTimebases();
+}
+
+void TimelineWidget::TrackIndexChanged(int old, int now)
+{
+  Track* track = static_cast<Track*>(sender());
+
+  Track::Reference old_ref(track->type(), old);
+  Track::Reference new_ref(track->type(), now);
+
+  auto track_selections = selections_.take(old_ref);
+  if (!track_selections.isEmpty()) {
+    selections_.insert(new_ref, track_selections);
+  }
 }
 
 void TimelineWidget::AddGhost(TimelineViewGhostItem *ghost)
