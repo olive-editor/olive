@@ -443,7 +443,6 @@ void PreviewAutoCacher::TryRender()
   if (!graph_update_queue_.isEmpty()) {
     if (HasActiveJobs()) {
       // Still waiting for jobs to finish
-      qDebug() << "Returning because active jobs still running:" << video_tasks_.size() << video_download_tasks_.size() << audio_tasks_.size() << single_frame_tasks_.size();
       return;
     }
 

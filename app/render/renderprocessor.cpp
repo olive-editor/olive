@@ -524,7 +524,6 @@ QVariant RenderProcessor::GetCachedTexture(const QByteArray& hash)
 
   if (f) {
     TexturePtr texture = render_ctx_->CreateTexture(f->video_params(), f->data(), f->linesize_pixels());
-    qDebug() << "Loaded mid-render frame from cache";
     return QVariant::fromValue(texture);
   }
 
