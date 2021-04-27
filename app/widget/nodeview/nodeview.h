@@ -142,6 +142,7 @@ private:
 
   NodeViewEdge* create_edge_;
   NodeViewItem* create_edge_src_;
+  QString create_edge_src_output_;
   NodeViewItem* create_edge_dst_;
   NodeInput create_edge_dst_input_;
   bool create_edge_dst_temp_expanded_;
@@ -160,6 +161,8 @@ private:
   FilterMode filter_mode_;
 
   double scale_;
+
+  bool create_edge_already_exists_;
 
   static const double kMinimumScale;
 

@@ -363,9 +363,20 @@ void NodeView::mousePressEvent(QMouseEvent *event)
 {
   if (HandPress(event)) return;
 
-  if (event->button() == Qt::RightButton) {
-    QGraphicsItem* item = itemAt(event->pos());
+  QGraphicsItem* item = itemAt(event->pos());
 
+  if (event->button() == Qt::LeftButton) {
+    NodeViewEdge* edge_item = dynamic_cast<NodeViewEdge*>(item);
+    if (edge_item && edge_item->arrow_bounding_rect().contains(mapToScene(event->pos()))) {
+      create_edge_src_ = scene_.NodeToUIObject(edge_item->output().node());
+      create_edge_src_output_ = edge_item->output().output();
+      create_edge_ = edge_item;
+      create_edge_already_exists_ = true;
+      return;
+    }
+  }
+
+  if (event->button() == Qt::RightButton) {
     if (!item || !item->isSelected()) {
       // Qt doesn't do this by default for some reason
       if (!(event->modifiers() & Qt::ShiftModifier)) {
@@ -380,11 +391,12 @@ void NodeView::mousePressEvent(QMouseEvent *event)
   }
 
   if (event->modifiers() & Qt::ControlModifier) {
-    NodeViewItem* item = dynamic_cast<NodeViewItem*>(itemAt(event->pos()));
-
-    if (item) {
+    NodeViewItem* node_item = dynamic_cast<NodeViewItem*>(item);
+    if (node_item) {
       create_edge_ = new NodeViewEdge();
-      create_edge_src_ = item;
+      create_edge_src_ = node_item;
+      create_edge_src_output_ = Node::kDefaultOutput;
+      create_edge_already_exists_ = false;
 
       create_edge_->SetCurved(scene_.GetEdgesAreCurved());
       create_edge_->SetFlowDirection(scene_.GetFlowDirection());
@@ -551,7 +563,10 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
   if (HandRelease(event)) return;
 
   if (create_edge_) {
-    delete create_edge_;
+    if (!create_edge_already_exists_) {
+      delete create_edge_;
+    }
+
     create_edge_ = nullptr;
 
     if (create_edge_dst_) {
@@ -566,7 +581,7 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
 
       if (create_edge_dst_input_.IsValid()) {
         // Make connection
-        Core::instance()->undo_stack()->push(new NodeEdgeAddCommand(create_edge_src_->GetNode(), create_edge_dst_input_));
+        Core::instance()->undo_stack()->push(new NodeEdgeAddCommand(NodeOutput(create_edge_src_->GetNode(), create_edge_src_output_), create_edge_dst_input_));
         create_edge_dst_input_.Reset();
       }
 

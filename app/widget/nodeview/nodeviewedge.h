@@ -70,6 +70,11 @@ public:
     return to_item_;
   }
 
+  const QRectF arrow_bounding_rect() const
+  {
+    return arrow_bounding_rect_;
+  }
+
   void Adjust();
 
   /**
@@ -135,6 +140,8 @@ private:
   QPolygonF arrow_;
 
   int arrow_size_;
+
+  QRectF arrow_bounding_rect_;
 
 };
 
