@@ -563,7 +563,11 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
   if (HandRelease(event)) return;
 
   if (create_edge_) {
-    if (!create_edge_already_exists_) {
+    MultiUndoCommand* command = new MultiUndoCommand();
+
+    if (create_edge_already_exists_) {
+      command->add_child(new NodeEdgeRemoveCommand(create_edge_->output(), create_edge_->input()));
+    } else {
       delete create_edge_;
     }
 
@@ -581,12 +585,14 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
 
       if (create_edge_dst_input_.IsValid()) {
         // Make connection
-        Core::instance()->undo_stack()->push(new NodeEdgeAddCommand(NodeOutput(create_edge_src_->GetNode(), create_edge_src_output_), create_edge_dst_input_));
+        command->add_child(new NodeEdgeAddCommand(NodeOutput(create_edge_src_->GetNode(), create_edge_src_output_), create_edge_dst_input_));
         create_edge_dst_input_.Reset();
       }
 
       create_edge_dst_ = nullptr;
     }
+
+    Core::instance()->undo_stack()->pushIfHasChildren(command);
     return;
   }
 
