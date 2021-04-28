@@ -19,6 +19,7 @@ add_executable(
   olive-crashhandler
   crashhandler.cpp
   crashhandler.h
+  $<TARGET_OBJECTS:olive-version-obj>
 )
 
 # Disable console appearing on crash handler dialog

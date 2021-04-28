@@ -38,6 +38,7 @@
 
 #include "common/crashpadutils.h"
 #include "common/filefunctions.h"
+#include "version.h"
 
 namespace olive {
 
@@ -227,7 +228,7 @@ void CrashHandlerDialog::SendErrorReport()
   QHttpPart commit_part;
   commit_part.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("text/plain; charset=UTF-8"));
   commit_part.setHeader(QNetworkRequest::ContentDispositionHeader, QStringLiteral("form-data; name=\"commit\""));
-  commit_part.setBody(GITHASH);
+  commit_part.setBody(kGitHash);
   multipart->append(commit_part);
 
   // Create dump section

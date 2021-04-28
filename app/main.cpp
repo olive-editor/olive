@@ -40,6 +40,7 @@ extern "C" {
 #include "core.h"
 #include "common/commandlineparser.h"
 #include "common/debug.h"
+#include "version.h"
 
 #ifdef USE_CRASHPAD
 #include "common/crashpadinterface.h"
@@ -52,12 +53,12 @@ int main(int argc, char *argv[])
 
   // Generate version string
   QString app_version = APPVERSION;
-#ifdef GITHASH
-  // Anything after the hyphen is considered "unimportant" information. Text BEFORE the hyphen is used in version
-  // checking project files and config files
-  app_version.append("-");
-  app_version.append(GITHASH);
-#endif
+  if (!olive::kGitHash.isEmpty()) {
+    // Anything after the hyphen is considered "unimportant" information. Text BEFORE the hyphen is
+    // used in version checking project files and config files
+    app_version.append("-");
+    app_version.append(olive::kGitHash);
+  }
 
   // Set application metadata
   QCoreApplication::setOrganizationName("olivevideoeditor.org");

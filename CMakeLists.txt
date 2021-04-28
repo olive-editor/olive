@@ -165,12 +165,6 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/.git")
     )
   endif()
 endif()
-if(DEFINED GIT_HASH)
-  message("Olive: Git hash = " "${GIT_HASH}")
-  list(APPEND OLIVE_DEFINITIONS -DGITHASH="${GIT_HASH}")
-else()
-  message("Olive: No Git hash defined!")
-endif()
 
 # Optional: Find Doxygen if requested
 if(BUILD_DOXYGEN)

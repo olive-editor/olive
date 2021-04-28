@@ -59,6 +59,17 @@ set(OLIVE_RESOURCES
   ${CMAKE_CURRENT_BINARY_DIR}/ts/translations.qrc
 )
 
+# Add version object
+add_library(olive-version-obj
+  OBJECT
+  version.cpp
+  version.h
+)
+target_link_libraries(olive-version-obj PRIVATE Qt5::Core)
+if(DEFINED GIT_HASH)
+  target_compile_options(olive-version-obj PRIVATE -DGITHASH="${GIT_HASH}")
+endif()
+
 # Add main library
 add_library(libolive-editor
   OBJECT
@@ -73,6 +84,7 @@ set_target_properties(libolive-editor PROPERTIES PREFIX "")
 add_executable(olive-editor
   main.cpp
   $<TARGET_OBJECTS:libolive-editor>
+  $<TARGET_OBJECTS:olive-version-obj>
 )
 
 # Create docs if doxygen was found
