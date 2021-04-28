@@ -45,7 +45,7 @@ PreCacheTask::PreCacheTask(Footage *footage, int index, Sequence* sequence) :
   Node::CopyInputs(footage, footage_, false);
   Node::ConnectEdge(NodeOutput(footage_, Track::Reference(Track::kVideo, index).ToString()), NodeInput(viewer(), ViewerOutput::kTextureInput));
 
-  SetTitle(tr("Pre-caching %1:%2").arg(footage_->filename(), index));
+  SetTitle(tr("Pre-caching %1:%2").arg(footage_->filename(), QString::number(index)));
 }
 
 PreCacheTask::~PreCacheTask()
@@ -60,17 +60,11 @@ bool PreCacheTask::Run()
   TimeRangeList video_range = viewer()->video_frame_cache()->GetInvalidatedRanges();
 
   // If we're caching only in-out, limit the range to that
-  /*
-  if (in_out_only_) {
-    Sequence* s = static_cast<Sequence*>(viewer()->parent());
-
-    if (s->workarea()->enabled()) {
-      video_range = video_range.Intersects(s->workarea()->range());
-    }
+  if (footage_->workarea()->enabled()) {
+    video_range = video_range.Intersects(s->workarea()->range());
   }
-  */
 
-  Render(footage_->project()->color_manager(),
+  Render(project_->color_manager(),
          video_range,
          TimeRangeList(),
          RenderMode::kOnline,
