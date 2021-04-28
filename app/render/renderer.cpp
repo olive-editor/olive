@@ -54,14 +54,14 @@ TexturePtr Renderer::CreateTexture(const VideoParams &params, const void *data, 
   return CreateTexture(params, Texture::k2D, data, linesize);
 }
 
-void Renderer::BlitColorManaged(ColorProcessorPtr color_processor, TexturePtr source, bool source_is_premultiplied, Texture *destination, bool clear_destination, const QMatrix4x4 &matrix)
+void Renderer::BlitColorManaged(ColorProcessorPtr color_processor, TexturePtr source, bool source_is_premultiplied, Texture *destination, bool clear_destination, const QMatrix4x4 &matrix, const QMatrix4x4 &crop_matrix)
 {
-  BlitColorManagedInternal(color_processor, source, source_is_premultiplied, destination, destination->params(), clear_destination, matrix);
+  BlitColorManagedInternal(color_processor, source, source_is_premultiplied, destination, destination->params(), clear_destination, matrix, crop_matrix);
 }
 
-void Renderer::BlitColorManaged(ColorProcessorPtr color_processor, TexturePtr source, bool source_is_premultiplied, VideoParams params, bool clear_destination, const QMatrix4x4& matrix)
+void Renderer::BlitColorManaged(ColorProcessorPtr color_processor, TexturePtr source, bool source_is_premultiplied, VideoParams params, bool clear_destination, const QMatrix4x4& matrix, const QMatrix4x4 &crop_matrix)
 {
-  BlitColorManagedInternal(color_processor, source, source_is_premultiplied, nullptr, params, clear_destination, matrix);
+  BlitColorManagedInternal(color_processor, source, source_is_premultiplied, nullptr, params, clear_destination, matrix, crop_matrix);
 }
 
 void Renderer::Destroy()
@@ -95,6 +95,7 @@ bool Renderer::GetColorContext(ColorProcessorPtr color_processor, Renderer::Colo
     shader_frag.append(QStringLiteral("// Main texture input\n"
                                       "uniform sampler2D ove_maintex;\n"
                                       "uniform int ove_maintex_alpha;\n"
+                                      "uniform mat4 ove_cropmatrix;\n"
                                       "\n"
                                       "// Macros defining `ove_maintex_alpha` state\n"
                                       "// Matches `AlphaAssociated` C++ enum\n"
@@ -127,7 +128,13 @@ bool Renderer::GetColorContext(ColorProcessorPtr color_processor, Renderer::Colo
                                       "}\n"
                                       "\n"
                                       "void main() {\n"
-                                      "  vec4 col = texture(ove_maintex, ove_texcoord);\n"
+                                      "  vec2 cropped_coord = (vec4(ove_texcoord-vec2(0.5, 0.5), 0.0, 1.0)*inverse(ove_cropmatrix)).xy + vec2(0.5, 0.5);\n"
+                                      "  if (cropped_coord.x < 0.0 || cropped_coord.x >= 1.0 || cropped_coord.y < 0.0 || cropped_coord.y >= 1.0) {\n"
+                                      "    fragColor = vec4(0.0);\n"
+                                      "    return;\n"
+                                      "  }\n"
+                                      "  \n"
+                                      "  vec4 col = texture(ove_maintex, cropped_coord);\n"
                                       "\n"
                                       "  // If alpha is associated, de-associate now\n"
                                       "  if (ove_maintex_alpha == ALPHA_ASSOC) {\n"
@@ -225,7 +232,8 @@ bool Renderer::GetColorContext(ColorProcessorPtr color_processor, Renderer::Colo
 
 void Renderer::BlitColorManagedInternal(ColorProcessorPtr color_processor, TexturePtr source,
                                         bool source_is_premultiplied, Texture *destination,
-                                        VideoParams params, bool clear_destination, const QMatrix4x4& matrix)
+                                        VideoParams params, bool clear_destination, const QMatrix4x4& matrix,
+                                        const QMatrix4x4& crop_matrix)
 {
   ColorContext color_ctx;
   if (!GetColorContext(color_processor, &color_ctx)) {
@@ -236,6 +244,7 @@ void Renderer::BlitColorManagedInternal(ColorProcessorPtr color_processor, Textu
 
   job.InsertValue(QStringLiteral("ove_maintex"), NodeValue(NodeValue::kTexture, QVariant::fromValue(source)));
   job.InsertValue(QStringLiteral("ove_mvpmat"), NodeValue(NodeValue::kMatrix, matrix));
+  job.InsertValue(QStringLiteral("ove_cropmatrix"), NodeValue(NodeValue::kMatrix, crop_matrix));
 
   AlphaAssociated associated;
   if (source->channel_count() == VideoParams::kRGBAChannelCount) {

@@ -301,9 +301,9 @@ void ViewerWidget::SetColorMenuEnabled(bool enabled)
 
 void ViewerWidget::SetMatrix(const QMatrix4x4 &mat)
 {
-  display_widget_->SetMatrixZoom(mat);
+  display_widget_->SetMatrixCrop(mat);
   foreach (ViewerWindow* vw, windows_) {
-    vw->display_widget()->SetMatrixZoom(mat);
+    vw->display_widget()->SetMatrixCrop(mat);
   }
 }
 

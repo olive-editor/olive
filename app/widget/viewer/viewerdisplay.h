@@ -115,6 +115,8 @@ public slots:
   */
   void SetMatrixZoom(const QMatrix4x4& mat);
 
+  void SetMatrixCrop(const QMatrix4x4& mat);
+
   /**
    * @brief Enables or disables whether this color at the cursor should be emitted
    *
@@ -256,6 +258,11 @@ private:
    * @breif Scale only matrix.
    */
   QMatrix4x4 scale_matrix_;
+
+  /**
+   * @brief Crop only matrix
+   */
+  QMatrix4x4 crop_matrix_;
 
   /**
    * @brief Cached result of translate_matrix_ and scale_matrix_ multiplied

@@ -77,6 +77,13 @@ void ViewerDisplayWidget::SetMatrixZoom(const QMatrix4x4 &mat)
   UpdateMatrix();
 }
 
+void ViewerDisplayWidget::SetMatrixCrop(const QMatrix4x4 &mat)
+{
+  crop_matrix_ = mat;
+
+  update();
+}
+
 void ViewerDisplayWidget::UpdateCursor()
 {
   if (Core::instance()->tool() == Tool::kHand) {
@@ -355,10 +362,8 @@ void ViewerDisplayWidget::OnPaint()
     VideoParams device_params(device_width, device_height, device_format, VideoParams::kInternalChannelCount);
 
     renderer()->BlitColorManaged(color_service(), texture_to_draw, true, device_params, false,
-                                 combined_matrix_flipped_);
+                                 combined_matrix_flipped_, crop_matrix_);
   }
-
-  QTransform world_transform = GenerateWorldTransform();
 
   // Draw gizmos if we have any
   if (gizmos_) {
@@ -378,7 +383,7 @@ void ViewerDisplayWidget::OnPaint()
   // Draw action/title safe areas
   if (safe_margin_.is_enabled()) {
     QPainter p(inner_widget());
-    p.setWorldTransform(world_transform);
+    p.setWorldTransform(GenerateWorldTransform());
 
     p.setPen(Qt::lightGray);
     p.setBrush(Qt::NoBrush);
