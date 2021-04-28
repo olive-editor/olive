@@ -44,6 +44,21 @@ add_subdirectory(undo)
 add_subdirectory(widget)
 add_subdirectory(window)
 
+# Add translations
+qt5_add_translation(OLIVE_QM_FILES ${OLIVE_TS_FILES})
+
+set(QRC_BODY "")
+foreach(QM_FILE ${OLIVE_QM_FILES})
+  get_filename_component(QM_FILENAME_COMPONENT ${QM_FILE} NAME_WE)
+  string(APPEND QRC_BODY "<file alias=\"${QM_FILENAME_COMPONENT}\">${QM_FILE}</file>\n")
+endforeach()
+configure_file(ts/translations.qrc.in ts/translations.qrc @ONLY)
+
+set(OLIVE_RESOURCES
+  ${OLIVE_RESOURCES}
+  ${CMAKE_CURRENT_BINARY_DIR}/ts/translations.qrc
+)
+
 # Add main library
 add_library(libolive-editor
   OBJECT

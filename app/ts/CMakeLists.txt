@@ -33,19 +33,3 @@ set(OLIVE_TS_FILES
   ts/zh_TW.ts
   PARENT_SCOPE
 )
-
-# Add translations
-qt5_add_translation(OLIVE_QM_FILES ${OLIVE_TS_FILES})
-
-set(QRC_BODY "")
-foreach(QM_FILE ${OLIVE_QM_FILES})
-  get_filename_component(QM_FILENAME_COMPONENT ${QM_FILE} NAME_WE)
-  string(APPEND QRC_BODY "<file alias=\"${QM_FILENAME_COMPONENT}\">${QM_FILE}</file>\n")
-endforeach()
-configure_file(translations.qrc.in translations.qrc @ONLY)
-
-set(OLIVE_RESOURCES
-  ${OLIVE_RESOURCES}
-  ${CMAKE_CURRENT_BINARY_DIR}/translations.qrc
-  PARENT_SCOPE
-)
