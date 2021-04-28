@@ -420,8 +420,10 @@ void ViewerDisplayWidget::OnPaint()
         frame_rate = double(fps_timer_update_count_) / double((now - fps_timer_start_)/1000.0);
       }
 
-      frame_rate_averages_[frame_rate_average_count_%frame_rate_averages_.size()] = frame_rate;
-      frame_rate_average_count_++;
+      if (frame_rate > 0) {
+        frame_rate_averages_[frame_rate_average_count_%frame_rate_averages_.size()] = frame_rate;
+        frame_rate_average_count_++;
+      }
     }
 
     if (frame_rate_average_count_ >= frame_rate_averages_.size()) {
