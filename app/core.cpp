@@ -51,6 +51,7 @@
 #include "panel/project/project.h"
 #include "panel/viewer/viewer.h"
 #include "render/diskmanager.h"
+#include "render/framemanager.h"
 #include "render/rendermanager.h"
 #ifdef USE_OTIO
 #include "task/project/loadotio/loadotio.h"
@@ -140,6 +141,9 @@ void Core::Start()
   // Initialize RenderManager
   RenderManager::CreateInstance();
 
+  // Initialize FrameManager
+  FrameManager::CreateInstance();
+
   //
   // Start application
   //
@@ -183,6 +187,8 @@ void Core::Stop()
       recent_projects_file.close();
     }
   }
+
+  FrameManager::DestroyInstance();
 
   RenderManager::DestroyInstance();
 

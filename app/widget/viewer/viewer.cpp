@@ -455,7 +455,6 @@ void ViewerWidget::UpdateTextureFromNode()
 
   // Check playback queue for a frame
   if (IsPlaying()) {
-
     // We still run the playback queue even when FrameExistsAtTime returns false because we might be
     // playing backwards and about to start showing frames, so the queue should be prepared for
     // that.
