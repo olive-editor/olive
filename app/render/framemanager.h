@@ -21,6 +21,7 @@
 #ifndef FRAMEMANAGER_H
 #define FRAMEMANAGER_H
 
+#include <QMutex>
 #include <QObject>
 #include <QTimer>
 
