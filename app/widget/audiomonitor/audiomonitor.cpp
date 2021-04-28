@@ -94,7 +94,8 @@ void AudioMonitor::Stop()
   file_ = nullptr;
   waveform_ = nullptr;
 
-  SetUpdateLoop(false);
+  // We don't stop the update loop here so that the monitor can show a smooth fade out. The update
+  // loop will stop itself since file_ and waveform_ are null.
 }
 
 void AudioMonitor::OutputPushed(const QByteArray &d)
