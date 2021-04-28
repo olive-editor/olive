@@ -89,6 +89,11 @@ public:
    */
   void SetConnected(bool c);
 
+  bool IsConnected() const
+  {
+    return connected_;
+  }
+
   /**
    * @brief Set highlighted state
    *

@@ -566,7 +566,9 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
     MultiUndoCommand* command = new MultiUndoCommand();
 
     if (create_edge_already_exists_) {
-      command->add_child(new NodeEdgeRemoveCommand(create_edge_->output(), create_edge_->input()));
+      if (!create_edge_->IsConnected()) {
+        command->add_child(new NodeEdgeRemoveCommand(create_edge_->output(), create_edge_->input()));
+      }
     } else {
       delete create_edge_;
     }
