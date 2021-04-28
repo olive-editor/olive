@@ -43,18 +43,21 @@ Project::Project() :
   color_manager_ = new ColorManager();
   color_manager_->setParent(this);
   color_manager_->SetPosition(QPointF(1, 0));
+  color_manager_->SetCanBeDeleted(false);
   AddDefaultNode(color_manager_);
 
   // Same with project settings
   settings_ = new ProjectSettingsNode();
   settings_->setParent(this);
   settings_->SetPosition(QPointF(2, 0));
+  settings_->SetCanBeDeleted(false);
   AddDefaultNode(settings_);
 
   // Folder root for project
   root_ = new Folder();
   root_->setParent(this);
   root_->SetLabel(tr("Root"));
+  root_->SetCanBeDeleted(false);
 
   connect(color_manager(), &ColorManager::ValueChanged,
           this, &Project::ColorManagerValueChanged);
