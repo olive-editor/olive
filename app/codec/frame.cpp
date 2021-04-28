@@ -26,12 +26,20 @@
 #include <QtMath>
 
 #include "common/oiioutils.h"
+#include "render/framemanager.h"
 
 namespace olive {
 
 Frame::Frame() :
+  data_(nullptr),
+  data_size_(0),
   timestamp_(0)
 {
+}
+
+Frame::~Frame()
+{
+  destroy();
 }
 
 FramePtr Frame::Create()
@@ -66,7 +74,7 @@ Color Frame::get_pixel(int x, int y) const
 
   int byte_offset = y * linesize_bytes() + x * video_params().GetBytesPerPixel();
 
-  return Color(data_.data() + byte_offset, video_params().format(), video_params().channel_count());
+  return Color(reinterpret_cast<const char*>(data_ + byte_offset), video_params().format(), video_params().channel_count());
 }
 
 bool Frame::contains_pixel(int x, int y) const
@@ -82,7 +90,7 @@ void Frame::set_pixel(int x, int y, const Color &c)
 
   int byte_offset = y * linesize_bytes() + x * video_params().GetBytesPerPixel();
 
-  c.toData(data_.data() + byte_offset, video_params().format(), video_params().channel_count());
+  c.toData(reinterpret_cast<char*>(data_ + byte_offset), video_params().format(), video_params().channel_count());
 }
 
 bool Frame::allocate()
@@ -93,9 +101,25 @@ bool Frame::allocate()
     return false;
   }
 
-  data_.resize(VideoParams::GetBufferSize(linesize_, height(), params_.format(), params_.channel_count()));
+  if (is_allocated()) {
+    // Already allocated
+    return true;
+  }
+
+  data_size_ = VideoParams::GetBufferSize(linesize_, height(), params_.format(), params_.channel_count());
+  data_ = FrameManager::Allocate(data_size_);
 
   return true;
+}
+
+void Frame::destroy()
+{
+  if (is_allocated()) {
+    FrameManager::Deallocate(data_size_, data_);
+
+    data_size_ = 0;
+    data_ = nullptr;
+  }
 }
 
 FramePtr Frame::convert(VideoParams::Format format) const

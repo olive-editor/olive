@@ -24,6 +24,7 @@
 #include <memory>
 #include <QVector>
 
+#include "common/define.h"
 #include "common/rational.h"
 #include "render/color.h"
 #include "render/videoparams.h"
@@ -40,6 +41,10 @@ class Frame
 {
 public:
   Frame();
+
+  ~Frame();
+
+  DISABLE_COPY_MOVE(Frame)
 
   static FramePtr Create();
 
@@ -102,7 +107,7 @@ public:
    */
   char* data()
   {
-    return data_.data();
+    return data_;
   }
 
   /**
@@ -110,7 +115,7 @@ public:
    */
   const char* const_data() const
   {
-    return data_.constData();
+    return data_;
   }
 
   /**
@@ -127,16 +132,13 @@ public:
    */
   bool is_allocated() const
   {
-    return !data_.isEmpty();
+    return data_;
   }
 
   /**
    * @brief Destroy a memory buffer allocated with allocate()
    */
-  void destroy()
-  {
-    data_.clear();
-  }
+  void destroy();
 
   /**
    * @brief Returns the size of the array returned in data() in bytes
@@ -145,7 +147,7 @@ public:
    */
   int allocated_size() const
   {
-    return data_.size();
+    return data_size_;
   }
 
   FramePtr convert(VideoParams::Format format) const;
@@ -153,7 +155,8 @@ public:
 private:
   VideoParams params_;
 
-  QByteArray data_;
+  char* data_;
+  int data_size_;
 
   rational timestamp_;
 

@@ -33,6 +33,8 @@ set(OLIVE_SOURCES
   render/diskmanager.h
   render/framehashcache.cpp
   render/framehashcache.h
+  render/framemanager.cpp
+  render/framemanager.h
   render/managedcolor.cpp
   render/managedcolor.h
   render/playbackcache.cpp
