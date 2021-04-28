@@ -451,7 +451,7 @@ void ViewerWidget::UpdateTextureFromNode()
 {
   rational time = GetTime();
   bool frame_exists_at_time = FrameExistsAtTime(time);
-  bool frame_might_be_still = GetConnectedNode() && GetConnectedNode()->GetConnectedTextureOutput().IsValid() && GetConnectedNode()->GetVideoLength().isNull();
+  bool frame_might_be_still = ViewerMightBeAStill();
 
   // Check playback queue for a frame
   if (IsPlaying()) {
@@ -669,6 +669,11 @@ bool ViewerWidget::FrameExistsAtTime(const rational &time)
   return GetConnectedNode() && time >= 0 && time < GetConnectedNode()->GetVideoLength();
 }
 
+bool ViewerWidget::ViewerMightBeAStill()
+{
+  return GetConnectedNode() && GetConnectedNode()->GetConnectedTextureOutput().IsValid() && GetConnectedNode()->GetVideoLength().isNull();
+}
+
 void ViewerWidget::SetDisplayImage(FramePtr frame, bool main_only)
 {
   display_widget_->SetImage(frame);
@@ -689,11 +694,13 @@ void ViewerWidget::RequestNextFrameForQueue()
   rational next_time = Timecode::timestamp_to_time(playback_queue_next_frame_,
                                                    timebase());
 
-  playback_queue_next_frame_ += playback_speed_;
+  if (FrameExistsAtTime(next_time) || ViewerMightBeAStill()) {
+    playback_queue_next_frame_ += playback_speed_;
 
-  RenderTicketWatcher* watcher = new RenderTicketWatcher();
-  connect(watcher, &RenderTicketWatcher::Finished, this, &ViewerWidget::RendererGeneratedFrameForQueue);
-  watcher->SetTicket(GetFrame(next_time, false));
+    RenderTicketWatcher* watcher = new RenderTicketWatcher();
+    connect(watcher, &RenderTicketWatcher::Finished, this, &ViewerWidget::RendererGeneratedFrameForQueue);
+    watcher->SetTicket(GetFrame(next_time, false));
+  }
 }
 
 RenderTicketPtr ViewerWidget::GetFrame(const rational &t, bool clear_render_queue)

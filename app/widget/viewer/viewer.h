@@ -183,6 +183,8 @@ private:
 
   bool FrameExistsAtTime(const rational& time);
 
+  bool ViewerMightBeAStill();
+
   void SetDisplayImage(FramePtr frame, bool main_only);
 
   void RequestNextFrameForQueue();
