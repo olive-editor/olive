@@ -54,15 +54,6 @@ public:
 
 private:
   /**
-   * @brief Handle an error
-   *
-   * Immediately closes the Decoder (freeing memory resources) and sends the string provided to the warning stream.
-   * As this function closes the Decoder, no further Decoder functions should be performed after this is called
-   * (unless the Decoder is opened again first).
-   */
-  void Error(const QString& s);
-
-  /**
    * @brief Handle an FFmpeg error code
    *
    * Uses the FFmpeg API to retrieve a descriptive string for this error code and sends it to Error(). As such, this
@@ -70,7 +61,7 @@ private:
    *
    * @param error_code
    */
-  void FFmpegError(const char *context, int error_code);
+  void FFmpegError(const QString &context, int error_code);
 
   bool WriteAVFrame(AVFrame* frame, AVCodecContext *codec_ctx, AVStream *stream);
 

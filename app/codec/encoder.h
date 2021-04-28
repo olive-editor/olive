@@ -126,6 +126,17 @@ public:
 
   const EncodingParams& params() const;
 
+  virtual VideoParams::Format GetDesiredPixelFormat() const
+  {
+    return VideoParams::kFormatInvalid;
+  }
+
+  const QString& GetError() const
+  {
+    return error_;
+  }
+
+public slots:
   virtual bool Open() = 0;
 
   virtual bool WriteFrame(olive::FramePtr frame, olive::rational time) = 0;
@@ -136,13 +147,16 @@ public:
 
   virtual void Close() = 0;
 
-  virtual VideoParams::Format GetDesiredPixelFormat() const
+protected:
+  void SetError(const QString& err)
   {
-    return VideoParams::kFormatInvalid;
+    error_ = err;
   }
 
 private:
   EncodingParams params_;
+
+  QString error_;
 
 };
 

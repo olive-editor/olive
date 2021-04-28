@@ -61,7 +61,7 @@ bool FFmpegEncoder::Open()
 
   // Check error code
   if (error_code < 0) {
-    FFmpegError("Failed to allocate output context", error_code);
+    FFmpegError(tr("Failed to allocate output context"), error_code);
     return false;
   }
 
@@ -85,7 +85,7 @@ bool FFmpegEncoder::Open()
                                                                            VideoParams::kRGBChannelCount);
 
     if (src_alpha_pix_fmt == AV_PIX_FMT_NONE || src_noalpha_pix_fmt == AV_PIX_FMT_NONE) {
-      Error(QStringLiteral("Failed to find suitable pixel format for this buffer"));
+      SetError(tr("Failed to find suitable pixel format for this buffer"));
       return false;
     }
 
@@ -128,14 +128,14 @@ bool FFmpegEncoder::Open()
   // Open output file for writing
   error_code = avio_open(&fmt_ctx_->pb, filename_c_str, AVIO_FLAG_WRITE);
   if (error_code < 0) {
-    FFmpegError("Failed to open IO context", error_code);
+    FFmpegError(tr("Failed to open IO context"), error_code);
     return false;
   }
 
   // Write header
   error_code = avformat_write_header(fmt_ctx_, nullptr);
   if (error_code < 0) {
-    FFmpegError("Failed to write format header", error_code);
+    FFmpegError(tr("Failed to write format header"), error_code);
     return false;
   }
 
@@ -171,7 +171,7 @@ bool FFmpegEncoder::WriteFrame(FramePtr frame, rational time)
 
   error_code = av_frame_get_buffer(encoded_frame, 0);
   if (error_code < 0) {
-    FFmpegError("Failed to create AVFrame buffer", error_code);
+    FFmpegError(tr("Failed to create AVFrame buffer"), error_code);
     goto fail;
   }
 
@@ -194,7 +194,7 @@ bool FFmpegEncoder::WriteFrame(FramePtr frame, rational time)
 
 
   if (error_code < 0) {
-    FFmpegError("Failed to scale frame", error_code);
+    FFmpegError(tr("Failed to scale frame"), error_code);
     goto fail;
   }
 
@@ -350,15 +350,12 @@ void FFmpegEncoder::Close()
   }
 }
 
-void FFmpegEncoder::FFmpegError(const char* context, int error_code)
+void FFmpegEncoder::FFmpegError(const QString& context, int error_code)
 {
   char err[128];
   av_strerror(error_code, err, 128);
 
-  Error(QStringLiteral("%1 for %2 - %3 %4").arg(context,
-                                                params().filename(),
-                                                QString::number(error_code),
-                                                err));
+  SetError(tr("%1: %2 %3").arg(context, err, QString::number(error_code)));
 }
 
 bool FFmpegEncoder::WriteAVFrame(AVFrame *frame, AVCodecContext* codec_ctx, AVStream* stream)
@@ -366,7 +363,7 @@ bool FFmpegEncoder::WriteAVFrame(AVFrame *frame, AVCodecContext* codec_ctx, AVSt
   // Send raw frame to the encoder
   int error_code = avcodec_send_frame(codec_ctx, frame);
   if (error_code < 0) {
-    FFmpegError("Failed to send frame to encoder", error_code);
+    FFmpegError(tr("Failed to send frame to encoder"), error_code);
     return false;
   }
 
@@ -382,7 +379,7 @@ bool FFmpegEncoder::WriteAVFrame(AVFrame *frame, AVCodecContext* codec_ctx, AVSt
     if (error_code == AVERROR(EAGAIN)) {
       break;
     } else if (error_code < 0) {
-      FFmpegError("Failed to receive packet from decoder", error_code);
+      FFmpegError(tr("Failed to receive packet from decoder"), error_code);
       goto fail;
     }
 
@@ -409,7 +406,7 @@ fail:
 bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AVCodecContext** codec_ctx_ptr, const ExportCodec::Codec& codec)
 {
   if (type != AVMEDIA_TYPE_VIDEO && type != AVMEDIA_TYPE_AUDIO) {
-    Error(QStringLiteral("Cannot initialize a stream that is not a video or audio type"));
+    SetError(tr("Cannot initialize a stream that is not a video or audio type"));
     return false;
   }
 
@@ -455,7 +452,7 @@ bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AV
   }
 
   if (codec_id == AV_CODEC_ID_NONE) {
-    Error(QStringLiteral("Unknown internal codec"));
+    SetError(tr("Unknown internal codec"));
     return false;
   }
 
@@ -463,12 +460,12 @@ bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AV
   AVCodec* encoder = avcodec_find_encoder(codec_id);
 
   if (!encoder) {
-    Error(QStringLiteral("Failed to find codec for %1").arg(codec));
+    SetError(tr("Failed to find codec for %1").arg(codec));
     return false;
   }
 
   if (encoder->type != type) {
-    Error(QStringLiteral("Retrieved unexpected codec type %1 for codec %2").arg(QString::number(encoder->type), codec));
+    SetError(tr("Retrieved unexpected codec type %1 for codec %2").arg(QString::number(encoder->type), codec));
     return false;
   }
 
@@ -556,14 +553,14 @@ bool FFmpegEncoder::InitializeCodecContext(AVStream **stream, AVCodecContext **c
 {
   *stream = avformat_new_stream(fmt_ctx_, nullptr);
   if (!(*stream)) {
-    Error(QStringLiteral("Failed to allocate AVStream"));
+    SetError(tr("Failed to allocate AVStream"));
     return false;
   }
 
   // Allocate a codec context
   *codec_ctx = avcodec_alloc_context3(codec);
   if (!(*codec_ctx)) {
-    Error(QStringLiteral("Failed to allocate AVCodecContext"));
+    SetError(tr("Failed to allocate AVCodecContext"));
     return false;
   }
 
@@ -591,14 +588,14 @@ bool FFmpegEncoder::SetupCodecContext(AVStream* stream, AVCodecContext* codec_ct
   // Try to open encoder
   error_code = avcodec_open2(codec_ctx, codec, &codec_opts);
   if (error_code < 0) {
-    FFmpegError("Failed to open encoder", error_code);
+    FFmpegError(tr("Failed to open encoder"), error_code);
     return false;
   }
 
   // Copy context settings to codecpar object
   error_code = avcodec_parameters_from_context(stream->codecpar, codec_ctx);
   if (error_code < 0) {
-    FFmpegError("Failed to copy codec parameters to stream", error_code);
+    FFmpegError(tr("Failed to copy codec parameters to stream"), error_code);
     return false;
   }
 
@@ -636,13 +633,6 @@ void FFmpegEncoder::FlushCodecCtx(AVCodecContext *codec_ctx, AVStream* stream)
   } while (error_code >= 0);
 
   av_packet_free(&pkt);
-}
-
-void FFmpegEncoder::Error(const QString &s)
-{
-  qWarning() << s;
-
-  Close();
 }
 
 }
