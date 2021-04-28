@@ -60,8 +60,8 @@ bool PreCacheTask::Run()
   TimeRangeList video_range = viewer()->video_frame_cache()->GetInvalidatedRanges();
 
   // If we're caching only in-out, limit the range to that
-  if (footage_->workarea()->enabled()) {
-    video_range = video_range.Intersects(s->workarea()->range());
+  if (footage_->GetTimelinePoints()->workarea()->enabled()) {
+    video_range = video_range.Intersects(footage_->GetTimelinePoints()->workarea()->range());
   }
 
   Render(project_->color_manager(),
