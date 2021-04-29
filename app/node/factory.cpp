@@ -62,10 +62,6 @@ void NodeFactory::Initialize()
 
     library_.append(created_node);
 
-    if (created_node->inputs().isEmpty()) {
-      qWarning() << "Node" << created_node->id() << "has no inputs";
-    }
-
     if (created_node->outputs().isEmpty()) {
       qWarning() << "Node" << created_node->id() << "has no outputs";
     }
