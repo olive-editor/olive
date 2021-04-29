@@ -40,9 +40,17 @@ RenderTicketPtr PreviewAutoCacher::GetSingleFrame(const rational &t, bool priori
   sfr->setProperty("time", QVariant::fromValue(t));
   sfr->setProperty("prioritize", prioritize);
 
-  // Attempt to queue
-  single_frame_render_ = sfr;
-  TryRender();
+  // Check if already caching this
+  QByteArray hash = viewer_node_->video_frame_cache()->GetHash(t);
+  if (RenderTicketWatcher* existing_watcher = video_tasks_.key(hash)) {
+    video_immediate_passthroughs_[existing_watcher].append(sfr);
+  } else if (RenderTicketWatcher* download_watcher = video_download_tasks_.key(hash)) {
+    sfr->Finish(download_watcher->property("frame"));
+  } else {
+    // Attempt to queue
+    single_frame_render_ = sfr;
+    TryRender();
+  }
 
   return sfr;
 }
@@ -192,11 +200,13 @@ void PreviewAutoCacher::VideoRendered()
       const QByteArray& hash = video_tasks_.value(watcher);
 
       // Download frame in another thread
+      FramePtr frame = watcher->Get().value<FramePtr>();
       RenderTicketWatcher* w = new RenderTicketWatcher();
+      w->setProperty("frame", QVariant::fromValue(frame));
       video_download_tasks_.insert(w, hash);
       connect(w, &RenderTicketWatcher::Finished, this, &PreviewAutoCacher::VideoDownloaded);
       w->SetTicket(RenderManager::instance()->SaveFrameToCache(viewer_node_->video_frame_cache(),
-                                                               watcher->Get().value<FramePtr>(),
+                                                               frame,
                                                                hash,
                                                                true));
     } else {
@@ -205,6 +215,13 @@ void PreviewAutoCacher::VideoRendered()
     }
 
     video_tasks_.remove(watcher);
+  }
+
+  if (video_immediate_passthroughs_.contains(watcher) && watcher->HasResult()) {
+    QVector<RenderTicketPtr> tickets = video_immediate_passthroughs_.take(watcher);
+    foreach (RenderTicketPtr t, tickets) {
+      t->Finish(watcher->Get());
+    }
   }
 
   // The cacher might be waiting for this job to finish
@@ -604,6 +621,9 @@ void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
 
     // No longer caching any hashes
     currently_caching_hashes_.clear();
+
+    // No more immediate passthroughts
+    video_immediate_passthroughs_.clear();
 
     // Delete all of our copied nodes
     qDeleteAll(created_nodes_);
