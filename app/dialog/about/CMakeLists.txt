@@ -16,7 +16,10 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  dialog/about/about.h
   dialog/about/about.cpp
+  dialog/about/about.h
+  dialog/about/patreon.h
+  dialog/about/scrollinglabel.cpp
+  dialog/about/scrollinglabel.h
   PARENT_SCOPE
 )
