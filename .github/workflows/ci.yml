@@ -55,6 +55,14 @@ jobs:
       - name: Checkout Source Code
         uses: actions/checkout@v2
 
+      - name: Generate Patreon List
+        env:
+          PATREON_KEY: ${{ secrets.PATREON_KEY }}
+        run: |
+          cd $GITHUB_WORKSPACE/app/dialog/about
+          python3 patreon.py
+        if: github.event_name == 'push'
+
       - name: Configure CMake
         run: |
           mkdir build
@@ -178,6 +186,14 @@ jobs:
         run: |
           $DOWNLOAD_TOOL https://github.com/olive-editor/dependencies/releases/download/continuous/olive-dep-win32.tar.gz
           tar xzf olive-dep-win32.tar.gz
+
+      - name: Generate Patreon List
+        env:
+          PATREON_KEY: ${{ secrets.PATREON_KEY }}
+        run: |
+          cd $GITHUB_WORKSPACE/app/dialog/about
+          python3 patreon.py
+        if: github.event_name == 'push'
 
       - name: Configure CMake
         shell: bash
@@ -321,6 +337,14 @@ jobs:
         run: |
           $DOWNLOAD_TOOL https://github.com/olive-editor/dependencies/releases/download/continuous/olive-dep-mac-x86_64.tar.gz
           sudo tar xzf olive-dep-mac-x86_64.tar.gz -C /
+
+      - name: Generate Patreon List
+        env:
+          PATREON_KEY: ${{ secrets.PATREON_KEY }}
+        run: |
+          cd $GITHUB_WORKSPACE/app/dialog/about
+          python3 patreon.py
+        if: github.event_name == 'push'
 
       - name: Configure CMake
         shell: bash
