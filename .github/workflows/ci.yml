@@ -59,6 +59,7 @@ jobs:
         env:
           PATREON_KEY: ${{ secrets.PATREON_KEY }}
         run: |
+          pip3 install requests
           cd $GITHUB_WORKSPACE/app/dialog/about
           python3 patreon.py
         if: github.event_name == 'push'
@@ -188,9 +189,11 @@ jobs:
           tar xzf olive-dep-win32.tar.gz
 
       - name: Generate Patreon List
+        shell: bash
         env:
           PATREON_KEY: ${{ secrets.PATREON_KEY }}
         run: |
+          pip3 install requests
           cd $GITHUB_WORKSPACE/app/dialog/about
           python3 patreon.py
         if: github.event_name == 'push'
@@ -342,6 +345,7 @@ jobs:
         env:
           PATREON_KEY: ${{ secrets.PATREON_KEY }}
         run: |
+          pip3 install requests
           cd $GITHUB_WORKSPACE/app/dialog/about
           python3 patreon.py
         if: github.event_name == 'push'
