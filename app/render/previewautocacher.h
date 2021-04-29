@@ -26,7 +26,7 @@ public:
 
   virtual ~PreviewAutoCacher() override;
 
-  RenderTicketPtr GetSingleFrame(const rational& t);
+  RenderTicketPtr GetSingleFrame(const rational& t, bool prioritize);
 
   /**
    * @brief Set the viewer node to auto-cache

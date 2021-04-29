@@ -31,13 +31,14 @@ PreviewAutoCacher::~PreviewAutoCacher()
   SetViewerNode(nullptr);
 }
 
-RenderTicketPtr PreviewAutoCacher::GetSingleFrame(const rational &t)
+RenderTicketPtr PreviewAutoCacher::GetSingleFrame(const rational &t, bool prioritize)
 {
   CancelQueuedSingleFrameRender();
 
   auto sfr = std::make_shared<RenderTicket>();
   sfr->Start();
   sfr->setProperty("time", QVariant::fromValue(t));
+  sfr->setProperty("prioritize", prioritize);
 
   // Attempt to queue
   single_frame_render_ = sfr;
@@ -494,7 +495,7 @@ void PreviewAutoCacher::TryRender()
                                                               single_frame_render_->property("time").value<rational>(),
                                                               RenderMode::kOffline,
                                                               viewer_node_->video_frame_cache(),
-                                                              true));
+                                                              single_frame_render_->property("prioritize").toBool()));
 
     single_frame_render_ = nullptr;
   }
