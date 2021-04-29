@@ -355,7 +355,7 @@ void ViewerWidget::SetAutoCacheEnabled(bool e)
 
 void ViewerWidget::CacheEntireSequence()
 {
-  auto_cacher_.ForceCacheRange(TimeRange(0, GetConnectedNode()->video_frame_cache()->GetLength()));
+  auto_cacher_.ForceCacheRange(TimeRange(0, GetConnectedNode()->GetVideoLength()));
 }
 
 void ViewerWidget::CacheSequenceInOut()
@@ -505,10 +505,6 @@ void ViewerWidget::UpdateTextureFromNode()
       // Is playing, yet the queue above failed to retrieve the frame. We effectively do a quick
       // reboot of the queue here, assuming the above loop has emptied it so far.
       playback_queue_next_frame_ = GetTimestamp() + playback_speed_;
-      int new_queue_length = DeterminePlaybackQueueSize();
-      for (int i=0; i<new_queue_length; i++) {
-        RequestNextFrameForQueue();
-      }
       display_widget_->update();
     } else {
       // Not playing, run a task to get the frame either from the cache or the renderer
@@ -600,6 +596,8 @@ void ViewerWidget::PauseInternal()
     playback_queue_.clear();
     playback_backup_timer_.stop();
     audio_restart_timer_.stop();
+
+    UpdateTextureFromNode();
   }
 
   prequeuing_ = false;
@@ -715,7 +713,7 @@ RenderTicketPtr ViewerWidget::GetFrame(const rational &t, bool clear_render_queu
       auto_cacher_.ClearVideoQueue();
     }
 
-    return auto_cacher_.GetSingleFrame(t);
+    return auto_cacher_.GetSingleFrame(t, clear_render_queue);
   } else {
     // Frame has been cached, grab the frame
     RenderTicketPtr ticket = std::make_shared<RenderTicket>();
@@ -754,7 +752,7 @@ int ViewerWidget::DeterminePlaybackQueueSize()
   int64_t end_ts;
 
   if (playback_speed_ > 0) {
-    end_ts = Timecode::time_to_timestamp(GetConnectedNode()->video_frame_cache()->GetLength(),
+    end_ts = Timecode::time_to_timestamp(GetConnectedNode()->GetVideoLength(),
                                          timebase());
   } else {
     end_ts = 0;
