@@ -84,6 +84,8 @@ private:
 
   void TryRender();
 
+  RenderTicketWatcher *RenderFrame(const QByteArray& hash, const rational &time, bool prioritize);
+
   /**
    * @brief Process all changes to internal NodeGraph copy
    *
@@ -157,10 +159,7 @@ private:
   QMap<RenderTicketWatcher*, TimeRange> audio_tasks_;
   QMap<RenderTicketWatcher*, QByteArray> video_tasks_;
   QMap<RenderTicketWatcher*, QByteArray> video_download_tasks_;
-  QVector<RenderTicketWatcher*> single_frame_tasks_;
   QMap<RenderTicketWatcher*, QVector<RenderTicketPtr> > video_immediate_passthroughs_;
-
-  QVector<QByteArray> currently_caching_hashes_;
 
   qint64 last_update_time_;
 
@@ -208,8 +207,6 @@ private slots:
   void EdgeRemoved(const NodeOutput& output, const NodeInput& input);
 
   void ValueChanged(const NodeInput& input);
-
-  void SingleFrameFinished();
 
   /**
    * @brief Generic function called whenever the frames to render need to be (re)queued

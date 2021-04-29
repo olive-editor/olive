@@ -197,9 +197,9 @@ private:
 
   void PopOldestFrameFromPlaybackQueue();
 
-  FramePtr DecodeCachedImage(const QString &fn, const rational& time) const;
+  static FramePtr DecodeCachedImage(const QString &cache_path, const QByteArray &hash, const rational& time);
 
-  void DecodeCachedImage(RenderTicketPtr ticket, const QString &fn, const rational& time) const;
+  static void DecodeCachedImage(RenderTicketPtr ticket, const QString &cache_path, const QByteArray &hash, const rational& time);
 
   bool ShouldForceWaveform() const;
 

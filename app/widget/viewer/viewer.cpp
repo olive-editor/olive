@@ -377,9 +377,9 @@ void ViewerWidget::SetGizmos(Node *node)
   display_widget_->SetGizmos(node);
 }
 
-FramePtr ViewerWidget::DecodeCachedImage(const QString &fn, const rational& time) const
+FramePtr ViewerWidget::DecodeCachedImage(const QString &cache_path, const QByteArray& hash, const rational& time)
 {
-  FramePtr frame = GetConnectedNode()->video_frame_cache()->LoadCacheFrame(fn);
+  FramePtr frame = FrameHashCache::LoadCacheFrame(cache_path, hash);
 
   if (frame) {
     frame->set_timestamp(time);
@@ -390,10 +390,10 @@ FramePtr ViewerWidget::DecodeCachedImage(const QString &fn, const rational& time
   return frame;
 }
 
-void ViewerWidget::DecodeCachedImage(RenderTicketPtr ticket, const QString &fn, const rational& time) const
+void ViewerWidget::DecodeCachedImage(RenderTicketPtr ticket, const QString &cache_path, const QByteArray& hash, const rational& time)
 {
   ticket->Start();
-  ticket->Finish(QVariant::fromValue(DecodeCachedImage(fn, time)));
+  ticket->Finish(QVariant::fromValue(DecodeCachedImage(cache_path, hash, time)));
 }
 
 bool ViewerWidget::ShouldForceWaveform() const
@@ -738,8 +738,7 @@ RenderTicketPtr ViewerWidget::GetFrame(const rational &t, bool clear_render_queu
     // Frame has been cached, grab the frame
     RenderTicketPtr ticket = std::make_shared<RenderTicket>();
     ticket->setProperty("time", QVariant::fromValue(t));
-    QtConcurrent::run(this, &ViewerWidget::DecodeCachedImage, ticket, cache_fn, t);
-
+    QtConcurrent::run(ViewerWidget::DecodeCachedImage, ticket, GetConnectedNode()->video_frame_cache()->GetCacheDirectory(), cached_hash, t);
     return ticket;
   }
 }
