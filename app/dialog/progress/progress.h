@@ -56,6 +56,8 @@ private:
 
   bool show_progress_;
 
+  bool first_show_;
+
 private slots:
   void DisableSenderWidget();
 

@@ -72,6 +72,8 @@ private:
 
   bool destroy_on_close_;
 
+  bool already_shown_;
+
 private slots:
   void TaskFinished();
 
