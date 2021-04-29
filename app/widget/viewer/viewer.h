@@ -187,9 +187,9 @@ private:
 
   void SetDisplayImage(FramePtr frame, bool main_only);
 
-  void RequestNextFrameForQueue();
+  void RequestNextFrameForQueue(bool prioritize = false, bool increment = true);
 
-  RenderTicketPtr GetFrame(const rational& t, bool clear_render_queue);
+  RenderTicketPtr GetFrame(const rational& t, bool clear_render_queue, bool prioritize);
 
   void FinishPlayPreprocess();
 
@@ -251,6 +251,8 @@ private:
 
   FramePtr last_loaded_buffer_;
   bool last_loaded_buffer_is_empty_;
+
+  int active_queue_jobs_;
 
   static QVector<ViewerWidget*> instances_;
 

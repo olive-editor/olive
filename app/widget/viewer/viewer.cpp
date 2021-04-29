@@ -58,7 +58,8 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   pause_autocache_during_playback_(false),
   prequeuing_(false),
   last_loaded_buffer_(nullptr),
-  last_loaded_buffer_is_empty_(false)
+  last_loaded_buffer_is_empty_(false),
+  active_queue_jobs_(0)
 {
   // Set up main layout
   QVBoxLayout* layout = new QVBoxLayout(this);
@@ -460,29 +461,37 @@ void ViewerWidget::UpdateTextureFromNode()
     // that.
     bool popped = false;
 
-    while (!playback_queue_.empty()) {
+    if (playback_queue_.empty()) {
+      int queue = DeterminePlaybackQueueSize();
+      playback_queue_next_frame_ = GetTimestamp() + playback_speed_;
+      for (int i=active_queue_jobs_; i<queue; i++) {
+        RequestNextFrameForQueue();
+      }
+    } else {
+      while (!playback_queue_.empty()) {
 
-      const ViewerPlaybackFrame& pf = playback_queue_.front();
+        const ViewerPlaybackFrame& pf = playback_queue_.front();
 
-      if (pf.timestamp == time) {
+        if (pf.timestamp == time) {
 
-        // Frame was in queue, no need to decode anything
-        SetDisplayImage(pf.frame, true);
-        return;
+          // Frame was in queue, no need to decode anything
+          SetDisplayImage(pf.frame, true);
+          return;
 
-      } else {
-
-        // Skip this frame
-        PopOldestFrameFromPlaybackQueue();
-        if (popped) {
-          // We've already popped a frame in this loop, meaning a frame has been skipped
-          display_widget_->IncrementSkippedFrames();
         } else {
-          // Shown a frame and progressed to the next one
-          display_widget_->IncrementFrameCount();
-          popped = true;
-        }
 
+          // Skip this frame
+          PopOldestFrameFromPlaybackQueue();
+          if (popped) {
+            // We've already popped a frame in this loop, meaning a frame has been skipped
+            display_widget_->IncrementSkippedFrames();
+          } else {
+            // Shown a frame and progressed to the next one
+            display_widget_->IncrementFrameCount();
+            popped = true;
+          }
+
+        }
       }
     }
 
@@ -504,14 +513,13 @@ void ViewerWidget::UpdateTextureFromNode()
     if (IsPlaying()) {
       // Is playing, yet the queue above failed to retrieve the frame. We effectively do a quick
       // reboot of the queue here, assuming the above loop has emptied it so far.
-      playback_queue_next_frame_ = GetTimestamp() + playback_speed_;
       display_widget_->update();
     } else {
       // Not playing, run a task to get the frame either from the cache or the renderer
       RenderTicketWatcher* watcher = new RenderTicketWatcher();
       connect(watcher, &RenderTicketWatcher::Finished, this, &ViewerWidget::RendererGeneratedFrame);
       nonqueue_watchers_.append(watcher);
-      watcher->SetTicket(GetFrame(time, true));
+      watcher->SetTicket(GetFrame(time, true, true));
     }
   } else {
     // There is definitely no frame here, we can immediately flip to showing nothing
@@ -569,9 +577,18 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
     if (prequeue_length_ > 0) {
       prequeuing_ = true;
 
+      // We "prioritize" the frames, which means they're pushed to the top of the render queue,
+      // we queue in reverse so that they're still queued in order
+
+      playback_queue_next_frame_ += playback_speed_ * prequeue_length_;
+      int64_t temp = playback_queue_next_frame_;
+
       for (int i=0; i<prequeue_length_; i++) {
-        RequestNextFrameForQueue();
+        playback_queue_next_frame_ -= playback_speed_;
+        RequestNextFrameForQueue(true, false);
       }
+
+      playback_queue_next_frame_ = temp;
     }
   }
 
@@ -687,21 +704,24 @@ void ViewerWidget::SetDisplayImage(FramePtr frame, bool main_only)
   emit LoadedBuffer(frame.get());
 }
 
-void ViewerWidget::RequestNextFrameForQueue()
+void ViewerWidget::RequestNextFrameForQueue(bool prioritize, bool increment)
 {
   rational next_time = Timecode::timestamp_to_time(playback_queue_next_frame_,
                                                    timebase());
 
   if (FrameExistsAtTime(next_time) || ViewerMightBeAStill()) {
-    playback_queue_next_frame_ += playback_speed_;
+    if (increment) {
+      playback_queue_next_frame_ += playback_speed_;
+    }
 
     RenderTicketWatcher* watcher = new RenderTicketWatcher();
     connect(watcher, &RenderTicketWatcher::Finished, this, &ViewerWidget::RendererGeneratedFrameForQueue);
-    watcher->SetTicket(GetFrame(next_time, false));
+    watcher->SetTicket(GetFrame(next_time, false, prioritize));
+    active_queue_jobs_++;
   }
 }
 
-RenderTicketPtr ViewerWidget::GetFrame(const rational &t, bool clear_render_queue)
+RenderTicketPtr ViewerWidget::GetFrame(const rational &t, bool clear_render_queue, bool prioritize)
 {
   QByteArray cached_hash = GetConnectedNode()->video_frame_cache()->GetHash(t);
 
@@ -713,7 +733,7 @@ RenderTicketPtr ViewerWidget::GetFrame(const rational &t, bool clear_render_queu
       auto_cacher_.ClearVideoQueue();
     }
 
-    return auto_cacher_.GetSingleFrame(t, clear_render_queue);
+    return auto_cacher_.GetSingleFrame(t, prioritize);
   } else {
     // Frame has been cached, grab the frame
     RenderTicketPtr ticket = std::make_shared<RenderTicket>();
@@ -874,6 +894,8 @@ void ViewerWidget::RendererGeneratedFrameForQueue()
       }
     }
   }
+
+  active_queue_jobs_--;
 
   delete watcher;
 }
