@@ -121,13 +121,12 @@ QString ViewerOutput::duration() const
 
 QString ViewerOutput::rate() const
 {
-  if (HasEnabledVideoStreams()) {
-    // This is a video editor, prioritize video streams
-    VideoParams video_stream = GetFirstEnabledVideoStream();
+  VideoParams video_stream;
 
-    if (video_stream.video_type() != VideoParams::kVideoTypeStill) {
-      return tr("%1 FPS").arg(video_stream.frame_rate().toDouble());
-    }
+  if (HasEnabledVideoStreams()
+      && (video_stream = GetFirstEnabledVideoStream()).video_type() != VideoParams::kVideoTypeStill) {
+    // This is a video editor, prioritize video streams
+    return tr("%1 FPS").arg(video_stream.frame_rate().toDouble());
   } else if (HasEnabledAudioStreams()) {
     // No video streams, return audio
     AudioParams audio_stream = GetFirstEnabledAudioStream();
