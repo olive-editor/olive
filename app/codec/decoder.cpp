@@ -46,11 +46,14 @@ const rational Decoder::kAnyTimecode = RATIONAL_MIN;
 
 Decoder::Decoder()
 {
+  UpdateLastAccessed();
 }
 
 bool Decoder::Open(const CodecStream &stream)
 {
   QMutexLocker locker(&mutex_);
+
+  UpdateLastAccessed();
 
   if (stream_.IsValid()) {
     // Decoder is already open. Return TRUE if the stream is the stream we have, or FALSE if not.
@@ -94,6 +97,8 @@ FramePtr Decoder::RetrieveVideo(const rational &timecode, const int &divider)
 {
   QMutexLocker locker(&mutex_);
 
+  UpdateLastAccessed();
+
   if (!stream_.IsValid()) {
     qCritical() << "Can't retrieve video on a closed decoder";
     return nullptr;
@@ -110,6 +115,8 @@ FramePtr Decoder::RetrieveVideo(const rational &timecode, const int &divider)
 SampleBufferPtr Decoder::RetrieveAudio(const TimeRange &range, const AudioParams &params, const QString& cache_path, Footage::LoopMode loop_mode, const QAtomicInt *cancelled)
 {
   QMutexLocker locker(&mutex_);
+
+  UpdateLastAccessed();
 
   if (!stream_.IsValid()) {
     qCritical() << "Can't retrieve audio on a closed decoder";
@@ -167,9 +174,17 @@ SampleBufferPtr Decoder::RetrieveAudio(const TimeRange &range, const AudioParams
   return buffer;
 }
 
+qint64 Decoder::GetLastAccessedTime()
+{
+  QMutexLocker locker(&mutex_);
+  return last_accessed_;
+}
+
 void Decoder::Close()
 {
   QMutexLocker locker(&mutex_);
+
+  UpdateLastAccessed();
 
   if (stream_.IsValid()) {
     CloseInternal();
@@ -353,6 +368,11 @@ SampleBufferPtr Decoder::RetrieveAudioFromConform(const QString &conform_filenam
   }
 
   return nullptr;
+}
+
+void Decoder::UpdateLastAccessed()
+{
+  last_accessed_ = QDateTime::currentMSecsSinceEpoch();
 }
 
 uint qHash(Decoder::CodecStream stream, uint seed)

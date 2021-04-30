@@ -166,6 +166,11 @@ public:
   SampleBufferPtr RetrieveAudio(const TimeRange& range, const AudioParams& params, const QString &cache_path, Footage::LoopMode loop_mode, const QAtomicInt *cancelled);
 
   /**
+   * @brief Determine the last time this decoder instance was used in any way
+   */
+  qint64 GetLastAccessedTime();
+
+  /**
    * @brief Generate a Footage object from a file
    *
    * If this decoder is able to parse this file, it will return a valid FootagePtr. Otherwise, it
@@ -276,11 +281,15 @@ signals:
   void IndexProgress(double);
 
 private:
+  void UpdateLastAccessed();
+
   SampleBufferPtr RetrieveAudioFromConform(const QString& conform_filename, const TimeRange &range, Footage::LoopMode loop_mode);
 
   CodecStream stream_;
 
   QMutex mutex_;
+
+  qint64 last_accessed_;
 
 };
 

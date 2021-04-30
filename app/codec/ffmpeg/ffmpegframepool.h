@@ -26,8 +26,9 @@
 
 namespace olive {
 
-class FFmpegFramePool : public MemoryPool<uint8_t>
+class FFmpegFramePool : public MemoryPool
 {
+  Q_OBJECT
 public:
   FFmpegFramePool(int element_count);
 
