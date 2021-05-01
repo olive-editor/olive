@@ -519,7 +519,7 @@ void ViewerWidget::UpdateTextureFromNode()
       RenderTicketWatcher* watcher = new RenderTicketWatcher();
       connect(watcher, &RenderTicketWatcher::Finished, this, &ViewerWidget::RendererGeneratedFrame);
       nonqueue_watchers_.append(watcher);
-      watcher->SetTicket(GetFrame(time, true, true));
+      watcher->SetTicket(GetFrame(time, false, true));
     }
   } else {
     // There is definitely no frame here, we can immediately flip to showing nothing
