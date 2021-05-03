@@ -173,6 +173,10 @@ void ViewerWidget::TimeChangedEvent(const int64_t &i)
       UpdateTextureFromNode();
 
       PushScrubbedAudio();
+
+      // We don't clear the FPS timer on pause in case users want to see it immediately after, but by
+      // the time a new texture is drawn, assume that the FPS no longer needs to be shown.
+      display_widget_->ResetFPSTimer();
     }
 
     if (!pause_autocache_during_playback_ || !IsPlaying()) {
@@ -499,12 +503,6 @@ void ViewerWidget::UpdateTextureFromNode()
     if (frame_exists_at_time && !frame_might_be_still) {
       qWarning() << "Playback queue failed to keep up";
     }
-
-  } else {
-
-    // We don't clear the FPS timer on pause in case users want to see it immediately after, but by
-    // the time a new texture is drawn, assume that the FPS no longer needs to be shown.
-    display_widget_->ResetFPSTimer();
 
   }
 
