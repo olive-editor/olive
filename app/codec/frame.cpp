@@ -60,6 +60,30 @@ void Frame::set_video_params(const VideoParams &params)
   linesize_pixels_ = linesize_ / params_.GetBytesPerPixel();
 }
 
+FramePtr Frame::Interlace(FramePtr top, FramePtr bottom)
+{
+  if (top->video_params() != bottom->video_params()) {
+    qCritical() << "Tried to interlace two frames that had incompatible parameters";
+    return nullptr;
+  }
+
+  FramePtr interlaced = Frame::Create();
+  interlaced->set_video_params(top->video_params());
+  interlaced->allocate();
+
+  int linesize = interlaced->linesize_bytes();
+
+  for (int i=0; i<interlaced->height(); i++) {
+    FramePtr which = (i%2 == 0) ? top : bottom;
+
+    memcpy(interlaced->data() + i*linesize,
+           which->const_data() + i*linesize,
+           linesize);
+  }
+
+  return interlaced;
+}
+
 int Frame::generate_linesize_bytes(int width, VideoParams::Format format, int channel_count)
 {
   // Align to 32 bytes (not sure if this is necessary?)

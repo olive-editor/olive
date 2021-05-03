@@ -62,6 +62,8 @@ protected:
 private:
   RenderProcessor(RenderTicketPtr ticket, Renderer* render_ctx, StillImageCache* still_image_cache, DecoderCache* decoder_cache, ShaderCache* shader_cache, QVariant default_shader);
 
+  FramePtr GenerateFrame(const rational &time, const rational &frame_length);
+
   void Run();
 
   DecoderPtr ResolveDecoderFromInput(const QString &decoder_id, const Decoder::CodecStream& stream);

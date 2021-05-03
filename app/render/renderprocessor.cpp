@@ -40,6 +40,78 @@ RenderProcessor::RenderProcessor(RenderTicketPtr ticket, Renderer *render_ctx, S
 {
 }
 
+FramePtr RenderProcessor::GenerateFrame(const rational& time, const rational& frame_length)
+{
+  ViewerOutput* viewer = Node::ValueToPtr<ViewerOutput>(ticket_->property("viewer"));
+
+  NodeValueTable table;
+  NodeOutput texture_output = viewer->GetConnectedTextureOutput();
+  if (texture_output.IsValid()) {
+    table = GenerateTable(texture_output.node(), texture_output.output(),
+                          TimeRange(time, time + frame_length));
+  }
+
+  TexturePtr texture = table.Get(NodeValue::kTexture).value<TexturePtr>();
+
+  // Set up output frame parameters
+  VideoParams frame_params = GetCacheVideoParams();
+
+  QSize frame_size = ticket_->property("size").value<QSize>();
+  if (!frame_size.isNull()) {
+    frame_params.set_width(frame_size.width());
+    frame_params.set_height(frame_size.height());
+  }
+
+  VideoParams::Format frame_format = static_cast<VideoParams::Format>(ticket_->property("format").toInt());
+  if (frame_format != VideoParams::kFormatInvalid) {
+    frame_params.set_format(frame_format);
+  }
+
+  frame_params.set_channel_count(texture ? texture->channel_count() : VideoParams::kRGBChannelCount);
+
+  FramePtr frame = Frame::Create();
+  frame->set_timestamp(time);
+  frame->set_video_params(frame_params);
+  frame->allocate();
+
+  if (!texture) {
+    // Blank frame out
+    memset(frame->data(), 0, frame->allocated_size());
+  } else {
+    // Dump texture contents to frame
+    ColorProcessorPtr output_color_transform = ticket_->property("coloroutput").value<ColorProcessorPtr>();
+    const VideoParams& tex_params = texture->params();
+
+    if (tex_params.effective_width() != frame_params.effective_width()
+        || tex_params.effective_height() != frame_params.effective_height()
+        || tex_params.format() != frame_params.format()
+        || output_color_transform) {
+      TexturePtr blit_tex = render_ctx_->CreateTexture(frame_params);
+
+      QMatrix4x4 matrix = ticket_->property("matrix").value<QMatrix4x4>();
+
+      if (output_color_transform) {
+        // Yes color transform, blit color managed
+        render_ctx_->BlitColorManaged(output_color_transform, texture, true, blit_tex.get(), true, matrix);
+      } else {
+        // No color transform, just blit
+        ShaderJob job;
+        job.InsertValue(QStringLiteral("ove_maintex"), NodeValue(NodeValue::kTexture, QVariant::fromValue(texture)));
+        job.InsertValue(QStringLiteral("ove_mvpmat"), NodeValue(NodeValue::kMatrix, matrix));
+
+        render_ctx_->BlitToTexture(default_shader_, job, blit_tex.get());
+      }
+
+      // Replace texture that we're going to download in the next step
+      texture = blit_tex;
+    }
+
+    render_ctx_->DownloadFromTexture(texture.get(), frame->data(), frame->linesize_pixels());
+  }
+
+  return frame;
+}
+
 void RenderProcessor::Run()
 {
   // Depending on the render ticket type, start a job
@@ -48,74 +120,30 @@ void RenderProcessor::Run()
   switch (type) {
   case RenderManager::kTypeVideo:
   {
-    ViewerOutput* viewer = Node::ValueToPtr<ViewerOutput>(ticket_->property("viewer"));
-    const VideoParams& video_params = ticket_->property("vparam").value<VideoParams>();
-    SetCacheVideoParams(video_params);
+    SetCacheVideoParams(ticket_->property("vparam").value<VideoParams>());
     rational time = ticket_->property("time").value<rational>();
 
-    NodeValueTable table;
-    NodeOutput texture_output = viewer->GetConnectedTextureOutput();
-    if (texture_output.IsValid()) {
-      table = GenerateTable(texture_output.node(), texture_output.output(),
-                            TimeRange(time, time + video_params.frame_rate_as_time_base()));
+    rational frame_length = GetCacheVideoParams().frame_rate_as_time_base();
+    if (GetCacheVideoParams().interlacing() != VideoParams::kInterlaceNone) {
+      frame_length /= 2;
     }
 
-    TexturePtr texture = table.Get(NodeValue::kTexture).value<TexturePtr>();
+    FramePtr frame = GenerateFrame(time, frame_length);
 
-    // Set up output frame parameters
-    VideoParams frame_params = ticket_->property("vparam").value<VideoParams>();
+    if (GetCacheVideoParams().interlacing() != VideoParams::kInterlaceNone) {
+      // Get next between frame and interlace it
+      FramePtr next_frame = GenerateFrame(time + frame_length, frame_length);
 
-    QSize frame_size = ticket_->property("size").value<QSize>();
-    if (!frame_size.isNull()) {
-      frame_params.set_width(frame_size.width());
-      frame_params.set_height(frame_size.height());
-    }
-
-    VideoParams::Format frame_format = static_cast<VideoParams::Format>(ticket_->property("format").toInt());
-    if (frame_format != VideoParams::kFormatInvalid) {
-      frame_params.set_format(frame_format);
-    }
-
-    frame_params.set_channel_count(texture ? texture->channel_count() : VideoParams::kRGBChannelCount);
-
-    FramePtr frame = Frame::Create();
-    frame->set_timestamp(time);
-    frame->set_video_params(frame_params);
-    frame->allocate();
-
-    if (!texture) {
-      // Blank frame out
-      memset(frame->data(), 0, frame->allocated_size());
-    } else {
-      // Dump texture contents to frame
-      ColorProcessorPtr output_color_transform = ticket_->property("coloroutput").value<ColorProcessorPtr>();
-      const VideoParams& tex_params = texture->params();
-
-      if (tex_params.effective_width() != frame_params.effective_width()
-          || tex_params.effective_height() != frame_params.effective_height()
-          || tex_params.format() != frame_params.format()
-          || output_color_transform) {
-        TexturePtr blit_tex = render_ctx_->CreateTexture(frame_params);
-
-        QMatrix4x4 matrix = ticket_->property("matrix").value<QMatrix4x4>();
-
-        if (output_color_transform) {
-          // Yes color transform, blit color managed
-          render_ctx_->BlitColorManaged(output_color_transform, texture, true, blit_tex.get(), true, matrix);
-        } else {
-          // No color transform, just blit
-          ShaderJob job;
-          job.InsertValue(QStringLiteral("ove_maintex"), NodeValue(NodeValue::kTexture, QVariant::fromValue(texture)));
-          job.InsertValue(QStringLiteral("ove_mvpmat"), NodeValue(NodeValue::kMatrix, matrix));
-
-          render_ctx_->BlitToTexture(default_shader_, job, blit_tex.get());
-        }
-
-        // Replace texture that we're going to download in the next step
-        texture = blit_tex;
+      FramePtr top, bottom;
+      if (GetCacheVideoParams().interlacing() == VideoParams::kInterlacedTopFirst) {
+        top = frame;
+        bottom = next_frame;
+      } else {
+        top = next_frame;
+        bottom = frame;
       }
 
-      render_ctx_->DownloadFromTexture(texture.get(), frame->data(), frame->linesize_pixels());
+      frame = Frame::Interlace(top, bottom);
     }
 
     ticket_->Finish(QVariant::fromValue(frame));
@@ -272,7 +300,7 @@ QVariant RenderProcessor::ProcessVideoFootage(const FootageJob &stream, const ra
   // Check the still frame cache. On large frames such as high resolution still images, uploading
   // and color managing them for every frame is a waste of time, so we implement a small cache here
   // to optimize such a situation
-  const VideoParams& render_params = ticket_->property("vparam").value<VideoParams>();
+  const VideoParams& render_params = GetCacheVideoParams();
   VideoParams stream_data = stream.video_params();
 
   ColorManager* color_manager = Node::ValueToPtr<ColorManager>(ticket_->property("colormanager"));
@@ -448,7 +476,7 @@ QVariant RenderProcessor::ProcessShader(const Node *node, const TimeRange &range
     }
   }
 
-  VideoParams tex_params = ticket_->property("vparam").value<VideoParams>();
+  VideoParams tex_params = GetCacheVideoParams();
 
   tex_params.set_channel_count(GetChannelCountFromJob(job));
 
@@ -499,7 +527,7 @@ QVariant RenderProcessor::ProcessFrameGeneration(const Node *node, const Generat
 {
   FramePtr frame = Frame::Create();
 
-  VideoParams frame_params = ticket_->property("vparam").value<VideoParams>();
+  VideoParams frame_params = GetCacheVideoParams();
   frame_params.set_channel_count(GetChannelCountFromJob(job));
   frame->set_video_params(frame_params);
   frame->allocate();

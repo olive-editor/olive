@@ -836,24 +836,13 @@ bool FFmpegDecoder::InitScaler(const RetrieveVideoParams& params)
   AVFilterContext *last_filter = buffersrc_ctx_;
 
   // Add interlacing filter if necessary
-  if (filter_params_.src_interlacing != filter_params_.dst_interlacing) {
-    // Determine what kind of interlacing we'll be doing
+  if (filter_params_.src_interlacing != VideoParams::kInterlaceNone) {
+    // Footage is interlaced, our renderer works in progressive so we'll need to de-interlace
     AVFilterContext* interlace_filter;
 
-    if (filter_params_.dst_interlacing == VideoParams::kInterlaceNone) {
-      // Deinterlace source
-      snprintf(filter_args, kFilterArgSz, "mode=1:parity=%s",
-               GetInterlacingModeInFFmpeg(filter_params_.src_interlacing));
-      avfilter_graph_create_filter(&interlace_filter, avfilter_get_by_name("yadif"), "yadif", filter_args, nullptr, filter_graph_);
-    } else if (filter_params_.src_interlacing == VideoParams::kInterlaceNone) {
-      // We will be interlacing an originally progressive source
-      snprintf(filter_args, kFilterArgSz, "scan=%s", GetInterlacingModeInFFmpeg(filter_params_.dst_interlacing));
-      avfilter_graph_create_filter(&interlace_filter, avfilter_get_by_name("interlace"), "interlace", filter_args, nullptr, filter_graph_);
-    } else {
-      // We will simply be flipping the fields
-      snprintf(filter_args, kFilterArgSz, "fieldorder=%s", GetInterlacingModeInFFmpeg(filter_params_.dst_interlacing));
-      avfilter_graph_create_filter(&interlace_filter, avfilter_get_by_name("fieldorder"), "fieldorder", filter_args, nullptr, filter_graph_);
-    }
+    snprintf(filter_args, kFilterArgSz, "mode=1:parity=%s",
+             GetInterlacingModeInFFmpeg(filter_params_.src_interlacing));
+    avfilter_graph_create_filter(&interlace_filter, avfilter_get_by_name("yadif"), "yadif", filter_args, nullptr, filter_graph_);
 
     avfilter_link(last_filter, 0, interlace_filter, 0);
     last_filter = interlace_filter;

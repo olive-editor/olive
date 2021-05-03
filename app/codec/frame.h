@@ -51,6 +51,8 @@ public:
   const VideoParams& video_params() const;
   void set_video_params(const VideoParams& params);
 
+  static FramePtr Interlace(FramePtr top, FramePtr bottom);
+
   static int generate_linesize_bytes(int width, VideoParams::Format format, int channel_count);
 
   int linesize_pixels() const
