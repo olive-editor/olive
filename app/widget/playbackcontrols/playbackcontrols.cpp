@@ -72,19 +72,25 @@ PlaybackControls::PlaybackControls(QWidget *parent) :
   QHBoxLayout* lower_middle_layout = new QHBoxLayout(lower_middle_container);
   lower_middle_layout->setSpacing(0);
   lower_middle_layout->setMargin(0);
+  lower_middle_layout->addStretch();
+
+  QSizePolicy btn_sz_policy(QSizePolicy::Maximum, QSizePolicy::Preferred);
 
   // Go To Start Button
   go_to_start_btn_ = new QPushButton();
+  go_to_start_btn_->setSizePolicy(btn_sz_policy);
   lower_middle_layout->addWidget(go_to_start_btn_);
   connect(go_to_start_btn_, &QPushButton::clicked, this, &PlaybackControls::BeginClicked);
 
   // Prev Frame Button
   prev_frame_btn_ = new QPushButton();
+  prev_frame_btn_->setSizePolicy(btn_sz_policy);
   lower_middle_layout->addWidget(prev_frame_btn_);
   connect(prev_frame_btn_, &QPushButton::clicked, this, &PlaybackControls::PrevFrameClicked);
 
   // Play/Pause Button
   playpause_stack_ = new QStackedWidget();
+  playpause_stack_->setSizePolicy(btn_sz_policy);
   lower_middle_layout->addWidget(playpause_stack_);
 
   play_btn_ = new QPushButton();
@@ -98,19 +104,19 @@ PlaybackControls::PlaybackControls(QWidget *parent) :
   // Default to showing play button
   playpause_stack_->setCurrentWidget(play_btn_);
 
-  // Hack to conform the play/pause button size to the other buttons (QStackedWidget has a
-  // different size policy by default)
-  playpause_stack_->setSizePolicy(prev_frame_btn_->sizePolicy());
-
   // Next Frame Button
   next_frame_btn_ = new QPushButton();
+  next_frame_btn_->setSizePolicy(btn_sz_policy);
   lower_middle_layout->addWidget(next_frame_btn_);
   connect(next_frame_btn_, &QPushButton::clicked, this, &PlaybackControls::NextFrameClicked);
 
   // Go To End Button
   go_to_end_btn_ = new QPushButton();
+  go_to_end_btn_->setSizePolicy(btn_sz_policy);
   lower_middle_layout->addWidget(go_to_end_btn_);
   connect(go_to_end_btn_, &QPushButton::clicked, this, &PlaybackControls::EndClicked);
+
+  lower_middle_layout->addStretch();
 
   QWidget* av_btn_widget = new QWidget();
   av_btn_widget->setSizePolicy(lower_container_size_policy);
