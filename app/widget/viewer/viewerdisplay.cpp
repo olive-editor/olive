@@ -452,9 +452,12 @@ void ViewerDisplayWidget::OnPaint()
 
 void ViewerDisplayWidget::OnDestroy()
 {
+  deinterlace_shader_.clear();
+
   super::OnDestroy();
 
   texture_ = nullptr;
+  deinterlace_texture_ = nullptr;
 }
 
 QPointF ViewerDisplayWidget::GetTexturePosition(const QPoint &screen_pos)
