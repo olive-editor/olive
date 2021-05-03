@@ -76,7 +76,7 @@ bool RenderTask::Render(ColorManager* manager,
 
   if (!video_range.isEmpty()) {
     // Get list of discrete frames from range
-    QVector<rational> times = viewer()->video_frame_cache()->GetFrameListFromTimeRange(video_range);
+    QVector<rational> times = FrameHashCache::GetFrameListFromTimeRange(video_range, video_params().frame_rate_as_time_base());
     QVector<QByteArray> hashes(times.size());
 
     // Generate hashes
