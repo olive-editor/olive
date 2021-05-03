@@ -191,7 +191,7 @@ public:
 
   virtual NodeOutput GetConnectedSampleOutput() override;
 
-  static rational AdjustTimeByLoopMode(rational time, LoopMode loop_mode, const rational& length, VideoParams::Type type);
+  static rational AdjustTimeByLoopMode(rational time, LoopMode loop_mode, const rational& length, VideoParams::Type type, const rational &timebase);
 
   static const QString kFilenameInput;
   static const QString kLoopModeInput;

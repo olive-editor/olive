@@ -350,7 +350,7 @@ void Footage::Hash(const QString& output, QCryptographicHash &hash, const ration
 
         // Footage timestamp
         if (params.video_type() != VideoParams::kVideoTypeStill) {
-          rational adjusted_time = AdjustTimeByLoopMode(time, loop_mode(), GetLength(), params.video_type());
+          rational adjusted_time = AdjustTimeByLoopMode(time, loop_mode(), GetLength(), params.video_type(), params.frame_rate_as_time_base());
 
           if (!adjusted_time.isNaN()) {
             int64_t video_ts = Timecode::time_to_timestamp(adjusted_time, params.time_base());
@@ -446,7 +446,7 @@ bool TimeIsOutOfBounds(const rational& time, const rational& length)
   return time < 0 || time >= length;
 }
 
-rational Footage::AdjustTimeByLoopMode(rational time, Footage::LoopMode loop_mode, const rational &length, VideoParams::Type type)
+rational Footage::AdjustTimeByLoopMode(rational time, Footage::LoopMode loop_mode, const rational &length, VideoParams::Type type, const rational& timebase)
 {
   if (type == VideoParams::kVideoTypeStill) {
     // No looping for still images
@@ -461,7 +461,7 @@ rational Footage::AdjustTimeByLoopMode(rational time, Footage::LoopMode loop_mod
       break;
     case kLoopModeClamp:
       // Clamp footage time to length
-      time = clamp(time, rational(0), length);
+      time = clamp(time, rational(0), length - timebase);
       break;
     case kLoopModeLoop:
       // Loop footage time around job length
