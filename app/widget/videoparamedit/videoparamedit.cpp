@@ -94,7 +94,7 @@ VideoParamEdit::VideoParamEdit(QWidget* parent) :
   layout->addWidget(frame_rate_lbl_, row, 0);
 
   frame_rate_combobox_ = new FrameRateComboBox();
-  connect(frame_rate_combobox_, static_cast<void (FrameRateComboBox::*)(int)>(&FrameRateComboBox::currentIndexChanged), this, &VideoParamEdit::Changed);
+  connect(frame_rate_combobox_, &FrameRateComboBox::FrameRateChanged, this, &VideoParamEdit::Changed);
   layout->addWidget(frame_rate_combobox_, row, 1);
 
   frame_rate_slider_ = new RationalSlider();
