@@ -69,7 +69,7 @@ public slots:
 
   void SetLength(const rational& r);
 
-  void Shift(const rational& from, const rational& to);
+  void Shift(rational from, rational to);
 
 signals:
   void Invalidated(const olive::TimeRange& r);

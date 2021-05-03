@@ -87,10 +87,22 @@ void PlaybackCache::SetLength(const rational &r)
   }
 }
 
-void PlaybackCache::Shift(const rational &from, const rational &to)
+void PlaybackCache::Shift(rational from, rational to)
 {
   if (from == to) {
     return;
+  }
+
+  if (from > length_) {
+    if (to > from) {
+      // No-op
+      return;
+    } else if (to >= length_) {
+      // No-op
+      return;
+    } else {
+      from = length_;
+    }
   }
 
   qDebug() << "FIXME: 0 job time may cause cache desyncs";
