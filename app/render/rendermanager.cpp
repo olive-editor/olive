@@ -110,10 +110,12 @@ QByteArray RenderManager::Hash(const Node *n, const QString& output, const Video
   int width = params.effective_width();
   int height = params.effective_height();
   VideoParams::Format format = params.format();
+  VideoParams::Interlacing interlacing = params.interlacing();
 
-  hasher.addData(reinterpret_cast<const char*>(&width), sizeof(int));
-  hasher.addData(reinterpret_cast<const char*>(&height), sizeof(int));
-  hasher.addData(reinterpret_cast<const char*>(&format), sizeof(VideoParams::Format));
+  hasher.addData(reinterpret_cast<const char*>(&width), sizeof(width));
+  hasher.addData(reinterpret_cast<const char*>(&height), sizeof(height));
+  hasher.addData(reinterpret_cast<const char*>(&format), sizeof(format));
+  hasher.addData(reinterpret_cast<const char*>(&interlacing), sizeof(interlacing));
 
   if (n) {
     n->Hash(output, hasher, time, params);

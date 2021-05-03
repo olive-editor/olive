@@ -132,6 +132,8 @@ private:
 
   static uint64_t ValidateChannelLayout(AVStream *stream);
 
+  static const char* GetInterlacingModeInFFmpeg(VideoParams::Interlacing interlacing);
+
   FFmpegFramePool::ElementPtr GetFrameFromCache(const int64_t& t) const;
 
   void ClearFrameCache();

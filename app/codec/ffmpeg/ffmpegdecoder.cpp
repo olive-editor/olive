@@ -204,6 +204,21 @@ int FFmpegDecoder::GetFilteredFrame(AVPacket* packet, AVFrame* output_frame, con
     ret = instance_.GetFrame(packet, working_frame);
 
     if (ret >= 0) {
+      // Override this frame's interlacing parameters from user
+      switch (filter_params_.src_interlacing) {
+      case VideoParams::kInterlaceNone:
+        working_frame->interlaced_frame = 0;
+        break;
+      case VideoParams::kInterlacedTopFirst:
+        working_frame->interlaced_frame = 1;
+        working_frame->top_field_first = 1;
+        break;
+      case VideoParams::kInterlacedBottomFirst:
+        working_frame->interlaced_frame = 1;
+        working_frame->top_field_first = 0;
+        break;
+      }
+
       // If succeeded in pulling from codec, send to buffer source
       ret = av_buffersrc_add_frame_flags(buffersrc_ctx_, working_frame, AV_BUFFERSRC_FLAG_KEEP_REF);
 
@@ -559,6 +574,15 @@ uint64_t FFmpegDecoder::ValidateChannelLayout(AVStream* stream)
   return av_get_default_channel_layout(stream->codecpar->channels);
 }
 
+const char *FFmpegDecoder::GetInterlacingModeInFFmpeg(VideoParams::Interlacing interlacing)
+{
+  if (interlacing == VideoParams::kInterlacedTopFirst) {
+    return "tff";
+  } else {
+    return "bff";
+  }
+}
+
 /* OLD UNUSED CODE: Keeping this around in case the code proves useful
 
 void FFmpegDecoder::CacheFrameToDisk(AVFrame *f)
@@ -629,6 +653,13 @@ void FFmpegDecoder::ClearFrameCache()
 FFmpegFramePool::ElementPtr FFmpegDecoder::RetrieveFrame(const rational& time, const RetrieveVideoParams &params)
 {
   int64_t target_ts = GetTimeInTimebaseUnits(time, instance_.avstream()->time_base, instance_.avstream()->start_time);
+
+  if (params.dst_interlacing == VideoParams::kInterlaceNone && params.src_interlacing != VideoParams::kInterlaceNone) {
+    // If we are de-interlacing, the timebase is doubled because we get one frame per field, so we
+    // double the target timestamp too
+    target_ts *= 2;
+  }
+
   int64_t seek_ts = target_ts;
   bool still_seeking = false;
 
@@ -807,13 +838,25 @@ bool FFmpegDecoder::InitScaler(const RetrieveVideoParams& params)
   // Add interlacing filter if necessary
   if (filter_params_.src_interlacing != filter_params_.dst_interlacing) {
     // Determine what kind of interlacing we'll be doing
+    AVFilterContext* interlace_filter;
+
     if (filter_params_.dst_interlacing == VideoParams::kInterlaceNone) {
       // Deinterlace source
+      snprintf(filter_args, kFilterArgSz, "mode=1:parity=%s",
+               GetInterlacingModeInFFmpeg(filter_params_.src_interlacing));
+      avfilter_graph_create_filter(&interlace_filter, avfilter_get_by_name("yadif"), "yadif", filter_args, nullptr, filter_graph_);
     } else if (filter_params_.src_interlacing == VideoParams::kInterlaceNone) {
-      // We will be interlacing a previous progressive source
+      // We will be interlacing an originally progressive source
+      snprintf(filter_args, kFilterArgSz, "scan=%s", GetInterlacingModeInFFmpeg(filter_params_.dst_interlacing));
+      avfilter_graph_create_filter(&interlace_filter, avfilter_get_by_name("interlace"), "interlace", filter_args, nullptr, filter_graph_);
     } else {
       // We will simply be flipping the fields
+      snprintf(filter_args, kFilterArgSz, "fieldorder=%s", GetInterlacingModeInFFmpeg(filter_params_.dst_interlacing));
+      avfilter_graph_create_filter(&interlace_filter, avfilter_get_by_name("fieldorder"), "fieldorder", filter_args, nullptr, filter_graph_);
     }
+
+    avfilter_link(last_filter, 0, interlace_filter, 0);
+    last_filter = interlace_filter;
   }
 
   // Add scale filter if necessary
