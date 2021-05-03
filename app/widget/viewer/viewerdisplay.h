@@ -304,6 +304,8 @@ private:
 
   bool show_widget_background_;
 
+  bool texture_equal_to_frame_;
+
 private slots:
   void EmitColorAtCursor(QMouseEvent* e);
 

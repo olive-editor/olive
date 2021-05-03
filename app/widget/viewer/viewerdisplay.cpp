@@ -50,7 +50,8 @@ ViewerDisplayWidget::ViewerDisplayWidget(QWidget *parent) :
   deinterlace_(false),
   show_fps_(false),
   frames_skipped_(0),
-  show_widget_background_(false)
+  show_widget_background_(false),
+  texture_equal_to_frame_(false)
 {
   connect(Core::instance(), &Core::ToolChanged, this, &ViewerDisplayWidget::UpdateCursor);
 
@@ -101,25 +102,13 @@ void ViewerDisplayWidget::SetSignalCursorColorEnabled(bool e)
 
 void ViewerDisplayWidget::SetImage(FramePtr in_buffer)
 {
-  last_loaded_buffer_ = in_buffer;
+  if (last_loaded_buffer_ != in_buffer) {
+    last_loaded_buffer_ = in_buffer;
 
-  if (last_loaded_buffer_) {
-    makeCurrent();
+    texture_equal_to_frame_ = false;
 
-    if (!texture_
-        || texture_->width() != in_buffer->width()
-        || texture_->height() != in_buffer->height()
-        || texture_->format() != in_buffer->format()
-        || texture_->channel_count() != in_buffer->channel_count()) {
-      texture_ = renderer()->CreateTexture(in_buffer->video_params(), in_buffer->data(), in_buffer->linesize_pixels());
-    } else {
-      texture_->Upload(in_buffer->data(), in_buffer->linesize_pixels());
-    }
-
-    doneCurrent();
+    update();
   }
-
-  update();
 }
 
 void ViewerDisplayWidget::SetDeinterlacing(bool e)
@@ -333,10 +322,16 @@ void ViewerDisplayWidget::OnPaint()
 
   // We only draw if we have a pipeline
   if (last_loaded_buffer_ && color_service()) {
-    if (!texture_) {
-      // If no texture, create it now
-      SetImage(last_loaded_buffer_);
+    if (!texture_
+        || texture_->width() != last_loaded_buffer_->width()
+        || texture_->height() != last_loaded_buffer_->height()
+        || texture_->format() != last_loaded_buffer_->format()
+        || texture_->channel_count() != last_loaded_buffer_->channel_count()) {
+      texture_ = renderer()->CreateTexture(last_loaded_buffer_->video_params(), last_loaded_buffer_->data(), last_loaded_buffer_->linesize_pixels());
+    } else if (!texture_equal_to_frame_) {
+      texture_->Upload(last_loaded_buffer_->data(), last_loaded_buffer_->linesize_pixels());
     }
+    texture_equal_to_frame_ = true;
 
     TexturePtr texture_to_draw = texture_;
 
