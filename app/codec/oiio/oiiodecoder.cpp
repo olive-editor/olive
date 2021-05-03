@@ -164,7 +164,7 @@ bool OIIODecoder::FileTypeIsSupported(const QString& fn)
     }
   }
 
-  if (!supported_formats_.contains(QFileInfo(fn).completeSuffix(), Qt::CaseInsensitive)) {
+  if (!supported_formats_.contains(QFileInfo(fn).suffix(), Qt::CaseInsensitive)) {
     return false;
   }
 
