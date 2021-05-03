@@ -263,7 +263,7 @@ QString Decoder::TransformImageSequenceFileName(const QString &filename, const i
 
   QFileInfo file_info(filename);
 
-  QString original_basename = file_info.baseName();
+  QString original_basename = file_info.completeBaseName();
 
   QString new_basename = original_basename.left(original_basename.size() - digit_count)
       .append(QStringLiteral("%1").arg(number, digit_count, 10, QChar('0')));
@@ -273,7 +273,7 @@ QString Decoder::TransformImageSequenceFileName(const QString &filename, const i
 
 int Decoder::GetImageSequenceDigitCount(const QString &filename)
 {
-  QString basename = QFileInfo(filename).baseName();
+  QString basename = QFileInfo(filename).completeBaseName();
 
   // See if basename contains a number at the end
   int digit_count = 0;
@@ -295,7 +295,7 @@ int64_t Decoder::GetImageSequenceIndex(const QString &filename)
 
   QFileInfo file_info(filename);
 
-  QString original_basename = file_info.baseName();
+  QString original_basename = file_info.completeBaseName();
 
   QString number_only = original_basename.mid(original_basename.size() - digit_count);
 
