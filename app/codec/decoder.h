@@ -143,6 +143,35 @@ public:
 
   static const rational kAnyTimecode;
 
+  struct RetrieveVideoParams
+  {
+    RetrieveVideoParams()
+    {
+      divider = 1;
+      src_interlacing = VideoParams::kInterlaceNone;
+      dst_interlacing = VideoParams::kInterlaceNone;
+    }
+
+    int divider;
+    VideoParams::Interlacing src_interlacing;
+    VideoParams::Interlacing dst_interlacing;
+
+    void reset()
+    {
+      *this = RetrieveVideoParams();
+    }
+
+    bool operator==(const RetrieveVideoParams& rhs) const
+    {
+      return divider == rhs.divider && src_interlacing == rhs.src_interlacing && dst_interlacing == rhs.dst_interlacing;
+    }
+
+    bool operator!=(const RetrieveVideoParams& rhs) const
+    {
+      return !(*this == rhs);
+    }
+  };
+
   /**
    * @brief Retrieves a video frame from footage
    *
@@ -153,7 +182,7 @@ public:
    *
    * This function is thread safe and can only run while the decoder is open. \see Open()
    */
-  FramePtr RetrieveVideo(const rational& timecode, const int& divider);
+  FramePtr RetrieveVideo(const rational& timecode, const RetrieveVideoParams& divider);
 
   /**
    * @brief Retrieve audio data from footage
@@ -236,7 +265,7 @@ protected:
    * Sub-classes must override this function IF they support video. Function is already mutexed
    * so sub-classes don't need to worry about thread safety.
    */
-  virtual FramePtr RetrieveVideoInternal(const rational& timecode, const int& divider);
+  virtual FramePtr RetrieveVideoInternal(const rational& timecode, const RetrieveVideoParams& divider);
 
   virtual bool ConformAudioInternal(const QString& filename, const AudioParams &params, const QAtomicInt* cancelled);
 

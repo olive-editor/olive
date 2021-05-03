@@ -93,7 +93,7 @@ bool Decoder::Open(const CodecStream &stream)
   }
 }
 
-FramePtr Decoder::RetrieveVideo(const rational &timecode, const int &divider)
+FramePtr Decoder::RetrieveVideo(const rational &timecode, const RetrieveVideoParams &divider)
 {
   QMutexLocker locker(&mutex_);
 
@@ -302,7 +302,7 @@ int64_t Decoder::GetImageSequenceIndex(const QString &filename)
   return number_only.toLongLong();
 }
 
-FramePtr Decoder::RetrieveVideoInternal(const rational &timecode, const int &divider)
+FramePtr Decoder::RetrieveVideoInternal(const rational &timecode, const RetrieveVideoParams &divider)
 {
   Q_UNUSED(timecode)
   Q_UNUSED(divider)

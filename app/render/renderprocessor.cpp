@@ -361,7 +361,12 @@ QVariant RenderProcessor::ProcessVideoFootage(const FootageJob &stream, const ra
     }
 
     if (decoder) {
-      FramePtr frame = decoder->RetrieveVideo((stream_data.video_type() == VideoParams::kVideoTypeVideo) ? input_time : Decoder::kAnyTimecode, footage_divider);
+      Decoder::RetrieveVideoParams p;
+      p.divider = footage_divider;
+      p.src_interlacing = stream_data.interlacing();
+      p.dst_interlacing = GetCacheVideoParams().interlacing();
+
+      FramePtr frame = decoder->RetrieveVideo((stream_data.video_type() == VideoParams::kVideoTypeVideo) ? input_time : Decoder::kAnyTimecode, p);
 
       if (frame) {
         // Return a texture from the derived class

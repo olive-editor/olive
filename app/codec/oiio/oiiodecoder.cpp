@@ -106,7 +106,7 @@ bool OIIODecoder::OpenInternal()
   return OpenImageHandler(stream().filename());
 }
 
-FramePtr OIIODecoder::RetrieveVideoInternal(const rational &timecode, const int& divider)
+FramePtr OIIODecoder::RetrieveVideoInternal(const rational &timecode, const RetrieveVideoParams &divider)
 {
   Q_UNUSED(timecode)
 
@@ -118,10 +118,10 @@ FramePtr OIIODecoder::RetrieveVideoInternal(const rational &timecode, const int&
                                       channel_count_,
                                       OIIOUtils::GetPixelAspectRatioFromOIIO(buffer_->spec()),
                                       VideoParams::kInterlaceNone, // FIXME: Does OIIO deinterlace for us?
-                                      divider));
+                                      divider.divider));
   frame->allocate();
 
-  if (divider == 1) {
+  if (divider.divider == 1) {
 
     OIIOUtils::BufferToFrame(buffer_, frame.get());
 

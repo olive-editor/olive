@@ -21,7 +21,11 @@
 #ifndef FFMPEGDECODER_H
 #define FFMPEGDECODER_H
 
+// Fixes weird define issue when including <avfilter.h>
+#include <inttypes.h>
+
 extern "C" {
+#include <libavfilter/avfilter.h>
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
 #include <libswresample/swresample.h>
@@ -60,7 +64,7 @@ public:
 
 protected:
   virtual bool OpenInternal() override;
-  virtual FramePtr RetrieveVideoInternal(const rational &timecode, const int& divider) override;
+  virtual FramePtr RetrieveVideoInternal(const rational &timecode, const RetrieveVideoParams& params) override;
   virtual bool ConformAudioInternal(const QString& filename, const AudioParams &params, const QAtomicInt* cancelled) override;
   virtual void CloseInternal() override;
 
@@ -108,6 +112,8 @@ private:
 
   };
 
+  int GetFilteredFrame(AVPacket *packet, AVFrame *frame, const RetrieveVideoParams &params);
+
   /**
    * @brief Handle an FFmpeg error code
    *
@@ -118,28 +124,26 @@ private:
    */
   static QString FFmpegError(int error_code);
 
-  void InitScaler(int divider);
+  bool InitScaler(const RetrieveVideoParams &params);
   void FreeScaler();
-
-  //FramePtr RetrieveStillImage(const rational& timecode, const int& divider);
 
   static VideoParams::Format GetNativePixelFormat(AVPixelFormat pix_fmt);
   static int GetNativeChannelCount(AVPixelFormat pix_fmt);
 
   static uint64_t ValidateChannelLayout(AVStream *stream);
 
-  void FFmpegBufferToNativeBuffer(uint8_t** input_data, int* input_linesize, uint8_t **output_buffer, int *output_linesize);
-
   FFmpegFramePool::ElementPtr GetFrameFromCache(const int64_t& t) const;
 
   void ClearFrameCache();
 
-  FFmpegFramePool::ElementPtr RetrieveFrame(const rational &time, int divider);
+  FFmpegFramePool::ElementPtr RetrieveFrame(const rational &time, const RetrieveVideoParams &params);
 
   void RemoveFirstFrame();
 
-  SwsContext* scale_ctx_;
-  int scale_divider_;
+  RetrieveVideoParams filter_params_;
+  AVFilterGraph* filter_graph_;
+  AVFilterContext* buffersrc_ctx_;
+  AVFilterContext* buffersink_ctx_;
   AVPixelFormat ideal_pix_fmt_;
   VideoParams::Format native_pix_fmt_;
   int native_channel_count_;

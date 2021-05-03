@@ -44,7 +44,7 @@ public:
 
 protected:
   virtual bool OpenInternal() override;
-  virtual FramePtr RetrieveVideoInternal(const rational &timecode, const int& divider) override;
+  virtual FramePtr RetrieveVideoInternal(const rational &timecode, const RetrieveVideoParams& divider) override;
   virtual void CloseInternal() override;
 
 private:
