@@ -126,10 +126,11 @@ void ViewerDisplayWidget::SetDeinterlacing(bool e)
 {
   deinterlace_ = e;
 
-  if (deinterlace_) {
-    deinterlace_shader_ = renderer()->CreateNativeShader(ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/deinterlace.frag"))));
-  } else {
-    renderer()->DestroyNativeShader(deinterlace_shader_);
+  if (!deinterlace_) {
+    if (!deinterlace_shader_.isNull()) {
+      renderer()->DestroyNativeShader(deinterlace_shader_);
+      deinterlace_shader_.clear();
+    }
     deinterlace_texture_ = nullptr;
   }
 
@@ -340,6 +341,10 @@ void ViewerDisplayWidget::OnPaint()
     TexturePtr texture_to_draw = texture_;
 
     if (deinterlace_) {
+      if (deinterlace_shader_.isNull()) {
+        deinterlace_shader_ = renderer()->CreateNativeShader(ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/deinterlace.frag"))));
+      }
+
       if (!deinterlace_texture_
           || deinterlace_texture_->params() != texture_to_draw->params()) {
         // (Re)create texture
