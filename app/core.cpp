@@ -1501,6 +1501,14 @@ void Core::CacheActiveSequence(bool in_out_only)
 bool Core::ValidateFootageInLoadedProject(Project* project, const QString& project_saved_url)
 {
   QVector<Footage*> project_footage = project->root()->ListChildrenOfType<Footage>();
+
+  // OTIO files import their footage into a folder so check them too
+  foreach(Folder * folder, project->root()->ListChildrenOfType<Folder>()) {
+    QVector<Footage*> footage = folder->ListChildrenOfType<Footage>();
+    if (!footage.isEmpty()) {
+      project_footage.append(footage);
+    }
+  }
   QVector<Footage*> footage_we_couldnt_validate;
 
   foreach (Footage* footage, project_footage) {
