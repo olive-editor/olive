@@ -58,7 +58,7 @@ bool LoadOTIOTask::Run()
   }
 
   project_ = new Project();
-  project_->set_filename(GetFilename());
+  project_->set_modified(true);
 
   std::vector<OTIO::Timeline*> timelines;
 
