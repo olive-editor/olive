@@ -18,9 +18,28 @@
 
 ***/
 
-#include <iostream>
+#ifndef DIGIT_H
+#define DIGIT_H
 
-#define OLIVE_ASSERT(x) if (!(x)) return false
-#define OLIVE_TEST_END return true
+#include <stdint.h>
 
-#define OLIVE_ADD_TEST(x) bool Test##x()
+namespace olive {
+
+inline int64_t GetDigitCount(int64_t input)
+{
+  input = std::abs(input);
+
+  int64_t lim = 10;
+  int64_t digit = 1;
+
+  while (input >= lim) {
+    lim *= 10;
+    digit++;
+  }
+
+  return digit;
+}
+
+}
+
+#endif // DIGIT_H
