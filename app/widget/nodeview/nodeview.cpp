@@ -506,16 +506,13 @@ void NodeView::mouseMoveEvent(QMouseEvent *event)
         if (new_drop_edge) {
           drop_input_.Reset();
 
-          NodeValue::Type drop_edge_data_type = new_drop_edge->input().GetDataType();
+          NodeValue::Type drop_edge_data_type = NodeValue::kNone;
 
-          // If no data type could be determined from this input, run the Node and guess what type
-          // it's actually returning
-          if (drop_edge_data_type == NodeValue::kNone) {
-            NodeTraverser traverser;
-            NodeValueTable table = traverser.GenerateTable(new_drop_edge->output(), TimeRange(0, 0));
-            if (table.Count() > 0) {
-              drop_edge_data_type = table.at(table.Count() - 1).type();
-            }
+          // Run the Node and guess what type it's actually returning
+          NodeTraverser traverser;
+          NodeValueTable table = traverser.GenerateTable(new_drop_edge->output(), TimeRange(0, 0));
+          if (table.Count() > 0) {
+            drop_edge_data_type = table.at(table.Count() - 1).type();
           }
 
           // Iterate through the inputs of our dragging node and see if our node has any acceptable
