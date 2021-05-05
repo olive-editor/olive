@@ -133,6 +133,12 @@ void FootageRelinkDialog::BrowseForFootage()
         QString relative_to_original = original_dir.relativeFilePath(other_footage->filename());
         QString absolute_to_new = new_dir.filePath(relative_to_original);
 
+        // Second attempt. Try appending the filename to our new filepath
+        if (!QFileInfo::exists(absolute_to_new)) {
+          QFileInfo file_info(other_footage->filename());
+          absolute_to_new = new_dir.filePath(file_info.fileName());
+        }
+
         // Check if file exists
         if (QFileInfo::exists(absolute_to_new)) {
           other_footage->set_filename(absolute_to_new);
