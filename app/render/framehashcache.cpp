@@ -429,7 +429,6 @@ QString FrameHashCache::CachePathName(const QString &cache_path, const QByteArra
   QString ext = GetFormatExtension();
 
   QDir cache_dir(QDir(cache_path).filePath(QString(hash.left(1).toHex())));
-  cache_dir.mkpath(".");
 
   QString filename = QStringLiteral("%1%2").arg(QString(hash.mid(1).toHex()), ext);
 
@@ -446,8 +445,13 @@ QString FrameHashCache::CachePathName(const QString &cache_path, const QByteArra
 bool FrameHashCache::SaveCacheFrame(const QString &filename, char *data, const VideoParams &vparam, int linesize_bytes)
 {
   if (!VideoParams::FormatIsFloat(vparam.format())) {
-    qCritical() << "Tried to cache frame with non-float pixel format";
     return false;
+  }
+
+  // Ensure directory is created
+  QDir cache_dir = QFileInfo(filename).dir();
+  if (!cache_dir.exists()) {
+    cache_dir.mkpath(".");
   }
 
   // Floating point types are stored in EXR
