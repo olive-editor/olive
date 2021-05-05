@@ -195,7 +195,7 @@ void PreviewAutoCacher::VideoRendered()
       const QByteArray& hash = video_tasks_.value(watcher);
 
       // Download frame in another thread
-      if (!hash.isEmpty()) {
+      if (!hash.isEmpty() && VideoParams::FormatIsFloat(viewer_node_->GetVideoParams().format())) {
         FramePtr frame = watcher->Get().value<FramePtr>();
         RenderTicketWatcher* w = new RenderTicketWatcher();
         w->setProperty("frame", QVariant::fromValue(frame));
@@ -517,6 +517,7 @@ void PreviewAutoCacher::RequeueFrames()
       && viewer_node_->video_frame_cache()->HasInvalidatedRanges()
       && hash_tasks_.isEmpty()
       && has_changed_
+      && VideoParams::FormatIsFloat(viewer_node_->GetVideoParams().format())
       && (!paused_ || use_custom_range_)) {
     TimeRange using_range;
 
