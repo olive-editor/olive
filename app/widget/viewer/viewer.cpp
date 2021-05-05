@@ -484,12 +484,6 @@ void ViewerWidget::UpdateTextureFromNode()
 
         } else {
 
-          if (playback_queue_.size() == 1) {
-            // This is the last frame left in the queue. Even though it's incorrect, we'll show it
-            // just for improved user feedback
-            SetDisplayImage(pf.frame, true);
-          }
-
           // Skip this frame
           PopOldestFrameFromPlaybackQueue();
           if (popped) {
@@ -499,6 +493,13 @@ void ViewerWidget::UpdateTextureFromNode()
             // Shown a frame and progressed to the next one
             display_widget_->IncrementFrameCount();
             popped = true;
+          }
+
+          if (playback_queue_.empty()) {
+            // This was the last frame left in the queue. Even though it's old, we'll show it
+            // just for improved user feedback
+            SetDisplayImage(pf.frame, true);
+            return;
           }
 
         }
