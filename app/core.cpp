@@ -694,7 +694,7 @@ void Core::StartGUI(bool full_screen)
 #endif
 
   // When a new project is opened, update the mainwindow
-  connect(this, &Core::ProjectOpened, main_window_, &MainWindow::ProjectOpen);
+  connect(this, &Core::ProjectOpened, main_window_, &MainWindow::ProjectOpen, Qt::QueuedConnection);
   connect(this, &Core::ProjectClosed, main_window_, &MainWindow::ProjectClose);
 
   // Start autorecovery timer using the config value as its interval
