@@ -484,6 +484,12 @@ void ViewerWidget::UpdateTextureFromNode()
 
         } else {
 
+          if (playback_queue_.size() == 1) {
+            // This is the last frame left in the queue. Even though it's incorrect, we'll show it
+            // just for improved user feedback
+            SetDisplayImage(pf.frame, true);
+          }
+
           // Skip this frame
           PopOldestFrameFromPlaybackQueue();
           if (popped) {
