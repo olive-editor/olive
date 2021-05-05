@@ -18,49 +18,30 @@
 
 ***/
 
-#ifndef EXPORTCODEC_H
-#define EXPORTCODEC_H
+#ifndef OIIOENCODER_H
+#define OIIOENCODER_H
 
-#include <QObject>
-#include <QString>
-
-#include "common/define.h"
+#include "codec/encoder.h"
 
 namespace olive {
 
-class ExportCodec : public QObject
+class OIIOEncoder : public Encoder
 {
   Q_OBJECT
 public:
-  enum Codec {
-    // Video codecs
-    kCodecDNxHD,
-    kCodecH264,
-    kCodecH265,
-    kCodecOpenEXR,
-    kCodecPNG,
-    kCodecProRes,
-    kCodecTIFF,
-    kCodecVP9,
+  OIIOEncoder(const EncodingParams &params);
 
-    // Audio codecs
-    kCodecMP2,
-    kCodecMP3,
-    kCodecAAC,
-    kCodecPCM,
-    kCodecOpus,
-    kCodecVorbis,
-    kCodecFLAC,
+public slots:
+  virtual bool Open() override;
 
-    kCodecCount
-  };
+  virtual bool WriteFrame(olive::FramePtr frame, olive::rational time) override;
+  virtual void WriteAudio(olive::AudioParams pcm_info,
+                          QIODevice *file) override;
 
-  static QString GetCodecName(Codec c);
-
-  static bool IsCodecAStillImage(Codec c);
+  virtual void Close() override;
 
 };
 
 }
 
-#endif // EXPORTCODEC_H
+#endif // OIIOENCODER_H

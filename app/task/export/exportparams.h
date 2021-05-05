@@ -39,8 +39,8 @@ public:
 
   ExportParams();
 
-  const QString& encoder() const;
-  void set_encoder(const QString& id);
+  const Encoder::Type& encoder() const;
+  void set_encoder(const Encoder::Type& id);
 
   bool has_custom_range() const;
   const TimeRange& custom_range() const;
@@ -59,7 +59,7 @@ public:
   virtual void Save(QXmlStreamWriter* writer) const override;
 
 private:
-  QString encoder_id_;
+  Encoder::Type encoder_id_;
 
   VideoScalingMethod video_scaling_method_;
 

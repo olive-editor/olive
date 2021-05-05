@@ -41,15 +41,22 @@ public:
     kFormatQuickTime,
     kFormatPNG,
     kFormatTIFF,
+    kFormatWAV,
+    kFormatAIFF,
+    kFormatMP3,
+    kFormatFLAC,
+    kFormatOgg,
+    kFormatWebM,
 
     kFormatCount
   };
 
   static QString GetName(Format f);
   static QString GetExtension(Format f);
-  static QString GetEncoder(Format f);
   static QList<ExportCodec::Codec> GetVideoCodecs(ExportFormat::Format f);
   static QList<ExportCodec::Codec> GetAudioCodecs(ExportFormat::Format f);
+
+  static QStringList GetPixelFormatsForCodec(Format f, ExportCodec::Codec c);
 
 };
 

@@ -42,6 +42,10 @@ class ExportDialog : public QDialog
 public:
   ExportDialog(ViewerOutput* viewer_node, QWidget* parent = nullptr);
 
+  ExportFormat::Format GetSelectedFormat() const;
+
+  rational GetSelectedTimebase() const;
+
 protected:
   virtual void closeEvent(QCloseEvent *e) override;
 
@@ -51,14 +55,21 @@ private:
 
   ExportParams GenerateParams() const;
 
+  void SetCurrentFormat(ExportFormat::Format format);
+
   ViewerOutput* viewer_node_;
 
   ExportFormat::Format previously_selected_format_;
+
+  rational GetExportLength() const;
+  int64_t GetExportLengthInTimebaseUnits() const;
 
   enum RangeSelection {
     kRangeEntireSequence,
     kRangeInToOut
   };
+
+  QTabWidget* preferences_tabs_;
 
   QComboBox* range_combobox_;
 
@@ -91,6 +102,8 @@ private slots:
   void StartExport();
 
   void ExportFinished();
+
+  void ImageSequenceCheckBoxChanged(bool e);
 
 };
 

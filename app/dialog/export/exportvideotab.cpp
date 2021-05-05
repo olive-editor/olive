@@ -49,6 +49,26 @@ ExportVideoTab::ExportVideoTab(ColorManager* color_manager, QWidget *parent) :
   outer_layout->addStretch();
 }
 
+int ExportVideoTab::SetFormat(ExportFormat::Format format)
+{
+  format_ = format;
+
+  QList<ExportCodec::Codec> vcodecs = ExportFormat::GetVideoCodecs(format);
+  setEnabled(!vcodecs.isEmpty());
+  codec_combobox()->clear();
+  foreach (ExportCodec::Codec vcodec, vcodecs) {
+    codec_combobox()->addItem(ExportCodec::GetCodecName(vcodec), vcodec);
+  }
+  return vcodecs.size();
+}
+
+bool ExportVideoTab::IsImageSequenceSet() const
+{
+  ImageSection* img_section = dynamic_cast<ImageSection*>(codec_stack_->currentWidget());
+
+  return (img_section && img_section->IsImageSequenceChecked());
+}
+
 QWidget* ExportVideoTab::SetupResolutionSection()
 {
   int row = 0;
@@ -99,6 +119,7 @@ QWidget* ExportVideoTab::SetupResolutionSection()
   layout->addWidget(new QLabel(tr("Frame Rate:")), row, 0);
 
   frame_rate_combobox_ = new FrameRateComboBox();
+  connect(frame_rate_combobox_, &FrameRateComboBox::FrameRateChanged, this, &ExportVideoTab::UpdateFrameRate);
   layout->addWidget(frame_rate_combobox_, row, 1);
 
   row++;
@@ -161,6 +182,9 @@ QWidget *ExportVideoTab::SetupCodecSection()
   h264_section_ = new H264Section();
   codec_stack_->addWidget(h264_section_);
 
+  h265_section_ = new H265Section();
+  codec_stack_->addWidget(h265_section_);
+
   row++;
 
   QPushButton* advanced_btn = new QPushButton(tr("Advanced"));
@@ -178,7 +202,7 @@ void ExportVideoTab::MaintainAspectRatioChanged(bool val)
 void ExportVideoTab::OpenAdvancedDialog()
 {
   // Find export formats compatible with this encoder
-  QStringList pixel_formats = ExportCodec::GetPixelFormatsForCodec(GetSelectedCodec());
+  QStringList pixel_formats = ExportFormat::GetPixelFormatsForCodec(format_, GetSelectedCodec());
 
   ExportAdvancedVideoDialog d(pixel_formats, this);
 
@@ -191,19 +215,51 @@ void ExportVideoTab::OpenAdvancedDialog()
   }
 }
 
+void ExportVideoTab::UpdateFrameRate(rational r)
+{
+  // Convert frame rate to timebase
+  r.flip();
+
+  for (int i=0; i<codec_stack_->count(); i++) {
+    ImageSection* img = dynamic_cast<ImageSection*>(codec_stack_->widget(i));
+    if (img) {
+      img->SetTimebase(r);
+    }
+  }
+}
+
 void ExportVideoTab::VideoCodecChanged()
 {
   ExportCodec::Codec codec = GetSelectedCodec();
 
   if (codec == ExportCodec::kCodecH264) {
-    SetCodecSection(h264_section());
+    SetCodecSection(h264_section_);
+  } else if (codec == ExportCodec::kCodecH265) {
+    SetCodecSection(h265_section_);
   } else if (ExportCodec::IsCodecAStillImage(codec)) {
-    SetCodecSection(image_section());
+    SetCodecSection(image_section_);
+  } else {
+    SetCodecSection(nullptr);
   }
 
   // Set default pixel format
-  pix_fmt_ = ExportCodec::GetPixelFormatsForCodec(codec).first();
+  QStringList pix_fmts = ExportFormat::GetPixelFormatsForCodec(format_, codec);
+  if (!pix_fmts.isEmpty()) {
+    pix_fmt_ = pix_fmts.first();
+  } else {
+    pix_fmt_.clear();
+  }
   qDebug() << "Set default pix fmt" << pix_fmt_;
+}
+
+void ExportVideoTab::SetTimestamp(int64_t timestamp)
+{
+  for (int i=0; i<codec_stack_->count(); i++) {
+    ImageSection* img = dynamic_cast<ImageSection*>(codec_stack_->widget(i));
+    if (img) {
+      img->SetTimestamp(timestamp);
+    }
+  }
 }
 
 }

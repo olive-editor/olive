@@ -22,9 +22,14 @@
 
 #include <QFile>
 
+#include "common/timecodefunctions.h"
 #include "ffmpeg/ffmpegencoder.h"
+#include "oiio/oiioencoder.h"
 
 namespace olive {
+
+const QRegularExpression Encoder::kImageSequenceContainsDigits = QRegularExpression(QStringLiteral("\\[[#]+\\]"));
+const QRegularExpression Encoder::kImageSequenceRemoveDigits = QRegularExpression(QStringLiteral("[\\-\\.\\ \\_]?\\[[#]+\\]"));
 
 Encoder::Encoder(const EncodingParams &params) :
   params_(params)
@@ -34,6 +39,47 @@ Encoder::Encoder(const EncodingParams &params) :
 const EncodingParams &Encoder::params() const
 {
   return params_;
+}
+
+QString Encoder::GetFilenameForFrame(const rational &frame)
+{
+  if (params().video_is_image_sequence()) {
+    // Transform!
+    int64_t frame_index = Timecode::time_to_timestamp(frame, params().video_params().frame_rate_as_time_base());
+    int digits = GetImageSequencePlaceholderDigitCount(params().filename());
+    QString frame_index_str = QStringLiteral("%1").arg(frame_index, digits, 10, QChar('0'));
+
+    QString f = params_.filename();
+    f.replace(kImageSequenceContainsDigits, frame_index_str);
+    return f;
+  } else {
+    // Keep filename
+    return params_.filename();
+  }
+}
+
+int Encoder::GetImageSequencePlaceholderDigitCount(const QString &filename)
+{
+  int start = filename.indexOf(kImageSequenceContainsDigits);
+  int digit_count = 0;
+  for (int i=start+1; i<filename.size(); i++) {
+    if (filename.at(i) == '#') {
+      digit_count++;
+    } else {
+      break;
+    }
+  }
+  return digit_count;
+}
+
+bool Encoder::FilenameContainsDigitPlaceholder(const QString& filename)
+{
+  return filename.contains(kImageSequenceContainsDigits);
+}
+
+QString Encoder::FilenameRemoveDigitPlaceholder(QString filename)
+{
+  return filename.remove(kImageSequenceRemoveDigits);
 }
 
 void Encoder::WriteAudio(AudioParams pcm_info, const QString &pcm_filename)
@@ -49,6 +95,7 @@ EncodingParams::EncodingParams() :
   video_max_bit_rate_(0),
   video_buffer_size_(0),
   video_threads_(0),
+  video_is_image_sequence_(false),
   audio_enabled_(false),
   audio_bit_rate_(0)
 {
@@ -242,11 +289,53 @@ void EncodingParams::Save(QXmlStreamWriter *writer) const
   writer->writeEndElement(); // audio
 }
 
-Encoder* Encoder::CreateFromID(const QString &id, const EncodingParams& params)
+Encoder* Encoder::CreateFromID(Type id, const EncodingParams& params)
 {
-  Q_UNUSED(id)
+  switch (id) {
+  case kEncoderTypeNone:
+    break;
+  case kEncoderTypeFFmpeg:
+    return new FFmpegEncoder(params);
+  case kEncoderTypeOIIO:
+    return new OIIOEncoder(params);
+  }
 
-  return new FFmpegEncoder(params);
+  return nullptr;
+}
+
+Encoder::Type Encoder::GetTypeFromFormat(ExportFormat::Format f)
+{
+  switch (f) {
+  case ExportFormat::kFormatDNxHD:
+  case ExportFormat::kFormatMatroska:
+  case ExportFormat::kFormatQuickTime:
+  case ExportFormat::kFormatMPEG4:
+  case ExportFormat::kFormatWAV:
+  case ExportFormat::kFormatAIFF:
+  case ExportFormat::kFormatMP3:
+  case ExportFormat::kFormatFLAC:
+  case ExportFormat::kFormatOgg:
+  case ExportFormat::kFormatWebM:
+    return kEncoderTypeFFmpeg;
+  case ExportFormat::kFormatOpenEXR:
+  case ExportFormat::kFormatPNG:
+  case ExportFormat::kFormatTIFF:
+    return kEncoderTypeOIIO;
+  case ExportFormat::kFormatCount:
+    break;
+  }
+
+  return kEncoderTypeNone;
+}
+
+Encoder *Encoder::CreateFromFormat(ExportFormat::Format f, const EncodingParams &params)
+{
+  return CreateFromID(GetTypeFromFormat(f), params);
+}
+
+QStringList Encoder::GetPixelFormatsForCodec(ExportCodec::Codec c) const
+{
+  return QStringList();
 }
 
 }

@@ -18,5 +18,7 @@ set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
   codec/oiio/oiiodecoder.cpp
   codec/oiio/oiiodecoder.h
+  codec/oiio/oiioencoder.cpp
+  codec/oiio/oiioencoder.h
   PARENT_SCOPE
 )

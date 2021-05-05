@@ -31,6 +31,11 @@
 namespace olive {
 
 H264Section::H264Section(QWidget *parent) :
+  H264Section(H264CRFSection::kDefaultH264CRF, parent)
+{
+}
+
+H264Section::H264Section(int default_crf, QWidget *parent) :
   CodecSection(parent)
 {
   QGridLayout* layout = new QGridLayout(this);
@@ -54,7 +59,7 @@ H264Section::H264Section(QWidget *parent) :
   compression_method_stack_ = new QStackedWidget();
   layout->addWidget(compression_method_stack_, row, 0, 1, 2);
 
-  crf_section_ = new H264CRFSection();
+  crf_section_ = new H264CRFSection(default_crf);
   compression_method_stack_->addWidget(crf_section_);
 
   bitrate_section_ = new H264BitRateSection();
@@ -107,7 +112,7 @@ void H264Section::AddOpts(EncodingParams *params)
   }
 }
 
-H264CRFSection::H264CRFSection(QWidget *parent) :
+H264CRFSection::H264CRFSection(int default_crf, QWidget *parent) :
   QWidget(parent)
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
@@ -116,15 +121,15 @@ H264CRFSection::H264CRFSection(QWidget *parent) :
   crf_slider_ = new QSlider(Qt::Horizontal);
   crf_slider_->setMinimum(kMinimumCRF);
   crf_slider_->setMaximum(kMaximumCRF);
-  crf_slider_->setValue(kDefaultCRF);
+  crf_slider_->setValue(default_crf);
   layout->addWidget(crf_slider_);
 
   IntegerSlider* crf_input = new IntegerSlider();
   crf_input->setMaximumWidth(QtUtils::QFontMetricsWidth(crf_input->fontMetrics(), QStringLiteral("HHHH")));
   crf_input->SetMinimum(kMinimumCRF);
   crf_input->SetMaximum(kMaximumCRF);
-  crf_input->SetValue(kDefaultCRF);
-  crf_input->SetDefaultValue(kDefaultCRF);
+  crf_input->SetValue(default_crf);
+  crf_input->SetDefaultValue(default_crf);
   layout->addWidget(crf_input);
 
   connect(crf_slider_, &QSlider::valueChanged, crf_input, &IntegerSlider::SetValue);
@@ -209,6 +214,11 @@ int64_t H264FileSizeSection::GetFileSize() const
 {
   // Convert megabytes to BITS
   return qRound64(file_size_->GetValue() * 1024.0 * 1024.0 * 8.0);
+}
+
+H265Section::H265Section(QWidget *parent) :
+  H264Section(H264CRFSection::kDefaultH265CRF, parent)
+{
 }
 
 }

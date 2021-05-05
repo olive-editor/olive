@@ -20,6 +20,8 @@
 
 #include "exportformat.h"
 
+#include "encoder.h"
+
 namespace olive {
 
 QString ExportFormat::GetName(olive::ExportFormat::Format f)
@@ -39,6 +41,19 @@ QString ExportFormat::GetName(olive::ExportFormat::Format f)
     return tr("TIFF");
   case kFormatQuickTime:
     return tr("QuickTime");
+  case kFormatWAV:
+    return tr("Wave Audio");
+  case kFormatAIFF:
+    return tr("AIFF");
+  case kFormatMP3:
+    return tr("MP3");
+  case kFormatFLAC:
+    return tr("FLAC");
+  case kFormatOgg:
+    return tr("Ogg");
+  case kFormatWebM:
+    return tr("WebM");
+
   case kFormatCount:
     break;
   }
@@ -63,25 +78,18 @@ QString ExportFormat::GetExtension(ExportFormat::Format f)
     return QStringLiteral("tiff");
   case kFormatQuickTime:
     return QStringLiteral("mov");
-  case kFormatCount:
-    break;
-  }
-
-  return QString();
-}
-
-QString ExportFormat::GetEncoder(ExportFormat::Format f)
-{
-  switch (f) {
-  case kFormatDNxHD:
-  case kFormatMatroska:
-  case kFormatQuickTime:
-  case kFormatMPEG4:
-    return QStringLiteral("ffmpeg");
-  case kFormatOpenEXR:
-  case kFormatPNG:
-  case kFormatTIFF:
-    return QStringLiteral("oiio");
+  case kFormatWAV:
+    return QStringLiteral("wav");
+  case kFormatAIFF:
+    return QStringLiteral("aiff");
+  case kFormatMP3:
+    return QStringLiteral("mp3");
+  case kFormatFLAC:
+    return QStringLiteral("flac");
+  case kFormatOgg:
+    return QStringLiteral("ogg");
+  case kFormatWebM:
+    return QStringLiteral("webm");
   case kFormatCount:
     break;
   }
@@ -106,6 +114,14 @@ QList<ExportCodec::Codec> ExportFormat::GetVideoCodecs(ExportFormat::Format f)
     return {ExportCodec::kCodecTIFF};
   case kFormatQuickTime:
     return {ExportCodec::kCodecH264, ExportCodec::kCodecH265, ExportCodec::kCodecProRes};
+  case kFormatWebM:
+    return {ExportCodec::kCodecVP9};
+  case kFormatOgg:
+  case kFormatWAV:
+  case kFormatAIFF:
+  case kFormatMP3:
+  case kFormatFLAC:
+    return {};
   case kFormatCount:
     break;
   }
@@ -119,20 +135,49 @@ QList<ExportCodec::Codec> ExportFormat::GetAudioCodecs(ExportFormat::Format f)
   case kFormatDNxHD:
     return {ExportCodec::kCodecPCM};
   case kFormatMatroska:
-    return {ExportCodec::kCodecAAC, ExportCodec::kCodecMP2, ExportCodec::kCodecMP3, ExportCodec::kCodecPCM};
+    return {ExportCodec::kCodecAAC, ExportCodec::kCodecMP2, ExportCodec::kCodecMP3, ExportCodec::kCodecPCM, ExportCodec::kCodecVorbis, ExportCodec::kCodecOpus};
   case kFormatMPEG4:
     return {ExportCodec::kCodecAAC, ExportCodec::kCodecMP2, ExportCodec::kCodecMP3, ExportCodec::kCodecPCM};
   case kFormatQuickTime:
     return {ExportCodec::kCodecAAC, ExportCodec::kCodecMP2, ExportCodec::kCodecMP3, ExportCodec::kCodecPCM};
+  case kFormatWebM:
+    return {ExportCodec::kCodecAAC, ExportCodec::kCodecMP2, ExportCodec::kCodecMP3, ExportCodec::kCodecPCM, ExportCodec::kCodecVorbis, ExportCodec::kCodecOpus};
   case kFormatOpenEXR:
   case kFormatPNG:
   case kFormatTIFF:
     return {};
+
+
+  case kFormatWAV:
+    return {ExportCodec::kCodecPCM};
+  case kFormatAIFF:
+    return {ExportCodec::kCodecPCM};
+  case kFormatMP3:
+    return {ExportCodec::kCodecMP3};
+  case kFormatFLAC:
+    return {ExportCodec::kCodecFLAC};
+  case kFormatOgg:
+    return {ExportCodec::kCodecOpus, ExportCodec::kCodecVorbis, ExportCodec::kCodecPCM};
+
+
   case kFormatCount:
     break;
   }
 
   return {};
+}
+
+QStringList ExportFormat::GetPixelFormatsForCodec(ExportFormat::Format f, ExportCodec::Codec c)
+{
+  Encoder* e = Encoder::CreateFromFormat(f, EncodingParams());
+  QStringList list;
+
+  if (e) {
+    list = e->GetPixelFormatsForCodec(c);
+    delete e;
+  }
+
+  return list;
 }
 
 }

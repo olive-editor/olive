@@ -44,6 +44,59 @@ FFmpegEncoder::FFmpegEncoder(const EncodingParams &params) :
 {
 }
 
+QStringList FFmpegEncoder::GetPixelFormatsForCodec(ExportCodec::Codec c) const
+{
+  QStringList pix_fmts;
+
+  AVCodec* codec_info = nullptr;
+
+  switch (c) {
+  case ExportCodec::kCodecH264:
+    codec_info = avcodec_find_encoder(AV_CODEC_ID_H264);
+    break;
+  case ExportCodec::kCodecDNxHD:
+    codec_info = avcodec_find_encoder(AV_CODEC_ID_DNXHD);
+    break;
+  case ExportCodec::kCodecProRes:
+    codec_info = avcodec_find_encoder(AV_CODEC_ID_PRORES);
+    break;
+  case ExportCodec::kCodecH265:
+    codec_info = avcodec_find_encoder(AV_CODEC_ID_HEVC);
+    break;
+  case ExportCodec::kCodecVP9:
+    codec_info = avcodec_find_encoder(AV_CODEC_ID_VP9);
+    break;
+  case ExportCodec::kCodecOpenEXR:
+    codec_info = avcodec_find_encoder(AV_CODEC_ID_EXR);
+    break;
+  case ExportCodec::kCodecPNG:
+    codec_info = avcodec_find_encoder(AV_CODEC_ID_PNG);
+    break;
+  case ExportCodec::kCodecTIFF:
+    codec_info = avcodec_find_encoder(AV_CODEC_ID_TIFF);
+    break;
+  case ExportCodec::kCodecMP2:
+  case ExportCodec::kCodecMP3:
+  case ExportCodec::kCodecAAC:
+  case ExportCodec::kCodecPCM:
+  case ExportCodec::kCodecFLAC:
+  case ExportCodec::kCodecOpus:
+  case ExportCodec::kCodecVorbis:
+  case ExportCodec::kCodecCount:
+    // These are audio or invalid codecs and therefore have no pixel formats
+    break;
+  }
+
+  if (codec_info) {
+    for (int i=0; codec_info->pix_fmts[i]!=-1; i++) {
+      const char* pix_fmt_name = av_get_pix_fmt_name(codec_info->pix_fmts[i]);
+      pix_fmts.append(pix_fmt_name);
+    }
+  }
+
+  return pix_fmts;
+}
+
 bool FFmpegEncoder::Open()
 {
   if (open_) {
@@ -446,6 +499,18 @@ bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AV
     break;
   case ExportCodec::kCodecPCM:
     codec_id = AV_CODEC_ID_PCM_S16LE;
+    break;
+  case ExportCodec::kCodecVP9:
+    codec_id = AV_CODEC_ID_VP9;
+    break;
+  case ExportCodec::kCodecOpus:
+    codec_id = AV_CODEC_ID_OPUS;
+    break;
+  case ExportCodec::kCodecVorbis:
+    codec_id = AV_CODEC_ID_VORBIS;
+    break;
+  case ExportCodec::kCodecFLAC:
+    codec_id = AV_CODEC_ID_FLAC;
     break;
   case ExportCodec::kCodecCount:
     break;

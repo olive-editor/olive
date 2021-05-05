@@ -100,6 +100,7 @@ public:
 
   // Produce "flipped" version
   rational flipped() const;
+  void flip();
 
   // Returns whether the rational is valid but equal to zero or not
   //

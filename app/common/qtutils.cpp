@@ -38,4 +38,24 @@ QFrame *QtUtils::CreateHorizontalLine()
   return horizontal_line;
 }
 
+int QtUtils::MessageBox(QWidget *parent, QMessageBox::Icon icon, const QString &title, const QString &message, QMessageBox::StandardButtons buttons)
+{
+  QMessageBox b(parent);
+  b.setIcon(icon);
+  b.setWindowModality(Qt::WindowModal);
+  b.setWindowTitle(title);
+  b.setText(message);
+
+  uint mask = QMessageBox::FirstButton;
+  while (mask <= QMessageBox::LastButton) {
+    uint sb = buttons & mask;
+    if (sb) {
+      b.addButton(static_cast<QMessageBox::StandardButton>(sb));
+    }
+    mask <<= 1;
+  }
+
+  return b.exec();
+}
+
 }

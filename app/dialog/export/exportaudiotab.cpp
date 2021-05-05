@@ -75,4 +75,15 @@ ExportAudioTab::ExportAudioTab(QWidget* parent) :
   outer_layout->addStretch();
 }
 
+int ExportAudioTab::SetFormat(ExportFormat::Format format)
+{
+  QList<ExportCodec::Codec> acodecs = ExportFormat::GetAudioCodecs(format);
+  setEnabled(!acodecs.isEmpty());
+  codec_combobox()->clear();
+  foreach (ExportCodec::Codec acodec, acodecs) {
+    codec_combobox()->addItem(ExportCodec::GetCodecName(acodec), acodec);
+  }
+  return acodecs.size();
+}
+
 }

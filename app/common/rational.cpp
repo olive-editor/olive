@@ -135,7 +135,14 @@ opentime::RationalTime rational::toRationalTime(double framerate) const
 
 rational rational::flipped() const
 {
-  return rational(denom_, numer_);
+  rational r = *this;
+  r.flip();
+  return r;
+}
+
+void rational::flip()
+{
+  std::swap(denom_, numer_);
 }
 
 bool rational::isNull() const

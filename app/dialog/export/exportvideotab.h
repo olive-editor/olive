@@ -41,6 +41,15 @@ class ExportVideoTab : public QWidget
 public:
   ExportVideoTab(ColorManager* color_manager, QWidget* parent = nullptr);
 
+  int SetFormat(ExportFormat::Format format);
+
+  bool IsImageSequenceSet() const;
+
+  int64_t GetStillImageTime() const
+  {
+    return image_section_->GetTimestamp();
+  }
+
   ExportCodec::Codec GetSelectedCodec() const
   {
     return static_cast<ExportCodec::Codec>(codec_combobox()->currentData().toInt());
@@ -71,9 +80,15 @@ public:
     return scaling_method_combobox_;
   }
 
-  FrameRateComboBox* frame_rate_combobox() const
+  rational GetSelectedFrameRate() const
   {
-    return frame_rate_combobox_;
+    return frame_rate_combobox_->GetFrameRate();
+  }
+
+  void SetSelectedFrameRate(const rational& fr)
+  {
+    frame_rate_combobox_->SetFrameRate(fr);
+    UpdateFrameRate(fr);
   }
 
   QString CurrentOCIOColorSpace()
@@ -88,17 +103,12 @@ public:
 
   void SetCodecSection(CodecSection* section)
   {
-    codec_stack_->setCurrentWidget(section);
-  }
-
-  ImageSection* image_section() const
-  {
-    return image_section_;
-  }
-
-  H264Section* h264_section() const
-  {
-    return h264_section_;
+    if (section) {
+      codec_stack_->setVisible(true);
+      codec_stack_->setCurrentWidget(section);
+    } else {
+      codec_stack_->setVisible(false);
+    }
   }
 
   InterlacedComboBox* interlaced_combobox() const
@@ -128,8 +138,12 @@ public:
 public slots:
   void VideoCodecChanged();
 
+  void SetTimestamp(int64_t timestamp);
+
 signals:
   void ColorSpaceChanged(const QString& colorspace);
+
+  void ImageSequenceCheckBoxChanged(bool e);
 
 private:
   QWidget* SetupResolutionSection();
@@ -144,6 +158,7 @@ private:
   QStackedWidget* codec_stack_;
   ImageSection* image_section_;
   H264Section* h264_section_;
+  H264Section* h265_section_;
 
   ColorSpaceChooser* color_space_chooser_;
 
@@ -160,10 +175,14 @@ private:
 
   QString pix_fmt_;
 
+  ExportFormat::Format format_;
+
 private slots:
   void MaintainAspectRatioChanged(bool val);
 
   void OpenAdvancedDialog();
+
+  void UpdateFrameRate(rational r);
 
 };
 

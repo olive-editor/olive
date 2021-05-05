@@ -22,6 +22,7 @@
 #define ENCODER_H
 
 #include <memory>
+#include <QRegularExpression>
 #include <QString>
 #include <QXmlStreamWriter>
 
@@ -53,6 +54,10 @@ public:
   void set_video_buffer_size(const int64_t& sz);
   void set_video_threads(const int& threads);
   void set_video_pix_fmt(const QString& s);
+  void set_video_is_image_sequence(bool s)
+  {
+    video_is_image_sequence_ = s;
+  }
 
   const QString& filename() const;
 
@@ -66,6 +71,10 @@ public:
   const int64_t& video_buffer_size() const;
   const int& video_threads() const;
   const QString& video_pix_fmt() const;
+  bool video_is_image_sequence() const
+  {
+    return video_is_image_sequence_;
+  }
 
   bool audio_enabled() const;
   const ExportCodec::Codec &audio_codec() const;
@@ -99,6 +108,7 @@ private:
   int64_t video_buffer_size_;
   int video_threads_;
   QString video_pix_fmt_;
+  bool video_is_image_sequence_;
 
   bool audio_enabled_;
   ExportCodec::Codec audio_codec_;
@@ -115,6 +125,12 @@ class Encoder : public QObject
 public:
   Encoder(const EncodingParams& params);
 
+  enum Type {
+    kEncoderTypeNone = -1,
+    kEncoderTypeFFmpeg,
+    kEncoderTypeOIIO
+  };
+
   /**
    * @brief Create a Encoder instance using a Encoder ID
    *
@@ -122,7 +138,13 @@ public:
    *
    * A Encoder instance or nullptr if a Decoder with this ID does not exist
    */
-  static Encoder *CreateFromID(const QString& id, const EncodingParams &params);
+  static Encoder *CreateFromID(Type id, const EncodingParams &params);
+
+  static Type GetTypeFromFormat(ExportFormat::Format f);
+
+  static Encoder *CreateFromFormat(ExportFormat::Format f, const EncodingParams &params);
+
+  virtual QStringList GetPixelFormatsForCodec(ExportCodec::Codec c) const;
 
   const EncodingParams& params() const;
 
@@ -135,6 +157,16 @@ public:
   {
     return error_;
   }
+
+  QString GetFilenameForFrame(const rational& frame);
+
+  static int GetImageSequencePlaceholderDigitCount(const QString& filename);
+
+  static bool FilenameContainsDigitPlaceholder(const QString &filename);
+  static QString FilenameRemoveDigitPlaceholder(QString filename);
+
+  static const QRegularExpression kImageSequenceContainsDigits;
+  static const QRegularExpression kImageSequenceRemoveDigits;
 
 public slots:
   virtual bool Open() = 0;

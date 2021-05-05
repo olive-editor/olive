@@ -29,6 +29,7 @@
 
 #include <QFontMetrics>
 #include <QFrame>
+#include <QMessageBox>
 
 #include "common/define.h"
 
@@ -46,6 +47,8 @@ public:
   static int QFontMetricsWidth(QFontMetrics fm, const QString& s);
 
   static QFrame* CreateHorizontalLine();
+
+  static int MessageBox(QWidget *parent, QMessageBox::Icon icon, const QString& title, const QString& message, QMessageBox::StandardButtons buttons = QMessageBox::Ok);
 
 };
 

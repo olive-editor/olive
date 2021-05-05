@@ -38,6 +38,8 @@ class FFmpegEncoder : public Encoder
 public:
   FFmpegEncoder(const EncodingParams &params);
 
+  virtual QStringList GetPixelFormatsForCodec(ExportCodec::Codec c) const override;
+
   virtual bool Open() override;
 
   virtual bool WriteFrame(olive::FramePtr frame, olive::rational time) override;
