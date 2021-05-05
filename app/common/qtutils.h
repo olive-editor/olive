@@ -33,6 +33,10 @@
 
 #include "common/define.h"
 
+#ifdef MessageBox
+#undef MessageBox
+#endif
+
 namespace olive {
 
 class QtUtils {
