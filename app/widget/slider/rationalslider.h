@@ -55,11 +55,6 @@ public:
   rational GetValue();
 
   /**
-   * @brief Sets the sliders value
-   */
-  void SetValue(const rational& d);
-
-  /**
    * @brief Sets the sliders default value
    */
   void SetDefaultValue(const rational& r);
@@ -73,11 +68,6 @@ public:
    * @brief Sets the sliders maximum value
    */
   void SetMaximum(const rational& d);
-
-  /**
-   * @brief Sets the sliders timebase which is also the minimum increment of the slider
-   */
-  void SetTimebase(const rational& timebase);
 
   /**
    * @brief Sets the display type of the slider
@@ -98,6 +88,17 @@ public:
    * @brief Hide display type in menu
    */
   void DisableDisplayType(DisplayType type);
+
+public slots:
+  /**
+   * @brief Sets the sliders timebase which is also the minimum increment of the slider
+   */
+  void SetTimebase(const rational& timebase);
+
+  /**
+   * @brief Sets the sliders value
+   */
+  void SetValue(const rational& d);
 
 protected:
   virtual QString ValueToString(const QVariant& v) const override;

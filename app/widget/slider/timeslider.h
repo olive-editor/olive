@@ -32,6 +32,7 @@ class TimeSlider : public IntegerSlider
 public:
   TimeSlider(QWidget* parent = nullptr);
 
+public slots:
   void SetTimebase(const rational& timebase);
 
 protected:
