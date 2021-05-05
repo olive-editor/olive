@@ -474,7 +474,7 @@ void ViewerWidget::UpdateTextureFromNode()
     } else {
       while (!playback_queue_.empty()) {
 
-        const ViewerPlaybackFrame& pf = playback_queue_.front();
+        ViewerPlaybackFrame pf = playback_queue_.front();
 
         if (pf.timestamp == time) {
 
