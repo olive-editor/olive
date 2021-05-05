@@ -249,6 +249,8 @@ void ViewerWidget::DisconnectNodeEvent(ViewerOutput *n)
   disconnect(n->audio_playback_cache(), &AudioPlaybackCache::Validated, this, &ViewerWidget::AudioCacheValidated);
   disconnect(n, &ViewerOutput::TextureInputChanged, this, &ViewerWidget::UpdateStack);
 
+  SetDisplayImage(nullptr, false);
+
   ruler()->SetPlaybackCache(nullptr);
 
   // Effectively disables the viewer and clears the state
