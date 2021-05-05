@@ -47,7 +47,7 @@ namespace olive {
 
 QVector<ViewerWidget*> ViewerWidget::instances_;
 
-const int kMaxPreQueueSize = QThread::idealThreadCount();
+const int kMaxPreQueueSize = 8;
 
 ViewerWidget::ViewerWidget(QWidget *parent) :
   super(false, true, parent),
