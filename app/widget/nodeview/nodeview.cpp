@@ -65,6 +65,8 @@ NodeView::NodeView(QWidget *parent) :
   scene_.setSceneRect(-1000000, -1000000, 2000000, 2000000);
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+  scene_.SetEdgesAreCurved(Config::Current()[QStringLiteral("NodeSmoothEdges")].toBool());
 }
 
 NodeView::~NodeView()

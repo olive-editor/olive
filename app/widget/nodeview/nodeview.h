@@ -51,6 +51,11 @@ public:
     return graph_;
   }
 
+  NodeViewScene GetScene()
+  {
+    return &scene_;
+  }
+
   /**
    * @brief Sets the graph to view
    */

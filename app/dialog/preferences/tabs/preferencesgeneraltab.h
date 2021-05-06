@@ -61,6 +61,8 @@ private:
 
   QComboBox* node_flow_direction_combobox_;
 
+  QCheckBox* node_smooth_edges_;
+
 private slots:
   void EditDefaultSequenceSettings();
 

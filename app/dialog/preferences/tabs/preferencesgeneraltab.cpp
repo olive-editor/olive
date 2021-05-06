@@ -167,7 +167,6 @@ PreferencesGeneralTab::PreferencesGeneralTab()
 
     int row = 0;
 
-    // General -> Language
     node_layout->addWidget(new QLabel(tr("Flow Direction:")), row, 0);
 
     node_flow_direction_combobox_ = new QComboBox();
@@ -179,6 +178,13 @@ PreferencesGeneralTab::PreferencesGeneralTab()
     node_flow_direction_combobox_->setCurrentIndex(Config::Current()[QStringLiteral("NodeFlowDirection")].toInt());
 
     node_layout->addWidget(node_flow_direction_combobox_, row, 1);
+
+    row++;
+
+    node_layout->addWidget(new QLabel(tr("Enable Smooth Edges:")), row, 0);
+    node_smooth_edges_ = new QCheckBox();
+    node_smooth_edges_->setChecked(Config::Current()[QStringLiteral("NodeSmoothEdges")].toBool());
+    node_layout->addWidget(node_smooth_edges_, row, 1);
   }
 
   layout->addStretch();
@@ -223,8 +229,11 @@ void PreferencesGeneralTab::Accept(MultiUndoCommand *command)
   Config::Current()[QStringLiteral("DefaultSequenceAudioLayout")] = QVariant::fromValue(dsap.channel_layout());
 
   Config::Current()[QStringLiteral("NodeFlowDirection")] = node_flow_direction_combobox_->currentIndex();
-  foreach(NodePanel * node_panel, PanelManager::instance()->GetPanelsOfType<NodePanel>()) {
+  Config::Current()[QStringLiteral("NodeSmoothEdges")] = node_smooth_edges_->isChecked();
+
+  foreach(NodePanel* node_panel, PanelManager::instance()->GetPanelsOfType<NodePanel>()) {
     node_panel->GetView()->SetFlowDirection((NodeViewCommon::FlowDirection)node_flow_direction_combobox_->currentIndex());
+    node_panel->GetView()->GetScene().SetEdgesAreCurved(node_smooth_edges_->isChecked());
   }
 }
 
