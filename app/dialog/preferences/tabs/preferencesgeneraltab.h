@@ -59,6 +59,8 @@ private:
 
   Sequence default_sequence_;
 
+  QComboBox* node_flow_direction_combobox_;
+
 private slots:
   void EditDefaultSequenceSettings();
 

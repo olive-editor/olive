@@ -29,6 +29,8 @@
 #include "core.h"
 #include "dialog/sequence/sequence.h"
 #include "node/project/sequence/sequence.h"
+#include "panel/node/node.h"
+#include "panel/panelmanager.h"
 
 namespace olive {
 
@@ -158,6 +160,27 @@ PreferencesGeneralTab::PreferencesGeneralTab()
     autorecovery_layout->addWidget(browse_autorecoveries, row, 1);
   }
 
+  {
+    QGroupBox* node_groupbox = new QGroupBox(tr("Nodes"));
+    QGridLayout* node_layout = new QGridLayout(node_groupbox);
+    layout->addWidget(node_groupbox);
+
+    int row = 0;
+
+    // General -> Language
+    node_layout->addWidget(new QLabel(tr("Flow Direction:")), row, 0);
+
+    node_flow_direction_combobox_ = new QComboBox();
+    node_flow_direction_combobox_->addItem("Top to Bottom");
+    node_flow_direction_combobox_->addItem("Bottom to Top");
+    node_flow_direction_combobox_->addItem("Left to Right");
+    node_flow_direction_combobox_->addItem("Right to Left");
+
+    node_flow_direction_combobox_->setCurrentIndex(Config::Current()[QStringLiteral("NodeFlowDirection")].toInt());
+
+    node_layout->addWidget(node_flow_direction_combobox_, row, 1);
+  }
+
   layout->addStretch();
 }
 
@@ -198,6 +221,11 @@ void PreferencesGeneralTab::Accept(MultiUndoCommand *command)
   Config::Current()[QStringLiteral("DefaultSequenceInterlacing")] = dsvp.interlacing();
   Config::Current()[QStringLiteral("DefaultSequenceAudioFrequency")] = dsap.sample_rate();
   Config::Current()[QStringLiteral("DefaultSequenceAudioLayout")] = QVariant::fromValue(dsap.channel_layout());
+
+  Config::Current()[QStringLiteral("NodeFlowDirection")] = node_flow_direction_combobox_->currentIndex();
+  foreach(NodePanel * node_panel, PanelManager::instance()->GetPanelsOfType<NodePanel>()) {
+    node_panel->GetView()->SetFlowDirection((NodeViewCommon::FlowDirection)node_flow_direction_combobox_->currentIndex());
+  }
 }
 
 void PreferencesGeneralTab::AddLanguage(const QString &locale_name)
