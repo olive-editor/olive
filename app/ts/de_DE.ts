@@ -1642,8 +1642,8 @@ Die wiederherstellbaren Projektdateien sind verfügbar unter: %1</translation>
         <location filename="../dialog/export/export.cpp" line="321"/>
         <source>Filename doesn&apos;t contain enough digits for the amount of frames this export will need (need %1 for %n frame(s)).</source>
         <translation>
+            <numerusform>Der Dateiname enthält nicht genügend Ziffern für die Anzahl der zu speichernden Einzelbilder. Dieser Exportvorgang benötigt %1 für %n Bild.</numerusform>
             <numerusform>Der Dateiname enthält nicht genügend Ziffern für die Anzahl der zu speichernden Einzelbilder. Dieser Exportvorgang benötigt %1 für %n Bilder.</numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -5021,7 +5021,7 @@ Soll es wirklich gelöscht werden?</translation>
     <message>
         <location filename="../node/time/timeremap/timeremap.cpp" line="63"/>
         <source>Arbitrarily remap time through the nodes.</source>
-        <translation>Zeit von Node-Ausgaben beliebig dehnen oder raffen</translation>
+        <translation>Zeit von Node-Ausgaben beliebig dehnen oder raffen.</translation>
     </message>
 </context>
 <context>
@@ -5527,32 +5527,32 @@ Soll es wirklich gelöscht werden?</translation>
     <message>
         <location filename="../node/output/viewer/viewer.cpp" line="129"/>
         <source>%1 FPS</source>
-        <translation type="unfinished">%1 FPS</translation>
+        <translation>%1 FPS</translation>
     </message>
     <message>
         <location filename="../node/output/viewer/viewer.cpp" line="133"/>
         <source>%1 Hz</source>
-        <translation type="unfinished">%1 Hz</translation>
+        <translation>%1 Hz</translation>
     </message>
     <message>
         <location filename="../node/output/viewer/viewer.cpp" line="293"/>
         <source>Video Parameters</source>
-        <translation type="unfinished">Video-Parameter</translation>
+        <translation>Video-Parameter</translation>
     </message>
     <message>
         <location filename="../node/output/viewer/viewer.cpp" line="294"/>
         <source>Audio Parameters</source>
-        <translation type="unfinished">Audio-Parameter</translation>
+        <translation>Audio-Parameter</translation>
     </message>
     <message>
         <location filename="../node/output/viewer/viewer.cpp" line="296"/>
         <source>Texture</source>
-        <translation type="unfinished">Textur</translation>
+        <translation>Textur</translation>
     </message>
     <message>
         <location filename="../node/output/viewer/viewer.cpp" line="297"/>
         <source>Samples</source>
-        <translation type="unfinished">Samples</translation>
+        <translation>Samples</translation>
     </message>
 </context>
 <context>
