@@ -1861,7 +1861,7 @@ Die wiederherstellbaren Projektdateien sind verfügbar unter: %1</translation>
     <message>
         <location filename="../codec/ffmpeg/ffmpegencoder.cpp" line="191"/>
         <source>Failed to write format header</source>
-        <translation>Der Format-Kopfzeile konnte nicht geschrieben werden</translation>
+        <translation>Die Format-Kopfzeile konnte nicht geschrieben werden</translation>
     </message>
     <message>
         <location filename="../codec/ffmpeg/ffmpegencoder.cpp" line="227"/>
