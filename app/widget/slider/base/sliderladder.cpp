@@ -214,11 +214,11 @@ void SliderLadder::TimerUpdate()
       double multiplier = 1.0;
 
       if (qApp->keyboardModifiers() & Qt::ControlModifier) {
-        multiplier *= 0.1;
+        multiplier *= 0.01;
       }
 
       if (qApp->keyboardModifiers() & Qt::ShiftModifier) {
-        multiplier *= 0.1;
+        multiplier *= 100.0;
       }
 
       emit DraggedByValue(x_mvmt + y_mvmt, multiplier);
