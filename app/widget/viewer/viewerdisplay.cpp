@@ -106,9 +106,9 @@ void ViewerDisplayWidget::SetImage(FramePtr in_buffer)
     last_loaded_buffer_ = in_buffer;
 
     texture_equal_to_frame_ = false;
-
-    update();
   }
+
+  update();
 }
 
 void ViewerDisplayWidget::SetDeinterlacing(bool e)
