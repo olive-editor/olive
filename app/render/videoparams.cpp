@@ -163,7 +163,8 @@ bool VideoParams::operator==(const VideoParams &rhs) const
       && time_base() == rhs.time_base()
       && format() == rhs.format()
       && pixel_aspect_ratio() == rhs.pixel_aspect_ratio()
-      && divider() == rhs.divider();
+      && divider() == rhs.divider()
+      && channel_count() == rhs.channel_count();
 }
 
 bool VideoParams::operator!=(const VideoParams &rhs) const

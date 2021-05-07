@@ -67,10 +67,7 @@ void ScopeBase::UploadTextureFromBuffer()
   if (buffer_) {
     makeCurrent();
 
-    if (!texture_
-        || texture_->width() != buffer_->width()
-        || texture_->height() != buffer_->height()
-        || texture_->format() != buffer_->format()) {
+    if (!texture_ || texture_->params() != buffer_->video_params()) {
       texture_ = nullptr;
       managed_tex_ = nullptr;
 
