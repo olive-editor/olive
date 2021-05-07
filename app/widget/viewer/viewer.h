@@ -185,7 +185,7 @@ private:
 
   bool ViewerMightBeAStill();
 
-  void SetDisplayImage(FramePtr frame, bool main_only);
+  void SetDisplayImage(FramePtr frame, bool main_only = false);
 
   void RequestNextFrameForQueue(bool prioritize = false, bool increment = true);
 
