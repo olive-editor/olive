@@ -51,7 +51,7 @@ public:
     return graph_;
   }
 
-  NodeViewScene GetScene()
+  NodeViewScene* GetScene()
   {
     return &scene_;
   }

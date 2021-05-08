@@ -233,7 +233,7 @@ void PreferencesGeneralTab::Accept(MultiUndoCommand *command)
 
   foreach(NodePanel* node_panel, PanelManager::instance()->GetPanelsOfType<NodePanel>()) {
     node_panel->GetView()->SetFlowDirection((NodeViewCommon::FlowDirection)node_flow_direction_combobox_->currentIndex());
-    node_panel->GetView()->GetScene().SetEdgesAreCurved(node_smooth_edges_->isChecked());
+    node_panel->GetView()->GetScene()->SetEdgesAreCurved(node_smooth_edges_->isChecked());
   }
 }
 
