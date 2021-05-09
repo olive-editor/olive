@@ -130,7 +130,7 @@ bool Frame::allocate()
     return true;
   }
 
-  data_size_ = VideoParams::GetBufferSize(linesize_, height(), params_.format(), params_.channel_count());
+  data_size_ = linesize_ * height();
   data_ = FrameManager::Allocate(data_size_);
 
   return true;
