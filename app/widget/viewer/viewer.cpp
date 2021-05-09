@@ -55,11 +55,11 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   frame_cache_job_time_(0),
   color_menu_enabled_(true),
   time_changed_from_timer_(false),
-  pause_autocache_during_playback_(false),
   prequeuing_(false),
   last_loaded_buffer_(nullptr),
   last_loaded_buffer_is_empty_(false),
-  active_queue_jobs_(0)
+  active_queue_jobs_(0),
+  cache_time_(rational::NaN)
 {
   // Set up main layout
   QVBoxLayout* layout = new QVBoxLayout(this);
@@ -149,12 +149,13 @@ ViewerWidget::~ViewerWidget()
 void ViewerWidget::TimeChangedEvent(const int64_t &i)
 {
   if (!time_changed_from_timer_) {
-    Pause();
+    PauseInternal();
   }
 
   controls_->SetTime(i);
 
   {
+    // Update waveform time
     qint64 waveform_time;
 
     if (waveform_view_->timebase() != this->timebase()) {
@@ -179,12 +180,11 @@ void ViewerWidget::TimeChangedEvent(const int64_t &i)
       display_widget_->ResetFPSTimer();
     }
 
-    if (!pause_autocache_during_playback_ || !IsPlaying()) {
-      auto_cacher_.SetPlayhead(time_set);
-    }
-
     display_widget_->SetTime(time_set);
   }
+
+  // Send time to auto-cacher
+  UpdateAutoCacher();
 
   last_time_ = i;
 }
@@ -271,6 +271,7 @@ void ViewerWidget::DisconnectNodeEvent(ViewerOutput *n)
 void ViewerWidget::ConnectedNodeChangeEvent(ViewerOutput *n)
 {
   auto_cacher_.SetViewerNode(n);
+  cache_time_ = rational::NaN;
 }
 
 void ViewerWidget::ScaleChangedEvent(const double &s)
@@ -358,6 +359,14 @@ void ViewerWidget::SetFullScreen(QScreen *screen)
 void ViewerWidget::SetAutoCacheEnabled(bool e)
 {
   auto_cacher_.SetPaused(!e);
+
+  if (e) {
+    // Enable auto-cache
+    UpdateAutoCacher();
+  } else {
+    // Disable auto-cache
+    ClearAutoCacherQueue();
+  }
 }
 
 void ViewerWidget::CacheEntireSequence()
@@ -439,6 +448,27 @@ void ViewerWidget::SetEmptyImage()
   if (frame) {
     last_loaded_buffer_is_empty_ = true;
   }
+}
+
+void ViewerWidget::UpdateAutoCacher()
+{
+  rational time = GetTime();
+
+  if (GetConnectedNode()              // Ensure valid node
+      && cache_time_ != time          // Ensure cache hasn't already been to this time
+      && !auto_cacher_.IsPaused()) {  // Follow cache setting
+    if (!IsPlaying()) {
+      ClearAutoCacherQueue();
+    }
+    auto_cacher_.SetPlayhead(time);
+    cache_time_ = time;
+  }
+}
+
+void ViewerWidget::ClearAutoCacherQueue()
+{
+  auto_cacher_.ClearVideoQueue();
+  cache_time_ = rational::NaN;
 }
 
 void ViewerWidget::StartAudioOutput()
@@ -526,7 +556,7 @@ void ViewerWidget::UpdateTextureFromNode()
       RenderTicketWatcher* watcher = new RenderTicketWatcher();
       connect(watcher, &RenderTicketWatcher::Finished, this, &ViewerWidget::RendererGeneratedFrame);
       nonqueue_watchers_.append(watcher);
-      watcher->SetTicket(GetFrame(time, false, true));
+      watcher->SetTicket(GetFrame(time, true));
     }
   } else {
     // There is definitely no frame here, we can immediately flip to showing nothing
@@ -550,14 +580,11 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
     return;
   }
 
-  // Kindly tell all viewers to stop playing (and caching if that's been set as an option)
+  // Kindly tell all viewers to stop playing and caching so all resources can be used for playback
   foreach (ViewerWidget* viewer, instances_) {
     if (viewer != this) {
-      viewer->Pause();
-    }
-
-    if (pause_autocache_during_playback_) {
-      viewer->auto_cacher_.ClearVideoQueue();
+      viewer->PauseInternal();
+      viewer->ClearAutoCacherQueue();
     }
   }
 
@@ -723,12 +750,12 @@ void ViewerWidget::RequestNextFrameForQueue(bool prioritize, bool increment)
 
     RenderTicketWatcher* watcher = new RenderTicketWatcher();
     connect(watcher, &RenderTicketWatcher::Finished, this, &ViewerWidget::RendererGeneratedFrameForQueue);
-    watcher->SetTicket(GetFrame(next_time, false, prioritize));
+    watcher->SetTicket(GetFrame(next_time, prioritize));
     active_queue_jobs_++;
   }
 }
 
-RenderTicketPtr ViewerWidget::GetFrame(const rational &t, bool clear_render_queue, bool prioritize)
+RenderTicketPtr ViewerWidget::GetFrame(const rational &t, bool prioritize)
 {
   QByteArray cached_hash = GetConnectedNode()->video_frame_cache()->GetHash(t);
 
@@ -736,10 +763,6 @@ RenderTicketPtr ViewerWidget::GetFrame(const rational &t, bool clear_render_queu
 
   if (cached_hash.isEmpty() || !QFileInfo::exists(cache_fn)) {
     // Frame hasn't been cached, start render job
-    if (clear_render_queue) {
-      auto_cacher_.ClearVideoQueue();
-    }
-
     return auto_cacher_.GetSingleFrame(t, prioritize);
   } else {
     // Frame has been cached, grab the frame
@@ -1011,16 +1034,6 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
 
       cache_menu->addSeparator();
 
-      // Stop auto-cache while playing
-      QAction* pause_autocache_while_playing = cache_menu->addAction(tr("Pause Auto-Cache During Playback"));
-      pause_autocache_while_playing->setCheckable(true);
-      pause_autocache_while_playing->setChecked(pause_autocache_during_playback_);
-      connect(pause_autocache_while_playing, &QAction::triggered, this, [this](bool e){
-        pause_autocache_during_playback_ = e;
-      });
-
-      cache_menu->addSeparator();
-
       // Cache Entire Sequence
       QAction* cache_entire_sequence = cache_menu->addAction(tr("Cache Entire Sequence"));
       connect(cache_entire_sequence, &QAction::triggered, this, &ViewerWidget::CacheEntireSequence);
@@ -1098,10 +1111,7 @@ void ViewerWidget::Pause()
 {
   PauseInternal();
 
-  if (pause_autocache_during_playback_) {
-    // Auto-cache was paused, restart it now
-    auto_cacher_.SetPlayhead(GetTime());
-  }
+  UpdateAutoCacher();
 }
 
 void ViewerWidget::ShuttleLeft()

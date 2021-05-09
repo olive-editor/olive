@@ -189,7 +189,7 @@ private:
 
   void RequestNextFrameForQueue(bool prioritize = false, bool increment = true);
 
-  RenderTicketPtr GetFrame(const rational& t, bool clear_render_queue, bool prioritize);
+  RenderTicketPtr GetFrame(const rational& t, bool prioritize);
 
   void FinishPlayPreprocess();
 
@@ -204,6 +204,10 @@ private:
   bool ShouldForceWaveform() const;
 
   void SetEmptyImage();
+
+  void UpdateAutoCacher();
+
+  void ClearAutoCacherQueue();
 
   QStackedWidget* stack_;
 
@@ -220,8 +224,6 @@ private:
   bool time_changed_from_timer_;
 
   bool play_in_to_out_only_;
-
-  bool pause_autocache_during_playback_;
 
   AudioWaveformView* waveform_view_;
 
@@ -253,6 +255,8 @@ private:
   bool last_loaded_buffer_is_empty_;
 
   int active_queue_jobs_;
+
+  rational cache_time_;
 
   static QVector<ViewerWidget*> instances_;
 

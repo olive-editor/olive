@@ -35,7 +35,10 @@ RenderTicketPtr PreviewAutoCacher::GetSingleFrame(const rational &t, bool priori
 {
   CancelQueuedSingleFrameRender();
 
-  QByteArray hash = viewer_node_->video_frame_cache()->GetHash(t);
+  QByteArray hash;
+  if (!paused_) {
+    hash = viewer_node_->video_frame_cache()->GetHash(t);
+  }
 
   auto sfr = std::make_shared<RenderTicket>();
   sfr->Start();
@@ -53,14 +56,6 @@ RenderTicketPtr PreviewAutoCacher::GetSingleFrame(const rational &t, bool priori
 void PreviewAutoCacher::SetPaused(bool paused)
 {
   paused_ = paused;
-
-  if (paused_) {
-    // Pause the autocache
-    ClearVideoQueue();
-  } else {
-    // Unpause the cache
-    RequeueFrames();
-  }
 }
 
 void PreviewAutoCacher::GenerateHashes(ViewerOutput *viewer, FrameHashCache* cache, const QVector<rational> &times, qint64 job_time)
