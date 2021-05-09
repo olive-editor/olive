@@ -21,6 +21,8 @@
 #include "framehashcache.h"
 
 #include <OpenEXR/ImfFloatAttribute.h>
+#include <OpenEXR/ImfFrameBuffer.h>
+#include <OpenEXR/ImfHeader.h>
 #include <OpenEXR/ImfInputFile.h>
 #include <OpenEXR/ImfIntAttribute.h>
 #include <OpenEXR/ImfOutputFile.h>

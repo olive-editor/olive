@@ -79,12 +79,6 @@ list(APPEND OLIVE_INCLUDE_DIRS ${OIIO_INCLUDE_DIRS})
 find_package(OpenEXR REQUIRED)
 list(APPEND OLIVE_LIBRARIES ${OPENEXR_LIBRARIES})
 list(APPEND OLIVE_INCLUDE_DIRS ${OPENEXR_INCLUDES})
-if (APPLE)
-  # HACK: Brew on macOS separates OpenEXR and IlmBase into two folders even though they seem to
-  #       expect to be in one. This includes the IlmBase files as if they were in the same folders
-  #       as the OpenEXR headers. This would be better rolled into FindOpenEXR.cmake.
-  list(APPEND OLIVE_INCLUDE_DIRS ${ILMBASE_INCLUDES}/OpenEXR)
-endif()
 
 # Link Qt 5
 find_package(Qt5 5.6 REQUIRED
