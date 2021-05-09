@@ -35,8 +35,7 @@ public slots:
   virtual bool Open() override;
 
   virtual bool WriteFrame(olive::FramePtr frame, olive::rational time) override;
-  virtual void WriteAudio(olive::AudioParams pcm_info,
-                          QIODevice *file) override;
+  virtual bool WriteAudio(SampleBufferPtr audio) override;
 
   virtual void Close() override;
 

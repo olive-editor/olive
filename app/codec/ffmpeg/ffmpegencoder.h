@@ -44,8 +44,7 @@ public:
 
   virtual bool WriteFrame(olive::FramePtr frame, olive::rational time) override;
 
-  virtual void WriteAudio(olive::AudioParams pcm_info,
-                          QIODevice *file) override;
+  virtual bool WriteAudio(olive::SampleBufferPtr audio) override;
 
   virtual void Close() override;
 
@@ -74,6 +73,8 @@ private:
   void FlushEncoders();
   void FlushCodecCtx(AVCodecContext* codec_ctx, AVStream *stream);
 
+  bool InitializeResampleContext(SampleBufferPtr audio);
+
   AVFormatContext* fmt_ctx_;
 
   AVStream* video_stream_;
@@ -85,6 +86,9 @@ private:
   AVStream* audio_stream_;
   AVCodecContext* audio_codec_ctx_;
   SwrContext* audio_resample_ctx_;
+  AVFrame* audio_frame_;
+  int audio_frame_offset_;
+  int audio_write_count_;
 
   bool open_;
 

@@ -57,17 +57,24 @@ bool RenderTask::Render(ColorManager* manager,
   qint64 job_time = QDateTime::currentMSecsSinceEpoch();
 
   // Queue audio jobs
-  foreach (const TimeRange& r, audio_range) {
+  foreach (const TimeRange& range, audio_range) {
     // Don't count audio progress, since it's generally a lot faster than video and is weighted at
     // 50%, which makes the progress bar look weird to the uninitiated
     //total_length += r.length().toDouble();
 
-    IncrementRunningTickets();
+    rational r = range.in();
+    while (r != range.out()) {
+      rational end = qMin(range.out(), r+1);
+      TimeRange this_range(r, end);
 
-    RenderTicketWatcher* watcher = new RenderTicketWatcher();
-    watcher->setProperty("range", QVariant::fromValue(r));
-    PrepareWatcher(watcher, &watcher_thread);
-    watcher->SetTicket(RenderManager::instance()->RenderAudio(viewer_, r, audio_params_, false));
+      RenderTicketWatcher* watcher = new RenderTicketWatcher();
+      watcher->setProperty("range", QVariant::fromValue(this_range));
+      PrepareWatcher(watcher, &watcher_thread);
+      IncrementRunningTickets();
+      watcher->SetTicket(RenderManager::instance()->RenderAudio(viewer_, this_range, audio_params_, false));
+
+      r = end;
+    }
   }
 
   // Look up hashes

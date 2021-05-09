@@ -62,9 +62,10 @@ bool OIIOEncoder::WriteFrame(FramePtr frame, rational time)
   return true;
 }
 
-void OIIOEncoder::WriteAudio(AudioParams pcm_info, QIODevice *file)
+bool OIIOEncoder::WriteAudio(SampleBufferPtr audio)
 {
   // Do nothing
+  return false;
 }
 
 void OIIOEncoder::Close()

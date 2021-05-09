@@ -99,10 +99,6 @@ bool ExportTask::Run()
                                               params_.color_transform());
   }
 
-  if (params_.audio_enabled()) {
-    audio_data_.SetParameters(audio_params());
-  }
-
   // Start render process
   TimeRangeList video_range, audio_range;
 
@@ -112,7 +108,6 @@ bool ExportTask::Run()
 
   if (params_.audio_enabled()) {
     audio_range = {range};
-    audio_data_.SetLength(range.length());
   }
 
   Render(color_manager_, video_range, audio_range, RenderMode::kOnline, nullptr,
@@ -121,12 +116,12 @@ bool ExportTask::Run()
 
   bool success = true;
 
-  if (params_.audio_enabled()) {
-    // Write audio data now
-    encoder_->WriteAudio(audio_params(), audio_data_.CreatePlaybackDevice(encoder_));
-  }
-
   encoder_->Close();
+
+  if (!encoder_->GetError().isEmpty()) {
+    SetError(encoder_->GetError());
+    success = false;
+  }
 
   delete encoder_;
 
@@ -187,7 +182,33 @@ void ExportTask::AudioDownloaded(const TimeRange &range, SampleBufferPtr samples
     adjusted_range -= params_.custom_range().in();
   }
 
-  audio_data_.WritePCM(adjusted_range, samples, QDateTime::currentMSecsSinceEpoch());
+  if (adjusted_range.in() == audio_time_) {
+    WriteAudioLoop(adjusted_range, samples);
+  } else {
+    audio_map_.insert(adjusted_range, samples);
+  }
+}
+
+void ExportTask::WriteAudioLoop(const TimeRange& time, SampleBufferPtr samples)
+{
+  encoder_->WriteAudio(samples);
+  audio_time_ = time.out();
+
+  for (auto it=audio_map_.begin(); it!=audio_map_.end(); it++) {
+    TimeRange t = it.key();
+    SampleBufferPtr s = it.value();
+
+    if (t.in() == audio_time_) {
+      // Erase from audio map since we're just about to write it
+      audio_map_.erase(it);
+
+      // Call recursively to write the next sample buffer
+      WriteAudioLoop(t, s);
+
+      // Break out of loop
+      break;
+    }
+  }
 }
 
 }

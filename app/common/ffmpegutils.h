@@ -55,7 +55,7 @@ public:
   /**
    * @brief Returns an FFmpeg sample format type for a given native type
    */
-  static AVSampleFormat GetFFmpegSampleFormat(const AudioParams::Format &smp_fmt);
+  static AVSampleFormat GetFFmpegSampleFormat(const AudioParams::Format &smp_fmt, bool planar = false);
 };
 
 }

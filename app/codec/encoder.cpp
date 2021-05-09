@@ -82,12 +82,6 @@ QString Encoder::FilenameRemoveDigitPlaceholder(QString filename)
   return filename.remove(kImageSequenceRemoveDigits);
 }
 
-void Encoder::WriteAudio(AudioParams pcm_info, const QString &pcm_filename)
-{
-  QFile f(pcm_filename);
-  WriteAudio(pcm_info, &f);
-}
-
 EncodingParams::EncodingParams() :
   video_enabled_(false),
   video_bit_rate_(0),

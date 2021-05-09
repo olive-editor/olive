@@ -40,6 +40,7 @@ FFmpegEncoder::FFmpegEncoder(const EncodingParams &params) :
   audio_stream_(nullptr),
   audio_codec_ctx_(nullptr),
   audio_resample_ctx_(nullptr),
+  audio_frame_(nullptr),
   open_(false)
 {
 }
@@ -132,10 +133,10 @@ bool FFmpegEncoder::Open()
 
     // This is the equivalent pixel format above as an AVPixelFormat that swscale can understand
     AVPixelFormat src_alpha_pix_fmt = FFmpegUtils::GetFFmpegPixelFormat(video_conversion_fmt_,
-                                                                         VideoParams::kRGBAChannelCount);
+                                                                        VideoParams::kRGBAChannelCount);
 
     AVPixelFormat src_noalpha_pix_fmt = FFmpegUtils::GetFFmpegPixelFormat(video_conversion_fmt_,
-                                                                           VideoParams::kRGBChannelCount);
+                                                                          VideoParams::kRGBChannelCount);
 
     if (src_alpha_pix_fmt == AV_PIX_FMT_NONE || src_noalpha_pix_fmt == AV_PIX_FMT_NONE) {
       SetError(tr("Failed to find suitable pixel format for this buffer"));
@@ -171,9 +172,10 @@ bool FFmpegEncoder::Open()
   }
 
   // Initialize an audio stream if it's enabled
-  if (params().audio_enabled()
-      && !InitializeStream(AVMEDIA_TYPE_AUDIO, &audio_stream_, &audio_codec_ctx_, params().audio_codec())) {
-    return false;
+  if (params().audio_enabled()) {
+    if (!InitializeStream(AVMEDIA_TYPE_AUDIO, &audio_stream_, &audio_codec_ctx_, params().audio_codec())) {
+      return false;
+    }
   }
 
   av_dump_format(fmt_ctx_, 0, filename_c_str, 1);
@@ -261,107 +263,147 @@ fail:
   return success;
 }
 
+bool FFmpegEncoder::WriteAudio(SampleBufferPtr audio)
+{
+  if (!InitializeResampleContext(audio)) {
+    qCritical() << "Failed to initialize resample context";
+    return false;
+  }
+
+  bool result = true;
+
+  // Create input buffer
+  int input_sample_count = 0;
+  uint8_t** input_data = nullptr;
+  if (audio) {
+    input_sample_count = audio->sample_count();
+    int input_linesize;
+
+    av_samples_alloc_array_and_samples(&input_data, &input_linesize, audio->audio_params().channel_count(),
+                                       input_sample_count, FFmpegUtils::GetFFmpegSampleFormat(audio->audio_params().format(), true), 0);
+
+    for (int i=0; i<audio->audio_params().channel_count(); i++) {
+      memcpy(input_data[i], audio->data(i), input_sample_count * audio->audio_params().bytes_per_sample_per_channel());
+    }
+  }
+
+  // Create output buffer
+  int output_sample_count = input_sample_count ? swr_get_out_samples(audio_resample_ctx_, input_sample_count) : 102400;
+  uint8_t** output_data = nullptr;
+  int output_linesize;
+  av_samples_alloc_array_and_samples(&output_data, &output_linesize, audio_stream_->codecpar->channels,
+                                     output_sample_count, static_cast<AVSampleFormat>(audio_stream_->codecpar->format), 0);
+
+  // Perform conversion
+  int converted = swr_convert(audio_resample_ctx_, output_data, output_sample_count, const_cast<const uint8_t**>(input_data), input_sample_count);
+  if (converted > 0) {
+    // Split sample buffer into frames
+    for (int i=0; i<output_sample_count; i+=audio_frame_->nb_samples) {
+      int copy_offset = audio_frame_offset_;
+      int frame_remaining_samples = audio_frame_->nb_samples - copy_offset;
+      int converted_remaining_samples = output_sample_count - i;
+
+      int copy_length = qMin(frame_remaining_samples, converted_remaining_samples);
+
+      av_samples_copy(audio_frame_->data, output_data, copy_offset, i,
+                      copy_length,
+                      audio_frame_->channels, static_cast<AVSampleFormat>(audio_frame_->format));
+
+      if (copy_length != frame_remaining_samples && input_data) {
+        // Frame didn't get all the samples it needed, save them for later
+        audio_frame_offset_ += copy_length;
+      } else {
+        // Got all the samples we needed, write the frame
+        audio_frame_->pts = audio_write_count_;
+
+        if (!input_data) {
+          // Assume flushing and make this frame's samples = the amount copied
+          audio_frame_->nb_samples = copy_offset + copy_length;
+          qDebug() << "Writing" << audio_frame_->nb_samples << "flushed samples";
+        }
+
+        WriteAVFrame(audio_frame_, audio_codec_ctx_, audio_stream_);
+        audio_write_count_ += audio_frame_->nb_samples;
+        audio_frame_offset_ = 0;
+      }
+    }
+  } else if (converted < 0) {
+    FFmpegError(tr("Failed to resample audio"), converted);
+    result = false;
+  }
+
+  // Free buffers created
+  if (output_data) {
+    av_freep(&output_data[0]);
+    av_freep(&output_data);
+  }
+
+  if (input_data) {
+    av_freep(&input_data[0]);
+    av_freep(&input_data);
+  }
+
+  return result;
+}
+/*
 void FFmpegEncoder::WriteAudio(AudioParams pcm_info, QIODevice* file)
 {
-  if (file->open(QFile::ReadOnly)) {
-    // Divide PCM stream into AVFrames
 
-    // See if the codec defines a number of samples per frame
-    int maximum_frame_samples = audio_codec_ctx_->frame_size;
-    if (!maximum_frame_samples) {
-      // If not, use another frame size
-      if (params().video_enabled()) {
-        // If we're encoding video, use enough samples to cover roughly one frame of video
-        maximum_frame_samples = params().audio_params().time_to_samples(params().video_params().frame_rate_as_time_base());
-      } else {
-        // If no video, just use an arbitrary number
-        maximum_frame_samples = 256;
-      }
+
+  // Keep track of sample count to use as each frame's timebase
+  int sample_counter = 0;
+
+  while (true) {
+    // Calculate how many samples should input this frame
+    int64_t samples_needed = av_rescale_rnd(maximum_frame_samples + swr_get_delay(swr_ctx, pcm_info.sample_rate()),
+                                            audio_codec_ctx_->sample_rate,
+                                            pcm_info.sample_rate(),
+                                            AV_ROUND_UP);
+
+    // Calculate how many bytes this is
+    int max_read = pcm_info.samples_to_bytes(samples_needed);
+
+    // Read bytes from PCM
+    QByteArray input_data = file->read(max_read);
+
+    // Use swresample to convert the data into the correct format
+    const char* input_data_array = input_data.constData();
+    int converted = swr_convert(swr_ctx,
+
+                                // output data
+                                frame->data,
+
+                                // output sample count (maximum amount of samples in output)
+                                maximum_frame_samples,
+
+                                // input data
+                                reinterpret_cast<const uint8_t**>(&input_data_array),
+
+                                // input sample count (maximum amount of samples we read from pcm file)
+                                pcm_info.bytes_to_samples(input_data.size()));
+
+    // Update the frame's number of samples to the amount we actually received
+    frame->nb_samples = converted;
+
+    // Update frame timestamp
+    frame->pts = sample_counter;
+
+    // Increment timestamp for the next frame by the amount of samples in this one
+    sample_counter += converted;
+
+    // Write the frame
+    if (!WriteAVFrame(frame, audio_codec_ctx_, audio_stream_)) {
+      qCritical() << "Failed to write audio AVFrame";
+      break;
     }
 
-    SwrContext* swr_ctx = swr_alloc_set_opts(nullptr,
-                                             static_cast<int64_t>(audio_codec_ctx_->channel_layout),
-                                             audio_codec_ctx_->sample_fmt,
-                                             audio_codec_ctx_->sample_rate,
-                                             static_cast<int64_t>(pcm_info.channel_layout()),
-                                             FFmpegUtils::GetFFmpegSampleFormat(pcm_info.format()),
-                                             pcm_info.sample_rate(),
-                                             0,
-                                             nullptr);
-
-    swr_init(swr_ctx);
-
-    // Loop through PCM queueing write events
-    AVFrame* frame = av_frame_alloc();
-
-    // Set up frame and allocate its buffers
-    frame->channel_layout = audio_codec_ctx_->channel_layout;
-    frame->nb_samples = maximum_frame_samples;
-    frame->format = audio_codec_ctx_->sample_fmt;
-    av_frame_get_buffer(frame, 0);
-
-    // Keep track of sample count to use as each frame's timebase
-    int sample_counter = 0;
-
-    while (true) {
-      // Calculate how many samples should input this frame
-      int64_t samples_needed = av_rescale_rnd(maximum_frame_samples + swr_get_delay(swr_ctx, pcm_info.sample_rate()),
-                                              audio_codec_ctx_->sample_rate,
-                                              pcm_info.sample_rate(),
-                                              AV_ROUND_UP);
-
-      // Calculate how many bytes this is
-      int max_read = pcm_info.samples_to_bytes(samples_needed);
-
-      // Read bytes from PCM
-      QByteArray input_data = file->read(max_read);
-
-      // Use swresample to convert the data into the correct format
-      const char* input_data_array = input_data.constData();
-      int converted = swr_convert(swr_ctx,
-
-                                  // output data
-                                  frame->data,
-
-                                  // output sample count (maximum amount of samples in output)
-                                  maximum_frame_samples,
-
-                                  // input data
-                                  reinterpret_cast<const uint8_t**>(&input_data_array),
-
-                                  // input sample count (maximum amount of samples we read from pcm file)
-                                  pcm_info.bytes_to_samples(input_data.size()));
-
-      // Update the frame's number of samples to the amount we actually received
-      frame->nb_samples = converted;
-
-      // Update frame timestamp
-      frame->pts = sample_counter;
-
-      // Increment timestamp for the next frame by the amount of samples in this one
-      sample_counter += converted;
-
-      // Write the frame
-      if (!WriteAVFrame(frame, audio_codec_ctx_, audio_stream_)) {
-        qCritical() << "Failed to write audio AVFrame";
-        break;
-      }
-
-      // Break if we've reached the end point
-      if (file->atEnd()) {
-        break;
-      }
+    // Break if we've reached the end point
+    if (file->atEnd()) {
+      break;
     }
-
-    av_frame_free(&frame);
-
-    swr_free(&swr_ctx);
-
-    file->close();
-  } else {
-    qWarning() << "Failed to open audio IO device for encoding";
   }
 }
+*/
 
 void FFmpegEncoder::Close()
 {
@@ -374,6 +416,16 @@ void FFmpegEncoder::Close()
     avio_closep(&fmt_ctx_->pb);
 
     open_ = false;
+  }
+
+  if (audio_resample_ctx_) {
+    swr_init(audio_resample_ctx_);
+    audio_resample_ctx_ = nullptr;
+  }
+
+  if (audio_frame_) {
+    av_frame_free(&audio_frame_);
+    audio_frame_ = nullptr;
   }
 
   if (video_alpha_scale_ctx_) {
@@ -400,15 +452,19 @@ void FFmpegEncoder::Close()
     // NOTE: This also frees video_stream_ and audio_stream_
     avformat_free_context(fmt_ctx_);
     fmt_ctx_ = nullptr;
+    video_stream_ = nullptr;
+    audio_stream_ = nullptr;
   }
 }
 
 void FFmpegEncoder::FFmpegError(const QString& context, int error_code)
 {
-  char err[128];
-  av_strerror(error_code, err, 128);
+  char err[1024];
+  av_strerror(error_code, err, 1024);
 
-  SetError(tr("%1: %2 %3").arg(context, err, QString::number(error_code)));
+  QString formatted_err = tr("%1: %2 %3").arg(context, formatted_err, QString::number(error_code));
+  qDebug() << formatted_err;
+  SetError(formatted_err);
 }
 
 bool FFmpegEncoder::WriteAVFrame(AVFrame *frame, AVCodecContext* codec_ctx, AVStream* stream)
@@ -569,9 +625,7 @@ bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AV
 
     // Set custom options
     {
-      QHash<QString, QString>::const_iterator i;
-
-      for (i=params().video_opts().begin();i!=params().video_opts().end();i++) {
+      for (auto i=params().video_opts().begin();i!=params().video_opts().end();i++) {
         av_opt_set(codec_ctx->priv_data, i.key().toUtf8(), i.value().toUtf8(), AV_OPT_SEARCH_CHILDREN);
       }
 
@@ -674,6 +728,8 @@ void FFmpegEncoder::FlushEncoders()
   }
 
   if (audio_codec_ctx_) {
+    WriteAudio(nullptr);
+
     FlushCodecCtx(audio_codec_ctx_, audio_stream_);
   }
 }
@@ -698,6 +754,65 @@ void FFmpegEncoder::FlushCodecCtx(AVCodecContext *codec_ctx, AVStream* stream)
   } while (error_code >= 0);
 
   av_packet_free(&pkt);
+}
+
+bool FFmpegEncoder::InitializeResampleContext(SampleBufferPtr audio)
+{
+  if (audio_resample_ctx_) {
+    return true;
+  }
+
+  // Create resample context
+  audio_resample_ctx_ = swr_alloc_set_opts(nullptr,
+                                           static_cast<int64_t>(audio_codec_ctx_->channel_layout),
+                                           audio_codec_ctx_->sample_fmt,
+                                           audio_codec_ctx_->sample_rate,
+                                           static_cast<int64_t>(audio->audio_params().channel_layout()),
+                                           FFmpegUtils::GetFFmpegSampleFormat(audio->audio_params().format(), true),
+                                           audio->audio_params().sample_rate(),
+                                           0,
+                                           nullptr);
+  if (!audio_resample_ctx_) {
+    return false;
+  }
+
+  int err = swr_init(audio_resample_ctx_);
+  if (err < 0) {
+    FFmpegError(tr("Failed to create resampling context"), err);
+    return false;
+  }
+
+  int max_frame_samples = audio_codec_ctx_->frame_size;
+  if (!max_frame_samples) {
+    // If not, use another frame size
+    if (params().video_enabled()) {
+      // If we're encoding video, use enough samples to cover roughly one frame of video
+      max_frame_samples = params().audio_params().time_to_samples(params().video_params().frame_rate_as_time_base());
+    } else {
+      // If no video, just use an arbitrary number
+      max_frame_samples = 256;
+    }
+  }
+
+  audio_frame_ = av_frame_alloc();
+  if (!audio_frame_) {
+    return false;
+  }
+
+  audio_frame_->channel_layout = audio_codec_ctx_->channel_layout;
+  audio_frame_->format = audio_codec_ctx_->sample_fmt;
+  audio_frame_->nb_samples = max_frame_samples;
+
+  err = av_frame_get_buffer(audio_frame_, 0);
+  if (err < 0) {
+    FFmpegError(tr("Failed to create audio frame"), err);
+    return false;
+  }
+
+  audio_frame_offset_ = 0;
+  audio_write_count_ = 0;
+
+  return true;
 }
 
 }

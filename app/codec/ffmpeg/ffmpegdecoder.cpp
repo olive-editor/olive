@@ -434,7 +434,7 @@ FootageDescription FFmpegDecoder::Probe(const QString &filename, const QAtomicIn
 QString FFmpegDecoder::FFmpegError(int error_code)
 {
   char err[1024];
-  av_strerror(error_code, err, 1024);
+  av_strerror(error_code, err, 512);
   return QStringLiteral("%1 %2").arg(QString::number(error_code), err);
 }
 
@@ -487,8 +487,8 @@ bool FFmpegDecoder::ConformAudioInternal(const QString &filename, const AudioPar
         if (ret == AVERROR_EOF) {
           success = true;
         } else {
-          char err_str[50];
-          av_strerror(ret, err_str, 50);
+          char err_str[512];
+          av_strerror(ret, err_str, 512);
           qWarning() << "Failed to conform:" << ret << err_str;
         }
         break;
@@ -507,8 +507,8 @@ bool FFmpegDecoder::ConformAudioInternal(const QString &filename, const AudioPar
                                frame->nb_samples);
 
       if (nb_samples < 0) {
-        char err_str[50];
-        av_strerror(nb_samples, err_str, 50);
+        char err_str[512];
+        av_strerror(nb_samples, err_str, 512);
         qWarning() << "libswresample failed with error:" << nb_samples << err_str;
         break;
       }
@@ -1020,8 +1020,8 @@ bool FFmpegDecoder::Instance::Open(const char *filename, int stream_index)
   // Open codec
   error_code = avcodec_open2(codec_ctx_, codec, &opts_);
   if (error_code < 0) {
-    char buf[50];
-    av_strerror(error_code, buf, 50);
+    char buf[512];
+    av_strerror(error_code, buf, 512);
     qCritical() << "Failed to open codec" << codec->id << error_code << buf;
     return false;
   }

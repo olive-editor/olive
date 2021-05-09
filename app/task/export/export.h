@@ -48,7 +48,11 @@ protected:
   }
 
 private:
+  void WriteAudioLoop(const TimeRange &time, SampleBufferPtr samples);
+
   QHash<rational, FramePtr> time_map_;
+
+  QHash<TimeRange, SampleBufferPtr> audio_map_;
 
   ColorManager* color_manager_;
 
@@ -60,7 +64,7 @@ private:
 
   int64_t frame_time_;
 
-  AudioPlaybackCache audio_data_;
+  rational audio_time_;
 
 };
 

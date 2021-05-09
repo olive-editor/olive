@@ -29,6 +29,7 @@
 #include "codec/exportcodec.h"
 #include "codec/exportformat.h"
 #include "codec/frame.h"
+#include "codec/samplebuffer.h"
 #include "common/timerange.h"
 #include "render/audioparams.h"
 #include "render/videoparams.h"
@@ -172,10 +173,7 @@ public slots:
   virtual bool Open() = 0;
 
   virtual bool WriteFrame(olive::FramePtr frame, olive::rational time) = 0;
-  virtual void WriteAudio(olive::AudioParams pcm_info,
-                          QIODevice *file) = 0;
-  void WriteAudio(olive::AudioParams pcm_info,
-                  const QString& pcm_filename);
+  virtual bool WriteAudio(olive::SampleBufferPtr audio) = 0;
 
   virtual void Close() = 0;
 
