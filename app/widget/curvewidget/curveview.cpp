@@ -307,8 +307,6 @@ void CurveView::VerticalScaleChangedEvent(double scale)
 
 void CurveView::ContextMenuEvent(Menu &m)
 {
-  m.addSeparator();
-
   // View settings
   QAction* zoom_fit_action = m.addAction(tr("Zoom to Fit"));
   connect(zoom_fit_action, &QAction::triggered, this, &CurveView::ZoomToFit);

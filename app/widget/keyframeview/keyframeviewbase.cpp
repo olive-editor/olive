@@ -525,6 +525,12 @@ void KeyframeViewBase::ShowContextMenu()
     }
   }
 
+  m.addSeparator();
+
+  AddSetScrollZoomsByDefaultActionToMenu(&m);
+
+  m.addSeparator();
+
   ContextMenuEvent(m);
 
   if (!items.isEmpty()) {

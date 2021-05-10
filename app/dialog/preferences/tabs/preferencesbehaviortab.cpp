@@ -41,10 +41,6 @@ PreferencesBehaviorTab::PreferencesBehaviorTab()
           QStringLiteral("HoverFocus"),
           tr("Panels will be considered focused when the mouse cursor is over them without having to click them."),
           general_group);
-  AddItem(tr("Scroll wheel zooms by default instead of scrolling"),
-          QStringLiteral("ScrollZooms"),
-          tr("Holding CTRL while using Olive toggles this setting"),
-          general_group);
   AddItem(tr("Enable slider ladder"),
           QStringLiteral("UseSliderLadders"),
           general_group);

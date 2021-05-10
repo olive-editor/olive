@@ -353,6 +353,8 @@ private slots:
 
   void TrackIndexChanged(int old, int now);
 
+  void SetScrollZoomsByDefaultOnAllViews(bool e);
+
 };
 
 }

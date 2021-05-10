@@ -711,6 +711,10 @@ void NodeView::ShowContextMenu(const QPoint &pos)
 
     m.addSeparator();
 
+    AddSetScrollZoomsByDefaultActionToMenu(&m);
+
+    m.addSeparator();
+
     Menu* filter_menu = new Menu(tr("Filter"), &m);
     m.addMenu(filter_menu);
 
