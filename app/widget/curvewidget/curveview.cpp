@@ -305,13 +305,6 @@ void CurveView::VerticalScaleChangedEvent(double scale)
   }
 }
 
-void CurveView::wheelEvent(QWheelEvent *event)
-{
-  if (!HandleZoomFromScroll(event)) {
-    KeyframeViewBase::wheelEvent(event);
-  }
-}
-
 void CurveView::ContextMenuEvent(Menu &m)
 {
   m.addSeparator();

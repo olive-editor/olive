@@ -39,8 +39,6 @@ public:
   void SetElementY(const NodeInput& c, int y);
 
 protected:
-  virtual void wheelEvent(QWheelEvent* event) override;
-
   virtual void SceneRectUpdateEvent(QRectF& rect) override;
 
 public slots:

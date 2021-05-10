@@ -622,24 +622,6 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
   super::mouseReleaseEvent(event);
 }
 
-void NodeView::wheelEvent(QWheelEvent *event)
-{
-  if (TimeBasedView::WheelEventIsAZoomEvent(event)) {
-    qreal multiplier = 1.0 + (static_cast<qreal>(event->angleDelta().x() + event->angleDelta().y()) * 0.001);
-
-    QPointF cursor_pos;
-#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
-    cursor_pos = event->position();
-#else
-    cursor_pos = event->posF();
-#endif
-
-    ZoomIntoCursorPosition(multiplier, cursor_pos);
-  } else {
-    QWidget::wheelEvent(event);
-  }
-}
-
 void NodeView::UpdateSelectionCache()
 {
   QVector<Node*> current_selection = scene_.GetSelectedNodes();
@@ -874,8 +856,10 @@ void NodeView::DisconnectSelectionChangedSignal()
   disconnect(&scene_, &QGraphicsScene::selectionChanged, this, &NodeView::UpdateSelectionCache);
 }
 
-void NodeView::ZoomIntoCursorPosition(double multiplier, const QPointF& cursor_pos)
+void NodeView::ZoomIntoCursorPosition(QWheelEvent *event, double multiplier, const QPointF& cursor_pos)
 {
+  Q_UNUSED(event)
+
   double test_scale = scale_ * multiplier;
 
   if (test_scale > kMinimumScale) {
@@ -900,7 +884,7 @@ void NodeView::ZoomFromKeyboard(double multiplier)
     cursor_pos = QPoint(width()/2, height()/2);
   }
 
-  ZoomIntoCursorPosition(multiplier, cursor_pos);
+  ZoomIntoCursorPosition(nullptr, multiplier, cursor_pos);
 }
 
 NodeView::NodeViewAttachNodesToCursor::NodeViewAttachNodesToCursor(NodeView *view, const QVector<Node *> &nodes) :

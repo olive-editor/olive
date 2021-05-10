@@ -50,8 +50,6 @@ public:
   const double& GetYScale() const;
   void SetYScale(const double& y_scale);
 
-  static bool WheelEventIsAZoomEvent(QWheelEvent* event);
-
   bool IsDraggingPlayhead() const
   {
     return dragging_playhead_;
@@ -78,7 +76,7 @@ protected:
 
   virtual void VerticalScaleChangedEvent(double scale);
 
-  bool HandleZoomFromScroll(QWheelEvent* event);
+  virtual void ZoomIntoCursorPosition(QWheelEvent *event, double multiplier, const QPointF &cursor_pos) override;
 
   rational GetPlayheadTime() const;
 

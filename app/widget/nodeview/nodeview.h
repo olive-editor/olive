@@ -90,7 +90,7 @@ protected:
   virtual void mouseMoveEvent(QMouseEvent *event) override;
   virtual void mouseReleaseEvent(QMouseEvent* event) override;
 
-  virtual void wheelEvent(QWheelEvent* event) override;
+  virtual void ZoomIntoCursorPosition(QWheelEvent *event, double multiplier, const QPointF &cursor_pos) override;
 
 private:
   void AttachNodesToCursor(const QVector<Node *> &nodes);
@@ -105,8 +105,6 @@ private:
 
   void ConnectSelectionChangedSignal();
   void DisconnectSelectionChangedSignal();
-
-  void ZoomIntoCursorPosition(double multiplier, const QPointF &cursor_pos);
 
   void ZoomFromKeyboard(double multiplier);
 

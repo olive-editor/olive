@@ -43,14 +43,6 @@ void KeyframeView::SetElementY(const NodeInput &c, int y)
     }
   }
 }
-
-void KeyframeView::wheelEvent(QWheelEvent *event)
-{
-  if (!HandleZoomFromScroll(event)) {
-    KeyframeViewBase::wheelEvent(event);
-  }
-}
-
 void KeyframeView::SceneRectUpdateEvent(QRectF &rect)
 {
   rect.setY(0);

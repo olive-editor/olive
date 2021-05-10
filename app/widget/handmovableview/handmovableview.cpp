@@ -22,12 +22,15 @@
 
 #include <QMouseEvent>
 
+#include "config/config.h"
 #include "core.h"
 
 namespace olive {
 
+#define super QGraphicsView
+
 HandMovableView::HandMovableView(QWidget* parent) :
-  QGraphicsView(parent),
+  super(parent),
   dragging_hand_(false)
 {
   connect(Core::instance(), &Core::ToolChanged, this, &HandMovableView::ApplicationToolChanged);
@@ -62,7 +65,7 @@ bool HandMovableView::HandPress(QMouseEvent *event)
                             Qt::LeftButton,
                             event->modifiers());
 
-    QGraphicsView::mousePressEvent(&transformed);
+    super::mousePressEvent(&transformed);
 
     return true;
   }
@@ -80,7 +83,7 @@ bool HandMovableView::HandMove(QMouseEvent *event)
                             Qt::LeftButton,
                             event->modifiers());
 
-    QGraphicsView::mouseMoveEvent(&transformed);
+    super::mouseMoveEvent(&transformed);
   }
   return dragging_hand_;
 }
@@ -95,7 +98,7 @@ bool HandMovableView::HandRelease(QMouseEvent *event)
                             Qt::LeftButton,
                             event->modifiers());
 
-    QGraphicsView::mouseReleaseEvent(&transformed);
+    super::mouseReleaseEvent(&transformed);
 
     setInteractive(true);
     setDragMode(pre_hand_drag_mode_);
@@ -108,15 +111,47 @@ bool HandMovableView::HandRelease(QMouseEvent *event)
   return false;
 }
 
-void HandMovableView::SetDefaultDragMode(QGraphicsView::DragMode mode)
+void HandMovableView::SetDefaultDragMode(HandMovableView::DragMode mode)
 {
   default_drag_mode_ = mode;
   setDragMode(default_drag_mode_);
 }
 
-const QGraphicsView::DragMode &HandMovableView::GetDefaultDragMode() const
+const HandMovableView::DragMode &HandMovableView::GetDefaultDragMode() const
 {
   return default_drag_mode_;
+}
+
+bool HandMovableView::WheelEventIsAZoomEvent(QWheelEvent *event)
+{
+  return (static_cast<bool>(event->modifiers() & Qt::ControlModifier) == !Config::Current()[QStringLiteral("ScrollZooms")].toBool());
+}
+
+void HandMovableView::wheelEvent(QWheelEvent *event)
+{
+  if (WheelEventIsAZoomEvent(event)) {
+    if (!event->angleDelta().isNull()) {
+      qreal multiplier = 1.0 + (static_cast<qreal>(event->angleDelta().x() + event->angleDelta().y()) * 0.001);
+
+      QPointF cursor_pos;
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+      cursor_pos = event->position();
+#else
+      cursor_pos = event->posF();
+#endif
+
+      ZoomIntoCursorPosition(event, multiplier, cursor_pos);
+    }
+  } else {
+    super::wheelEvent(event);
+  }
+}
+
+void HandMovableView::ZoomIntoCursorPosition(QWheelEvent *event, double multiplier, const QPointF &cursor_pos)
+{
+  Q_UNUSED(event)
+  Q_UNUSED(multiplier)
+  Q_UNUSED(cursor_pos)
 }
 
 }

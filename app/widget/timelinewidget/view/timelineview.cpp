@@ -36,8 +36,10 @@
 
 namespace olive {
 
+#define super TimeBasedView
+
 TimelineView::TimelineView(Qt::Alignment vertical_alignment, QWidget *parent) :
-  TimeBasedView(parent),
+  super(parent),
   selections_(nullptr),
   ghosts_(nullptr),
   show_beam_cursor_(false),
@@ -65,7 +67,7 @@ void TimelineView::mousePressEvent(QMouseEvent *event)
 
   if (dragMode() != GetDefaultDragMode()) {
     // Use default behavior when hand dragging for instance
-    TimeBasedView::mousePressEvent(event);
+    super::mousePressEvent(event);
     return;
   }
 
@@ -82,7 +84,7 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event)
   }
 
   if (dragMode() != GetDefaultDragMode()) {
-    TimeBasedView::mouseMoveEvent(event);
+    super::mouseMoveEvent(event);
     return;
   }
 
@@ -97,7 +99,7 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event)
   }
 
   if (dragMode() != GetDefaultDragMode()) {
-    TimeBasedView::mouseReleaseEvent(event);
+    super::mouseReleaseEvent(event);
     return;
   }
 
@@ -115,14 +117,14 @@ void TimelineView::mouseDoubleClickEvent(QMouseEvent *event)
 
 void TimelineView::wheelEvent(QWheelEvent *event)
 {
-  if (HandleZoomFromScroll(event)) {
-    return;
+  if (WheelEventIsAZoomEvent(event)) {
+    super::wheelEvent(event);
   } else {
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
 
     QPoint angle_delta = event->angleDelta();
 
-    if (Config::Current()["InvertTimelineScrollAxes"].toBool() // Check if config is set to invert timeline axes
+    if (Config::Current()[QStringLiteral("InvertTimelineScrollAxes")].toBool() // Check if config is set to invert timeline axes
         && event->source() != Qt::MouseEventSynthesizedBySystem) { // Never flip axes on Apple trackpads though
       angle_delta = QPoint(angle_delta.y(), angle_delta.x());
     }
@@ -164,7 +166,7 @@ void TimelineView::wheelEvent(QWheelEvent *event)
           );
 #endif
 
-    QGraphicsView::wheelEvent(&e);
+    super::wheelEvent(&e);
   }
 }
 
@@ -296,7 +298,7 @@ void TimelineView::drawForeground(QPainter *painter, const QRectF &rect)
   }
 
   // Draw standard TimelineViewBase things (such as playhead)
-  TimeBasedView::drawForeground(painter, rect);
+  super::drawForeground(painter, rect);
 }
 
 void TimelineView::ToolChangedEvent(Tool::Item tool)

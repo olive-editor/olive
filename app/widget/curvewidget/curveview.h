@@ -66,8 +66,6 @@ protected:
 
   virtual void VerticalScaleChangedEvent(double scale) override;
 
-  virtual void wheelEvent(QWheelEvent* event) override;
-
   virtual void ContextMenuEvent(Menu &m) override;
 
 private:

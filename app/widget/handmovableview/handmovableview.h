@@ -43,6 +43,12 @@ protected:
   void SetDefaultDragMode(DragMode mode);
   const DragMode& GetDefaultDragMode() const;
 
+  static bool WheelEventIsAZoomEvent(QWheelEvent* event);
+
+  virtual void wheelEvent(QWheelEvent* event) override;
+
+  virtual void ZoomIntoCursorPosition(QWheelEvent* event, double multiplier, const QPointF &cursor_pos);
+
 private:
   bool dragging_hand_;
   DragMode pre_hand_drag_mode_;
