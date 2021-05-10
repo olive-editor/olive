@@ -342,8 +342,17 @@ void NodeParamView::RemoveNode(Node *n)
   delete items_.take(n);
 
   if (focused_node_ == n) {
+    // Try to find new node with gizmos to focus
     focused_node_ = nullptr;
-    emit FocusedNodeChanged(nullptr);
+    for (auto it=items_.cbegin(); it!=items_.cend(); it++) {
+      if (it.key()->HasGizmos()) {
+        focused_node_ = it.key();
+        it.value()->SetHighlighted(true);
+        break;
+      }
+    }
+
+    emit FocusedNodeChanged(focused_node_);
   }
 }
 
