@@ -16,6 +16,7 @@ on:
     paths-ignore:
       - '.github/ISSUE_TEMPLATE/**'
       - '.github/FUNDING.yml'
+      - 'app/ts/*.ts'
       - 'docker/**'
       - 'CONTRIBUTING.md'
       - 'README.md'
