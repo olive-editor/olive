@@ -96,6 +96,7 @@ void Config::SetDefaults()
   SetEntryInternal(QStringLiteral("AutoMergeTracks"), NodeValue::kBoolean, true);
   SetEntryInternal(QStringLiteral("UseSliderLadders"), NodeValue::kBoolean, true);
 
+  SetEntryInternal(QStringLiteral("AutoCacheEnabled"), NodeValue::kBoolean, true);
   SetEntryInternal(QStringLiteral("AutoCacheDelay"), NodeValue::kInt, 1000);
 
   SetEntryInternal(QStringLiteral("CatColor0"), NodeValue::kInt, 0);

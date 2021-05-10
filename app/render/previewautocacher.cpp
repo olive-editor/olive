@@ -11,13 +11,14 @@ namespace olive {
 
 PreviewAutoCacher::PreviewAutoCacher() :
   viewer_node_(nullptr),
-  paused_(false),
   has_changed_(false),
   use_custom_range_(false),
   single_frame_render_(nullptr),
   last_update_time_(0),
   ignore_next_mouse_button_(false)
 {
+  paused_ = !Config::Current()[QStringLiteral("AutoCacheEnabled")].toBool(),
+
   SetPlayhead(0);
 
   delayed_requeue_timer_.setInterval(Config::Current()[QStringLiteral("AutoCacheDelay")].toInt());
