@@ -377,26 +377,6 @@ Block *Track::NearestBlockAfter(const rational &time) const
   return nullptr;
 }
 
-Block* BlockAtTimeBinarySearch(const QVector<Block*>& blocks, int first, int last, const rational& time)
-{
-  int middle;
-
-  if (last >= first) {
-    middle = (first + last) / 2;
-
-    Block* block = blocks.at(middle);
-    if (block->in() <= time && block->out() > time) {
-      return block;
-    } else if (block->out() < time) {
-      return BlockAtTimeBinarySearch(blocks, middle + 1, last, time);
-    } else {
-      return BlockAtTimeBinarySearch(blocks, first, middle - 1, time);
-    }
-  }
-
-  return nullptr;
-}
-
 Block *Track::BlockAtTime(const rational &time) const
 {
   if (IsMuted() || time > track_length() || blocks_.isEmpty()) {
@@ -404,7 +384,23 @@ Block *Track::BlockAtTime(const rational &time) const
   }
 
   // Use binary search to find block at time
-  Block* using_block = BlockAtTimeBinarySearch(blocks_, 0, blocks_.size(), time);
+  Block* using_block = nullptr;
+
+  int low = 0;
+  int high = blocks_.size() - 1;
+  while (low <= high) {
+    int mid = low + (high - low) / 2;
+
+    Block* block = blocks_.at(mid);
+    if (block->in() <= time && block->out() > time) {
+      using_block = block;
+      break;
+    } else if (block->out() <= time) {
+      low = mid + 1;
+    } else {
+      high = mid - 1;
+    }
+  }
 
   if (using_block && !using_block->is_enabled()) {
     using_block = nullptr;
