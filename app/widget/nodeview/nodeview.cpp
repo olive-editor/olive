@@ -824,8 +824,6 @@ void NodeView::AttachItemsToCursor(const QVector<NodeViewItem*>& items)
       attached_items_.append({i, i->pos() - items.first()->pos()});
     }
 
-    setMouseTracking(true);
-
     MoveAttachedNodesToCursor(mapFromGlobal(QCursor::pos()));
   }
 }
@@ -833,7 +831,6 @@ void NodeView::AttachItemsToCursor(const QVector<NodeViewItem*>& items)
 void NodeView::DetachItemsFromCursor()
 {
   attached_items_.clear();
-  setMouseTracking(false);
 }
 
 void NodeView::SetFlowDirection(NodeViewCommon::FlowDirection dir)
