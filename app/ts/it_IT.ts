@@ -21,17 +21,17 @@
     <message>
         <location filename="../render/audioparams.cpp" line="240"/>
         <source>2.1</source>
-        <translation>144p {2.1?}</translation>
+        <translation>2.1</translation>
     </message>
     <message>
         <location filename="../render/audioparams.cpp" line="242"/>
         <source>5.1</source>
-        <translation>144p {5.1?}</translation>
+        <translation>5.1</translation>
     </message>
     <message>
         <location filename="../render/audioparams.cpp" line="244"/>
         <source>7.1</source>
-        <translation>144p {7.1?}</translation>
+        <translation>7.1</translation>
     </message>
     <message>
         <location filename="../render/audioparams.cpp" line="246"/>
