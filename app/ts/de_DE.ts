@@ -42,12 +42,12 @@
 <context>
     <name>Config</name>
     <message>
-        <location filename="../config/config.cpp" line="202"/>
+        <location filename="../config/config.cpp" line="203"/>
         <source>Error loading settings</source>
         <translation>Fehler beim Laden der Einstellungen</translation>
     </message>
     <message>
-        <location filename="../config/config.cpp" line="203"/>
+        <location filename="../config/config.cpp" line="204"/>
         <source>Failed to load application settings. This session will use defaults.
 
 %1</source>
@@ -56,12 +56,12 @@
 %1</translation>
     </message>
     <message>
-        <location filename="../config/config.cpp" line="221"/>
+        <location filename="../config/config.cpp" line="222"/>
         <source>Error saving settings</source>
         <translation>Fehler beim Speichern der Einstellungen</translation>
     </message>
     <message>
-        <location filename="../config/config.cpp" line="222"/>
+        <location filename="../config/config.cpp" line="223"/>
         <source>Failed to save application settings. The application may lack write permissions for this location.</source>
         <translation>Fehler beim Speichern der Programm-Einstellungen. Vermutlich hat die Anwendung keinen Schreibzugriff auf dieses Verzeichnis.</translation>
     </message>
@@ -335,62 +335,62 @@
 <context>
     <name>VideoParams</name>
     <message>
-        <location filename="../render/videoparams.cpp" line="217"/>
+        <location filename="../render/videoparams.cpp" line="218"/>
         <source>8-bit</source>
         <translation>8 Bit</translation>
     </message>
     <message>
-        <location filename="../render/videoparams.cpp" line="219"/>
+        <location filename="../render/videoparams.cpp" line="220"/>
         <source>16-bit Integer</source>
         <translation>16 Bit Ganzzahl</translation>
     </message>
     <message>
-        <location filename="../render/videoparams.cpp" line="221"/>
+        <location filename="../render/videoparams.cpp" line="222"/>
         <source>Half-Float (16-bit)</source>
         <translation>Kurze Fließkommazahl (16 Bit)</translation>
     </message>
     <message>
-        <location filename="../render/videoparams.cpp" line="223"/>
+        <location filename="../render/videoparams.cpp" line="224"/>
         <source>Full-Float (32-bit)</source>
         <translation>Lange Fließkommazahl (32 Bit)</translation>
     </message>
     <message>
-        <location filename="../render/videoparams.cpp" line="229"/>
+        <location filename="../render/videoparams.cpp" line="230"/>
         <source>Unknown (0x%1)</source>
         <translation>Unbekannt (0x%1)</translation>
     </message>
     <message>
-        <location filename="../render/videoparams.cpp" line="278"/>
+        <location filename="../render/videoparams.cpp" line="279"/>
         <source>%1 FPS</source>
         <translation>%1 FPS</translation>
     </message>
     <message>
-        <location filename="../render/videoparams.cpp" line="284"/>
+        <location filename="../render/videoparams.cpp" line="285"/>
         <source>Square Pixels (%1)</source>
         <translation>Quadratische Pixel (%1)</translation>
     </message>
     <message>
-        <location filename="../render/videoparams.cpp" line="285"/>
+        <location filename="../render/videoparams.cpp" line="286"/>
         <source>NTSC Standard (%1)</source>
         <translation>NTSC Standard (%1)</translation>
     </message>
     <message>
-        <location filename="../render/videoparams.cpp" line="286"/>
+        <location filename="../render/videoparams.cpp" line="287"/>
         <source>NTSC Widescreen (%1)</source>
         <translation>NTSC Breitbild (%1)</translation>
     </message>
     <message>
-        <location filename="../render/videoparams.cpp" line="287"/>
+        <location filename="../render/videoparams.cpp" line="288"/>
         <source>PAL Standard (%1)</source>
         <translation>PAL Standard (%1)</translation>
     </message>
     <message>
-        <location filename="../render/videoparams.cpp" line="288"/>
+        <location filename="../render/videoparams.cpp" line="289"/>
         <source>PAL Widescreen (%1)</source>
         <translation>PAL Breitbild (%1)</translation>
     </message>
     <message>
-        <location filename="../render/videoparams.cpp" line="289"/>
+        <location filename="../render/videoparams.cpp" line="290"/>
         <source>HD Anamorphic 1080 (%1)</source>
         <translation>HD Anamorphotisch 1080 (%1)</translation>
     </message>
@@ -1228,18 +1228,18 @@ Die wiederherstellbaren Projektdateien sind verfügbar unter: %1</translation>
 <context>
     <name>olive::CurveView</name>
     <message>
-        <location filename="../widget/curvewidget/curveview.cpp" line="320"/>
+        <location filename="../widget/curvewidget/curveview.cpp" line="311"/>
         <source>Zoom to Fit</source>
         <translatorcomment>?</translatorcomment>
         <translation>Ansicht füllen</translation>
     </message>
     <message>
-        <location filename="../widget/curvewidget/curveview.cpp" line="323"/>
+        <location filename="../widget/curvewidget/curveview.cpp" line="314"/>
         <source>Zoom to Fit Selected</source>
         <translation>Ansicht auf Auswahl füllen</translation>
     </message>
     <message>
-        <location filename="../widget/curvewidget/curveview.cpp" line="326"/>
+        <location filename="../widget/curvewidget/curveview.cpp" line="317"/>
         <source>Reset Zoom</source>
         <translation>Ansicht zurücksetzten</translation>
     </message>
@@ -1758,7 +1758,7 @@ Die wiederherstellbaren Projektdateien sind verfügbar unter: %1</translation>
         <translation>Die Datei konnte nicht geöffnet werden</translation>
     </message>
     <message>
-        <location filename="../task/export/export.cpp" line="140"/>
+        <location filename="../task/export/export.cpp" line="135"/>
         <source>Failed to overwrite &quot;%1&quot;. Export has been saved as &quot;%2&quot; instead.</source>
         <translation>&quot;%1&quot; konnte nicht überschrieben werden. Das Ergebnis wurde stattdessen als &quot;%2&quot; gespeichert.</translation>
     </message>
@@ -1844,89 +1844,104 @@ Die wiederherstellbaren Projektdateien sind verfügbar unter: %1</translation>
 <context>
     <name>olive::FFmpegEncoder</name>
     <message>
-        <location filename="../codec/ffmpeg/ffmpegencoder.cpp" line="117"/>
+        <location filename="../codec/ffmpeg/ffmpegencoder.cpp" line="118"/>
         <source>Failed to allocate output context</source>
         <translation>Der Ausgabe-Kontext konnte nicht zugewiesen werden</translation>
     </message>
     <message>
-        <location filename="../codec/ffmpeg/ffmpegencoder.cpp" line="141"/>
+        <location filename="../codec/ffmpeg/ffmpegencoder.cpp" line="142"/>
         <source>Failed to find suitable pixel format for this buffer</source>
         <translation>Für diesen Puffer konnte kein passendes Pixel-Format gefunden werden</translation>
     </message>
     <message>
-        <location filename="../codec/ffmpeg/ffmpegencoder.cpp" line="184"/>
+        <location filename="../codec/ffmpeg/ffmpegencoder.cpp" line="186"/>
         <source>Failed to open IO context</source>
         <translation>Der IO-Kontext konnte nicht geöffnet werden</translation>
     </message>
     <message>
-        <location filename="../codec/ffmpeg/ffmpegencoder.cpp" line="191"/>
+        <location filename="../codec/ffmpeg/ffmpegencoder.cpp" line="193"/>
         <source>Failed to write format header</source>
         <translation>Die Format-Kopfzeile konnte nicht geschrieben werden</translation>
     </message>
     <message>
-        <location filename="../codec/ffmpeg/ffmpegencoder.cpp" line="227"/>
+        <location filename="../codec/ffmpeg/ffmpegencoder.cpp" line="229"/>
         <source>Failed to create AVFrame buffer</source>
         <translation>Der AVFrame-Puffer konnte nicht erstellt werden</translation>
     </message>
     <message>
-        <location filename="../codec/ffmpeg/ffmpegencoder.cpp" line="250"/>
+        <location filename="../codec/ffmpeg/ffmpegencoder.cpp" line="252"/>
         <source>Failed to scale frame</source>
         <translation>Das Bild konnte nicht skaliert werden</translation>
     </message>
     <message>
-        <location filename="../codec/ffmpeg/ffmpegencoder.cpp" line="411"/>
+        <location filename="../codec/ffmpeg/ffmpegencoder.cpp" line="331"/>
+        <source>Failed to resample audio</source>
+        <translation>Audio-Resampling fehlgeschlagen</translation>
+    </message>
+    <message>
+        <location filename="../codec/ffmpeg/ffmpegencoder.cpp" line="465"/>
         <source>%1: %2 %3</source>
         <translation>%1: %2 %3</translation>
     </message>
     <message>
-        <location filename="../codec/ffmpeg/ffmpegencoder.cpp" line="419"/>
+        <location filename="../codec/ffmpeg/ffmpegencoder.cpp" line="475"/>
         <source>Failed to send frame to encoder</source>
         <translation>Das Bild konnte nicht an den Encoder gesendet werden</translation>
     </message>
     <message>
-        <location filename="../codec/ffmpeg/ffmpegencoder.cpp" line="435"/>
+        <location filename="../codec/ffmpeg/ffmpegencoder.cpp" line="491"/>
         <source>Failed to receive packet from decoder</source>
         <translation>Das dekodierte Paket konnte nicht empfangen werden</translation>
     </message>
     <message>
-        <location filename="../codec/ffmpeg/ffmpegencoder.cpp" line="462"/>
+        <location filename="../codec/ffmpeg/ffmpegencoder.cpp" line="518"/>
         <source>Cannot initialize a stream that is not a video or audio type</source>
         <translation>Ein Stream, der weder für Audio noch für Video ist, kann nicht initialisiert werden</translation>
     </message>
     <message>
-        <location filename="../codec/ffmpeg/ffmpegencoder.cpp" line="520"/>
+        <location filename="../codec/ffmpeg/ffmpegencoder.cpp" line="576"/>
         <source>Unknown internal codec</source>
         <translation>Unbekannter interner Codec</translation>
     </message>
     <message>
-        <location filename="../codec/ffmpeg/ffmpegencoder.cpp" line="528"/>
+        <location filename="../codec/ffmpeg/ffmpegencoder.cpp" line="584"/>
         <source>Failed to find codec for %1</source>
         <translation>Der Codec für %1 konnte nicht gefunden werden</translation>
     </message>
     <message>
-        <location filename="../codec/ffmpeg/ffmpegencoder.cpp" line="533"/>
+        <location filename="../codec/ffmpeg/ffmpegencoder.cpp" line="589"/>
         <source>Retrieved unexpected codec type %1 for codec %2</source>
         <translation>Für Codec %2 ist der unerwartete Codec-Typ %1 angekommen</translation>
     </message>
     <message>
-        <location filename="../codec/ffmpeg/ffmpegencoder.cpp" line="621"/>
+        <location filename="../codec/ffmpeg/ffmpegencoder.cpp" line="675"/>
         <source>Failed to allocate AVStream</source>
         <translation>Der AVStream konnte nicht zugewiesen werden</translation>
     </message>
     <message>
-        <location filename="../codec/ffmpeg/ffmpegencoder.cpp" line="628"/>
+        <location filename="../codec/ffmpeg/ffmpegencoder.cpp" line="682"/>
         <source>Failed to allocate AVCodecContext</source>
         <translation>Der AVCodecContext konnte nicht zugewiesen werden</translation>
     </message>
     <message>
-        <location filename="../codec/ffmpeg/ffmpegencoder.cpp" line="656"/>
+        <location filename="../codec/ffmpeg/ffmpegencoder.cpp" line="710"/>
         <source>Failed to open encoder</source>
         <translation>Der Encodierer konnte nicht geöffnet werden</translation>
     </message>
     <message>
-        <location filename="../codec/ffmpeg/ffmpegencoder.cpp" line="663"/>
+        <location filename="../codec/ffmpeg/ffmpegencoder.cpp" line="717"/>
         <source>Failed to copy codec parameters to stream</source>
         <translation>Die Codec-Parameter konnten nicht in den Stream kopiert werden</translation>
+    </message>
+    <message>
+        <location filename="../codec/ffmpeg/ffmpegencoder.cpp" line="781"/>
+        <source>Failed to create resampling context</source>
+        <translation>Der Resampling-Kontext konnte nicht erstellt werden</translation>
+    </message>
+    <message>
+        <location filename="../codec/ffmpeg/ffmpegencoder.cpp" line="808"/>
+        <source>Failed to create audio frame</source>
+        <translation>Das Audio-Frame konnte nicht erstellt werden</translation>
     </message>
 </context>
 <context>
@@ -2238,6 +2253,14 @@ Die wiederherstellbaren Projektdateien sind verfügbar unter: %1</translation>
     </message>
 </context>
 <context>
+    <name>olive::HandMovableView</name>
+    <message>
+        <location filename="../widget/handmovableview/handmovableview.cpp" line="160"/>
+        <source>Scroll Zooms By Default</source>
+        <translation>Mausrad zoomt als Standard</translation>
+    </message>
+</context>
+<context>
     <name>olive::ImageSection</name>
     <message>
         <location filename="../dialog/export/codec/imagesection.cpp" line="36"/>
@@ -2326,7 +2349,7 @@ Die wiederherstellbaren Projektdateien sind verfügbar unter: %1</translation>
         <translation>Konstant</translation>
     </message>
     <message>
-        <location filename="../widget/keyframeview/keyframeviewbase.cpp" line="533"/>
+        <location filename="../widget/keyframeview/keyframeviewbase.cpp" line="539"/>
         <source>P&amp;roperties</source>
         <translation>&amp;Eigenschaften</translation>
     </message>
@@ -3359,69 +3382,69 @@ Mit diesem Treiber gibt es bekannte Stabilitäts- und Performanceprobleme. Es wi
 <context>
     <name>olive::NodeView</name>
     <message>
-        <location filename="../widget/nodeview/nodeview.cpp" line="702"/>
+        <location filename="../widget/nodeview/nodeview.cpp" line="684"/>
         <source>Label</source>
         <translation>Label</translation>
     </message>
     <message>
-        <location filename="../widget/nodeview/nodeview.cpp" line="713"/>
+        <location filename="../widget/nodeview/nodeview.cpp" line="695"/>
         <source>Auto-Position</source>
         <translation>Automatische Positionierung</translation>
     </message>
     <message>
-        <location filename="../widget/nodeview/nodeview.cpp" line="719"/>
+        <location filename="../widget/nodeview/nodeview.cpp" line="701"/>
         <source>Open in Viewer</source>
         <translation>In der Vorschau öffnen</translation>
     </message>
     <message>
-        <location filename="../widget/nodeview/nodeview.cpp" line="725"/>
+        <location filename="../widget/nodeview/nodeview.cpp" line="707"/>
         <source>Smooth Edges</source>
         <translatorcomment>was genau bedeutet &apos;smooth&apos; in diesem Kontext?</translatorcomment>
         <translation>Glatte Ränder</translation>
     </message>
     <message>
-        <location filename="../widget/nodeview/nodeview.cpp" line="732"/>
+        <location filename="../widget/nodeview/nodeview.cpp" line="718"/>
         <source>Filter</source>
         <translation>Filter</translation>
     </message>
     <message>
-        <location filename="../widget/nodeview/nodeview.cpp" line="735"/>
+        <location filename="../widget/nodeview/nodeview.cpp" line="721"/>
         <source>Show All</source>
         <translation>Alles Anzeigen</translation>
     </message>
     <message>
-        <location filename="../widget/nodeview/nodeview.cpp" line="739"/>
+        <location filename="../widget/nodeview/nodeview.cpp" line="725"/>
         <source>Show Selected Blocks Only</source>
         <translatorcomment>Blöcke? really?</translatorcomment>
         <translation>Nur ausgewählte Blöcke anzeigen</translation>
     </message>
     <message>
-        <location filename="../widget/nodeview/nodeview.cpp" line="747"/>
+        <location filename="../widget/nodeview/nodeview.cpp" line="733"/>
         <source>Direction</source>
         <translation>Richtung</translation>
     </message>
     <message>
-        <location filename="../widget/nodeview/nodeview.cpp" line="750"/>
+        <location filename="../widget/nodeview/nodeview.cpp" line="736"/>
         <source>Top to Bottom</source>
         <translation>Von Oben nach Unten</translation>
     </message>
     <message>
-        <location filename="../widget/nodeview/nodeview.cpp" line="754"/>
+        <location filename="../widget/nodeview/nodeview.cpp" line="740"/>
         <source>Bottom to Top</source>
         <translation>Von Unten nach Oben</translation>
     </message>
     <message>
-        <location filename="../widget/nodeview/nodeview.cpp" line="758"/>
+        <location filename="../widget/nodeview/nodeview.cpp" line="744"/>
         <source>Left to Right</source>
         <translation>Von Links nach Rechts</translation>
     </message>
     <message>
-        <location filename="../widget/nodeview/nodeview.cpp" line="762"/>
+        <location filename="../widget/nodeview/nodeview.cpp" line="748"/>
         <source>Right to Left</source>
         <translation>Von Rechts nach Links</translation>
     </message>
     <message>
-        <location filename="../widget/nodeview/nodeview.cpp" line="771"/>
+        <location filename="../widget/nodeview/nodeview.cpp" line="757"/>
         <source>Add</source>
         <translation>Node hinzufügen</translation>
     </message>
@@ -3665,133 +3688,131 @@ Mit diesem Treiber gibt es bekannte Stabilitäts- und Performanceprobleme. Es wi
         <translation>Ein Panel wird schon dann fokussiert, wenn der Mauszeiger sich darüber befindet, sodass es nicht extra angeclickt werden muss.</translation>
     </message>
     <message>
-        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="44"/>
         <source>Scroll wheel zooms by default instead of scrolling</source>
-        <translation>Mausrad zoomt statt zu scrollen</translation>
+        <translation type="vanished">Mausrad zoomt statt zu scrollen</translation>
     </message>
     <message>
-        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="46"/>
         <source>Holding CTRL while using Olive toggles this setting</source>
-        <translation>STRG gedrückt halten. um während der Benutzung den Modus zu wechseln</translation>
+        <translation type="vanished">STRG gedrückt halten. um während der Benutzung den Modus zu wechseln</translation>
     </message>
     <message>
-        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="48"/>
+        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="44"/>
         <source>Enable slider ladder</source>
         <translation>Schieberegler aktivieren</translation>
     </message>
     <message>
-        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="52"/>
+        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="48"/>
         <source>Audio</source>
         <translation>Audio</translation>
     </message>
     <message>
-        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="53"/>
+        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="49"/>
         <source>Enable audio scrubbing</source>
         <translatorcomment>schwer elegant zu übersetzten</translatorcomment>
         <translation>Audio beim Verschieben wiedergeben</translation>
     </message>
     <message>
-        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="57"/>
+        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="53"/>
         <source>Timeline</source>
         <translation>Zeitleiste</translation>
     </message>
     <message>
-        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="58"/>
+        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="54"/>
         <source>Auto-Seek to Imported Clips</source>
         <translation>Automatisch zu neu importierten Clips springen</translation>
     </message>
     <message>
-        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="61"/>
+        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="57"/>
         <source>Edit Tool Also Seeks</source>
         <translation>Bearbeitungs-Werkzeug spielt beim Verschieben auch ab</translation>
     </message>
     <message>
-        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="64"/>
+        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="60"/>
         <source>Edit Tool Selects Links</source>
         <translatorcomment>?</translatorcomment>
         <translation>Bearbeitungs-Werkzeug wählt Verlinkungen aus</translation>
     </message>
     <message>
-        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="67"/>
+        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="63"/>
         <source>Enable Drag Files to Timeline</source>
         <translation>Dateien auf die Zeitleiste ziehen erlauben</translation>
     </message>
     <message>
-        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="70"/>
+        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="66"/>
         <source>Invert Timeline Scroll Axes</source>
         <translatorcomment>?</translatorcomment>
         <translation>Steuerung der Bildlauf-Achsen der Zeitleiste umkehren</translation>
     </message>
     <message>
-        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="72"/>
+        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="68"/>
         <source>Hold ALT on any UI element to switch scrolling axes</source>
         <translatorcomment>?</translatorcomment>
         <translation>ALT gedrückt halten, um die Steuerung der Bildlauf-Achsen bei irgendeinem UI-Element umzukehren</translation>
     </message>
     <message>
-        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="74"/>
+        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="70"/>
         <source>Seek Also Selects</source>
         <translation>Beim Durchsuchen auch auswählen</translation>
     </message>
     <message>
-        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="77"/>
+        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="73"/>
         <source>Seek to the End of Pastes</source>
         <translation>Zum Ende von eingefügten Clips springen</translation>
     </message>
     <message>
-        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="80"/>
+        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="76"/>
         <source>Selecting Also Seeks</source>
         <translation>Beim Auswählen auch durchsuchen</translation>
     </message>
     <message>
-        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="84"/>
+        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="80"/>
         <source>Playback</source>
         <translation>Wiedergabe</translation>
     </message>
     <message>
-        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="85"/>
+        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="81"/>
         <source>Ask For Name When Setting Marker</source>
         <translation>Nach Name fragen, wenn Marker gesetzt wird</translation>
     </message>
     <message>
-        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="88"/>
+        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="84"/>
         <source>Automatically rewind at the end of a sequence</source>
         <translation>Automatisch wieder von Vorne beginnen, wenn ein Clip zu Ende ist</translation>
     </message>
     <message>
-        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="92"/>
+        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="88"/>
         <source>Project</source>
         <translation>Projekt</translation>
     </message>
     <message>
-        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="93"/>
+        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="89"/>
         <source>Drop Files on Media to Replace</source>
         <translatorcomment>kling noch eher suboptimal...</translatorcomment>
         <translation>Dateien über bestehende Medien ziehen ersetzt</translation>
     </message>
     <message>
-        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="97"/>
+        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="93"/>
         <source>Nodes</source>
         <translation>Nodes</translation>
     </message>
     <message>
-        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="98"/>
+        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="94"/>
         <source>Add Default Effects to New Clips</source>
         <translation>Standard-Effekte automatisch zu neuen Clips hinzufügen</translation>
     </message>
     <message>
-        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="101"/>
+        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="97"/>
         <source>Auto-Scale By Default</source>
         <translatorcomment>(Standardmäßig)</translatorcomment>
         <translation>Automatische Skalierung</translation>
     </message>
     <message>
-        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="104"/>
+        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="100"/>
         <source>Splitting Clips Copies Dependencies</source>
         <translation>Trennen von Clips dupliziert die verbundenen Nodes</translation>
     </message>
     <message>
-        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="106"/>
+        <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="102"/>
         <source>Multiple clips can share the same nodes. Disable this to automatically share node dependencies among clips when copying or splitting them.</source>
         <translation>Mehrere Clips können sich die selben Nodes teilen. Wenn diese Option deaktiviert werden beim Kopieren von Nodes die neuen Verbindungen automatisch zu den bestehenden Nodes gelegt.</translation>
     </message>
@@ -5036,7 +5057,7 @@ Soll es wirklich gelöscht werden?</translation>
     <name>olive::TimelineWidget</name>
     <message>
         <location filename="../widget/timelinewidget/timelinewidget.cpp" line="957"/>
-        <location filename="../widget/timelinewidget/timelinewidget.cpp" line="984"/>
+        <location filename="../widget/timelinewidget/timelinewidget.cpp" line="987"/>
         <source>Properties</source>
         <translation>Eigenschaften</translation>
     </message>
@@ -5151,22 +5172,22 @@ Soll es wirklich gelöscht werden?</translation>
         <translation>Ton deaktiviert</translation>
     </message>
     <message>
-        <location filename="../node/output/track/track.cpp" line="572"/>
+        <location filename="../node/output/track/track.cpp" line="568"/>
         <source>Video %1</source>
         <translation>Video %1</translation>
     </message>
     <message>
-        <location filename="../node/output/track/track.cpp" line="573"/>
+        <location filename="../node/output/track/track.cpp" line="569"/>
         <source>Audio %1</source>
         <translation>Audio %1</translation>
     </message>
     <message>
-        <location filename="../node/output/track/track.cpp" line="574"/>
+        <location filename="../node/output/track/track.cpp" line="570"/>
         <source>Subtitle %1</source>
         <translation>Untertitel %1</translation>
     </message>
     <message>
-        <location filename="../node/output/track/track.cpp" line="580"/>
+        <location filename="../node/output/track/track.cpp" line="576"/>
         <source>Track %1</source>
         <translation>Spur %1</translation>
     </message>
@@ -5566,105 +5587,104 @@ Soll es wirklich gelöscht werden?</translation>
 <context>
     <name>olive::ViewerWidget</name>
     <message>
-        <location filename="../widget/viewer/viewer.cpp" line="374"/>
+        <location filename="../widget/viewer/viewer.cpp" line="383"/>
         <source>Error</source>
         <translation>Fehler</translation>
     </message>
     <message>
-        <location filename="../widget/viewer/viewer.cpp" line="375"/>
+        <location filename="../widget/viewer/viewer.cpp" line="384"/>
         <source>No in or out points are set to cache.</source>
         <translation>Es gibt keine Anfangs-/Endpunkte zum Puffern.</translation>
     </message>
     <message>
-        <location filename="../widget/viewer/viewer.cpp" line="843"/>
-        <location filename="../widget/viewer/viewer.cpp" line="1037"/>
+        <location filename="../widget/viewer/viewer.cpp" line="866"/>
+        <location filename="../widget/viewer/viewer.cpp" line="1050"/>
         <source>Safe Margins</source>
         <translation>Sichere Bereiche</translation>
     </message>
     <message>
-        <location filename="../widget/viewer/viewer.cpp" line="943"/>
+        <location filename="../widget/viewer/viewer.cpp" line="966"/>
         <source>Zoom</source>
         <translation>Zoom</translation>
     </message>
     <message>
-        <location filename="../widget/viewer/viewer.cpp" line="947"/>
+        <location filename="../widget/viewer/viewer.cpp" line="970"/>
         <source>Fit</source>
         <translation>Einpassen</translation>
     </message>
     <message>
-        <location filename="../widget/viewer/viewer.cpp" line="949"/>
+        <location filename="../widget/viewer/viewer.cpp" line="972"/>
         <source>%1%</source>
         <translation>%1%</translation>
     </message>
     <message>
-        <location filename="../widget/viewer/viewer.cpp" line="957"/>
+        <location filename="../widget/viewer/viewer.cpp" line="980"/>
         <source>Full Screen</source>
         <translation>Vollbild</translation>
     </message>
     <message>
-        <location filename="../widget/viewer/viewer.cpp" line="963"/>
+        <location filename="../widget/viewer/viewer.cpp" line="986"/>
         <source>Screen %1: %2x%3</source>
         <translatorcomment>Bildschirm</translatorcomment>
         <translation>Display %1:%2x%3</translation>
     </message>
     <message>
-        <location filename="../widget/viewer/viewer.cpp" line="978"/>
+        <location filename="../widget/viewer/viewer.cpp" line="1001"/>
         <source>Deinterlace</source>
         <translation>Zeilenentflechtung</translation>
     </message>
     <message>
-        <location filename="../widget/viewer/viewer.cpp" line="989"/>
+        <location filename="../widget/viewer/viewer.cpp" line="1012"/>
         <source>Scopes</source>
         <translation>Bereiche</translation>
     </message>
     <message>
-        <location filename="../widget/viewer/viewer.cpp" line="1003"/>
+        <location filename="../widget/viewer/viewer.cpp" line="1026"/>
         <source>Cache</source>
         <translation>Puffer</translation>
     </message>
     <message>
-        <location filename="../widget/viewer/viewer.cpp" line="1007"/>
+        <location filename="../widget/viewer/viewer.cpp" line="1030"/>
         <source>Auto-Cache</source>
         <translation>Automatisches Vorladen</translation>
     </message>
     <message>
-        <location filename="../widget/viewer/viewer.cpp" line="1015"/>
         <source>Pause Auto-Cache During Playback</source>
         <translatorcomment>/dem Abspielen</translatorcomment>
-        <translation>Automatisches Puffern während der Wiedergabe pausieren</translation>
+        <translation type="vanished">Automatisches Puffern während der Wiedergabe pausieren</translation>
     </message>
     <message>
-        <location filename="../widget/viewer/viewer.cpp" line="1025"/>
+        <location filename="../widget/viewer/viewer.cpp" line="1038"/>
         <source>Cache Entire Sequence</source>
         <translation>Komplette Sequenz vorladen</translation>
     </message>
     <message>
-        <location filename="../widget/viewer/viewer.cpp" line="1029"/>
+        <location filename="../widget/viewer/viewer.cpp" line="1042"/>
         <source>Cache Sequence In/Out</source>
         <translation>Sequenz von Anfangs- bis Endpunkt vorladen</translation>
     </message>
     <message>
-        <location filename="../widget/viewer/viewer.cpp" line="1040"/>
+        <location filename="../widget/viewer/viewer.cpp" line="1053"/>
         <source>Off</source>
         <translation>Aus</translation>
     </message>
     <message>
-        <location filename="../widget/viewer/viewer.cpp" line="1045"/>
+        <location filename="../widget/viewer/viewer.cpp" line="1058"/>
         <source>On</source>
         <translation>An</translation>
     </message>
     <message>
-        <location filename="../widget/viewer/viewer.cpp" line="1050"/>
+        <location filename="../widget/viewer/viewer.cpp" line="1063"/>
         <source>Custom Aspect</source>
         <translation>Individuelle Ansicht</translation>
     </message>
     <message>
-        <location filename="../widget/viewer/viewer.cpp" line="1060"/>
+        <location filename="../widget/viewer/viewer.cpp" line="1073"/>
         <source>Show Audio Waveform</source>
         <translation>Audio-Wellenform anzeigen</translation>
     </message>
     <message>
-        <location filename="../widget/viewer/viewer.cpp" line="1068"/>
+        <location filename="../widget/viewer/viewer.cpp" line="1081"/>
         <source>Show FPS</source>
         <translation>FPS anzeigen</translation>
     </message>
