@@ -36,7 +36,7 @@
     <message>
         <location filename="../render/audioparams.cpp" line="246"/>
         <source>Unknown (0x%1)</source>
-        <translation>Sconsociuto (0x%1)</translation>
+        <translation>Sconosciuto (0x%1)</translation>
     </message>
 </context>
 <context>
@@ -110,7 +110,7 @@
     <message>
         <location filename="../node/factory.cpp" line="122"/>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Nessuno</translation>
     </message>
 </context>
 <context>
@@ -143,7 +143,7 @@
     <message>
         <location filename="../node/value.cpp" line="293"/>
         <source>Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Colore</translation>
     </message>
     <message>
         <location filename="../node/value.cpp" line="295"/>
@@ -153,12 +153,12 @@
     <message>
         <location filename="../node/value.cpp" line="297"/>
         <source>Text</source>
-        <translation type="unfinished"></translation>
+        <translation>Testo</translation>
     </message>
     <message>
         <location filename="../node/value.cpp" line="299"/>
         <source>Font</source>
-        <translation type="unfinished"></translation>
+        <translation>Font</translation>
     </message>
     <message>
         <location filename="../node/value.cpp" line="301"/>
@@ -173,7 +173,7 @@
     <message>
         <location filename="../node/value.cpp" line="305"/>
         <source>Samples</source>
-        <translation type="unfinished"></translation>
+        <translation>Esempi</translation>
     </message>
     <message>
         <location filename="../node/value.cpp" line="307"/>
@@ -203,7 +203,7 @@
     <message>
         <location filename="../node/value.cpp" line="324"/>
         <source>Unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>Sconosciuto</translation>
     </message>
 </context>
 <context>
@@ -316,12 +316,12 @@
     <message>
         <location filename="../render/videoparams.cpp" line="218"/>
         <source>8-bit</source>
-        <translation>8bit</translation>
+        <translation>8-bit</translation>
     </message>
     <message>
         <location filename="../render/videoparams.cpp" line="220"/>
         <source>16-bit Integer</source>
-        <translation>16bit intero</translation>
+        <translation>16-bit intero</translation>
     </message>
     <message>
         <location filename="../render/videoparams.cpp" line="222"/>
@@ -336,7 +336,7 @@
     <message>
         <location filename="../render/videoparams.cpp" line="230"/>
         <source>Unknown (0x%1)</source>
-        <translation>Sconsociuto (0x%1)</translation>
+        <translation>Sconosciuto (0x%1)</translation>
     </message>
     <message>
         <location filename="../render/videoparams.cpp" line="279"/>
@@ -379,37 +379,37 @@
     <message>
         <location filename="../main.cpp" line="83"/>
         <source>Show this help text</source>
-        <translation type="unfinished"></translation>
+        <translation>Visualizza questo testo della guida</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="87"/>
         <source>Show application version</source>
-        <translation type="unfinished"></translation>
+        <translation>Visualizza versione applicazione</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="91"/>
         <source>Start in full-screen mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Avvia in modo schermo pieno</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="95"/>
         <source>Export only (No GUI)</source>
-        <translation type="unfinished"></translation>
+        <translation>Esporta solo (no GUI)</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="99"/>
         <source>Override language with file</source>
-        <translation type="unfinished"></translation>
+        <translation>Sovrascrivi lingua tramite file esterno</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="101"/>
         <source>qm-file</source>
-        <translation type="unfinished"></translation>
+        <translation>file-qm</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="105"/>
         <source>Project to open on startup</source>
-        <translation type="unfinished"></translation>
+        <translation>Apri progetto ad avvio programma</translation>
     </message>
 </context>
 <context>
@@ -417,17 +417,18 @@
     <message>
         <location filename="../dialog/about/about.cpp" line="37"/>
         <source>About %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Info su %1</translation>
     </message>
     <message>
         <location filename="../dialog/about/about.cpp" line="57"/>
         <source>Olive is a free open source non-linear video editor. This software is licensed under the GNU GPL Version 3.</source>
-        <translation type="unfinished"></translation>
+        <translation>Olive è un editor video non lineare open source gratuito. 
+Questo software è concesso in licenza con GNU GPL Versione 3.</translation>
     </message>
     <message>
         <location filename="../dialog/about/about.cpp" line="71"/>
         <source>&lt;html&gt;Olive wouldn&apos;t be possible without the support of gracious donations from &lt;a href=&apos;https://www.patreon.com/olivevideoeditor&apos;&gt;Patreon&lt;/a&gt;&lt;/html&gt;:</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;Olive non sarebbe possibile senza il supporto delle donazioni di &lt;a href=&apos;https://www.patreon.com/olivevideoeditor&apos;&gt;Patreon&lt;/a&gt;&lt;/html&gt;:</translation>
     </message>
 </context>
 <context>
@@ -482,7 +483,7 @@
     <message>
         <location filename="../node/block/block.cpp" line="227"/>
         <source>Media In</source>
-        <translation>Ingresso emdia</translation>
+        <translation>Ingresso media</translation>
     </message>
     <message>
         <location filename="../node/block/block.cpp" line="228"/>
@@ -505,52 +506,52 @@
     <message>
         <location filename="../node/filter/blur/blur.cpp" line="55"/>
         <source>Blur</source>
-        <translation type="unfinished"></translation>
+        <translation>Sfuoca</translation>
     </message>
     <message>
         <location filename="../node/filter/blur/blur.cpp" line="70"/>
         <source>Blurs an image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sfuoca un&apos;immagine.</translation>
     </message>
     <message>
         <location filename="../node/filter/blur/blur.cpp" line="75"/>
         <source>Input</source>
-        <translation type="unfinished"></translation>
+        <translation>Ingresso</translation>
     </message>
     <message>
         <location filename="../node/filter/blur/blur.cpp" line="76"/>
         <source>Method</source>
-        <translation type="unfinished"></translation>
+        <translation>Metodo</translation>
     </message>
     <message>
         <location filename="../node/filter/blur/blur.cpp" line="77"/>
         <source>Box</source>
-        <translation type="unfinished"></translation>
+        <translation>Riquadro</translation>
     </message>
     <message>
         <location filename="../node/filter/blur/blur.cpp" line="77"/>
         <source>Gaussian</source>
-        <translation type="unfinished"></translation>
+        <translation>Gaussiano</translation>
     </message>
     <message>
         <location filename="../node/filter/blur/blur.cpp" line="78"/>
         <source>Radius</source>
-        <translation type="unfinished"></translation>
+        <translation>Raggio</translation>
     </message>
     <message>
         <location filename="../node/filter/blur/blur.cpp" line="79"/>
         <source>Horizontal</source>
-        <translation type="unfinished"></translation>
+        <translation>Orizzontale</translation>
     </message>
     <message>
         <location filename="../node/filter/blur/blur.cpp" line="80"/>
         <source>Vertical</source>
-        <translation type="unfinished"></translation>
+        <translation>Verticale</translation>
     </message>
     <message>
         <location filename="../node/filter/blur/blur.cpp" line="81"/>
         <source>Repeat Edge Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Ripeti pixel bordo</translation>
     </message>
 </context>
 <context>
@@ -576,82 +577,82 @@
     <message>
         <location filename="../ui/colorcoding.cpp" line="49"/>
         <source>Red</source>
-        <translation type="unfinished"></translation>
+        <translation>Rosso</translation>
     </message>
     <message>
         <location filename="../ui/colorcoding.cpp" line="51"/>
         <source>Maroon</source>
-        <translation type="unfinished"></translation>
+        <translation>Marrone</translation>
     </message>
     <message>
         <location filename="../ui/colorcoding.cpp" line="53"/>
         <source>Orange</source>
-        <translation type="unfinished"></translation>
+        <translation>Arancio</translation>
     </message>
     <message>
         <location filename="../ui/colorcoding.cpp" line="55"/>
         <source>Brown</source>
-        <translation type="unfinished"></translation>
+        <translation>Marrone</translation>
     </message>
     <message>
         <location filename="../ui/colorcoding.cpp" line="57"/>
         <source>Yellow</source>
-        <translation type="unfinished"></translation>
+        <translation>Giallo</translation>
     </message>
     <message>
         <location filename="../ui/colorcoding.cpp" line="59"/>
         <source>Olive</source>
-        <translation type="unfinished"></translation>
+        <translation>Oliva</translation>
     </message>
     <message>
         <location filename="../ui/colorcoding.cpp" line="61"/>
         <source>Lime</source>
-        <translation type="unfinished"></translation>
+        <translation>Lime</translation>
     </message>
     <message>
         <location filename="../ui/colorcoding.cpp" line="63"/>
         <source>Green</source>
-        <translation type="unfinished"></translation>
+        <translation>Verde</translation>
     </message>
     <message>
         <location filename="../ui/colorcoding.cpp" line="65"/>
         <source>Cyan</source>
-        <translation type="unfinished"></translation>
+        <translation>Ciano</translation>
     </message>
     <message>
         <location filename="../ui/colorcoding.cpp" line="67"/>
         <source>Teal</source>
-        <translation type="unfinished"></translation>
+        <translation>Teal</translation>
     </message>
     <message>
         <location filename="../ui/colorcoding.cpp" line="69"/>
         <source>Blue</source>
-        <translation type="unfinished"></translation>
+        <translation>Blu</translation>
     </message>
     <message>
         <location filename="../ui/colorcoding.cpp" line="71"/>
         <source>Navy</source>
-        <translation type="unfinished"></translation>
+        <translation>Navy</translation>
     </message>
     <message>
         <location filename="../ui/colorcoding.cpp" line="73"/>
         <source>Pink</source>
-        <translation type="unfinished"></translation>
+        <translation>Rosa</translation>
     </message>
     <message>
         <location filename="../ui/colorcoding.cpp" line="75"/>
         <source>Purple</source>
-        <translation type="unfinished"></translation>
+        <translation>Viola</translation>
     </message>
     <message>
         <location filename="../ui/colorcoding.cpp" line="77"/>
         <source>Silver</source>
-        <translation type="unfinished"></translation>
+        <translation>Argento</translation>
     </message>
     <message>
         <location filename="../ui/colorcoding.cpp" line="79"/>
         <source>Gray</source>
-        <translation type="unfinished"></translation>
+        <translation>Grigio</translation>
     </message>
 </context>
 <context>
@@ -659,7 +660,7 @@
     <message>
         <location filename="../dialog/color/colordialog.cpp" line="35"/>
         <source>Select Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Seleziona colore</translation>
     </message>
 </context>
 <context>
@@ -667,7 +668,7 @@
     <message>
         <location filename="../widget/colorlabelmenu/colorlabelmenu.cpp" line="60"/>
         <source>Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Colore</translation>
     </message>
 </context>
 <context>
@@ -748,7 +749,7 @@
     <message>
         <location filename="../widget/colorwheel/colorspacechooser.cpp" line="113"/>
         <source>(None)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">(Nessuno)</translation>
     </message>
 </context>
 <context>
@@ -756,17 +757,17 @@
     <message>
         <location filename="../widget/colorwheel/colorvalueswidget.cpp" line="167"/>
         <source>Red</source>
-        <translation type="unfinished"></translation>
+        <translation>Rosso</translation>
     </message>
     <message>
         <location filename="../widget/colorwheel/colorvalueswidget.cpp" line="174"/>
         <source>Green</source>
-        <translation type="unfinished"></translation>
+        <translation>Verde</translation>
     </message>
     <message>
         <location filename="../widget/colorwheel/colorvalueswidget.cpp" line="181"/>
         <source>Blue</source>
-        <translation type="unfinished"></translation>
+        <translation>Blu</translation>
     </message>
 </context>
 <context>
@@ -774,22 +775,22 @@
     <message>
         <location filename="../widget/colorwheel/colorvalueswidget.cpp" line="44"/>
         <source>Preview</source>
-        <translation type="unfinished"></translation>
+        <translation>Anteprima</translation>
     </message>
     <message>
         <location filename="../widget/colorwheel/colorvalueswidget.cpp" line="58"/>
         <source>Input</source>
-        <translation type="unfinished"></translation>
+        <translation>Ingresso</translation>
     </message>
     <message>
         <location filename="../widget/colorwheel/colorvalueswidget.cpp" line="64"/>
         <source>Reference</source>
-        <translation type="unfinished"></translation>
+        <translation>Riferimento</translation>
     </message>
     <message>
         <location filename="../widget/colorwheel/colorvalueswidget.cpp" line="68"/>
         <source>Display</source>
-        <translation type="unfinished"></translation>
+        <translation>Display</translation>
     </message>
 </context>
 <context>
@@ -797,7 +798,7 @@
     <message>
         <location filename="../task/conform/conform.cpp" line="32"/>
         <source>Conforming Audio %1:%2</source>
-        <translation type="unfinished"></translation>
+        <translation>Audio conforme %1 %2</translation>
     </message>
 </context>
 <context>
@@ -1121,42 +1122,42 @@ Your recoverable projects are still available at: %1</source>
     <message>
         <location filename="../node/distort/crop/cropdistortnode.cpp" line="50"/>
         <source>Texture</source>
-        <translation type="unfinished"></translation>
+        <translation>Texture</translation>
     </message>
     <message>
         <location filename="../node/distort/crop/cropdistortnode.cpp" line="51"/>
         <source>Left</source>
-        <translation type="unfinished"></translation>
+        <translation>A sinistra</translation>
     </message>
     <message>
         <location filename="../node/distort/crop/cropdistortnode.cpp" line="52"/>
         <source>Top</source>
-        <translation type="unfinished"></translation>
+        <translation>In alto</translation>
     </message>
     <message>
         <location filename="../node/distort/crop/cropdistortnode.cpp" line="53"/>
         <source>Right</source>
-        <translation type="unfinished"></translation>
+        <translation>A destra</translation>
     </message>
     <message>
         <location filename="../node/distort/crop/cropdistortnode.cpp" line="54"/>
         <source>Bottom</source>
-        <translation type="unfinished"></translation>
+        <translation>In basso</translation>
     </message>
     <message>
         <location filename="../node/distort/crop/cropdistortnode.cpp" line="55"/>
         <source>Feather</source>
-        <translation type="unfinished"></translation>
+        <translation>Piuma</translation>
     </message>
     <message>
         <location filename="../node/distort/crop/cropdistortnode.h" line="46"/>
         <source>Crop</source>
-        <translation type="unfinished"></translation>
+        <translation>Ritaglia</translation>
     </message>
     <message>
         <location filename="../node/distort/crop/cropdistortnode.h" line="61"/>
         <source>Crop the edges of an image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ritaglia i bordi di un&apos;immagine.</translation>
     </message>
 </context>
 <context>
@@ -1164,12 +1165,12 @@ Your recoverable projects are still available at: %1</source>
     <message>
         <location filename="../node/block/transition/crossdissolve/crossdissolvetransition.cpp" line="37"/>
         <source>Cross Dissolve</source>
-        <translation type="unfinished"></translation>
+        <translation>Dissolvenza incrociata</translation>
     </message>
     <message>
         <location filename="../node/block/transition/crossdissolve/crossdissolvetransition.cpp" line="52"/>
         <source>Smoothly transition between two clips.</source>
-        <translation type="unfinished"></translation>
+        <translation>Transizione fluida tra due clip.</translation>
     </message>
 </context>
 <context>
@@ -1177,7 +1178,7 @@ Your recoverable projects are still available at: %1</source>
     <message>
         <location filename="../panel/curve/curve.cpp" line="71"/>
         <source>Curve Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor curve</translation>
     </message>
 </context>
 <context>
@@ -1185,17 +1186,17 @@ Your recoverable projects are still available at: %1</source>
     <message>
         <location filename="../widget/curvewidget/curveview.cpp" line="311"/>
         <source>Zoom to Fit</source>
-        <translation type="unfinished"></translation>
+        <translation>Zoom per adattare</translation>
     </message>
     <message>
         <location filename="../widget/curvewidget/curveview.cpp" line="314"/>
         <source>Zoom to Fit Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Zoom per adattare selezionato</translation>
     </message>
     <message>
         <location filename="../widget/curvewidget/curveview.cpp" line="317"/>
         <source>Reset Zoom</source>
-        <translation type="unfinished"></translation>
+        <translation>Ripristina zoom</translation>
     </message>
 </context>
 <context>
@@ -1689,7 +1690,7 @@ Your recoverable projects are still available at: %1</source>
     <message>
         <location filename="../codec/exportformat.cpp" line="61"/>
         <source>Unknown</source>
-        <translation>Sconsociuto</translation>
+        <translation>Sconosciuto</translation>
     </message>
 </context>
 <context>
@@ -1720,7 +1721,7 @@ Your recoverable projects are still available at: %1</source>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="77"/>
         <source>Basic</source>
-        <translation type="unfinished"></translation>
+        <translation>Base</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="81"/>
@@ -1735,12 +1736,12 @@ Your recoverable projects are still available at: %1</source>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="97"/>
         <source>Maintain Aspect Ratio:</source>
-        <translation type="unfinished"></translation>
+        <translation>Mantieni rapporto:</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="105"/>
         <source>Scaling Method:</source>
-        <translation type="unfinished"></translation>
+        <translation>Metodo scala:</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="109"/>
@@ -1750,17 +1751,17 @@ Your recoverable projects are still available at: %1</source>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="110"/>
         <source>Stretch</source>
-        <translation type="unfinished"></translation>
+        <translation>Allarga</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="111"/>
         <source>Crop</source>
-        <translation type="unfinished"></translation>
+        <translation>Ritaglia</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="119"/>
         <source>Frame Rate:</source>
-        <translation type="unfinished"></translation>
+        <translation>Freq. frame:</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="127"/>
@@ -1775,12 +1776,12 @@ Your recoverable projects are still available at: %1</source>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="141"/>
         <source>Quality:</source>
-        <translation type="unfinished"></translation>
+        <translation>Qualità:</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="161"/>
         <source>Codec</source>
-        <translation type="unfinished"></translation>
+        <translation>Codec</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="165"/>
@@ -1901,12 +1902,12 @@ Your recoverable projects are still available at: %1</source>
     <message>
         <location filename="../widget/filefield/filefield.cpp" line="55"/>
         <source>Open Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Apri cartella</translation>
     </message>
     <message>
         <location filename="../widget/filefield/filefield.cpp" line="57"/>
         <source>Open File</source>
-        <translation type="unfinished"></translation>
+        <translation>Apri file</translation>
     </message>
 </context>
 <context>
@@ -1950,85 +1951,85 @@ Your recoverable projects are still available at: %1</source>
     <message>
         <location filename="../node/project/footage/footage.cpp" line="65"/>
         <source>Filename</source>
-        <translation type="unfinished"></translation>
+        <translation>Nome file</translation>
     </message>
     <message>
         <location filename="../node/project/footage/footage.cpp" line="66"/>
         <source>Loop Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Modo loop</translation>
     </message>
     <message>
         <location filename="../node/project/footage/footage.cpp" line="67"/>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Nessuno</translation>
     </message>
     <message>
         <location filename="../node/project/footage/footage.cpp" line="67"/>
         <source>Loop</source>
-        <translation type="unfinished"></translation>
+        <translation>Loop</translation>
     </message>
     <message>
         <location filename="../node/project/footage/footage.cpp" line="67"/>
         <source>Clamp</source>
-        <translation type="unfinished"></translation>
+        <translation>Morsetto</translation>
     </message>
     <message>
         <location filename="../node/project/footage/footage.cpp" line="303"/>
         <source>%1: Image - %2x%3</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: immagine - %2x%3</translation>
     </message>
     <message>
         <location filename="../node/project/footage/footage.cpp" line="307"/>
         <source>%1: Video - %2x%3</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: Video - %2x%3</translation>
     </message>
     <message numerus="yes">
         <location filename="../node/project/footage/footage.cpp" line="315"/>
         <source>%1: Audio - %n Channel(s), %2Hz</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%1: audio - %n canale, %2Hz</numerusform>
+            <numerusform>%1: audio - %n canali, %2Hz</numerusform>
         </translation>
     </message>
     <message>
         <location filename="../node/project/footage/footage.cpp" line="411"/>
         <source>Video</source>
-        <translation type="unfinished"></translation>
+        <translation>Video</translation>
     </message>
     <message>
         <location filename="../node/project/footage/footage.cpp" line="413"/>
         <source>Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Audio</translation>
     </message>
     <message>
         <location filename="../node/project/footage/footage.cpp" line="415"/>
         <source>Subtitle</source>
-        <translation type="unfinished"></translation>
+        <translation>Sottotitoli</translation>
     </message>
     <message>
         <location filename="../node/project/footage/footage.cpp" line="421"/>
         <source>Unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>Sconosciuto</translation>
     </message>
     <message>
         <location filename="../node/project/footage/footage.cpp" line="484"/>
         <source>Filename: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nome file: %1</translation>
     </message>
     <message>
         <location filename="../node/project/footage/footage.cpp" line="508"/>
         <source>Invalid</source>
-        <translation type="unfinished"></translation>
+        <translation>Non valido</translation>
     </message>
     <message>
         <location filename="../node/project/footage/footage.h" line="67"/>
         <source>Media</source>
-        <translation type="unfinished"></translation>
+        <translation>Media</translation>
     </message>
     <message>
         <location filename="../node/project/footage/footage.h" line="82"/>
         <source>Import video, audio, or still image files into the composition.</source>
-        <translation type="unfinished"></translation>
+        <translation>Importa file video, audio o immagini fisse nella composizione.</translation>
     </message>
 </context>
 <context>
@@ -2128,17 +2129,17 @@ Your recoverable projects are still available at: %1</source>
     <message>
         <location filename="../dialog/export/codec/h264section.cpp" line="152"/>
         <source>Target Bit Rate (Mbps):</source>
-        <translation type="unfinished"></translation>
+        <translation>Bitrate destinazione (Mbps):</translation>
     </message>
     <message>
         <location filename="../dialog/export/codec/h264section.cpp" line="160"/>
         <source>Maximum Bit Rate (Mbps):</source>
-        <translation type="unfinished"></translation>
+        <translation>Bitrate massimo (Mbps):</translation>
     </message>
     <message>
         <location filename="../dialog/export/codec/h264section.cpp" line="168"/>
         <source>Two-Pass</source>
-        <translation type="unfinished"></translation>
+        <translation>Due passaggi</translation>
     </message>
 </context>
 <context>
@@ -2698,9 +2699,9 @@ Your recoverable projects are still available at: %1</source>
     <message numerus="yes">
         <location filename="../window/mainwindow/mainstatusbar.cpp" line="75"/>
         <source>Running %n background task(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n attività in esecuzione in secondo piano</numerusform>
+            <numerusform>%n attività in esecuzione in secondo piano</numerusform>
         </translation>
     </message>
 </context>
@@ -2709,14 +2710,17 @@ Your recoverable projects are still available at: %1</source>
     <message>
         <location filename="../window/mainwindow/mainwindow.cpp" line="473"/>
         <source>Driver Warning</source>
-        <translation type="unfinished"></translation>
+        <translation>Avviso driver</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainwindow.cpp" line="474"/>
         <source>Olive has detected your system is using the Nouveau graphics driver.
 
 This driver is known to have stability and performance issues with Olive. It is highly recommended you install the proprietary NVIDIA driver before continuing to use Olive.</source>
-        <translation type="unfinished"></translation>
+        <translation>Olive ha rilevato che il sistema utilizza il driver grafico Nouveau.
+
+Questo driver è noto per avere problemi di stabilità e prestazioni con Olive. 
+Prima di continuare a usare Olive ti consigliamo vivamente di installare il driver NVIDIA proprietario.</translation>
     </message>
 </context>
 <context>
@@ -2749,7 +2753,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/manageddisplay/manageddisplay.cpp" line="314"/>
         <source>(None)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">(Nessuno)</translation>
     </message>
     <message>
         <location filename="../widget/manageddisplay/manageddisplay.cpp" line="342"/>
@@ -2790,7 +2794,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../node/math/math/math.cpp" line="72"/>
         <source>Method</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Metodo</translation>
     </message>
     <message>
         <location filename="../node/math/math/math.cpp" line="73"/>
@@ -3051,12 +3055,12 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../node/node.cpp" line="1761"/>
         <source>Input</source>
-        <translation type="unfinished"></translation>
+        <translation>Ingresso</translation>
     </message>
     <message>
         <location filename="../node/node.cpp" line="1763"/>
         <source>Output</source>
-        <translation type="unfinished"></translation>
+        <translation>Destinazione</translation>
     </message>
     <message>
         <location filename="../node/node.cpp" line="1765"/>
@@ -3106,7 +3110,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../node/node.cpp" line="1783"/>
         <source>Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Progetto</translation>
     </message>
     <message>
         <location filename="../node/node.cpp" line="1789"/>
@@ -3127,12 +3131,12 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/nodeparamview/nodeparamviewarraywidget.cpp" line="82"/>
         <source>+</source>
-        <translation type="unfinished"></translation>
+        <translation>+</translation>
     </message>
     <message>
         <location filename="../widget/nodeparamview/nodeparamviewarraywidget.cpp" line="84"/>
         <source>-</source>
-        <translation type="unfinished"></translation>
+        <translation>-</translation>
     </message>
 </context>
 <context>
@@ -3140,9 +3144,9 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message numerus="yes">
         <location filename="../widget/nodeparamview/nodeparamviewarraywidget.cpp" line="56"/>
         <source>%n element(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n elemento</numerusform>
+            <numerusform>%n elementi</numerusform>
         </translation>
     </message>
 </context>
@@ -3178,7 +3182,7 @@ This driver is known to have stability and performance issues with Olive. It is 
         <location filename="../widget/nodeparamview/nodeparamviewitem.cpp" line="384"/>
         <location filename="../widget/nodeparamview/nodeparamviewitem.cpp" line="387"/>
         <source>%1:</source>
-        <translation type="unfinished"></translation>
+        <translation>%1%:</translation>
     </message>
 </context>
 <context>
@@ -3352,7 +3356,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../node/audio/pan/pan.cpp" line="118"/>
         <source>Samples</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Esempi</translation>
     </message>
 </context>
 <context>
@@ -3498,7 +3502,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/tabs/preferencesaudiotab.cpp" line="81"/>
         <source>Input</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ingresso</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesaudiotab.cpp" line="93"/>
@@ -3771,7 +3775,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/tabs/preferencesgeneraltab.cpp" line="74"/>
         <source>Timeline</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Linea temporale</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesgeneraltab.cpp" line="80"/>
@@ -3821,7 +3825,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/tabs/preferencesgeneraltab.cpp" line="121"/>
         <source>Auto-Recovery</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Recupero automatico</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesgeneraltab.cpp" line="127"/>
@@ -4988,62 +4992,63 @@ Are you sure you wish to delete this footage?</source>
     <message>
         <location filename="../node/distort/transform/transformdistortnode.cpp" line="49"/>
         <source>Auto-Scale</source>
-        <translation type="unfinished"></translation>
+        <translation>Scala automatica</translation>
     </message>
     <message>
         <location filename="../node/distort/transform/transformdistortnode.cpp" line="50"/>
         <source>Texture</source>
-        <translation type="unfinished"></translation>
+        <translation>Texture</translation>
     </message>
     <message>
         <location filename="../node/distort/transform/transformdistortnode.cpp" line="51"/>
         <source>Interpolation</source>
-        <translation type="unfinished"></translation>
+        <translation>Interpolazione</translation>
     </message>
     <message>
         <location filename="../node/distort/transform/transformdistortnode.cpp" line="53"/>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Nessuna</translation>
     </message>
     <message>
         <location filename="../node/distort/transform/transformdistortnode.cpp" line="53"/>
         <source>Fit</source>
-        <translation type="unfinished"></translation>
+        <translation>Adatta</translation>
     </message>
     <message>
         <location filename="../node/distort/transform/transformdistortnode.cpp" line="53"/>
         <source>Fill</source>
-        <translation type="unfinished"></translation>
+        <translation>Riempi</translation>
     </message>
     <message>
         <location filename="../node/distort/transform/transformdistortnode.cpp" line="53"/>
         <source>Stretch</source>
-        <translation type="unfinished"></translation>
+        <translation>Allarga</translation>
     </message>
     <message>
         <location filename="../node/distort/transform/transformdistortnode.cpp" line="54"/>
         <source>Nearest Neighbor</source>
-        <translation type="unfinished"></translation>
+        <translation>Vcino più prossimo</translation>
     </message>
     <message>
         <location filename="../node/distort/transform/transformdistortnode.cpp" line="54"/>
         <source>Bilinear</source>
-        <translation type="unfinished"></translation>
+        <translation>Bilineare</translation>
     </message>
     <message>
         <location filename="../node/distort/transform/transformdistortnode.cpp" line="54"/>
         <source>Mipmapped Bilinear</source>
-        <translation type="unfinished"></translation>
+        <translation>Bilineare Mipmap</translation>
     </message>
     <message>
         <location filename="../node/distort/transform/transformdistortnode.h" line="43"/>
         <source>Transform</source>
-        <translation type="unfinished"></translation>
+        <translation>Trasforma</translation>
     </message>
     <message>
         <location filename="../node/distort/transform/transformdistortnode.h" line="63"/>
         <source>Transform an image in 2D space. Equivalent to multiplying by an orthographic matrix.</source>
-        <translation type="unfinished"></translation>
+        <translation>Trasforma un&apos;immagine nello spazio 2D. 
+Equivale a moltiplicare per una matrice ortografica.</translation>
     </message>
 </context>
 <context>
@@ -5147,12 +5152,12 @@ Are you sure you wish to delete this footage?</source>
     <message>
         <location filename="../node/input/value/valuenode.h" line="43"/>
         <source>Value</source>
-        <translation type="unfinished"></translation>
+        <translation>Valore</translation>
     </message>
     <message>
         <location filename="../node/input/value/valuenode.h" line="58"/>
         <source>Create a single value that can be connected to various other inputs.</source>
-        <translation type="unfinished"></translation>
+        <translation>Crea un unico valore che può essere collegato a vari altri ingressi.</translation>
     </message>
 </context>
 <context>
@@ -5173,112 +5178,112 @@ Are you sure you wish to delete this footage?</source>
     <message>
         <location filename="../widget/videoparamedit/videoparamedit.cpp" line="39"/>
         <source>Enabled:</source>
-        <translation type="unfinished"></translation>
+        <translation>Abilitato:</translation>
     </message>
     <message>
         <location filename="../widget/videoparamedit/videoparamedit.cpp" line="48"/>
         <source>Width:</source>
-        <translation type="unfinished"></translation>
+        <translation>Larghezza:</translation>
     </message>
     <message>
         <location filename="../widget/videoparamedit/videoparamedit.cpp" line="60"/>
         <source>Height:</source>
-        <translation type="unfinished"></translation>
+        <translation>Altezza:</translation>
     </message>
     <message>
         <location filename="../widget/videoparamedit/videoparamedit.cpp" line="72"/>
         <source>Depth:</source>
-        <translation type="unfinished"></translation>
+        <translation>Profondità:</translation>
     </message>
     <message>
         <location filename="../widget/videoparamedit/videoparamedit.cpp" line="84"/>
         <source>Format:</source>
-        <translation type="unfinished"></translation>
+        <translation>Formato:</translation>
     </message>
     <message>
         <location filename="../widget/videoparamedit/videoparamedit.cpp" line="93"/>
         <source>Frame Rate:</source>
-        <translation type="unfinished"></translation>
+        <translation>Freq. frame:</translation>
     </message>
     <message>
         <location filename="../widget/videoparamedit/videoparamedit.cpp" line="112"/>
         <source>Pixel Aspect Ratio:</source>
-        <translation type="unfinished"></translation>
+        <translation>Proporzioni pixel:</translation>
     </message>
     <message>
         <location filename="../widget/videoparamedit/videoparamedit.cpp" line="122"/>
         <source>Interlacing:</source>
-        <translation type="unfinished"></translation>
+        <translation>Interlacciamento:</translation>
     </message>
     <message>
         <location filename="../widget/videoparamedit/videoparamedit.cpp" line="132"/>
         <source>Channel Count:</source>
-        <translation type="unfinished"></translation>
+        <translation>N. canali:</translation>
     </message>
     <message>
         <location filename="../widget/videoparamedit/videoparamedit.cpp" line="136"/>
         <source>RGB</source>
-        <translation type="unfinished"></translation>
+        <translation>RGB</translation>
     </message>
     <message>
         <location filename="../widget/videoparamedit/videoparamedit.cpp" line="137"/>
         <source>RGBA</source>
-        <translation type="unfinished"></translation>
+        <translation>RGBA</translation>
     </message>
     <message>
         <location filename="../widget/videoparamedit/videoparamedit.cpp" line="144"/>
         <source>Divider:</source>
-        <translation type="unfinished"></translation>
+        <translation>Divisore:</translation>
     </message>
     <message>
         <location filename="../widget/videoparamedit/videoparamedit.cpp" line="154"/>
         <source>Stream Index:</source>
-        <translation type="unfinished"></translation>
+        <translation>Indice stream:</translation>
     </message>
     <message>
         <location filename="../widget/videoparamedit/videoparamedit.cpp" line="164"/>
         <source>Video Type:</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipo video:</translation>
     </message>
     <message>
         <location filename="../widget/videoparamedit/videoparamedit.cpp" line="167"/>
         <source>Video</source>
-        <translation type="unfinished"></translation>
+        <translation>Video</translation>
     </message>
     <message>
         <location filename="../widget/videoparamedit/videoparamedit.cpp" line="168"/>
         <source>Still</source>
-        <translation type="unfinished"></translation>
+        <translation>Immagine</translation>
     </message>
     <message>
         <location filename="../widget/videoparamedit/videoparamedit.cpp" line="169"/>
         <source>Image Sequence</source>
-        <translation type="unfinished"></translation>
+        <translation>Sequenza immagini</translation>
     </message>
     <message>
         <location filename="../widget/videoparamedit/videoparamedit.cpp" line="176"/>
         <source>Start Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Tempo iniziale</translation>
     </message>
     <message>
         <location filename="../widget/videoparamedit/videoparamedit.cpp" line="187"/>
         <source>End Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Tempo finale</translation>
     </message>
     <message>
         <location filename="../widget/videoparamedit/videoparamedit.cpp" line="198"/>
         <source>Premultiplied Alpha</source>
-        <translation type="unfinished"></translation>
+        <translation>Alfa premoltiplicato</translation>
     </message>
     <message>
         <location filename="../widget/videoparamedit/videoparamedit.cpp" line="208"/>
         <source>Colorspace</source>
-        <translation type="unfinished"></translation>
+        <translation>Spazio colore</translation>
     </message>
     <message>
         <location filename="../widget/videoparamedit/videoparamedit.cpp" line="361"/>
         <source>Default (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Predefinito (%1)</translation>
     </message>
 </context>
 <context>
@@ -5286,20 +5291,20 @@ Are you sure you wish to delete this footage?</source>
     <message numerus="yes">
         <location filename="../widget/viewer/viewerdisplay.cpp" line="193"/>
         <source>%n skipped frame(s) detected during playback</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n fotogramma ignorato rilevato durante la riproduzione</numerusform>
+            <numerusform>%n fotogrammi ignorati rilevati durante la riproduzione</numerusform>
         </translation>
     </message>
     <message>
         <location filename="../widget/viewer/viewerdisplay.cpp" line="443"/>
         <source>%1 FPS</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 FPS</translation>
     </message>
     <message>
         <location filename="../widget/viewer/viewerdisplay.cpp" line="447"/>
         <source>%1 frames skipped</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 frame ignorati</translation>
     </message>
 </context>
 <context>
@@ -5307,42 +5312,42 @@ Are you sure you wish to delete this footage?</source>
     <message>
         <location filename="../node/output/viewer/viewer.cpp" line="72"/>
         <source>Viewer</source>
-        <translation type="unfinished"></translation>
+        <translation>Visualizzatore</translation>
     </message>
     <message>
         <location filename="../node/output/viewer/viewer.cpp" line="87"/>
         <source>Interface between a Viewer panel and the node system.</source>
-        <translation type="unfinished"></translation>
+        <translation>Interfaccia tra un pannello Visualizzatore e il sistema dei nodi.</translation>
     </message>
     <message>
         <location filename="../node/output/viewer/viewer.cpp" line="129"/>
         <source>%1 FPS</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 FPS</translation>
     </message>
     <message>
         <location filename="../node/output/viewer/viewer.cpp" line="133"/>
         <source>%1 Hz</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 Hz</translation>
     </message>
     <message>
         <location filename="../node/output/viewer/viewer.cpp" line="293"/>
         <source>Video Parameters</source>
-        <translation type="unfinished"></translation>
+        <translation>Parametri video</translation>
     </message>
     <message>
         <location filename="../node/output/viewer/viewer.cpp" line="294"/>
         <source>Audio Parameters</source>
-        <translation type="unfinished"></translation>
+        <translation>Parametri audio</translation>
     </message>
     <message>
         <location filename="../node/output/viewer/viewer.cpp" line="296"/>
         <source>Texture</source>
-        <translation type="unfinished"></translation>
+        <translation>Texture</translation>
     </message>
     <message>
         <location filename="../node/output/viewer/viewer.cpp" line="297"/>
         <source>Samples</source>
-        <translation type="unfinished"></translation>
+        <translation>Esempi</translation>
     </message>
 </context>
 <context>
