@@ -605,7 +605,7 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
   controls_->ShowPauseButton();
 
   // Attempt to fill playback queue
-  if (display_widget_->isVisible()) {
+  if (display_widget_->isVisible() || !windows_.isEmpty()) {
     prequeue_length_ = DeterminePlaybackQueueSize();
 
     if (prequeue_length_ > 0) {
@@ -1243,6 +1243,12 @@ void ViewerWidget::PlaybackTimerUpdate()
   if (display_widget_->isVisible()) {
     // Updating display widget
     UpdateTextureFromNode();
+  } else if (!windows_.empty()) {
+    // We still run the queue if windows are visible even if our own display widget isn't visible
+    rational t = GetTime();
+    while (!playback_queue_.empty() && playback_queue_.front().timestamp != t) {
+      PopOldestFrameFromPlaybackQueue();
+    }
   }
 }
 

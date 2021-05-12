@@ -119,6 +119,8 @@ void ViewerWindow::UpdateFromQueue()
       queue_.pop_front();
     }
   }
+
+  display_widget_->update();
 }
 
 void ViewerWindow::UpdateMatrix()
