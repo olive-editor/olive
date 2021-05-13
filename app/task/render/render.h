@@ -80,6 +80,27 @@ protected:
     return true;
   }
 
+  void SetNativeProgressSignallingEnabled(bool e)
+  {
+    native_progress_signalling_ = e;
+  }
+
+  /**
+   * @brief Only valid after Render() is called
+   */
+  int64_t GetTotalNumberOfFrames() const
+  {
+    return total_number_of_frames_;
+  }
+
+  /**
+   * @brief Only valid after Render() is called
+   */
+  int64_t GetTotalNumberOfUniqueFrames() const
+  {
+    return total_number_of_unique_frames_;
+  }
+
 private:
   void PrepareWatcher(RenderTicketWatcher* watcher, QThread *thread);
 
@@ -98,6 +119,11 @@ private:
   int running_tickets_;
   QMutex finished_watcher_mutex_;
   QWaitCondition finished_watcher_wait_cond_;
+
+  bool native_progress_signalling_;
+
+  int64_t total_number_of_frames_;
+  int64_t total_number_of_unique_frames_;
 
 private slots:
   void TicketDone(RenderTicketWatcher *watcher);

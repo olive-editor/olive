@@ -29,7 +29,8 @@ RenderTask::RenderTask(ViewerOutput *viewer, const VideoParams &vparams, const A
   viewer_(viewer),
   video_params_(vparams),
   audio_params_(aparams),
-  running_tickets_(0)
+  running_tickets_(0),
+  native_progress_signalling_(true)
 {
 }
 
@@ -51,7 +52,6 @@ bool RenderTask::Render(ColorManager* manager,
 
   double progress_counter = 0;
   double total_length = 0;
-  double video_frame_sz = video_params().frame_rate_as_time_base().toDouble();
 
   // Store real time before any rendering takes place
   qint64 job_time = QDateTime::currentMSecsSinceEpoch();
@@ -112,7 +112,9 @@ bool RenderTask::Render(ColorManager* manager,
     }
 
     // Add to "total progress"
-    total_length += video_frame_sz * time_map.size();
+    total_number_of_frames_ = times.size();
+    total_number_of_unique_frames_ = time_map.size();
+    total_length += total_number_of_unique_frames_;
   }
 
   // Start a render of a limited amount, and then render one frame for each frame that gets
@@ -158,8 +160,10 @@ bool RenderTask::Render(ColorManager* manager,
                       watcher->Get().value<FramePtr>(),
                       watcher->property("hash").toByteArray());
 
-        progress_counter += video_frame_sz * 0.5;
-        emit ProgressChanged(progress_counter / total_length);
+        if (native_progress_signalling_) {
+          progress_counter += 0.5;
+          emit ProgressChanged(progress_counter / total_length);
+        }
 
       } else {
 
@@ -167,13 +171,15 @@ bool RenderTask::Render(ColorManager* manager,
         QByteArray rendered_hash = watcher->property("hash").toByteArray();
         FrameDownloaded(watcher->Get().value<FramePtr>(), rendered_hash, time_map.value(rendered_hash), job_time);
 
-        double progress_to_add = video_frame_sz;
-        if (TwoStepFrameRendering()) {
-          progress_to_add *= 0.5;
-        }
-        progress_counter += progress_to_add;
+        if (native_progress_signalling_) {
+          double progress_to_add = 1.0;
+          if (TwoStepFrameRendering()) {
+            progress_to_add *= 0.5;
+          }
+          progress_counter += progress_to_add;
 
-        emit ProgressChanged(progress_counter / total_length);
+          emit ProgressChanged(progress_counter / total_length);
+        }
 
         if (frame_iterator != frame_render_order.cend()) {
           StartTicket(frame_iterator->second, &watcher_thread, manager, frame_iterator->first,

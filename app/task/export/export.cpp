@@ -33,6 +33,7 @@ ExportTask::ExportTask(ViewerOutput *viewer_node,
   params_(params)
 {
   SetTitle(tr("Exporting \"%1\"").arg(viewer_node->GetLabel()));
+  SetNativeProgressSignallingEnabled(false);
 }
 
 bool ExportTask::Run()
@@ -156,7 +157,7 @@ void ExportTask::FrameDownloaded(FramePtr f, const QByteArray &hash, const QVect
     time_map_.insert(actual_time, f);
   }
 
-  forever {
+  while (!IsCancelled()) {
     rational real_time = Timecode::timestamp_to_time(frame_time_,
                                                      video_params().frame_rate_as_time_base());
 
@@ -169,6 +170,7 @@ void ExportTask::FrameDownloaded(FramePtr f, const QByteArray &hash, const QVect
     encoder_->WriteFrame(time_map_.take(real_time), real_time);
 
     frame_time_++;
+    emit ProgressChanged(double(frame_time_) / double(GetTotalNumberOfFrames()));
   }
 }
 
