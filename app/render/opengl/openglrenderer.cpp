@@ -293,22 +293,32 @@ void OpenGLRenderer::UploadToTexture(Texture *texture, const void *data, int lin
   GLuint t = texture->id().value<GLuint>();
   const VideoParams& p = texture->params();
 
+  GLenum tex_type = texture->type() == Texture::k2D ? GL_TEXTURE_2D : GL_TEXTURE_3D;
+  GLenum tex_binding = texture->type() == Texture::k2D ? GL_TEXTURE_BINDING_2D : GL_TEXTURE_BINDING_3D;
+
   // Store currently bound texture so it can be restored later
   GLint current_tex;
-  functions_->glGetIntegerv(GL_TEXTURE_BINDING_2D, &current_tex);
+  functions_->glGetIntegerv(tex_binding, &current_tex);
 
-  functions_->glBindTexture(GL_TEXTURE_2D, t);
+  functions_->glBindTexture(tex_type, t);
 
   functions_->glPixelStorei(GL_UNPACK_ROW_LENGTH, linesize);
 
-  functions_->glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
-                              p.effective_width(), p.effective_height(),
-                              GetPixelFormat(p.channel_count()), GetPixelType(p.format()),
-                              data);
+  if (texture->type() == Texture::k2D) {
+    functions_->glTexSubImage2D(tex_type, 0, 0, 0,
+                                p.effective_width(), p.effective_height(),
+                                GetPixelFormat(p.channel_count()), GetPixelType(p.format()),
+                                data);
+  } else {
+    context_->extraFunctions()->glTexSubImage3D(tex_type, 0, 0, 0, 0,
+                                                p.effective_width(), p.effective_height(), p.effective_depth(),
+                                                GetPixelFormat(p.channel_count()), GetPixelType(p.format()),
+                                                data);
+  }
 
   functions_->glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 
-  functions_->glBindTexture(GL_TEXTURE_2D, current_tex);
+  functions_->glBindTexture(tex_type, current_tex);
 }
 
 void OpenGLRenderer::DownloadFromTexture(Texture* texture, void *data, int linesize)
