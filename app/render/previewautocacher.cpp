@@ -59,7 +59,7 @@ void PreviewAutoCacher::SetPaused(bool paused)
   paused_ = paused;
 }
 
-void PreviewAutoCacher::GenerateHashes(ViewerOutput *viewer, FrameHashCache* cache, const QVector<rational> &times, qint64 job_time)
+void GenerateHashesInternal(ViewerOutput *viewer, FrameHashCache* cache, const QVector<rational> &times, qint64 job_time)
 {
   std::vector<QByteArray> existing_hashes;
 
@@ -84,6 +84,34 @@ void PreviewAutoCacher::GenerateHashes(ViewerOutput *viewer, FrameHashCache* cac
                               Q_ARG(QByteArray, hash),
                               Q_ARG(qint64, job_time),
                               Q_ARG(bool, hash_exists));
+  }
+}
+
+void PreviewAutoCacher::GenerateHashes(ViewerOutput *viewer, FrameHashCache* cache, const QVector<rational> &times, qint64 job_time)
+{
+  // Ensure number of threads doesn't exceed idealThreadCount for maximum concurrency
+  int hashes_per_thread = times.size() / qMax(1, QThread::idealThreadCount()-1);
+
+  // Somewhat arbitrary (it felt right) number used to determine when the overhead of sending this
+  // to threads will exceed the benefit of multithreading
+  static const int kMinimumHashesPerThread = 500;
+  if (hashes_per_thread < kMinimumHashesPerThread) {
+    hashes_per_thread = kMinimumHashesPerThread;
+  }
+
+  // Queue threaded tasks for each
+  if (hashes_per_thread >= times.size()) {
+    // Don't bother queuing in other thread, just run
+    GenerateHashesInternal(viewer, cache, times, job_time);
+  } else {
+    QVector<QFuture<void> > threads;
+    for (int i=0; i<times.size(); i+=hashes_per_thread) {
+      threads.append(QtConcurrent::run(GenerateHashesInternal, viewer, cache, times.mid(i, i == times.size() - 1 ? -1 : hashes_per_thread), job_time));
+    }
+
+    for (int i=0; i<threads.size(); i++) {
+      threads[i].waitForFinished();
+    }
   }
 }
 
