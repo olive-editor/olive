@@ -152,22 +152,13 @@ QVector<rational> FrameHashCache::GetFrameListFromTimeRange(TimeRangeList range_
 
   QVector<rational> times;
 
-  while (!range_list.isEmpty()) {
-    const TimeRange& range = range_list.first();
+  foreach (const TimeRange &range, range_list) {
+    rational frame = Timecode::snap_time_to_timebase(range.in(), timebase, true);
 
-    rational time = range.in();
-    rational snapped = Timecode::snap_time_to_timebase(time, timebase);
-    rational next;
-
-    if (snapped > time) {
-      next = snapped;
-      snapped -= timebase;
-    } else {
-      next = snapped + timebase;
+    while (frame < range.out()) {
+      times.append(frame);
+      frame += timebase;
     }
-
-    times.append(snapped);
-    range_list.remove(TimeRange(snapped, next));
   }
 
   return times;
