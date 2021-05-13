@@ -239,10 +239,10 @@ rational Timecode::timecode_to_time(const QString &timecode, const rational &tim
   return timestamp_to_time(timestamp, timebase);
 }
 
-rational Timecode::snap_time_to_timebase(const rational &time, const rational &timebase)
+rational Timecode::snap_time_to_timebase(const rational &time, const rational &timebase, bool floor)
 {
   // Just convert to a timestamp in timebase units and back
-  int64_t timestamp = time_to_timestamp(time, timebase);
+  int64_t timestamp = time_to_timestamp(time, timebase, floor);
 
   return timestamp_to_time(timestamp, timebase);
 }
@@ -275,14 +275,20 @@ QString Timecode::TimeToString(int64_t ms)
       .arg(ss, 2, 10, QChar('0'));
 }
 
-int64_t Timecode::time_to_timestamp(const rational &time, const rational &timebase)
+int64_t Timecode::time_to_timestamp(const rational &time, const rational &timebase, bool floor)
 {
-  return time_to_timestamp(time.toDouble(), timebase);
+  return time_to_timestamp(time.toDouble(), timebase, floor);
 }
 
-int64_t Timecode::time_to_timestamp(const double &time, const rational &timebase)
+int64_t Timecode::time_to_timestamp(const double &time, const rational &timebase, bool floor)
 {
-  return qRound64(time * timebase.flipped().toDouble());
+  double d = time * timebase.flipped().toDouble();
+
+  if (floor) {
+    return qFloor(d);
+  } else {
+    return qRound64(d);
+  }
 }
 
 int64_t Timecode::rescale_timestamp(const int64_t &ts, const rational &source, const rational &dest)
