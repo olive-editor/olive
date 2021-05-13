@@ -694,6 +694,7 @@ FFmpegFramePool::ElementPtr FFmpegDecoder::RetrieveFrame(const rational& time, c
   while (true) {
 
     // Pull from the decoder
+    av_frame_unref(working_frame);
     ret = GetFilteredFrame(pkt, working_frame, params);
 
     // Handle any errors that aren't EOF (EOF is handled later on)
