@@ -140,7 +140,7 @@ QWidget* ExportVideoTab::SetupResolutionSection()
 
   layout->addWidget(new QLabel(tr("Quality:")), row, 0);
 
-  pixel_format_field_ = new PixelFormatComboBox(true);
+  pixel_format_field_ = new PixelFormatComboBox(false);
   layout->addWidget(pixel_format_field_, row, 1);
 
   return resolution_group;
