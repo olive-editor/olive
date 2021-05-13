@@ -23,6 +23,7 @@
 
 #include <memory>
 #include <QDateTime>
+#include <QDebug>
 #include <QObject>
 
 #include "common/cancelableobject.h"
@@ -93,7 +94,12 @@ public slots:
   {
     start_time_ = QDateTime::currentMSecsSinceEpoch();
 
-    return Run();
+    bool ret = Run();
+
+    // Print how long this task took for debugging purposes
+    qDebug() << this << "took" << (QDateTime::currentMSecsSinceEpoch() - start_time_);
+
+    return ret;
   }
 
   /**
