@@ -27,6 +27,7 @@
 #include <QOpenGLShader>
 #include <QOpenGLVertexArrayObject>
 #include <QThread>
+#include <QTimer>
 
 #include "render/renderer.h"
 
@@ -86,6 +87,10 @@ private:
 
   void PrepareInputTexture(GLenum target, Texture::Interpolation interp);
 
+  GLuint GetCachedTexture(int width, int height, int depth, VideoParams::Format format, int channel_count);
+
+  QTimer cache_timer_;
+
   QOpenGLContext* context_;
 
   QOpenGLFunctions* functions_;
@@ -93,6 +98,35 @@ private:
   QOffscreenSurface surface_;
 
   GLuint framebuffer_;
+
+  struct TextureCacheKey {
+    int width;
+    int height;
+    int depth;
+    VideoParams::Format format;
+    int channel_count;
+
+    bool operator==(const TextureCacheKey &rhs) const
+    {
+      return width == rhs.width && height == rhs.height && depth == rhs.depth
+          && format == rhs.format && channel_count == rhs.channel_count;
+    }
+  };
+
+  struct TextureCacheEntry {
+    TextureCacheKey key;
+    GLuint texture;
+    qint64 age;
+  };
+
+  QVector<TextureCacheEntry> texture_cache_;
+
+  QMap<GLuint, TextureCacheKey> texture_params_;
+
+  static const int kTextureCacheMaxSize;
+
+private slots:
+  void GarbageCollectTextureCache();
 
 };
 
