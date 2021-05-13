@@ -160,6 +160,7 @@ bool VideoParams::operator==(const VideoParams &rhs) const
 {
   return width() == rhs.width()
       && height() == rhs.height()
+      && depth() == rhs.depth()
       && time_base() == rhs.time_base()
       && format() == rhs.format()
       && pixel_aspect_ratio() == rhs.pixel_aspect_ratio()
