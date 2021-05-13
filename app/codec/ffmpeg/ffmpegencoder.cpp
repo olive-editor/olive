@@ -298,10 +298,10 @@ bool FFmpegEncoder::WriteAudio(SampleBufferPtr audio)
   int converted = swr_convert(audio_resample_ctx_, output_data, output_sample_count, const_cast<const uint8_t**>(input_data), input_sample_count);
   if (converted > 0) {
     // Split sample buffer into frames
-    for (int i=0; i<output_sample_count; i+=audio_frame_->nb_samples) {
+    for (int i=0; i<converted; ) {
       int copy_offset = audio_frame_offset_;
       int frame_remaining_samples = audio_frame_->nb_samples - copy_offset;
-      int converted_remaining_samples = output_sample_count - i;
+      int converted_remaining_samples = converted - i;
 
       int copy_length = qMin(frame_remaining_samples, converted_remaining_samples);
 
@@ -316,20 +316,22 @@ bool FFmpegEncoder::WriteAudio(SampleBufferPtr audio)
         // Got all the samples we needed, write the frame
         audio_frame_->pts = audio_write_count_;
 
-        if (!input_data) {
-          // Assume flushing and make this frame's samples = the amount copied
-          audio_frame_->nb_samples = copy_offset + copy_length;
-          qDebug() << "Writing" << audio_frame_->nb_samples << "flushed samples";
-        }
-
         WriteAVFrame(audio_frame_, audio_codec_ctx_, audio_stream_);
         audio_write_count_ += audio_frame_->nb_samples;
         audio_frame_offset_ = 0;
       }
+
+      i += copy_length;
     }
   } else if (converted < 0) {
     FFmpegError(tr("Failed to resample audio"), converted);
     result = false;
+  }
+
+  if (!input_data && audio_frame_offset_ > 0) {
+    audio_frame_->nb_samples = audio_frame_offset_;
+    audio_frame_->pts = audio_write_count_;
+    WriteAVFrame(audio_frame_, audio_codec_ctx_, audio_stream_);
   }
 
   // Free buffers created
