@@ -220,7 +220,7 @@ void NodeParamViewWidgetBridge::SetInputValueInternal(const QVariant &value, int
         if (i == track) {
           track_value = value;
         } else {
-          track_value = input_.node()->GetValueAtTime(input_.input(), node_time, input_.element());
+          track_value = input_.node()->GetSplitValueAtTimeOnTrack(input_.input(), node_time, i, input_.element());
         }
 
         NodeKeyframe* new_key = new NodeKeyframe(node_time,
