@@ -105,8 +105,8 @@ public:
    *
    * This function is thread-safe.
    */
-  RenderTicketPtr RenderAudio(ViewerOutput* viewer, const TimeRange& r, const AudioParams& params, bool generate_waveforms, bool prioritize = false);
-  RenderTicketPtr RenderAudio(ViewerOutput *viewer, const TimeRange& r, bool generate_waveforms, bool prioritize = false);
+  RenderTicketPtr RenderAudio(ViewerOutput* viewer, const TimeRange& r, const AudioParams& params, RenderMode::Mode mode, bool generate_waveforms, bool prioritize = false);
+  RenderTicketPtr RenderAudio(ViewerOutput *viewer, const TimeRange& r, RenderMode::Mode mode, bool generate_waveforms, bool prioritize = false);
 
   RenderTicketPtr SaveFrameToCache(FrameHashCache* cache, FramePtr frame, const QByteArray& hash, bool prioritize = false);
 

@@ -35,6 +35,7 @@
 
 #include "audio/audiomanager.h"
 #include "cli/clitask/clitaskdialog.h"
+#include "codec/conformmanager.h"
 #include "common/filefunctions.h"
 #include "common/xmlutils.h"
 #include "config/config.h"
@@ -144,6 +145,9 @@ void Core::Start()
   // Initialize FrameManager
   FrameManager::CreateInstance();
 
+  // Initialize ConformManager
+  ConformManager::CreateInstance();
+
   //
   // Start application
   //
@@ -187,6 +191,8 @@ void Core::Stop()
       recent_projects_file.close();
     }
   }
+
+  ConformManager::DestroyInstance();
 
   FrameManager::DestroyInstance();
 

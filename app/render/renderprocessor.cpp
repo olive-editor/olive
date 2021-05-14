@@ -443,13 +443,15 @@ QVariant RenderProcessor::ProcessAudioFootage(const FootageJob &stream, const Ti
   if (decoder) {
     const AudioParams& audio_params = ticket_->property("aparam").value<AudioParams>();
 
-    SampleBufferPtr frame = decoder->RetrieveAudio(input_time, audio_params,
-                                                   stream.cache_path(),
-                                                   stream.loop_mode(),
-                                                   &IsCancelled());
+    Decoder::RetrieveAudioData status = decoder->RetrieveAudio(input_time, audio_params,
+                                                               stream.cache_path(),
+                                                               stream.loop_mode(),
+                                                               static_cast<RenderMode::Mode>(ticket_->property("mode").toInt()));
 
-    if (frame) {
-      value = QVariant::fromValue(frame);
+    if (status.status == Decoder::kOK && status.samples) {
+      value = QVariant::fromValue(status.samples);
+    } else if (status.status == Decoder::kWaitingForConform) {
+      ticket_->setProperty("incomplete", true);
     }
   }
 

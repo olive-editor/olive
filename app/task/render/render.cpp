@@ -71,7 +71,7 @@ bool RenderTask::Render(ColorManager* manager,
       watcher->setProperty("range", QVariant::fromValue(this_range));
       PrepareWatcher(watcher, &watcher_thread);
       IncrementRunningTickets();
-      watcher->SetTicket(RenderManager::instance()->RenderAudio(viewer_, this_range, audio_params_, false));
+      watcher->SetTicket(RenderManager::instance()->RenderAudio(viewer_, this_range, audio_params_, mode, false));
 
       r = end;
     }

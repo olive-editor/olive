@@ -181,12 +181,12 @@ RenderTicketPtr RenderManager::RenderFrame(ViewerOutput *viewer, ColorManager* c
   return ticket;
 }
 
-RenderTicketPtr RenderManager::RenderAudio(ViewerOutput* viewer, const TimeRange& r, bool generate_waveforms, bool prioritize)
+RenderTicketPtr RenderManager::RenderAudio(ViewerOutput* viewer, const TimeRange& r, RenderMode::Mode mode, bool generate_waveforms, bool prioritize)
 {
-  return RenderAudio(viewer, r, viewer->GetAudioParams(), generate_waveforms, prioritize);
+  return RenderAudio(viewer, r, viewer->GetAudioParams(), mode, generate_waveforms, prioritize);
 }
 
-RenderTicketPtr RenderManager::RenderAudio(ViewerOutput* viewer, const TimeRange &r, const AudioParams &params, bool generate_waveforms, bool prioritize)
+RenderTicketPtr RenderManager::RenderAudio(ViewerOutput* viewer, const TimeRange &r, const AudioParams &params, RenderMode::Mode mode, bool generate_waveforms, bool prioritize)
 {
   // Create ticket
   RenderTicketPtr ticket = std::make_shared<RenderTicket>();
@@ -194,6 +194,7 @@ RenderTicketPtr RenderManager::RenderAudio(ViewerOutput* viewer, const TimeRange
   ticket->setProperty("viewer", Node::PtrToValue(viewer));
   ticket->setProperty("time", QVariant::fromValue(r));
   ticket->setProperty("type", kTypeAudio);
+  ticket->setProperty("mode", mode);
   ticket->setProperty("enablewaveforms", generate_waveforms);
   ticket->setProperty("aparam", QVariant::fromValue(params));
 

@@ -3,6 +3,7 @@
 #include <QApplication>
 #include <QtConcurrent/QtConcurrent>
 
+#include "codec/conformmanager.h"
 #include "node/project/project.h"
 #include "render/rendermanager.h"
 #include "render/renderprocessor.h"
@@ -15,7 +16,8 @@ PreviewAutoCacher::PreviewAutoCacher() :
   use_custom_range_(false),
   single_frame_render_(nullptr),
   last_update_time_(0),
-  ignore_next_mouse_button_(false)
+  ignore_next_mouse_button_(false),
+  last_conform_task_(0)
 {
   paused_ = !Config::Current()[QStringLiteral("AutoCacheEnabled")].toBool(),
 
@@ -24,6 +26,8 @@ PreviewAutoCacher::PreviewAutoCacher() :
   delayed_requeue_timer_.setInterval(Config::Current()[QStringLiteral("AutoCacheDelay")].toInt());
   delayed_requeue_timer_.setSingleShot(true);
   connect(&delayed_requeue_timer_, &QTimer::timeout, this, &PreviewAutoCacher::RequeueFrames);
+
+  connect(ConformManager::instance(), &ConformManager::ConformReady, this, &PreviewAutoCacher::ConformFinished);
 }
 
 PreviewAutoCacher::~PreviewAutoCacher()
@@ -131,7 +135,7 @@ void PreviewAutoCacher::VideoInvalidated(const TimeRange &range)
 
 void PreviewAutoCacher::AudioInvalidated(const TimeRange &range)
 {
-  ClearAudioQueue();
+//  ClearAudioQueue();
 
   // Start jobs to re-render the audio at this range, split into 2 second chunks
   invalidated_audio_.insert(range);
@@ -165,35 +169,52 @@ void PreviewAutoCacher::AudioRendered()
 
   if (audio_tasks_.contains(watcher)) {
     if (watcher->HasResult()) {
-      viewer_node_->audio_playback_cache()->WritePCM(audio_tasks_.value(watcher),
+      const TimeRange &range = audio_tasks_.value(watcher);
+
+      viewer_node_->audio_playback_cache()->WritePCM(range,
                                                      watcher->Get().value<SampleBufferPtr>(),
                                                      watcher->GetTicket()->GetJobTime());
 
-      // Retrieve visual waveforms
-      QVector<RenderProcessor::RenderedWaveform> waveform_list = watcher->GetTicket()->property("waveforms").value< QVector<RenderProcessor::RenderedWaveform> >();
-      foreach (const RenderProcessor::RenderedWaveform& waveform_info, waveform_list) {
-        // Find original track
-        Track* track = nullptr;
+      bool pcm_is_usable = true;
 
-        for (auto it=copy_map_.cbegin(); it!=copy_map_.cend(); it++) {
-          if (it.value() == waveform_info.track) {
-            track = static_cast<Track*>(it.key());
-            break;
-          }
+      if (watcher->GetTicket()->property("incomplete").toBool()) {
+        if (last_conform_task_ > watcher->GetTicket()->GetJobTime()) {
+          // Requeue now
+          viewer_node_->audio_playback_cache()->Invalidate(range, QDateTime::currentMSecsSinceEpoch());
+          pcm_is_usable = false;
+        } else {
+          // Wait for conform
+          audio_needing_conform_.insert(range);
         }
+      }
 
-        if (track) {
-          QList<TimeRange> valid_ranges = viewer_node_->audio_playback_cache()->GetValidRanges(waveform_info.range,
-                                                                                               watcher->GetTicket()->GetJobTime());
-          if (!valid_ranges.isEmpty()) {
-            // Generate visual waveform in this background thread
-            track->waveform().set_channel_count(viewer_node_->GetAudioParams().channel_count());
+      if (pcm_is_usable) {
+        // Retrieve visual waveforms
+        QVector<RenderProcessor::RenderedWaveform> waveform_list = watcher->GetTicket()->property("waveforms").value< QVector<RenderProcessor::RenderedWaveform> >();
+        foreach (const RenderProcessor::RenderedWaveform& waveform_info, waveform_list) {
+          // Find original track
+          Track* track = nullptr;
 
-            foreach (const TimeRange& r, valid_ranges) {
-              track->waveform().OverwriteSums(waveform_info.waveform, r.in(), r.in() - waveform_info.range.in(), r.length());
+          for (auto it=copy_map_.cbegin(); it!=copy_map_.cend(); it++) {
+            if (it.value() == waveform_info.track) {
+              track = static_cast<Track*>(it.key());
+              break;
             }
+          }
 
-            emit track->PreviewChanged();
+          if (track) {
+            QList<TimeRange> valid_ranges = viewer_node_->audio_playback_cache()->GetValidRanges(waveform_info.range,
+                                                                                                 watcher->GetTicket()->GetJobTime());
+            if (!valid_ranges.isEmpty()) {
+              // Generate visual waveform in this background thread
+              track->waveform().set_channel_count(viewer_node_->GetAudioParams().channel_count());
+
+              foreach (const TimeRange& r, valid_ranges) {
+                track->waveform().OverwriteSums(waveform_info.waveform, r.in(), r.in() - waveform_info.range.in(), r.length());
+              }
+
+              emit track->PreviewChanged();
+            }
           }
         }
       }
@@ -491,7 +512,7 @@ void PreviewAutoCacher::TryRender()
         RenderTicketWatcher* watcher = new RenderTicketWatcher();
         connect(watcher, &RenderTicketWatcher::Finished, this, &PreviewAutoCacher::AudioRendered);
         audio_tasks_.insert(watcher, r);
-        watcher->SetTicket(RenderManager::instance()->RenderAudio(copied_viewer_node_, r, true));
+        watcher->SetTicket(RenderManager::instance()->RenderAudio(copied_viewer_node_, r, RenderMode::kOffline, true));
       }
     }
 
@@ -581,6 +602,18 @@ void PreviewAutoCacher::RequeueFrames()
   }
 }
 
+void PreviewAutoCacher::ConformFinished()
+{
+  last_conform_task_ = QDateTime::currentMSecsSinceEpoch();
+
+  if (viewer_node_) {
+    foreach (const TimeRange &range, audio_needing_conform_) {
+      viewer_node_->audio_playback_cache()->Invalidate(range, QDateTime::currentMSecsSinceEpoch());
+    }
+    audio_needing_conform_.clear();
+  }
+}
+
 void PreviewAutoCacher::IgnoreNextMouseButton()
 {
   ignore_next_mouse_button_ = true;
@@ -623,6 +656,9 @@ void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
 
     // No more immediate passthroughts
     video_immediate_passthroughs_.clear();
+
+    // No more audio conforms
+    audio_needing_conform_.clear();
 
     // Delete all of our copied nodes
     qDeleteAll(created_nodes_);

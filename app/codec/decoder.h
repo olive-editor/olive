@@ -37,6 +37,7 @@ extern "C" {
 #include "common/rational.h"
 #include "node/project/footage/footage.h"
 #include "node/project/footage/footagedescription.h"
+#include "task/task.h"
 
 namespace olive {
 
@@ -184,6 +185,18 @@ public:
    */
   FramePtr RetrieveVideo(const rational& timecode, const RetrieveVideoParams& divider);
 
+  enum RetrieveAudioStatus {
+    kInvalid = -1,
+    kOK,
+    kWaitingForConform
+  };
+
+  struct RetrieveAudioData {
+    RetrieveAudioStatus status;
+    SampleBufferPtr samples;
+    Task *task;
+  };
+
   /**
    * @brief Retrieve audio data from footage
    *
@@ -192,7 +205,7 @@ public:
    *
    * This function is thread safe and can only run while the decoder is open. \see Open()
    */
-  SampleBufferPtr RetrieveAudio(const TimeRange& range, const AudioParams& params, const QString &cache_path, Footage::LoopMode loop_mode, const QAtomicInt *cancelled);
+  RetrieveAudioData RetrieveAudio(const TimeRange& range, const AudioParams& params, const QString &cache_path, Footage::LoopMode loop_mode, RenderMode::Mode mode);
 
   /**
    * @brief Determine the last time this decoder instance was used in any way
@@ -218,6 +231,11 @@ public:
    * This function is thread safe and can only run while the decoder is open. \see Open()
    */
   void Close();
+
+  /**
+   * @brief Conform audio stream
+   */
+  bool ConformAudio(const QString &output_filename, const AudioParams &params, const QAtomicInt *cancelled = nullptr);
 
   /**
    * @brief Create a Decoder instance using a Decoder ID
@@ -272,21 +290,6 @@ protected:
   void SignalProcessingProgress(int64_t ts, int64_t duration);
 
   /**
-   * @brief Get the destination filename of an audio stream conformed to a set of parameters
-   */
-  QString GetConformedFilename(const QString &cache_path, const AudioParams &params);
-
-  struct CurrentlyConforming {
-    CodecStream stream;
-    AudioParams params;
-
-    bool operator==(const CurrentlyConforming& rhs) const
-    {
-      return this->stream == rhs.stream && this->params == rhs.params;
-    }
-  };
-
-  /**
    * @brief Return currently open stream
    *
    * This function is NOT thread safe and should therefore only be called by thread safe functions.
@@ -297,10 +300,6 @@ protected:
   }
 
   static int64_t GetTimeInTimebaseUnits(const rational& time, const rational& timebase, int64_t start_time);
-
-  static QMutex currently_conforming_mutex_;
-  static QWaitCondition currently_conforming_wait_cond_;
-  static QVector<CurrentlyConforming> currently_conforming_;
 
 signals:
   /**

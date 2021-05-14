@@ -99,6 +99,8 @@ public slots:
     // Print how long this task took for debugging purposes
     qDebug() << this << "took" << (QDateTime::currentMSecsSinceEpoch() - start_time_);
 
+    emit Finished(this, ret);
+
     return ret;
   }
 
@@ -158,6 +160,13 @@ signals:
    * A progress value between 0.0 and 1.0.
    */
   void ProgressChanged(double d);
+
+  /**
+   * @brief Emitted when task is finished
+   *
+   * Do NOT delete immediately after this signal, call deleteLater() instead.
+   */
+  void Finished(Task *task, bool succeeded);
 
 private:
   QString title_;

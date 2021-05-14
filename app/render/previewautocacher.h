@@ -167,6 +167,10 @@ private:
 
   QTimer delayed_requeue_timer_;
 
+  TimeRangeList audio_needing_conform_;
+
+  qint64 last_conform_task_;
+
 private slots:
   /**
    * @brief Handler for when the NodeGraph reports a video change over a certain time range
@@ -212,6 +216,8 @@ private slots:
    * @brief Generic function called whenever the frames to render need to be (re)queued
    */
   void RequeueFrames();
+
+  void ConformFinished();
 
 };
 

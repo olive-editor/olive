@@ -30,17 +30,11 @@
 #include "common/ffmpegutils.h"
 #include "common/filefunctions.h"
 #include "common/timecodefunctions.h"
+#include "conformmanager.h"
 #include "node/project/project.h"
-#ifdef USE_OTIO
-#include "task/project/loadotio/loadotio.h"
-#endif
 #include "task/taskmanager.h"
 
 namespace olive {
-
-QMutex Decoder::currently_conforming_mutex_;
-QWaitCondition Decoder::currently_conforming_wait_cond_;
-QVector<Decoder::CurrentlyConforming> Decoder::currently_conforming_;
 
 const rational Decoder::kAnyTimecode = RATIONAL_MIN;
 
@@ -112,7 +106,7 @@ FramePtr Decoder::RetrieveVideo(const rational &timecode, const RetrieveVideoPar
   return RetrieveVideoInternal(timecode, divider);
 }
 
-SampleBufferPtr Decoder::RetrieveAudio(const TimeRange &range, const AudioParams &params, const QString& cache_path, Footage::LoopMode loop_mode, const QAtomicInt *cancelled)
+Decoder::RetrieveAudioData Decoder::RetrieveAudio(const TimeRange &range, const AudioParams &params, const QString& cache_path, Footage::LoopMode loop_mode, RenderMode::Mode mode)
 {
   QMutexLocker locker(&mutex_);
 
@@ -120,58 +114,24 @@ SampleBufferPtr Decoder::RetrieveAudio(const TimeRange &range, const AudioParams
 
   if (!stream_.IsValid()) {
     qCritical() << "Can't retrieve audio on a closed decoder";
-    return nullptr;
+    return {kInvalid, nullptr, nullptr};
   }
 
   if (!SupportsAudio()) {
     qCritical() << "Decoder doesn't support audio";
-    return nullptr;
+    return {kInvalid, nullptr, nullptr};
   }
 
-  // Determine if we already have a conformed version
-  QString conform_filename = GetConformedFilename(cache_path, params);
-  CurrentlyConforming want_conform = {stream_, params};
-
-  currently_conforming_mutex_.lock();
-
-  // Wait for conform to complete
-  while (currently_conforming_.contains(want_conform)) {
-    currently_conforming_wait_cond_.wait(&currently_conforming_mutex_);
+  // Get conform state from ConformManager
+  ConformManager::Conform conform = ConformManager::instance()->GetConformState(id(), cache_path, stream_, params, (mode == RenderMode::kOnline));
+  if (conform.state == ConformManager::kConformGenerating) {
+    return {kWaitingForConform, nullptr, conform.task};
   }
 
   // See if we got the conform
-  SampleBufferPtr buffer = RetrieveAudioFromConform(conform_filename, range, loop_mode);
+  SampleBufferPtr out_buffer = RetrieveAudioFromConform(conform.filename, range, loop_mode);
 
-  if (!buffer) {
-    // We'll need to conform this ourselves
-    currently_conforming_.append(want_conform);
-    currently_conforming_mutex_.unlock();
-
-    // We conform to a different filename until it's done to make it clear even across sessions
-    // whether this conform is ready or not
-    QString working_fn = conform_filename;
-    working_fn.append(QStringLiteral(".working"));
-
-    if (ConformAudioInternal(working_fn, params, cancelled)) {
-      // Move file to standard conform name, making it clear this conform is ready for use
-      QFile::remove(conform_filename);
-      QFile::rename(working_fn, conform_filename);
-
-      // Return audio as planned
-      buffer = RetrieveAudioFromConform(conform_filename, range, loop_mode);
-    } else {
-      // Failed
-      qCritical() << "Failed to conform audio";
-    }
-
-    currently_conforming_mutex_.lock();
-    currently_conforming_.removeOne(want_conform);
-    currently_conforming_wait_cond_.wakeAll();
-  }
-
-  currently_conforming_mutex_.unlock();
-
-  return buffer;
+  return {kOK, out_buffer, nullptr};
 }
 
 qint64 Decoder::GetLastAccessedTime()
@@ -192,6 +152,11 @@ void Decoder::Close()
   } else {
     qWarning() << "Tried to close a decoder that wasn't open";
   }
+}
+
+bool Decoder::ConformAudio(const QString &output_filename, const AudioParams &params, const QAtomicInt *cancelled)
+{
+  return ConformAudioInternal(output_filename, params, cancelled);
 }
 
 /*
@@ -226,23 +191,6 @@ DecoderPtr Decoder::CreateFromID(const QString &id)
   }
 
   return nullptr;
-}
-
-QString Decoder::GetConformedFilename(const QString& cache_path, const AudioParams &params)
-{
-  QString index_fn = QStringLiteral("%1.%2:%3").arg(FileFunctions::GetUniqueFileIdentifier(stream_.filename()),
-                                                    QString::number(stream_.stream()));
-
-  index_fn = QDir(cache_path).filePath(index_fn);
-
-  index_fn.append('.');
-  index_fn.append(QString::number(params.sample_rate()));
-  index_fn.append('.');
-  index_fn.append(QString::number(params.format()));
-  index_fn.append('.');
-  index_fn.append(QString::number(params.channel_layout()));
-
-  return index_fn;
 }
 
 int64_t Decoder::GetTimeInTimebaseUnits(const rational &time, const rational &timebase, int64_t start_time)
