@@ -385,7 +385,7 @@ void MainWindow::ProjectClose(Project *p)
 
   // Close project from NodeView
   if (node_panel_->GetGraph() == p) {
-    node_panel_->SetGraph(nullptr);
+    node_panel_->ClearGraph();
   }
 }
 
@@ -539,8 +539,6 @@ TimelinePanel* MainWindow::AppendTimelinePanel()
   connect(panel, &TimelinePanel::TimeChanged, param_panel_, &ParamPanel::SetTimestamp);
   connect(panel, &TimelinePanel::TimeChanged, table_panel_, &NodeTablePanel::SetTimestamp);
   connect(panel, &TimelinePanel::TimeChanged, sequence_viewer_panel_, &SequenceViewerPanel::SetTimestamp);
-  connect(panel, &TimelinePanel::BlocksSelected, node_panel_, &NodePanel::SelectBlocks);
-  connect(panel, &TimelinePanel::BlocksDeselected, node_panel_, &NodePanel::DeselectBlocks);
   connect(param_panel_, &ParamPanel::TimeChanged, panel, &TimelinePanel::SetTimestamp);
   connect(curve_panel_, &ParamPanel::TimeChanged, panel, &TimelinePanel::SetTimestamp);
   connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, panel, &TimelinePanel::SetTimestamp);
@@ -698,24 +696,24 @@ void MainWindow::UpdateAudioMonitorParams(ViewerOutput *viewer)
 void MainWindow::FocusedPanelChanged(PanelWidget *panel)
 {
   // Update audio monitor panel
-  TimeBasedPanel* tbp = dynamic_cast<TimeBasedPanel*>(panel);
-  if (tbp) {
+  if (TimeBasedPanel* tbp = dynamic_cast<TimeBasedPanel*>(panel)) {
     UpdateAudioMonitorParams(tbp->GetConnectedViewer());
   }
 
-  // Signal timeline focus
-  TimelinePanel* timeline = dynamic_cast<TimelinePanel*>(panel);
-  if (timeline) {
+  if (TimelinePanel* timeline = dynamic_cast<TimelinePanel*>(panel)) {
+    // Signal timeline focus
     TimelineFocused(timeline->GetConnectedViewer());
-    return;
-  }
 
-  // Signal project panel focus
-  ProjectPanel* project = dynamic_cast<ProjectPanel*>(panel);
-  if (project) {
+    NodeGraph *graph = timeline->GetConnectedViewer() ? timeline->GetConnectedViewer()->parent() : nullptr;
+    QVector<void*> n(timeline->GetSelectedBlocks().size());
+    for (int j=0; j<n.size(); j++) {
+      n[j] = timeline->GetSelectedBlocks().at(j);
+    }
+    node_panel_->SetGraph(graph, n);
+  } else if (ProjectPanel* project = dynamic_cast<ProjectPanel*>(panel)) {
+    // Signal project panel focus
     UpdateTitle();
-    node_panel_->SetGraph(project->project());
-    return;
+    node_panel_->SetGraph(project->project(), {project->project()});
   }
 }
 

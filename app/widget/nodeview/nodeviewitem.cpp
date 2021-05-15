@@ -192,8 +192,6 @@ void NodeViewItem::SetNode(Node *n)
         node_inputs_.append(input);
       }
     }
-
-    SetNodePosition(node_->GetPosition());
   }
 
   update();
@@ -352,10 +350,6 @@ void NodeViewItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 QVariant NodeViewItem::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
 {
   if (change == ItemPositionHasChanged && node_) {
-    node_->blockSignals(true);
-    node_->SetPosition(GetNodePosition());
-    node_->blockSignals(false);
-
     ReadjustAllEdges();
   }
 

@@ -71,7 +71,7 @@ private:
 class MultiUndoCommand : public UndoCommand
 {
 public:
-  MultiUndoCommand() = default;
+  MultiUndoCommand();
 
   virtual void redo() override;
   virtual void undo() override;
@@ -98,6 +98,8 @@ public:
 
 private:
   std::vector<UndoCommand*> children_;
+
+  bool done_;
 
 };
 

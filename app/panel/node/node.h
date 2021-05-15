@@ -40,9 +40,14 @@ public:
     return node_view_->GetGraph();
   }
 
-  void SetGraph(NodeGraph *graph)
+  void SetGraph(NodeGraph *graph, const QVector<void*> &nodes)
   {
-    node_view_->SetGraph(graph);
+    node_view_->SetGraph(graph, nodes);
+  }
+
+  void ClearGraph()
+  {
+    node_view_->ClearGraph();
   }
 
   virtual void SelectAll() override
@@ -104,20 +109,6 @@ public slots:
   void SelectWithDependencies(const QVector<Node*>& nodes)
   {
     node_view_->SelectWithDependencies(nodes);
-  }
-
-  void SelectBlocks(const QVector<Block*>& blocks)
-  {
-    QVector<Node*> nodes(blocks.size());
-    memcpy(nodes.data(), blocks.constData(), blocks.size() * sizeof(Block*));
-    node_view_->SelectWithDependencies(nodes);
-  }
-
-  void DeselectBlocks(const QVector<Block*>& nodes)
-  {
-    Q_UNUSED(nodes)
-    qDebug() << "Stub";
-    //node_view_->DeselectBlocks(nodes);
   }
 
 signals:

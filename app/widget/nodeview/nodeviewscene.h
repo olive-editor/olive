@@ -88,7 +88,7 @@ public slots:
    * This should NEVER be called directly, only connected to a NodeGraph. To add a Node to the NodeGraph
    * use NodeGraph::AddNode().
    */
-  void AddNode(Node* node);
+  NodeViewItem *AddNode(Node* node);
 
   /**
    * @brief Slot when a Node is removed from a graph (SetGraph() connects this)
@@ -122,11 +122,6 @@ private:
   bool curved_edges_;
 
 private slots:
-  /**
-   * @brief Receiver for whenever a node position changes
-   */
-  void NodePositionChanged(const QPointF& pos);
-
   /**
    * @brief Receiver for when a node's label has changed
    */

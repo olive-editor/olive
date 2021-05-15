@@ -43,9 +43,6 @@ void NodeViewScene::SetFlowDirection(NodeViewCommon::FlowDirection direction)
     QHash<Node*, NodeViewItem*>::const_iterator i;
     for (i=item_map_.constBegin(); i!=item_map_.constEnd(); i++) {
       i.value()->SetFlowDirection(direction_);
-
-      // Update position too
-      i.value()->SetNodePosition(i.key()->GetPosition());
     }
   }
 
@@ -150,7 +147,7 @@ QVector<NodeViewEdge *> NodeViewScene::GetSelectedEdges() const
   return edges;
 }
 
-void NodeViewScene::AddNode(Node* node)
+NodeViewItem* NodeViewScene::AddNode(Node* node)
 {
   NodeViewItem* item = new NodeViewItem();
 
@@ -160,16 +157,16 @@ void NodeViewScene::AddNode(Node* node)
   addItem(item);
   item_map_.insert(node, item);
 
-  connect(node, &Node::PositionChanged, this, &NodeViewScene::NodePositionChanged);
   connect(node, &Node::LabelChanged, this, &NodeViewScene::NodeAppearanceChanged);
   connect(node, &Node::ColorChanged, this, &NodeViewScene::NodeAppearanceChanged);
+
+  return item;
 }
 
 void NodeViewScene::RemoveNode(Node *node)
 {
   disconnect(node, &Node::ColorChanged, this, &NodeViewScene::NodeAppearanceChanged);
   disconnect(node, &Node::LabelChanged, this, &NodeViewScene::NodeAppearanceChanged);
-  disconnect(node, &Node::PositionChanged, this, &NodeViewScene::NodePositionChanged);
 
   delete item_map_.take(node);
 }
@@ -229,6 +226,7 @@ NodeViewCommon::FlowDirection NodeViewScene::GetFlowDirection() const
 
 void NodeViewScene::ReorganizeFrom(Node* n)
 {
+  /*
   QVector<Node*> immediates = n->GetImmediateDependencies();
 
   if (immediates.isEmpty()) {
@@ -258,6 +256,7 @@ void NodeViewScene::ReorganizeFrom(Node* n)
       ReorganizeFrom(i);
     }
   }
+  */
 }
 
 void NodeViewScene::SetEdgesAreCurved(bool curved)
@@ -269,12 +268,6 @@ void NodeViewScene::SetEdgesAreCurved(bool curved)
       e->SetCurved(curved_edges_);
     }
   }
-}
-
-void NodeViewScene::NodePositionChanged(const QPointF &pos)
-{
-  // Update node's internal position
-  item_map_.value(static_cast<Node*>(sender()))->SetNodePosition(pos);
 }
 
 void NodeViewScene::NodeAppearanceChanged()

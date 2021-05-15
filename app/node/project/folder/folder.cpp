@@ -137,9 +137,8 @@ void FolderAddChild::redo()
   Node::ConnectEdge(child_, NodeInput(folder_, Folder::kChildInput, array_index));
 
   if (autoposition_) {
-    old_position_ = child_->GetPosition();
     if (!position_command_) {
-      position_command_ = new NodeSetPositionAsChildCommand(child_, folder_, array_index, array_index+1, true);
+      position_command_ = new NodeSetPositionAsChildCommand(child_, folder_, folder_->project(), array_index, array_index+1, true);
     }
     position_command_->redo();
   }

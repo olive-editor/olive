@@ -180,8 +180,6 @@ private:
 
   bool autoposition_;
 
-  QPointF old_position_;
-
   NodeSetPositionAsChildCommand* position_command_;
 
 };

@@ -51,10 +51,9 @@ public:
     return graph_;
   }
 
-  /**
-   * @brief Sets the graph to view
-   */
-  void SetGraph(NodeGraph* graph);
+  void SetGraph(NodeGraph *graph, const QVector<void *> &nodes);
+
+  void ClearGraph();
 
   /**
    * @brief Delete selected nodes from graph (user-friendly/undoable)
@@ -147,16 +146,18 @@ private:
 
   NodeViewScene scene_;
 
-  QVector<Node*> selected_nodes_;
+  MultiUndoCommand* paste_command_;
 
-  QVector<Block*> selected_blocks_;
+  QVector<Node*> selected_nodes_;
 
   enum FilterMode {
     kFilterShowAll,
-    kFilterShowSelectedBlocks
+    kFilterShowSelective
   };
 
   FilterMode filter_mode_;
+
+  QVector<void*> filter_nodes_;
 
   double scale_;
 
@@ -199,6 +200,14 @@ private slots:
    * @brief Opens the selected node in a Viewer
    */
   void OpenSelectedNodeInViewer();
+
+  void AddNode(Node *node);
+  void RemoveNode(Node *node);
+  void AddEdge(const NodeOutput& output, const NodeInput& input);
+  void RemoveEdge(const NodeOutput& output, const NodeInput& input);
+
+  void AddNodePosition(Node *node, void *relative, const QPointF &pos);
+  void RemoveNodePosition(Node *node, void *relative);
 
 };
 

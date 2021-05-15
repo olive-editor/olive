@@ -24,17 +24,28 @@
 
 namespace olive {
 
+MultiUndoCommand::MultiUndoCommand() :
+  done_(false)
+{
+}
+
 void MultiUndoCommand::redo()
 {
-  for (auto it=children_.cbegin(); it!=children_.cend(); it++) {
-    (*it)->redo_and_set_modified();
+  if (!done_) {
+    for (auto it=children_.cbegin(); it!=children_.cend(); it++) {
+      (*it)->redo_and_set_modified();
+    }
+    done_ = true;
   }
 }
 
 void MultiUndoCommand::undo()
 {
-  for (auto it=children_.crbegin(); it!=children_.crend(); it++) {
-    (*it)->undo_and_set_modified();
+  if (done_) {
+    for (auto it=children_.crbegin(); it!=children_.crend(); it++) {
+      (*it)->undo_and_set_modified();
+    }
+    done_ = false;
   }
 }
 

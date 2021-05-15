@@ -44,7 +44,8 @@ NodeView::NodeView(QWidget *parent) :
   create_edge_(nullptr),
   create_edge_dst_(nullptr),
   create_edge_dst_temp_expanded_(false),
-  filter_mode_(kFilterShowSelectedBlocks),
+  paste_command_(nullptr),
+  filter_mode_(kFilterShowSelective),
   scale_(1.0)
 {
   setScene(&scene_);
@@ -59,57 +60,78 @@ NodeView::NodeView(QWidget *parent) :
   ConnectSelectionChangedSignal();
 
   SetFlowDirection(NodeViewCommon::kTopToBottom);
-
-  // Set massive scene rect and hide the scrollbars to create an "infinite space" effect
-  scene_.setSceneRect(-1000000, -1000000, 2000000, 2000000);
-  setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-  setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 }
 
 NodeView::~NodeView()
 {
   // Unset the current graph
-  SetGraph(nullptr);
+  ClearGraph();
 }
 
-void NodeView::SetGraph(NodeGraph *graph)
+void NodeView::SetGraph(NodeGraph *graph, const QVector<void*> &nodes)
 {
-  if (graph_ == graph) {
-    return;
-  }
+  // Handle potentially changing graph
+  if (graph_ != graph) {
+    if (graph_) {
+      disconnect(graph_, &NodeGraph::NodeAdded, this, &NodeView::AddNode);
+      disconnect(graph_, &NodeGraph::NodeRemoved, this, &NodeView::RemoveNode);
+      disconnect(graph_, &NodeGraph::InputConnected, this, &NodeView::AddEdge);
+      disconnect(graph_, &NodeGraph::InputDisconnected, this, &NodeView::RemoveEdge);
+      disconnect(graph_, &NodeGraph::NodePositionAdded, this, &NodeView::AddNodePosition);
+      disconnect(graph_, &NodeGraph::NodePositionRemoved, this, &NodeView::RemoveNodePosition);
 
-  if (graph_) {
-    disconnect(graph_, &NodeGraph::NodeAdded, &scene_, &NodeViewScene::AddNode);
-    disconnect(graph_, &NodeGraph::NodeRemoved, &scene_, &NodeViewScene::RemoveNode);
-    disconnect(graph_, &NodeGraph::InputConnected, &scene_, &NodeViewScene::AddEdge);
-    disconnect(graph_, &NodeGraph::InputDisconnected, &scene_, &NodeViewScene::RemoveEdge);
-
-    DeselectAll();
-
-    // Clear the scene of all UI objects
-    scene_.clear();
-  }
-
-  // Set reference to the graph
-  graph_ = graph;
-
-  // If the graph is valid, add UI objects for each of its Nodes
-  if (graph_) {
-    connect(graph_, &NodeGraph::NodeAdded, &scene_, &NodeViewScene::AddNode);
-    connect(graph_, &NodeGraph::NodeRemoved, &scene_, &NodeViewScene::RemoveNode);
-    connect(graph_, &NodeGraph::InputConnected, &scene_, &NodeViewScene::AddEdge);
-    connect(graph_, &NodeGraph::InputDisconnected, &scene_, &NodeViewScene::RemoveEdge);
-
-    foreach (Node* n, graph_->nodes()) {
-      scene_.AddNode(n);
+      if (filter_mode_ == kFilterShowAll) {
+        // Switching graphs, close all nodes
+        DeselectAll();
+        scene_.clear();
+      }
     }
 
-    foreach (Node* n, graph_->nodes()) {
-      for (auto it=n->input_connections().cbegin(); it!=n->input_connections().cend(); it++) {
-        scene_.AddEdge(it->second, it->first);
+    graph_ = graph;
+
+    if (graph_) {
+      connect(graph_, &NodeGraph::NodeAdded, this, &NodeView::AddNode);
+      connect(graph_, &NodeGraph::NodeRemoved, this, &NodeView::RemoveNode);
+      connect(graph_, &NodeGraph::InputConnected, this, &NodeView::AddEdge);
+      connect(graph_, &NodeGraph::InputDisconnected, this, &NodeView::RemoveEdge);
+      connect(graph_, &NodeGraph::NodePositionAdded, this, &NodeView::AddNodePosition);
+      connect(graph_, &NodeGraph::NodePositionRemoved, this, &NodeView::RemoveNodePosition);
+
+      if (filter_mode_ == kFilterShowAll) {
+        foreach (Node* n, graph_->nodes()) {
+          scene_.AddNode(n);
+        }
+
+        foreach (Node* n, graph_->nodes()) {
+          for (auto it=n->input_connections().cbegin(); it!=n->input_connections().cend(); it++) {
+            scene_.AddEdge(it->second, it->first);
+          }
+        }
       }
     }
   }
+
+  // Handle changing nodes
+  if (filter_nodes_ != nodes) {
+    DeselectAll();
+    scene_.clear();
+
+    filter_nodes_ = nodes;
+
+    foreach (void *n, filter_nodes_) {
+      const NodeGraph::PositionMap &map = graph_->GetNodesForRelative(n);
+
+      for (auto it=map.cbegin(); it!=map.cend(); it++) {
+        NodeViewItem *item = scene_.AddNode(it.key());
+        item->SetNodePosition(it.value());
+      }
+    }
+  }
+}
+
+void NodeView::ClearGraph()
+{
+  SetGraph(nullptr, QVector<void*>());
 }
 
 void NodeView::DeleteSelected()
@@ -295,15 +317,15 @@ void NodeView::Paste()
     return;
   }
 
-  MultiUndoCommand* command = new MultiUndoCommand();
+  paste_command_ = new MultiUndoCommand();
 
-  QVector<Node*> pasted_nodes = PasteNodesFromClipboard(graph_, command);
+  QVector<Node*> pasted_nodes = PasteNodesFromClipboard(graph_, paste_command_);
 
   if (!pasted_nodes.isEmpty()) {
-    command->add_child(new NodeViewAttachNodesToCursor(this, pasted_nodes));
+    paste_command_->add_child(new NodeViewAttachNodesToCursor(this, pasted_nodes));
   }
 
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
+  paste_command_->redo();
 }
 
 void NodeView::Duplicate()
@@ -318,15 +340,15 @@ void NodeView::Duplicate()
     return;
   }
 
-  MultiUndoCommand* command = new MultiUndoCommand();
+  paste_command_ = new MultiUndoCommand();
 
-  QVector<Node*> duplicated_nodes = Node::CopyDependencyGraph(selected, command);
+  QVector<Node*> duplicated_nodes = Node::CopyDependencyGraph(selected, paste_command_);
 
   if (!duplicated_nodes.isEmpty()) {
-    command->add_child(new NodeViewAttachNodesToCursor(this, duplicated_nodes));
+    paste_command_->add_child(new NodeViewAttachNodesToCursor(this, duplicated_nodes));
   }
 
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
+  paste_command_->redo();
 }
 
 void NodeView::SetColorLabel(int index)
@@ -346,6 +368,59 @@ void NodeView::ZoomOut()
   ZoomFromKeyboard(0.8);
 }
 
+/*void NodeView::AddNodesToFilter(const QVector<Node *> &nodes)
+{
+  // Determine new nodes
+  QVector<Node*> multiple_sources;
+
+  foreach (Node* node, nodes) {
+    // Node is new and being added
+    scene_.AddNode(node);
+
+    QList<Node*> visible = graph_->GetNodesForRelative(node);
+    foreach (Node* v, visible) {
+      if (scene_.NodeToUIObject(v)) {
+        multiple_sources.append(v);
+      } else {
+        NodeViewItem* item = scene_.AddNode(v);
+        item->SetNodePosition(graph_->GetNodePosition(v, node));
+      }
+    }
+  }
+
+  filter_nodes_.append(nodes);
+}
+
+void NodeView::RemoveNodesFromFilter(const QVector<Node *> &nodes)
+{
+  // Determine old nodes
+  foreach (Node* node, nodes) {
+    // Node is old and being removed
+    QList<Node*> visible = graph_->GetNodesForRelative(node);
+    foreach (Node* v, visible) {
+      bool found = false;
+
+      foreach (Node* n, filter_nodes_) {
+        if (node != n) {
+          QList<Node*> other_deps = graph_->GetNodesForRelative(n);
+
+          if (other_deps.contains(v)) {
+            found = true;
+            break;
+          }
+        }
+      }
+
+      if (!found) {
+        scene_.RemoveNode(v);
+      }
+    }
+
+    scene_.RemoveNode(node);
+    filter_nodes_.removeOne(node);
+  }
+}*/
+
 void NodeView::keyPressEvent(QKeyEvent *event)
 {
   super::keyPressEvent(event);
@@ -354,8 +429,11 @@ void NodeView::keyPressEvent(QKeyEvent *event)
     DetachItemsFromCursor();
 
     // We undo the last action which SHOULD be adding the node
-    // FIXME: Possible danger of this not being the case?
-    Core::instance()->undo_stack()->undo();
+    if (paste_command_) {
+      paste_command_->undo();
+      delete paste_command_;
+      paste_command_ = nullptr;
+    }
   }
 }
 
@@ -596,27 +674,34 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
   }
 
   if (!attached_items_.isEmpty()) {
+    MultiUndoCommand* command = new MultiUndoCommand();
+
+    if (paste_command_) {
+      // We've already "done" this command, but MultiUndoCommand prevents "redoing" twice, so we
+      // add it to this command (which may have extra commands added too) so that it all gets undone
+      // in the same action
+      command->add_child(paste_command_);
+      paste_command_ = nullptr;
+    }
+
     if (attached_items_.size() == 1) {
       Node* dropping_node = attached_items_.first().item->GetNode();
 
       if (drop_edge_) {
-        // We have everything we need to place the node in between
-        MultiUndoCommand* command = new MultiUndoCommand();
-
         // Remove old edge
         command->add_child(new NodeEdgeRemoveCommand(drop_edge_->output(), drop_edge_->input()));
 
         // Place new edges
         command->add_child(new NodeEdgeAddCommand(drop_edge_->output(), drop_input_));
         command->add_child(new NodeEdgeAddCommand(dropping_node, drop_edge_->input()));
-
-        Core::instance()->undo_stack()->push(command);
       }
 
       drop_edge_ = nullptr;
     }
 
     DetachItemsFromCursor();
+
+    Core::instance()->undo_stack()->push(command);
   }
 
   super::mouseReleaseEvent(event);
@@ -718,12 +803,12 @@ void NodeView::ShowContextMenu(const QPoint &pos)
     Menu* filter_menu = new Menu(tr("Filter"), &m);
     m.addMenu(filter_menu);
 
-    filter_menu->AddActionWithData(tr("Show All"),
+    filter_menu->AddActionWithData(tr("Show All Nodes"),
                                    kFilterShowAll,
                                    filter_mode_);
 
-    filter_menu->AddActionWithData(tr("Show Selected Blocks Only"),
-                                   kFilterShowSelectedBlocks,
+    filter_menu->AddActionWithData(tr("Show Selected"),
+                                   kFilterShowSelective,
                                    filter_mode_);
 
     connect(filter_menu, &Menu::triggered, this, &NodeView::ContextMenuFilterChanged);
@@ -791,7 +876,22 @@ void NodeView::AutoPositionDescendents()
 
 void NodeView::ContextMenuFilterChanged(QAction *action)
 {
-  Q_UNUSED(action)
+  FilterMode mode = static_cast<FilterMode>(action->data().toInt());
+
+  if (filter_mode_ != mode) {
+    // Store temporary graph variables
+    NodeGraph *graph = graph_;
+    QVector<void*> nodes = filter_nodes_;
+
+    // Unset graph with current filter mode
+    ClearGraph();
+
+    // Change filter mode
+    filter_mode_ = mode;
+
+    // Re-set graph with new filter mode
+    SetGraph(graph, nodes);
+  }
 }
 
 void NodeView::OpenSelectedNodeInViewer()
@@ -801,6 +901,59 @@ void NodeView::OpenSelectedNodeInViewer()
 
   if (viewer) {
     Core::instance()->OpenNodeInViewer(viewer);
+  }
+}
+
+void NodeView::AddNode(Node *node)
+{
+  if (filter_mode_ == kFilterShowAll) {
+    scene_.AddNode(node);
+  }
+}
+
+void NodeView::RemoveNode(Node *node)
+{
+  if (filter_mode_ == kFilterShowAll) {
+    scene_.RemoveNode(node);
+  }
+}
+
+void NodeView::AddEdge(const NodeOutput &output, const NodeInput &input)
+{
+  if (filter_mode_ == kFilterShowAll) {
+    scene_.AddEdge(output, input);
+  }
+}
+
+void NodeView::RemoveEdge(const NodeOutput &output, const NodeInput &input)
+{
+  if (filter_mode_ == kFilterShowAll) {
+    scene_.RemoveEdge(output, input);
+  }
+}
+
+void NodeView::AddNodePosition(Node *node, void *relative, const QPointF &pos)
+{
+  if (filter_mode_ == kFilterShowSelective) {
+    if (filter_nodes_.contains(relative)) {
+      NodeViewItem *item = scene_.item_map().value(node);
+
+      if (!item) {
+        item = scene_.AddNode(node);
+      }
+
+      item->SetNodePosition(pos);
+    }
+  }
+}
+
+void NodeView::RemoveNodePosition(Node *node, void *relative)
+{
+  if (filter_mode_ == kFilterShowSelective) {
+    if (filter_nodes_.contains(relative)) {
+      NodeViewItem *item = scene_.item_map().value(node);
+      delete item;
+    }
   }
 }
 

@@ -89,6 +89,11 @@ public:
 
   void OverwriteFootageAtPlayhead(const QVector<ViewerOutput *> &footage);
 
+  const QVector<Block*>& GetSelectedBlocks() const
+  {
+    return static_cast<TimelineWidget*>(GetTimeBasedWidget())->GetSelectedBlocks();
+  }
+
 protected:
   virtual void Retranslate() override;
 

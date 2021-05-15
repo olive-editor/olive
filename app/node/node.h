@@ -718,10 +718,6 @@ public:
    */
   virtual NodeValueTable Value(const QString &output, NodeValueDatabase& value) const;
 
-  const QPointF& GetPosition() const;
-
-  void SetPosition(const QPointF& pos, bool move_dependencies_relatively_too = false);
-
   virtual bool HasGizmos() const;
 
   virtual void DrawGizmos(NodeValueDatabase& db, QPainter* p);
@@ -1181,11 +1177,6 @@ private:
   bool can_be_deleted_;
 
   /**
-   * @brief UI position for NodeViews
-   */
-  QPointF position_;
-
-  /**
    * @brief Custom user label for node
    */
   QString label_;
@@ -1312,35 +1303,29 @@ using NodePtr = std::shared_ptr<Node>;
 class NodeSetPositionCommand : public UndoCommand
 {
 public:
-  NodeSetPositionCommand(Node* node, const QPointF& position, bool move_dependencies_relatively) :
-    node_(node),
-    new_pos_(position),
-    move_deps_(move_dependencies_relatively)
+  NodeSetPositionCommand(Node* node, void* relevant, const QPointF& pos, bool move_dependencies_relatively)
   {
+    node_ = node;
+    relevant_ = relevant;
+    pos_ = pos;
+    move_deps_ = move_dependencies_relatively;
   }
 
-  virtual Project * GetRelevantProject() const override
+  virtual Project* GetRelevantProject() const override
   {
     return node_->project();
   }
 
-  virtual void redo() override
-  {
-    old_pos_ = node_->GetPosition();
-    node_->SetPosition(new_pos_, move_deps_);
-  }
+  virtual void redo() override;
 
-  virtual void undo() override
-  {
-    node_->SetPosition(old_pos_, move_deps_);
-  }
+  virtual void undo() override;
 
 private:
   Node* node_;
-
-  QPointF new_pos_;
+  void* relevant_;
+  QPointF pos_;
   QPointF old_pos_;
-
+  bool added_;
   bool move_deps_;
 
 };
@@ -1348,8 +1333,9 @@ private:
 class NodeSetPositionAndShiftSurroundingsCommand : public UndoCommand
 {
 public:
-  NodeSetPositionAndShiftSurroundingsCommand(Node* node, const QPointF& pos, bool move_dependencies_relatively) :
+  NodeSetPositionAndShiftSurroundingsCommand(Node* node, void *relative, const QPointF& pos, bool move_dependencies_relatively) :
     node_(node),
+    relative_(relative),
     position_(pos),
     move_dependencies_(move_dependencies_relatively)
   {}
@@ -1376,6 +1362,8 @@ public:
 private:
   Node* node_;
 
+  void *relative_;
+
   QPointF position_;
 
   bool move_dependencies_;
@@ -1387,9 +1375,10 @@ private:
 class NodeSetPositionAsChildCommand : public UndoCommand
 {
 public:
-  NodeSetPositionAsChildCommand(Node* node, Node* parent, int this_index, int child_count, bool shift_surroundings) :
+  NodeSetPositionAsChildCommand(Node* node, Node* parent, void *relative, int this_index, int child_count, bool shift_surroundings) :
     node_(node),
     parent_(parent),
+    relative_(relative),
     this_index_(this_index),
     child_count_(child_count),
     shift_surroundings_(shift_surroundings),
@@ -1407,27 +1396,7 @@ public:
     return node_->project();
   }
 
-  virtual void redo() override
-  {
-    if (!sub_command_) {
-      // Calculate position of node
-      QPointF pos = parent_->GetPosition();
-
-      // This is a dependency, so we'll place it one X before
-      pos.setX(pos.x() - 1);
-
-      // The Y will be calculated using the index and child count
-      pos.setY(pos.y() - (double(child_count_)*0.5) + this_index_ + 0.5);
-
-      if (shift_surroundings_) {
-        sub_command_ = new NodeSetPositionAndShiftSurroundingsCommand(node_, pos, true);
-      } else {
-        sub_command_ = new NodeSetPositionCommand(node_, pos, true);
-      }
-    }
-
-    sub_command_->redo();
-  }
+  virtual void redo() override;
 
   virtual void undo() override
   {
@@ -1437,22 +1406,24 @@ public:
 private:
   Node* node_;
   Node* parent_;
+  void *relative_;
 
   int this_index_;
   int child_count_;
 
   bool shift_surroundings_;
 
-  UndoCommand* sub_command_;
+  MultiUndoCommand* sub_command_;
 
 };
 
 class NodeSetPositionToOffsetOfAnotherNodeCommand : public UndoCommand
 {
 public:
-  NodeSetPositionToOffsetOfAnotherNodeCommand(Node* node, Node* other_node, const QPointF& offset) :
+  NodeSetPositionToOffsetOfAnotherNodeCommand(Node* node, Node* other_node, void *relative, const QPointF& offset) :
     node_(node),
     other_node_(other_node),
+    relative_(relative),
     offset_(offset)
   {}
 
@@ -1461,20 +1432,16 @@ public:
     return node_->project();
   }
 
-  virtual void redo() override
-  {
-    node_->SetPosition(other_node_->GetPosition() + offset_);
-  }
+  virtual void redo() override;
 
-  virtual void undo() override
-  {
-    node_->SetPosition(other_node_->GetPosition() - offset_);
-  }
+  virtual void undo() override;
 
 private:
   Node* node_;
   Node* other_node_;
+  void *relative_;
   QPointF offset_;
+  QPointF old_pos_;
 
 };
 

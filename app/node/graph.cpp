@@ -75,6 +75,18 @@ void NodeGraph::childEvent(QChildEvent *event)
       emit NodeRemoved(node);
       emit node->RemovedFromGraph(this);
 
+      for (auto it=position_map_.begin(); it!=position_map_.end(); it++) {
+        PositionMap &map = it.value();
+        for (auto jt=map.begin(); jt!=map.end(); ) {
+          if (jt.key() == node) {
+            jt = map.erase(jt);
+            emit NodePositionRemoved(node, it.key());
+          } else {
+            jt++;
+          }
+        }
+      }
+
     }
   }
 }

@@ -121,7 +121,7 @@ void AddTool::MouseRelease(TimelineViewMouseEvent *event)
                                               solid));
 
         command->add_child(new NodeEdgeAddCommand(solid, NodeInput(clip, ClipBlock::kBufferIn)));
-        command->add_child(new NodeSetPositionToOffsetOfAnotherNodeCommand(solid, clip, extra_node_offset));
+        command->add_child(new NodeSetPositionToOffsetOfAnotherNodeCommand(solid, clip, clip, extra_node_offset));
         break;
       }
       case olive::Tool::kAddableTitle:
@@ -132,7 +132,7 @@ void AddTool::MouseRelease(TimelineViewMouseEvent *event)
                                               text));
 
         command->add_child(new NodeEdgeAddCommand(text, NodeInput(clip, ClipBlock::kBufferIn)));
-        command->add_child(new NodeSetPositionToOffsetOfAnotherNodeCommand(text, clip, extra_node_offset));
+        command->add_child(new NodeSetPositionToOffsetOfAnotherNodeCommand(text, clip, clip, extra_node_offset));
         break;
       }
       case olive::Tool::kAddableBars:

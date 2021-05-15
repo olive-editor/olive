@@ -63,6 +63,39 @@ public:
     return default_nodes_;
   }
 
+  bool NodeMapContainsNode(Node* node, void* relative) const
+  {
+    return position_map_.value(relative).contains(node);
+  }
+
+  QPointF GetNodePosition(Node* node, void* relative)
+  {
+    return position_map_.value(relative).value(node);
+  }
+
+  void SetNodePosition(Node* node, void* relative, const QPointF& pos)
+  {
+    position_map_[relative].insert(node, pos);
+    emit NodePositionAdded(node, relative, pos);
+  }
+
+  void RemoveNodePosition(Node* node, void* relative)
+  {
+    PositionMap& map = position_map_[relative];
+    map.remove(node);
+    if (map.isEmpty()) {
+      position_map_.remove(relative);
+    }
+    emit NodePositionRemoved(node, relative);;
+  }
+
+  using PositionMap = QMap<Node*, QPointF>;
+
+  const PositionMap &GetNodesForRelative(void *relative)
+  {
+    return position_map_[relative];
+  }
+
 signals:
   /**
    * @brief Signal emitted when a Node is added to the graph
@@ -80,6 +113,10 @@ signals:
 
   void ValueChanged(const NodeInput& input);
 
+  void NodePositionAdded(Node *node, void *relative, const QPointF &position);
+
+  void NodePositionRemoved(Node *node, void *relative);
+
 protected:
   void AddDefaultNode(Node* n)
   {
@@ -92,6 +129,10 @@ private:
   QVector<Node*> node_children_;
 
   QVector<Node*> default_nodes_;
+
+  QMap<void *, PositionMap> position_map_;
+
+  PositionMap root_position_map_;
 
 };
 

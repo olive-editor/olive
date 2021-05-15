@@ -372,7 +372,7 @@ public:
 
     // Position the block
     if (!position_command_) {
-      position_command_ = new NodeSetPositionAsChildCommand(new_block(), track, new_block()->index(), track->Blocks().size(), true);
+      position_command_ = new NodeSetPositionAsChildCommand(new_block(), track, nullptr, new_block()->index(), track->Blocks().size(), true);
     }
     position_command_->redo();
 
@@ -1198,7 +1198,7 @@ public:
     timeline_->ArrayAppend();
     int track_total_index = timeline_->parent()->GetTracks().size();
     if (!position_command_) {
-      position_command_ = new NodeSetPositionAsChildCommand(track_, timeline_->parent(), track_total_index, track_total_index + 1, true);
+      position_command_ = new NodeSetPositionAsChildCommand(track_, timeline_->parent(), timeline_->parent(), track_total_index, track_total_index + 1, true);
     }
     position_command_->redo();
     Node::ConnectEdge(track_, timeline_->track_input(timeline_->ArraySize() - 1));
@@ -1385,9 +1385,9 @@ public:
       if (position_commands_.isEmpty()) {
         // Create position commands for insert and gap if necessary
         if (gap_) {
-          position_commands_.append(new NodeSetPositionAsChildCommand(gap_, track, gap_->index(), track->Blocks().size(), true));
+          position_commands_.append(new NodeSetPositionAsChildCommand(gap_, track, track, gap_->index(), track->Blocks().size(), true));
         }
-        position_commands_.append(new NodeSetPositionAsChildCommand(insert_, track, insert_->index(), track->Blocks().size(), true));
+        position_commands_.append(new NodeSetPositionAsChildCommand(insert_, track, track, insert_->index(), track->Blocks().size(), true));
       }
     } else {
       // Place the Block at this point
@@ -1401,7 +1401,7 @@ public:
       track->InsertBlockAfter(insert_, ripple_remove_command_->GetInsertionIndex());
 
       if (position_commands_.isEmpty()) {
-        position_commands_.append(new NodeSetPositionAsChildCommand(insert_, track, insert_->index(), track->Blocks().size(), true));
+        position_commands_.append(new NodeSetPositionAsChildCommand(insert_, track, track, insert_->index(), track->Blocks().size(), true));
       }
     }
 

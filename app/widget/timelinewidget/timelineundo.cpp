@@ -260,7 +260,7 @@ void TrackReplaceBlockWithGapCommand::redo()
       track_->ReplaceBlock(block_, our_gap_);
 
       if (!position_command_) {
-        position_command_ = new NodeSetPositionAsChildCommand(our_gap_, track_, our_gap_->index(), track_->Blocks().size(), true);
+        position_command_ = new NodeSetPositionAsChildCommand(our_gap_, track_, track_, our_gap_->index(), track_->Blocks().size(), true);
       }
       position_command_->redo();
     }
