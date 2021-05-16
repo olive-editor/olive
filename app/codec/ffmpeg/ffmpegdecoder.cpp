@@ -649,14 +649,15 @@ FFmpegFramePool::ElementPtr FFmpegDecoder::RetrieveFrame(const rational& time, c
 {
   int64_t target_ts = GetTimeInTimebaseUnits(time, instance_.avstream()->time_base, instance_.avstream()->start_time);
 
-  if (params.dst_interlacing == VideoParams::kInterlaceNone && params.src_interlacing != VideoParams::kInterlaceNone) {
+  const int64_t min_seek = -instance_.avstream()->start_time;
+  int64_t seek_ts = target_ts;
+  bool still_seeking = false;
+
+  if (params.src_interlacing != VideoParams::kInterlaceNone) {
     // If we are de-interlacing, the timebase is doubled because we get one frame per field, so we
     // double the target timestamp too
     target_ts *= 2;
   }
-
-  int64_t seek_ts = target_ts;
-  bool still_seeking = false;
 
   if (time != kAnyTimecode) {
     // If the frame wasn't in the frame cache, see if this frame cache is too old to use
@@ -665,7 +666,7 @@ FFmpegFramePool::ElementPtr FFmpegDecoder::RetrieveFrame(const rational& time, c
       ClearFrameCache();
 
       instance_.Seek(seek_ts);
-      if (seek_ts == 0) {
+      if (seek_ts == min_seek) {
         cache_at_zero_ = true;
       }
 
@@ -703,9 +704,9 @@ FFmpegFramePool::ElementPtr FFmpegDecoder::RetrieveFrame(const rational& time, c
       // We'll only be here if the frame cache was emptied earlier
       if (!cache_at_zero_ && (ret == AVERROR_EOF || working_frame->pts > target_ts)) {
 
-        seek_ts = qMax(static_cast<int64_t>(0), seek_ts - second_ts_);
+        seek_ts = qMax(min_seek, seek_ts - second_ts_);
         instance_.Seek(seek_ts);
-        if (seek_ts == 0) {
+        if (seek_ts == min_seek) {
           cache_at_zero_ = true;
         }
         continue;
