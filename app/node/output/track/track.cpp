@@ -155,6 +155,8 @@ bool Track::LoadCustom(QXmlStreamReader *reader, XMLNodeData &xml_node_data, uin
 
 void Track::SaveCustom(QXmlStreamWriter *writer) const
 {
+  super::SaveCustom(writer);
+
   writer->writeTextElement(QStringLiteral("height"), QString::number(GetTrackHeight()));
 }
 
