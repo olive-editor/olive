@@ -34,7 +34,7 @@ class OIIODecoder : public Decoder
 public:
   OIIODecoder();
 
-  virtual ~OIIODecoder() override;
+  DECODER_DEFAULT_DESTRUCTOR(OIIODecoder)
 
   virtual QString id() const override;
 

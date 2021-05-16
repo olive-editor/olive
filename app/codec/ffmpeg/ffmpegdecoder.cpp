@@ -60,11 +60,6 @@ FFmpegDecoder::FFmpegDecoder() :
 {
 }
 
-FFmpegDecoder::~FFmpegDecoder()
-{
-  CloseInternal();
-}
-
 bool FFmpegDecoder::OpenInternal()
 {
   if (instance_.Open(stream().filename().toUtf8(), stream().stream())) {

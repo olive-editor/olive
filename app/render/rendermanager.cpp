@@ -91,10 +91,10 @@ void RenderManager::ClearOldDecoders()
   qint64 min_age = QDateTime::currentMSecsSinceEpoch() - kDecoderMaximumInactivity;
 
   for (auto it=decoder_cache_->begin(); it!=decoder_cache_->end(); ) {
-    DecoderPtr decoder = it.value();
+    DecoderPair decoder = it.value();
 
-    if (decoder->GetLastAccessedTime() < min_age) {
-      decoder->Close();
+    if (decoder.decoder->GetLastAccessedTime() < min_age) {
+      decoder.decoder->Close();
       it = decoder_cache_->erase(it);
     } else {
       it++;

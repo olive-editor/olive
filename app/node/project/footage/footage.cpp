@@ -20,7 +20,7 @@
 
 #include "footage.h"
 
-#include <QCoreApplication>
+#include <QApplication>
 #include <QDir>
 #include <QStandardPaths>
 
@@ -56,6 +56,11 @@ Footage::Footage(const QString &filename) :
   Clear();
 
   set_filename(filename);
+
+  QTimer *check_timer = new QTimer(this);
+  check_timer->setInterval(5000);
+  connect(check_timer, &QTimer::timeout, this, &Footage::CheckFootage);
+  check_timer->start();
 }
 
 void Footage::Retranslate()
@@ -511,17 +516,20 @@ void Footage::UpdateTooltip()
 
 void Footage::CheckFootage()
 {
-  QString fn = filename();
+  // Don't check files if not the active window
+  if (qApp->activeWindow()) {
+    QString fn = filename();
 
-  if (!fn.isEmpty()) {
-    QFileInfo info(fn);
+    if (!fn.isEmpty()) {
+      QFileInfo info(fn);
 
-    qint64 current_file_timestamp = info.lastModified().toMSecsSinceEpoch();
+      qint64 current_file_timestamp = info.lastModified().toMSecsSinceEpoch();
 
-    if (current_file_timestamp != timestamp()) {
-      // File has changed!
-      set_timestamp(current_file_timestamp);
-      InvalidateAll(kFilenameInput);
+      if (current_file_timestamp != timestamp()) {
+        // File has changed!
+        set_timestamp(current_file_timestamp);
+        InvalidateAll(kFilenameInput);
+      }
     }
   }
 }

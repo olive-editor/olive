@@ -39,7 +39,18 @@ private:
 
 };
 
-using DecoderCache = RenderCache<Decoder::CodecStream, DecoderPtr>;
+struct DecoderPair {
+  DecoderPair()
+  {
+    decoder = nullptr;
+    last_modified = 0;
+  }
+
+  DecoderPtr decoder;
+  qint64 last_modified;
+};
+
+using DecoderCache = RenderCache<Decoder::CodecStream, DecoderPair>;
 using ShaderCache = RenderCache<QString, QVariant>;
 
 }
