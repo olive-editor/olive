@@ -104,17 +104,19 @@ void TimelineMarkerList::Load(QXmlStreamReader *reader)
   while (XMLReadNextStartElement(reader)) {
     if (reader->name() == QStringLiteral("marker")) {
       QString name;
-      TimeRange range;
+      rational in, out;
 
       XMLAttributeLoop(reader, attr) {
         if (attr.name() == QStringLiteral("name")) {
           name = attr.value().toString();
         } else if (attr.name() == QStringLiteral("in")) {
-          range.set_in(rational::fromString(attr.value().toString()));
+          in = rational::fromString(attr.value().toString());
         } else if (attr.name() == QStringLiteral("out")) {
-          range.set_out(rational::fromString(attr.value().toString()));
+          out = rational::fromString(attr.value().toString());
         }
       }
+
+      AddMarker(TimeRange(in, out), name);
     }
 
     reader->skipCurrentElement();
