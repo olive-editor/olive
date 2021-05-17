@@ -190,6 +190,8 @@ private slots:
   void ShowNouveauWarning();
 #endif
 
+  void TimelinePanelSelectionChanged(const QVector<Block*> &blocks);
+
 };
 
 }

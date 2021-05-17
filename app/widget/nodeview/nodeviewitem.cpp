@@ -97,24 +97,9 @@ QPointF NodeViewItem::GetNodePosition() const
 
 void NodeViewItem::SetNodePosition(const QPointF &pos)
 {
-  switch (flow_dir_) {
-  case NodeViewCommon::kLeftToRight:
-    setPos(pos.x() * DefaultItemHorizontalPadding(),
-           pos.y() * DefaultItemVerticalPadding());
-    break;
-  case NodeViewCommon::kRightToLeft:
-    setPos(-pos.x() * DefaultItemHorizontalPadding(),
-           pos.y() * DefaultItemVerticalPadding());
-    break;
-  case NodeViewCommon::kTopToBottom:
-    setPos(pos.y() * DefaultItemHorizontalPadding(),
-           pos.x() * DefaultItemVerticalPadding());
-    break;
-  case NodeViewCommon::kBottomToTop:
-    setPos(pos.y() * DefaultItemHorizontalPadding(),
-           -pos.x() * DefaultItemVerticalPadding());
-    break;
-  }
+  cached_node_pos_ = pos;
+
+  UpdateNodePosition();
 }
 
 int NodeViewItem::DefaultTextPadding()
@@ -466,6 +451,8 @@ QPointF NodeViewItem::GetOutputPoint(const QString& output) const
 void NodeViewItem::SetFlowDirection(NodeViewCommon::FlowDirection dir)
 {
   flow_dir_ = dir;
+
+  UpdateNodePosition();
 }
 
 QPointF NodeViewItem::GetInputPointInternal(int index, const QPointF& source_pos) const
@@ -487,6 +474,30 @@ QPointF NodeViewItem::GetInputPointInternal(int index, const QPointF& source_pos
     } else {
       return QPointF(input_rect.center().x(), input_rect.bottom());
     }
+  }
+}
+
+void NodeViewItem::UpdateNodePosition()
+{
+  const QPointF &pos = cached_node_pos_;
+
+  switch (flow_dir_) {
+  case NodeViewCommon::kLeftToRight:
+    setPos(pos.x() * DefaultItemHorizontalPadding(),
+           pos.y() * DefaultItemVerticalPadding());
+    break;
+  case NodeViewCommon::kRightToLeft:
+    setPos(-pos.x() * DefaultItemHorizontalPadding(),
+           pos.y() * DefaultItemVerticalPadding());
+    break;
+  case NodeViewCommon::kTopToBottom:
+    setPos(pos.y() * DefaultItemHorizontalPadding(),
+           pos.x() * DefaultItemVerticalPadding());
+    break;
+  case NodeViewCommon::kBottomToTop:
+    setPos(pos.y() * DefaultItemHorizontalPadding(),
+           -pos.x() * DefaultItemVerticalPadding());
+    break;
   }
 }
 

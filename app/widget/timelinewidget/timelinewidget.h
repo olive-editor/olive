@@ -234,9 +234,7 @@ public:
   };
 
 signals:
-  void BlocksSelected(const QVector<Block*>& selected_blocks);
-
-  void BlocksDeselected(const QVector<Block*>& deselected_blocks);
+  void BlockSelectionChanged(const QVector<Block*>& selected_blocks);
 
 protected:
   virtual void resizeEvent(QResizeEvent *event) override;
@@ -354,6 +352,8 @@ private slots:
   void TrackIndexChanged(int old, int now);
 
   void SetScrollZoomsByDefaultOnAllViews(bool e);
+
+  void SignalBlockSelectionChange();
 
 };
 

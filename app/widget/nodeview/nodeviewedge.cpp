@@ -80,6 +80,82 @@ void NodeViewEdge::SetHighlighted(bool e)
 
 void NodeViewEdge::SetPoints(const QPointF &start, const QPointF &end, bool input_is_expanded)
 {
+  cached_start_ = start;
+  cached_end_ = end;
+  cached_input_is_expanded_ = input_is_expanded;
+
+  UpdateCurve();
+}
+
+void NodeViewEdge::SetFlowDirection(NodeViewCommon::FlowDirection dir)
+{
+  flow_dir_ = dir;
+
+  if (from_item_ && to_item_) {
+    Adjust();
+  }
+}
+
+void NodeViewEdge::SetCurved(bool e)
+{
+  curved_ = e;
+
+  UpdateCurve();
+}
+
+void NodeViewEdge::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *)
+{
+  QPalette::ColorGroup group;
+  QPalette::ColorRole role;
+
+  if (connected_) {
+    group = QPalette::Active;
+  } else {
+    group = QPalette::Disabled;
+  }
+
+  if (highlighted_ != bool(option->state & QStyle::State_Selected)) {
+    role = QPalette::Highlight;
+  } else {
+    role = QPalette::Text;
+  }
+
+  // Draw main path
+  QColor edge_color = qApp->palette().color(group, role);
+
+  painter->setPen(QPen(edge_color, edge_width_));
+  painter->setBrush(Qt::NoBrush);
+  painter->drawPath(path());
+
+  // Draw arrow
+  painter->setPen(Qt::NoPen);
+  painter->setBrush(edge_color);
+  painter->drawPolygon(arrow_);
+}
+
+void NodeViewEdge::Init()
+{
+  connected_ = false;
+  highlighted_ = false;
+  flow_dir_ = NodeViewCommon::kLeftToRight;
+  curved_ = true;
+
+  setFlag(QGraphicsItem::ItemIsSelectable);
+
+  // Ensures this UI object is drawn behind other objects
+  setZValue(-1);
+
+  // Use font metrics to set edge width for basic high DPI support
+  edge_width_ = QFontMetrics(QFont()).height() / 12;
+  arrow_size_ = QFontMetrics(QFont()).height() / 2;
+}
+
+void NodeViewEdge::UpdateCurve()
+{
+  const QPointF &start = cached_start_;
+  const QPointF &end = cached_end_;
+  const bool input_is_expanded = cached_input_is_expanded_;
+
   QPainterPath path;
   path.moveTo(start);
 
@@ -154,69 +230,6 @@ void NodeViewEdge::SetPoints(const QPointF &start, const QPointF &end, bool inpu
   arrow_ = QPolygonF(arrow_points);
   arrow_bounding_rect_ = arrow_.boundingRect();
   arrow_bounding_rect_.adjust(-arrow_size_, -arrow_size_, arrow_size_, arrow_size_);
-}
-
-void NodeViewEdge::SetFlowDirection(NodeViewCommon::FlowDirection dir)
-{
-  flow_dir_ = dir;
-
-  if (from_item_ && to_item_) {
-    Adjust();
-  }
-}
-
-void NodeViewEdge::SetCurved(bool e)
-{
-  curved_ = e;
-
-  update();
-}
-
-void NodeViewEdge::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *)
-{
-  QPalette::ColorGroup group;
-  QPalette::ColorRole role;
-
-  if (connected_) {
-    group = QPalette::Active;
-  } else {
-    group = QPalette::Disabled;
-  }
-
-  if (highlighted_ != bool(option->state & QStyle::State_Selected)) {
-    role = QPalette::Highlight;
-  } else {
-    role = QPalette::Text;
-  }
-
-  // Draw main path
-  QColor edge_color = qApp->palette().color(group, role);
-
-  painter->setPen(QPen(edge_color, edge_width_));
-  painter->setBrush(Qt::NoBrush);
-  painter->drawPath(path());
-
-  // Draw arrow
-  painter->setPen(Qt::NoPen);
-  painter->setBrush(edge_color);
-  painter->drawPolygon(arrow_);
-}
-
-void NodeViewEdge::Init()
-{
-  connected_ = false;
-  highlighted_ = false;
-  flow_dir_ = NodeViewCommon::kLeftToRight;
-  curved_ = true;
-
-  setFlag(QGraphicsItem::ItemIsSelectable);
-
-  // Ensures this UI object is drawn behind other objects
-  setZValue(-1);
-
-  // Use font metrics to set edge width for basic high DPI support
-  edge_width_ = QFontMetrics(QFont()).height() / 12;
-  arrow_size_ = QFontMetrics(QFont()).height() / 2;
 }
 
 }

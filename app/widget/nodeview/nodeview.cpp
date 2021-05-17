@@ -126,6 +126,17 @@ void NodeView::SetGraph(NodeGraph *graph, const QVector<void*> &nodes)
         item->SetNodePosition(it.value());
       }
     }
+
+    for (auto it=scene_.item_map().cbegin(); it!=scene_.item_map().cend(); it++) {
+      Node *node = it.key();
+      for (auto jt=node->input_connections().cbegin(); jt!=node->input_connections().cend(); jt++) {
+        const NodeOutput &output = jt->second;
+        if (scene_.item_map().contains(output.node())) {
+          // Create edge since both input and output exist
+          scene_.AddEdge(output, jt->first);
+        }
+      }
+    }
   }
 }
 
@@ -913,23 +924,26 @@ void NodeView::AddNode(Node *node)
 
 void NodeView::RemoveNode(Node *node)
 {
-  if (filter_mode_ == kFilterShowAll) {
-    scene_.RemoveNode(node);
-  }
+  scene_.RemoveNode(node);
 }
 
 void NodeView::AddEdge(const NodeOutput &output, const NodeInput &input)
 {
   if (filter_mode_ == kFilterShowAll) {
     scene_.AddEdge(output, input);
+  } else if (filter_mode_ == kFilterShowSelective) {
+    Node *output_node = output.node();
+    Node *input_node = input.node();
+
+    if (scene_.item_map().contains(output_node) && scene_.item_map().contains(input_node)) {
+      scene_.AddEdge(output, input);
+    }
   }
 }
 
 void NodeView::RemoveEdge(const NodeOutput &output, const NodeInput &input)
 {
-  if (filter_mode_ == kFilterShowAll) {
-    scene_.RemoveEdge(output, input);
-  }
+  scene_.RemoveEdge(output, input);
 }
 
 void NodeView::AddNodePosition(Node *node, void *relative, const QPointF &pos)
@@ -940,6 +954,16 @@ void NodeView::AddNodePosition(Node *node, void *relative, const QPointF &pos)
 
       if (!item) {
         item = scene_.AddNode(node);
+
+        // Add input edges
+        for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
+          AddEdge(it->second, it->first);
+        }
+
+        // Add output edges
+        for (auto it=node->output_connections().cbegin(); it!=node->output_connections().cend(); it++) {
+          AddEdge(it->first, it->second);
+        }
       }
 
       item->SetNodePosition(pos);

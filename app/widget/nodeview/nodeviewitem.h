@@ -137,6 +137,11 @@ private:
   QPointF GetInputPointInternal(int index, const QPointF &source_pos) const;
 
   /**
+   * @brief Internal update function when logical position changes
+   */
+  void UpdateNodePosition();
+
+  /**
    * @brief Reference to attached Node
    */
   Node* node_;
@@ -166,6 +171,8 @@ private:
   NodeViewCommon::FlowDirection flow_dir_;
 
   QVector<NodeViewEdge*> edges_;
+
+  QPointF cached_node_pos_;
 
 };
 

@@ -33,13 +33,7 @@ TimelinePanel::TimelinePanel(QWidget *parent) :
 
   Retranslate();
 
-  connect(tw, &TimelineWidget::BlocksSelected, this, &TimelinePanel::BlocksSelected);
-  connect(tw, &TimelineWidget::BlocksDeselected, this, &TimelinePanel::BlocksDeselected);
-}
-
-void TimelinePanel::Clear()
-{
-  static_cast<TimelineWidget*>(GetTimeBasedWidget())->Clear();
+  connect(tw, &TimelineWidget::BlockSelectionChanged, this, &TimelinePanel::BlockSelectionChanged);
 }
 
 void TimelinePanel::SplitAtPlayhead()

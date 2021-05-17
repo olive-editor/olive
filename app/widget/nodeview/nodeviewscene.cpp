@@ -179,10 +179,12 @@ void NodeViewScene::AddEdge(const NodeOutput &output, const NodeInput &input)
 void NodeViewScene::RemoveEdge(const NodeOutput &output, const NodeInput &input)
 {
   NodeViewEdge* edge = EdgeToUIObject(output, input);
-  edge->from_item()->RemoveEdge(edge);
-  edge->to_item()->RemoveEdge(edge);
-  edges_.removeOne(edge);
-  delete edge;
+  if (edge) {
+    edge->from_item()->RemoveEdge(edge);
+    edge->to_item()->RemoveEdge(edge);
+    edges_.removeOne(edge);
+    delete edge;
+  }
 }
 
 int NodeViewScene::DetermineWeight(Node *n)

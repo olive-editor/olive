@@ -122,6 +122,8 @@ protected:
 private:
   void Init();
 
+  void UpdateCurve();
+
   NodeOutput output_;
 
   NodeInput input_;
@@ -147,6 +149,10 @@ private:
   int arrow_size_;
 
   QRectF arrow_bounding_rect_;
+
+  QPointF cached_start_;
+  QPointF cached_end_;
+  bool cached_input_is_expanded_;
 
 };
 

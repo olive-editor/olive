@@ -65,14 +65,12 @@ public:
   /**
    * @brief Return the currently focused widget, or nullptr if nothing is focused
    *
-   * This result == CurrentlyFocused() if HoverFocus is true
+   * This result == CurrentlyFocused() if HoverFocus is true and panel is hovered
    */
-  PanelWidget* CurrentlyFocused() const;
+  PanelWidget* CurrentlyFocused(bool enable_hover = true) const;
 
   /**
    * @brief Return the widget that the mouse is currently hovering over, or nullptr if nothing is hovered over
-   *
-   * This result == CurrentlyFocused() if HoverFocus is true
    */
   PanelWidget* CurrentlyHovered() const;
 
@@ -155,13 +153,6 @@ private:
    */
   static PanelManager* instance_;
 
-  /**
-   * @brief The last panel that was focused
-   *
-   * Stored to prevent emitting FocusedPanelChanged() multiple times for the same panel
-   */
-  PanelWidget* last_focused_panel_;
-
 private slots:
   /**
    * @brief Processing if a panel gets deleted
@@ -194,6 +185,12 @@ T *PanelManager::CreatePanel(QWidget *parent)
 
   // Connect destroy signal so we can remove it from focus history
   connect(panel, &PanelWidget::destroyed, this, &PanelManager::PanelDestroyed, Qt::DirectConnection);
+
+  if (focus_history_.size() == 1) {
+    // This is the first panel, focus it
+    panel->SetBorderVisible(true);
+    emit FocusedPanelChanged(panel);
+  }
 
   return panel;
 }

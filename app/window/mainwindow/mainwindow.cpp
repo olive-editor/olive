@@ -466,6 +466,22 @@ void MainWindow::StatusBarDoubleClicked()
   task_man_panel_->raise();
 }
 
+void MainWindow::TimelinePanelSelectionChanged(const QVector<Block *> &blocks)
+{
+  TimelinePanel *panel = static_cast<TimelinePanel *>(sender());
+
+  if (PanelManager::instance()->CurrentlyFocused(false) == panel) {
+    QVector<void *> context(blocks.size());
+    for (int i=0; i<blocks.size(); i++) {
+      context[i] = blocks.at(i);
+    }
+
+    ViewerOutput *viewer = panel->GetConnectedViewer();
+
+    node_panel_->SetGraph(viewer ? viewer->parent() : nullptr, context);
+  }
+}
+
 #ifdef Q_OS_LINUX
 void MainWindow::ShowNouveauWarning()
 {
@@ -539,6 +555,7 @@ TimelinePanel* MainWindow::AppendTimelinePanel()
   connect(panel, &TimelinePanel::TimeChanged, param_panel_, &ParamPanel::SetTimestamp);
   connect(panel, &TimelinePanel::TimeChanged, table_panel_, &NodeTablePanel::SetTimestamp);
   connect(panel, &TimelinePanel::TimeChanged, sequence_viewer_panel_, &SequenceViewerPanel::SetTimestamp);
+  connect(panel, &TimelinePanel::BlockSelectionChanged, this, &MainWindow::TimelinePanelSelectionChanged);
   connect(param_panel_, &ParamPanel::TimeChanged, panel, &TimelinePanel::SetTimestamp);
   connect(curve_panel_, &ParamPanel::TimeChanged, panel, &TimelinePanel::SetTimestamp);
   connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, panel, &TimelinePanel::SetTimestamp);
