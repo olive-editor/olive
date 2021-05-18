@@ -416,11 +416,17 @@ bool FFmpegEncoder::WriteSubtitle(const SubtitleBlock *sub_block)
   pkt->dts = pkt->pts;
   av_packet_rescale_ts(pkt, av_get_time_base_q(), subtitle_stream_->time_base);
 
-  av_interleaved_write_frame(fmt_ctx_, pkt);
+  int err = av_interleaved_write_frame(fmt_ctx_, pkt);
+  bool ret = true;
+
+  if (err < 0) {
+    FFmpegError(tr("Failed to write interleaved packet"), err);
+    ret = false;
+  }
 
   av_packet_free(&pkt);
 
-  return true;
+  return ret;
 }
 
 /*
@@ -576,7 +582,11 @@ bool FFmpegEncoder::WriteAVFrame(AVFrame *frame, AVCodecContext* codec_ctx, AVSt
     av_packet_rescale_ts(pkt, codec_ctx->time_base, stream->time_base);
 
     // Write packet to file
-    av_interleaved_write_frame(fmt_ctx_, pkt);
+    error_code = av_interleaved_write_frame(fmt_ctx_, pkt);
+    if (error_code < 0) {
+      FFmpegError(tr("Failed to write interleaved packet"), error_code);
+      goto fail;
+    }
 
     // Unref packet in case we're getting another
     av_packet_unref(pkt);
@@ -822,6 +832,15 @@ void FFmpegEncoder::FlushEncoders()
 
     FlushCodecCtx(audio_codec_ctx_, audio_stream_);
   }
+
+  if (fmt_ctx_) {
+    if (fmt_ctx_->oformat->flags & AVFMT_ALLOW_FLUSH) {
+      int r = av_interleaved_write_frame(fmt_ctx_, nullptr);
+      if (r < 0) {
+        FFmpegError(tr("Failed to write interleaved packet"), r);
+      }
+    }
+  }
 }
 
 void FFmpegEncoder::FlushCodecCtx(AVCodecContext *codec_ctx, AVStream* stream)
@@ -839,7 +858,11 @@ void FFmpegEncoder::FlushCodecCtx(AVCodecContext *codec_ctx, AVStream* stream)
 
     pkt->stream_index = stream->index;
     av_packet_rescale_ts(pkt, codec_ctx->time_base, stream->time_base);
-    av_interleaved_write_frame(fmt_ctx_, pkt);
+    int r = av_interleaved_write_frame(fmt_ctx_, pkt);
+    if (r < 0) {
+      FFmpegError(tr("Failed to write interleaved packet"), r);
+      break;
+    }
     av_packet_unref(pkt);
   } while (error_code >= 0);
 
