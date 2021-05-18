@@ -89,6 +89,7 @@ private:
   AVCodecContext* audio_codec_ctx_;
   SwrContext* audio_resample_ctx_;
   AVFrame* audio_frame_;
+  int audio_max_samples_;
   int audio_frame_offset_;
   int audio_write_count_;
 

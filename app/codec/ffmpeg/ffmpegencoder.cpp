@@ -308,29 +308,26 @@ bool FFmpegEncoder::WriteAudio(SampleBufferPtr audio)
   if (converted > 0) {
     // Split sample buffer into frames
     for (int i=0; i<converted; ) {
-      int copy_offset = audio_frame_offset_;
-      int frame_remaining_samples = audio_frame_->nb_samples - copy_offset;
+      int frame_remaining_samples = audio_max_samples_ - audio_frame_offset_;
       int converted_remaining_samples = converted - i;
 
       int copy_length = qMin(frame_remaining_samples, converted_remaining_samples);
 
-      av_samples_copy(audio_frame_->data, output_data, copy_offset, i,
+      av_samples_copy(audio_frame_->data, output_data, audio_frame_offset_, i,
                       copy_length,
                       audio_frame_->channels, static_cast<AVSampleFormat>(audio_frame_->format));
 
-      if (copy_length != frame_remaining_samples && input_data) {
-        // Frame didn't get all the samples it needed, save them for later
-        audio_frame_offset_ += copy_length;
-      } else {
+      audio_frame_offset_ += copy_length;
+      i += copy_length;
+
+      if (audio_frame_offset_ == audio_max_samples_ || (i == converted && !input_data)) {
         // Got all the samples we needed, write the frame
         audio_frame_->pts = audio_write_count_;
 
         WriteAVFrame(audio_frame_, audio_codec_ctx_, audio_stream_);
-        audio_write_count_ += audio_frame_->nb_samples;
+        audio_write_count_ += audio_frame_offset_;
         audio_frame_offset_ = 0;
       }
-
-      i += copy_length;
     }
   } else if (converted < 0) {
     FFmpegError(tr("Failed to resample audio"), converted);
@@ -875,15 +872,15 @@ bool FFmpegEncoder::InitializeResampleContext(SampleBufferPtr audio)
     return false;
   }
 
-  int max_frame_samples = audio_codec_ctx_->frame_size;
-  if (!max_frame_samples) {
+  audio_max_samples_ = audio_codec_ctx_->frame_size;
+  if (!audio_max_samples_) {
     // If not, use another frame size
     if (params().video_enabled()) {
       // If we're encoding video, use enough samples to cover roughly one frame of video
-      max_frame_samples = params().audio_params().time_to_samples(params().video_params().frame_rate_as_time_base());
+      audio_max_samples_ = params().audio_params().time_to_samples(params().video_params().frame_rate_as_time_base());
     } else {
       // If no video, just use an arbitrary number
-      max_frame_samples = 256;
+      audio_max_samples_ = 256;
     }
   }
 
@@ -894,7 +891,7 @@ bool FFmpegEncoder::InitializeResampleContext(SampleBufferPtr audio)
 
   audio_frame_->channel_layout = audio_codec_ctx_->channel_layout;
   audio_frame_->format = audio_codec_ctx_->sample_fmt;
-  audio_frame_->nb_samples = max_frame_samples;
+  audio_frame_->nb_samples = audio_max_samples_;
 
   err = av_frame_get_buffer(audio_frame_, 0);
   if (err < 0) {
