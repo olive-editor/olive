@@ -46,6 +46,8 @@ public:
 
   virtual bool WriteAudio(olive::SampleBufferPtr audio) override;
 
+  virtual bool WriteSubtitle(const SubtitleBlock *sub_block) override;
+
   virtual void Close() override;
 
   virtual VideoParams::Format GetDesiredPixelFormat() const override
@@ -89,6 +91,9 @@ private:
   AVFrame* audio_frame_;
   int audio_frame_offset_;
   int audio_write_count_;
+
+  AVStream* subtitle_stream_;
+  AVCodecContext* subtitle_codec_ctx_;
 
   bool open_;
 

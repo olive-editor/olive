@@ -32,7 +32,7 @@ class ClipBlock : public Block
 {
   Q_OBJECT
 public:
-  ClipBlock();
+  ClipBlock(bool create_buffer_in = true);
 
   NODE_DEFAULT_DESTRUCTOR(ClipBlock)
 

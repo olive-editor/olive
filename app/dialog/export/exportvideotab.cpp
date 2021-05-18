@@ -74,7 +74,7 @@ QWidget* ExportVideoTab::SetupResolutionSection()
   int row = 0;
 
   QGroupBox* resolution_group = new QGroupBox();
-  resolution_group->setTitle(tr("Basic"));
+  resolution_group->setTitle(tr("General"));
 
   QGridLayout* layout = new QGridLayout(resolution_group);
 

@@ -18,30 +18,40 @@
 
 ***/
 
-#ifndef OIIOENCODER_H
-#define OIIOENCODER_H
+#ifndef EXPORTSUBTITLESTAB_H
+#define EXPORTSUBTITLESTAB_H
 
-#include "codec/encoder.h"
+#include <QComboBox>
+
+#include "codec/exportformat.h"
+#include "render/subtitleparams.h"
 
 namespace olive {
 
-class OIIOEncoder : public Encoder
+class ExportSubtitlesTab : public QWidget
 {
-  Q_OBJECT
 public:
-  OIIOEncoder(const EncodingParams &params);
+  ExportSubtitlesTab(QWidget *parent = nullptr);
 
-public slots:
-  virtual bool Open() override;
+  int SetFormat(ExportFormat::Format format);
 
-  virtual bool WriteFrame(olive::FramePtr frame, olive::rational time) override;
-  virtual bool WriteAudio(SampleBufferPtr audio) override;
-  virtual bool WriteSubtitle(const SubtitleBlock *sub_block) override;
+  ExportCodec::Codec GetSubtitleCodec()
+  {
+    return static_cast<ExportCodec::Codec>(codec_combobox_->currentData().toInt());
+  }
 
-  virtual void Close() override;
+  SubtitleParams::Encoding GetSubtitleEncoding()
+  {
+    return static_cast<SubtitleParams::Encoding>(encoding_combobox_->currentData().toInt());
+  }
+
+private:
+  QComboBox *codec_combobox_;
+
+  QComboBox *encoding_combobox_;
 
 };
 
 }
 
-#endif // OIIOENCODER_H
+#endif // EXPORTSUBTITLESTAB_H

@@ -58,6 +58,7 @@ public:
     kProjectSequence,
     kValueNode,
     kTimeRemapNode,
+    kSubtitleBlock,
 
     // Count value
     kInternalNodeCount

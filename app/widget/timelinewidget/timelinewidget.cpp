@@ -77,13 +77,15 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   // Create list of TimelineViews - these MUST correspond to the ViewType enum
 
   view_splitter_ = new QSplitter(Qt::Vertical);
-  view_splitter_->setChildrenCollapsible(false);
   vert_layout->addWidget(view_splitter_);
 
   // Video view
   views_.append(new TimelineAndTrackView(Qt::AlignBottom));
 
   // Audio view
+  views_.append(new TimelineAndTrackView(Qt::AlignTop));
+
+  // Subtitle view
   views_.append(new TimelineAndTrackView(Qt::AlignTop));
 
   // Create tools
@@ -155,7 +157,17 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   }
 
   // Split viewer 50/50
-  view_splitter_->setSizes({INT_MAX, INT_MAX});
+  QList<int> view_sizes;
+  view_sizes.reserve(views_.size());
+  view_sizes.append(height()/2);  // Video
+  view_sizes.append(height()/2);  // Audio
+  view_sizes.append(0);           // Subtitle (hidden by default)
+  view_splitter_->setSizes(view_sizes);
+
+  // Video and audio are not collapsible, subtitle is
+  view_splitter_->setCollapsible(Track::kVideo, false);
+  view_splitter_->setCollapsible(Track::kAudio, false);
+  view_splitter_->setCollapsible(Track::kSubtitle, true);
 
   // FIXME: Magic number
   SetScale(90.0);
@@ -786,10 +798,22 @@ void TimelineWidget::ViewMouseMoved(TimelineViewMouseEvent *event)
 
       if (hover_tool) {
         hover_tool->HoverMove(event);
+
+        // Special cast for subtitle adding - ensure section is visible
+        if (dynamic_cast<AddTool*>(hover_tool)
+            && Core::instance()->GetSelectedAddableObject() == Tool::kAddableSubtitle) {
+          QList<int> sz = view_splitter_->sizes();
+          int &subtitle_section_height = sz[Track::kSubtitle];
+          if (subtitle_section_height == 0) {
+            subtitle_section_height = height() / Track::kCount;
+            view_splitter_->setSizes(sz);
+          }
+        }
       }
     }
   }
 }
+
 
 void TimelineWidget::ViewMouseReleased(TimelineViewMouseEvent *event)
 {

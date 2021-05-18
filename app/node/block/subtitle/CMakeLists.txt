@@ -14,19 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(codec)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  dialog/export/export.cpp
-  dialog/export/export.h
-  dialog/export/exportadvancedvideodialog.cpp
-  dialog/export/exportadvancedvideodialog.h
-  dialog/export/exportaudiotab.cpp
-  dialog/export/exportaudiotab.h
-  dialog/export/exportsubtitlestab.cpp
-  dialog/export/exportsubtitlestab.h
-  dialog/export/exportvideotab.cpp
-  dialog/export/exportvideotab.h
+  node/block/subtitle/subtitle.cpp
+  node/block/subtitle/subtitle.h
   PARENT_SCOPE
 )

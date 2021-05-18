@@ -91,7 +91,8 @@ EncodingParams::EncodingParams() :
   video_threads_(0),
   video_is_image_sequence_(false),
   audio_enabled_(false),
-  audio_bit_rate_(0)
+  audio_bit_rate_(0),
+  subtitles_enabled_(false)
 {
 }
 
@@ -112,6 +113,13 @@ void EncodingParams::EnableAudio(const AudioParams &audio_params, const ExportCo
   audio_enabled_ = true;
   audio_params_ = audio_params;
   audio_codec_ = acodec;
+}
+
+void EncodingParams::EnableSubtitles(const SubtitleParams::Encoding &encoding, const ExportCodec::Codec &scodec)
+{
+  subtitles_enabled_ = true;
+  subtitles_encoding_ = encoding;
+  subtitles_codec_ = scodec;
 }
 
 void EncodingParams::set_video_option(const QString &key, const QString &value)
@@ -219,6 +227,21 @@ const AudioParams &EncodingParams::audio_params() const
   return audio_params_;
 }
 
+bool EncodingParams::subtitles_enabled() const
+{
+  return subtitles_enabled_;
+}
+
+SubtitleParams::Encoding EncodingParams::subtitles_encoding() const
+{
+  return subtitles_encoding_;
+}
+
+ExportCodec::Codec EncodingParams::subtitles_codec() const
+{
+  return subtitles_codec_;
+}
+
 const rational &EncodingParams::GetExportLength() const
 {
   return export_length_;
@@ -310,6 +333,7 @@ Encoder::Type Encoder::GetTypeFromFormat(ExportFormat::Format f)
   case ExportFormat::kFormatFLAC:
   case ExportFormat::kFormatOgg:
   case ExportFormat::kFormatWebM:
+  case ExportFormat::kFormatSRT:
     return kEncoderTypeFFmpeg;
   case ExportFormat::kFormatOpenEXR:
   case ExportFormat::kFormatPNG:

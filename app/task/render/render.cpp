@@ -21,6 +21,7 @@
 #include "render.h"
 
 #include "common/timecodefunctions.h"
+#include "node/project/sequence/sequence.h"
 #include "render/rendermanager.h"
 
 namespace olive {
@@ -40,7 +41,7 @@ RenderTask::~RenderTask()
 
 bool RenderTask::Render(ColorManager* manager,
                         const TimeRangeList& video_range,
-                        const TimeRangeList &audio_range,
+                        const TimeRangeList &audio_range, const TimeRange &subtitle_range,
                         RenderMode::Mode mode,
                         FrameHashCache* cache, const QSize &force_size,
                         const QMatrix4x4 &force_matrix, VideoParams::Format force_format,
@@ -127,6 +128,50 @@ bool RenderTask::Render(ColorManager* manager,
   for (int i=0; i<maximum_rendered_frames && frame_iterator!=frame_render_order.cend(); i++, frame_iterator++) {
     StartTicket(frame_iterator->second, &watcher_thread, manager, frame_iterator->first,
                 mode, cache, force_size, force_matrix, force_format, force_color_output);
+  }
+
+  // Subtitle loop, loops over all blocks in sequence on all tracks
+  if (!subtitle_range.length().isNull()) {
+    Sequence *sequence = dynamic_cast<Sequence*>(viewer_);
+    if (sequence) {
+      TrackList *list = sequence->track_list(Track::kSubtitle);
+      QVector<int> block_indexes(list->GetTrackCount(), 0);
+
+      QVector<int> tracks_to_push;
+      do {
+        tracks_to_push.clear();
+
+        for (int i=0; i<block_indexes.size(); i++) {
+          Track *this_track = list->GetTrackAt(i);
+          int &this_block_index = block_indexes[i];
+          if (this_block_index >= this_track->Blocks().size()) {
+            continue;
+          }
+          Block *this_block = this_track->Blocks().at(this_block_index);
+
+          Track *compare_track = tracks_to_push.isEmpty() ? nullptr : list->GetTrackAt(tracks_to_push.first());
+          const int &compare_block_index = tracks_to_push.isEmpty() ? -1 : block_indexes.at(tracks_to_push.first());
+          Block *compare_block = compare_track ? compare_track->Blocks().at(compare_block_index) : nullptr;
+          if (!compare_track || compare_block->in() >= this_block->in()) {
+            if (compare_track && compare_block->in() != this_block->in()) {
+              tracks_to_push.clear();
+            }
+            tracks_to_push.append(i);
+          }
+        }
+
+        for (int i=0; i<tracks_to_push.size(); i++) {
+          Track *this_track = list->GetTrackAt(tracks_to_push.at(i));
+          Block *this_block = this_track->Blocks().at(block_indexes.at(tracks_to_push.at(i)));
+
+          if (const SubtitleBlock *sub = dynamic_cast<const SubtitleBlock*>(this_block)) {
+            EncodeSubtitle(sub);
+          }
+
+          block_indexes[tracks_to_push.at(i)]++;
+        }
+      } while (!tracks_to_push.isEmpty());
+    }
   }
 
   finished_watcher_mutex_.lock();
@@ -236,6 +281,11 @@ void RenderTask::DownloadFrame(QThread *thread, FramePtr frame, const QByteArray
   watcher->SetTicket(RenderManager::instance()->SaveFrameToCache(viewer_->video_frame_cache(),
                                                                  frame,
                                                                  hash));
+}
+
+void RenderTask::EncodeSubtitle(const SubtitleBlock *subtitle)
+{
+  Q_UNUSED(subtitle)
 }
 
 void RenderTask::PrepareWatcher(RenderTicketWatcher *watcher, QThread *thread)

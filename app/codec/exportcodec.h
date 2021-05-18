@@ -25,6 +25,7 @@
 #include <QString>
 
 #include "common/define.h"
+#include "render/subtitleparams.h"
 
 namespace olive {
 
@@ -52,12 +53,17 @@ public:
     kCodecVorbis,
     kCodecFLAC,
 
+    // Subtitle codecs
+    kCodecSRT,
+
     kCodecCount
   };
 
   static QString GetCodecName(Codec c);
 
   static bool IsCodecAStillImage(Codec c);
+
+  static SubtitleParams::Encoding GetDefaultSubtitleEncoding(Codec c);
 
 };
 

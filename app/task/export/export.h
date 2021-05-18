@@ -42,6 +42,8 @@ protected:
 
   virtual void AudioDownloaded(const TimeRange& range, SampleBufferPtr samples, qint64 job_time) override;
 
+  virtual void EncodeSubtitle(const SubtitleBlock *sub) override;
+
   virtual bool TwoStepFrameRendering() const override
   {
     return false;

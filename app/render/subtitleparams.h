@@ -18,30 +18,38 @@
 
 ***/
 
-#ifndef OIIOENCODER_H
-#define OIIOENCODER_H
+#ifndef SUBTITLEPARAMS_H
+#define SUBTITLEPARAMS_H
 
-#include "codec/encoder.h"
+#include <QString>
 
 namespace olive {
 
-class OIIOEncoder : public Encoder
-{
-  Q_OBJECT
+class SubtitleParams {
 public:
-  OIIOEncoder(const EncodingParams &params);
+  enum Encoding {
+    kEncodingInvalid = -1,
+    kISO8859_1,
+    kWindows1252,
+    kUTF8,
+    kUTF8WithBOM,
+    kUTF16LE,
+    kUTF16BE,
+    kEncodingCount
+  };
 
-public slots:
-  virtual bool Open() override;
+  static QString GetEncodingName(Encoding encoding);
 
-  virtual bool WriteFrame(olive::FramePtr frame, olive::rational time) override;
-  virtual bool WriteAudio(SampleBufferPtr audio) override;
-  virtual bool WriteSubtitle(const SubtitleBlock *sub_block) override;
+  static bool EncodingHasUnicodeBOM(Encoding encoding);
 
-  virtual void Close() override;
+  static QByteArray GetUnicodeBOM(Encoding encoding);
+
+  static const char *GetQTextStreamCodec(Encoding encoding);
+
+  static QString GenerateASSHeader();
 
 };
 
 }
 
-#endif // OIIOENCODER_H
+#endif // SUBTITLEPARAMS_H

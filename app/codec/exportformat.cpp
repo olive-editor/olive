@@ -53,6 +53,8 @@ QString ExportFormat::GetName(olive::ExportFormat::Format f)
     return tr("Ogg");
   case kFormatWebM:
     return tr("WebM");
+  case kFormatSRT:
+    return tr("SubRip SRT");
 
   case kFormatCount:
     break;
@@ -90,6 +92,8 @@ QString ExportFormat::GetExtension(ExportFormat::Format f)
     return QStringLiteral("ogg");
   case kFormatWebM:
     return QStringLiteral("webm");
+  case kFormatSRT:
+    return QStringLiteral("srt");
   case kFormatCount:
     break;
   }
@@ -121,7 +125,7 @@ QList<ExportCodec::Codec> ExportFormat::GetVideoCodecs(ExportFormat::Format f)
   case kFormatAIFF:
   case kFormatMP3:
   case kFormatFLAC:
-    return {};
+  case kFormatSRT:
   case kFormatCount:
     break;
   }
@@ -132,22 +136,19 @@ QList<ExportCodec::Codec> ExportFormat::GetVideoCodecs(ExportFormat::Format f)
 QList<ExportCodec::Codec> ExportFormat::GetAudioCodecs(ExportFormat::Format f)
 {
   switch (f) {
+  // Video/audio formats
   case kFormatDNxHD:
     return {ExportCodec::kCodecPCM};
   case kFormatMatroska:
     return {ExportCodec::kCodecAAC, ExportCodec::kCodecMP2, ExportCodec::kCodecMP3, ExportCodec::kCodecPCM, ExportCodec::kCodecVorbis, ExportCodec::kCodecOpus};
   case kFormatMPEG4:
-    return {ExportCodec::kCodecAAC, ExportCodec::kCodecMP2, ExportCodec::kCodecMP3, ExportCodec::kCodecPCM};
+    return {ExportCodec::kCodecAAC, ExportCodec::kCodecMP2, ExportCodec::kCodecMP3};
   case kFormatQuickTime:
     return {ExportCodec::kCodecAAC, ExportCodec::kCodecMP2, ExportCodec::kCodecMP3, ExportCodec::kCodecPCM};
   case kFormatWebM:
     return {ExportCodec::kCodecAAC, ExportCodec::kCodecMP2, ExportCodec::kCodecMP3, ExportCodec::kCodecPCM, ExportCodec::kCodecVorbis, ExportCodec::kCodecOpus};
-  case kFormatOpenEXR:
-  case kFormatPNG:
-  case kFormatTIFF:
-    return {};
 
-
+  // Audio only formats
   case kFormatWAV:
     return {ExportCodec::kCodecPCM};
   case kFormatAIFF:
@@ -159,9 +160,39 @@ QList<ExportCodec::Codec> ExportFormat::GetAudioCodecs(ExportFormat::Format f)
   case kFormatOgg:
     return {ExportCodec::kCodecOpus, ExportCodec::kCodecVorbis, ExportCodec::kCodecPCM};
 
-
+  // Video only formats
+  case kFormatOpenEXR:
+  case kFormatPNG:
+  case kFormatTIFF:
+  case kFormatSRT:
   case kFormatCount:
     break;
+
+  }
+
+  return {};
+}
+
+QList<ExportCodec::Codec> ExportFormat::GetSubtitleCodecs(Format f)
+{
+  switch (f) {
+  case kFormatDNxHD:
+  case kFormatMPEG4:
+  case kFormatOpenEXR:
+  case kFormatQuickTime:
+  case kFormatPNG:
+  case kFormatTIFF:
+  case kFormatWAV:
+  case kFormatAIFF:
+  case kFormatMP3:
+  case kFormatFLAC:
+  case kFormatOgg:
+  case kFormatWebM:
+  case kFormatCount:
+    break;
+  case kFormatMatroska:
+  case kFormatSRT:
+    return {ExportCodec::kCodecSRT};
   }
 
   return {};

@@ -23,6 +23,7 @@
 
 #include <QtConcurrent/QtConcurrent>
 
+#include "node/block/subtitle/subtitle.h"
 #include "node/color/colormanager/colormanager.h"
 #include "node/output/viewer/viewer.h"
 #include "task/task.h"
@@ -41,7 +42,8 @@ public:
 
 protected:
   bool Render(ColorManager *manager, const TimeRangeList &video_range,
-              const TimeRangeList &audio_range, RenderMode::Mode mode,
+              const TimeRangeList &audio_range, const TimeRange &subtitle_range,
+              RenderMode::Mode mode,
               FrameHashCache *cache, const QSize& force_size = QSize(0, 0),
               const QMatrix4x4& force_matrix = QMatrix4x4(),
               VideoParams::Format force_format = VideoParams::kFormatInvalid,
@@ -52,6 +54,8 @@ protected:
   virtual void FrameDownloaded(FramePtr frame, const QByteArray& hash, const QVector<rational>& times, qint64 job_time) = 0;
 
   virtual void AudioDownloaded(const TimeRange& range, SampleBufferPtr samples, qint64 job_time) = 0;
+
+  virtual void EncodeSubtitle(const SubtitleBlock *subtitle);
 
   ViewerOutput* viewer() const
   {

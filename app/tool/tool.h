@@ -96,6 +96,9 @@ public:
     /// An audio clip with a sine connected to it
     kAddableTone,
 
+    /// A subtitle clip
+    kAddableSubtitle,
+
     kAddableCount
   };
 
@@ -112,6 +115,8 @@ public:
       return QCoreApplication::translate("Tool", "Title");
     case kAddableTone:
       return QCoreApplication::translate("Tool", "Tone");
+    case kAddableSubtitle:
+      return QCoreApplication::translate("Tool", "Subtitle");
     case kAddableCount:
       break;
     }

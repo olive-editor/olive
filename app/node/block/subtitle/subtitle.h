@@ -18,30 +18,43 @@
 
 ***/
 
-#ifndef OIIOENCODER_H
-#define OIIOENCODER_H
+#ifndef SUBTITLEBLOCK_H
+#define SUBTITLEBLOCK_H
 
-#include "codec/encoder.h"
+#include "node/block/clip/clip.h"
 
 namespace olive {
 
-class OIIOEncoder : public Encoder
+class SubtitleBlock : public ClipBlock
 {
   Q_OBJECT
 public:
-  OIIOEncoder(const EncodingParams &params);
+  SubtitleBlock();
 
-public slots:
-  virtual bool Open() override;
+  NODE_DEFAULT_DESTRUCTOR(SubtitleBlock)
 
-  virtual bool WriteFrame(olive::FramePtr frame, olive::rational time) override;
-  virtual bool WriteAudio(SampleBufferPtr audio) override;
-  virtual bool WriteSubtitle(const SubtitleBlock *sub_block) override;
+  virtual Node* copy() const override;
 
-  virtual void Close() override;
+  virtual QString Name() const override;
+  virtual QString id() const override;
+  virtual QString Description() const override;
+
+  virtual void Retranslate() override;
+
+  static const QString kTextIn;
+
+  QString GetText() const
+  {
+    return GetStandardValue(kTextIn).toString();
+  }
+
+  void SetText(const QString &text)
+  {
+    SetStandardValue(kTextIn, text);
+  }
 
 };
 
 }
 
-#endif // OIIOENCODER_H
+#endif // SUBTITLEBLOCK_H

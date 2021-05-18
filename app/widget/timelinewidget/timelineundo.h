@@ -1230,11 +1230,11 @@ public:
 
       if (timeline_->type() == Track::kVideo) {
         relevant_input = ViewerOutput::kTextureInput;
-      } else {
+      } else if (timeline_->type() == Track::kAudio) {
         relevant_input = ViewerOutput::kSamplesInput;
       }
 
-      if (!timeline_->parent()->IsInputConnected(relevant_input)) {
+      if (!relevant_input.isEmpty() && !timeline_->parent()->IsInputConnected(relevant_input)) {
         direct_ = NodeInput(timeline_->parent(), relevant_input);
 
         Node::ConnectEdge(track_, direct_);
@@ -1289,14 +1289,19 @@ private:
         merge_ = new MergeNode();
         base_ = NodeInput(merge_, MergeNode::kBaseIn);
         blend_ = NodeInput(merge_, MergeNode::kBlendIn);
-      } else {
+      } else if (timeline_->type() == Track::kAudio) {
         merge_ = new MathNode();
         base_ = NodeInput(merge_, MathNode::kParamAIn);
         blend_ = NodeInput(merge_, MathNode::kParamBIn);
+      } else {
+        merge_ = nullptr;
       }
-      merge_->setParent(&memory_manager_);
     } else {
       merge_ = nullptr;
+    }
+
+    if (merge_) {
+      merge_->setParent(&memory_manager_);
     }
   }
 

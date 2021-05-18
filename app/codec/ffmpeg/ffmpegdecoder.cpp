@@ -272,7 +272,8 @@ FootageDescription FFmpegDecoder::Probe(const QString &filename, const QAtomicIn
 
       if (decoder
           && (avstream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO
-              || avstream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO)) {
+              || avstream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO
+              || avstream->codecpar->codec_type == AVMEDIA_TYPE_SUBTITLE)) {
 
         if (avstream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
 
@@ -367,7 +368,7 @@ FootageDescription FFmpegDecoder::Probe(const QString &filename, const QAtomicIn
 
           desc.AddVideoStream(stream);
 
-        } else {
+        } else if (avstream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
 
           // Create an audio stream object
           uint64_t channel_layout = avstream->codecpar->channel_layout;
@@ -411,6 +412,10 @@ FootageDescription FFmpegDecoder::Probe(const QString &filename, const QAtomicIn
           stream.set_time_base(avstream->time_base);
           stream.set_duration(avstream->duration);
           desc.AddAudioStream(stream);
+
+        } else if (avstream->codecpar->codec_type == AVMEDIA_TYPE_SUBTITLE) {
+
+          qDebug() << "Subtitle probing: Stub";
 
         }
 

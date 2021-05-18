@@ -27,6 +27,7 @@ extern "C" {
 #include <QFile>
 
 #include "common/ffmpegutils.h"
+#include "common/timecodefunctions.h"
 
 namespace olive {
 
@@ -83,6 +84,7 @@ QStringList FFmpegEncoder::GetPixelFormatsForCodec(ExportCodec::Codec c) const
   case ExportCodec::kCodecFLAC:
   case ExportCodec::kCodecOpus:
   case ExportCodec::kCodecVorbis:
+  case ExportCodec::kCodecSRT:
   case ExportCodec::kCodecCount:
     // These are audio or invalid codecs and therefore have no pixel formats
     break;
@@ -174,6 +176,13 @@ bool FFmpegEncoder::Open()
   // Initialize an audio stream if it's enabled
   if (params().audio_enabled()) {
     if (!InitializeStream(AVMEDIA_TYPE_AUDIO, &audio_stream_, &audio_codec_ctx_, params().audio_codec())) {
+      return false;
+    }
+  }
+
+  // Initialize a subtitle stream if it's enabled
+  if (params().subtitles_enabled()) {
+    if (!InitializeStream(AVMEDIA_TYPE_SUBTITLE, &subtitle_stream_, &subtitle_codec_ctx_, params().subtitles_codec())) {
       return false;
     }
   }
@@ -347,6 +356,76 @@ bool FFmpegEncoder::WriteAudio(SampleBufferPtr audio)
 
   return result;
 }
+
+QString GetAssTime(const rational &time)
+{
+  int64_t total_centiseconds = qRound64(time.toDouble() * 100);
+
+  int64_t cs = total_centiseconds % 100;
+  int64_t ss = (total_centiseconds / 100) % 60;
+  int64_t mm = (total_centiseconds / 6000) % 60;
+  int64_t hh = total_centiseconds / 360000;
+
+  return QStringLiteral("%1:%2:%3.%4").arg(
+        QString::number(hh),
+        QStringLiteral("%1").arg(mm, 2, 10, QLatin1Char('0')),
+        QStringLiteral("%1").arg(ss, 2, 10, QLatin1Char('0')),
+        QStringLiteral("%1").arg(cs, 2, 10, QLatin1Char('0'))
+      );
+}
+
+bool FFmpegEncoder::WriteSubtitle(const SubtitleBlock *sub_block)
+{
+  AVSubtitle subtitle;
+  memset(&subtitle, 0, sizeof(subtitle));
+
+  AVSubtitleRect rect;
+  memset(&rect, 0, sizeof(rect));
+
+  QString ass_line = QStringLiteral("Dialogue: 0,%1,%2,Default,,0,0,0,,%3").arg(
+        GetAssTime(sub_block->in()),
+        GetAssTime(sub_block->out()),
+        sub_block->GetText()
+      );
+
+  QByteArray utf8_sub = sub_block->GetText().toUtf8();
+  QByteArray utf8_ass = ass_line.toUtf8();
+
+  rect.type = SUBTITLE_ASS;
+  rect.text = utf8_sub.data();
+  rect.ass = utf8_ass.data();
+
+  AVSubtitleRect *rect_array = &rect;
+  subtitle.num_rects = 1;
+  subtitle.rects = &rect_array;
+
+  subtitle.pts = Timecode::time_to_timestamp(sub_block->in(), av_get_time_base_q(), true);
+  subtitle.end_display_time = qRound64(sub_block->length().toDouble() * 1000);
+
+  QVector<uint8_t> out_buf(1024 * 1024);
+
+  int sub_sz = avcodec_encode_subtitle(subtitle_codec_ctx_, out_buf.data(), out_buf.size(), &subtitle);
+  if (sub_sz < 0) {
+    return false;
+  }
+
+  AVPacket *pkt = av_packet_alloc();
+
+  pkt->stream_index = subtitle_stream_->index;
+  pkt->data = out_buf.data();
+  pkt->size = sub_sz;
+  pkt->pts = subtitle.pts;
+  pkt->duration = subtitle.end_display_time;
+  pkt->dts = pkt->pts;
+  av_packet_rescale_ts(pkt, av_get_time_base_q(), subtitle_stream_->time_base);
+
+  av_interleaved_write_frame(fmt_ctx_, pkt);
+
+  av_packet_free(&pkt);
+
+  return true;
+}
+
 /*
 void FFmpegEncoder::WriteAudio(AudioParams pcm_info, QIODevice* file)
 {
@@ -464,7 +543,7 @@ void FFmpegEncoder::FFmpegError(const QString& context, int error_code)
   char err[1024];
   av_strerror(error_code, err, 1024);
 
-  QString formatted_err = tr("%1: %2 %3").arg(context, formatted_err, QString::number(error_code));
+  QString formatted_err = tr("%1: %2 %3").arg(context, err, QString::number(error_code));
   qDebug() << formatted_err;
   SetError(formatted_err);
 }
@@ -516,8 +595,8 @@ fail:
 
 bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AVCodecContext** codec_ctx_ptr, const ExportCodec::Codec& codec)
 {
-  if (type != AVMEDIA_TYPE_VIDEO && type != AVMEDIA_TYPE_AUDIO) {
-    SetError(tr("Cannot initialize a stream that is not a video or audio type"));
+  if (type != AVMEDIA_TYPE_VIDEO && type != AVMEDIA_TYPE_AUDIO && type != AVMEDIA_TYPE_SUBTITLE) {
+    SetError(tr("Cannot initialize a stream that is not a video, audio, or subtitle type"));
     return false;
   }
 
@@ -569,6 +648,9 @@ bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AV
     break;
   case ExportCodec::kCodecFLAC:
     codec_id = AV_CODEC_ID_FLAC;
+    break;
+  case ExportCodec::kCodecSRT:
+    codec_id = AV_CODEC_ID_SUBRIP;
     break;
   case ExportCodec::kCodecCount:
     break;
@@ -648,7 +730,7 @@ bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AV
       }
     }
 
-  } else {
+  } else if (type == AVMEDIA_TYPE_AUDIO) {
 
     // Assume audio stream
     codec_ctx->sample_rate = params().audio_params().sample_rate();
@@ -660,6 +742,15 @@ bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AV
     if (params().audio_bit_rate() > 0) {
       codec_ctx->bit_rate = params().audio_bit_rate();
     }
+
+  } else if (type == AVMEDIA_TYPE_SUBTITLE) {
+
+    codec_ctx->time_base = av_get_time_base_q();
+
+    QByteArray ass_header = SubtitleParams::GenerateASSHeader().toUtf8();
+    codec_ctx->subtitle_header = new uint8_t[ass_header.size()];
+    memcpy(codec_ctx->subtitle_header, ass_header.constData(), ass_header.size());
+    codec_ctx->subtitle_header_size = ass_header.size();
 
   }
 

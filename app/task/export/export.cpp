@@ -56,7 +56,7 @@ bool ExportTask::Run()
   }
 
   if (!encoder_->Open()) {
-    SetError(tr("Failed to open file"));
+    SetError(tr("Failed to open file: %1").arg(encoder_->GetError()));
     encoder_->deleteLater();
     return false;
   }
@@ -102,6 +102,7 @@ bool ExportTask::Run()
 
   // Start render process
   TimeRangeList video_range, audio_range;
+  TimeRange subtitle_range;
 
   if (params_.video_enabled()) {
     video_range = {range};
@@ -111,7 +112,11 @@ bool ExportTask::Run()
     audio_range = {range};
   }
 
-  Render(color_manager_, video_range, audio_range, RenderMode::kOnline, nullptr,
+  if (params_.subtitles_enabled()) {
+    subtitle_range = range;
+  }
+
+  Render(color_manager_, video_range, audio_range, subtitle_range, RenderMode::kOnline, nullptr,
          video_force_size, video_force_matrix, encoder_->GetDesiredPixelFormat(),
          color_processor_);
 
@@ -189,6 +194,11 @@ void ExportTask::AudioDownloaded(const TimeRange &range, SampleBufferPtr samples
   } else {
     audio_map_.insert(adjusted_range, samples);
   }
+}
+
+void ExportTask::EncodeSubtitle(const SubtitleBlock *sub)
+{
+  encoder_->WriteSubtitle(sub);
 }
 
 void ExportTask::WriteAudioLoop(const TimeRange& time, SampleBufferPtr samples)

@@ -47,6 +47,7 @@ public:
     kFormatFLAC,
     kFormatOgg,
     kFormatWebM,
+    kFormatSRT,
 
     kFormatCount
   };
@@ -55,6 +56,7 @@ public:
   static QString GetExtension(Format f);
   static QList<ExportCodec::Codec> GetVideoCodecs(ExportFormat::Format f);
   static QList<ExportCodec::Codec> GetAudioCodecs(ExportFormat::Format f);
+  static QList<ExportCodec::Codec> GetSubtitleCodecs(ExportFormat::Format f);
 
   static QStringList GetPixelFormatsForCodec(Format f, ExportCodec::Codec c);
 
