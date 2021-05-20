@@ -45,6 +45,11 @@ public:
     node_view_->SetGraph(graph);
   }
 
+  NodeView* GetView() const
+  {
+    return node_view_;
+  }
+
   virtual void SelectAll() override
   {
     node_view_->SelectAll();

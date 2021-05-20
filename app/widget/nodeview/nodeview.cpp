@@ -24,6 +24,7 @@
 #include <QMouseEvent>
 #include <QScrollBar>
 
+#include "config/config.h"
 #include "core.h"
 #include "nodeviewundo.h"
 #include "node/factory.h"
@@ -58,12 +59,14 @@ NodeView::NodeView(QWidget *parent) :
 
   ConnectSelectionChangedSignal();
 
-  SetFlowDirection(NodeViewCommon::kTopToBottom);
+  SetFlowDirection((NodeViewCommon::FlowDirection)(Config::Current()[QStringLiteral("NodeFlowDirection")].toInt()));
 
   // Set massive scene rect and hide the scrollbars to create an "infinite space" effect
   scene_.setSceneRect(-1000000, -1000000, 2000000, 2000000);
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+  scene_.SetEdgesAreCurved(Config::Current()[QStringLiteral("NodeSmoothEdges")].toBool());
 }
 
 NodeView::~NodeView()

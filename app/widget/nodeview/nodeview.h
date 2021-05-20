@@ -51,10 +51,17 @@ public:
     return graph_;
   }
 
+  NodeViewScene* GetScene()
+  {
+    return &scene_;
+  }
+
   /**
    * @brief Sets the graph to view
    */
   void SetGraph(NodeGraph* graph);
+
+  void SetFlowDirection(NodeViewCommon::FlowDirection dir);
 
   /**
    * @brief Delete selected nodes from graph (user-friendly/undoable)
@@ -98,8 +105,6 @@ private:
   void AttachItemsToCursor(const QVector<NodeViewItem *> &items);
 
   void DetachItemsFromCursor();
-
-  void SetFlowDirection(NodeViewCommon::FlowDirection dir);
 
   void MoveAttachedNodesToCursor(const QPoint &p);
 
