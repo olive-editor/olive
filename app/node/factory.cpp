@@ -26,6 +26,7 @@
 #include "audio/volume/volume.h"
 #include "block/clip/clip.h"
 #include "block/gap/gap.h"
+#include "block/subtitle/subtitle.h"
 #include "block/transition/crossdissolve/crossdissolvetransition.h"
 #include "block/transition/diptocolor/diptocolortransition.h"
 #include "distort/crop/cropdistortnode.h"
@@ -236,6 +237,8 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new ValueNode();
   case kTimeRemapNode:
     return new TimeRemapNode();
+  case kSubtitleBlock:
+    return new SubtitleBlock();
 
   case kInternalNodeCount:
     break;

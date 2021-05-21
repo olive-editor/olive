@@ -32,6 +32,7 @@ enum TextVerticalAlign {
 };
 
 const QString TextGenerator::kTextInput = QStringLiteral("text_in");
+const QString TextGenerator::kHtmlInput = QStringLiteral("html_in");
 const QString TextGenerator::kColorInput = QStringLiteral("color_in");
 const QString TextGenerator::kVAlignInput = QStringLiteral("valign_in");
 const QString TextGenerator::kFontInput = QStringLiteral("font_in");
@@ -40,6 +41,8 @@ const QString TextGenerator::kFontSizeInput = QStringLiteral("font_size_in");
 TextGenerator::TextGenerator()
 {
   AddInput(kTextInput, NodeValue::kText, tr("Sample Text"));
+
+  AddInput(kHtmlInput, NodeValue::kBoolean, false);
 
   AddInput(kColorInput, NodeValue::kColor, QVariant::fromValue(Color(1.0f, 1.0f, 1.0)));
 
@@ -78,6 +81,7 @@ QString TextGenerator::Description() const
 void TextGenerator::Retranslate()
 {
   SetInputName(kTextInput, tr("Text"));
+  SetInputName(kHtmlInput, tr("Enable HTML"));
   SetInputName(kFontInput, tr("Font"));
   SetInputName(kFontSizeInput, tr("Font Size"));
   SetInputName(kColorInput, tr("Color"));
@@ -91,6 +95,7 @@ NodeValueTable TextGenerator::Value(const QString &output, NodeValueDatabase &va
 
   GenerateJob job;
   job.InsertValue(this, kTextInput, value);
+  job.InsertValue(this, kHtmlInput, value);
   job.InsertValue(this, kColorInput, value);
   job.InsertValue(this, kVAlignInput, value);
   job.InsertValue(this, kFontInput, value);
@@ -126,7 +131,13 @@ void TextGenerator::GenerateFrame(FramePtr frame, const GenerateJob& job) const
   // Center by default
   text_doc.setDefaultTextOption(QTextOption(Qt::AlignCenter));
 
-  text_doc.setHtml(job.GetValue(kTextInput).data().toString());
+  QString html = job.GetValue(kTextInput).data().toString();
+  if (job.GetValue(kHtmlInput).data().toBool()) {
+    html.replace('\n', QStringLiteral("<br>"));
+    text_doc.setHtml(html);
+  } else {
+    text_doc.setPlainText(html);
+  }
 
   // Align to 80% width because that's considered the "title safe" area
   int tenth_of_width = frame->video_params().width() / 10;

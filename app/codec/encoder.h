@@ -31,7 +31,9 @@
 #include "codec/frame.h"
 #include "codec/samplebuffer.h"
 #include "common/timerange.h"
+#include "node/block/subtitle/subtitle.h"
 #include "render/audioparams.h"
+#include "render/subtitleparams.h"
 #include "render/videoparams.h"
 
 namespace olive {
@@ -47,6 +49,7 @@ public:
 
   void EnableVideo(const VideoParams& video_params, const ExportCodec::Codec& vcodec);
   void EnableAudio(const AudioParams& audio_params, const ExportCodec::Codec &acodec);
+  void EnableSubtitles(const ExportCodec::Codec &scodec);
 
   void set_video_option(const QString& key, const QString& value);
   void set_video_bit_rate(const int64_t& rate);
@@ -91,6 +94,9 @@ public:
     audio_bit_rate_ = b;
   }
 
+  bool subtitles_enabled() const;
+  ExportCodec::Codec subtitles_codec() const;
+
   const rational& GetExportLength() const;
   void SetExportLength(const rational& GetExportLength);
 
@@ -115,6 +121,9 @@ private:
   ExportCodec::Codec audio_codec_;
   AudioParams audio_params_;
   int64_t audio_bit_rate_;
+
+  bool subtitles_enabled_;
+  ExportCodec::Codec subtitles_codec_;
 
   rational export_length_;
 
@@ -174,6 +183,7 @@ public slots:
 
   virtual bool WriteFrame(olive::FramePtr frame, olive::rational time) = 0;
   virtual bool WriteAudio(olive::SampleBufferPtr audio) = 0;
+  virtual bool WriteSubtitle(const SubtitleBlock *sub_block) = 0;
 
   virtual void Close() = 0;
 

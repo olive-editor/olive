@@ -18,41 +18,23 @@
 
 ***/
 
-#ifndef RENDERCACHE_H
-#define RENDERCACHE_H
+#ifndef NODEPARAMVIEWDOCKAREA_H
+#define NODEPARAMVIEWDOCKAREA_H
 
-#include "codec/decoder.h"
+#include <QMainWindow>
 
 namespace olive {
 
-template <typename K, typename V>
-class RenderCache : public QHash<K, V>
+class NodeParamViewDockArea : public QMainWindow
 {
+  Q_OBJECT
 public:
-  QMutex *mutex()
-  {
-    return &mutex_;
-  }
+  explicit NodeParamViewDockArea(QWidget *parent = nullptr);
 
-private:
-  QMutex mutex_;
+  virtual QMenu *createPopupMenu() override;
 
 };
-
-struct DecoderPair {
-  DecoderPair()
-  {
-    decoder = nullptr;
-    last_modified = 0;
-  }
-
-  DecoderPtr decoder;
-  qint64 last_modified;
-};
-
-using DecoderCache = RenderCache<Decoder::CodecStream, DecoderPair>;
-using ShaderCache = RenderCache<QString, QVariant>;
 
 }
 
-#endif // RENDERCACHE_H
+#endif // NODEPARAMVIEWDOCKAREA_H

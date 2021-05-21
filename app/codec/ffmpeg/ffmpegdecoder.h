@@ -53,7 +53,7 @@ public:
   FFmpegDecoder();
 
   // Destructor
-  virtual ~FFmpegDecoder() override;
+  DECODER_DEFAULT_DESTRUCTOR(FFmpegDecoder)
 
   virtual QString id() const override;
 

@@ -591,8 +591,7 @@ QVariant Node::GetSplitValueAtTimeOnTrack(const QString &input, const rational &
       NodeKeyframe* after = key_track.at(i+1);
 
       if (before->time() == time
-          || !NodeValue::type_can_be_interpolated(type)
-          || (before->type() == NodeKeyframe::kHold && after->time() > time)) {
+          || ((!NodeValue::type_can_be_interpolated(type) || before->type() == NodeKeyframe::kHold) && after->time() > time)) {
 
         // Time == keyframe time, so value is precise
         return before->value();

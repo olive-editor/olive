@@ -16,6 +16,7 @@
 
 add_subdirectory(clip)
 add_subdirectory(gap)
+add_subdirectory(subtitle)
 add_subdirectory(transition)
 
 set(OLIVE_SOURCES

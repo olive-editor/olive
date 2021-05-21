@@ -68,6 +68,11 @@ bool OIIOEncoder::WriteAudio(SampleBufferPtr audio)
   return false;
 }
 
+bool OIIOEncoder::WriteSubtitle(const SubtitleBlock *sub_block)
+{
+  return false;
+}
+
 void OIIOEncoder::Close()
 {
   // Do nothing

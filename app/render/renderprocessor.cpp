@@ -187,13 +187,16 @@ DecoderPtr RenderProcessor::ResolveDecoderFromInput(const QString& decoder_id, c
 
   QMutexLocker locker(decoder_cache_->mutex());
 
-  DecoderPtr decoder = decoder_cache_->value(stream);
+  DecoderPair decoder = decoder_cache_->value(stream);
 
-  if (!decoder) {
+  qint64 file_last_modified = QFileInfo(stream.filename()).lastModified().toMSecsSinceEpoch();
+
+  if (!decoder.decoder || decoder.last_modified != file_last_modified) {
     // No decoder
-    decoder = Decoder::CreateFromID(decoder_id);
+    decoder.decoder = Decoder::CreateFromID(decoder_id);
+    decoder.last_modified = file_last_modified;
 
-    if (decoder->Open(stream)) {
+    if (decoder.decoder->Open(stream)) {
       decoder_cache_->insert(stream, decoder);
     } else {
       qWarning() << "Failed to open decoder for" << stream.filename()
@@ -202,7 +205,7 @@ DecoderPtr RenderProcessor::ResolveDecoderFromInput(const QString& decoder_id, c
     }
   }
 
-  return decoder;
+  return decoder.decoder;
 }
 
 void RenderProcessor::Process(RenderTicketPtr ticket, Renderer *render_ctx, StillImageCache *still_image_cache, DecoderCache *decoder_cache, ShaderCache *shader_cache, QVariant default_shader)

@@ -60,7 +60,7 @@ void TimelineView::mousePressEvent(QMouseEvent *event)
   TimelineViewMouseEvent timeline_event = CreateMouseEvent(event);
 
   if (HandPress(event)
-      || (!GetItemAtScenePos(timeline_event.GetFrame(), timeline_event.GetTrack().index()) && PlayheadPress(event))) {
+      || (!GetItemAtScenePos(timeline_event.GetFrame(), timeline_event.GetTrack().index()) && Core::instance()->tool() != Tool::kAdd && PlayheadPress(event))) {
     // Let the parent handle this
     return;
   }

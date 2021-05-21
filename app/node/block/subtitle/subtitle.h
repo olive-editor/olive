@@ -18,41 +18,43 @@
 
 ***/
 
-#ifndef RENDERCACHE_H
-#define RENDERCACHE_H
+#ifndef SUBTITLEBLOCK_H
+#define SUBTITLEBLOCK_H
 
-#include "codec/decoder.h"
+#include "node/block/clip/clip.h"
 
 namespace olive {
 
-template <typename K, typename V>
-class RenderCache : public QHash<K, V>
+class SubtitleBlock : public ClipBlock
 {
+  Q_OBJECT
 public:
-  QMutex *mutex()
+  SubtitleBlock();
+
+  NODE_DEFAULT_DESTRUCTOR(SubtitleBlock)
+
+  virtual Node* copy() const override;
+
+  virtual QString Name() const override;
+  virtual QString id() const override;
+  virtual QString Description() const override;
+
+  virtual void Retranslate() override;
+
+  static const QString kTextIn;
+
+  QString GetText() const
   {
-    return &mutex_;
+    return GetStandardValue(kTextIn).toString();
   }
 
-private:
-  QMutex mutex_;
-
-};
-
-struct DecoderPair {
-  DecoderPair()
+  void SetText(const QString &text)
   {
-    decoder = nullptr;
-    last_modified = 0;
+    SetStandardValue(kTextIn, text);
   }
 
-  DecoderPtr decoder;
-  qint64 last_modified;
 };
-
-using DecoderCache = RenderCache<Decoder::CodecStream, DecoderPair>;
-using ShaderCache = RenderCache<QString, QVariant>;
 
 }
 
-#endif // RENDERCACHE_H
+#endif // SUBTITLEBLOCK_H

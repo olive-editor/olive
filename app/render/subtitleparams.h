@@ -18,41 +18,19 @@
 
 ***/
 
-#ifndef RENDERCACHE_H
-#define RENDERCACHE_H
+#ifndef SUBTITLEPARAMS_H
+#define SUBTITLEPARAMS_H
 
-#include "codec/decoder.h"
+#include <QString>
 
 namespace olive {
 
-template <typename K, typename V>
-class RenderCache : public QHash<K, V>
-{
+class SubtitleParams {
 public:
-  QMutex *mutex()
-  {
-    return &mutex_;
-  }
-
-private:
-  QMutex mutex_;
+  static QString GenerateASSHeader();
 
 };
-
-struct DecoderPair {
-  DecoderPair()
-  {
-    decoder = nullptr;
-    last_modified = 0;
-  }
-
-  DecoderPtr decoder;
-  qint64 last_modified;
-};
-
-using DecoderCache = RenderCache<Decoder::CodecStream, DecoderPair>;
-using ShaderCache = RenderCache<QString, QVariant>;
 
 }
 
-#endif // RENDERCACHE_H
+#endif // SUBTITLEPARAMS_H

@@ -18,46 +18,46 @@
 
 ***/
 
-#include "nodeparamviewrichtext.h"
+#include "nodeparamviewtextedit.h"
 
 #include <QHBoxLayout>
 #include <QPushButton>
 
-#include "dialog/richtext/richtext.h"
+#include "dialog/text/text.h"
 #include "ui/icons/icons.h"
 
 namespace olive {
 
-NodeParamViewRichText::NodeParamViewRichText(QWidget *parent) :
+NodeParamViewTextEdit::NodeParamViewTextEdit(QWidget *parent) :
   QWidget(parent)
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
   layout->setMargin(0);
 
-  line_edit_ = new QTextEdit();
+  line_edit_ = new QPlainTextEdit();
   line_edit_->setUndoRedoEnabled(true);
-  connect(line_edit_, &QTextEdit::textChanged, this, &NodeParamViewRichText::InnerWidgetTextChanged);
+  connect(line_edit_, &QPlainTextEdit::textChanged, this, &NodeParamViewTextEdit::InnerWidgetTextChanged);
   layout->addWidget(line_edit_);
 
   QPushButton* edit_btn = new QPushButton();
   edit_btn->setIcon(icon::ToolEdit);
   edit_btn->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
   layout->addWidget(edit_btn);
-  connect(edit_btn, &QPushButton::clicked, this, &NodeParamViewRichText::ShowRichTextDialog);
+  connect(edit_btn, &QPushButton::clicked, this, &NodeParamViewTextEdit::ShowTextDialog);
 }
 
-void NodeParamViewRichText::ShowRichTextDialog()
+void NodeParamViewTextEdit::ShowTextDialog()
 {
-  RichTextDialog d(this->text(), this);
+  TextDialog d(this->text(), this);
   if (d.exec() == QDialog::Accepted) {
     QString s = d.text();
 
-    line_edit_->setText(s);
+    line_edit_->setPlainText(s);
     emit textEdited(s);
   }
 }
 
-void NodeParamViewRichText::InnerWidgetTextChanged()
+void NodeParamViewTextEdit::InnerWidgetTextChanged()
 {
   emit textEdited(this->text());
 }

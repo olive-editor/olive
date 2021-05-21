@@ -25,6 +25,7 @@
 #include <QString>
 
 #include "common/define.h"
+#include "render/subtitleparams.h"
 
 namespace olive {
 
@@ -51,6 +52,9 @@ public:
     kCodecOpus,
     kCodecVorbis,
     kCodecFLAC,
+
+    // Subtitle codecs
+    kCodecSRT,
 
     kCodecCount
   };

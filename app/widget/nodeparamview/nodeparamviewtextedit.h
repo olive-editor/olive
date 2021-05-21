@@ -18,32 +18,32 @@
 
 ***/
 
-#ifndef NODEPARAMVIEWRICHTEXT_H
-#define NODEPARAMVIEWRICHTEXT_H
+#ifndef NODEPARAMVIEWTEXTEDIT_H
+#define NODEPARAMVIEWTEXTEDIT_H
 
-#include <QTextEdit>
+#include <QPlainTextEdit>
 #include <QWidget>
 
 #include "common/define.h"
 
 namespace olive {
 
-class NodeParamViewRichText : public QWidget
+class NodeParamViewTextEdit : public QWidget
 {
   Q_OBJECT
 public:
-  NodeParamViewRichText(QWidget* parent = nullptr);
+  NodeParamViewTextEdit(QWidget* parent = nullptr);
 
   QString text() const
   {
-    return line_edit_->toPlainText().replace('\n', QStringLiteral("<br>"));
+    return line_edit_->toPlainText();
   }
 
 public slots:
-  void setText(QString s)
+  void setText(const QString &s)
   {
     line_edit_->blockSignals(true);
-    line_edit_->setPlainText(s.replace(QStringLiteral("<br>"), QStringLiteral("\n")));
+    line_edit_->setPlainText(s);
     line_edit_->blockSignals(false);
   }
 
@@ -65,10 +65,10 @@ signals:
   void textEdited(const QString &);
 
 private:
-  QTextEdit* line_edit_;
+  QPlainTextEdit* line_edit_;
 
 private slots:
-  void ShowRichTextDialog();
+  void ShowTextDialog();
 
   void InnerWidgetTextChanged();
 
@@ -76,4 +76,4 @@ private slots:
 
 }
 
-#endif // NODEPARAMVIEWRICHTEXT_H
+#endif // NODEPARAMVIEWTEXTEDIT_H

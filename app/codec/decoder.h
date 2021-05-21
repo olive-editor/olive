@@ -44,6 +44,8 @@ namespace olive {
 class Decoder;
 using DecoderPtr = std::shared_ptr<Decoder>;
 
+#define DECODER_DEFAULT_DESTRUCTOR(x) virtual ~x() override {CloseInternal();}
+
 /**
  * @brief A decoder's is the main class for bringing external media into Olive
  *

@@ -21,11 +21,11 @@
 #ifndef NODEPARAMVIEW_H
 #define NODEPARAMVIEW_H
 
-#include <QMainWindow>
 #include <QVBoxLayout>
 #include <QWidget>
 
 #include "node/node.h"
+#include "nodeparamviewdockarea.h"
 #include "nodeparamviewitem.h"
 #include "widget/keyframeview/keyframeview.h"
 #include "widget/timebased/timebasedwidget.h"
@@ -121,7 +121,7 @@ private:
 
   // This may look weird, but QMainWindow is just a QWidget with a fancy layout that allows
   // docking windows
-  QMainWindow* param_widget_area_;
+  NodeParamViewDockArea* param_widget_area_;
 
   QVector<Node*> pinned_nodes_;
 

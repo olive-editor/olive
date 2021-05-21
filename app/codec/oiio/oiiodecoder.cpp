@@ -41,11 +41,6 @@ OIIODecoder::OIIODecoder() :
 {
 }
 
-OIIODecoder::~OIIODecoder()
-{
-  CloseInternal();
-}
-
 QString OIIODecoder::id() const
 {
   return QStringLiteral("oiio");

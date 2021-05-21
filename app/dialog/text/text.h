@@ -18,41 +18,34 @@
 
 ***/
 
-#ifndef RENDERCACHE_H
-#define RENDERCACHE_H
+#ifndef RICHTEXTDIALOG_H
+#define RICHTEXTDIALOG_H
 
-#include "codec/decoder.h"
+#include <QDialog>
+#include <QFontComboBox>
+#include <QPlainTextEdit>
+
+#include "common/define.h"
+#include "widget/slider/floatslider.h"
 
 namespace olive {
 
-template <typename K, typename V>
-class RenderCache : public QHash<K, V>
+class TextDialog : public QDialog
 {
+  Q_OBJECT
 public:
-  QMutex *mutex()
+  TextDialog(const QString &start, QWidget* parent = nullptr);
+
+  QString text() const
   {
-    return &mutex_;
+    return text_edit_->toPlainText();
   }
 
 private:
-  QMutex mutex_;
+  QPlainTextEdit* text_edit_;
 
 };
-
-struct DecoderPair {
-  DecoderPair()
-  {
-    decoder = nullptr;
-    last_modified = 0;
-  }
-
-  DecoderPtr decoder;
-  qint64 last_modified;
-};
-
-using DecoderCache = RenderCache<Decoder::CodecStream, DecoderPair>;
-using ShaderCache = RenderCache<QString, QVariant>;
 
 }
 
-#endif // RENDERCACHE_H
+#endif // RICHTEXTDIALOG_H

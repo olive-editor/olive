@@ -18,41 +18,33 @@
 
 ***/
 
-#ifndef RENDERCACHE_H
-#define RENDERCACHE_H
+#ifndef EXPORTSUBTITLESTAB_H
+#define EXPORTSUBTITLESTAB_H
 
-#include "codec/decoder.h"
+#include <QComboBox>
+
+#include "codec/exportformat.h"
+#include "render/subtitleparams.h"
 
 namespace olive {
 
-template <typename K, typename V>
-class RenderCache : public QHash<K, V>
+class ExportSubtitlesTab : public QWidget
 {
 public:
-  QMutex *mutex()
+  ExportSubtitlesTab(QWidget *parent = nullptr);
+
+  int SetFormat(ExportFormat::Format format);
+
+  ExportCodec::Codec GetSubtitleCodec()
   {
-    return &mutex_;
+    return static_cast<ExportCodec::Codec>(codec_combobox_->currentData().toInt());
   }
 
 private:
-  QMutex mutex_;
+  QComboBox *codec_combobox_;
 
 };
-
-struct DecoderPair {
-  DecoderPair()
-  {
-    decoder = nullptr;
-    last_modified = 0;
-  }
-
-  DecoderPtr decoder;
-  qint64 last_modified;
-};
-
-using DecoderCache = RenderCache<Decoder::CodecStream, DecoderPair>;
-using ShaderCache = RenderCache<QString, QVariant>;
 
 }
 
-#endif // RENDERCACHE_H
+#endif // EXPORTSUBTITLESTAB_H

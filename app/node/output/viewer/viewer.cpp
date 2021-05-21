@@ -497,12 +497,14 @@ bool ViewerOutput::LoadCustom(QXmlStreamReader *reader, XMLNodeData &xml_node_da
     timeline_points_.Load(reader);
     return true;
   } else {
-    return LoadCustom(reader, xml_node_data, version, cancelled);
+    return super::LoadCustom(reader, xml_node_data, version, cancelled);
   }
 }
 
 void ViewerOutput::SaveCustom(QXmlStreamWriter *writer) const
 {
+  super::SaveCustom(writer);
+
   // Write TimelinePoints
   writer->writeStartElement(QStringLiteral("points"));
   timeline_points_.Save(writer);

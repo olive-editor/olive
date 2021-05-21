@@ -124,29 +124,30 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   QHBoxLayout* av_enabled_layout = new QHBoxLayout();
 
   video_enabled_ = new QCheckBox(tr("Export Video"));
-  video_enabled_->setChecked(true);
   av_enabled_layout->addWidget(video_enabled_);
 
   audio_enabled_ = new QCheckBox(tr("Export Audio"));
-  audio_enabled_->setChecked(true);
   av_enabled_layout->addWidget(audio_enabled_);
+
+  subtitles_enabled_ = new QCheckBox(tr("Export Subtitle"));
+  av_enabled_layout->addWidget(subtitles_enabled_);
 
   preferences_layout->addLayout(av_enabled_layout, row, 0, 1, 4);
 
   row++;
 
   preferences_tabs_ = new QTabWidget();
-  QScrollArea* video_area = new QScrollArea();
+
   color_manager_ = viewer_node_->project()->color_manager();
   video_tab_ = new ExportVideoTab(color_manager_);
-  video_area->setWidgetResizable(true);
-  video_area->setWidget(video_tab_);
-  preferences_tabs_->addTab(video_area, tr("Video"));
-  QScrollArea* audio_area = new QScrollArea();
+  AddPreferencesTab(video_tab_, tr("Video"));
+
   audio_tab_ = new ExportAudioTab();
-  audio_area->setWidgetResizable(true);
-  audio_area->setWidget(audio_tab_);
-  preferences_tabs_->addTab(audio_area, tr("Audio"));
+  AddPreferencesTab(audio_tab_, tr("Audio"));
+
+  subtitle_tab_ = new ExportSubtitlesTab();
+  AddPreferencesTab(subtitle_tab_, tr("Subtitles"));
+
   preferences_layout->addWidget(preferences_tabs_, row, 0, 1, 4);
 
   row++;
@@ -268,9 +269,9 @@ rational ExportDialog::GetSelectedTimebase() const
 
 void ExportDialog::StartExport()
 {
-  if (!video_enabled_->isChecked() && !audio_enabled_->isChecked()) {
+  if (!video_enabled_->isChecked() && !audio_enabled_->isChecked() && !subtitles_enabled_->isChecked()) {
     QtUtils::MessageBox(this, QMessageBox::Critical, tr("Invalid parameters"),
-                        tr("Both video and audio are disabled. There's nothing to export."));
+                        tr("Video, audio, and subtitles are disabled. There's nothing to export."));
     return;
   }
 
@@ -392,6 +393,14 @@ void ExportDialog::closeEvent(QCloseEvent *e)
   QDialog::closeEvent(e);
 }
 
+void ExportDialog::AddPreferencesTab(QWidget *inner_widget, const QString &title)
+{
+  QScrollArea* scroll_area = new QScrollArea();
+  scroll_area->setWidgetResizable(true);
+  scroll_area->setWidget(inner_widget);
+  preferences_tabs_->addTab(scroll_area, title);
+}
+
 void ExportDialog::BrowseFilename()
 {
   ExportFormat::Format f = GetSelectedFormat();
@@ -437,6 +446,10 @@ void ExportDialog::FormatChanged(int index)
   bool has_audio_codecs = audio_tab_->SetFormat(current_format);
   audio_enabled_->setChecked(has_audio_codecs);
   audio_enabled_->setEnabled(has_audio_codecs);
+
+  bool has_subtitle_codecs = subtitle_tab_->SetFormat(current_format);
+  subtitles_enabled_->setChecked(has_subtitle_codecs);
+  subtitles_enabled_->setEnabled(has_subtitle_codecs);
 }
 
 void ExportDialog::ResolutionChanged()
@@ -547,6 +560,10 @@ ExportParams ExportDialog::GenerateParams() const
     params.EnableAudio(audio_render_params, audio_codec);
 
     params.set_audio_bit_rate(audio_tab_->bit_rate_slider()->GetValue() * 1000);
+  }
+
+  if (subtitles_enabled_->isChecked()) {
+    params.EnableSubtitles(subtitle_tab_->GetSubtitleCodec());
   }
 
   return params;

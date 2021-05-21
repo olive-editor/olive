@@ -30,7 +30,7 @@
 #include "node/node.h"
 #include "node/project/sequence/sequence.h"
 #include "nodeparamviewarraywidget.h"
-#include "nodeparamviewrichtext.h"
+#include "nodeparamviewtextedit.h"
 #include "nodeparamviewundo.h"
 #include "undo/undostack.h"
 #include "widget/colorbutton/colorbutton.h"
@@ -143,9 +143,9 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     }
     case NodeValue::kText:
     {
-      NodeParamViewRichText* line_edit = new NodeParamViewRichText();
+      NodeParamViewTextEdit* line_edit = new NodeParamViewTextEdit();
       widgets_.append(line_edit);
-      connect(line_edit, &NodeParamViewRichText::textEdited, this, &NodeParamViewWidgetBridge::WidgetCallback);
+      connect(line_edit, &NodeParamViewTextEdit::textEdited, this, &NodeParamViewWidgetBridge::WidgetCallback);
       break;
     }
     case NodeValue::kBoolean:
@@ -358,7 +358,7 @@ void NodeParamViewWidgetBridge::WidgetCallback()
   case NodeValue::kText:
   {
     // Sender is a NodeParamViewRichText
-    SetInputValue(static_cast<NodeParamViewRichText*>(sender())->text(), 0);
+    SetInputValue(static_cast<NodeParamViewTextEdit*>(sender())->text(), 0);
     break;
   }
   case NodeValue::kBoolean:
@@ -498,7 +498,7 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
   }
   case NodeValue::kText:
   {
-    NodeParamViewRichText* e = static_cast<NodeParamViewRichText*>(widgets_.first());
+    NodeParamViewTextEdit* e = static_cast<NodeParamViewTextEdit*>(widgets_.first());
     e->setTextPreservingCursor(input_.GetValueAtTime(node_time).toString());
     break;
   }

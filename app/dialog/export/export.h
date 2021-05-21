@@ -30,6 +30,7 @@
 #include "codec/exportcodec.h"
 #include "codec/exportformat.h"
 #include "exportaudiotab.h"
+#include "exportsubtitlestab.h"
 #include "exportvideotab.h"
 #include "task/export/export.h"
 #include "widget/viewer/viewer.h"
@@ -50,6 +51,8 @@ protected:
   virtual void closeEvent(QCloseEvent *e) override;
 
 private:
+  void AddPreferencesTab(QWidget *inner_widget, const QString &title);
+
   void LoadPresets();
   void SetDefaultFilename();
 
@@ -75,6 +78,7 @@ private:
 
   QCheckBox* video_enabled_;
   QCheckBox* audio_enabled_;
+  QCheckBox* subtitles_enabled_;
 
   ViewerWidget* preview_viewer_;
   QLineEdit* filename_edit_;
@@ -82,6 +86,7 @@ private:
 
   ExportVideoTab* video_tab_;
   ExportAudioTab* audio_tab_;
+  ExportSubtitlesTab* subtitle_tab_;
 
   double video_aspect_ratio_;
 

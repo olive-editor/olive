@@ -27,6 +27,7 @@ extern "C" {
 #include <QFile>
 
 #include "common/ffmpegutils.h"
+#include "common/timecodefunctions.h"
 
 namespace olive {
 
@@ -83,6 +84,7 @@ QStringList FFmpegEncoder::GetPixelFormatsForCodec(ExportCodec::Codec c) const
   case ExportCodec::kCodecFLAC:
   case ExportCodec::kCodecOpus:
   case ExportCodec::kCodecVorbis:
+  case ExportCodec::kCodecSRT:
   case ExportCodec::kCodecCount:
     // These are audio or invalid codecs and therefore have no pixel formats
     break;
@@ -174,6 +176,13 @@ bool FFmpegEncoder::Open()
   // Initialize an audio stream if it's enabled
   if (params().audio_enabled()) {
     if (!InitializeStream(AVMEDIA_TYPE_AUDIO, &audio_stream_, &audio_codec_ctx_, params().audio_codec())) {
+      return false;
+    }
+  }
+
+  // Initialize a subtitle stream if it's enabled
+  if (params().subtitles_enabled()) {
+    if (!InitializeStream(AVMEDIA_TYPE_SUBTITLE, &subtitle_stream_, &subtitle_codec_ctx_, params().subtitles_codec())) {
       return false;
     }
   }
@@ -299,29 +308,26 @@ bool FFmpegEncoder::WriteAudio(SampleBufferPtr audio)
   if (converted > 0) {
     // Split sample buffer into frames
     for (int i=0; i<converted; ) {
-      int copy_offset = audio_frame_offset_;
-      int frame_remaining_samples = audio_frame_->nb_samples - copy_offset;
+      int frame_remaining_samples = audio_max_samples_ - audio_frame_offset_;
       int converted_remaining_samples = converted - i;
 
       int copy_length = qMin(frame_remaining_samples, converted_remaining_samples);
 
-      av_samples_copy(audio_frame_->data, output_data, copy_offset, i,
+      av_samples_copy(audio_frame_->data, output_data, audio_frame_offset_, i,
                       copy_length,
                       audio_frame_->channels, static_cast<AVSampleFormat>(audio_frame_->format));
 
-      if (copy_length != frame_remaining_samples && input_data) {
-        // Frame didn't get all the samples it needed, save them for later
-        audio_frame_offset_ += copy_length;
-      } else {
+      audio_frame_offset_ += copy_length;
+      i += copy_length;
+
+      if (audio_frame_offset_ == audio_max_samples_ || (i == converted && !input_data)) {
         // Got all the samples we needed, write the frame
         audio_frame_->pts = audio_write_count_;
 
         WriteAVFrame(audio_frame_, audio_codec_ctx_, audio_stream_);
-        audio_write_count_ += audio_frame_->nb_samples;
+        audio_write_count_ += audio_frame_offset_;
         audio_frame_offset_ = 0;
       }
-
-      i += copy_length;
     }
   } else if (converted < 0) {
     FFmpegError(tr("Failed to resample audio"), converted);
@@ -347,6 +353,82 @@ bool FFmpegEncoder::WriteAudio(SampleBufferPtr audio)
 
   return result;
 }
+
+QString GetAssTime(const rational &time)
+{
+  int64_t total_centiseconds = qRound64(time.toDouble() * 100);
+
+  int64_t cs = total_centiseconds % 100;
+  int64_t ss = (total_centiseconds / 100) % 60;
+  int64_t mm = (total_centiseconds / 6000) % 60;
+  int64_t hh = total_centiseconds / 360000;
+
+  return QStringLiteral("%1:%2:%3.%4").arg(
+        QString::number(hh),
+        QStringLiteral("%1").arg(mm, 2, 10, QLatin1Char('0')),
+        QStringLiteral("%1").arg(ss, 2, 10, QLatin1Char('0')),
+        QStringLiteral("%1").arg(cs, 2, 10, QLatin1Char('0'))
+      );
+}
+
+bool FFmpegEncoder::WriteSubtitle(const SubtitleBlock *sub_block)
+{
+  AVSubtitle subtitle;
+  memset(&subtitle, 0, sizeof(subtitle));
+
+  AVSubtitleRect rect;
+  memset(&rect, 0, sizeof(rect));
+
+  QString ass_line = QStringLiteral("Dialogue: 0,%1,%2,Default,,0,0,0,,%3").arg(
+        GetAssTime(sub_block->in()),
+        GetAssTime(sub_block->out()),
+        sub_block->GetText()
+      );
+
+  QByteArray utf8_sub = sub_block->GetText().toUtf8();
+  QByteArray utf8_ass = ass_line.toUtf8();
+
+  rect.type = SUBTITLE_ASS;
+  rect.text = utf8_sub.data();
+  rect.ass = utf8_ass.data();
+
+  AVSubtitleRect *rect_array = &rect;
+  subtitle.num_rects = 1;
+  subtitle.rects = &rect_array;
+
+  subtitle.pts = Timecode::time_to_timestamp(sub_block->in(), av_get_time_base_q(), true);
+  subtitle.end_display_time = qRound64(sub_block->length().toDouble() * 1000);
+
+  QVector<uint8_t> out_buf(1024 * 1024);
+
+  int sub_sz = avcodec_encode_subtitle(subtitle_codec_ctx_, out_buf.data(), out_buf.size(), &subtitle);
+  if (sub_sz < 0) {
+    return false;
+  }
+
+  AVPacket *pkt = av_packet_alloc();
+
+  pkt->stream_index = subtitle_stream_->index;
+  pkt->data = out_buf.data();
+  pkt->size = sub_sz;
+  pkt->pts = subtitle.pts;
+  pkt->duration = subtitle.end_display_time;
+  pkt->dts = pkt->pts;
+  av_packet_rescale_ts(pkt, av_get_time_base_q(), subtitle_stream_->time_base);
+
+  int err = av_interleaved_write_frame(fmt_ctx_, pkt);
+  bool ret = true;
+
+  if (err < 0) {
+    FFmpegError(tr("Failed to write interleaved packet"), err);
+    ret = false;
+  }
+
+  av_packet_free(&pkt);
+
+  return ret;
+}
+
 /*
 void FFmpegEncoder::WriteAudio(AudioParams pcm_info, QIODevice* file)
 {
@@ -464,7 +546,7 @@ void FFmpegEncoder::FFmpegError(const QString& context, int error_code)
   char err[1024];
   av_strerror(error_code, err, 1024);
 
-  QString formatted_err = tr("%1: %2 %3").arg(context, formatted_err, QString::number(error_code));
+  QString formatted_err = tr("%1: %2 %3").arg(context, err, QString::number(error_code));
   qDebug() << formatted_err;
   SetError(formatted_err);
 }
@@ -500,7 +582,11 @@ bool FFmpegEncoder::WriteAVFrame(AVFrame *frame, AVCodecContext* codec_ctx, AVSt
     av_packet_rescale_ts(pkt, codec_ctx->time_base, stream->time_base);
 
     // Write packet to file
-    av_interleaved_write_frame(fmt_ctx_, pkt);
+    error_code = av_interleaved_write_frame(fmt_ctx_, pkt);
+    if (error_code < 0) {
+      FFmpegError(tr("Failed to write interleaved packet"), error_code);
+      goto fail;
+    }
 
     // Unref packet in case we're getting another
     av_packet_unref(pkt);
@@ -516,8 +602,8 @@ fail:
 
 bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AVCodecContext** codec_ctx_ptr, const ExportCodec::Codec& codec)
 {
-  if (type != AVMEDIA_TYPE_VIDEO && type != AVMEDIA_TYPE_AUDIO) {
-    SetError(tr("Cannot initialize a stream that is not a video or audio type"));
+  if (type != AVMEDIA_TYPE_VIDEO && type != AVMEDIA_TYPE_AUDIO && type != AVMEDIA_TYPE_SUBTITLE) {
+    SetError(tr("Cannot initialize a stream that is not a video, audio, or subtitle type"));
     return false;
   }
 
@@ -569,6 +655,9 @@ bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AV
     break;
   case ExportCodec::kCodecFLAC:
     codec_id = AV_CODEC_ID_FLAC;
+    break;
+  case ExportCodec::kCodecSRT:
+    codec_id = AV_CODEC_ID_SUBRIP;
     break;
   case ExportCodec::kCodecCount:
     break;
@@ -648,7 +737,7 @@ bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AV
       }
     }
 
-  } else {
+  } else if (type == AVMEDIA_TYPE_AUDIO) {
 
     // Assume audio stream
     codec_ctx->sample_rate = params().audio_params().sample_rate();
@@ -660,6 +749,15 @@ bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AV
     if (params().audio_bit_rate() > 0) {
       codec_ctx->bit_rate = params().audio_bit_rate();
     }
+
+  } else if (type == AVMEDIA_TYPE_SUBTITLE) {
+
+    codec_ctx->time_base = av_get_time_base_q();
+
+    QByteArray ass_header = SubtitleParams::GenerateASSHeader().toUtf8();
+    codec_ctx->subtitle_header = new uint8_t[ass_header.size()];
+    memcpy(codec_ctx->subtitle_header, ass_header.constData(), ass_header.size());
+    codec_ctx->subtitle_header_size = ass_header.size();
 
   }
 
@@ -734,6 +832,15 @@ void FFmpegEncoder::FlushEncoders()
 
     FlushCodecCtx(audio_codec_ctx_, audio_stream_);
   }
+
+  if (fmt_ctx_) {
+    if (fmt_ctx_->oformat->flags & AVFMT_ALLOW_FLUSH) {
+      int r = av_interleaved_write_frame(fmt_ctx_, nullptr);
+      if (r < 0) {
+        FFmpegError(tr("Failed to write interleaved packet"), r);
+      }
+    }
+  }
 }
 
 void FFmpegEncoder::FlushCodecCtx(AVCodecContext *codec_ctx, AVStream* stream)
@@ -751,7 +858,11 @@ void FFmpegEncoder::FlushCodecCtx(AVCodecContext *codec_ctx, AVStream* stream)
 
     pkt->stream_index = stream->index;
     av_packet_rescale_ts(pkt, codec_ctx->time_base, stream->time_base);
-    av_interleaved_write_frame(fmt_ctx_, pkt);
+    int r = av_interleaved_write_frame(fmt_ctx_, pkt);
+    if (r < 0) {
+      FFmpegError(tr("Failed to write interleaved packet"), r);
+      break;
+    }
     av_packet_unref(pkt);
   } while (error_code >= 0);
 
@@ -784,15 +895,15 @@ bool FFmpegEncoder::InitializeResampleContext(SampleBufferPtr audio)
     return false;
   }
 
-  int max_frame_samples = audio_codec_ctx_->frame_size;
-  if (!max_frame_samples) {
+  audio_max_samples_ = audio_codec_ctx_->frame_size;
+  if (!audio_max_samples_) {
     // If not, use another frame size
     if (params().video_enabled()) {
       // If we're encoding video, use enough samples to cover roughly one frame of video
-      max_frame_samples = params().audio_params().time_to_samples(params().video_params().frame_rate_as_time_base());
+      audio_max_samples_ = params().audio_params().time_to_samples(params().video_params().frame_rate_as_time_base());
     } else {
       // If no video, just use an arbitrary number
-      max_frame_samples = 256;
+      audio_max_samples_ = 256;
     }
   }
 
@@ -803,7 +914,7 @@ bool FFmpegEncoder::InitializeResampleContext(SampleBufferPtr audio)
 
   audio_frame_->channel_layout = audio_codec_ctx_->channel_layout;
   audio_frame_->format = audio_codec_ctx_->sample_fmt;
-  audio_frame_->nb_samples = max_frame_samples;
+  audio_frame_->nb_samples = audio_max_samples_;
 
   err = av_frame_get_buffer(audio_frame_, 0);
   if (err < 0) {

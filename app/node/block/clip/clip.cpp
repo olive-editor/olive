@@ -26,9 +26,11 @@ namespace olive {
 
 const QString ClipBlock::kBufferIn = QStringLiteral("buffer_in");
 
-ClipBlock::ClipBlock()
+ClipBlock::ClipBlock(bool create_buffer_in)
 {
-  AddInput(kBufferIn, NodeValue::kNone, InputFlags(kInputFlagNotKeyframable));
+  if (create_buffer_in) {
+    AddInput(kBufferIn, NodeValue::kNone, InputFlags(kInputFlagNotKeyframable));
+  }
 }
 
 Node *ClipBlock::copy() const
@@ -108,7 +110,9 @@ void ClipBlock::Retranslate()
 {
   super::Retranslate();
 
-  SetInputName(kBufferIn, tr("Buffer"));
+  if (HasInputWithID(kBufferIn)) {
+    SetInputName(kBufferIn, tr("Buffer"));
+  }
 }
 
 void ClipBlock::Hash(const QString &out, QCryptographicHash &hash, const rational &time, const VideoParams &video_params) const

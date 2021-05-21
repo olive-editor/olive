@@ -67,6 +67,7 @@ bool PreCacheTask::Run()
   Render(project_->color_manager(),
          video_range,
          TimeRangeList(),
+         TimeRange(),
          RenderMode::kOnline,
          viewer()->video_frame_cache());
 
