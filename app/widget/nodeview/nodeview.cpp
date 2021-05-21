@@ -113,28 +113,63 @@ void NodeView::SetGraph(NodeGraph *graph, const QVector<void*> &nodes)
 
   // Handle changing nodes
   if (filter_nodes_ != nodes) {
-    DeselectAll();
-    scene_.clear();
-
     filter_nodes_ = nodes;
 
-    foreach (void *n, filter_nodes_) {
-      const NodeGraph::PositionMap &map = graph_->GetNodesForRelative(n);
+    if (filter_mode_ == kFilterShowSelective) {
+      DeselectAll();
+      scene_.clear();
 
-      for (auto it=map.cbegin(); it!=map.cend(); it++) {
-        NodeViewItem *item = scene_.AddNode(it.key());
-        item->SetNodePosition(it.value());
-      }
-    }
+      QMap<NodeViewItem*, QVector<QPointF> > averaged_positions;
 
-    for (auto it=scene_.item_map().cbegin(); it!=scene_.item_map().cend(); it++) {
-      Node *node = it.key();
-      for (auto jt=node->input_connections().cbegin(); jt!=node->input_connections().cend(); jt++) {
-        const NodeOutput &output = jt->second;
-        if (scene_.item_map().contains(output.node())) {
-          // Create edge since both input and output exist
-          scene_.AddEdge(output, jt->first);
+      QPointF origin(0, 0);
+
+      foreach (void *n, filter_nodes_) {
+        const NodeGraph::PositionMap &map = graph_->GetNodesForRelative(n);
+
+        qreal top = 0, bottom = 0;
+
+        for (auto it=map.cbegin(); it!=map.cend(); it++) {
+          NodeViewItem *item = scene_.item_map().value(it.key());
+
+          if (item) {
+            QVector<QPointF> &averages = averaged_positions[item];
+            if (averages.isEmpty()) {
+              averages.append(item->GetNodePosition());
+            }
+            averages.append(origin + it.value());
+          } else {
+            item = scene_.AddNode(it.key());
+          }
+
+          const QPointF &pos = it.value();
+          top = qMin(top, pos.y());
+          bottom = qMax(bottom, pos.y());
+
+          item->SetNodePosition(origin + pos);
         }
+
+        origin.setY(origin.y() + 1 + (bottom - top));
+      }
+
+      for (auto it=scene_.item_map().cbegin(); it!=scene_.item_map().cend(); it++) {
+        Node *node = it.key();
+        for (auto jt=node->input_connections().cbegin(); jt!=node->input_connections().cend(); jt++) {
+          const NodeOutput &output = jt->second;
+          if (scene_.item_map().contains(output.node())) {
+            // Create edge since both input and output exist
+            scene_.AddEdge(output, jt->first);
+          }
+        }
+      }
+
+      for (auto it=averaged_positions.cbegin(); it!=averaged_positions.cend(); it++) {
+        const QVector<QPointF> &positions = it.value();
+        QPointF p;
+        foreach (const QPointF &pos, positions) {
+          p += pos;
+        }
+        p /= positions.size();
+        it.key()->SetNodePosition(p);
       }
     }
   }

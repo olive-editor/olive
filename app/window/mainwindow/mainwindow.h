@@ -142,6 +142,8 @@ private:
 
   void UpdateAudioMonitorParams(ViewerOutput* viewer);
 
+  void UpdateNodePanelContextFromTimelinePanel(TimelinePanel *panel);
+
   QByteArray premaximized_state_;
 
   // Standard panels

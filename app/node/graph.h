@@ -89,6 +89,8 @@ public:
     emit NodePositionRemoved(node, relative);;
   }
 
+  qreal GetNodeContextHeight(void *context);
+
   using PositionMap = QMap<Node*, QPointF>;
 
   const PositionMap &GetNodesForRelative(void *relative)

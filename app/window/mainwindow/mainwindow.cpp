@@ -471,14 +471,7 @@ void MainWindow::TimelinePanelSelectionChanged(const QVector<Block *> &blocks)
   TimelinePanel *panel = static_cast<TimelinePanel *>(sender());
 
   if (PanelManager::instance()->CurrentlyFocused(false) == panel) {
-    QVector<void *> context(blocks.size());
-    for (int i=0; i<blocks.size(); i++) {
-      context[i] = blocks.at(i);
-    }
-
-    ViewerOutput *viewer = panel->GetConnectedViewer();
-
-    node_panel_->SetGraph(viewer ? viewer->parent() : nullptr, context);
+    UpdateNodePanelContextFromTimelinePanel(panel);
   }
 }
 
@@ -710,6 +703,24 @@ void MainWindow::UpdateAudioMonitorParams(ViewerOutput *viewer)
   audio_monitor_panel_->SetParams(viewer ? viewer->GetAudioParams() : AudioParams());
 }
 
+void MainWindow::UpdateNodePanelContextFromTimelinePanel(TimelinePanel *panel)
+{
+  // Add selected blocks (if any)
+  const QVector<Block*> &blocks = panel->GetSelectedBlocks();
+  QVector<void *> context(blocks.size());
+  for (int i=0; i<blocks.size(); i++) {
+    context[i] = blocks.at(i);
+  }
+
+  // If no selected blocks, set the context to the sequence
+  ViewerOutput *viewer = panel->GetConnectedViewer();
+  if (viewer && context.isEmpty()) {
+    context.append(viewer);
+  }
+
+  node_panel_->SetGraph(viewer ? viewer->parent() : nullptr, context);
+}
+
 void MainWindow::FocusedPanelChanged(PanelWidget *panel)
 {
   // Update audio monitor panel
@@ -721,12 +732,7 @@ void MainWindow::FocusedPanelChanged(PanelWidget *panel)
     // Signal timeline focus
     TimelineFocused(timeline->GetConnectedViewer());
 
-    NodeGraph *graph = timeline->GetConnectedViewer() ? timeline->GetConnectedViewer()->parent() : nullptr;
-    QVector<void*> n(timeline->GetSelectedBlocks().size());
-    for (int j=0; j<n.size(); j++) {
-      n[j] = timeline->GetSelectedBlocks().at(j);
-    }
-    node_panel_->SetGraph(graph, n);
+    UpdateNodePanelContextFromTimelinePanel(timeline);
   } else if (ProjectPanel* project = dynamic_cast<ProjectPanel*>(panel)) {
     // Signal project panel focus
     UpdateTitle();

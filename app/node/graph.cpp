@@ -44,6 +44,20 @@ void NodeGraph::Clear()
   }
 }
 
+qreal NodeGraph::GetNodeContextHeight(void *context)
+{
+  const PositionMap &map = position_map_.value(context);
+
+  qreal top = 0, bottom = 0;
+
+  foreach (const QPointF &pt, map) {
+    top = qMin(pt.y(), top);
+    bottom = qMax(pt.y(), bottom);
+  }
+
+  return bottom - top;
+}
+
 void NodeGraph::childEvent(QChildEvent *event)
 {
   super::childEvent(event);
