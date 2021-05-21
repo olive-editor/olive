@@ -22,6 +22,8 @@ set(OLIVE_SOURCES
   widget/nodeparamview/nodeparamviewarraywidget.cpp
   widget/nodeparamview/nodeparamviewconnectedlabel.h
   widget/nodeparamview/nodeparamviewconnectedlabel.cpp
+  widget/nodeparamview/nodeparamviewdockarea.h
+  widget/nodeparamview/nodeparamviewdockarea.cpp
   widget/nodeparamview/nodeparamviewitem.h
   widget/nodeparamview/nodeparamviewitem.cpp
   widget/nodeparamview/nodeparamviewkeyframecontrol.h

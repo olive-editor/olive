@@ -55,7 +55,7 @@ NodeParamView::NodeParamView(QWidget *parent) :
   connect(param_widget_container_, &NodeParamViewParamContainer::Resized, this, &NodeParamView::UpdateGlobalScrollBar);
   scroll_area->setWidget(param_widget_container_);
 
-  param_widget_area_ = new QMainWindow();
+  param_widget_area_ = new NodeParamViewDockArea();
 
   // Disable dock widgets from tabbing and disable glitchy animations
   param_widget_area_->setDockOptions(static_cast<QMainWindow::DockOption>(0));
