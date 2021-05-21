@@ -49,7 +49,7 @@ public:
 
   void EnableVideo(const VideoParams& video_params, const ExportCodec::Codec& vcodec);
   void EnableAudio(const AudioParams& audio_params, const ExportCodec::Codec &acodec);
-  void EnableSubtitles(const SubtitleParams::Encoding &encoding, const ExportCodec::Codec &scodec);
+  void EnableSubtitles(const ExportCodec::Codec &scodec);
 
   void set_video_option(const QString& key, const QString& value);
   void set_video_bit_rate(const int64_t& rate);
@@ -95,7 +95,6 @@ public:
   }
 
   bool subtitles_enabled() const;
-  SubtitleParams::Encoding subtitles_encoding() const;
   ExportCodec::Codec subtitles_codec() const;
 
   const rational& GetExportLength() const;
@@ -125,7 +124,6 @@ private:
 
   bool subtitles_enabled_;
   ExportCodec::Codec subtitles_codec_;
-  SubtitleParams::Encoding subtitles_encoding_;
 
   rational export_length_;
 

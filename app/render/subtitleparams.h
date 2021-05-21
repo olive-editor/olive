@@ -27,25 +27,6 @@ namespace olive {
 
 class SubtitleParams {
 public:
-  enum Encoding {
-    kEncodingInvalid = -1,
-    kISO8859_1,
-    kWindows1252,
-    kUTF8,
-    kUTF8WithBOM,
-    kUTF16LE,
-    kUTF16BE,
-    kEncodingCount
-  };
-
-  static QString GetEncodingName(Encoding encoding);
-
-  static bool EncodingHasUnicodeBOM(Encoding encoding);
-
-  static QByteArray GetUnicodeBOM(Encoding encoding);
-
-  static const char *GetQTextStreamCodec(Encoding encoding);
-
   static QString GenerateASSHeader();
 
 };

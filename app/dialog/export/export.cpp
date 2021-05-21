@@ -563,7 +563,7 @@ ExportParams ExportDialog::GenerateParams() const
   }
 
   if (subtitles_enabled_->isChecked()) {
-    params.EnableSubtitles(subtitle_tab_->GetSubtitleEncoding(), subtitle_tab_->GetSubtitleCodec());
+    params.EnableSubtitles(subtitle_tab_->GetSubtitleCodec());
   }
 
   return params;

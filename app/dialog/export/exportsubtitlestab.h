@@ -40,15 +40,8 @@ public:
     return static_cast<ExportCodec::Codec>(codec_combobox_->currentData().toInt());
   }
 
-  SubtitleParams::Encoding GetSubtitleEncoding()
-  {
-    return static_cast<SubtitleParams::Encoding>(encoding_combobox_->currentData().toInt());
-  }
-
 private:
   QComboBox *codec_combobox_;
-
-  QComboBox *encoding_combobox_;
 
 };
 

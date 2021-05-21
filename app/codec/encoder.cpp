@@ -115,10 +115,9 @@ void EncodingParams::EnableAudio(const AudioParams &audio_params, const ExportCo
   audio_codec_ = acodec;
 }
 
-void EncodingParams::EnableSubtitles(const SubtitleParams::Encoding &encoding, const ExportCodec::Codec &scodec)
+void EncodingParams::EnableSubtitles(const ExportCodec::Codec &scodec)
 {
   subtitles_enabled_ = true;
-  subtitles_encoding_ = encoding;
   subtitles_codec_ = scodec;
 }
 
@@ -230,11 +229,6 @@ const AudioParams &EncodingParams::audio_params() const
 bool EncodingParams::subtitles_enabled() const
 {
   return subtitles_enabled_;
-}
-
-SubtitleParams::Encoding EncodingParams::subtitles_encoding() const
-{
-  return subtitles_encoding_;
 }
 
 ExportCodec::Codec EncodingParams::subtitles_codec() const

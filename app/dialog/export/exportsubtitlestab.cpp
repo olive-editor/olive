@@ -20,16 +20,6 @@ ExportSubtitlesTab::ExportSubtitlesTab(QWidget *parent) :
   codec_combobox_ = new QComboBox();
   layout->addWidget(codec_combobox_, row, 1);
 
-  row++;
-
-  layout->addWidget(new QLabel(tr("Encoding:")), row, 0);
-
-  encoding_combobox_ = new QComboBox();
-  for (int i=0; i<SubtitleParams::kEncodingCount; i++) {
-    encoding_combobox_->addItem(SubtitleParams::GetEncodingName(static_cast<SubtitleParams::Encoding>(i)), i);
-  }
-  layout->addWidget(encoding_combobox_, row, 1);
-
   outer_layout->addStretch();
 }
 

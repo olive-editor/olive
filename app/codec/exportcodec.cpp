@@ -97,31 +97,4 @@ bool ExportCodec::IsCodecAStillImage(ExportCodec::Codec c)
   return false;
 }
 
-SubtitleParams::Encoding ExportCodec::GetDefaultSubtitleEncoding(Codec c)
-{
-  switch (c) {
-  case kCodecSRT:
-    return SubtitleParams::kWindows1252;
-  case kCodecDNxHD:
-  case kCodecH264:
-  case kCodecH265:
-  case kCodecProRes:
-  case kCodecMP2:
-  case kCodecMP3:
-  case kCodecAAC:
-  case kCodecPCM:
-  case kCodecVorbis:
-  case kCodecOpus:
-  case kCodecFLAC:
-  case kCodecVP9:
-  case kCodecOpenEXR:
-  case kCodecPNG:
-  case kCodecTIFF:
-  case kCodecCount:
-    break;
-  }
-
-  return SubtitleParams::kEncodingInvalid;
-}
-
 }

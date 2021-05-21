@@ -63,8 +63,6 @@ public:
 
   static bool IsCodecAStillImage(Codec c);
 
-  static SubtitleParams::Encoding GetDefaultSubtitleEncoding(Codec c);
-
 };
 
 }
