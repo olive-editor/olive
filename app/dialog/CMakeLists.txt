@@ -26,9 +26,9 @@ add_subdirectory(keyframeproperties)
 add_subdirectory(preferences)
 add_subdirectory(progress)
 add_subdirectory(rendercancel)
-add_subdirectory(richtext)
 add_subdirectory(sequence)
 add_subdirectory(task)
+add_subdirectory(text)
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}

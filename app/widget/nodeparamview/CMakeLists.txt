@@ -28,8 +28,8 @@ set(OLIVE_SOURCES
   widget/nodeparamview/nodeparamviewitem.cpp
   widget/nodeparamview/nodeparamviewkeyframecontrol.h
   widget/nodeparamview/nodeparamviewkeyframecontrol.cpp
-  widget/nodeparamview/nodeparamviewrichtext.h
-  widget/nodeparamview/nodeparamviewrichtext.cpp
+  widget/nodeparamview/nodeparamviewtextedit.h
+  widget/nodeparamview/nodeparamviewtextedit.cpp
   widget/nodeparamview/nodeparamviewundo.h
   widget/nodeparamview/nodeparamviewundo.cpp
   widget/nodeparamview/nodeparamviewwidgetbridge.h

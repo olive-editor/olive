@@ -16,7 +16,7 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  dialog/richtext/richtext.h
-  dialog/richtext/richtext.cpp
+  dialog/text/text.h
+  dialog/text/text.cpp
   PARENT_SCOPE
 )
