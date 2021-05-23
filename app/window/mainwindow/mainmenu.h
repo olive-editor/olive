@@ -67,6 +67,12 @@ private slots:
   void FileMenuAboutToShow();
 
   /**
+   * @brief Slot triggered just before the Edit menu shows
+   */
+  void EditMenuAboutToShow();
+  void EditMenuAboutToHide();
+
+  /**
    * @brief Slot triggered just before the View menu shows
    */
   void ViewMenuAboutToShow();
@@ -202,6 +208,7 @@ private:
   Menu* edit_menu_;
   QAction* edit_undo_item_;
   QAction* edit_redo_item_;
+  QAction* edit_delete2_item_;
   QAction* edit_select_all_item_;
   QAction* edit_deselect_all_item_;
   QAction* edit_insert_item_;
