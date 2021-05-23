@@ -764,6 +764,61 @@ public:
 
   static const QString kDefaultOutput;
 
+  class ArrayRemoveCommand : public UndoCommand
+  {
+  public:
+    ArrayRemoveCommand(Node* node, const QString& input, int index) :
+      node_(node),
+      input_(input),
+      index_(index)
+    {
+    }
+
+    virtual Project* GetRelevantProject() const override;
+
+  protected:
+    virtual void redo() override
+    {
+      // Save immediate data
+      if (node_->IsInputKeyframable(input_)) {
+        is_keyframing_ = node_->IsInputKeyframing(input_, index_);
+      }
+      standard_value_ = node_->GetSplitStandardValue(input_, index_);
+      keyframes_ = node_->GetKeyframeTracks(input_, index_);
+      node_->GetImmediate(input_, index_)->delete_all_keyframes(&memory_manager_);
+
+      node_->InputArrayRemove(input_, index_, false);
+    }
+
+    virtual void undo() override
+    {
+      node_->InputArrayInsert(input_, index_, false);
+
+      // Restore keyframes
+      foreach (const NodeKeyframeTrack& track, keyframes_) {
+        foreach (NodeKeyframe* key, track) {
+          key->setParent(node_);
+        }
+      }
+      node_->SetSplitStandardValue(input_, standard_value_, index_);
+
+      if (node_->IsInputKeyframable(input_)) {
+        node_->SetInputIsKeyframing(input_, is_keyframing_, index_);
+      }
+    }
+
+  private:
+    Node* node_;
+    QString input_;
+    int index_;
+
+    SplitValue standard_value_;
+    bool is_keyframing_;
+    QVector<NodeKeyframeTrack> keyframes_;
+    QObject memory_manager_;
+
+  };
+
 protected:
   enum InputFlag {
     /// By default, inputs are keyframable, connectable, and NOT arrays
@@ -969,61 +1024,6 @@ private:
     Node* node_;
     QString input_;
     int index_;
-
-  };
-
-  class ArrayRemoveCommand : public UndoCommand
-  {
-  public:
-    ArrayRemoveCommand(Node* node, const QString& input, int index) :
-      node_(node),
-      input_(input),
-      index_(index)
-    {
-    }
-
-    virtual Project* GetRelevantProject() const override;
-
-  protected:
-    virtual void redo() override
-    {
-      // Save immediate data
-      if (node_->IsInputKeyframable(input_)) {
-        is_keyframing_ = node_->IsInputKeyframing(input_, index_);
-      }
-      standard_value_ = node_->GetSplitStandardValue(input_, index_);
-      keyframes_ = node_->GetKeyframeTracks(input_, index_);
-      node_->GetImmediate(input_, index_)->delete_all_keyframes(&memory_manager_);
-
-      node_->InputArrayRemove(input_, index_, false);
-    }
-
-    virtual void undo() override
-    {
-      node_->InputArrayInsert(input_, index_, false);
-
-      // Restore keyframes
-      foreach (const NodeKeyframeTrack& track, keyframes_) {
-        foreach (NodeKeyframe* key, track) {
-          key->setParent(node_);
-        }
-      }
-      node_->SetSplitStandardValue(input_, standard_value_, index_);
-
-      if (node_->IsInputKeyframable(input_)) {
-        node_->SetInputIsKeyframing(input_, is_keyframing_, index_);
-      }
-    }
-
-  private:
-    Node* node_;
-    QString input_;
-    int index_;
-
-    SplitValue standard_value_;
-    bool is_keyframing_;
-    QVector<NodeKeyframeTrack> keyframes_;
-    QObject memory_manager_;
 
   };
 

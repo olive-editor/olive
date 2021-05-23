@@ -52,6 +52,14 @@ public:
 
   static MenuShared* instance();
 
+  QAction* edit_delete_item()
+  {
+    return edit_delete_item_;
+  }
+
+public slots:
+  void DeleteSelectedTriggered();
+
 private:
   // "New" menu shared items
   QAction* new_project_item_;
@@ -96,8 +104,6 @@ private:
 
 private slots:
   void SplitAtPlayheadTriggered();
-
-  void DeleteSelectedTriggered();
 
   void RippleDeleteTriggered();
 

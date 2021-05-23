@@ -24,6 +24,7 @@
 #include "node/project/footage/footage.h"
 #include "node/project/sequence/sequence.h"
 #include "ui/icons/icons.h"
+#include "widget/nodeview/nodeviewundo.h"
 
 namespace olive {
 
@@ -152,6 +153,23 @@ void FolderAddChild::undo()
 
   Node::DisconnectEdge(child_, NodeInput(folder_, Folder::kChildInput, folder_->InputArraySize(Folder::kChildInput)-1));
   folder_->InputArrayRemoveLast(Folder::kChildInput);
+}
+
+void Folder::RemoveElementCommand::redo()
+{
+  if (!subcommand_) {
+    remove_index_ = folder_->index_of_child_in_array(child_);
+    if (remove_index_ != -1) {
+      NodeInput connected_input(folder_, Folder::kChildInput, remove_index_);
+      subcommand_ = new MultiUndoCommand();
+      subcommand_->add_child(new NodeEdgeRemoveCommand(folder_->GetConnectedOutput(connected_input), connected_input));
+      subcommand_->add_child(new Node::ArrayRemoveCommand(folder_, Folder::kChildInput, remove_index_));
+    }
+  }
+
+  if (subcommand_) {
+    subcommand_->redo();
+  }
 }
 
 }

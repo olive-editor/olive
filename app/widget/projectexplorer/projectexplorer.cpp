@@ -223,6 +223,10 @@ bool ProjectExplorer::DeleteItemsInternal(const QVector<Node*>& selected, bool& 
         command->add_child(new CloseSequenceCommand(sequence));
       }
 
+      if (node->folder()) {
+        command->add_child(new Folder::RemoveElementCommand(node->folder(), node));
+      }
+
       command->add_child(new NodeRemoveWithExclusiveDependenciesAndDisconnect(node));
     }
   }
