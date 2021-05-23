@@ -115,6 +115,46 @@ public:
 
   static const QString kChildInput;
 
+  class RemoveElementCommand : public UndoCommand
+  {
+  public:
+    RemoveElementCommand(Folder *folder, Node *child) :
+      folder_(folder),
+      child_(child),
+      subcommand_(nullptr)
+    {
+    }
+
+    virtual ~RemoveElementCommand() override
+    {
+      delete subcommand_;
+    }
+
+    virtual Project *GetRelevantProject() const override
+    {
+      return folder_->project();
+    }
+
+    virtual void redo() override;
+
+    virtual void undo() override
+    {
+      if (subcommand_) {
+        subcommand_->undo();
+      }
+    }
+
+  private:
+    Folder *folder_;
+
+    Node *child_;
+
+    int remove_index_;
+
+    MultiUndoCommand *subcommand_;
+
+  };
+
 signals:
   void BeginInsertItem(Node* n, int index);
 
