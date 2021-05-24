@@ -159,6 +159,7 @@ NodeViewItem* NodeViewScene::AddNode(Node* node)
 
   connect(node, &Node::LabelChanged, this, &NodeViewScene::NodeAppearanceChanged);
   connect(node, &Node::ColorChanged, this, &NodeViewScene::NodeAppearanceChanged);
+  connect(item, &NodeViewItem::NodePositionChanged, this, &NodeViewScene::NodeItemPositionChanged);
 
   return item;
 }
@@ -276,6 +277,12 @@ void NodeViewScene::NodeAppearanceChanged()
 {
   // Force item to update
   item_map_.value(static_cast<Node*>(sender()))->update();
+}
+
+void NodeViewScene::NodeItemPositionChanged(const QPointF &pos)
+{
+  NodeViewItem *item = static_cast<NodeViewItem *>(sender());
+  emit NodePositionChanged(item, pos);
 }
 
 }

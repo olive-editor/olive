@@ -155,6 +155,13 @@ private:
     kFilterShowSelective
   };
 
+  struct Position {
+    Node *node;
+    QPointF original_item_pos;
+  };
+
+  QMap<NodeViewItem *, Position> positions_;
+
   FilterMode filter_mode_;
 
   QVector<void*> filter_nodes_;
@@ -208,6 +215,8 @@ private slots:
 
   void AddNodePosition(Node *node, void *relative, const QPointF &pos);
   void RemoveNodePosition(Node *node, void *relative);
+
+  void NodePositionChanged(NodeViewItem *item, const QPointF &pos);
 
 };
 

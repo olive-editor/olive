@@ -106,6 +106,9 @@ public slots:
    */
   void SetEdgesAreCurved(bool curved);
 
+signals:
+  void NodePositionChanged(NodeViewItem *node, const QPointF &pos);
+
 private:
   static int DetermineWeight(Node* n);
 
@@ -126,6 +129,8 @@ private slots:
    * @brief Receiver for when a node's label has changed
    */
   void NodeAppearanceChanged();
+
+  void NodeItemPositionChanged(const QPointF &pos);
 
 };
 
