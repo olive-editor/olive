@@ -107,14 +107,6 @@ PreferencesGeneralTab::PreferencesGeneralTab()
     default_still_length_->SetFormat(tr("%1 seconds"));
     default_still_length_->SetValue(Config::Current()["DefaultStillLength"].value<rational>());
     timeline_layout->addWidget(default_still_length_);
-
-    row++;
-
-    timeline_layout->addWidget(new QLabel(tr("Default Sequence Parameters:")), row, 0);
-
-    QPushButton* default_sequence_params_btn = new QPushButton(tr("Edit"));
-    connect(default_sequence_params_btn, &QPushButton::clicked, this, &PreferencesGeneralTab::EditDefaultSequenceSettings);
-    timeline_layout->addWidget(default_sequence_params_btn, row, 1);
   }
 
   {
@@ -187,17 +179,6 @@ void PreferencesGeneralTab::Accept(MultiUndoCommand *command)
   Config::Current()[QStringLiteral("AutorecoveryInterval")] = QVariant::fromValue(autorecovery_interval_->GetValue());
   Config::Current()[QStringLiteral("AutorecoveryMaximum")] = QVariant::fromValue(autorecovery_maximum_->GetValue());
   Core::instance()->SetAutorecoveryInterval(autorecovery_interval_->GetValue());
-
-  // Default sequence parameters
-  VideoParams dsvp = default_sequence_.GetVideoParams();
-  AudioParams dsap = default_sequence_.GetAudioParams();
-  Config::Current()[QStringLiteral("DefaultSequenceWidth")] = dsvp.width();
-  Config::Current()[QStringLiteral("DefaultSequenceHeight")] = dsvp.height();
-  Config::Current()[QStringLiteral("DefaultSequencePixelAspect")] = QVariant::fromValue(dsvp.pixel_aspect_ratio());
-  Config::Current()[QStringLiteral("DefaultSequenceFrameRate")] = QVariant::fromValue(dsvp.frame_rate().flipped());
-  Config::Current()[QStringLiteral("DefaultSequenceInterlacing")] = dsvp.interlacing();
-  Config::Current()[QStringLiteral("DefaultSequenceAudioFrequency")] = dsap.sample_rate();
-  Config::Current()[QStringLiteral("DefaultSequenceAudioLayout")] = QVariant::fromValue(dsap.channel_layout());
 }
 
 void PreferencesGeneralTab::AddLanguage(const QString &locale_name)
@@ -205,13 +186,6 @@ void PreferencesGeneralTab::AddLanguage(const QString &locale_name)
   language_combobox_->addItem(tr("%1 (%2)").arg(QLocale(locale_name).nativeLanguageName(),
                                                 locale_name));;
   language_combobox_->setItemData(language_combobox_->count() - 1, locale_name);
-}
-
-void PreferencesGeneralTab::EditDefaultSequenceSettings()
-{
-  SequenceDialog sd(&default_sequence_, SequenceDialog::kExisting, this);
-  sd.SetNameIsEditable(false);
-  sd.exec();
 }
 
 }

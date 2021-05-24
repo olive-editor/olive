@@ -129,6 +129,10 @@ private:
     AudioParams old_audio_params_;
     QString old_name_;
   };
+
+private slots:
+  void SetAsDefaultClicked();
+
 };
 
 }

@@ -25,11 +25,14 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QMessageBox>
+#include <QPushButton>
 #include <QSplitter>
 #include <QVBoxLayout>
 
+#include "config/config.h"
 #include "core.h"
 #include "common/channellayout.h"
+#include "common/qtutils.h"
 #include "common/rational.h"
 #include "undo/undostack.h"
 
@@ -67,9 +70,10 @@ SequenceDialog::SequenceDialog(Sequence* s, Type t, QWidget* parent) :
 
   // Set up dialog buttons
   QDialogButtonBox* buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-  buttons->setCenterButtons(true);
+  QPushButton *default_btn = buttons->addButton(tr("Set As Default"), QDialogButtonBox::ActionRole);
   connect(buttons, &QDialogButtonBox::accepted, this, &SequenceDialog::accept);
   connect(buttons, &QDialogButtonBox::rejected, this, &SequenceDialog::reject);
+  connect(default_btn, &QPushButton::clicked, this, &SequenceDialog::SetAsDefaultClicked);
   layout->addWidget(buttons);
 
   // Set window title based on type
@@ -98,7 +102,7 @@ void SequenceDialog::SetNameIsEditable(bool e)
 void SequenceDialog::accept()
 {
   if (name_field_->isEnabled() && name_field_->text().isEmpty()) {
-    QMessageBox::critical(this, tr("Error editing Sequence"), tr("Please enter a name for this Sequence."));
+    QtUtils::MessageBox(this, QMessageBox::Critical, tr("Error editing Sequence"), tr("Please enter a name for this Sequence."));
     return;
   }
 
@@ -134,6 +138,22 @@ void SequenceDialog::accept()
   }
 
   QDialog::accept();
+}
+
+void SequenceDialog::SetAsDefaultClicked()
+{
+  if (QtUtils::MessageBox(this, QMessageBox::Question, tr("Confirm Set As Default"),
+                          tr("Are you sure you want to set the current parameters as defaults?"),
+                          QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+    // Maybe replace with Preset system
+    Config::Current()[QStringLiteral("DefaultSequenceWidth")] = parameter_tab_->GetSelectedVideoWidth();
+    Config::Current()[QStringLiteral("DefaultSequenceHeight")] = parameter_tab_->GetSelectedVideoHeight();
+    Config::Current()[QStringLiteral("DefaultSequencePixelAspect")] = QVariant::fromValue(parameter_tab_->GetSelectedVideoPixelAspect());
+    Config::Current()[QStringLiteral("DefaultSequenceFrameRate")] = QVariant::fromValue(parameter_tab_->GetSelectedVideoFrameRate().flipped());
+    Config::Current()[QStringLiteral("DefaultSequenceInterlacing")] = parameter_tab_->GetSelectedVideoInterlacingMode();
+    Config::Current()[QStringLiteral("DefaultSequenceAudioFrequency")] = parameter_tab_->GetSelectedAudioSampleRate();
+    Config::Current()[QStringLiteral("DefaultSequenceAudioLayout")] = QVariant::fromValue(parameter_tab_->GetSelectedAudioChannelLayout());
+  }
 }
 
 SequenceDialog::SequenceParamCommand::SequenceParamCommand(Sequence* s,
