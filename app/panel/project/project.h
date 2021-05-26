@@ -66,6 +66,8 @@ public slots:
 signals:
   void ProjectNameChanged();
 
+  void SelectionChanged(const QVector<Node *> &selected);
+
 private:
   virtual void Retranslate() override;
 

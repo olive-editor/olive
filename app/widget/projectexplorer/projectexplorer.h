@@ -100,6 +100,8 @@ signals:
    */
   void DoubleClickedItem(Node* item);
 
+  void SelectionChanged(const QVector<Node *> &selected);
+
 private:
   /**
    * @brief Get all the blocks that solely rely on an input node
@@ -184,6 +186,8 @@ private slots:
   void OpenContextMenuItemInNewWindow();
 
   void ContextMenuStartProxy(QAction* a);
+
+  void ViewSelectionChanged();
 
 };
 
