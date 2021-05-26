@@ -79,7 +79,8 @@ private:
 OpenGLRenderer::OpenGLRenderer(QObject* parent) :
   Renderer(parent),
   cache_timer_(this),
-  context_(nullptr)
+  context_(nullptr),
+  framebuffer_(0)
 {
   cache_timer_.setInterval(kTextureCacheMaxSize);
   connect(&cache_timer_, &QTimer::timeout, this, &OpenGLRenderer::GarbageCollectTextureCache);
@@ -153,6 +154,7 @@ void OpenGLRenderer::DestroyInternal()
   if (context_) {
     // Delete framebuffer
     functions_->glDeleteFramebuffers(1, &framebuffer_);
+    framebuffer_ = 0;
 
     for (auto it=texture_cache_.cbegin(); it!=texture_cache_.cend(); it++) {
       functions_->glDeleteTextures(1, &it->texture);
