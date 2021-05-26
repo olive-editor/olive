@@ -692,7 +692,9 @@ void MainWindow::SaveCustomShortcuts()
 
 void MainWindow::UpdateAudioMonitorParams(ViewerOutput *viewer)
 {
-  audio_monitor_panel_->SetParams(viewer ? viewer->GetAudioParams() : AudioParams());
+  if (!audio_monitor_panel_->IsPlaying()) {
+    audio_monitor_panel_->SetParams(viewer ? viewer->GetAudioParams() : AudioParams());
+  }
 }
 
 void MainWindow::FocusedPanelChanged(PanelWidget *panel)
