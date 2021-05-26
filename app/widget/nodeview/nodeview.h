@@ -165,6 +165,7 @@ private:
   FilterMode filter_mode_;
 
   QVector<void*> filter_nodes_;
+  QMap<void*, QPointF> context_offsets_;
 
   double scale_;
 
@@ -213,7 +214,7 @@ private slots:
   void AddEdge(const NodeOutput& output, const NodeInput& input);
   void RemoveEdge(const NodeOutput& output, const NodeInput& input);
 
-  void AddNodePosition(Node *node, void *relative, const QPointF &pos);
+  void AddNodePosition(Node *node, void *relative);
   void RemoveNodePosition(Node *node, void *relative);
 
   void NodePositionChanged(NodeViewItem *item, const QPointF &pos);

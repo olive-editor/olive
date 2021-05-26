@@ -119,72 +119,33 @@ void NodeView::SetGraph(NodeGraph *graph, const QVector<void*> &nodes)
 
     if (refresh_required && nodes_visible) {
 
-      QMap<NodeViewItem*, QVector<QPointF> > averaged_positions;
-
-      QPointF origin(0, 0);
-
       if (filter_mode_ == kFilterShowAll) {
         // FIXME: Implement
       } else {
         // Reserve an arbitrary number to reduce the amount of reallocations
+        qreal last_offset = 0;
+        int additional_spacing = 0;
+
         foreach (void *n, filter_nodes_) {
           const NodeGraph::PositionMap &map = graph_->GetNodesForRelative(n);
 
-          qreal top = 0, bottom = 0;
-
+          // First determine the total "height" of this graph and how much we need to offset it
+          qreal top = 0;
+          qreal bottom = 0;
           for (auto it=map.cbegin(); it!=map.cend(); it++) {
-            // Determine position
-            NodeViewItem *item = scene_.item_map().value(it.key());
-
-            if (item) {
-              QVector<QPointF> &averages = averaged_positions[item];
-              if (averages.isEmpty()) {
-                averages.append(item->GetNodePosition());
-              }
-              averages.append(origin + it.value());
-            } else {
-              item = scene_.AddNode(it.key());
-            }
-
-            const QPointF &pos = it.value();
-            top = qMin(top, pos.y());
-            bottom = qMax(bottom, pos.y());
-
-            item->SetNodePosition(origin + pos);
+            const QPointF &node_pos_in_context = it.value();
+            top = qMin(node_pos_in_context.y(), top);
+            bottom = qMax(node_pos_in_context.y(), bottom);
           }
 
-          origin.setY(origin.y() + 1 + (bottom - top));
-        }
+          last_offset += (additional_spacing + (bottom - top));
+          additional_spacing = 1;
+          context_offsets_.insert(n, QPointF(0, last_offset));
 
-        for (auto it=averaged_positions.cbegin(); it!=averaged_positions.cend(); it++) {
-          const QVector<QPointF> &positions = it.value();
-          double x = DBL_MAX;
-          double y = 0.0;
-
-          // Min the X value and average the Y values
-          foreach (const QPointF &pos, positions) {
-            x = qMin(x, pos.x());
-            y += pos.y();
+          // Finally add all nodes
+          for (auto it=map.cbegin(); it!=map.cend(); it++) {
+            AddNodePosition(it.key(), n);
           }
-
-          y /= positions.size();
-
-          it.key()->SetNodePosition(QPointF(x, y));
-        }
-
-        for (auto it=scene_.item_map().cbegin(); it!=scene_.item_map().cend(); it++) {
-          // Add edge objects
-          Node *node = it.key();
-          for (auto jt=node->input_connections().cbegin(); jt!=node->input_connections().cend(); jt++) {
-            const NodeOutput &output = jt->second;
-            if (scene_.item_map().contains(output.node())) {
-              // Create edge since both input and output exist
-              scene_.AddEdge(output, jt->first);
-            }
-          }
-
-          // Store view position
-          positions_.insert(it.value(), {it.key(), it.value()->GetNodePosition()});
         }
       }
     }
@@ -429,59 +390,6 @@ void NodeView::ZoomOut()
 {
   ZoomFromKeyboard(0.8);
 }
-
-/*void NodeView::AddNodesToFilter(const QVector<Node *> &nodes)
-{
-  // Determine new nodes
-  QVector<Node*> multiple_sources;
-
-  foreach (Node* node, nodes) {
-    // Node is new and being added
-    scene_.AddNode(node);
-
-    QList<Node*> visible = graph_->GetNodesForRelative(node);
-    foreach (Node* v, visible) {
-      if (scene_.NodeToUIObject(v)) {
-        multiple_sources.append(v);
-      } else {
-        NodeViewItem* item = scene_.AddNode(v);
-        item->SetNodePosition(graph_->GetNodePosition(v, node));
-      }
-    }
-  }
-
-  filter_nodes_.append(nodes);
-}
-
-void NodeView::RemoveNodesFromFilter(const QVector<Node *> &nodes)
-{
-  // Determine old nodes
-  foreach (Node* node, nodes) {
-    // Node is old and being removed
-    QList<Node*> visible = graph_->GetNodesForRelative(node);
-    foreach (Node* v, visible) {
-      bool found = false;
-
-      foreach (Node* n, filter_nodes_) {
-        if (node != n) {
-          QList<Node*> other_deps = graph_->GetNodesForRelative(n);
-
-          if (other_deps.contains(v)) {
-            found = true;
-            break;
-          }
-        }
-      }
-
-      if (!found) {
-        scene_.RemoveNode(v);
-      }
-    }
-
-    scene_.RemoveNode(node);
-    filter_nodes_.removeOne(node);
-  }
-}*/
 
 void NodeView::keyPressEvent(QKeyEvent *event)
 {
@@ -997,29 +905,35 @@ void NodeView::RemoveEdge(const NodeOutput &output, const NodeInput &input)
   scene_.RemoveEdge(output, input);
 }
 
-void NodeView::AddNodePosition(Node *node, void *relative, const QPointF &pos)
+void NodeView::AddNodePosition(Node *node, void *relative)
 {
-  /*if (filter_mode_ == kFilterShowSelective) {
+  if (filter_mode_ == kFilterShowSelective) {
     if (filter_nodes_.contains(relative)) {
+      // Get UI item or create if it doesn't exist
       NodeViewItem *item = scene_.item_map().value(node);
-
       if (!item) {
         item = scene_.AddNode(node);
-
-        // Add input edges
-        for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
-          AddEdge(it->second, it->first);
-        }
-
-        // Add output edges
-        for (auto it=node->output_connections().cbegin(); it!=node->output_connections().cend(); it++) {
-          AddEdge(it->first, it->second);
-        }
       }
 
-      item->SetNodePosition(pos);
+      // Determine "view" position by averaging the Y value and "min"ing the X value of all contexts
+      QPointF item_pos(DBL_MAX, 0.0);
+      int average_count = 0;
+      foreach (void *context, filter_nodes_) {
+        if (graph_->GetNodesForRelative(context).contains(node)) {
+          QPointF this_context_pos = graph_->GetNodePosition(node, context);
+          this_context_pos += context_offsets_.value(context);
+          item_pos.setX(qMin(item_pos.x(), this_context_pos.x()));
+          item_pos.setY(item_pos.y() + this_context_pos.y());
+          average_count++;
+        }
+      }
+      item_pos.setY(item_pos.y() / average_count);
+
+      // Set position
+      item->SetNodePosition(item_pos);
+      positions_.insert(item, {node, item_pos});
     }
-  }*/
+  }
 }
 
 void NodeView::RemoveNodePosition(Node *node, void *relative)
@@ -1040,9 +954,11 @@ void NodeView::NodePositionChanged(NodeViewItem *item, const QPointF &pos)
   original_pos.original_item_pos = pos;
 
   foreach (void *context, filter_nodes_) {
-    QPointF p = graph_->GetNodePosition(node, context);
-    p += diff;
-    graph_->SetNodePosition(node, context, p);
+    if (graph_->GetNodesForRelative(context).contains(node)) {
+      QPointF p = graph_->GetNodePosition(node, context);
+      p += diff;
+      graph_->SetNodePosition(node, context, p);
+    }
   }
 }
 
