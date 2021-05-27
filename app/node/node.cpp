@@ -2326,15 +2326,9 @@ void NodeSetPositionAsChildCommand::redo()
 
     sub_command_ = new MultiUndoCommand();
     if (shift_surroundings_) {
-      if (relative_) {
-        sub_command_->add_child(new NodeSetPositionAndShiftSurroundingsCommand(node_, relative_, pos, true));
-      }
-      sub_command_->add_child(new NodeSetPositionAndShiftSurroundingsCommand(node_, nullptr, pos, true));
+      sub_command_->add_child(new NodeSetPositionAndShiftSurroundingsCommand(node_, relative_, pos, true));
     } else {
-      if (relative_) {
-        sub_command_->add_child(new NodeSetPositionCommand(node_, relative_, pos, true));
-      }
-      sub_command_->add_child(new NodeSetPositionCommand(node_, nullptr, pos, true));
+      sub_command_->add_child(new NodeSetPositionCommand(node_, relative_, pos, true));
     }
   }
 

@@ -387,7 +387,6 @@ void ImportTool::DropGhosts(bool insert)
       clip->set_length_and_media_out(ghost->GetLength());
       clip->SetLabel(footage_stream.footage->GetLabel());
       command->add_child(new NodeAddCommand(dst_graph, clip));
-      command->add_child(new NodeSetPositionToOffsetOfAnotherNodeCommand(clip, footage_stream.footage, nullptr, QPointF(2, 0)));
 
       // Position clip in its own context
       command->add_child(new NodeSetPositionCommand(clip, clip, QPointF(0, 0), false));
