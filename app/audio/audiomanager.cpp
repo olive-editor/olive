@@ -164,9 +164,9 @@ void AudioManager::SetOutputParams(const AudioParams &params)
 
     // Refresh output device
     SetOutputDevice(output_device_info_);
-
-    emit AudioParamsChanged(output_params_);
   }
+
+  emit AudioParamsChanged(output_params_);
 }
 
 void AudioManager::SetInputDevice(const QAudioDeviceInfo &info)

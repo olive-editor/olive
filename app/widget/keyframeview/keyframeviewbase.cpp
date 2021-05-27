@@ -608,7 +608,9 @@ void KeyframeViewBase::AutoSelectKeyTimeNeighbors()
       // Ensure this key is not already selected
       KeyframeViewItem* item = item_map_.value(k);
 
-      item->setSelected(true);
+      if (item) {
+        item->setSelected(true);
+      }
     }
   }
 

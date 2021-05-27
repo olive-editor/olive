@@ -62,7 +62,7 @@ private:
 
   void SetInputValue(const QVariant& value, int track);
 
-  void SetInputValueInternal(const QVariant& value, int track, MultiUndoCommand *command);
+  void SetInputValueInternal(const QVariant& value, int track, MultiUndoCommand *command, bool insert_on_all_tracks_if_no_key);
 
   void ProcessSlider(NumericSliderBase* slider, const QVariant& value);
 

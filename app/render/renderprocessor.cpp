@@ -311,8 +311,8 @@ QVariant RenderProcessor::ProcessVideoFootage(const FootageJob &stream, const ra
   // See if we can make this divider larger (i.e. if the fooage is smaller)
   int footage_divider = render_params.divider();
   while (footage_divider > 1
-         && VideoParams::GetScaledDimension(stream_data.width(), footage_divider-1) <= render_params.effective_width()
-         && VideoParams::GetScaledDimension(stream_data.height(), footage_divider-1) <= render_params.effective_height()) {
+         && VideoParams::GetScaledDimension(stream_data.width(), footage_divider-1) < render_params.effective_width()
+         && VideoParams::GetScaledDimension(stream_data.height(), footage_divider-1) < render_params.effective_height()) {
     footage_divider--;
   }
 

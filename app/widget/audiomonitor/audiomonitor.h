@@ -38,6 +38,11 @@ class AudioMonitor : public QOpenGLWidget
 public:
   AudioMonitor(QWidget* parent = nullptr);
 
+  bool IsPlaying() const
+  {
+    return file_ || waveform_;
+  }
+
 public slots:
   void SetParams(const AudioParams& params);
 

@@ -35,6 +35,11 @@ class AudioMonitorPanel : public PanelWidget
 public:
   AudioMonitorPanel(QWidget* parent = nullptr);
 
+  bool IsPlaying() const
+  {
+    return audio_monitor_->IsPlaying();
+  }
+
   void SetParams(const AudioParams& params)
   {
     audio_monitor_->SetParams(params);

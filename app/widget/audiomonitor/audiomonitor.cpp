@@ -49,17 +49,19 @@ AudioMonitor::AudioMonitor(QWidget *parent) :
 
 void AudioMonitor::SetParams(const AudioParams &params)
 {
-  params_ = params;
+  if (params_ != params) {
+    params_ = params;
 
-  for (int i=0;i<values_.size();i++) {
-    values_[i].resize(params_.channel_count());
-    values_[i].fill(0);
+    for (int i=0;i<values_.size();i++) {
+      values_[i].resize(params_.channel_count());
+      values_[i].fill(0);
+    }
+
+    peaked_.resize(params_.channel_count());
+    peaked_.fill(false);
+
+    update();
   }
-
-  peaked_.resize(params_.channel_count());
-  peaked_.fill(false);
-
-  update();
 }
 
 void AudioMonitor::OutputDeviceSet(AudioPlaybackCache *cache, qint64 offset, int playback_speed)
@@ -241,7 +243,7 @@ void AudioMonitor::paintGL()
 
   QVector<double> v(params_.channel_count(), 0);
 
-  if (file_ || waveform_) {
+  if (IsPlaying()) {
     // Determines how many milliseconds have passed since last update
     qint64 current_time = QDateTime::currentMSecsSinceEpoch();
     qint64 delta_time = current_time - last_time_;
@@ -308,7 +310,7 @@ void AudioMonitor::paintGL()
     }
   }
 
-  if (all_zeroes && !file_ && !waveform_) {
+  if (all_zeroes && !IsPlaying()) {
     // Optimize by disabling the update loop
     SetUpdateLoop(false);
   }

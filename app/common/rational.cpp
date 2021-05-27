@@ -142,7 +142,9 @@ rational rational::flipped() const
 
 void rational::flip()
 {
-  std::swap(denom_, numer_);
+  if (!isNull()) {
+    std::swap(denom_, numer_);
+  }
 }
 
 bool rational::isNull() const

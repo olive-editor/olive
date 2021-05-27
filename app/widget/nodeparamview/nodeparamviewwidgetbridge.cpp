@@ -197,12 +197,12 @@ void NodeParamViewWidgetBridge::SetInputValue(const QVariant &value, int track)
 {
   MultiUndoCommand* command = new MultiUndoCommand();
 
-  SetInputValueInternal(value, track, command);
+  SetInputValueInternal(value, track, command, true);
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
-void NodeParamViewWidgetBridge::SetInputValueInternal(const QVariant &value, int track, MultiUndoCommand *command)
+void NodeParamViewWidgetBridge::SetInputValueInternal(const QVariant &value, int track, MultiUndoCommand *command, bool insert_on_all_tracks_if_no_key)
 {
   rational node_time = GetCurrentTimeAsNodeTime();
 
@@ -219,6 +219,8 @@ void NodeParamViewWidgetBridge::SetInputValueInternal(const QVariant &value, int
 
         if (i == track) {
           track_value = value;
+        } else if (!insert_on_all_tracks_if_no_key) {
+          continue;
         } else {
           track_value = input_.node()->GetSplitValueAtTimeOnTrack(input_.input(), node_time, i, input_.element());
         }
@@ -339,10 +341,10 @@ void NodeParamViewWidgetBridge::WidgetCallback()
 
     MultiUndoCommand* command = new MultiUndoCommand();
 
-    SetInputValueInternal(c.red(), 0, command);
-    SetInputValueInternal(c.green(), 1, command);
-    SetInputValueInternal(c.blue(), 2, command);
-    SetInputValueInternal(c.alpha(), 3, command);
+    SetInputValueInternal(c.red(), 0, command, false);
+    SetInputValueInternal(c.green(), 1, command, false);
+    SetInputValueInternal(c.blue(), 2, command, false);
+    SetInputValueInternal(c.alpha(), 3, command, false);
 
     Node* n = input_.node();
     n->blockSignals(true);
