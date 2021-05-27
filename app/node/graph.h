@@ -63,39 +63,39 @@ public:
     return default_nodes_;
   }
 
-  bool NodeMapContainsNode(Node* node, void* relative) const
+  bool NodeMapContainsNode(Node* node, Node* context) const
   {
-    return position_map_.value(relative).contains(node);
+    return position_map_.value(context).contains(node);
   }
 
-  QPointF GetNodePosition(Node* node, void* relative)
+  QPointF GetNodePosition(Node* node, Node* context)
   {
-    return position_map_.value(relative).value(node);
+    return position_map_.value(context).value(node);
   }
 
-  void SetNodePosition(Node* node, void* relative, const QPointF& pos)
+  void SetNodePosition(Node* node, Node* context, const QPointF& pos)
   {
-    position_map_[relative].insert(node, pos);
-    emit NodePositionAdded(node, relative, pos);
+    position_map_[context].insert(node, pos);
+    emit NodePositionAdded(node, context, pos);
   }
 
-  void RemoveNodePosition(Node* node, void* relative)
+  void RemoveNodePosition(Node* node, Node* context)
   {
-    PositionMap& map = position_map_[relative];
+    PositionMap& map = position_map_[context];
     map.remove(node);
     if (map.isEmpty()) {
-      position_map_.remove(relative);
+      position_map_.remove(context);
     }
-    emit NodePositionRemoved(node, relative);;
+    emit NodePositionRemoved(node, context);
   }
 
-  qreal GetNodeContextHeight(void *context);
+  qreal GetNodeContextHeight(Node *context);
 
   using PositionMap = QMap<Node*, QPointF>;
 
-  const PositionMap &GetNodesForRelative(void *relative)
+  const PositionMap &GetNodesForContext(Node *context)
   {
-    return position_map_[relative];
+    return position_map_[context];
   }
 
 signals:
@@ -115,9 +115,9 @@ signals:
 
   void ValueChanged(const NodeInput& input);
 
-  void NodePositionAdded(Node *node, void *relative, const QPointF &position);
+  void NodePositionAdded(Node *node, Node *relative, const QPointF &position);
 
-  void NodePositionRemoved(Node *node, void *relative);
+  void NodePositionRemoved(Node *node, Node *relative);
 
 protected:
   void AddDefaultNode(Node* n)
@@ -132,7 +132,7 @@ private:
 
   QVector<Node*> default_nodes_;
 
-  QMap<void *, PositionMap> position_map_;
+  QMap<Node *, PositionMap> position_map_;
 
   PositionMap root_position_map_;
 

@@ -1303,7 +1303,7 @@ using NodePtr = std::shared_ptr<Node>;
 class NodeSetPositionCommand : public UndoCommand
 {
 public:
-  NodeSetPositionCommand(Node* node, void* relevant, const QPointF& pos, bool move_dependencies_relatively)
+  NodeSetPositionCommand(Node* node, Node* relevant, const QPointF& pos, bool move_dependencies_relatively)
   {
     node_ = node;
     relevant_ = relevant;
@@ -1322,7 +1322,7 @@ public:
 
 private:
   Node* node_;
-  void* relevant_;
+  Node* relevant_;
   QPointF pos_;
   QPointF old_pos_;
   bool added_;
@@ -1333,7 +1333,7 @@ private:
 class NodeSetPositionAndShiftSurroundingsCommand : public UndoCommand
 {
 public:
-  NodeSetPositionAndShiftSurroundingsCommand(Node* node, void *relative, const QPointF& pos, bool move_dependencies_relatively) :
+  NodeSetPositionAndShiftSurroundingsCommand(Node* node, Node *relative, const QPointF& pos, bool move_dependencies_relatively) :
     node_(node),
     relative_(relative),
     position_(pos),
@@ -1362,7 +1362,7 @@ public:
 private:
   Node* node_;
 
-  void *relative_;
+  Node *relative_;
 
   QPointF position_;
 
@@ -1375,7 +1375,7 @@ private:
 class NodeSetPositionAsChildCommand : public UndoCommand
 {
 public:
-  NodeSetPositionAsChildCommand(Node* node, Node* parent, void *relative, int this_index, int child_count, bool shift_surroundings) :
+  NodeSetPositionAsChildCommand(Node* node, Node* parent, Node *relative, int this_index, int child_count, bool shift_surroundings) :
     node_(node),
     parent_(parent),
     relative_(relative),
@@ -1406,7 +1406,7 @@ public:
 private:
   Node* node_;
   Node* parent_;
-  void *relative_;
+  Node *relative_;
 
   int this_index_;
   int child_count_;
@@ -1420,7 +1420,7 @@ private:
 class NodeSetPositionToOffsetOfAnotherNodeCommand : public UndoCommand
 {
 public:
-  NodeSetPositionToOffsetOfAnotherNodeCommand(Node* node, Node* other_node, void *relative, const QPointF& offset) :
+  NodeSetPositionToOffsetOfAnotherNodeCommand(Node* node, Node* other_node, Node *relative, const QPointF& offset) :
     node_(node),
     other_node_(other_node),
     relative_(relative),
@@ -1439,7 +1439,7 @@ public:
 private:
   Node* node_;
   Node* other_node_;
-  void *relative_;
+  Node *relative_;
   QPointF offset_;
   QPointF old_pos_;
 

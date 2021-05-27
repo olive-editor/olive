@@ -40,7 +40,7 @@ public:
     return node_view_->GetGraph();
   }
 
-  void SetGraph(NodeGraph *graph, const QVector<void*> &nodes)
+  void SetGraph(NodeGraph *graph, const QVector<Node*> &nodes)
   {
     node_view_->SetGraph(graph, nodes);
   }

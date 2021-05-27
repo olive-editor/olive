@@ -70,7 +70,7 @@ NodeView::~NodeView()
   ClearGraph();
 }
 
-void NodeView::SetGraph(NodeGraph *graph, const QVector<void*> &nodes)
+void NodeView::SetGraph(NodeGraph *graph, const QVector<Node*> &nodes)
 {
   bool graph_changed = graph_ != graph;
   bool context_changed = filter_nodes_ != nodes;
@@ -126,8 +126,8 @@ void NodeView::SetGraph(NodeGraph *graph, const QVector<void*> &nodes)
         qreal last_offset = 0;
         int additional_spacing = 0;
 
-        foreach (void *n, filter_nodes_) {
-          const NodeGraph::PositionMap &map = graph_->GetNodesForRelative(n);
+        foreach (Node *n, filter_nodes_) {
+          const NodeGraph::PositionMap &map = graph_->GetNodesForContext(n);
 
           // First determine the total "height" of this graph and how much we need to offset it
           qreal top = 0;
@@ -154,7 +154,7 @@ void NodeView::SetGraph(NodeGraph *graph, const QVector<void*> &nodes)
 
 void NodeView::ClearGraph()
 {
-  SetGraph(nullptr, QVector<void*>());
+  SetGraph(nullptr, QVector<Node*>());
 }
 
 void NodeView::DeleteSelected()
@@ -851,7 +851,7 @@ void NodeView::ContextMenuFilterChanged(QAction *action)
   if (filter_mode_ != mode) {
     // Store temporary graph variables
     NodeGraph *graph = graph_;
-    QVector<void*> nodes = filter_nodes_;
+    QVector<Node*> nodes = filter_nodes_;
 
     // Unset graph with current filter mode
     ClearGraph();
@@ -905,7 +905,7 @@ void NodeView::RemoveEdge(const NodeOutput &output, const NodeInput &input)
   scene_.RemoveEdge(output, input);
 }
 
-void NodeView::AddNodePosition(Node *node, void *relative)
+void NodeView::AddNodePosition(Node *node, Node *relative)
 {
   if (filter_mode_ == kFilterShowSelective) {
     if (filter_nodes_.contains(relative)) {
@@ -918,8 +918,8 @@ void NodeView::AddNodePosition(Node *node, void *relative)
       // Determine "view" position by averaging the Y value and "min"ing the X value of all contexts
       QPointF item_pos(DBL_MAX, 0.0);
       int average_count = 0;
-      foreach (void *context, filter_nodes_) {
-        if (graph_->GetNodesForRelative(context).contains(node)) {
+      foreach (Node *context, filter_nodes_) {
+        if (graph_->GetNodesForContext(context).contains(node)) {
           QPointF this_context_pos = graph_->GetNodePosition(node, context);
           this_context_pos += context_offsets_.value(context);
           item_pos.setX(qMin(item_pos.x(), this_context_pos.x()));
@@ -936,7 +936,7 @@ void NodeView::AddNodePosition(Node *node, void *relative)
   }
 }
 
-void NodeView::RemoveNodePosition(Node *node, void *relative)
+void NodeView::RemoveNodePosition(Node *node, Node *relative)
 {
   if (filter_mode_ == kFilterShowSelective) {
     if (filter_nodes_.contains(relative)) {
@@ -953,8 +953,8 @@ void NodeView::NodePositionChanged(NodeViewItem *item, const QPointF &pos)
   QPointF diff = pos - original_pos.original_item_pos;
   original_pos.original_item_pos = pos;
 
-  foreach (void *context, filter_nodes_) {
-    if (graph_->GetNodesForRelative(context).contains(node)) {
+  foreach (Node *context, filter_nodes_) {
+    if (graph_->GetNodesForContext(context).contains(node)) {
       QPointF p = graph_->GetNodePosition(node, context);
       p += diff;
       graph_->SetNodePosition(node, context, p);

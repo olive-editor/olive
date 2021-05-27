@@ -44,7 +44,7 @@ void NodeGraph::Clear()
   }
 }
 
-qreal NodeGraph::GetNodeContextHeight(void *context)
+qreal NodeGraph::GetNodeContextHeight(Node *context)
 {
   const PositionMap &map = position_map_.value(context);
 

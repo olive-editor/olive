@@ -39,26 +39,26 @@ Project::Project() :
   // Generate UUID for this project
   RegenerateUuid();
 
+  // Folder root for project
+  root_ = new Folder();
+  root_->setParent(this);
+  root_->SetLabel(tr("Root"));
+  root_->SetCanBeDeleted(false);
+  SetNodePosition(root_, root_, QPointF(0, 0));
+
   // Adds a color manager "node" to this project so that it synchronizes
   color_manager_ = new ColorManager();
   color_manager_->setParent(this);
-  SetNodePosition(color_manager_, this, QPointF(1, 0));
+  SetNodePosition(color_manager_, root_, QPointF(1, 0));
   color_manager_->SetCanBeDeleted(false);
   AddDefaultNode(color_manager_);
 
   // Same with project settings
   settings_ = new ProjectSettingsNode();
   settings_->setParent(this);
-  SetNodePosition(settings_, this, QPointF(2, 0));
+  SetNodePosition(settings_, root_, QPointF(2, 0));
   settings_->SetCanBeDeleted(false);
   AddDefaultNode(settings_);
-
-  // Folder root for project
-  root_ = new Folder();
-  root_->setParent(this);
-  root_->SetLabel(tr("Root"));
-  root_->SetCanBeDeleted(false);
-  SetNodePosition(root_, this, QPointF(0, 0));
 
   connect(color_manager(), &ColorManager::ValueChanged,
           this, &Project::ColorManagerValueChanged);

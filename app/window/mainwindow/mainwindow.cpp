@@ -719,7 +719,7 @@ void MainWindow::UpdateNodePanelContextFromTimelinePanel(TimelinePanel *panel)
 {
   // Add selected blocks (if any)
   const QVector<Block*> &blocks = panel->GetSelectedBlocks();
-  QVector<void *> context(blocks.size());
+  QVector<Node *> context(blocks.size());
   for (int i=0; i<blocks.size(); i++) {
     context[i] = blocks.at(i);
   }
@@ -748,7 +748,9 @@ void MainWindow::FocusedPanelChanged(PanelWidget *panel)
   } else if (ProjectPanel* project = dynamic_cast<ProjectPanel*>(panel)) {
     // Signal project panel focus
     UpdateTitle();
-    node_panel_->SetGraph(project->project(), {project->project()});
+    if (project->project()) {
+      node_panel_->SetGraph(project->project(), {project->project()->root()});
+    }
   }
 }
 

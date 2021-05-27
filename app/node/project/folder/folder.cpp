@@ -139,7 +139,7 @@ void FolderAddChild::redo()
 
   if (autoposition_) {
     if (!position_command_) {
-      position_command_ = new NodeSetPositionAsChildCommand(child_, folder_, folder_->project(), array_index, array_index+1, true);
+      position_command_ = new NodeSetPositionAsChildCommand(child_, folder_, folder_->project()->root(), array_index, array_index+1, true);
     }
     position_command_->redo();
   }

@@ -51,7 +51,7 @@ public:
     return graph_;
   }
 
-  void SetGraph(NodeGraph *graph, const QVector<void *> &nodes);
+  void SetGraph(NodeGraph *graph, const QVector<Node *> &nodes);
 
   void ClearGraph();
 
@@ -164,8 +164,8 @@ private:
 
   FilterMode filter_mode_;
 
-  QVector<void*> filter_nodes_;
-  QMap<void*, QPointF> context_offsets_;
+  QVector<Node*> filter_nodes_;
+  QMap<Node*, QPointF> context_offsets_;
 
   double scale_;
 
@@ -214,8 +214,8 @@ private slots:
   void AddEdge(const NodeOutput& output, const NodeInput& input);
   void RemoveEdge(const NodeOutput& output, const NodeInput& input);
 
-  void AddNodePosition(Node *node, void *relative);
-  void RemoveNodePosition(Node *node, void *relative);
+  void AddNodePosition(Node *node, Node *relative);
+  void RemoveNodePosition(Node *node, Node *relative);
 
   void NodePositionChanged(NodeViewItem *item, const QPointF &pos);
 
