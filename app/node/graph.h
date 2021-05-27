@@ -98,6 +98,11 @@ public:
     return position_map_[context];
   }
 
+  const QMap<Node *, PositionMap> &GetPositionMap() const
+  {
+    return position_map_;
+  }
+
 signals:
   /**
    * @brief Signal emitted when a Node is added to the graph
