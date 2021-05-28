@@ -89,6 +89,11 @@ public:
     emit NodePositionRemoved(node, context);
   }
 
+  bool ContextContainsNode(Node *node, Node *context)
+  {
+    return position_map_[context].contains(node);
+  }
+
   qreal GetNodeContextHeight(Node *context);
 
   using PositionMap = QMap<Node*, QPointF>;

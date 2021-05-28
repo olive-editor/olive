@@ -40,9 +40,8 @@ class NodeViewEdge;
  *
  * To retrieve the NodeViewItem for a certain Node, use NodeView::NodeToUIObject().
  */
-class NodeViewItem : public QObject, public QGraphicsRectItem
+class NodeViewItem : public QGraphicsRectItem
 {
-  Q_OBJECT
 public:
   NodeViewItem(QGraphicsItem* parent = nullptr);
 
@@ -112,9 +111,6 @@ public:
 
   void SetHighlightedIndex(int index);
 
-signals:
-  void NodePositionChanged(const QPointF &pos);
-
 protected:
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
@@ -177,8 +173,6 @@ private:
   QVector<NodeViewEdge*> edges_;
 
   QPointF cached_node_pos_;
-
-  bool dont_signal_;
 
 };
 

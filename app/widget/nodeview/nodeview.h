@@ -217,8 +217,6 @@ private slots:
   void AddNodePosition(Node *node, Node *relative);
   void RemoveNodePosition(Node *node, Node *relative);
 
-  void NodePositionChanged(NodeViewItem *item, const QPointF &pos);
-
 };
 
 }

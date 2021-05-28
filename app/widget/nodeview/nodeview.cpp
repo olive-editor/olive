@@ -57,7 +57,6 @@ NodeView::NodeView(QWidget *parent) :
   setViewportUpdateMode(FullViewportUpdate);
 
   connect(this, &NodeView::customContextMenuRequested, this, &NodeView::ShowContextMenu);
-  connect(&scene_, &NodeViewScene::NodePositionChanged, this, &NodeView::NodePositionChanged);
 
   ConnectSelectionChangedSignal();
 
@@ -643,9 +642,9 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
     return;
   }
 
-  if (!attached_items_.isEmpty()) {
-    MultiUndoCommand* command = new MultiUndoCommand();
+  MultiUndoCommand* command = new MultiUndoCommand();
 
+  if (!attached_items_.isEmpty()) {
     if (paste_command_) {
       // We've already "done" this command, but MultiUndoCommand prevents "redoing" twice, so we
       // add it to this command (which may have extra commands added too) so that it all gets undone
@@ -670,9 +669,30 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
     }
 
     DetachItemsFromCursor();
-
-    Core::instance()->undo_stack()->push(command);
   }
+
+  for (auto it=positions_.begin(); it!=positions_.end(); it++) {
+    NodeViewItem *item = it.key();
+    Position &pos_data = it.value();
+    QPointF current_item_pos = item->GetNodePosition();
+    Node *node = pos_data.node;
+
+    if (pos_data.original_item_pos != current_item_pos) {
+      QPointF diff = current_item_pos - pos_data.original_item_pos;
+
+      foreach (Node *context, filter_nodes_) {
+        if (graph_->ContextContainsNode(node, context)) {
+          QPointF current_node_pos_in_context = graph_->GetNodePosition(node, context);
+          current_node_pos_in_context += diff;
+          command->add_child(new NodeSetPositionCommand(node, context, current_node_pos_in_context, false));
+        }
+      }
+
+      pos_data.original_item_pos = current_item_pos;
+    }
+  }
+
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
 
   super::mouseReleaseEvent(event);
 }
@@ -823,10 +843,13 @@ void NodeView::CreateNodeSlot(QAction *action)
   Node* new_node = NodeFactory::CreateFromMenuAction(action);
 
   if (new_node) {
-    Core::instance()->undo_stack()->push(new NodeAddCommand(graph_, new_node));
-
-    NodeViewItem* item = scene_.NodeToUIObject(new_node);
-    AttachItemsToCursor({item});
+    paste_command_ = new MultiUndoCommand();
+    paste_command_->add_child(new NodeAddCommand(graph_, new_node));
+    foreach (Node *context, filter_nodes_) {
+      paste_command_->add_child(new NodeSetPositionCommand(new_node, context, QPointF(0, 0), false));
+    }
+    paste_command_->add_child(new NodeViewAttachNodesToCursor(this, {new_node}));
+    paste_command_->redo();
   }
 }
 
@@ -940,24 +963,19 @@ void NodeView::RemoveNodePosition(Node *node, Node *relative)
 {
   if (filter_mode_ == kFilterShowSelective) {
     if (filter_nodes_.contains(relative)) {
-      NodeViewItem *item = scene_.item_map().value(node);
-      delete item;
-    }
-  }
-}
+      // Determine if any other contexts have this node
+      bool found = false;
 
-void NodeView::NodePositionChanged(NodeViewItem *item, const QPointF &pos)
-{
-  Position &original_pos = positions_[item];
-  Node *node = original_pos.node;
-  QPointF diff = pos - original_pos.original_item_pos;
-  original_pos.original_item_pos = pos;
+      foreach (Node *context, filter_nodes_) {
+        if (graph_->ContextContainsNode(node, context)) {
+          found = true;
+          break;
+        }
+      }
 
-  foreach (Node *context, filter_nodes_) {
-    if (graph_->GetNodesForContext(context).contains(node)) {
-      QPointF p = graph_->GetNodePosition(node, context);
-      p += diff;
-      graph_->SetNodePosition(node, context, p);
+      if (!found) {
+        scene_.RemoveNode(node);
+      }
     }
   }
 }

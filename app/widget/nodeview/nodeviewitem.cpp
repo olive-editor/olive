@@ -45,8 +45,7 @@ NodeViewItem::NodeViewItem(QGraphicsItem *parent) :
   expanded_(false),
   hide_titlebar_(false),
   highlighted_index_(-1),
-  flow_dir_(NodeViewCommon::kLeftToRight),
-  dont_signal_(false)
+  flow_dir_(NodeViewCommon::kLeftToRight)
 {
   // Set flags for this widget
   setFlag(QGraphicsItem::ItemIsMovable);
@@ -337,10 +336,6 @@ QVariant NodeViewItem::itemChange(QGraphicsItem::GraphicsItemChange change, cons
 {
   if (change == ItemPositionHasChanged && node_) {
     ReadjustAllEdges();
-
-    if (!dont_signal_) {
-      emit NodePositionChanged(GetNodePosition());
-    }
   }
 
   return QGraphicsItem::itemChange(change, value);
@@ -484,8 +479,6 @@ QPointF NodeViewItem::GetInputPointInternal(int index, const QPointF& source_pos
 
 void NodeViewItem::UpdateNodePosition()
 {
-  dont_signal_ = true;
-
   const QPointF &pos = cached_node_pos_;
 
   switch (flow_dir_) {
@@ -506,8 +499,6 @@ void NodeViewItem::UpdateNodePosition()
            -pos.x() * DefaultItemVerticalPadding());
     break;
   }
-
-  dont_signal_ = false;
 }
 
 }
