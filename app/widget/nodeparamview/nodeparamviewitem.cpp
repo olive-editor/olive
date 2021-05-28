@@ -62,12 +62,14 @@ NodeParamViewItem::NodeParamViewItem(Node *node, QWidget *parent) :
 
   this->setWidget(body_);
 
+  // Use dummy QWidget to retain width when not expanded (QDockWidget seems to ignore the titlebar
+  // size hints and will shrink as small as possible if the body is hidden)
+  hidden_body_ = new QWidget(this);
+
   connect(node_, &Node::LabelChanged, this, &NodeParamViewItem::Retranslate);
 
   setBackgroundRole(QPalette::Base);
   setAutoFillBackground(true);
-
-  setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
 
   setFocusPolicy(Qt::ClickFocus);
 
@@ -88,7 +90,7 @@ void NodeParamViewItem::SetTime(const rational &time)
 
 void NodeParamViewItem::SetTimebase(const rational& timebase)
 {
-    body_->SetTimebase(timebase);
+  body_->SetTimebase(timebase);
 }
 
 Node *NodeParamViewItem::GetNode() const
@@ -140,7 +142,7 @@ void NodeParamViewItem::Retranslate()
 
 void NodeParamViewItem::SetExpanded(bool e)
 {
-  body_->setVisible(e);
+  setWidget(e ? body_ : hidden_body_);
   title_bar_->SetExpanded(e);
 
   emit ExpandedChanged(e);
@@ -537,10 +539,10 @@ void NodeParamViewItemBody::ToggleArrayExpanded()
   }
 }
 
-void NodeParamViewItemBody::SetTimebase(const rational& timebase) 
+void NodeParamViewItemBody::SetTimebase(const rational& timebase)
 {
   foreach (const InputUI& ui_obj, input_ui_map_) {
-      ui_obj.widget_bridge->SetTimebase(timebase);
+    ui_obj.widget_bridge->SetTimebase(timebase);
   }
 }
 

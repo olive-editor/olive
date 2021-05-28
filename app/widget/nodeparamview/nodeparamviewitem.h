@@ -216,6 +216,8 @@ private:
 
   NodeParamViewItemBody* body_;
 
+  QWidget *hidden_body_;
+
   Node* node_;
 
   rational time_;
