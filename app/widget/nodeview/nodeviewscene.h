@@ -98,7 +98,7 @@ public slots:
    */
   void RemoveNode(Node* node);
 
-  void AddEdge(const NodeOutput& output, const NodeInput& input);
+  NodeViewEdge *AddEdge(const NodeOutput& output, const NodeInput& input);
   void RemoveEdge(const NodeOutput& output, const NodeInput& input);
 
   /**
@@ -109,7 +109,7 @@ public slots:
 private:
   static int DetermineWeight(Node* n);
 
-  void AddEdgeInternal(const NodeOutput &output, const NodeInput &input, NodeViewItem* from, NodeViewItem* to);
+  NodeViewEdge* AddEdgeInternal(const NodeOutput &output, const NodeInput &input, NodeViewItem* from, NodeViewItem* to);
 
   QHash<Node*, NodeViewItem*> item_map_;
 

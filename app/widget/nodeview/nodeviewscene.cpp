@@ -171,9 +171,15 @@ void NodeViewScene::RemoveNode(Node *node)
   delete item_map_.take(node);
 }
 
-void NodeViewScene::AddEdge(const NodeOutput &output, const NodeInput &input)
+NodeViewEdge* NodeViewScene::AddEdge(const NodeOutput &output, const NodeInput &input)
 {
-  AddEdgeInternal(output, input, NodeToUIObject(output.node()), NodeToUIObject(input.node()));
+  NodeViewEdge *edge = EdgeToUIObject(output, input);
+
+  if (!edge) {
+    edge = AddEdgeInternal(output, input, NodeToUIObject(output.node()), NodeToUIObject(input.node()));
+  }
+
+  return edge;
 }
 
 void NodeViewScene::RemoveEdge(const NodeOutput &output, const NodeInput &input)
@@ -202,7 +208,7 @@ int NodeViewScene::DetermineWeight(Node *n)
   return qMax(1, weight);
 }
 
-void NodeViewScene::AddEdgeInternal(const NodeOutput& output, const NodeInput& input, NodeViewItem *from, NodeViewItem *to)
+NodeViewEdge* NodeViewScene::AddEdgeInternal(const NodeOutput& output, const NodeInput& input, NodeViewItem *from, NodeViewItem *to)
 {
   NodeViewEdge* edge_ui = new NodeViewEdge(output, input, from, to);
 
@@ -214,6 +220,8 @@ void NodeViewScene::AddEdgeInternal(const NodeOutput& output, const NodeInput& i
 
   addItem(edge_ui);
   edges_.append(edge_ui);
+
+  return edge_ui;
 }
 
 Qt::Orientation NodeViewScene::GetFlowOrientation() const
