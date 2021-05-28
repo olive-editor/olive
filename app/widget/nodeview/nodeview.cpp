@@ -946,6 +946,18 @@ void NodeView::AddNodePosition(Node *node, Node *relative)
       NodeViewItem *item = scene_.item_map().value(node);
       if (!item) {
         item = scene_.AddNode(node);
+
+        for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
+          if (scene_.item_map().contains(it->second.node())) {
+            scene_.AddEdge(it->second, it->first);
+          }
+        }
+
+        for (auto it=node->output_connections().cbegin(); it!=node->output_connections().cend(); it++) {
+          if (scene_.item_map().contains(it->second.node())) {
+            scene_.AddEdge(it->first, it->second);
+          }
+        }
       }
 
       // Determine "view" position by averaging the Y value and "min"ing the X value of all contexts
