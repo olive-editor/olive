@@ -1445,6 +1445,35 @@ private:
 
 };
 
+class NodeRemovePositionFromContextCommand : public UndoCommand
+{
+public:
+  NodeRemovePositionFromContextCommand(Node *node, Node *context) :
+    node_(node),
+    context_(context)
+  {
+  }
+
+  virtual Project * GetRelevantProject() const override
+  {
+    return node_->project();
+  }
+
+  virtual void redo() override;
+
+  virtual void undo() override;
+
+private:
+  Node *node_;
+
+  Node *context_;
+
+  QPointF old_pos_;
+
+  bool contained_;
+
+};
+
 }
 
 #endif // NODE_H

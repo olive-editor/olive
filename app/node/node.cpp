@@ -2348,4 +2348,24 @@ void NodeSetPositionToOffsetOfAnotherNodeCommand::undo()
   graph->SetNodePosition(node_, relative_, old_pos_);
 }
 
+void NodeRemovePositionFromContextCommand::redo()
+{
+  NodeGraph *graph = node_->parent();
+
+  contained_ = graph->ContextContainsNode(node_, context_);
+
+  if (contained_) {
+    old_pos_ = graph->GetNodePosition(node_, context_);
+    graph->RemoveNodePosition(node_, context_);
+  }
+}
+
+void NodeRemovePositionFromContextCommand::undo()
+{
+  if (contained_) {
+    NodeGraph *graph = node_->parent();
+    graph->SetNodePosition(node_, context_, old_pos_);
+  }
+}
+
 }
