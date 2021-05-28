@@ -996,6 +996,7 @@ void NodeView::RemoveNodePosition(Node *node, Node *relative)
       }
 
       if (!found) {
+        positions_.remove(scene_.item_map().value(node));
         scene_.RemoveNode(node);
       }
     }
