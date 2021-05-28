@@ -263,6 +263,8 @@ void NodeView::Select(QVector<Node *> nodes)
   // Remove any duplicates
   QVector<Node*> processed;
 
+  NodeViewItem *first_item = nullptr;
+
   foreach (Node* n, nodes) {
     if (processed.contains(n)) {
       continue;
@@ -272,17 +274,25 @@ void NodeView::Select(QVector<Node *> nodes)
 
     NodeViewItem* item = scene_.NodeToUIObject(n);
 
-    item->setSelected(true);
+    if (item) {
+      item->setSelected(true);
 
-    if (deselections.contains(n)) {
-      deselections.removeOne(n);
-    } else {
-      new_selections.append(n);
+      if (!first_item) {
+        first_item = item;
+      }
+
+      if (deselections.contains(n)) {
+        deselections.removeOne(n);
+      } else {
+        new_selections.append(n);
+      }
     }
   }
 
   // Center on something
-  centerOn(scene_.NodeToUIObject(nodes.first()));
+  if (first_item) {
+    centerOn(first_item);
+  }
 
   ConnectSelectionChangedSignal();
 
