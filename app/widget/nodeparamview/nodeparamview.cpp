@@ -30,8 +30,10 @@
 
 namespace olive {
 
+#define super TimeBasedWidget
+
 NodeParamView::NodeParamView(QWidget *parent) :
-  TimeBasedWidget(true, false, parent),
+  super(true, false, parent),
   last_scroll_val_(0),
   focused_node_(nullptr)
 {
@@ -194,7 +196,7 @@ void NodeParamView::DeselectNodes(const QVector<Node *> &nodes)
 
 void NodeParamView::resizeEvent(QResizeEvent *event)
 {
-  QWidget::resizeEvent(event);
+  super::resizeEvent(event);
 
   vertical_scrollbar_->setPageStep(vertical_scrollbar_->height());
 
@@ -203,14 +205,14 @@ void NodeParamView::resizeEvent(QResizeEvent *event)
 
 void NodeParamView::ScaleChangedEvent(const double &scale)
 {
-  TimeBasedWidget::ScaleChangedEvent(scale);
+  super::ScaleChangedEvent(scale);
 
   keyframe_view_->SetScale(scale);
 }
 
 void NodeParamView::TimebaseChangedEvent(const rational &timebase)
 {
-  TimeBasedWidget::TimebaseChangedEvent(timebase);
+  super::TimebaseChangedEvent(timebase);
 
   keyframe_view_->SetTimebase(timebase);
 
@@ -223,7 +225,7 @@ void NodeParamView::TimebaseChangedEvent(const rational &timebase)
 
 void NodeParamView::TimeChangedEvent(const int64_t &timestamp)
 {
-  TimeBasedWidget::TimeChangedEvent(timestamp);
+  super::TimeChangedEvent(timestamp);
 
   keyframe_view_->SetTime(timestamp);
 
