@@ -731,6 +731,9 @@ void MainWindow::UpdateNodePanelContextFromTimelinePanel(TimelinePanel *panel)
   }
 
   node_panel_->SetGraph(viewer ? viewer->parent() : nullptr, context);
+  if (viewer) {
+    node_panel_->SelectWithDependencies(context);
+  }
 }
 
 void MainWindow::FocusedPanelChanged(PanelWidget *panel)
