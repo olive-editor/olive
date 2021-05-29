@@ -102,6 +102,11 @@ public:
     fps_timer_update_count_++;
   }
 
+  TexturePtr GetCurrentTexture() const
+  {
+    return texture_;
+  }
+
 public slots:
   /**
    * @brief Set the transformation matrix to draw with
@@ -126,13 +131,9 @@ public slots:
    */
   void SetSignalCursorColorEnabled(bool e);
 
-  /**
-   * @brief Overrides the image with the load buffer of another ViewerGLWidget
-   *
-   * If there are multiple ViewerGLWidgets showing the same thing, this is faster than decoding the image from file
-   * each time.
-   */
-  void SetImage(FramePtr in_buffer);
+  void SetImage(const QVariant &buffer);
+
+  void SetBlank();
 
   /**
    * @brief Changes the pointer type if the tool is changed to the hand tool. Otherwise resets the pointer to it's
@@ -180,6 +181,8 @@ signals:
   void Dropped(QDropEvent* event);
 
   void VisibilityChanged(bool visible);
+
+  void TextureChanged(TexturePtr texture);
 
 protected:
   /**
@@ -250,6 +253,11 @@ private:
   QVariant deinterlace_shader_;
 
   /**
+   * @brief Blank shader
+   */
+  QVariant blank_shader_;
+
+  /**
    * @brief Translation only matrix (defaults to identity).
    */
   QMatrix4x4 translate_matrix_;
@@ -283,8 +291,6 @@ private:
 
   rational time_;
 
-  FramePtr last_loaded_buffer_;
-
   /**
    * @brief Position of mouse to calculate delta from.
    */
@@ -304,7 +310,23 @@ private:
 
   bool show_widget_background_;
 
-  bool texture_equal_to_frame_;
+  QVariant load_frame_;
+
+  enum PushMode {
+    /// New frame to push to internal texture
+    kPushFrame,
+
+    /// Internal texture reference is up to date, keep showing it
+    kPushUnnecessary,
+
+    /// Draw blank/black screen
+    kPushBlank,
+
+    /// Draw nothing (not even a black frame)
+    kPushNull,
+  };
+
+  PushMode push_mode_;
 
 private slots:
   void EmitColorAtCursor(QMouseEvent* e);

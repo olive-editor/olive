@@ -86,14 +86,14 @@ public:
    */
   RenderTicketPtr RenderFrame(ViewerOutput *viewer, ColorManager* color_manager,
                               const rational& time, RenderMode::Mode mode,
-                              FrameHashCache* cache = nullptr, bool prioritize = false);
+                              FrameHashCache* cache = nullptr, bool prioritize = false, bool texture_only = false);
   RenderTicketPtr RenderFrame(ViewerOutput* viewer, ColorManager* color_manager,
                               const rational& time, RenderMode::Mode mode,
                               const VideoParams& video_params, const AudioParams& audio_params,
                               const QSize& force_size,
                               const QMatrix4x4& force_matrix, VideoParams::Format force_format,
                               ColorProcessorPtr force_color_output,
-                              FrameHashCache* cache = nullptr, bool prioritize = false);
+                              FrameHashCache* cache = nullptr, bool prioritize = false, bool texture_only = false);
 
   /**
    * @brief Asynchronously generate a chunk of audio

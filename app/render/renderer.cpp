@@ -20,6 +20,8 @@
 
 #include "renderer.h"
 
+#include <QVector2D>
+
 #include "common/ocioutils.h"
 
 namespace olive {
@@ -42,11 +44,7 @@ TexturePtr Renderer::CreateTexture(const VideoParams &params, Texture::Type type
                               params.channel_count(), data, linesize);
   }
 
-  if (v.isNull()) {
-    return nullptr;
-  }
-
-  return std::make_shared<Texture>(this, v, params, type);
+  return CreateTextureFromNativeHandle(v, params, type);
 }
 
 TexturePtr Renderer::CreateTexture(const VideoParams &params, const void *data, int linesize)
@@ -64,11 +62,45 @@ void Renderer::BlitColorManaged(ColorProcessorPtr color_processor, TexturePtr so
   BlitColorManagedInternal(color_processor, source, source_is_premultiplied, nullptr, params, clear_destination, matrix, crop_matrix);
 }
 
+TexturePtr Renderer::InterlaceTexture(TexturePtr top, TexturePtr bottom, const VideoParams &params)
+{
+  color_cache_mutex_.lock();
+  if (interlace_texture_.isNull()) {
+    interlace_texture_ = CreateNativeShader(ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/interlace.frag"))));
+  }
+  color_cache_mutex_.unlock();
+
+  ShaderJob job;
+  job.InsertValue(QStringLiteral("top_tex_in"), NodeValue(NodeValue::kTexture, QVariant::fromValue(top)));
+  job.InsertValue(QStringLiteral("bottom_tex_in"), NodeValue(NodeValue::kTexture, QVariant::fromValue(bottom)));
+  job.InsertValue(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, QVector2D(params.effective_width(), params.effective_height())));
+
+  TexturePtr output = CreateTexture(params);
+
+  BlitToTexture(interlace_texture_, job, output.get());
+
+  return output;
+}
+
 void Renderer::Destroy()
 {
   color_cache_.clear();
 
+  if (!interlace_texture_.isNull()) {
+    DestroyNativeShader(interlace_texture_);
+    interlace_texture_.clear();
+  }
+
   DestroyInternal();
+}
+
+TexturePtr Renderer::CreateTextureFromNativeHandle(const QVariant &v, const VideoParams &params, Texture::Type type)
+{
+  if (v.isNull()) {
+    return nullptr;
+  }
+
+  return std::make_shared<Texture>(this, v, params, type);
 }
 
 bool Renderer::GetColorContext(ColorProcessorPtr color_processor, Renderer::ColorContext *ctx)
@@ -103,15 +135,9 @@ bool Renderer::GetColorContext(ColorProcessorPtr color_processor, Renderer::Colo
                                       "#define ALPHA_UNASSOC  1\n"
                                       "#define ALPHA_ASSOC    2\n"
                                       "\n"
-                                      "// Macros so OCIO's shaders work on this GLSL version\n"
-                                      "#define texture2D texture\n"
-                                      "#define texture3D texture\n"
-                                      "\n"
                                       "// Main texture coordinate\n"
-                                      "in vec2 ove_texcoord;\n"
-                                      "\n"
-                                      "// Texture output\n"
-                                      "out vec4 fragColor;\n"));
+                                      "varying vec2 ove_texcoord;\n"
+                                      "\n"));
     shader_frag.append(shader_desc->getShaderText());
     shader_frag.append(QStringLiteral("\n"
                                       "// Alpha association functions\n"
@@ -128,13 +154,13 @@ bool Renderer::GetColorContext(ColorProcessorPtr color_processor, Renderer::Colo
                                       "}\n"
                                       "\n"
                                       "void main() {\n"
-                                      "  vec2 cropped_coord = (vec4(ove_texcoord-vec2(0.5, 0.5), 0.0, 1.0)*inverse(ove_cropmatrix)).xy + vec2(0.5, 0.5);\n"
+                                      "  vec2 cropped_coord = (vec4(ove_texcoord-vec2(0.5, 0.5), 0.0, 1.0)*ove_cropmatrix).xy + vec2(0.5, 0.5);\n"
                                       "  if (cropped_coord.x < 0.0 || cropped_coord.x >= 1.0 || cropped_coord.y < 0.0 || cropped_coord.y >= 1.0) {\n"
-                                      "    fragColor = vec4(0.0);\n"
+                                      "    gl_FragColor = vec4(0.0);\n"
                                       "    return;\n"
                                       "  }\n"
                                       "  \n"
-                                      "  vec4 col = texture(ove_maintex, cropped_coord);\n"
+                                      "  vec4 col = texture2D(ove_maintex, cropped_coord);\n"
                                       "\n"
                                       "  // If alpha is associated, de-associate now\n"
                                       "  if (ove_maintex_alpha == ALPHA_ASSOC) {\n"
@@ -151,7 +177,7 @@ bool Renderer::GetColorContext(ColorProcessorPtr color_processor, Renderer::Colo
                                       "    col = assoc(col);\n"
                                       "  }\n"
                                       "\n"
-                                      "  fragColor = col;\n"
+                                      "  gl_FragColor = col;\n"
                                       "}\n").arg(ocio_func_name));
 
     // Try to compile shader
@@ -244,7 +270,7 @@ void Renderer::BlitColorManagedInternal(ColorProcessorPtr color_processor, Textu
 
   job.InsertValue(QStringLiteral("ove_maintex"), NodeValue(NodeValue::kTexture, QVariant::fromValue(source)));
   job.InsertValue(QStringLiteral("ove_mvpmat"), NodeValue(NodeValue::kMatrix, matrix));
-  job.InsertValue(QStringLiteral("ove_cropmatrix"), NodeValue(NodeValue::kMatrix, crop_matrix));
+  job.InsertValue(QStringLiteral("ove_cropmatrix"), NodeValue(NodeValue::kMatrix, crop_matrix.inverted()));
 
   AlphaAssociated associated;
   if (source->channel_count() == VideoParams::kRGBAChannelCount) {

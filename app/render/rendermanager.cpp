@@ -126,7 +126,7 @@ QByteArray RenderManager::Hash(const Node *n, const QString& output, const Video
 
 RenderTicketPtr RenderManager::RenderFrame(ViewerOutput *viewer, ColorManager* color_manager,
                                            const rational& time, RenderMode::Mode mode,
-                                           FrameHashCache* cache, bool prioritize)
+                                           FrameHashCache* cache, bool prioritize, bool texture_only)
 {
   return RenderFrame(viewer,
                      color_manager,
@@ -139,7 +139,8 @@ RenderTicketPtr RenderManager::RenderFrame(ViewerOutput *viewer, ColorManager* c
                      VideoParams::kFormatInvalid,
                      nullptr,
                      cache,
-                     prioritize);
+                     prioritize,
+                     texture_only);
 }
 
 RenderTicketPtr RenderManager::RenderFrame(ViewerOutput *viewer, ColorManager* color_manager,
@@ -148,7 +149,7 @@ RenderTicketPtr RenderManager::RenderFrame(ViewerOutput *viewer, ColorManager* c
                                            const QSize& force_size,
                                            const QMatrix4x4& force_matrix, VideoParams::Format force_format,
                                            ColorProcessorPtr force_color_output,
-                                           FrameHashCache* cache, bool prioritize)
+                                           FrameHashCache* cache, bool prioritize, bool texture_only)
 {
   // Create ticket
   RenderTicketPtr ticket = std::make_shared<RenderTicket>();
@@ -164,6 +165,7 @@ RenderTicketPtr RenderManager::RenderFrame(ViewerOutput *viewer, ColorManager* c
   ticket->setProperty("coloroutput", QVariant::fromValue(force_color_output));
   ticket->setProperty("vparam", QVariant::fromValue(video_params));
   ticket->setProperty("aparam", QVariant::fromValue(audio_params));
+  ticket->setProperty("textureonly", texture_only);
 
   if (cache) {
     ticket->setProperty("cache", cache->GetCacheDirectory());

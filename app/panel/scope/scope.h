@@ -50,7 +50,7 @@ public:
   static QString TypeToName(Type t);
 
 public slots:
-  void SetReferenceBuffer(Frame* frame);
+  void SetReferenceBuffer(TexturePtr frame);
 
   void SetColorManager(ColorManager* manager);
 

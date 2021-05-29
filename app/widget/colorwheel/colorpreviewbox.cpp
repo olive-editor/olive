@@ -60,10 +60,19 @@ void ColorPreviewBox::paintEvent(QPaintEvent *e)
 
   QPainter p(this);
 
-  p.setPen(Qt::black);
-  p.setBrush(c);
+  QRect draw_rect = rect().adjusted(0, 0, -1, -1);
 
-  p.drawRect(rect().adjusted(0, 0, -1, -1));
+  p.setPen(Qt::black);
+
+  if (color_.alpha() < 1.0) {
+    // Draw black background so the background isn't the window color
+    p.setBrush(Qt::black);
+    p.drawRect(draw_rect);
+  }
+
+  // Draw with color over the top
+  p.setBrush(c);
+  p.drawRect(draw_rect);
 }
 
 }

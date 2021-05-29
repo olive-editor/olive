@@ -28,23 +28,22 @@ namespace olive {
 
 ScopeBase::ScopeBase(QWidget* parent) :
   super(parent),
-  buffer_(nullptr)
+  texture_(nullptr),
+  managed_tex_up_to_date_(false)
 {
   EnableDefaultContextMenu();
 }
 
-void ScopeBase::SetBuffer(Frame *frame)
+void ScopeBase::SetBuffer(TexturePtr frame)
 {
-  buffer_ = frame;
-
-  UploadTextureFromBuffer();
+  texture_ = frame;
+  managed_tex_up_to_date_ = false;
+  update();
 }
 
 void ScopeBase::showEvent(QShowEvent* e)
 {
   super::showEvent(e);
-
-  UploadTextureFromBuffer();
 }
 
 void ScopeBase::DrawScope(TexturePtr managed_tex, QVariant pipeline)
@@ -56,32 +55,6 @@ void ScopeBase::DrawScope(TexturePtr managed_tex, QVariant pipeline)
   renderer()->Blit(pipeline, job, VideoParams(width(), height(),
                                               static_cast<VideoParams::Format>(Config::Current()["OfflinePixelFormat"].toInt()),
                                               VideoParams::kInternalChannelCount));
-}
-
-void ScopeBase::UploadTextureFromBuffer()
-{
-  if (!isVisible()) {
-    return;
-  }
-
-  if (buffer_) {
-    makeCurrent();
-
-    if (!texture_ || texture_->params() != buffer_->video_params()) {
-      texture_ = nullptr;
-      managed_tex_ = nullptr;
-
-      texture_ = renderer()->CreateTexture(buffer_->video_params(),
-                                           buffer_->data(), buffer_->linesize_pixels());
-      managed_tex_ = renderer()->CreateTexture(buffer_->video_params());
-    } else {
-      texture_->Upload(buffer_->data(), buffer_->linesize_pixels());
-    }
-
-    doneCurrent();
-  }
-
-  update();
 }
 
 void ScopeBase::OnInit()
@@ -96,13 +69,13 @@ void ScopeBase::OnPaint()
   // Clear display surface
   renderer()->ClearDestination();
 
-  if (buffer_) {
+  if (texture_) {
     // Convert reference frame to display space
-    if (!texture_ || !managed_tex_) {
-      UploadTextureFromBuffer();
-      makeCurrent(); // UploadTextureFromBuffer calls "doneCurrent", so we re-call "makeCurrent"
+    if (!managed_tex_ || !managed_tex_up_to_date_
+        || managed_tex_->params() != texture_->params()) {
+      managed_tex_ = renderer()->CreateTexture(texture_->params());
+      renderer()->BlitColorManaged(color_service(), texture_, true, managed_tex_.get());
     }
-    renderer()->BlitColorManaged(color_service(), texture_, true, managed_tex_.get());
 
     DrawScope(managed_tex_, pipeline_);
   }
