@@ -26,6 +26,7 @@
 #include <QWidget>
 
 #include "render/color.h"
+#include "widget/colorwheel/colorpreviewbox.h"
 
 namespace olive {
 
@@ -42,6 +43,8 @@ private:
   void UpdateLabelInternal();
 
   Color color_;
+
+  ColorPreviewBox *box_;
 
   QLabel* label_;
 

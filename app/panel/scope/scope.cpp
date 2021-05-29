@@ -84,7 +84,7 @@ QString ScopePanel::TypeToName(ScopePanel::Type t)
   return QString();
 }
 
-void ScopePanel::SetReferenceBuffer(Frame *frame)
+void ScopePanel::SetReferenceBuffer(TexturePtr frame)
 {
   histogram_->SetBuffer(frame);
   waveform_view_->SetBuffer(frame);

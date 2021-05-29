@@ -530,7 +530,8 @@ void PreviewAutoCacher::TryRender()
     } else {
       watcher = RenderFrame(hash,
                             single_frame_render_->property("time").value<rational>(),
-                            single_frame_render_->property("prioritize").toBool());
+                            single_frame_render_->property("prioritize").toBool(),
+                            paused_);
 
       video_immediate_passthroughs_[watcher].append(single_frame_render_);
     }
@@ -539,7 +540,7 @@ void PreviewAutoCacher::TryRender()
   }
 }
 
-RenderTicketWatcher* PreviewAutoCacher::RenderFrame(const QByteArray &hash, const rational& time, bool prioritize)
+RenderTicketWatcher* PreviewAutoCacher::RenderFrame(const QByteArray &hash, const rational& time, bool prioritize, bool texture_only)
 {
   RenderTicketWatcher* watcher = new RenderTicketWatcher();
   watcher->setProperty("hash", hash);
@@ -550,7 +551,8 @@ RenderTicketWatcher* PreviewAutoCacher::RenderFrame(const QByteArray &hash, cons
                                                             time,
                                                             RenderMode::kOffline,
                                                             viewer_node_->video_frame_cache(),
-                                                            prioritize));
+                                                            prioritize,
+                                                            texture_only));
   return watcher;
 }
 
@@ -585,7 +587,7 @@ void PreviewAutoCacher::RequeueFrames()
         // We want this hash, if we're not already rendering, start render now
         if (!render_task && !video_download_tasks_.key(hash)) {
           // Don't render any hash more than once
-          RenderFrame(hash, t, false);
+          RenderFrame(hash, t, false, false);
         }
       } else if (render_task) {
         // Cancel this frame unless it's already started

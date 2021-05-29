@@ -108,7 +108,7 @@ void ViewerPanelBase::CreateScopePanel(ScopePanel::Type type)
   p->SetType(type);
 
   // Connect viewer widget texture drawing to scope panel
-  connect(vw, &ViewerWidget::LoadedBuffer, p, &ScopePanel::SetReferenceBuffer);
+  connect(vw, &ViewerWidget::TextureChanged, p, &ScopePanel::SetReferenceBuffer);
   connect(vw, &ViewerWidget::ColorManagerChanged, p, &ScopePanel::SetColorManager);
 
   p->SetColorManager(vw->color_manager());

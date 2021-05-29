@@ -8,10 +8,7 @@ uniform float feather_in;
 uniform vec2 resolution_in;
 
 // Input texture coordinate
-in vec2 ove_texcoord;
-
-// Output color
-out vec4 fragColor;
+varying vec2 ove_texcoord;
 
 void main() {
     float multiplier = 1.0;
@@ -47,9 +44,9 @@ void main() {
     }
 
     if (multiplier > 0.0) {
-        vec4 color = texture(tex_in, ove_texcoord) * multiplier;
-        fragColor = color;
+        vec4 color = texture2D(tex_in, ove_texcoord) * multiplier;
+        gl_FragColor = color;
     } else {
-        fragColor = vec4(0.0);
+        gl_FragColor = vec4(0.0);
     }
 }

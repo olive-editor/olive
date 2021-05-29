@@ -84,7 +84,7 @@ private:
 
   void TryRender();
 
-  RenderTicketWatcher *RenderFrame(const QByteArray& hash, const rational &time, bool prioritize);
+  RenderTicketWatcher *RenderFrame(const QByteArray& hash, const rational &time, bool prioritize, bool texture_only);
 
   /**
    * @brief Process all changes to internal NodeGraph copy

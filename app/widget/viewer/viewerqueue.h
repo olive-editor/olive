@@ -29,7 +29,7 @@ namespace olive {
 
 struct ViewerPlaybackFrame {
   rational timestamp;
-  FramePtr frame;
+  QVariant frame;
 };
 
 class ViewerQueue : public std::list<ViewerPlaybackFrame> {

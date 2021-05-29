@@ -120,6 +120,11 @@ public:
     return type_;
   }
 
+  Renderer* renderer() const
+  {
+    return renderer_;
+  }
+
 private:
   Renderer* renderer_;
 

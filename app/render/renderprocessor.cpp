@@ -40,7 +40,7 @@ RenderProcessor::RenderProcessor(RenderTicketPtr ticket, Renderer *render_ctx, S
 {
 }
 
-FramePtr RenderProcessor::GenerateFrame(const rational& time, const rational& frame_length)
+TexturePtr RenderProcessor::GenerateTexture(const rational &time, const rational &frame_length)
 {
   ViewerOutput* viewer = Node::ValueToPtr<ViewerOutput>(ticket_->property("viewer"));
 
@@ -51,8 +51,11 @@ FramePtr RenderProcessor::GenerateFrame(const rational& time, const rational& fr
                           TimeRange(time, time + frame_length));
   }
 
-  TexturePtr texture = table.Get(NodeValue::kTexture).value<TexturePtr>();
+  return table.Get(NodeValue::kTexture).value<TexturePtr>();
+}
 
+FramePtr RenderProcessor::GenerateFrame(TexturePtr texture, const rational& time)
+{
   // Set up output frame parameters
   VideoParams frame_params = GetCacheVideoParams();
 
@@ -128,25 +131,35 @@ void RenderProcessor::Run()
       frame_length /= 2;
     }
 
-    FramePtr frame = GenerateFrame(time, frame_length);
+    TexturePtr texture = GenerateTexture(time, frame_length);
 
     if (GetCacheVideoParams().interlacing() != VideoParams::kInterlaceNone) {
       // Get next between frame and interlace it
-      FramePtr next_frame = GenerateFrame(time + frame_length, frame_length);
+      TexturePtr top = texture;
+      TexturePtr bottom = GenerateTexture(time + frame_length, frame_length);
 
-      FramePtr top, bottom;
-      if (GetCacheVideoParams().interlacing() == VideoParams::kInterlacedTopFirst) {
-        top = frame;
-        bottom = next_frame;
-      } else {
-        top = next_frame;
-        bottom = frame;
+      if (GetCacheVideoParams().interlacing() == VideoParams::kInterlacedBottomFirst) {
+        std::swap(top, bottom);
       }
 
-      frame = Frame::Interlace(top, bottom);
+      texture = render_ctx_->InterlaceTexture(top, bottom, GetCacheVideoParams());
     }
 
-    ticket_->Finish(QVariant::fromValue(frame));
+    if (ticket_->property("textureonly").toBool()) {
+      // Return GPU texture
+      if (!texture) {
+        texture = render_ctx_->CreateTexture(GetCacheVideoParams());
+      }
+
+      render_ctx_->Flush();
+
+      ticket_->Finish(QVariant::fromValue(texture));
+    } else {
+      // Convert to CPU frame
+      FramePtr frame = GenerateFrame(texture, time);
+
+      ticket_->Finish(QVariant::fromValue(frame));
+    }
     break;
   }
   case RenderManager::kTypeAudio:

@@ -4,9 +4,7 @@ uniform vec2 viewport;
 uniform float histogram_scale;
 uniform float histogram_power;
 
-in vec2 ove_texcoord;
-
-out vec4 fragColor;
+varying vec2 ove_texcoord;
 
 void main(void) {
     vec3 col = vec3(0.0);
@@ -17,9 +15,9 @@ void main(void) {
     vec3 total_pixels = vec3(ceil(viewport.x * viewport.y *
         histogram_scale));
 
-    for (int i = 0; i < histogram_height; i++) {
+    for (int i = 0; float(i) < histogram_height; i++) {
         ratio = float(i) / float(histogram_height - 1.0);
-        sum += texture(
+        sum += texture2D(
             ove_maintex,
             vec2(ove_texcoord.x, ratio)
         ).rgb;
@@ -28,5 +26,5 @@ void main(void) {
     histogram_ratio = pow(sum / total_pixels, vec3(histogram_power));
     col = step(vec3(ove_texcoord.y), histogram_ratio);
 
-    fragColor = vec4(col, 1.0);
+    gl_FragColor = vec4(col, 1.0);
 }

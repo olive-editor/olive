@@ -128,7 +128,7 @@ signals:
   /**
    * @brief Signal emitted when a new frame is loaded
    */
-  void LoadedBuffer(Frame* load_buffer);
+  void TextureChanged(TexturePtr t);
 
   /**
    * @brief Request a scope panel
@@ -185,7 +185,7 @@ private:
 
   bool ViewerMightBeAStill();
 
-  void SetDisplayImage(FramePtr frame, bool main_only = false);
+  void SetDisplayImage(QVariant frame, bool main_only = false);
 
   void RequestNextFrameForQueue(bool prioritize = false, bool increment = true);
 
@@ -250,9 +250,6 @@ private:
   PreviewAutoCacher auto_cacher_;
 
   QTimer audio_restart_timer_;
-
-  FramePtr last_loaded_buffer_;
-  bool last_loaded_buffer_is_empty_;
 
   int active_queue_jobs_;
 

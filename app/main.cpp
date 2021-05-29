@@ -162,7 +162,7 @@ int main(int argc, char *argv[])
   //
   // https://bugreports.qt.io/browse/QTBUG-46140
   QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
-  format.setVersion(3, 2);
+  format.setVersion(2, 0);
   format.setProfile(QSurfaceFormat::CoreProfile);
   format.setOption(QSurfaceFormat::DeprecatedFunctions);
 
@@ -171,6 +171,8 @@ int main(int argc, char *argv[])
 
   // Enable application automatically using higher resolution images from icons
   QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+
+  QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
 
   // Create application instance
   std::unique_ptr<QCoreApplication> a;

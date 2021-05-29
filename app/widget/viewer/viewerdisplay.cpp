@@ -45,13 +45,12 @@ ViewerDisplayWidget::ViewerDisplayWidget(QWidget *parent) :
   signal_cursor_color_(false),
   gizmos_(nullptr),
   gizmo_click_(false),
-  last_loaded_buffer_(nullptr),
   hand_dragging_(false),
   deinterlace_(false),
   show_fps_(false),
   frames_skipped_(0),
   show_widget_background_(false),
-  texture_equal_to_frame_(false)
+  push_mode_(kPushNull)
 {
   connect(Core::instance(), &Core::ToolChanged, this, &ViewerDisplayWidget::UpdateCursor);
 
@@ -100,13 +99,22 @@ void ViewerDisplayWidget::SetSignalCursorColorEnabled(bool e)
   inner_widget()->setMouseTracking(e);
 }
 
-void ViewerDisplayWidget::SetImage(FramePtr in_buffer)
+void ViewerDisplayWidget::SetImage(const QVariant &buffer)
 {
-  if (last_loaded_buffer_ != in_buffer) {
-    last_loaded_buffer_ = in_buffer;
+  load_frame_ = buffer;
 
-    texture_equal_to_frame_ = false;
+  if (load_frame_.isNull()) {
+    push_mode_ = kPushNull;
+  } else {
+    push_mode_ = kPushFrame;
   }
+
+  update();
+}
+
+void ViewerDisplayWidget::SetBlank()
+{
+  push_mode_ = kPushBlank;
 
   update();
 }
@@ -318,51 +326,73 @@ void ViewerDisplayWidget::OnPaint()
 {
   // Clear background to empty
   QColor bg_color = show_widget_background_ ? palette().window().color() : Qt::black;
-  renderer()->ClearDestination(bg_color.redF(), bg_color.greenF(), bg_color.blueF());
+  renderer()->ClearDestination(nullptr, bg_color.redF(), bg_color.greenF(), bg_color.blueF());
 
   // We only draw if we have a pipeline
-  if (last_loaded_buffer_ && color_service()) {
-    if (!texture_
-        || texture_->width() != last_loaded_buffer_->width()
-        || texture_->height() != last_loaded_buffer_->height()
-        || texture_->format() != last_loaded_buffer_->format()
-        || texture_->channel_count() != last_loaded_buffer_->channel_count()) {
-      texture_ = renderer()->CreateTexture(last_loaded_buffer_->video_params(), last_loaded_buffer_->data(), last_loaded_buffer_->linesize_pixels());
-    } else if (!texture_equal_to_frame_) {
-      texture_->Upload(last_loaded_buffer_->data(), last_loaded_buffer_->linesize_pixels());
-    }
-    texture_equal_to_frame_ = true;
-
-    TexturePtr texture_to_draw = texture_;
-
-    if (deinterlace_) {
-      if (deinterlace_shader_.isNull()) {
-        deinterlace_shader_ = renderer()->CreateNativeShader(ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/deinterlace.frag"))));
-      }
-
-      if (!deinterlace_texture_
-          || deinterlace_texture_->params() != texture_to_draw->params()) {
-        // (Re)create texture
-        deinterlace_texture_ = renderer()->CreateTexture(texture_to_draw->params());
-      }
-
-      ShaderJob job;
-      job.InsertValue(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, QVector2D(texture_to_draw->width(), texture_to_draw->height())));
-      job.InsertValue(QStringLiteral("ove_maintex"), NodeValue(NodeValue::kTexture, QVariant::fromValue(texture_to_draw)));
-
-      renderer()->BlitToTexture(deinterlace_shader_, job, deinterlace_texture_.get());
-
-      texture_to_draw = deinterlace_texture_;
-    }
-
+  if (push_mode_ != kPushNull) {
     // Draw texture through color transform
     int device_width = width() * devicePixelRatioF();
     int device_height = height() * devicePixelRatioF();
     VideoParams::Format device_format = static_cast<VideoParams::Format>(Config::Current()["OfflinePixelFormat"].toInt());
     VideoParams device_params(device_width, device_height, device_format, VideoParams::kInternalChannelCount);
 
-    renderer()->BlitColorManaged(color_service(), texture_to_draw, true, device_params, false,
-                                 combined_matrix_flipped_, crop_matrix_);
+    if (push_mode_ == kPushBlank) {
+      if (blank_shader_.isNull()) {
+        blank_shader_ = renderer()->CreateNativeShader(ShaderCode());
+      }
+
+      ShaderJob job;
+      job.InsertValue(QStringLiteral("ove_mvpmat"), NodeValue(NodeValue::kMatrix, combined_matrix_flipped_));
+      job.InsertValue(QStringLiteral("ove_cropmatrix"), NodeValue(NodeValue::kMatrix, crop_matrix_));
+
+      renderer()->Blit(blank_shader_, job, device_params, false);
+    } else if (color_service()) {
+      if (FramePtr frame = load_frame_.value<FramePtr>()) {
+        // This is a CPU frame, upload it now
+        if (!texture_
+            || texture_->renderer() != renderer() // Some implementations don't like it if we upload to a texture created in another (albeit shared) context
+            || texture_->width() != frame->width()
+            || texture_->height() != frame->height()
+            || texture_->format() != frame->format()
+            || texture_->channel_count() != frame->channel_count()) {
+          texture_ = renderer()->CreateTexture(frame->video_params(), frame->data(), frame->linesize_pixels());
+        } else {
+          texture_->Upload(frame->data(), frame->linesize_pixels());
+        }
+      } else if (TexturePtr texture = load_frame_.value<TexturePtr>()) {
+        // This is a GPU texture, switch to it directly
+        texture_ = texture;
+      }
+
+      emit TextureChanged(texture_);
+
+      push_mode_ = kPushUnnecessary;
+
+      TexturePtr texture_to_draw = texture_;
+
+      if (deinterlace_) {
+        if (deinterlace_shader_.isNull()) {
+          deinterlace_shader_ = renderer()->CreateNativeShader(ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/deinterlace.frag"))));
+        }
+
+        if (!deinterlace_texture_
+            || deinterlace_texture_->params() != texture_to_draw->params()) {
+          // (Re)create texture
+          deinterlace_texture_ = renderer()->CreateTexture(texture_to_draw->params());
+        }
+
+        ShaderJob job;
+        job.InsertValue(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, QVector2D(texture_to_draw->width(), texture_to_draw->height())));
+        job.InsertValue(QStringLiteral("ove_maintex"), NodeValue(NodeValue::kTexture, QVariant::fromValue(texture_to_draw)));
+
+        renderer()->BlitToTexture(deinterlace_shader_, job, deinterlace_texture_.get());
+
+        texture_to_draw = deinterlace_texture_;
+      }
+
+      renderer()->BlitColorManaged(color_service(), texture_to_draw, true, device_params, false,
+                                   combined_matrix_flipped_, crop_matrix_);
+    }
   }
 
   // Draw gizmos if we have any
@@ -452,12 +482,20 @@ void ViewerDisplayWidget::OnPaint()
 
 void ViewerDisplayWidget::OnDestroy()
 {
+  renderer()->DestroyNativeShader(deinterlace_shader_);
   deinterlace_shader_.clear();
+  renderer()->DestroyNativeShader(blank_shader_);
+  blank_shader_.clear();
 
   super::OnDestroy();
 
   texture_ = nullptr;
   deinterlace_texture_ = nullptr;
+  if (load_frame_.isNull()) {
+    push_mode_ = kPushNull;
+  } else {
+    push_mode_ = kPushFrame;
+  }
 }
 
 QPointF ViewerDisplayWidget::GetTexturePosition(const QPoint &screen_pos)
@@ -542,12 +580,11 @@ void ViewerDisplayWidget::EmitColorAtCursor(QMouseEvent *e)
   if (signal_cursor_color_) {
     Color reference, display;
 
-    if (last_loaded_buffer_) {
+    if (texture_) {
       QPointF pixel_pos = GenerateGizmoTransform().inverted().map(e->pos());
+      pixel_pos /= texture_->params().divider();
 
-      pixel_pos /= last_loaded_buffer_->video_params().divider();
-
-      reference = last_loaded_buffer_->get_pixel(qRound(pixel_pos.x()), qRound(pixel_pos.y()));
+      reference = renderer()->GetPixelFromTexture(texture_.get(), pixel_pos);
       display = color_service()->ConvertColor(reference);
     }
 
