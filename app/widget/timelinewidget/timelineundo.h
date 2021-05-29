@@ -463,7 +463,6 @@ public:
         Q_ASSERT(i == 0 || time > times_.at(i-1));
 
         QVector<Block*> splits(blocks_.size());
-        commands_.resize(blocks_.size());
 
         for (int j=0;j<blocks_.size();j++) {
           Block* b = blocks_.at(j);
@@ -472,7 +471,7 @@ public:
             BlockSplitCommand* split_command = new BlockSplitCommand(b, time);
             split_command->redo();
             splits.replace(j, split_command->new_block());
-            commands_.replace(j, split_command);
+            commands_.append(split_command);
           } else {
             splits.replace(j, nullptr);
           }
@@ -2045,8 +2044,8 @@ public:
     }
 
     foreach (auto add_gap, gaps_added_) {
-      add_gap.gap->setParent(add_gap.before->parent());
-      add_gap.before->track()->InsertBlockAfter(add_gap.gap, add_gap.before);
+      add_gap.gap->setParent(add_gap.track->parent());
+      add_gap.track->InsertBlockAfter(add_gap.gap, add_gap.before);
     }
 
     foreach (Track* track, working_tracks_) {
@@ -2121,6 +2120,7 @@ private:
 
     QVector<Block*> blocks_to_split;
     QVector<Block*> blocks_to_append_gap_to;
+    QVector<Track*> tracks_to_append_gap_to;
 
     foreach (Track* track, working_tracks_) {
       foreach (Block* b, track->Blocks()) {
@@ -2129,11 +2129,24 @@ private:
           gaps_to_extend_.append(b);
           break;
         } else if (dynamic_cast<ClipBlock*>(b) && b->out() >= point_) {
-          if (b->out() > point_) {
+          bool append_gap = true;
+
+          if (b->in() == point_) {
+            // The only reason we should be here is if this block is at the start of the track,
+            // in which case no split needs to occur
+            b = nullptr;
+          } else if (b->out() > point_) {
+            // Block must be split as well as having a gap appended to it
             blocks_to_split.append(b);
+          } else if (!b->next()) {
+            // At the end of a track, no gap needs to be added at all
+            append_gap = false;
           }
 
-          blocks_to_append_gap_to.append(b);
+          if (append_gap) {
+            tracks_to_append_gap_to.append(track);
+            blocks_to_append_gap_to.append(b);
+          }
           break;
         }
       }
@@ -2143,11 +2156,11 @@ private:
       split_command_ = new BlockSplitPreservingLinksCommand(blocks_to_split, {point_});
     }
 
-    foreach (Block* block, blocks_to_append_gap_to) {
+    for (int i=0; i<blocks_to_append_gap_to.size(); i++) {
       GapBlock* gap = new GapBlock();
       gap->set_length_and_media_out(length_);
       gap->setParent(&memory_manager_);
-      gaps_added_.append({gap, block});
+      gaps_added_.append({gap, blocks_to_append_gap_to.at(i), tracks_to_append_gap_to.at(i)});
     }
   }
 
@@ -2166,6 +2179,7 @@ private:
   struct AddGap {
     GapBlock* gap;
     Block* before;
+    Track* track;
   };
 
   QVector<AddGap> gaps_added_;

@@ -488,4 +488,112 @@ OLIVE_ADD_TEST(ReplaceBlockWithGap_ClipsAndTransitions)
   OLIVE_TEST_END;
 }
 
+OLIVE_ADD_TEST(InsertGaps_SingleTrack)
+{
+  TIMELINE_TEST_START;
+
+  sequence.add_default_nodes();
+
+  TrackList *list = sequence.track_list(Track::kVideo);
+  Track *track = list->GetTracks().first();
+
+  ClipBlock *a = new ClipBlock();
+  a->setParent(&project);
+  track->AppendBlock(a);
+
+  ClipBlock *b = new ClipBlock();
+  b->setParent(&project);
+  track->AppendBlock(b);
+
+  ClipBlock *c = new ClipBlock();
+  c->setParent(&project);
+  track->AppendBlock(c);
+
+  OLIVE_ASSERT(track->Blocks().size() == 3);
+  OLIVE_ASSERT(track->Blocks().at(0) == a);
+  OLIVE_ASSERT(track->Blocks().at(1) == b);
+  OLIVE_ASSERT(track->Blocks().at(2) == c);
+
+  {
+    // Insert gap at the start of the track, all blocks should be unsplit and shifted to the right
+    TrackListInsertGaps command(list, 0, 2);
+    command.redo();
+
+    OLIVE_ASSERT(track->Blocks().size() == 4);
+    OLIVE_ASSERT(dynamic_cast<GapBlock *>(track->Blocks().at(0)));
+    OLIVE_ASSERT(track->Blocks().at(0)->length() == 2);
+    OLIVE_ASSERT(track->Blocks().at(1) == a);
+    OLIVE_ASSERT(track->Blocks().at(2) == b);
+    OLIVE_ASSERT(track->Blocks().at(3) == c);
+
+    command.undo();
+
+    OLIVE_ASSERT(track->Blocks().size() == 3);
+    OLIVE_ASSERT(track->Blocks().at(0) == a);
+    OLIVE_ASSERT(track->Blocks().at(1) == b);
+    OLIVE_ASSERT(track->Blocks().at(2) == c);
+  }
+
+  {
+    // Insert gap in the middle of block A, block A should be halved with a copy at 2 and the gap at 1
+    TrackListInsertGaps command(list, rational(1, 2), 2);
+    command.redo();
+
+    OLIVE_ASSERT(track->Blocks().size() == 5);
+    OLIVE_ASSERT(track->Blocks().at(0) == a);
+    OLIVE_ASSERT(track->Blocks().at(0)->length() == rational(1, 2));
+    OLIVE_ASSERT(dynamic_cast<GapBlock *>(track->Blocks().at(1)));
+    OLIVE_ASSERT(dynamic_cast<ClipBlock*>(track->Blocks().at(2)));
+    OLIVE_ASSERT(track->Blocks().at(3) == b);
+    OLIVE_ASSERT(track->Blocks().at(4) == c);
+
+    command.undo();
+
+    OLIVE_ASSERT(track->Blocks().size() == 3);
+    OLIVE_ASSERT(track->Blocks().at(0) == a);
+    OLIVE_ASSERT(track->Blocks().at(0)->length() = 1);
+    OLIVE_ASSERT(track->Blocks().at(1) == b);
+    OLIVE_ASSERT(track->Blocks().at(2) == c);
+  }
+
+  {
+    // Insert gap between block A and B, blocks should be unsplit with a gap at 1
+    TrackListInsertGaps command(list, 1, 2);
+    command.redo();
+
+    OLIVE_ASSERT(track->Blocks().size() == 4);
+    OLIVE_ASSERT(track->Blocks().at(0) == a);
+    OLIVE_ASSERT(dynamic_cast<GapBlock *>(track->Blocks().at(1)));
+    OLIVE_ASSERT(track->Blocks().at(2) == b);
+    OLIVE_ASSERT(track->Blocks().at(3) == c);
+
+    command.undo();
+
+    OLIVE_ASSERT(track->Blocks().size() == 3);
+    OLIVE_ASSERT(track->Blocks().at(0) == a);
+    OLIVE_ASSERT(track->Blocks().at(1) == b);
+    OLIVE_ASSERT(track->Blocks().at(2) == c);
+  }
+
+  {
+    // Insert gap at end, nothing should be added
+    TrackListInsertGaps command(list, 3, 2);
+    command.redo();
+
+    OLIVE_ASSERT(track->Blocks().size() == 3);
+    OLIVE_ASSERT(track->Blocks().at(0) == a);
+    OLIVE_ASSERT(track->Blocks().at(1) == b);
+    OLIVE_ASSERT(track->Blocks().at(2) == c);
+
+    command.undo();
+
+    OLIVE_ASSERT(track->Blocks().size() == 3);
+    OLIVE_ASSERT(track->Blocks().at(0) == a);
+    OLIVE_ASSERT(track->Blocks().at(1) == b);
+    OLIVE_ASSERT(track->Blocks().at(2) == c);
+  }
+
+  OLIVE_TEST_END;
+}
+
 }
