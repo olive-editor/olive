@@ -112,7 +112,7 @@ private:
 
   };
 
-  int GetFilteredFrame(AVPacket *packet, AVFrame *frame, const RetrieveVideoParams &params);
+  int GetFilteredFrame(AVPacket *packet, AVFrame *frame);
 
   /**
    * @brief Handle an FFmpeg error code
@@ -138,7 +138,7 @@ private:
 
   void ClearFrameCache();
 
-  FFmpegFramePool::ElementPtr RetrieveFrame(const rational &time, const RetrieveVideoParams &params);
+  FFmpegFramePool::ElementPtr RetrieveFrame(const rational &time);
 
   void RemoveFirstFrame();
 
