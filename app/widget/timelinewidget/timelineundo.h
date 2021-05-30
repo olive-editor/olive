@@ -1370,6 +1370,8 @@ public:
 
     Track* track = timeline_->GetTrackAt(track_index_);
 
+    track->BeginOperation();
+
     bool append = (in_ >= track->track_length());
 
     // Check if the placement location is past the end of the timeline
@@ -1409,6 +1411,8 @@ public:
       }
     }
 
+    track->EndOperation();
+
     for (int i=0; i<position_commands_.size(); i++) {
       position_commands_.at(i)->redo();
     }
@@ -1423,6 +1427,7 @@ public:
     Track* t = timeline_->GetTrackAt(track_index_);
 
     // Firstly, remove our insert
+    t->BeginOperation();
     t->RippleRemoveBlock(insert_);
 
     if (ripple_remove_command_) {
@@ -1432,6 +1437,7 @@ public:
       t->RippleRemoveBlock(gap_);
       gap_->setParent(&memory_manager_);
     }
+    t->EndOperation();
 
     // Remove tracks if we added them
     for (int i=add_track_commands_.size()-1; i>=0; i--) {
