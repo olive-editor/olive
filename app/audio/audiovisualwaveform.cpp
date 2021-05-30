@@ -184,9 +184,7 @@ void AudioVisualWaveform::Shift(const rational &from, const rational &to)
       // Shifting backwards <-
       int copy_sz = data.size() - from_index;
 
-      for (int i=0; i<copy_sz; i++) {
-        data.replace(to_index + i, data.at(from_index + i));
-      }
+      memcpy(&data.data()[to_index], &data.data()[from_index], copy_sz * sizeof(SamplePerChannel));
 
       data.resize(data.size() - (from_index - to_index));
     } else {
@@ -199,9 +197,10 @@ void AudioVisualWaveform::Shift(const rational &from, const rational &to)
 
       int copy_sz = old_sz - from_index;
 
-      for (int i=0; i<copy_sz; i++) {
-        data.replace(data.size() - i - 1, data.at(old_sz - i - 1));
-      }
+      // Copy to a temporary buffer first to prevent overwriting bytes we need to copy
+      QByteArray temp(copy_sz * sizeof(SamplePerChannel), Qt::Uninitialized);
+      memcpy(temp.data(), &data.data()[from_index], temp.size());
+      memcpy(&data.data()[to_index], temp.data(), temp.size());
 
       memset(reinterpret_cast<char*>(&data[from_index]), 0, distance * sizeof(SamplePerChannel));
     }
