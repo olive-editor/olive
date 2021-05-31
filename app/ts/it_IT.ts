@@ -506,12 +506,12 @@ Questo software è concesso in licenza con GNU GPL Versione 3.</translation>
     <message>
         <location filename="../node/filter/blur/blur.cpp" line="55"/>
         <source>Blur</source>
-        <translation>Sfuoca</translation>
+        <translation>Sfoca</translation>
     </message>
     <message>
         <location filename="../node/filter/blur/blur.cpp" line="70"/>
         <source>Blurs an image.</source>
-        <translation>Sfuoca un&apos;immagine.</translation>
+        <translation>Sfoca un&apos;immagine.</translation>
     </message>
     <message>
         <location filename="../node/filter/blur/blur.cpp" line="75"/>
@@ -3883,7 +3883,7 @@ Prima di continuare a usare Olive ti consigliamo vivamente di installare il driv
     <message>
         <location filename="../dialog/preferences/tabs/preferenceskeyboardtab.cpp" line="60"/>
         <source>Reset Selected</source>
-        <translation>Riporistina selezionate</translation>
+        <translation>Ripristina selezionate</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferenceskeyboardtab.cpp" line="64"/>
@@ -4351,7 +4351,7 @@ Are you sure you wish to delete this footage?</source>
     <message>
         <location filename="../dialog/richtext/richtext.cpp" line="62"/>
         <source>Center Align</source>
-        <translation>Allienato al centro</translation>
+        <translation>Allineato al centro</translation>
     </message>
     <message>
         <location filename="../dialog/richtext/richtext.cpp" line="64"/>
@@ -5027,7 +5027,7 @@ Are you sure you wish to delete this footage?</source>
     <message>
         <location filename="../node/distort/transform/transformdistortnode.cpp" line="54"/>
         <source>Nearest Neighbor</source>
-        <translation>Vcino più prossimo</translation>
+        <translation>Vicino più prossimo</translation>
     </message>
     <message>
         <location filename="../node/distort/transform/transformdistortnode.cpp" line="54"/>
