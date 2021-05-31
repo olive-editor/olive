@@ -2,7 +2,7 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="tr_TR">
 <context>
-    <name>Olive Hakkında</name>
+    <name>AboutDialog</name>
     <message>
         <location filename="../dialogs/aboutdialog.cpp" line="49"/>
         <source>Olive is a non-linear video editor. This software is free and protected by the GNU GPL.</source>
