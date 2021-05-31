@@ -30,6 +30,7 @@ namespace olive {
 
 class ExportSubtitlesTab : public QWidget
 {
+  Q_OBJECT
 public:
   ExportSubtitlesTab(QWidget *parent = nullptr);
 
