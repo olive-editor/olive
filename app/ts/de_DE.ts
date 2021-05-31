@@ -154,7 +154,7 @@
     <message>
         <location filename="../node/value.cpp" line="289"/>
         <source>Rational</source>
-        <translation>Bruchzahl</translation>
+        <translation>Rationaler Bruch</translation>
     </message>
     <message>
         <location filename="../node/value.cpp" line="291"/>
@@ -273,7 +273,7 @@
     <message>
         <location filename="../common/ratiodialog.cpp" line="39"/>
         <source>Enter custom ratio (e.g. &quot;4:3&quot;, &quot;16/9&quot;, etc.):</source>
-        <translation>Individuelles Seitenverhältnis  (z. B. &quot;4:3&quot;, &quot;16:9&quot;, ...):</translation>
+        <translation>Individuelles Seitenverhältnis (z. B. &quot;4:3&quot;, &quot;16:9&quot;, ...):</translation>
     </message>
     <message>
         <location filename="../common/ratiodialog.cpp" line="84"/>
@@ -425,7 +425,7 @@
     <message>
         <location filename="../main.cpp" line="101"/>
         <source>qm-file</source>
-        <translation>qm-datei</translation>
+        <translation>qm-Datei</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="105"/>
@@ -720,7 +720,7 @@
     <message>
         <location filename="../node/color/colormanager/colormanager.cpp" line="273"/>
         <source>Scene Linear</source>
-        <translation>Lineare Szene</translation>
+        <translation>Szenenlinear</translation>
     </message>
     <message>
         <location filename="../node/color/colormanager/colormanager.cpp" line="273"/>
@@ -832,7 +832,7 @@
     <message>
         <location filename="../task/conform/conform.cpp" line="32"/>
         <source>Conforming Audio %1:%2</source>
-        <translation>Audio-Norm: %1:%2</translation>
+        <translation>Audio anpassen: %1:%2</translation>
     </message>
 </context>
 <context>
@@ -897,7 +897,7 @@
     <message>
         <location filename="../core.cpp" line="497"/>
         <source>The file &apos;%1&apos; looks like it might be part of an image sequence. Would you like to import it as such?</source>
-        <translation>Die Datei &apos;%1&apos; wirkt, wie wenn sie Teil einer Bildsequenz ist. Soll sie als solche importiert werden?</translation>
+        <translation>Die Datei &apos;%1&apos; scheint Teil einer Bildsequenz zu sein. Soll sie als solche importiert werden?</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="532"/>
@@ -917,7 +917,7 @@
     <message>
         <location filename="../core.cpp" line="624"/>
         <source>The project &quot;%1&quot; doesn&apos;t exist. A new project will be started instead.</source>
-        <translation>Das Projekt &quot;%1&quot; gibt es nicht, also wird stattdessen ein neues Projekt gestartet.</translation>
+        <translation>Das Projekt &quot;%1&quot; gibt es nicht. Ein ein neues Projekt wird stattdessen begonnen.</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="733"/>
@@ -959,7 +959,7 @@ Es sollte sichergestellt werden, dass eine Sequenz geladen und mit einer Vorscha
         <location filename="../core.cpp" line="886"/>
         <location filename="../core.cpp" line="1125"/>
         <source>Auto-Recovery Error</source>
-        <translation>Fehler bei der Wiederherstellung</translation>
+        <translation>Fehler bei der automatischen Wiederherstellung</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="887"/>
@@ -1024,7 +1024,7 @@ Die wiederherstellbaren Projektdateien sind verfügbar unter: %1</translation>
     <message>
         <location filename="../core.cpp" line="1324"/>
         <source>Cannot open recent project</source>
-        <translation>Das zuletzt geladene Projekt ist nicht auffindbar</translation>
+        <translation>Das zuletzt geöffnete Projekt ist nicht auffindbar</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="1325"/>
@@ -1158,7 +1158,7 @@ Die wiederherstellbaren Projektdateien sind verfügbar unter: %1</translation>
     <message>
         <location filename="../crashhandler/crashhandler.cpp" line="319"/>
         <source>Crash report is still uploading. Closing now may result in no report being sent. Are you sure you wish to close?</source>
-        <translation>Der Absturzbericht ist noch dabei, hochgeladen zu werden. Diesen Vorgang abzubrechen würde dazu führen, dass der Bericht nicht ankommt. Soll der Absturzmelder wirklich beendet werden?</translation>
+        <translation>Der Absturzbericht wird noch hochgeladen. Diesen Vorgang abzubrechen würde dazu führen, dass der Bericht nicht ankommt. Soll der Absturzmelder wirklich beendet werden?</translation>
     </message>
 </context>
 <context>
