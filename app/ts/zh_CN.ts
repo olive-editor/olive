@@ -1425,7 +1425,8 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="57"/>
         <source>Basic</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Would &quot;基本&quot; / &quot;基本的&quot; be more appropriate?</translatorcomment>
+        <translation type="unfinished">基本设置</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="61"/>
@@ -2032,7 +2033,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="664"/>
         <source>Cache Entire Sequence</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">缓存整个序列</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="665"/>
