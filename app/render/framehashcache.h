@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -61,9 +61,11 @@ public:
   QString CachePathName(const QByteArray &hash) const;
   static QString CachePathName(const QString& cache_path, const QByteArray &hash);
 
-  bool SaveCacheFrame(const QString& filename, char *data, const VideoParams &vparam, int linesize_bytes) const;
+  static bool SaveCacheFrame(const QString& filename, char *data, const VideoParams &vparam, int linesize_bytes);
   bool SaveCacheFrame(const QByteArray& hash, char *data, const VideoParams &vparam, int linesize_bytes) const;
   bool SaveCacheFrame(const QByteArray& hash, FramePtr frame) const;
+  static bool SaveCacheFrame(const QString& cache_path, const QByteArray& hash, char *data, const VideoParams &vparam, int linesize_bytes);
+  static bool SaveCacheFrame(const QString& cache_path, const QByteArray& hash, FramePtr frame);
   static FramePtr LoadCacheFrame(const QString& cache_path, const QByteArray& hash);
   FramePtr LoadCacheFrame(const QByteArray& hash) const;
   static FramePtr LoadCacheFrame(const QString& fn);
@@ -89,6 +91,9 @@ private:
   QMap<rational, QByteArray> time_hash_map_;
 
   rational timebase_;
+
+  static QMutex currently_saving_frames_mutex_;
+  static QMap<QByteArray, FramePtr> currently_saving_frames_;
 
 private slots:
   void HashDeleted(const QString &s, const QByteArray& hash);

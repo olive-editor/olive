@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -233,10 +233,16 @@ err_fatal:
   return 0;
 }
 
-rational Timecode::snap_time_to_timebase(const rational &time, const rational &timebase)
+rational Timecode::timecode_to_time(const QString &timecode, const rational &timebase, const Timecode::Display &display, bool *ok)
+{
+  int64_t timestamp = timecode_to_timestamp(timecode, timebase, display, ok);
+  return timestamp_to_time(timestamp, timebase);
+}
+
+rational Timecode::snap_time_to_timebase(const rational &time, const rational &timebase, bool floor)
 {
   // Just convert to a timestamp in timebase units and back
-  int64_t timestamp = time_to_timestamp(time, timebase);
+  int64_t timestamp = time_to_timestamp(time, timebase, floor);
 
   return timestamp_to_time(timestamp, timebase);
 }
@@ -269,23 +275,37 @@ QString Timecode::TimeToString(int64_t ms)
       .arg(ss, 2, 10, QChar('0'));
 }
 
-int64_t Timecode::time_to_timestamp(const rational &time, const rational &timebase)
+int64_t Timecode::time_to_timestamp(const rational &time, const rational &timebase, bool floor)
 {
-  return time_to_timestamp(time.toDouble(), timebase);
+  return time_to_timestamp(time.toDouble(), timebase, floor);
 }
 
-int64_t Timecode::time_to_timestamp(const double &time, const rational &timebase)
+int64_t Timecode::time_to_timestamp(const double &time, const rational &timebase, bool floor)
 {
-  return qRound64(time * timebase.flipped().toDouble());
+  double d = time * timebase.flipped().toDouble();
+
+  if (floor) {
+    return qFloor(d);
+  } else {
+    return qRound64(d);
+  }
 }
 
 int64_t Timecode::rescale_timestamp(const int64_t &ts, const rational &source, const rational &dest)
 {
+  if (source == dest) {
+    return ts;
+  }
+
   return qRound64(static_cast<double>(ts) * source.toDouble() / dest.toDouble());
 }
 
 int64_t Timecode::rescale_timestamp_ceil(const int64_t &ts, const rational &source, const rational &dest)
 {
+  if (source == dest) {
+    return ts;
+  }
+
   return qCeil(static_cast<double>(ts) * source.toDouble() / dest.toDouble());
 }
 

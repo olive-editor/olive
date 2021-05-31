@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,6 +24,8 @@
 
 namespace olive {
 
+#define super Block
+
 const QString TransitionBlock::kOutBlockInput = QStringLiteral("out_block_in");
 const QString TransitionBlock::kInBlockInput = QStringLiteral("in_block_in");
 const QString TransitionBlock::kCurveInput = QStringLiteral("curve_in");
@@ -39,14 +41,9 @@ TransitionBlock::TransitionBlock() :
   AddInput(kCurveInput, NodeValue::kCombo, InputFlags(kInputFlagNotKeyframable | kInputFlagNotConnectable));
 }
 
-Block::Type TransitionBlock::type() const
-{
-  return kTransition;
-}
-
 void TransitionBlock::Retranslate()
 {
-  Block::Retranslate();
+  super::Retranslate();
 
   SetInputName(kOutBlockInput, tr("From"));
   SetInputName(kInBlockInput, tr("To"));
@@ -121,9 +118,9 @@ double TransitionBlock::GetInProgress(const double &time) const
   return clamp((GetInternalTransitionTime(time) - out_offset().toDouble()) / in_offset().toDouble(), 0.0, 1.0);
 }
 
-void TransitionBlock::Hash(const QString &output, QCryptographicHash &hash, const rational &time) const
+void TransitionBlock::Hash(const QString &output, QCryptographicHash &hash, const rational &time, const VideoParams &video_params) const
 {
-  Node::Hash(output, hash, time);
+  Node::Hash(output, hash, time, video_params);
 
   double time_dbl = time.toDouble();
   double all_prog = GetTotalProgress(time_dbl);
@@ -159,15 +156,9 @@ NodeValueTable TransitionBlock::Value(const QString &output, NodeValueDatabase &
 {
   Q_UNUSED(output)
 
-  NodeValue::Type data_type;
-
-  if (IsInputConnected(kOutBlockInput)) {
-    data_type = value[kOutBlockInput].GetWithMeta(NodeValue::kBuffer).type();
-  } else if (IsInputConnected(kInBlockInput)) {
-    data_type = value[kInBlockInput].GetWithMeta(NodeValue::kBuffer).type();
-  } else {
-    data_type = NodeValue::kNone;
-  }
+  NodeValue out_buffer = value[kOutBlockInput].TakeWithMeta(NodeValue::kBuffer);
+  NodeValue in_buffer = value[kInBlockInput].TakeWithMeta(NodeValue::kBuffer);
+  NodeValue::Type data_type = (out_buffer.type() != NodeValue::kNone) ? out_buffer.type() : in_buffer.type();
 
   NodeValue::Type job_type = NodeValue::kNone;
   QVariant push_job;
@@ -176,8 +167,14 @@ NodeValueTable TransitionBlock::Value(const QString &output, NodeValueDatabase &
     // This must be a visual transition
     ShaderJob job;
 
-    job.InsertValue(this, kOutBlockInput, value);
-    job.InsertValue(this, kInBlockInput, value);
+    if (out_buffer.type() != NodeValue::kNone) {
+      job.InsertValue(kOutBlockInput, out_buffer);
+    }
+
+    if (in_buffer.type() != NodeValue::kNone) {
+      job.InsertValue(kInBlockInput, in_buffer);
+    }
+
     job.InsertValue(this, kCurveInput, value);
 
     double time = value[QStringLiteral("global")].Get(NodeValue::kFloat, QStringLiteral("time_in")).toDouble();
@@ -189,8 +186,8 @@ NodeValueTable TransitionBlock::Value(const QString &output, NodeValueDatabase &
     push_job = QVariant::fromValue(job);
   } else if (data_type == NodeValue::kSamples) {
     // This must be an audio transition
-    SampleBufferPtr from_samples = value[kOutBlockInput].Take(NodeValue::kSamples).value<SampleBufferPtr>();
-    SampleBufferPtr to_samples = value[kInBlockInput].Take(NodeValue::kSamples).value<SampleBufferPtr>();
+    SampleBufferPtr from_samples = out_buffer.data().value<SampleBufferPtr>();
+    SampleBufferPtr to_samples = in_buffer.data().value<SampleBufferPtr>();
 
     if (from_samples || to_samples) {
       double time_in = value[QStringLiteral("global")].Get(NodeValue::kFloat, QStringLiteral("time_in")).toDouble();
@@ -254,21 +251,11 @@ void TransitionBlock::InputConnectedEvent(const QString &input, int element, con
   if (input == kOutBlockInput) {
     // If node is not a block, this will just be null
     if ((connected_out_block_ = dynamic_cast<Block*>(output.node()))) {
-
-      Q_ASSERT(connected_out_block_->type() != Block::kTransition
-          && !connected_out_block_->out_transition()
-          && connected_out_block_ == this->previous());
-
       connected_out_block_->set_out_transition(this);
     }
   } else if (input == kInBlockInput) {
     // If node is not a block, this will just be null
     if ((connected_in_block_ = dynamic_cast<Block*>(output.node()))) {
-
-      Q_ASSERT(connected_in_block_->type() != Block::kTransition
-          && !connected_in_block_->in_transition()
-          && connected_in_block_ == this->next());
-
       connected_in_block_->set_in_transition(this);
     }
   }
@@ -290,6 +277,30 @@ void TransitionBlock::InputDisconnectedEvent(const QString &input, int element, 
       connected_in_block_ = nullptr;
     }
   }
+}
+
+TimeRange TransitionBlock::InputTimeAdjustment(const QString &input, int element, const TimeRange &input_time) const
+{
+  if (input == kInBlockInput || input == kOutBlockInput) {
+    Block* block = dynamic_cast<Block*>(GetConnectedNode(input));
+    if (block) {
+      return input_time + in() - block->in();
+    }
+  }
+
+  return super::InputTimeAdjustment(input, element, input_time);
+}
+
+TimeRange TransitionBlock::OutputTimeAdjustment(const QString &input, int element, const TimeRange &input_time) const
+{
+  if (input == kInBlockInput || input == kOutBlockInput) {
+    Block* block = dynamic_cast<Block*>(GetConnectedNode(input));
+    if (block) {
+      return input_time + block->in() - in();
+    }
+  }
+
+  return super::OutputTimeAdjustment(input, element, input_time);
 }
 
 }

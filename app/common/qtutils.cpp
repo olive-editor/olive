@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -36,6 +36,26 @@ QFrame *QtUtils::CreateHorizontalLine()
   horizontal_line->setFrameShape(QFrame::HLine);
   horizontal_line->setFrameShadow(QFrame::Sunken);
   return horizontal_line;
+}
+
+int QtUtils::MessageBox(QWidget *parent, QMessageBox::Icon icon, const QString &title, const QString &message, QMessageBox::StandardButtons buttons)
+{
+  QMessageBox b(parent);
+  b.setIcon(icon);
+  b.setWindowModality(Qt::WindowModal);
+  b.setWindowTitle(title);
+  b.setText(message);
+
+  uint mask = QMessageBox::FirstButton;
+  while (mask <= QMessageBox::LastButton) {
+    uint sb = buttons & mask;
+    if (sb) {
+      b.addButton(static_cast<QMessageBox::StandardButton>(sb));
+    }
+    mask <<= 1;
+  }
+
+  return b.exec();
 }
 
 }

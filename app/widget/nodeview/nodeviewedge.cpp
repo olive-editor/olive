@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -33,10 +33,12 @@
 
 namespace olive {
 
+#define super QGraphicsPathItem
+
 NodeViewEdge::NodeViewEdge(const NodeOutput &output, const NodeInput &input,
                            NodeViewItem* from_item, NodeViewItem* to_item,
                            QGraphicsItem* parent) :
-  QGraphicsPathItem(parent),
+  super(parent),
   output_(output),
   input_(input),
   from_item_(from_item),
@@ -150,6 +152,8 @@ void NodeViewEdge::SetPoints(const QPointF &start, const QPointF &end, bool inpu
   arrow_points[3] = end;
 
   arrow_ = QPolygonF(arrow_points);
+  arrow_bounding_rect_ = arrow_.boundingRect();
+  arrow_bounding_rect_.adjust(-arrow_size_, -arrow_size_, arrow_size_, arrow_size_);
 }
 
 void NodeViewEdge::SetFlowDirection(NodeViewCommon::FlowDirection dir)

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 #ifndef MENUSHARED_H
 #define MENUSHARED_H
 
+#include "common/rational.h"
 #include "widget/colorlabelmenu/colorlabelmenu.h"
 #include "widget/menu/menu.h"
 
@@ -47,9 +48,17 @@ public:
   void AddItemsForClipEditMenu(Menu* m);
   void AddItemsForTimeRulerMenu(Menu* m);
 
-  void AboutToShowTimeRulerActions();
+  void AboutToShowTimeRulerActions(const rational& timebase);
 
   static MenuShared* instance();
+
+  QAction* edit_delete_item()
+  {
+    return edit_delete_item_;
+  }
+
+public slots:
+  void DeleteSelectedTriggered();
 
 private:
   // "New" menu shared items
@@ -95,8 +104,6 @@ private:
 
 private slots:
   void SplitAtPlayheadTriggered();
-
-  void DeleteSelectedTriggered();
 
   void RippleDeleteTriggered();
 

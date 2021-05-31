@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ public:
 
   bool IsStarted() const;
 
-  void Start(const NodeKeyframeTrackReference& input, const rational& time);
+  void Start(const NodeKeyframeTrackReference& input, const rational& time, bool create_key_on_all_tracks = true);
 
   void Drag(QVariant value);
 
@@ -50,8 +50,7 @@ private:
   QVariant end_value_;
 
   NodeKeyframe* dragging_key_;
-
-  bool drag_created_key_;
+  QVector<NodeKeyframe*> created_keys_;
 
 };
 

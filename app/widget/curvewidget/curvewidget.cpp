@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -185,7 +185,7 @@ void CurveWidget::TimeTargetChangedEvent(Node *target)
   view_->SetTimeTarget(target);
 }
 
-void CurveWidget::ConnectedNodeChanged(Sequence *n)
+void CurveWidget::ConnectedNodeChangeEvent(ViewerOutput *n)
 {
   SetTimeTarget(n);
 }

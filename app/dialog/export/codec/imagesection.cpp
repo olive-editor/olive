@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -36,12 +36,22 @@ ImageSection::ImageSection(QWidget* parent) :
   layout->addWidget(new QLabel(tr("Image Sequence:")), row, 0);
 
   image_sequence_checkbox_ = new QCheckBox();
-  layout->addWidget(new QCheckBox(), row, 1);
+  connect(image_sequence_checkbox_, &QCheckBox::toggled, this, &ImageSection::ImageSequenceCheckBoxToggled);
+  layout->addWidget(image_sequence_checkbox_, row, 1);
+
+  row++;
+
+  layout->addWidget(new QLabel(tr("Frame to Export:")), row, 0);
+
+  frame_slider_ = new TimeSlider();
+  frame_slider_->SetMinimum(0);
+  frame_slider_->SetValue(0);
+  layout->addWidget(frame_slider_, row, 1);
 }
 
-QCheckBox *ImageSection::image_sequence_checkbox() const
+void ImageSection::ImageSequenceCheckBoxToggled(bool e)
 {
-  return image_sequence_checkbox_;
+  frame_slider_->setEnabled(!e);
 }
 
 }

@@ -5,10 +5,10 @@
 
 #include "config/config.h"
 #include "node/graph.h"
+#include "node/color/colormanager/colormanager.h"
 #include "node/node.h"
 #include "node/output/viewer/viewer.h"
-#include "project/project.h"
-#include "render/colormanager.h"
+#include "node/project/project.h"
 #include "threading/threadticketwatcher.h"
 
 namespace olive {
@@ -26,12 +26,12 @@ public:
 
   virtual ~PreviewAutoCacher() override;
 
-  RenderTicketPtr GetSingleFrame(const rational& t);
+  RenderTicketPtr GetSingleFrame(const rational& t, bool prioritize);
 
   /**
    * @brief Set the viewer node to auto-cache
    */
-  void SetViewerNode(Sequence *viewer_node);
+  void SetViewerNode(ViewerOutput *viewer_node);
 
   /**
    * @brief If the mouse is held during the next cache invalidation, cache anyway
@@ -74,29 +74,17 @@ public:
    */
   void SetPlayhead(const rational& playhead);
 
-  /**
-   * @brief Clears queue of running jobs
-   *
-   * Any jobs that haven't run yet are cancelled and will never run. Any jobs that are currently
-   * running are cancelled, but may not be finished by the time this function returns. If the
-   * jobs must be finished by the time this function returns, set `wait` to TRUE.
-   */
-  void ClearQueue(bool wait = false);
-
   void ClearHashQueue(bool wait = false);
   void ClearVideoQueue(bool wait = false);
   void ClearAudioQueue(bool wait = false);
   void ClearVideoDownloadQueue(bool wait = false);
 
-  void SetColorManager(ColorManager* manager)
-  {
-    color_manager_ = manager;
-  }
-
 private:
-  static void GenerateHashes(Sequence *viewer, FrameHashCache *cache, const QVector<rational>& times, qint64 job_time);
+  static void GenerateHashes(ViewerOutput *viewer, FrameHashCache *cache, const QVector<rational>& times, qint64 job_time);
 
   void TryRender();
+
+  RenderTicketWatcher *RenderFrame(const QByteArray& hash, const rational &time, bool prioritize, bool texture_only);
 
   /**
    * @brief Process all changes to internal NodeGraph copy
@@ -118,6 +106,15 @@ private:
 
   void UpdateLastSyncedValue();
 
+  void CancelQueuedSingleFrameRender();
+
+  template <typename T, typename Func>
+  void ClearQueueInternal(T& list, bool hard, Func member);
+
+  void ClearQueueRemoveEventInternal(QMap<RenderTicketWatcher*, QByteArray>::iterator it);
+  void ClearQueueRemoveEventInternal(QMap<RenderTicketWatcher*, TimeRange>::iterator it);
+  void ClearQueueRemoveEventInternal(QVector<RenderTicketWatcher*>::iterator it);
+
   class QueuedJob {
   public:
     enum Type {
@@ -134,13 +131,14 @@ private:
     NodeOutput output;
   };
 
-  Sequence* viewer_node_;
+  ViewerOutput* viewer_node_;
 
   Project copied_project_;
 
   QVector<QueuedJob> graph_update_queue_;
   QHash<Node*, Node*> copy_map_;
-  Sequence* copied_viewer_node_;
+  ViewerOutput* copied_viewer_node_;
+  ColorManager* copied_color_manager_;
   QVector<Node*> created_nodes_;
 
   bool paused_;
@@ -161,16 +159,17 @@ private:
   QMap<RenderTicketWatcher*, TimeRange> audio_tasks_;
   QMap<RenderTicketWatcher*, QByteArray> video_tasks_;
   QMap<RenderTicketWatcher*, QByteArray> video_download_tasks_;
-
-  QVector<QByteArray> currently_caching_hashes_;
+  QMap<RenderTicketWatcher*, QVector<RenderTicketPtr> > video_immediate_passthroughs_;
 
   qint64 last_update_time_;
 
   bool ignore_next_mouse_button_;
 
-  ColorManager* color_manager_;
-
   QTimer delayed_requeue_timer_;
+
+  TimeRangeList audio_needing_conform_;
+
+  qint64 last_conform_task_;
 
 private slots:
   /**
@@ -213,12 +212,12 @@ private slots:
 
   void ValueChanged(const NodeInput& input);
 
-  void SingleFrameFinished();
-
   /**
    * @brief Generic function called whenever the frames to render need to be (re)queued
    */
   void RequeueFrames();
+
+  void ConformFinished();
 
 };
 

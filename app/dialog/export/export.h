@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@
 #include "codec/exportcodec.h"
 #include "codec/exportformat.h"
 #include "exportaudiotab.h"
+#include "exportsubtitlestab.h"
 #include "exportvideotab.h"
 #include "task/export/export.h"
 #include "widget/viewer/viewer.h"
@@ -40,30 +41,44 @@ class ExportDialog : public QDialog
 {
   Q_OBJECT
 public:
-  ExportDialog(Sequence* sequence, QWidget* parent = nullptr);
+  ExportDialog(ViewerOutput* viewer_node, QWidget* parent = nullptr);
+
+  ExportFormat::Format GetSelectedFormat() const;
+
+  rational GetSelectedTimebase() const;
 
 protected:
   virtual void closeEvent(QCloseEvent *e) override;
 
 private:
+  void AddPreferencesTab(QWidget *inner_widget, const QString &title);
+
   void LoadPresets();
   void SetDefaultFilename();
 
   ExportParams GenerateParams() const;
 
-  Sequence* sequence_;
+  void SetCurrentFormat(ExportFormat::Format format);
+
+  ViewerOutput* viewer_node_;
 
   ExportFormat::Format previously_selected_format_;
+
+  rational GetExportLength() const;
+  int64_t GetExportLengthInTimebaseUnits() const;
 
   enum RangeSelection {
     kRangeEntireSequence,
     kRangeInToOut
   };
 
+  QTabWidget* preferences_tabs_;
+
   QComboBox* range_combobox_;
 
   QCheckBox* video_enabled_;
   QCheckBox* audio_enabled_;
+  QCheckBox* subtitles_enabled_;
 
   ViewerWidget* preview_viewer_;
   QLineEdit* filename_edit_;
@@ -71,6 +86,7 @@ private:
 
   ExportVideoTab* video_tab_;
   ExportAudioTab* audio_tab_;
+  ExportSubtitlesTab* subtitle_tab_;
 
   double video_aspect_ratio_;
 
@@ -91,6 +107,8 @@ private slots:
   void StartExport();
 
   void ExportFinished();
+
+  void ImageSequenceCheckBoxChanged(bool e);
 
 };
 

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@
 #include <QOpenGLWidget>
 #include <QTimer>
 
+#include "audio/audiovisualwaveform.h"
 #include "common/define.h"
 #include "render/audioparams.h"
 #include "render/audioplaybackcache.h"
@@ -37,6 +38,11 @@ class AudioMonitor : public QOpenGLWidget
 public:
   AudioMonitor(QWidget* parent = nullptr);
 
+  bool IsPlaying() const
+  {
+    return file_ || waveform_;
+  }
+
 public slots:
   void SetParams(const AudioParams& params);
 
@@ -46,8 +52,9 @@ public slots:
 
   void OutputPushed(const QByteArray& d);
 
+  void OutputAudioVisualWaveformSet(const AudioVisualWaveform *waveform, const rational& start, int playback_speed);
+
 protected:
-  //virtual void paintEvent(QPaintEvent* event) override;
   virtual void paintGL() override;
 
   virtual void mousePressEvent(QMouseEvent* event) override;
@@ -55,7 +62,9 @@ protected:
 private:
   void SetUpdateLoop(bool e);
 
-  void UpdateValuesFromFile(QVector<double> &v);
+  void UpdateValuesFromFile(QVector<double> &v, qint64 delta_time);
+
+  void UpdateValuesFromWaveform(QVector<double> &v, qint64 delta_time);
 
   void PushValue(const QVector<double>& v);
 
@@ -67,6 +76,9 @@ private:
 
   QIODevice* file_;
   qint64 last_time_;
+
+  const AudioVisualWaveform* waveform_;
+  rational waveform_time_;
 
   int playback_speed_;
 

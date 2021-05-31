@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -35,21 +35,24 @@
 
 #include "audio/audiomanager.h"
 #include "cli/clitask/clitaskdialog.h"
+#include "codec/conformmanager.h"
 #include "common/filefunctions.h"
 #include "common/xmlutils.h"
 #include "config/config.h"
 #include "dialog/about/about.h"
+#include "dialog/autorecovery/autorecoverydialog.h"
 #include "dialog/export/export.h"
 #include "dialog/footagerelink/footagerelinkdialog.h"
 #include "dialog/sequence/sequence.h"
 #include "dialog/task/task.h"
 #include "dialog/preferences/preferences.h"
+#include "node/color/colormanager/colormanager.h"
 #include "node/factory.h"
 #include "panel/panelmanager.h"
 #include "panel/project/project.h"
 #include "panel/viewer/viewer.h"
-#include "render/colormanager.h"
 #include "render/diskmanager.h"
+#include "render/framemanager.h"
 #include "render/rendermanager.h"
 #ifdef USE_OTIO
 #include "task/project/loadotio/loadotio.h"
@@ -139,6 +142,12 @@ void Core::Start()
   // Initialize RenderManager
   RenderManager::CreateInstance();
 
+  // Initialize FrameManager
+  FrameManager::CreateInstance();
+
+  // Initialize ConformManager
+  ConformManager::CreateInstance();
+
   //
   // Start application
   //
@@ -164,6 +173,10 @@ void Core::Start()
 
 void Core::Stop()
 {
+  // Assume all projects have closed gracefully and no auto-recovery is necessary
+  autorecovered_projects_.clear();
+  SaveUnrecoveredList();
+
   // Save Config
   Config::Save();
 
@@ -178,6 +191,10 @@ void Core::Stop()
       recent_projects_file.close();
     }
   }
+
+  ConformManager::DestroyInstance();
+
+  FrameManager::DestroyInstance();
 
   RenderManager::DestroyInstance();
 
@@ -337,7 +354,7 @@ void Core::DialogPreferencesShow()
 
 void Core::DialogExportShow()
 {
-  Sequence* viewer = GetSequenceToExport();
+  ViewerOutput* viewer = GetSequenceToExport();
 
   if (viewer) {
     ExportDialog* ed = new ExportDialog(viewer, main_window_);
@@ -390,9 +407,6 @@ void Core::CreateNewSequence()
 
   // Create new sequence
   Sequence* new_sequence = CreateNewSequenceForProject(active_project);
-
-  // Set all defaults for the sequence
-  new_sequence->set_default_parameters();
 
   SequenceDialog sd(new_sequence, SequenceDialog::kNew, main_window_);
 
@@ -447,7 +461,7 @@ void Core::AddOpenProject(Project* p)
   emit ProjectOpened(p);
 }
 
-void Core::AddOpenProjectFromTask(Task *task)
+bool Core::AddOpenProjectFromTask(Task *task)
 {
   ProjectLoadBaseTask* load_task = static_cast<ProjectLoadBaseTask*>(task);
 
@@ -457,8 +471,12 @@ void Core::AddOpenProjectFromTask(Task *task)
   if (ValidateFootageInLoadedProject(project, load_task->GetFilenameProjectWasSavedAs())) {
     AddOpenProject(project);
     main_window_->LoadLayout(layout);
+
+    return true;
   } else {
     delete project;
+
+    return false;
   }
 }
 
@@ -623,6 +641,26 @@ void Core::OpenStartupProject()
   }
 }
 
+void Core::AddRecoveryProjectFromTask(Task *task)
+{
+  if (AddOpenProjectFromTask(task)) {
+    ProjectLoadBaseTask* load_task = static_cast<ProjectLoadBaseTask*>(task);
+
+    Project* project = load_task->GetLoadedProject();
+
+    // Clearing the filename will force the user to re-save it somewhere else
+    project->set_filename(QString());
+
+    // Forcing a UUID regeneration will prevent it from saving auto-recoveries in the same place
+    // the original project did
+    project->RegenerateUuid();
+
+    // Setting modified will ensure that the program doesn't close and lose the project without
+    // prompting the user first
+    project->set_modified(true);
+  }
+}
+
 void Core::StartGUI(bool full_screen)
 {
   // Set UI style
@@ -662,11 +700,12 @@ void Core::StartGUI(bool full_screen)
 #endif
 
   // When a new project is opened, update the mainwindow
-  connect(this, &Core::ProjectOpened, main_window_, &MainWindow::ProjectOpen);
+  connect(this, &Core::ProjectOpened, main_window_, &MainWindow::ProjectOpen, Qt::QueuedConnection);
   connect(this, &Core::ProjectClosed, main_window_, &MainWindow::ProjectClose);
 
   // Start autorecovery timer using the config value as its interval
   SetAutorecoveryInterval(Config::Current()["AutorecoveryInterval"].toInt());
+  connect(&autorecovery_timer_, &QTimer::timeout, this, &Core::SaveAutorecovery);
   autorecovery_timer_.start();
 
   // Load recently opened projects list
@@ -687,7 +726,7 @@ void Core::StartGUI(bool full_screen)
   }
 }
 
-void Core::SaveProjectInternal(Project* project)
+void Core::SaveProjectInternal(Project* project, const QString& override_filename)
 {
   // Create save manager
   Task* psm;
@@ -704,16 +743,32 @@ void Core::SaveProjectInternal(Project* project)
 #endif
   } else {
     psm = new ProjectSaveTask(project);
+
+    if (!override_filename.isEmpty()) {
+      // Set override filename if provided
+      static_cast<ProjectSaveTask*>(psm)->SetOverrideFilename(override_filename);
+    }
   }
 
-  TaskDialog* task_dialog = new TaskDialog(psm, tr("Save Project"), main_window_);
+  // We don't use a TaskDialog here because a model save dialog is annoying, particularly when
+  // saving auto-recoveries that the user can't anticipate. Doing this in the main thread will
+  // cause a brief (but often unnoticeable) pause in the GUI, which, while not ideal, is not that
+  // different from what already happened (modal dialog preventing use of the GUI) and in many ways
+  // less annoying (doesn't disrupt any current actions or pull focus from elsewhere).
+  //
+  // Ideally we could do this in a background thread and show progress in the status bar like
+  // Microsoft Word, but that would be far more complex. If it becomes necessary in the future,
+  // we will look into an approach like that.
+  if (psm->Start()) {
+    if (override_filename.isEmpty()) {
+      ProjectSaveSucceeded(psm);
+    }
+  }
 
-  connect(task_dialog, &TaskDialog::TaskSucceeded, this, &Core::ProjectSaveSucceeded);
-
-  task_dialog->open();
+  psm->deleteLater();
 }
 
-Sequence *Core::GetSequenceToExport()
+ViewerOutput* Core::GetSequenceToExport()
 {
   // First try the most recently focused time based window
   TimeBasedPanel* time_panel = PanelManager::instance()->MostRecentlyFocused<TimeBasedPanel>();
@@ -743,13 +798,107 @@ Sequence *Core::GetSequenceToExport()
   return nullptr;
 }
 
+QString Core::GetAutoRecoveryIndexFilename()
+{
+  return QDir(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)).filePath(QStringLiteral("unrecovered"));
+}
+
+void Core::SaveUnrecoveredList()
+{
+  QFile autorecovery_index(GetAutoRecoveryIndexFilename());
+
+  if (autorecovered_projects_.isEmpty()) {
+    // Recovery list is empty, delete file if exists
+    if (autorecovery_index.exists()) {
+      autorecovery_index.remove();
+    }
+  } else if (autorecovery_index.open(QFile::WriteOnly)) {
+    // Overwrite recovery list with current list
+    QTextStream ts(&autorecovery_index);
+
+    bool first = true;
+    foreach (const QUuid& uuid, autorecovered_projects_) {
+      if (first) {
+        first = false;
+      } else {
+        ts << QStringLiteral("\n");
+      }
+      ts << uuid.toString();
+    }
+
+    autorecovery_index.close();
+  } else {
+    qWarning() << "Failed to save unrecovered list";
+  }
+}
+
 void Core::SaveAutorecovery()
 {
-  foreach (Project* p, open_projects_) {
-    if (!p->has_autorecovery_been_saved()) {
-      // FIXME: SAVE AN AUTORECOVERY PROJECT
-      p->set_autorecovery_saved(true);
+  if (Config::Current()[QStringLiteral("AutorecoveryEnabled")].toBool()) {
+    foreach (Project* p, open_projects_) {
+      if (!p->has_autorecovery_been_saved()) {
+        QDir project_autorecovery_dir(QDir(FileFunctions::GetAutoRecoveryRoot()).filePath(p->GetUuid().toString()));
+        if (project_autorecovery_dir.mkpath(QStringLiteral("."))) {
+          QString this_autorecovery_path = project_autorecovery_dir.filePath(QStringLiteral("%1.ove").arg(QString::number(QDateTime::currentSecsSinceEpoch())));
+
+          SaveProjectInternal(p, this_autorecovery_path);
+
+          p->set_autorecovery_saved(true);
+
+          // Keep track of projects that where the "newest" save is the recovery project
+          if (!autorecovered_projects_.contains(p->GetUuid())) {
+            autorecovered_projects_.append(p->GetUuid());
+          }
+
+          qDebug() << "Saved auto-recovery to:" << this_autorecovery_path;
+
+          // Write human-readable real name so it's not just a UUID
+          {
+            QFile realname_file(project_autorecovery_dir.filePath(QStringLiteral("realname.txt")));
+            realname_file.open(QFile::WriteOnly);
+            realname_file.write(p->pretty_filename().toUtf8());
+            realname_file.close();
+          }
+
+          int64_t max_recoveries_per_file = Config::Current()[QStringLiteral("AutorecoveryMaximum")].toLongLong();
+
+          // Since we write an extra file, increment total allowed files by 1
+          max_recoveries_per_file++;
+
+          // Delete old entries
+          QStringList recovery_files = project_autorecovery_dir.entryList(QDir::Files | QDir::NoDotAndDotDot, QDir::Name);
+          while (recovery_files.size() > max_recoveries_per_file) {
+            bool deleted = false;
+            for (int i=0; i<recovery_files.size(); i++) {
+              const QString& f = recovery_files.at(i);
+
+              if (f.endsWith(QStringLiteral(".ove"), Qt::CaseInsensitive)) {
+                QString delete_full_path = project_autorecovery_dir.filePath(f);
+                qDebug() << "Deleted old recovery:" << delete_full_path;
+                QFile::remove(delete_full_path);
+                recovery_files.removeAt(i);
+                deleted = true;
+                break;
+              }
+            }
+
+            if (!deleted) {
+              // For some reason none of the files were deletable. Break so we don't end up in
+              // an infinite loop.
+              break;
+            }
+          }
+        } else {
+          QMessageBox::critical(main_window_, tr("Auto-Recovery Error"),
+                                tr("Failed to save auto-recovery to \"%1\". "
+                                   "Olive may not have permission to this directory.")
+                                .arg(project_autorecovery_dir.absolutePath()));
+        }
+      }
     }
+
+    // Save index
+    SaveUnrecoveredList();
   }
 }
 
@@ -760,6 +909,9 @@ void Core::ProjectSaveSucceeded(Task* task)
   PushRecentlyOpenedProject(p->filename());
 
   p->set_modified(false);
+
+  autorecovered_projects_.removeOne(p->GetUuid());
+  SaveUnrecoveredList();
 }
 
 Project* Core::GetActiveProject() const
@@ -938,9 +1090,59 @@ bool Core::SaveProject(Project* p)
   }
 }
 
-void Core::ShowStatusBarMessage(const QString &s)
+void Core::ShowStatusBarMessage(const QString &s, int timeout)
 {
-  main_window_->statusBar()->showMessage(s);
+  main_window_->statusBar()->showMessage(s, timeout);
+}
+
+void Core::ClearStatusBarMessage()
+{
+  main_window_->statusBar()->clearMessage();
+}
+
+void Core::OpenRecoveryProject(const QString &filename)
+{
+  OpenProjectInternal(filename, true);
+}
+
+void Core::OpenNodeInViewer(ViewerOutput *viewer)
+{
+  main_window_->OpenNodeInViewer(viewer);
+}
+
+void Core::CheckForAutoRecoveries()
+{
+  QFile autorecovery_index(GetAutoRecoveryIndexFilename());
+  if (autorecovery_index.exists()) {
+    // Uh-oh, we have auto-recoveries to prompt
+    if (autorecovery_index.open(QFile::ReadOnly)) {
+      QStringList recovery_filenames = QString::fromUtf8(autorecovery_index.readAll()).split('\n');
+
+      AutoRecoveryDialog ard(tr("The following projects had unsaved changes when Olive "
+                                "forcefully quit. Would you like to load them?"),
+                             recovery_filenames, true, main_window_);
+      ard.exec();
+
+      autorecovery_index.close();
+
+      // Delete recovery index since we don't need it anymore
+      QFile::remove(GetAutoRecoveryIndexFilename());
+    } else {
+      QMessageBox::critical(main_window_, tr("Auto-Recovery Error"),
+                            tr("Found auto-recoveries but failed to load the auto-recovery index. "
+                               "Auto-recover projects will have to be opened manually.\n\n"
+                               "Your recoverable projects are still available at: %1").arg(FileFunctions::GetAutoRecoveryRoot()));
+    }
+  }
+}
+
+void Core::BrowseAutoRecoveries()
+{
+  // List all auto-recovery entries
+  AutoRecoveryDialog ard(tr("The following project versions have been auto-saved:"),
+                         QDir(FileFunctions::GetAutoRecoveryRoot()).entryList(QDir::Dirs | QDir::NoDotAndDotDot),
+                         false, main_window_);
+  ard.exec();
 }
 
 bool Core::SaveProjectAs(Project* p)
@@ -987,7 +1189,7 @@ void Core::PushRecentlyOpenedProject(const QString& s)
   emit OpenRecentListChanged();
 }
 
-void Core::OpenProjectInternal(const QString &filename)
+void Core::OpenProjectInternal(const QString &filename, bool recovery_project)
 {
   // See if this project is open already
   foreach (Project* p, open_projects_) {
@@ -1018,7 +1220,11 @@ void Core::OpenProjectInternal(const QString &filename)
 
   TaskDialog* task_dialog = new TaskDialog(load_task, tr("Load Project"), main_window());
 
-  connect(task_dialog, &TaskDialog::TaskSucceeded, this, &Core::AddOpenProjectFromTask);
+  if (recovery_project) {
+    connect(task_dialog, &TaskDialog::TaskSucceeded, this, &Core::AddRecoveryProjectFromTask);
+  } else {
+    connect(task_dialog, &TaskDialog::TaskSucceeded, this, &Core::AddOpenProjectFromTask);
+  }
 
   task_dialog->open();
 }
@@ -1317,8 +1523,8 @@ bool Core::ValidateFootageInLoadedProject(Project* project, const QString& proje
       }
     }
 
-    // Heuristically compare footage to file
-    if (Footage::CompareFootageToItsFilename(footage)) {
+    if (QFileInfo::exists(footage->filename())) {
+      // Assume valid
       footage->SetValid();
     } else {
       footage_we_couldnt_validate.append(footage);

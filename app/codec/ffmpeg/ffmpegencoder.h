@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -38,12 +38,15 @@ class FFmpegEncoder : public Encoder
 public:
   FFmpegEncoder(const EncodingParams &params);
 
+  virtual QStringList GetPixelFormatsForCodec(ExportCodec::Codec c) const override;
+
   virtual bool Open() override;
 
   virtual bool WriteFrame(olive::FramePtr frame, olive::rational time) override;
 
-  virtual void WriteAudio(olive::AudioParams pcm_info,
-                          QIODevice *file) override;
+  virtual bool WriteAudio(olive::SampleBufferPtr audio) override;
+
+  virtual bool WriteSubtitle(const SubtitleBlock *sub_block) override;
 
   virtual void Close() override;
 
@@ -54,15 +57,6 @@ public:
 
 private:
   /**
-   * @brief Handle an error
-   *
-   * Immediately closes the Decoder (freeing memory resources) and sends the string provided to the warning stream.
-   * As this function closes the Decoder, no further Decoder functions should be performed after this is called
-   * (unless the Decoder is opened again first).
-   */
-  void Error(const QString& s);
-
-  /**
    * @brief Handle an FFmpeg error code
    *
    * Uses the FFmpeg API to retrieve a descriptive string for this error code and sends it to Error(). As such, this
@@ -70,7 +64,7 @@ private:
    *
    * @param error_code
    */
-  void FFmpegError(const char *context, int error_code);
+  void FFmpegError(const QString &context, int error_code);
 
   bool WriteAVFrame(AVFrame* frame, AVCodecContext *codec_ctx, AVStream *stream);
 
@@ -80,6 +74,8 @@ private:
 
   void FlushEncoders();
   void FlushCodecCtx(AVCodecContext* codec_ctx, AVStream *stream);
+
+  bool InitializeResampleContext(SampleBufferPtr audio);
 
   AVFormatContext* fmt_ctx_;
 
@@ -92,6 +88,13 @@ private:
   AVStream* audio_stream_;
   AVCodecContext* audio_codec_ctx_;
   SwrContext* audio_resample_ctx_;
+  AVFrame* audio_frame_;
+  int audio_max_samples_;
+  int audio_frame_offset_;
+  int audio_write_count_;
+
+  AVStream* subtitle_stream_;
+  AVCodecContext* subtitle_codec_ctx_;
 
   bool open_;
 

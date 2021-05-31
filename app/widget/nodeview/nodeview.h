@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -90,7 +90,7 @@ protected:
   virtual void mouseMoveEvent(QMouseEvent *event) override;
   virtual void mouseReleaseEvent(QMouseEvent* event) override;
 
-  virtual void wheelEvent(QWheelEvent* event) override;
+  virtual void ZoomIntoCursorPosition(QWheelEvent *event, double multiplier, const QPointF &cursor_pos) override;
 
 private:
   void AttachNodesToCursor(const QVector<Node *> &nodes);
@@ -106,9 +106,25 @@ private:
   void ConnectSelectionChangedSignal();
   void DisconnectSelectionChangedSignal();
 
-  void ZoomIntoCursorPosition(double multiplier, const QPointF &cursor_pos);
-
   void ZoomFromKeyboard(double multiplier);
+
+  class NodeViewAttachNodesToCursor : public UndoCommand
+  {
+  public:
+    NodeViewAttachNodesToCursor(NodeView* view, const QVector<Node*>& nodes);
+
+    virtual void redo() override;
+
+    virtual void undo() override;
+
+    virtual Project * GetRelevantProject() const override;
+
+  private:
+    NodeView* view_;
+
+    QVector<Node*> nodes_;
+
+  };
 
   NodeGraph* graph_;
 
@@ -124,6 +140,7 @@ private:
 
   NodeViewEdge* create_edge_;
   NodeViewItem* create_edge_src_;
+  QString create_edge_src_output_;
   NodeViewItem* create_edge_dst_;
   NodeInput create_edge_dst_input_;
   bool create_edge_dst_temp_expanded_;
@@ -142,6 +159,8 @@ private:
   FilterMode filter_mode_;
 
   double scale_;
+
+  bool create_edge_already_exists_;
 
   static const double kMinimumScale;
 
@@ -175,6 +194,11 @@ private slots:
    * @brief Receiver for the user changing the filter
    */
   void ContextMenuFilterChanged(QAction* action);
+
+  /**
+   * @brief Opens the selected node in a Viewer
+   */
+  void OpenSelectedNodeInViewer();
 
 };
 

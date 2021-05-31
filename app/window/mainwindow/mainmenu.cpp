@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -73,6 +73,9 @@ MainMenu::MainMenu(MainWindow *parent) :
   //
   edit_menu_ = new Menu(this);
 
+  connect(edit_menu_, &Menu::aboutToShow, this, &MainMenu::EditMenuAboutToShow);
+  connect(edit_menu_, &Menu::aboutToHide, this, &MainMenu::EditMenuAboutToHide);
+
   edit_undo_item_ = Core::instance()->undo_stack()->GetUndoAction();
   Menu::ConformItem(edit_undo_item_, "undo", "Ctrl+Z");
   edit_menu_->addAction(edit_undo_item_);
@@ -82,6 +85,14 @@ MainMenu::MainMenu(MainWindow *parent) :
 
   edit_menu_->addSeparator();
   MenuShared::instance()->AddItemsForEditMenu(edit_menu_, true);
+  {
+    // Create "alternate delete" action so we can pick up backspace as well as delete while still
+    // keeping them configurable
+    edit_delete2_item_ = new QAction();
+    Menu::ConformItem(edit_delete2_item_, "delete2", MenuShared::instance(), &MenuShared::DeleteSelectedTriggered, "Backspace");
+    auto actions = edit_menu_->actions();
+    edit_menu_->insertAction(actions.at(actions.indexOf(MenuShared::instance()->edit_delete_item()) + 1), edit_delete2_item_);
+  }
   edit_menu_->addSeparator();
   edit_select_all_item_ = edit_menu_->AddItem("selectall", this, &MainMenu::SelectAllTriggered, "Ctrl+A");
   edit_deselect_all_item_ = edit_menu_->AddItem("deselectall", this, &MainMenu::DeselectAllTriggered, "Ctrl+Shift+A");
@@ -112,9 +123,6 @@ MainMenu::MainMenu(MainWindow *parent) :
   view_decrease_track_height_item_ = view_menu_->AddItem("vzoomout", this, &MainMenu::DecreaseTrackHeightTriggered, "Ctrl+-");
   view_show_all_item_ = view_menu_->AddItem("showall", this, &MainMenu::ToggleShowAllTriggered, "\\");
   view_show_all_item_->setCheckable(true);
-  view_menu_->addSeparator();
-
-  MenuShared::instance()->AddItemsForTimeRulerMenu(view_menu_);
 
   view_menu_->addSeparator();
 
@@ -301,13 +309,32 @@ void MainMenu::FileMenuAboutToShow()
   }
 }
 
+void MainMenu::EditMenuAboutToShow()
+{
+  edit_delete2_item_->setVisible(false);
+}
+
+void MainMenu::EditMenuAboutToHide()
+{
+  edit_delete2_item_->setVisible(true);
+}
+
 void MainMenu::ViewMenuAboutToShow()
 {
   // Parent is QMainWindow
   view_full_screen_item_->setChecked(parentWidget()->isFullScreen());
 
+  // Make sure we're displaying the correct options for the timebase
+  TimeBasedPanel* p = PanelManager::instance()->MostRecentlyFocused<TimeBasedPanel>();
+  if (p) {
+    if (p->timebase().denominator() != 0) {
+      view_menu_->addSeparator();
+      MenuShared::instance()->AddItemsForTimeRulerMenu(view_menu_);
+    }
+  }
+
   // Ensure checked timecode display mode is correct
-  MenuShared::instance()->AboutToShowTimeRulerActions();
+  MenuShared::instance()->AboutToShowTimeRulerActions(p->timebase());
 }
 
 void MainMenu::ToolsMenuAboutToShow()
@@ -614,6 +641,7 @@ void MainMenu::Retranslate()
   edit_menu_->setTitle(tr("&Edit"));
   //edit_undo_item_->setText(tr("&Undo")); FIXME: Does Qt translate these automatically?
   //edit_redo_item_->setText(tr("Redo"));
+  edit_delete2_item_->setText(tr("Delete (alt)"));
   edit_insert_item_->setText(tr("Insert"));
   edit_overwrite_item_->setText(tr("Overwrite"));
   edit_select_all_item_->setText(tr("Select &All"));

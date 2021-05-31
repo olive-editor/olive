@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -70,7 +70,7 @@ private:
   QLabel* count_lbl_;
 
 private slots:
-  void UpdateCounter(const QString &input, int new_size);
+  void UpdateCounter(const QString &input, int old_size, int new_size);
 
 };
 

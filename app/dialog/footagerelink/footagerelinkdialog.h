@@ -24,7 +24,7 @@
 #include <QDialog>
 #include <QTreeWidget>
 
-#include "project/item/footage/footage.h"
+#include "node/project/footage/footage.h"
 
 namespace olive {
 

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -66,7 +66,9 @@ void Config::SetDefaults()
   SetEntryInternal(QStringLiteral("DefaultStillLength"), NodeValue::kRational, QVariant::fromValue(rational(2)));
   SetEntryInternal(QStringLiteral("HoverFocus"), NodeValue::kBoolean, false);
   SetEntryInternal(QStringLiteral("AudioScrubbing"), NodeValue::kBoolean, true);
+  SetEntryInternal(QStringLiteral("AutorecoveryEnabled"), NodeValue::kBoolean, true);
   SetEntryInternal(QStringLiteral("AutorecoveryInterval"), NodeValue::kInt, 1);
+  SetEntryInternal(QStringLiteral("AutorecoveryMaximum"), NodeValue::kInt, 20);
   SetEntryInternal(QStringLiteral("DiskCacheSaveInterval"), NodeValue::kInt, 10000);
   SetEntryInternal(QStringLiteral("Language"), NodeValue::kText, QString());
   SetEntryInternal(QStringLiteral("ScrollZooms"), NodeValue::kBoolean, false);
@@ -94,6 +96,7 @@ void Config::SetDefaults()
   SetEntryInternal(QStringLiteral("AutoMergeTracks"), NodeValue::kBoolean, true);
   SetEntryInternal(QStringLiteral("UseSliderLadders"), NodeValue::kBoolean, true);
 
+  SetEntryInternal(QStringLiteral("AutoCacheEnabled"), NodeValue::kBoolean, true);
   SetEntryInternal(QStringLiteral("AutoCacheDelay"), NodeValue::kInt, 1000);
 
   SetEntryInternal(QStringLiteral("CatColor0"), NodeValue::kInt, 0);

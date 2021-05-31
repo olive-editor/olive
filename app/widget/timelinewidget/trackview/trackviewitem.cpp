@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -42,6 +42,7 @@ TrackViewItem::TrackViewItem(Track* track, QWidget *parent) :
   label_ = new ClickableLabel();
   connect(label_, &ClickableLabel::MouseDoubleClicked, this, &TrackViewItem::LabelClicked);
   connect(track_, &Track::LabelChanged, this, &TrackViewItem::UpdateLabel);
+  connect(track_, &Track::IndexChanged, this, &TrackViewItem::UpdateLabel);
   UpdateLabel();
   stack_->addWidget(label_);
 

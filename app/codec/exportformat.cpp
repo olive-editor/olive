@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -19,6 +19,8 @@
 ***/
 
 #include "exportformat.h"
+
+#include "encoder.h"
 
 namespace olive {
 
@@ -39,6 +41,21 @@ QString ExportFormat::GetName(olive::ExportFormat::Format f)
     return tr("TIFF");
   case kFormatQuickTime:
     return tr("QuickTime");
+  case kFormatWAV:
+    return tr("Wave Audio");
+  case kFormatAIFF:
+    return tr("AIFF");
+  case kFormatMP3:
+    return tr("MP3");
+  case kFormatFLAC:
+    return tr("FLAC");
+  case kFormatOgg:
+    return tr("Ogg");
+  case kFormatWebM:
+    return tr("WebM");
+  case kFormatSRT:
+    return tr("SubRip SRT");
+
   case kFormatCount:
     break;
   }
@@ -63,25 +80,20 @@ QString ExportFormat::GetExtension(ExportFormat::Format f)
     return QStringLiteral("tiff");
   case kFormatQuickTime:
     return QStringLiteral("mov");
-  case kFormatCount:
-    break;
-  }
-
-  return QString();
-}
-
-QString ExportFormat::GetEncoder(ExportFormat::Format f)
-{
-  switch (f) {
-  case kFormatDNxHD:
-  case kFormatMatroska:
-  case kFormatQuickTime:
-  case kFormatMPEG4:
-    return QStringLiteral("ffmpeg");
-  case kFormatOpenEXR:
-  case kFormatPNG:
-  case kFormatTIFF:
-    return QStringLiteral("oiio");
+  case kFormatWAV:
+    return QStringLiteral("wav");
+  case kFormatAIFF:
+    return QStringLiteral("aiff");
+  case kFormatMP3:
+    return QStringLiteral("mp3");
+  case kFormatFLAC:
+    return QStringLiteral("flac");
+  case kFormatOgg:
+    return QStringLiteral("ogg");
+  case kFormatWebM:
+    return QStringLiteral("webm");
+  case kFormatSRT:
+    return QStringLiteral("srt");
   case kFormatCount:
     break;
   }
@@ -106,6 +118,14 @@ QList<ExportCodec::Codec> ExportFormat::GetVideoCodecs(ExportFormat::Format f)
     return {ExportCodec::kCodecTIFF};
   case kFormatQuickTime:
     return {ExportCodec::kCodecH264, ExportCodec::kCodecH265, ExportCodec::kCodecProRes};
+  case kFormatWebM:
+    return {ExportCodec::kCodecVP9};
+  case kFormatOgg:
+  case kFormatWAV:
+  case kFormatAIFF:
+  case kFormatMP3:
+  case kFormatFLAC:
+  case kFormatSRT:
   case kFormatCount:
     break;
   }
@@ -116,23 +136,79 @@ QList<ExportCodec::Codec> ExportFormat::GetVideoCodecs(ExportFormat::Format f)
 QList<ExportCodec::Codec> ExportFormat::GetAudioCodecs(ExportFormat::Format f)
 {
   switch (f) {
+  // Video/audio formats
   case kFormatDNxHD:
     return {ExportCodec::kCodecPCM};
   case kFormatMatroska:
-    return {ExportCodec::kCodecAAC, ExportCodec::kCodecMP2, ExportCodec::kCodecMP3, ExportCodec::kCodecPCM};
+    return {ExportCodec::kCodecAAC, ExportCodec::kCodecMP2, ExportCodec::kCodecMP3, ExportCodec::kCodecPCM, ExportCodec::kCodecVorbis, ExportCodec::kCodecOpus};
   case kFormatMPEG4:
-    return {ExportCodec::kCodecAAC, ExportCodec::kCodecMP2, ExportCodec::kCodecMP3, ExportCodec::kCodecPCM};
+    return {ExportCodec::kCodecAAC, ExportCodec::kCodecMP2, ExportCodec::kCodecMP3};
   case kFormatQuickTime:
     return {ExportCodec::kCodecAAC, ExportCodec::kCodecMP2, ExportCodec::kCodecMP3, ExportCodec::kCodecPCM};
+  case kFormatWebM:
+    return {ExportCodec::kCodecAAC, ExportCodec::kCodecMP2, ExportCodec::kCodecMP3, ExportCodec::kCodecPCM, ExportCodec::kCodecVorbis, ExportCodec::kCodecOpus};
+
+  // Audio only formats
+  case kFormatWAV:
+    return {ExportCodec::kCodecPCM};
+  case kFormatAIFF:
+    return {ExportCodec::kCodecPCM};
+  case kFormatMP3:
+    return {ExportCodec::kCodecMP3};
+  case kFormatFLAC:
+    return {ExportCodec::kCodecFLAC};
+  case kFormatOgg:
+    return {ExportCodec::kCodecOpus, ExportCodec::kCodecVorbis, ExportCodec::kCodecPCM};
+
+  // Video only formats
   case kFormatOpenEXR:
   case kFormatPNG:
   case kFormatTIFF:
-    return {};
+  case kFormatSRT:
   case kFormatCount:
     break;
+
   }
 
   return {};
+}
+
+QList<ExportCodec::Codec> ExportFormat::GetSubtitleCodecs(Format f)
+{
+  switch (f) {
+  case kFormatDNxHD:
+  case kFormatMPEG4:
+  case kFormatOpenEXR:
+  case kFormatQuickTime:
+  case kFormatPNG:
+  case kFormatTIFF:
+  case kFormatWAV:
+  case kFormatAIFF:
+  case kFormatMP3:
+  case kFormatFLAC:
+  case kFormatOgg:
+  case kFormatWebM:
+  case kFormatCount:
+    break;
+  case kFormatMatroska:
+  case kFormatSRT:
+    return {ExportCodec::kCodecSRT};
+  }
+
+  return {};
+}
+
+QStringList ExportFormat::GetPixelFormatsForCodec(ExportFormat::Format f, ExportCodec::Codec c)
+{
+  Encoder* e = Encoder::CreateFromFormat(f, EncodingParams());
+  QStringList list;
+
+  if (e) {
+    list = e->GetPixelFormatsForCodec(c);
+    delete e;
+  }
+
+  return list;
 }
 
 }

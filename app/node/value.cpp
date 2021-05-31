@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,7 +27,6 @@
 #include <QVector4D>
 
 #include "common/tohex.h"
-#include "project/item/footage/stream.h"
 #include "render/audioparams.h"
 #include "render/videoparams.h"
 #include "render/color.h"
@@ -383,14 +382,26 @@ NodeValueTable NodeValueTable::Merge(QList<NodeValueTable> tables)
   NodeValueTable merged_table;
 
   // Slipstreams all tables together
-  foreach (const NodeValueTable& t, tables) {
-    if (row >= t.Count()) {
-      continue;
+  while (true) {
+    bool all_merged = true;
+
+    foreach (const NodeValueTable& t, tables) {
+      if (row < t.Count()) {
+        all_merged = false;
+      } else {
+        continue;
+      }
+
+      int row_index = t.Count() - 1 - row;
+
+      merged_table.Prepend(t.at(row_index));
     }
 
-    int row_index = t.Count() - 1 - row;
+    row++;
 
-    merged_table.Prepend(t.at(row_index));
+    if (all_merged) {
+      break;
+    }
   }
 
   return merged_table;

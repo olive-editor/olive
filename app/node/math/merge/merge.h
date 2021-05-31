@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -31,6 +31,8 @@ class MergeNode : public Node
 public:
   MergeNode();
 
+  NODE_DEFAULT_DESTRUCTOR(MergeNode)
+
   virtual Node* copy() const override;
 
   virtual QString Name() const override;
@@ -46,7 +48,7 @@ public:
   static const QString kBaseIn;
   static const QString kBlendIn;
 
-  virtual void Hash(const QString& output, QCryptographicHash &hash, const rational &time) const override;
+  virtual void Hash(const QString& output, QCryptographicHash &hash, const rational &time, const VideoParams& video_params) const override;
 
 private:
   NodeInput* base_in_;

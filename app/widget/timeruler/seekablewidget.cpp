@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -160,6 +160,10 @@ int SeekableWidget::TimeToScreen(const rational &time) const
 
 void SeekableWidget::SeekToScreenPoint(int screen)
 {
+  if (timebase().isNull()) {
+    return;
+  }
+
   int64_t timestamp = qMax(static_cast<int64_t>(0), ScreenToUnitRounded(screen));
 
   if (Core::instance()->snapping() && snap_service_) {
@@ -176,9 +180,11 @@ void SeekableWidget::SeekToScreenPoint(int screen)
     }
   }
 
-  SetTime(timestamp);
+  if (timestamp != GetTime()) {
+    SetTime(timestamp);
 
-  emit TimeChanged(timestamp);
+    emit TimeChanged(timestamp);
+  }
 }
 
 void SeekableWidget::DrawTimelinePoints(QPainter* p, int marker_bottom)

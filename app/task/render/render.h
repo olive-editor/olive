@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,8 +23,9 @@
 
 #include <QtConcurrent/QtConcurrent>
 
+#include "node/block/subtitle/subtitle.h"
+#include "node/color/colormanager/colormanager.h"
 #include "node/output/viewer/viewer.h"
-#include "render/colormanager.h"
 #include "task/task.h"
 #include "threading/threadticket.h"
 #include "threading/threadticketwatcher.h"
@@ -35,13 +36,14 @@ class RenderTask : public Task
 {
   Q_OBJECT
 public:
-  RenderTask(Sequence* viewer, const VideoParams &vparams, const AudioParams &aparams);
+  RenderTask(ViewerOutput* viewer, const VideoParams &vparams, const AudioParams &aparams);
 
   virtual ~RenderTask() override;
 
 protected:
   bool Render(ColorManager *manager, const TimeRangeList &video_range,
-              const TimeRangeList &audio_range, RenderMode::Mode mode,
+              const TimeRangeList &audio_range, const TimeRange &subtitle_range,
+              RenderMode::Mode mode,
               FrameHashCache *cache, const QSize& force_size = QSize(0, 0),
               const QMatrix4x4& force_matrix = QMatrix4x4(),
               VideoParams::Format force_format = VideoParams::kFormatInvalid,
@@ -53,7 +55,9 @@ protected:
 
   virtual void AudioDownloaded(const TimeRange& range, SampleBufferPtr samples, qint64 job_time) = 0;
 
-  Sequence* viewer() const
+  virtual void EncodeSubtitle(const SubtitleBlock *subtitle);
+
+  ViewerOutput* viewer() const
   {
     return viewer_;
   }
@@ -80,6 +84,27 @@ protected:
     return true;
   }
 
+  void SetNativeProgressSignallingEnabled(bool e)
+  {
+    native_progress_signalling_ = e;
+  }
+
+  /**
+   * @brief Only valid after Render() is called
+   */
+  int64_t GetTotalNumberOfFrames() const
+  {
+    return total_number_of_frames_;
+  }
+
+  /**
+   * @brief Only valid after Render() is called
+   */
+  int64_t GetTotalNumberOfUniqueFrames() const
+  {
+    return total_number_of_unique_frames_;
+  }
+
 private:
   void PrepareWatcher(RenderTicketWatcher* watcher, QThread *thread);
 
@@ -87,7 +112,7 @@ private:
 
   void StartTicket(const QByteArray &hash, QThread *watcher_thread, ColorManager *manager, const rational &time, RenderMode::Mode mode, FrameHashCache *cache, const QSize &force_size, const QMatrix4x4 &force_matrix, VideoParams::Format force_format, ColorProcessorPtr force_color_output);
 
-  Sequence* viewer_;
+  ViewerOutput* viewer_;
 
   VideoParams video_params_;
 
@@ -98,6 +123,11 @@ private:
   int running_tickets_;
   QMutex finished_watcher_mutex_;
   QWaitCondition finished_watcher_wait_cond_;
+
+  bool native_progress_signalling_;
+
+  int64_t total_number_of_frames_;
+  int64_t total_number_of_unique_frames_;
 
 private slots:
   void TicketDone(RenderTicketWatcher *watcher);

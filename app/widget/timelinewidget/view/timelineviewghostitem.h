@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,8 +23,10 @@
 
 #include <QVariant>
 
+#include "node/block/clip/clip.h"
+#include "node/block/transition/transition.h"
 #include "node/output/track/track.h"
-#include "project/item/footage/footage.h"
+#include "node/project/footage/footage.h"
 #include "timeline/timelinecommon.h"
 
 namespace olive {
@@ -44,7 +46,7 @@ public:
   };
 
   struct AttachedFootage {
-    Footage* footage;
+    ViewerOutput* footage;
     QString output;
   };
 
@@ -67,16 +69,11 @@ public:
     ghost->SetTrack(block->track()->ToReference());
     ghost->SetData(kAttachedBlock, Node::PtrToValue(block));
 
-    switch (block->type()) {
-    case Block::kClip:
+    if (dynamic_cast<ClipBlock*>(block)) {
       ghost->can_have_zero_length_ = false;
-      break;
-    case Block::kTransition:
+    } else if (dynamic_cast<TransitionBlock*>(block)) {
       ghost->can_have_zero_length_ = false;
       ghost->SetCanMoveTracks(false);
-      break;
-    case Block::kGap:
-      break;
     }
 
     return ghost;

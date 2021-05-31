@@ -5,10 +5,7 @@ uniform float horiz_in;
 uniform float vert_in;
 
 // Input texture coordinate
-in vec2 ove_texcoord;
-
-// Output color
-out vec4 fragColor;
+varying vec2 ove_texcoord;
 
 void main() {
   float x;
@@ -26,6 +23,6 @@ void main() {
     y = ove_texcoord.y;
   }
 
-  vec4 color = texture(tex_in, vec2(x, y));
-  fragColor = color;
+  vec4 color = texture2D(tex_in, vec2(x, y));
+  gl_FragColor = color;
 }

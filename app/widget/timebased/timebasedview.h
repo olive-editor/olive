@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -50,8 +50,6 @@ public:
   const double& GetYScale() const;
   void SetYScale(const double& y_scale);
 
-  static bool WheelEventIsAZoomEvent(QWheelEvent* event);
-
   bool IsDraggingPlayhead() const
   {
     return dragging_playhead_;
@@ -78,7 +76,7 @@ protected:
 
   virtual void VerticalScaleChangedEvent(double scale);
 
-  bool HandleZoomFromScroll(QWheelEvent* event);
+  virtual void ZoomIntoCursorPosition(QWheelEvent *event, double multiplier, const QPointF &cursor_pos) override;
 
   rational GetPlayheadTime() const;
 
@@ -97,6 +95,12 @@ protected:
   {
     y_axis_enabled_ = e;
   }
+
+protected slots:
+  /**
+   * @brief Slot called whenever the view resizes or the scene contents change to enforce minimum scene sizes
+   */
+  void UpdateSceneRect();
 
 private:
   qreal GetPlayheadX();
@@ -120,12 +124,6 @@ private:
   bool y_axis_enabled_;
 
   double y_scale_;
-
-private slots:
-  /**
-   * @brief Slot called whenever the view resizes or the scene contents change to enforce minimum scene sizes
-   */
-  void UpdateSceneRect();
 
 };
 

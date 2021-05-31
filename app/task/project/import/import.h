@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
 #include <QUndoCommand>
 
 #include "codec/decoder.h"
-#include "project/projectviewmodel.h"
+#include "node/project/projectviewmodel.h"
 #include "task/task.h"
 
 namespace olive {
@@ -60,6 +60,8 @@ private:
   void Import(Folder* folder, QFileInfoList import, int& counter, MultiUndoCommand *parent_command);
 
   void ValidateImageSequence(Footage *footage, QFileInfoList &info_list, int index);
+
+  void AddItemToFolder(Folder* folder, Node* item, MultiUndoCommand* command);
 
   static bool ItemIsStillImageFootageOnly(Footage *footage);
 

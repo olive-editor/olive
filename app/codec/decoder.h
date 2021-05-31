@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -35,14 +35,16 @@ extern "C" {
 #include "codec/samplebuffer.h"
 #include "codec/waveoutput.h"
 #include "common/rational.h"
-#include "project/item/footage/footage.h"
-#include "project/item/footage/footagedescription.h"
-#include "project/item/footage/stream.h"
+#include "node/project/footage/footage.h"
+#include "node/project/footage/footagedescription.h"
+#include "task/task.h"
 
 namespace olive {
 
 class Decoder;
 using DecoderPtr = std::shared_ptr<Decoder>;
+
+#define DECODER_DEFAULT_DESTRUCTOR(x) virtual ~x() override {CloseInternal();}
 
 /**
  * @brief A decoder's is the main class for bringing external media into Olive
@@ -144,6 +146,35 @@ public:
 
   static const rational kAnyTimecode;
 
+  struct RetrieveVideoParams
+  {
+    RetrieveVideoParams()
+    {
+      divider = 1;
+      src_interlacing = VideoParams::kInterlaceNone;
+      dst_interlacing = VideoParams::kInterlaceNone;
+    }
+
+    int divider;
+    VideoParams::Interlacing src_interlacing;
+    VideoParams::Interlacing dst_interlacing;
+
+    void reset()
+    {
+      *this = RetrieveVideoParams();
+    }
+
+    bool operator==(const RetrieveVideoParams& rhs) const
+    {
+      return divider == rhs.divider && src_interlacing == rhs.src_interlacing && dst_interlacing == rhs.dst_interlacing;
+    }
+
+    bool operator!=(const RetrieveVideoParams& rhs) const
+    {
+      return !(*this == rhs);
+    }
+  };
+
   /**
    * @brief Retrieves a video frame from footage
    *
@@ -154,7 +185,19 @@ public:
    *
    * This function is thread safe and can only run while the decoder is open. \see Open()
    */
-  FramePtr RetrieveVideo(const rational& timecode, const int& divider);
+  FramePtr RetrieveVideo(const rational& timecode, const RetrieveVideoParams& divider);
+
+  enum RetrieveAudioStatus {
+    kInvalid = -1,
+    kOK,
+    kWaitingForConform
+  };
+
+  struct RetrieveAudioData {
+    RetrieveAudioStatus status;
+    SampleBufferPtr samples;
+    Task *task;
+  };
 
   /**
    * @brief Retrieve audio data from footage
@@ -164,7 +207,12 @@ public:
    *
    * This function is thread safe and can only run while the decoder is open. \see Open()
    */
-  SampleBufferPtr RetrieveAudio(const TimeRange& range, const AudioParams& params, const QString &cache_path, const QAtomicInt *cancelled);
+  RetrieveAudioData RetrieveAudio(const TimeRange& range, const AudioParams& params, const QString &cache_path, Footage::LoopMode loop_mode, RenderMode::Mode mode);
+
+  /**
+   * @brief Determine the last time this decoder instance was used in any way
+   */
+  qint64 GetLastAccessedTime();
 
   /**
    * @brief Generate a Footage object from a file
@@ -185,6 +233,11 @@ public:
    * This function is thread safe and can only run while the decoder is open. \see Open()
    */
   void Close();
+
+  /**
+   * @brief Conform audio stream
+   */
+  bool ConformAudio(const QString &output_filename, const AudioParams &params, const QAtomicInt *cancelled = nullptr);
 
   /**
    * @brief Create a Decoder instance using a Decoder ID
@@ -232,26 +285,11 @@ protected:
    * Sub-classes must override this function IF they support video. Function is already mutexed
    * so sub-classes don't need to worry about thread safety.
    */
-  virtual FramePtr RetrieveVideoInternal(const rational& timecode, const int& divider);
+  virtual FramePtr RetrieveVideoInternal(const rational& timecode, const RetrieveVideoParams& divider);
 
   virtual bool ConformAudioInternal(const QString& filename, const AudioParams &params, const QAtomicInt* cancelled);
 
   void SignalProcessingProgress(int64_t ts, int64_t duration);
-
-  /**
-   * @brief Get the destination filename of an audio stream conformed to a set of parameters
-   */
-  QString GetConformedFilename(const QString &cache_path, const AudioParams &params);
-
-  struct CurrentlyConforming {
-    CodecStream stream;
-    AudioParams params;
-
-    bool operator==(const CurrentlyConforming& rhs) const
-    {
-      return this->stream == rhs.stream && this->params == rhs.params;
-    }
-  };
 
   /**
    * @brief Return currently open stream
@@ -265,10 +303,6 @@ protected:
 
   static int64_t GetTimeInTimebaseUnits(const rational& time, const rational& timebase, int64_t start_time);
 
-  static QMutex currently_conforming_mutex_;
-  static QWaitCondition currently_conforming_wait_cond_;
-  static QVector<CurrentlyConforming> currently_conforming_;
-
 signals:
   /**
    * @brief While indexing, this signal will provide progress as a percentage (0-100 inclusive) if
@@ -277,11 +311,15 @@ signals:
   void IndexProgress(double);
 
 private:
-  SampleBufferPtr RetrieveAudioFromConform(const QString& conform_filename, const TimeRange &range);
+  void UpdateLastAccessed();
+
+  SampleBufferPtr RetrieveAudioFromConform(const QString& conform_filename, const TimeRange &range, Footage::LoopMode loop_mode);
 
   CodecStream stream_;
 
   QMutex mutex_;
+
+  qint64 last_accessed_;
 
 };
 

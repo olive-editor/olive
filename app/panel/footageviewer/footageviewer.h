@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -36,9 +36,7 @@ class FootageViewerPanel : public ViewerPanelBase, public FootageManagementPanel
 public:
   FootageViewerPanel(QWidget* parent);
 
-  virtual QVector<Footage *> GetSelectedFootage() const override;
-
-  void SetFootage(Footage* f);
+  virtual QVector<ViewerOutput *> GetSelectedFootage() const override;
 
 protected:
   virtual void Retranslate() override;

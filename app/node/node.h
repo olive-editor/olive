@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -44,6 +44,8 @@
 #include "splitvalue.h"
 
 namespace olive {
+
+#define NODE_DEFAULT_DESTRUCTOR(x) virtual ~x() override {DisconnectAll();}
 
 class NodeGraph;
 class Folder;
@@ -187,6 +189,12 @@ public:
     return input_ids_;
   }
 
+  virtual QVector<QString> inputs_for_output(const QString& output) const
+  {
+    Q_UNUSED(output)
+    return inputs();
+  }
+
   const QVector<QString>& outputs() const
   {
     return outputs_;
@@ -221,6 +229,11 @@ public:
    * @brief Uses config and returns either color() for flat shading or gradient for gradient
    */
   QBrush brush(qreal top, qreal bottom) const;
+
+  int GetOverrideColor() const
+  {
+    return override_color_;
+  }
 
   /**
    * @brief Sets the override color. Set to -1 for no override color.
@@ -720,7 +733,7 @@ public:
   const QString& GetLabel() const;
   void SetLabel(const QString& s);
 
-  virtual void Hash(const QString& output, QCryptographicHash& hash, const rational &time) const;
+  virtual void Hash(const QString& output, QCryptographicHash& hash, const rational &time, const VideoParams& video_params) const;
 
   void InvalidateAll(const QString& input, int element = -1);
 
@@ -743,7 +756,72 @@ public:
     folder_ = folder;
   }
 
+  bool GetCacheTextures() const
+  {
+    return cache_result_;
+  }
+
+  void SetCacheTextures(bool e)
+  {
+    cache_result_ = e;
+  }
+
   static const QString kDefaultOutput;
+
+  class ArrayRemoveCommand : public UndoCommand
+  {
+  public:
+    ArrayRemoveCommand(Node* node, const QString& input, int index) :
+      node_(node),
+      input_(input),
+      index_(index)
+    {
+    }
+
+    virtual Project* GetRelevantProject() const override;
+
+  protected:
+    virtual void redo() override
+    {
+      // Save immediate data
+      if (node_->IsInputKeyframable(input_)) {
+        is_keyframing_ = node_->IsInputKeyframing(input_, index_);
+      }
+      standard_value_ = node_->GetSplitStandardValue(input_, index_);
+      keyframes_ = node_->GetKeyframeTracks(input_, index_);
+      node_->GetImmediate(input_, index_)->delete_all_keyframes(&memory_manager_);
+
+      node_->InputArrayRemove(input_, index_, false);
+    }
+
+    virtual void undo() override
+    {
+      node_->InputArrayInsert(input_, index_, false);
+
+      // Restore keyframes
+      foreach (const NodeKeyframeTrack& track, keyframes_) {
+        foreach (NodeKeyframe* key, track) {
+          key->setParent(node_);
+        }
+      }
+      node_->SetSplitStandardValue(input_, standard_value_, index_);
+
+      if (node_->IsInputKeyframable(input_)) {
+        node_->SetInputIsKeyframing(input_, is_keyframing_, index_);
+      }
+    }
+
+  private:
+    Node* node_;
+    QString input_;
+    int index_;
+
+    SplitValue standard_value_;
+    bool is_keyframing_;
+    QVector<NodeKeyframeTrack> keyframes_;
+    QObject memory_manager_;
+
+  };
 
 protected:
   enum InputFlag {
@@ -776,7 +854,23 @@ protected:
 
   };
 
-  void AddInput(const QString& id, NodeValue::Type type, const QVariant& default_value, InputFlags flags = InputFlags(kInputFlagNormal));
+  void InsertInput(const QString& id, NodeValue::Type type, const QVariant& default_value, InputFlags flags, int index);
+
+  void PrependInput(const QString& id, NodeValue::Type type, const QVariant& default_value, InputFlags flags = InputFlags(kInputFlagNormal))
+  {
+    InsertInput(id, type, default_value, flags, 0);
+  }
+
+  void PrependInput(const QString& id, NodeValue::Type type, InputFlags flags = InputFlags(kInputFlagNormal))
+  {
+    PrependInput(id, type, QVariant(), flags);
+  }
+
+  void AddInput(const QString& id, NodeValue::Type type, const QVariant& default_value, InputFlags flags = InputFlags(kInputFlagNormal))
+  {
+    InsertInput(id, type, default_value, flags, input_ids_.size());
+  }
+
   void AddInput(const QString& id, NodeValue::Type type, InputFlags flags = InputFlags(kInputFlagNormal))
   {
     AddInput(id, type, QVariant(), flags);
@@ -808,9 +902,14 @@ protected:
 
   void IgnoreHashingFrom(const QString& input_id);
 
-  virtual void LoadInternal(QXmlStreamReader* reader, XMLNodeData& xml_node_data, uint version, const QAtomicInt* cancelled);
+  int GetOperationStack() const
+  {
+    return operation_stack_;
+  }
 
-  virtual void SaveInternal(QXmlStreamWriter* writer) const;
+  virtual bool LoadCustom(QXmlStreamReader* reader, XMLNodeData& xml_node_data, uint version, const QAtomicInt* cancelled);
+
+  virtual void SaveCustom(QXmlStreamWriter* writer) const;
 
   enum GizmoScaleHandles {
     kGizmoScaleTopLeft,
@@ -876,7 +975,7 @@ signals:
 
   void LinksChanged();
 
-  void InputArraySizeChanged(const QString& input, int new_size);
+  void InputArraySizeChanged(const QString& input, int old_size, int new_size);
 
   void KeyframeAdded(NodeKeyframe* key);
 
@@ -897,6 +996,10 @@ signals:
   void InputNameChanged(const QString& id, const QString& name);
 
   void InputDataTypeChanged(const QString& id, NodeValue::Type type);
+
+  void AddedToGraph(NodeGraph* graph);
+
+  void RemovedFromGraph(NodeGraph* graph);
 
 private:
   class ArrayInsertCommand : public UndoCommand
@@ -925,61 +1028,6 @@ private:
     Node* node_;
     QString input_;
     int index_;
-
-  };
-
-  class ArrayRemoveCommand : public UndoCommand
-  {
-  public:
-    ArrayRemoveCommand(Node* node, const QString& input, int index) :
-      node_(node),
-      input_(input),
-      index_(index)
-    {
-    }
-
-    virtual Project* GetRelevantProject() const override;
-
-  protected:
-    virtual void redo() override
-    {
-      // Save immediate data
-      if (node_->IsInputKeyframable(input_)) {
-        is_keyframing_ = node_->IsInputKeyframing(input_, index_);
-      }
-      standard_value_ = node_->GetSplitStandardValue(input_, index_);
-      keyframes_ = node_->GetKeyframeTracks(input_, index_);
-      node_->GetImmediate(input_, index_)->delete_all_keyframes(&memory_manager_);
-
-      node_->InputArrayRemove(input_, index_, false);
-    }
-
-    virtual void undo() override
-    {
-      node_->InputArrayInsert(input_, index_, false);
-
-      // Restore keyframes
-      foreach (const NodeKeyframeTrack& track, keyframes_) {
-        foreach (NodeKeyframe* key, track) {
-          key->setParent(node_);
-        }
-      }
-      node_->SetSplitStandardValue(input_, standard_value_, index_);
-
-      if (node_->IsInputKeyframable(input_)) {
-        node_->SetInputIsKeyframing(input_, is_keyframing_, index_);
-      }
-    }
-
-  private:
-    Node* node_;
-    QString input_;
-    int index_;
-
-    SplitValue standard_value_;
-    bool is_keyframing_;
-    QVector<NodeKeyframeTrack> keyframes_;
-    QObject memory_manager_;
 
   };
 
@@ -1097,7 +1145,7 @@ private:
 
   QVector<Node*> GetDependenciesInternal(bool traverse, bool exclusive_only) const;
 
-  void HashInputElement(QCryptographicHash& hash, const QString &input, int element, const rational& time) const;
+  void HashInputElement(QCryptographicHash& hash, const QString &input, int element, const rational& time, const VideoParams &video_params) const;
 
   void ParameterValueChanged(const QString &input, int element, const olive::TimeRange &range);
   void ParameterValueChanged(const NodeInput& input, const olive::TimeRange &range)
@@ -1170,6 +1218,10 @@ private:
   QString tooltip_;
 
   Folder* folder_;
+
+  int operation_stack_;
+
+  bool cache_result_;
 
 private slots:
   /**

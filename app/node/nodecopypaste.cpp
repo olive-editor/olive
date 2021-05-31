@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -36,8 +36,10 @@ void NodeCopyPasteService::CopyNodesToClipboard(const QVector<Node *> &nodes, vo
   QXmlStreamWriter writer(&copy_str);
   writer.setAutoFormatting(true);
 
-  writer.writeStartDocument(QString::number(Core::kProjectVersion));
+  writer.writeStartDocument();
   writer.writeStartElement(QStringLiteral("olive"));
+
+  writer.writeTextElement(QStringLiteral("version"), QString::number(Core::kProjectVersion));
 
   foreach (Node* n, nodes) {
     writer.writeStartElement(QStringLiteral("node"));
@@ -65,7 +67,7 @@ QVector<Node *> NodeCopyPasteService::PasteNodesFromClipboard(NodeGraph *graph, 
   }
 
   QXmlStreamReader reader(clipboard);
-  uint data_version = reader.documentVersion().toUInt();
+  uint data_version = 0;
 
   QVector<Node*> pasted_nodes;
   XMLNodeData xml_node_data;
@@ -75,7 +77,14 @@ QVector<Node *> NodeCopyPasteService::PasteNodesFromClipboard(NodeGraph *graph, 
       // Default to current version - this may not be desirable?
 
       while (XMLReadNextStartElement(&reader)) {
-        if (reader.name() == QStringLiteral("node")) {
+        if (reader.name() == QStringLiteral("version")) {
+          data_version = reader.readElementText().toUInt();
+        } else if (reader.name() == QStringLiteral("node")) {
+          if (data_version == 0) {
+            // Refuse to create any nodes if we didn't get a version string
+            return QVector<Node*>();
+          }
+
           Node* node = nullptr;
 
           XMLAttributeLoop((&reader), attr) {
@@ -91,6 +100,11 @@ QVector<Node *> NodeCopyPasteService::PasteNodesFromClipboard(NodeGraph *graph, 
             pasted_nodes.append(node);
           }
         } else if (reader.name() == QStringLiteral("custom")) {
+          if (data_version == 0) {
+            // Refuse to create any nodes if we didn't get a version string
+            return QVector<Node*>();
+          }
+
           PasteNodesFromClipboardInternal(&reader, xml_node_data, userdata);
         } else {
           reader.skipCurrentElement();

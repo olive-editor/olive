@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -114,7 +114,6 @@ protected:
 
 private:
   Track::Type ConnectedTrackType();
-  Stream::Type TrackTypeToStreamType(Track::Type track_type);
 
   TimelineCoordinate ScreenToCoordinate(const QPoint& pt);
   TimelineCoordinate SceneToCoordinate(const QPointF& pt);
@@ -141,6 +140,9 @@ private:
   TrackList* connected_track_list_;
 
   bool show_waveforms_;
+
+private slots:
+  void TrackListChanged();
 
 };
 

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -105,7 +105,7 @@ qint64 AudioParams::time_to_samples(const double &time) const
 
   // NOTE: Not sure if we should round or ceil, but I've gotten better results with ceil.
   //       Specifically, we seem to occasionally get straggler ranges that never cache with round.
-  return qCeil(time_base().flipped().toDouble() * time);
+  return qCeil(double(sample_rate()) * time);
 }
 
 qint64 AudioParams::time_to_samples(const rational &time) const
@@ -122,7 +122,7 @@ qint64 AudioParams::samples_to_bytes(const qint64 &samples) const
 
 rational AudioParams::samples_to_time(const qint64 &samples) const
 {
-  return time_base() * samples;
+  return sample_rate_as_time_base() * samples;
 }
 
 qint64 AudioParams::bytes_to_samples(const qint64 &bytes) const
@@ -141,7 +141,7 @@ rational AudioParams::bytes_to_time(const qint64 &bytes) const
 
 int AudioParams::channel_count() const
 {
-  return av_get_channel_layout_nb_channels(channel_layout());
+  return channel_count_;
 }
 
 int AudioParams::bytes_per_sample_per_channel() const

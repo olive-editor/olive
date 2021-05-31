@@ -1,4 +1,4 @@
-!include "MUI.nsh"
+!include "MUI2.nsh"
 
 !define MUI_ICON "install icon.ico"
 !define MUI_UNICON "uninstall icon.ico"
@@ -12,6 +12,8 @@ SetCompressor lzma
 
 Name ${APP_NAME}
 
+ManifestDPIAware true
+Unicode true
 
 !ifdef X64
 InstallDir "$PROGRAMFILES64\${APP_NAME}"
@@ -39,9 +41,9 @@ Section "Olive"
     WriteUninstaller "$INSTDIR\uninstall.exe"
 
     # Install Visual C++ 2010 Redistributable
-    File "vcredist_x64.exe"
-    ExecWait '"$INSTDIR\vcredist_x64.exe" /quiet'
-    Delete "$INSTDIR\vcredist_x64.exe"
+    #File "vcredist_x64.exe"
+    #ExecWait '"$INSTDIR\vcredist_x64.exe" /quiet'
+    #Delete "$INSTDIR\vcredist_x64.exe"
 SectionEnd
 
 Section "Create Desktop shortcut"

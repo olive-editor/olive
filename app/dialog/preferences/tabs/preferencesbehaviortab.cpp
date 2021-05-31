@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -30,7 +30,6 @@ namespace olive {
 PreferencesBehaviorTab::PreferencesBehaviorTab()
 {
   QVBoxLayout* layout = new QVBoxLayout(this);
-  layout->setMargin(0);
 
   behavior_tree_ = new QTreeWidget();
   layout->addWidget(behavior_tree_);
@@ -41,10 +40,6 @@ PreferencesBehaviorTab::PreferencesBehaviorTab()
   AddItem(tr("Enable hover focus"),
           QStringLiteral("HoverFocus"),
           tr("Panels will be considered focused when the mouse cursor is over them without having to click them."),
-          general_group);
-  AddItem(tr("Scroll wheel zooms by default instead of scrolling"),
-          QStringLiteral("ScrollZooms"),
-          tr("Holding CTRL while using Olive toggles this setting"),
           general_group);
   AddItem(tr("Enable slider ladder"),
           QStringLiteral("UseSliderLadders"),

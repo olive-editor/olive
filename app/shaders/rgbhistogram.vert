@@ -1,9 +1,9 @@
 uniform float histogram_scale;
 
-in vec4 a_position;
-in vec2 a_texcoord;
+attribute vec4 a_position;
+attribute vec2 a_texcoord;
 
-out vec2 ove_texcoord;
+varying vec2 ove_texcoord;
 
 mat4 scale_mat4(vec3 scale) {
     return mat4(

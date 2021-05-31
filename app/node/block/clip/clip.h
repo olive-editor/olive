@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -32,11 +32,11 @@ class ClipBlock : public Block
 {
   Q_OBJECT
 public:
-  ClipBlock();
+  ClipBlock(bool create_buffer_in = true);
+
+  NODE_DEFAULT_DESTRUCTOR(ClipBlock)
 
   virtual Node* copy() const override;
-
-  virtual Type type() const override;
 
   virtual QString Name() const override;
   virtual QString id() const override;
@@ -52,7 +52,7 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual void Hash(const QString& output, QCryptographicHash &hash, const rational &time) const override;
+  virtual void Hash(const QString& output, QCryptographicHash &hash, const rational &time, const VideoParams& video_params) const override;
 
   static const QString kBufferIn;
 

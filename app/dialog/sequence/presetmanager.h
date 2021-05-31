@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -124,6 +124,8 @@ public:
 
       preset_file.close();
     }
+
+    qDeleteAll(custom_preset_data_);
   }
 
   QString GetPresetName(QString start) const

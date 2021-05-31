@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,13 +25,13 @@ namespace olive {
 ViewerPanel::ViewerPanel(const QString &object_name, QWidget *parent) :
   ViewerPanelBase(object_name, parent)
 {
-  // Set ViewerWidget as the central widget
-  ViewerWidget* vw = new ViewerWidget();
-  connect(vw, &ViewerWidget::RequestScopePanel, this, &ViewerPanel::CreateScopePanel);
-  SetTimeBasedWidget(vw);
+  Init();
+}
 
-  // Set strings
-  Retranslate();
+ViewerPanel::ViewerPanel(QWidget *parent) :
+  ViewerPanelBase(QStringLiteral("ViewerPanel"), parent)
+{
+  Init();
 }
 
 void ViewerPanel::Retranslate()
@@ -39,6 +39,17 @@ void ViewerPanel::Retranslate()
   ViewerPanelBase::Retranslate();
 
   SetTitle(tr("Viewer"));
+}
+
+void ViewerPanel::Init()
+{
+  // Set ViewerWidget as the central widget
+  ViewerWidget* vw = new ViewerWidget();
+  connect(vw, &ViewerWidget::RequestScopePanel, this, &ViewerPanel::CreateScopePanel);
+  SetTimeBasedWidget(vw);
+
+  // Set strings
+  Retranslate();
 }
 
 }

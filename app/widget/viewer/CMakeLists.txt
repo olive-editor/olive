@@ -1,5 +1,5 @@
 # Olive - Non-Linear Video Editor
-# Copyright (C) 2020 Olive Team
+# Copyright (C) 2021 Olive Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,23 +16,21 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  widget/viewer/audiowaveformview.h
   widget/viewer/audiowaveformview.cpp
-  widget/viewer/footageviewer.h
+  widget/viewer/audiowaveformview.h
   widget/viewer/footageviewer.cpp
-  widget/viewer/gizmotraverser.h
-  widget/viewer/gizmotraverser.cpp
-  widget/viewer/viewer.h
+  widget/viewer/footageviewer.h
   widget/viewer/viewer.cpp
-  widget/viewer/viewerdisplay.h
+  widget/viewer/viewer.h
   widget/viewer/viewerdisplay.cpp
-  widget/viewer/viewerplaybacktimer.h
+  widget/viewer/viewerdisplay.h
   widget/viewer/viewerplaybacktimer.cpp
+  widget/viewer/viewerplaybacktimer.h
   widget/viewer/viewerqueue.h
   widget/viewer/viewersafemargininfo.h
-  widget/viewer/viewersizer.h
   widget/viewer/viewersizer.cpp
-  widget/viewer/viewerwindow.h
+  widget/viewer/viewersizer.h
   widget/viewer/viewerwindow.cpp
+  widget/viewer/viewerwindow.h
   PARENT_SCOPE
 )

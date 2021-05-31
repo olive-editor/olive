@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -479,6 +479,7 @@ qint64 AudioPlaybackCache::PlaybackDevice::readData(char *data, qint64 maxSize)
       }
     } else {
       qWarning() << "Failed to read data from segment";
+      break;
     }
   }
 
@@ -507,27 +508,23 @@ int AudioPlaybackCache::Playlist::GetIndexOfPosition(qint64 pos)
     return this->size() - 1;
   }
 
-  int bottom = 0;
-  int top = this->size();
-
   // Use a binary search to find the segment with the right offset
-  while (true) {
-    int mid = bottom + (top - bottom)/2;
+  int low = 0;
+  int high = this->size() - 1;
+  while (low <= high) {
+    int mid = low + (high - low) / 2;
+
     const Segment& mid_segment = this->at(mid);
-
-    if (mid_segment.offset() <= pos
-        && mid_segment.offset() + mid_segment.size() > pos) {
+    if (mid_segment.offset() <= pos && mid_segment.offset() + mid_segment.size() > pos) {
       return mid;
-    }
-
-    if (mid_segment.offset() > pos) {
-      // Segment we're looking for must be lower
-      top = mid;
+    } else if (mid_segment.offset() < pos) {
+      low = mid + 1;
     } else {
-      // Segment we're looking for must be higher
-      bottom = mid;
+      high = mid - 1;
     }
   }
+
+  return -1;
 }
 
 qint64 AudioPlaybackCache::Playlist::GetLength() const

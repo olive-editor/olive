@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -29,9 +29,12 @@
 
 namespace olive {
 
+#define super QDialog
+
 ProgressDialog::ProgressDialog(const QString& message, const QString& title, QWidget *parent) :
-  QDialog(parent),
-  show_progress_(true)
+  super(parent),
+  show_progress_(true),
+  first_show_(true)
 {
   if (!title.isEmpty()) {
     setWindowTitle(title);
@@ -77,18 +80,26 @@ ProgressDialog::ProgressDialog(const QString& message, const QString& title, QWi
 
 void ProgressDialog::showEvent(QShowEvent *e)
 {
-  QDialog::showEvent(e);
+  super::showEvent(e);
 
-  elapsed_timer_lbl_->Start();
+  if (first_show_) {
+    elapsed_timer_lbl_->Start();
 
-  Core::instance()->main_window()->SetApplicationProgressStatus(MainWindow::kProgressShow);
+    Core::instance()->main_window()->SetApplicationProgressStatus(MainWindow::kProgressShow);
+
+    first_show_ = false;
+  }
 }
 
 void ProgressDialog::closeEvent(QCloseEvent *e)
 {
-  QDialog::closeEvent(e);
+  super::closeEvent(e);
 
   Core::instance()->main_window()->SetApplicationProgressStatus(MainWindow::kProgressNone);
+
+  elapsed_timer_lbl_->Stop();
+
+  first_show_ = true;
 }
 
 void ProgressDialog::SetProgress(double value)

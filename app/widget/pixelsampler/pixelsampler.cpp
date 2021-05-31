@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,7 +27,13 @@ namespace olive {
 PixelSamplerWidget::PixelSamplerWidget(QWidget *parent) :
   QGroupBox(parent)
 {
-  QVBoxLayout* layout = new QVBoxLayout(this);
+  QHBoxLayout* layout = new QHBoxLayout(this);
+
+  box_ = new ColorPreviewBox();
+  QFontMetrics fm = fontMetrics();
+  int box_sz = fm.height() * 2;
+  box_->setFixedSize(box_sz, box_sz);
+  layout->addWidget(box_);
 
   label_ = new QLabel();
   layout->addWidget(label_);
@@ -45,6 +51,8 @@ void PixelSamplerWidget::SetValues(const Color &color)
 
 void PixelSamplerWidget::UpdateLabelInternal()
 {
+  box_->SetColor(color_);
+
   label_->setText(tr("<html>"
                      "<font color='#FF8080'>R: %1</font><br>"
                      "<font color='#80FF80'>G: %2</font><br>"

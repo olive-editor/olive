@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -29,6 +29,8 @@
 
 namespace olive {
 
+#define super Node
+
 const double Track::kTrackHeightDefault = 3.0;
 const double Track::kTrackHeightMinimum = 1.5;
 const double Track::kTrackHeightInterval = 0.5;
@@ -38,6 +40,9 @@ const QString Track::kMutedInput = QStringLiteral("muted_in");
 
 Track::Track() :
   track_type_(Track::kNone),
+  track_length_(0),
+  midop_track_length_(0),
+  preop_track_length_(0),
   index_(-1),
   locked_(false)
 {
@@ -51,11 +56,6 @@ Track::Track() :
 
   // Set default height
   track_height_ = kTrackHeightDefault;
-}
-
-Track::~Track()
-{
-  DisconnectAll();
 }
 
 void Track::set_type(const Type &track_type)
@@ -143,19 +143,20 @@ void Track::SetTrackHeight(const double &height)
   emit TrackHeightChangedInPixels(GetTrackHeightInPixels());
 }
 
-void Track::LoadInternal(QXmlStreamReader *reader, XMLNodeData &, uint , const QAtomicInt* )
+bool Track::LoadCustom(QXmlStreamReader *reader, XMLNodeData &xml_node_data, uint version, const QAtomicInt* cancelled)
 {
-  while (XMLReadNextStartElement(reader)) {
-    if (reader->name() == QStringLiteral("height")) {
-      SetTrackHeight(reader->readElementText().toDouble());
-    } else {
-      reader->skipCurrentElement();
-    }
+  if (reader->name() == QStringLiteral("height")) {
+    SetTrackHeight(reader->readElementText().toDouble());
+    return true;
+  } else {
+    return super::LoadCustom(reader, xml_node_data, version, cancelled);
   }
 }
 
-void Track::SaveInternal(QXmlStreamWriter *writer) const
+void Track::SaveCustom(QXmlStreamWriter *writer) const
 {
+  super::SaveCustom(writer);
+
   writer->writeTextElement(QStringLiteral("height"), QString::number(GetTrackHeight()));
 }
 
@@ -280,7 +281,7 @@ void Track::InputDisconnectedEvent(const QString &input, int element, const Node
     if (next) {
       UpdateInOutFrom(blocks_.indexOf(next));
     } else if (blocks_.isEmpty()) {
-      SetLengthInternal(rational());
+      SetLengthInternal(0);
     } else {
       SetLengthInternal(blocks_.last()->out());
     }
@@ -310,9 +311,11 @@ void Track::Retranslate()
 
 void Track::SetIndex(const int &index)
 {
+  int old = index_;
+
   index_ = index;
 
-  emit IndexChanged(index);
+  emit IndexChanged(old, index_);
 }
 
 Block *Track::BlockContainingTime(const rational &time) const
@@ -378,25 +381,34 @@ Block *Track::NearestBlockAfter(const rational &time) const
 
 Block *Track::BlockAtTime(const rational &time) const
 {
-  if (IsMuted()) {
+  if (IsMuted() || time > track_length() || blocks_.isEmpty()) {
     return nullptr;
   }
 
-  for (int i=0; i<blocks_.size(); i++) {
-    Block* block = blocks_.at(i);
+  // Use binary search to find block at time
+  Block* using_block = nullptr;
 
-    if (block
-        && block->in() <= time
-        && block->out() > time) {
-      if (block->is_enabled()) {
-        return block;
-      } else {
-        break;
-      }
+  int low = 0;
+  int high = blocks_.size() - 1;
+  while (low <= high) {
+    int mid = low + (high - low) / 2;
+
+    Block* block = blocks_.at(mid);
+    if (block->in() <= time && block->out() > time) {
+      using_block = block;
+      break;
+    } else if (block->out() <= time) {
+      low = mid + 1;
+    } else {
+      high = mid - 1;
     }
   }
 
-  return nullptr;
+  if (using_block && !using_block->is_enabled()) {
+    using_block = nullptr;
+  }
+
+  return using_block;
 }
 
 QVector<Block *> Track::BlocksAtTimeRange(const TimeRange &range) const
@@ -421,6 +433,10 @@ QVector<Block *> Track::BlocksAtTimeRange(const TimeRange &range) const
 
 void Track::InvalidateCache(const TimeRange& range, const QString& from, int element, qint64 job_time)
 {
+  if (GetOperationStack() != 0) {
+    return;
+  }
+
   TimeRange limited;
 
   const Block* b;
@@ -435,8 +451,8 @@ void Track::InvalidateCache(const TimeRange& range, const QString& from, int ele
 
     limited = TimeRange(qMax(range.in(), b->in()), qMin(range.out(), b->out()));
   } else {
-    limited = TimeRange(qMax(range.in(), rational(0)), qMin(range.out(), qMax(last_invalidated_length_, track_length())));
-    last_invalidated_length_ = track_length();
+    limited = TimeRange(qMax(range.in(), rational(0)), qMin(range.out(), qMax(preop_track_length_, track_length())));
+    preop_track_length_ = track_length_;
   }
 
   Node::InvalidateCache(limited, from, element, job_time);
@@ -572,13 +588,24 @@ bool Track::IsLocked() const
   return locked_;
 }
 
-void Track::Hash(const QString &output, QCryptographicHash &hash, const rational &time) const
+void Track::Hash(const QString &output, QCryptographicHash &hash, const rational &time, const VideoParams &video_params) const
 {
+  Q_UNUSED(output)
+
   Block* b = BlockAtTime(time);
 
   // Defer to block at this time, don't add any of our own information to the hash
   if (b) {
-    b->Hash(output, hash, TransformTimeForBlock(b, time));
+    b->Hash(kDefaultOutput, hash, TransformTimeForBlock(b, time), video_params);
+  }
+}
+
+void Track::EndOperation()
+{
+  super::EndOperation();
+
+  if (track_length_ != midop_track_length_) {
+    SetLengthInternal(midop_track_length_);
   }
 }
 
@@ -633,13 +660,13 @@ int Track::GetCacheIndexFromArrayIndex(int index) const
 
 void Track::SetLengthInternal(const rational &r, bool invalidate)
 {
-  if (r != track_length_) {
-    // TimeRange will automatically normalize so that the shorter number is the in and the longer
-    // is the out
-    TimeRange invalidate_range(track_length_, r);
+  // Hold track length until operation stack is empty
+  midop_track_length_ = r;
 
+  if (GetOperationStack() == 0 && track_length_ != r) {
+    TimeRange invalidate_range(track_length_, r);
     track_length_ = r;
-    last_invalidated_length_ = qMax(last_invalidated_length_, track_length_);
+    preop_track_length_ = qMax(preop_track_length_, track_length_);
     emit TrackLengthChanged();
 
     if (invalidate) {
@@ -661,6 +688,17 @@ void Track::BlockLengthChanged()
 
   TimeRange invalidate_region(qMin(old_out, new_out), track_length());
 
+  // The cache won't start while dragging, so we store up our invalidations if it's held down
+  // and release them once the mouse is no longer pressed
+  if (qApp->mouseButtons() & Qt::LeftButton) {
+    block_length_pending_invalidations_.insert(invalidate_region);
+  } else if (!block_length_pending_invalidations_.isEmpty()) {
+    foreach (const TimeRange& r, block_length_pending_invalidations_) {
+      Node::InvalidateCache(r, kBlockInput);
+    }
+    block_length_pending_invalidations_.clear();
+  }
+
   Node::InvalidateCache(invalidate_region, kBlockInput);
 }
 
@@ -670,6 +708,25 @@ uint qHash(const Track::Reference &r, uint seed)
   return ::qHash(QStringLiteral("%1:%2").arg(QString::number(r.type()),
                                              QString::number(r.index())),
                  seed);
+}
+
+QDataStream &operator<<(QDataStream &out, const Track::Reference &ref)
+{
+  out << static_cast<int>(ref.type()) << ref.index();
+
+  return out;
+}
+
+QDataStream &operator>>(QDataStream &in, Track::Reference &ref)
+{
+  int type;
+  int index;
+
+  in >> type >> index;
+
+  ref = Track::Reference(static_cast<Track::Type>(type), index);
+
+  return in;
 }
 
 }

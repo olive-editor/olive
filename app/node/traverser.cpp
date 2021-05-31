@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,15 +22,17 @@
 
 #include "node.h"
 #include "render/job/footagejob.h"
+#include "render/rendermanager.h"
 
 namespace olive {
 
-NodeValueDatabase NodeTraverser::GenerateDatabase(const Node* node, const TimeRange &range)
+NodeValueDatabase NodeTraverser::GenerateDatabase(const Node* node, const QString& output, const TimeRange &range)
 {
   NodeValueDatabase database;
 
   // We need to insert tables into the database for each input
-  foreach (const QString& input, node->inputs()) {
+  auto inputs = node->inputs_for_output(output);
+  foreach (const QString& input, inputs) {
     if (IsCancelled()) {
       return NodeValueDatabase();
     }
@@ -41,6 +43,32 @@ NodeValueDatabase NodeTraverser::GenerateDatabase(const Node* node, const TimeRa
   AddGlobalsToDatabase(database, range);
 
   return database;
+}
+
+int NodeTraverser::GetChannelCountFromJob(const GenerateJob &job)
+{
+  switch (job.GetAlphaChannelRequired()) {
+  case GenerateJob::kAlphaForceOn:
+    return VideoParams::kRGBAChannelCount;
+  case GenerateJob::kAlphaForceOff:
+    return VideoParams::kRGBChannelCount;
+  case GenerateJob::kAlphaAuto:
+    for (auto it=job.GetValues().cbegin(); it!=job.GetValues().cend(); it++) {
+      if (it.value().type() == NodeValue::kTexture) {
+        TexturePtr tex = it.value().data().value<TexturePtr>();
+        if (tex && tex->channel_count() == VideoParams::kRGBAChannelCount) {
+          // An input texture has an alpha channel so assume we need one too
+          return VideoParams::kRGBAChannelCount;
+        }
+      }
+    }
+
+    // No textures had alpha so assume we don't need one
+    return VideoParams::kRGBChannelCount;
+  }
+
+  // Default fallback, should never get here
+  return VideoParams::kRGBAChannelCount;
 }
 
 NodeValueTable NodeTraverser::ProcessInput(const Node* node, const QString& input, const TimeRange& range)
@@ -57,8 +85,9 @@ NodeValueTable NodeTraverser::ProcessInput(const Node* node, const QString& inpu
 
     // Store node
     QVariant return_val;
+    bool is_array = node->InputIsArray(input);
 
-    if (node->InputIsArray(input)) {
+    if (is_array) {
 
       // Value is an array, we will return a list of NodeValueTables
       QVector<NodeValueTable> array_tbl(node->InputArraySize(input));
@@ -87,7 +116,7 @@ NodeValueTable NodeTraverser::ProcessInput(const Node* node, const QString& inpu
     }
 
     NodeValueTable return_table;
-    return_table.Push(node->GetInputDataType(input), return_val, node, true);
+    return_table.Push(node->GetInputDataType(input), return_val, node, is_array);
     return return_table;
 
   }
@@ -104,12 +133,12 @@ NodeValueTable NodeTraverser::GenerateTable(const Node *n, const QString& output
   // FIXME: Cache certain values here if we've already processed them before
 
   // Generate database of input values of node
-  NodeValueDatabase database = GenerateDatabase(n, range);
+  NodeValueDatabase database = GenerateDatabase(n, output, range);
 
   // By this point, the node should have all the inputs it needs to render correctly
   NodeValueTable table = n->Value(output, database);
 
-  PostProcessTable(n, range, table);
+  PostProcessTable(n, output, range, table);
 
   return table;
 }
@@ -130,10 +159,10 @@ NodeValueTable NodeTraverser::GenerateBlockTable(const Track *track, const TimeR
 
 QVariant NodeTraverser::ProcessVideoFootage(const FootageJob &stream, const rational &input_time)
 {
-  Q_UNUSED(stream)
   Q_UNUSED(input_time)
 
-  return QVariant();
+  // Create dummy texture with footage params
+  return QVariant::fromValue(std::make_shared<Texture>(stream.video_params()));
 }
 
 QVariant NodeTraverser::ProcessAudioFootage(const FootageJob& stream, const TimeRange &input_time)
@@ -150,7 +179,10 @@ QVariant NodeTraverser::ProcessShader(const Node *node, const TimeRange &range, 
   Q_UNUSED(range)
   Q_UNUSED(job)
 
-  return QVariant();
+  // Create dummy texture with sequence params
+  VideoParams tex_params = video_params_;
+  tex_params.set_channel_count(GetChannelCountFromJob(job));
+  return QVariant::fromValue(std::make_shared<Texture>(tex_params));
 }
 
 QVariant NodeTraverser::ProcessSamples(const Node *node, const TimeRange &range, const SampleJob &job)
@@ -167,13 +199,21 @@ QVariant NodeTraverser::ProcessFrameGeneration(const Node *node, const GenerateJ
   Q_UNUSED(node)
   Q_UNUSED(job)
 
-  return QVariant();
+  // Create dummy texture with sequence params
+  VideoParams tex_params = video_params_;
+  tex_params.set_channel_count(GetChannelCountFromJob(job));
+  return QVariant::fromValue(std::make_shared<Texture>(tex_params));
 }
 
-QVariant NodeTraverser::GetCachedFrame(const Node *node, const rational &time)
+void NodeTraverser::SaveCachedTexture(const QByteArray &hash, const QVariant &texture)
 {
-  Q_UNUSED(node)
-  Q_UNUSED(time)
+  Q_UNUSED(hash)
+  Q_UNUSED(texture)
+}
+
+QVariant NodeTraverser::GetCachedTexture(const QByteArray& hash)
+{
+  Q_UNUSED(hash)
 
   return QVariant();
 }
@@ -189,17 +229,28 @@ void NodeTraverser::AddGlobalsToDatabase(NodeValueDatabase &db, const TimeRange&
   db.Insert(QStringLiteral("global"), global);
 }
 
-void NodeTraverser::PostProcessTable(const Node *node, const TimeRange &range, NodeValueTable &output_params)
+QVector2D NodeTraverser::GenerateResolution() const
+{
+  return QVector2D(video_params_.square_pixel_width(), video_params_.height());
+}
+
+void NodeTraverser::PostProcessTable(const Node *node, const QString& output, const TimeRange &range, NodeValueTable &output_params)
 {
   bool got_cached_frame = false;
+  QByteArray cached_node_hash;
 
   // Convert footage to image/sample buffers
-  QVariant cached_frame = GetCachedFrame(node, range.in());
-  if (!cached_frame.isNull()) {
-    output_params.Push(NodeValue::kTexture, cached_frame, node);
+  if (CanCacheFrames() && node->GetCacheTextures()) {
+    // This node is set to cache the result, see if we can retrieved a previously cached version
+    cached_node_hash = RenderManager::Hash(node, output, GetCacheVideoParams(), range.in());
 
-    // No more to do here
-    got_cached_frame = true;
+    QVariant cached_frame = GetCachedTexture(cached_node_hash);
+    if (!cached_frame.isNull()) {
+      output_params.Push(NodeValue::kTexture, cached_frame, node);
+
+      // No more to do here
+      got_cached_frame = true;
+    }
   }
 
   // Strip out any jobs or footage
@@ -234,11 +285,15 @@ void NodeTraverser::PostProcessTable(const Node *node, const TimeRange &range, N
       // Assume this is a VideoStream, we did a type check earlier in the function
       FootageJob job = v.data().value<FootageJob>();
 
-      if (job.type() == Stream::kVideo) {
-        QVariant value = ProcessVideoFootage(job, range.in());
+      if (job.type() == Track::kVideo) {
+        rational footage_time = Footage::AdjustTimeByLoopMode(range.in(), job.loop_mode(), job.length(), job.video_params().video_type(), job.video_params().frame_rate_as_time_base());
 
-        if (!value.isNull()) {
-          output_params.Push(NodeValue::kTexture, value, node);
+        if (!footage_time.isNaN()) {
+          QVariant value = ProcessVideoFootage(job, footage_time);
+
+          if (!value.isNull()) {
+            output_params.Push(NodeValue::kTexture, value, node);
+          }
         }
       }
     }
@@ -267,7 +322,7 @@ void NodeTraverser::PostProcessTable(const Node *node, const TimeRange &range, N
     // Assume this is an AudioStream, we did a type check earlier in the function
     FootageJob job = v.data().value<FootageJob>();
 
-    if (job.type() == Stream::kAudio) {
+    if (job.type() == Track::kAudio) {
       QVariant value = ProcessAudioFootage(job, range);
 
       if (!value.isNull()) {
@@ -283,6 +338,11 @@ void NodeTraverser::PostProcessTable(const Node *node, const TimeRange &range, N
     if (!value.isNull()) {
       output_params.Push(NodeValue::kSamples, value, node);
     }
+  }
+
+  if (CanCacheFrames() && node->GetCacheTextures() && !got_cached_frame) {
+    // Save cached texture
+    SaveCachedTexture(cached_node_hash, output_params.Get(NodeValue::kTexture));
   }
 }
 

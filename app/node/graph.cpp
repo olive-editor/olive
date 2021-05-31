@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -30,10 +30,17 @@ NodeGraph::NodeGraph()
 {
 }
 
+NodeGraph::~NodeGraph()
+{
+  Clear();
+}
+
 void NodeGraph::Clear()
 {
+  // By deleting the last nodes first, we assume that nodes that are most important are deleted last
+  // (e.g. Project's ColorManager or ProjectSettingsNode.
   while (!node_children_.isEmpty()) {
-    delete node_children_.first();
+    delete node_children_.last();
   }
 }
 
@@ -54,6 +61,7 @@ void NodeGraph::childEvent(QChildEvent *event)
       connect(node, &Node::ValueChanged, this, &NodeGraph::ValueChanged);
 
       emit NodeAdded(node);
+      emit node->AddedToGraph(this);
 
     } else if (event->type() == QEvent::ChildRemoved) {
 
@@ -65,6 +73,7 @@ void NodeGraph::childEvent(QChildEvent *event)
       disconnect(node, &Node::ValueChanged, this, &NodeGraph::ValueChanged);
 
       emit NodeRemoved(node);
+      emit node->RemovedFromGraph(this);
 
     }
   }

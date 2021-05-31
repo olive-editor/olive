@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -63,8 +63,6 @@ public:
 
   bool IsPlaying() const;
 
-  void ConnectViewerNode(Sequence *node, ColorManager *color_manager = nullptr);
-
   /**
    * @brief Enable or disable the color management menu
    *
@@ -109,8 +107,6 @@ public slots:
    */
   void SetSignalCursorColorEnabled(bool e);
 
-  void ForceUpdate();
-
   void SetAutoCacheEnabled(bool e);
 
   void CacheEntireSequence();
@@ -121,6 +117,8 @@ public slots:
 
   void SetViewerPixelAspect(const rational& ratio);
 
+  void UpdateTextureFromNode();
+
 signals:
   /**
    * @brief Wrapper for ViewerGLWidget::CursorColor()
@@ -130,7 +128,7 @@ signals:
   /**
    * @brief Signal emitted when a new frame is loaded
    */
-  void LoadedBuffer(Frame* load_buffer);
+  void TextureChanged(TexturePtr t);
 
   /**
    * @brief Request a scope panel
@@ -153,9 +151,9 @@ protected:
   virtual void TimebaseChangedEvent(const rational &) override;
   virtual void TimeChangedEvent(const int64_t &) override;
 
-  virtual void ConnectNodeInternal(Sequence *) override;
-  virtual void DisconnectNodeInternal(Sequence *) override;
-  virtual void ConnectedNodeChanged(Sequence*n) override;
+  virtual void ConnectNodeEvent(ViewerOutput *) override;
+  virtual void DisconnectNodeEvent(ViewerOutput *) override;
+  virtual void ConnectedNodeChangeEvent(ViewerOutput *) override;
 
   virtual void ScaleChangedEvent(const double& s) override;
 
@@ -171,8 +169,6 @@ protected:
 private:
   void UpdateTimeInternal(int64_t i);
 
-  void UpdateTextureFromNode(const rational &time);
-
   void PlayInternal(int speed, bool in_to_out_only);
 
   void PauseInternal();
@@ -187,11 +183,13 @@ private:
 
   bool FrameExistsAtTime(const rational& time);
 
-  void SetDisplayImage(FramePtr frame, bool main_only);
+  bool ViewerMightBeAStill();
 
-  void RequestNextFrameForQueue();
+  void SetDisplayImage(QVariant frame, bool main_only = false);
 
-  RenderTicketPtr GetFrame(const rational& t, bool clear_render_queue);
+  void RequestNextFrameForQueue(bool prioritize = false, bool increment = true);
+
+  RenderTicketPtr GetFrame(const rational& t, bool prioritize);
 
   void FinishPlayPreprocess();
 
@@ -199,11 +197,17 @@ private:
 
   void PopOldestFrameFromPlaybackQueue();
 
-  FramePtr DecodeCachedImage(const QString &fn, const rational& time) const;
+  static FramePtr DecodeCachedImage(const QString &cache_path, const QByteArray &hash, const rational& time);
 
-  void DecodeCachedImage(RenderTicketPtr ticket, const QString &fn, const rational& time) const;
+  static void DecodeCachedImage(RenderTicketPtr ticket, const QString &cache_path, const QByteArray &hash, const rational& time);
 
   bool ShouldForceWaveform() const;
+
+  void SetEmptyImage();
+
+  void UpdateAutoCacher();
+
+  void ClearAutoCacherQueue();
 
   QStackedWidget* stack_;
 
@@ -217,17 +221,13 @@ private:
 
   bool color_menu_enabled_;
 
-  ColorManager* override_color_manager_;
-
   bool time_changed_from_timer_;
 
   bool play_in_to_out_only_;
 
-  bool pause_autocache_during_playback_;
-
   AudioWaveformView* waveform_view_;
 
-  QList<ViewerWindow*> windows_;
+  QHash<QScreen*, ViewerWindow*> windows_;
 
   ViewerDisplayWidget* display_widget_;
 
@@ -248,6 +248,12 @@ private:
   int prequeue_length_;
 
   PreviewAutoCacher auto_cacher_;
+
+  QTimer audio_restart_timer_;
+
+  int active_queue_jobs_;
+
+  rational cache_time_;
 
   static QVector<ViewerWidget*> instances_;
 
@@ -291,6 +297,15 @@ private slots:
   void ManualSwitchToWaveform(bool e);
 
   void TimeChangedFromWaveform(qint64 t);
+
+  void DragEntered(QDragEnterEvent* event);
+
+  void Dropped(QDropEvent* event);
+
+  void AudioCacheInvalidated();
+  void AudioCacheValidated();
+
+  void StartAudioOutput();
 
 };
 

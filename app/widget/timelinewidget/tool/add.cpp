@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
 
 #include "add.h"
 #include "core.h"
+#include "node/block/subtitle/subtitle.h"
 #include "node/factory.h"
 #include "node/generator/solid/solid.h"
 #include "node/generator/text/text.h"
@@ -53,6 +54,9 @@ void AddTool::MousePress(TimelineViewMouseEvent *event)
     break;
   case olive::Tool::kAddableTone:
     add_type = Track::kAudio;
+    break;
+  case olive::Tool::kAddableSubtitle:
+    add_type = Track::kSubtitle;
     break;
   case olive::Tool::kAddableEmpty:
     // Leave as "none", which means this block can be placed on any track
@@ -93,7 +97,12 @@ void AddTool::MouseRelease(TimelineViewMouseEvent *event)
     if (!ghost_->GetAdjustedLength().isNull()) {
       MultiUndoCommand* command = new MultiUndoCommand();
 
-      ClipBlock* clip = new ClipBlock();
+      ClipBlock* clip;
+      if (Core::instance()->GetSelectedAddableObject() == olive::Tool::kAddableSubtitle) {
+        clip = new SubtitleBlock();
+      } else {
+        clip = new ClipBlock();
+      }
       clip->set_length_and_media_out(ghost_->GetAdjustedLength());
       clip->SetLabel(olive::Tool::GetAddableObjectName(Core::instance()->GetSelectedAddableObject()));
 
@@ -102,7 +111,7 @@ void AddTool::MouseRelease(TimelineViewMouseEvent *event)
       command->add_child(new NodeAddCommand(graph,
                                             clip));
 
-      command->add_child(new TrackPlaceBlockCommand(static_cast<Sequence*>(parent()->GetConnectedNode())->track_list(track.type()),
+      command->add_child(new TrackPlaceBlockCommand(sequence()->track_list(track.type()),
                                                     track.index(),
                                                     clip,
                                                     ghost_->GetAdjustedIn()));
@@ -139,6 +148,9 @@ void AddTool::MouseRelease(TimelineViewMouseEvent *event)
       case olive::Tool::kAddableTone:
         // Not implemented yet
         qWarning() << "Unimplemented add object:" << Core::instance()->GetSelectedAddableObject();
+        break;
+      case olive::Tool::kAddableSubtitle:
+        // The block itself is the node we want
         break;
       case olive::Tool::kAddableCount:
         // Invalid value, do nothing

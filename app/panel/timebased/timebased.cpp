@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,13 +24,19 @@ namespace olive {
 
 TimeBasedPanel::TimeBasedPanel(const QString &object_name, QWidget *parent) :
   PanelWidget(object_name, parent),
-  widget_(nullptr)
+  widget_(nullptr),
+  show_and_raise_on_connect_(false)
 {
 }
 
 rational TimeBasedPanel::GetTime()
 {
   return widget_->GetTime();
+}
+
+const rational& TimeBasedPanel::timebase()
+{
+  return widget_->timebase();
 }
 
 void TimeBasedPanel::GoToStart()
@@ -108,39 +114,9 @@ void TimeBasedPanel::ShuttleRight()
   emit ShuttleRightRequested();
 }
 
-TimeBasedWidget *TimeBasedPanel::GetTimeBasedWidget() const
+void TimeBasedPanel::ConnectViewerNode(ViewerOutput *node)
 {
-  return widget_;
-}
-
-Sequence *TimeBasedPanel::GetConnectedViewer() const
-{
-  return widget_->GetConnectedNode();
-}
-
-TimeRuler *TimeBasedPanel::ruler() const
-{
-  return widget_->ruler();
-}
-
-void TimeBasedPanel::ConnectViewerNode(Sequence *node)
-{
-  if (widget_->GetConnectedNode() == node) {
-    return;
-  }
-
-  if (widget_->GetConnectedNode()) {
-    disconnect(widget_->GetConnectedNode(), &ViewerOutput::LabelChanged, this, &TimeBasedPanel::SetSubtitle);
-  }
-
   widget_->ConnectViewerNode(node);
-
-  if (node) {
-    connect(node, &ViewerOutput::LabelChanged, this, &TimeBasedPanel::SetSubtitle);
-  }
-
-  // Update strings
-  Retranslate();
 }
 
 void TimeBasedPanel::SetTimeBasedWidget(TimeBasedWidget *widget)
@@ -148,6 +124,7 @@ void TimeBasedPanel::SetTimeBasedWidget(TimeBasedWidget *widget)
   if (widget_) {
     disconnect(widget_, &TimeBasedWidget::TimeChanged, this, &TimeBasedPanel::TimeChanged);
     disconnect(widget_, &TimeBasedWidget::TimebaseChanged, this, &TimeBasedPanel::TimebaseChanged);
+    disconnect(widget_, &TimeBasedWidget::ConnectedNodeChanged, this, &TimeBasedPanel::ConnectedNodeChanged);
   }
 
   widget_ = widget;
@@ -155,6 +132,7 @@ void TimeBasedPanel::SetTimeBasedWidget(TimeBasedWidget *widget)
   if (widget_) {
     connect(widget_, &TimeBasedWidget::TimeChanged, this, &TimeBasedPanel::TimeChanged);
     connect(widget_, &TimeBasedWidget::TimebaseChanged, this, &TimeBasedPanel::TimebaseChanged);
+    connect(widget_, &TimeBasedWidget::ConnectedNodeChanged, this, &TimeBasedPanel::ConnectedNodeChanged);
   }
 
   SetWidgetWithPadding(widget_);
@@ -167,6 +145,25 @@ void TimeBasedPanel::Retranslate()
   } else {
     SetSubtitle(tr("(none)"));
   }
+}
+
+void TimeBasedPanel::ConnectedNodeChanged(ViewerOutput *old, ViewerOutput *now)
+{
+  if (old) {
+    disconnect(old, &ViewerOutput::LabelChanged, this, &TimeBasedPanel::SetSubtitle);
+  }
+
+  if (now) {
+    connect(now, &ViewerOutput::LabelChanged, this, &TimeBasedPanel::SetSubtitle);
+
+    if (show_and_raise_on_connect_) {
+      this->show();
+      this->raise();
+    }
+  }
+
+  // Update strings
+  Retranslate();
 }
 
 void TimeBasedPanel::SetIn()

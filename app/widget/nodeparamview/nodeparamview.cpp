@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -55,7 +55,7 @@ NodeParamView::NodeParamView(QWidget *parent) :
   connect(param_widget_container_, &NodeParamViewParamContainer::Resized, this, &NodeParamView::UpdateGlobalScrollBar);
   scroll_area->setWidget(param_widget_container_);
 
-  param_widget_area_ = new QMainWindow();
+  param_widget_area_ = new NodeParamViewDockArea();
 
   // Disable dock widgets from tabbing and disable glitchy animations
   param_widget_area_->setDockOptions(static_cast<QMainWindow::DockOption>(0));
@@ -214,6 +214,10 @@ void NodeParamView::TimebaseChangedEvent(const rational &timebase)
 
   keyframe_view_->SetTimebase(timebase);
 
+  foreach (NodeParamViewItem* item, items_) {
+      item->SetTimebase(timebase);
+  }
+
   UpdateItemTime(GetTimestamp());
 }
 
@@ -226,7 +230,7 @@ void NodeParamView::TimeChangedEvent(const int64_t &timestamp)
   UpdateItemTime(timestamp);
 }
 
-void NodeParamView::ConnectedNodeChanged(Sequence *n)
+void NodeParamView::ConnectedNodeChangeEvent(ViewerOutput *n)
 {
   // Set viewer as a time target
   keyframe_view_->SetTimeTarget(n);
@@ -257,7 +261,7 @@ void NodeParamView::UpdateItemTime(const int64_t &timestamp)
 
 void NodeParamView::QueueKeyframePositionUpdate()
 {
-  QMetaObject::invokeMethod(this, "UpdateElementY", Qt::QueuedConnection);
+  QMetaObject::invokeMethod(this, &NodeParamView::UpdateElementY, Qt::QueuedConnection);
 }
 
 void NodeParamView::SignalNodeOrder()
@@ -305,11 +309,15 @@ void NodeParamView::AddNode(Node *n)
   connect(item, &NodeParamViewItem::dockLocationChanged, this, &NodeParamView::QueueKeyframePositionUpdate);
   connect(item, &NodeParamViewItem::dockLocationChanged, this, &NodeParamView::SignalNodeOrder);
   connect(item, &NodeParamViewItem::PinToggled, this, &NodeParamView::PinNode);
-  connect(item, &NodeParamViewItem::ExpandedChanged, this, &NodeParamView::UpdateElementY);
-  connect(item, &NodeParamViewItem::ArrayExpandedChanged, this, &NodeParamView::UpdateElementY);
+  connect(item, &NodeParamViewItem::ArrayExpandedChanged, this, &NodeParamView::QueueKeyframePositionUpdate);
+  connect(item, &NodeParamViewItem::ExpandedChanged, this, &NodeParamView::QueueKeyframePositionUpdate);
+  connect(item, &NodeParamViewItem::Moved, this, &NodeParamView::QueueKeyframePositionUpdate);
 
   // Set time target
   item->SetTimeTarget(GetTimeTarget());
+
+  // Set the timebase
+  item->SetTimebase(timebase());
 
   items_.insert(n, item);
   param_widget_area_->addDockWidget(Qt::LeftDockWidgetArea, item);
@@ -334,8 +342,17 @@ void NodeParamView::RemoveNode(Node *n)
   delete items_.take(n);
 
   if (focused_node_ == n) {
+    // Try to find new node with gizmos to focus
     focused_node_ = nullptr;
-    emit FocusedNodeChanged(nullptr);
+    for (auto it=items_.cbegin(); it!=items_.cend(); it++) {
+      if (it.key()->HasGizmos()) {
+        focused_node_ = it.key();
+        it.value()->SetHighlighted(true);
+        break;
+      }
+    }
+
+    emit FocusedNodeChanged(focused_node_);
   }
 }
 

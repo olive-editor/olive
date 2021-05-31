@@ -1,6 +1,6 @@
 #
 # Copyright 2019 Pixar
-# Modifications: Copyright (C) 2020 Olive Team
+# Modifications: Copyright (C) 2021 Olive Team
 #
 # Licensed under the Apache License, Version 2.0 (the "Apache License")
 # with the following modification; you may not use this file except in
@@ -48,10 +48,17 @@ list(APPEND OCIO_INCLUDE_DIRS ${OCIO_INCLUDE_DIR})
 
 find_library(OCIO_LIBRARY
     NAMES
-        libOpenColorIO.so.2.0 # libOpenColorIO.so.2.0 (Linux)
-        OpenColorIO.2.0       # libOpenColorIO.2.0.dylib (macOS)
-        OpenColorIO_2_0       # OpenColorIO_2_0.lib (Windows)
-        OpenColorIO           # (fallback)
+        # libOpenColorIO.so.2.x (Linux)
+        libOpenColorIO.so.2.1
+        libOpenColorIO.so.2.0
+
+        # libOpenColorIO.2.x.dylib (macOS)
+        OpenColorIO.2.1
+        OpenColorIO.2.0
+
+        # OpenColorIO_2_x.lib (Windows)
+        OpenColorIO_2_1
+        OpenColorIO_2_0
     HINTS
         "${OCIO_LOCATION}"
         "$ENV{OCIO_LOCATION}"

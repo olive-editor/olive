@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -28,12 +28,12 @@ ExportParams::ExportParams() :
 {
 }
 
-const QString &ExportParams::encoder() const
+const Encoder::Type &ExportParams::encoder() const
 {
   return encoder_id_;
 }
 
-void ExportParams::set_encoder(const QString &id)
+void ExportParams::set_encoder(const Encoder::Type &id)
 {
   encoder_id_ = id;
 }
@@ -104,7 +104,7 @@ void ExportParams::Save(QXmlStreamWriter *writer) const
 {
   writer->writeStartElement(QStringLiteral("export"));
 
-  writer->writeTextElement(QStringLiteral("encoder"), encoder_id_);
+  writer->writeTextElement(QStringLiteral("encoder"), QString::number(encoder_id_));
 
   writer->writeTextElement(QStringLiteral("vscale"), QString::number(video_scaling_method_));
 

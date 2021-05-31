@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -53,12 +53,18 @@ protected:
 
   virtual QVariant ProcessFrameGeneration(const Node *node, const GenerateJob& job) override;
 
-  virtual QVariant GetCachedFrame(const Node *node, const rational &time) override;
+  virtual bool CanCacheFrames() override;
 
-  virtual QVector2D GenerateResolution() const override;
+  virtual QVariant GetCachedTexture(const QByteArray &hash) override;
+
+  virtual void SaveCachedTexture(const QByteArray& hash, const QVariant& texture) override;
 
 private:
   RenderProcessor(RenderTicketPtr ticket, Renderer* render_ctx, StillImageCache* still_image_cache, DecoderCache* decoder_cache, ShaderCache* shader_cache, QVariant default_shader);
+
+  TexturePtr GenerateTexture(const rational& time, const rational& frame_length);
+
+  FramePtr GenerateFrame(TexturePtr texture, const rational &time);
 
   void Run();
 

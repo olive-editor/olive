@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -67,21 +67,21 @@ AudioParams::Format FFmpegUtils::GetNativeSampleFormat(const AVSampleFormat &smp
   return AudioParams::kFormatInvalid;
 }
 
-AVSampleFormat FFmpegUtils::GetFFmpegSampleFormat(const AudioParams::Format &smp_fmt)
+AVSampleFormat FFmpegUtils::GetFFmpegSampleFormat(const AudioParams::Format &smp_fmt, bool planar)
 {
   switch (smp_fmt) {
   case AudioParams::kFormatUnsigned8:
-    return AV_SAMPLE_FMT_U8;
+    return planar ? AV_SAMPLE_FMT_U8P : AV_SAMPLE_FMT_U8;
   case AudioParams::kFormatSigned16:
-    return AV_SAMPLE_FMT_S16;
+    return planar ? AV_SAMPLE_FMT_S16P : AV_SAMPLE_FMT_S16;
   case AudioParams::kFormatSigned32:
-    return AV_SAMPLE_FMT_S32;
+    return planar ? AV_SAMPLE_FMT_S32P : AV_SAMPLE_FMT_S32;
   case AudioParams::kFormatSigned64:
-    return AV_SAMPLE_FMT_S64;
+    return planar ? AV_SAMPLE_FMT_S64P : AV_SAMPLE_FMT_S64;
   case AudioParams::kFormatFloat32:
-    return AV_SAMPLE_FMT_FLT;
+    return planar ? AV_SAMPLE_FMT_FLTP : AV_SAMPLE_FMT_FLT;
   case AudioParams::kFormatFloat64:
-    return AV_SAMPLE_FMT_DBL;
+    return planar ? AV_SAMPLE_FMT_DBLP : AV_SAMPLE_FMT_DBL;
   case AudioParams::kFormatInvalid:
   case AudioParams::kFormatCount:
     break;

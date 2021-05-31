@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 #include <QObject>
 
 #include "node/inputdragger.h"
-#include "widget/slider/sliderbase.h"
+#include "widget/slider/base/numericsliderbase.h"
 #include "widget/timetarget/timetarget.h"
 
 namespace olive {
@@ -49,17 +49,22 @@ public:
     return widgets_;
   }
 
+  // Set the timebase of certain Timebased widgets
+  void SetTimebase(const rational& timebase);
+
 signals:
   void ArrayWidgetDoubleClicked();
+
+  void WidgetsRecreated(const NodeInput& input);
 
 private:
   void CreateWidgets();
 
   void SetInputValue(const QVariant& value, int track);
 
-  void SetInputValueInternal(const QVariant& value, int track, MultiUndoCommand *command);
+  void SetInputValueInternal(const QVariant& value, int track, MultiUndoCommand *command, bool insert_on_all_tracks_if_no_key);
 
-  void ProcessSlider(SliderBase* slider, const QVariant& value);
+  void ProcessSlider(NumericSliderBase* slider, const QVariant& value);
 
   template <typename T>
   void CreateSliders(int count);
@@ -84,6 +89,8 @@ private slots:
   void InputValueChanged(const NodeInput& input, const TimeRange& range);
 
   void PropertyChanged(const QString &input, const QString& key, const QVariant& value);
+
+  void InputDataTypeChanged(const QString& input, NodeValue::Type type);
 
 };
 

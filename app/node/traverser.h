@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -42,7 +42,19 @@ public:
     return GenerateTable(output.node(), output.output(), range);
   }
 
-  NodeValueDatabase GenerateDatabase(const Node *node, const TimeRange &range);
+  NodeValueDatabase GenerateDatabase(const Node *node, const QString &output, const TimeRange &range);
+
+  const VideoParams& GetCacheVideoParams() const
+  {
+    return video_params_;
+  }
+
+  void SetCacheVideoParams(const VideoParams& params)
+  {
+    video_params_ = params;
+  }
+
+  static int GetChannelCountFromJob(const GenerateJob& job);
 
 protected:
   NodeValueTable ProcessInput(const Node *node, const QString &input, const TimeRange &range);
@@ -59,17 +71,23 @@ protected:
 
   virtual QVariant ProcessFrameGeneration(const Node *node, const GenerateJob& job);
 
-  virtual QVariant GetCachedFrame(const Node *node, const rational &time);
+  virtual QVariant GetCachedTexture(const QByteArray& hash);
+
+  virtual void SaveCachedTexture(const QByteArray& hash, const QVariant& texture);
+
+  virtual bool CanCacheFrames()
+  {
+    return false;
+  }
 
   void AddGlobalsToDatabase(NodeValueDatabase& db, const TimeRange &range) const;
 
-  virtual QVector2D GenerateResolution() const
-  {
-    return QVector2D(0, 0);
-  }
+  QVector2D GenerateResolution() const;
 
 private:
-  void PostProcessTable(const Node *node, const TimeRange &range, NodeValueTable &output_params);
+  void PostProcessTable(const Node *node, const QString &output, const TimeRange &range, NodeValueTable &output_params);
+
+  VideoParams video_params_;
 
 };
 

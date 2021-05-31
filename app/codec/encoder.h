@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,14 +22,18 @@
 #define ENCODER_H
 
 #include <memory>
+#include <QRegularExpression>
 #include <QString>
 #include <QXmlStreamWriter>
 
 #include "codec/exportcodec.h"
 #include "codec/exportformat.h"
 #include "codec/frame.h"
+#include "codec/samplebuffer.h"
 #include "common/timerange.h"
+#include "node/block/subtitle/subtitle.h"
 #include "render/audioparams.h"
+#include "render/subtitleparams.h"
 #include "render/videoparams.h"
 
 namespace olive {
@@ -45,13 +49,19 @@ public:
 
   void EnableVideo(const VideoParams& video_params, const ExportCodec::Codec& vcodec);
   void EnableAudio(const AudioParams& audio_params, const ExportCodec::Codec &acodec);
+  void EnableSubtitles(const ExportCodec::Codec &scodec);
 
   void set_video_option(const QString& key, const QString& value);
   void set_video_bit_rate(const int64_t& rate);
+  void set_video_min_bit_rate(const int64_t& rate);
   void set_video_max_bit_rate(const int64_t& rate);
   void set_video_buffer_size(const int64_t& sz);
   void set_video_threads(const int& threads);
   void set_video_pix_fmt(const QString& s);
+  void set_video_is_image_sequence(bool s)
+  {
+    video_is_image_sequence_ = s;
+  }
 
   const QString& filename() const;
 
@@ -60,10 +70,15 @@ public:
   const VideoParams& video_params() const;
   const QHash<QString, QString>& video_opts() const;
   const int64_t& video_bit_rate() const;
+  const int64_t& video_min_bit_rate() const;
   const int64_t& video_max_bit_rate() const;
   const int64_t& video_buffer_size() const;
   const int& video_threads() const;
   const QString& video_pix_fmt() const;
+  bool video_is_image_sequence() const
+  {
+    return video_is_image_sequence_;
+  }
 
   bool audio_enabled() const;
   const ExportCodec::Codec &audio_codec() const;
@@ -79,6 +94,9 @@ public:
     audio_bit_rate_ = b;
   }
 
+  bool subtitles_enabled() const;
+  ExportCodec::Codec subtitles_codec() const;
+
   const rational& GetExportLength() const;
   void SetExportLength(const rational& GetExportLength);
 
@@ -92,15 +110,20 @@ private:
   VideoParams video_params_;
   QHash<QString, QString> video_opts_;
   int64_t video_bit_rate_;
+  int64_t video_min_bit_rate_;
   int64_t video_max_bit_rate_;
   int64_t video_buffer_size_;
   int video_threads_;
   QString video_pix_fmt_;
+  bool video_is_image_sequence_;
 
   bool audio_enabled_;
   ExportCodec::Codec audio_codec_;
   AudioParams audio_params_;
   int64_t audio_bit_rate_;
+
+  bool subtitles_enabled_;
+  ExportCodec::Codec subtitles_codec_;
 
   rational export_length_;
 
@@ -112,6 +135,12 @@ class Encoder : public QObject
 public:
   Encoder(const EncodingParams& params);
 
+  enum Type {
+    kEncoderTypeNone = -1,
+    kEncoderTypeFFmpeg,
+    kEncoderTypeOIIO
+  };
+
   /**
    * @brief Create a Encoder instance using a Encoder ID
    *
@@ -119,27 +148,55 @@ public:
    *
    * A Encoder instance or nullptr if a Decoder with this ID does not exist
    */
-  static Encoder *CreateFromID(const QString& id, const EncodingParams &params);
+  static Encoder *CreateFromID(Type id, const EncodingParams &params);
+
+  static Type GetTypeFromFormat(ExportFormat::Format f);
+
+  static Encoder *CreateFromFormat(ExportFormat::Format f, const EncodingParams &params);
+
+  virtual QStringList GetPixelFormatsForCodec(ExportCodec::Codec c) const;
 
   const EncodingParams& params() const;
-
-  virtual bool Open() = 0;
-
-  virtual bool WriteFrame(olive::FramePtr frame, olive::rational time) = 0;
-  virtual void WriteAudio(olive::AudioParams pcm_info,
-                          QIODevice *file) = 0;
-  void WriteAudio(olive::AudioParams pcm_info,
-                  const QString& pcm_filename);
-
-  virtual void Close() = 0;
 
   virtual VideoParams::Format GetDesiredPixelFormat() const
   {
     return VideoParams::kFormatInvalid;
   }
 
+  const QString& GetError() const
+  {
+    return error_;
+  }
+
+  QString GetFilenameForFrame(const rational& frame);
+
+  static int GetImageSequencePlaceholderDigitCount(const QString& filename);
+
+  static bool FilenameContainsDigitPlaceholder(const QString &filename);
+  static QString FilenameRemoveDigitPlaceholder(QString filename);
+
+  static const QRegularExpression kImageSequenceContainsDigits;
+  static const QRegularExpression kImageSequenceRemoveDigits;
+
+public slots:
+  virtual bool Open() = 0;
+
+  virtual bool WriteFrame(olive::FramePtr frame, olive::rational time) = 0;
+  virtual bool WriteAudio(olive::SampleBufferPtr audio) = 0;
+  virtual bool WriteSubtitle(const SubtitleBlock *sub_block) = 0;
+
+  virtual void Close() = 0;
+
+protected:
+  void SetError(const QString& err)
+  {
+    error_ = err;
+  }
+
 private:
   EncodingParams params_;
+
+  QString error_;
 
 };
 

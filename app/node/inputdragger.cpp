@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@ bool NodeInputDragger::IsStarted() const
   return input_.IsValid();
 }
 
-void NodeInputDragger::Start(const NodeKeyframeTrackReference &input, const rational &time)
+void NodeInputDragger::Start(const NodeKeyframeTrackReference &input, const rational &time, bool create_key_on_all_tracks)
 {
   Q_ASSERT(!IsStarted());
 
@@ -52,9 +52,8 @@ void NodeInputDragger::Start(const NodeKeyframeTrackReference &input, const rati
   // Determine whether we are creating a keyframe or not
   if (input_.input().IsKeyframing()) {
     dragging_key_ = node->GetKeyframeAtTimeOnTrack(input_, time);
-    drag_created_key_ = !dragging_key_;
 
-    if (drag_created_key_) {
+    if (!dragging_key_) {
       dragging_key_ = new NodeKeyframe(time,
                                        start_value_,
                                        node->GetBestKeyframeTypeForTimeOnTrack(input_, time),
@@ -62,6 +61,19 @@ void NodeInputDragger::Start(const NodeKeyframeTrackReference &input, const rati
                                        input_.input().element(),
                                        input_.input().input(),
                                        node);
+      created_keys_.append(dragging_key_);
+
+      if (create_key_on_all_tracks) {
+        int nb_tracks = NodeValue::get_number_of_keyframe_tracks(input.input().node()->GetInputDataType(input.input().input()));
+        for (int i=0; i<nb_tracks; i++) {
+          if (i != input.track()) {
+            NodeKeyframeTrackReference this_ref(input.input(), i);
+            created_keys_.append(new NodeKeyframe(time, node->GetSplitValueAtTimeOnTrack(this_ref, time),
+                                                  node->GetBestKeyframeTypeForTimeOnTrack(this_ref, time),
+                                                  i, input.input().element(), input.input().input(), node));
+          }
+        }
+      }
     }
   }
 }
@@ -112,9 +124,9 @@ void NodeInputDragger::End()
   MultiUndoCommand* command = new MultiUndoCommand();
 
   if (input_.input().node()->IsInputKeyframing(input_.input())) {
-    if (drag_created_key_) {
+    for (int i=0; i<created_keys_.size(); i++) {
       // We created a keyframe in this process
-      command->add_child(new NodeParamInsertKeyframeCommand(input_.input().node(), dragging_key_));
+      command->add_child(new NodeParamInsertKeyframeCommand(input_.input().node(), created_keys_.at(i)));
     }
 
     // We just set a keyframe's value
@@ -129,6 +141,7 @@ void NodeInputDragger::End()
   Core::instance()->undo_stack()->push(command);
 
   input_.Reset();
+  created_keys_.clear();
 }
 
 }

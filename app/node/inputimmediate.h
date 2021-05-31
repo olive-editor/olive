@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -151,11 +151,18 @@ public:
     return (!is_keyframing() || keyframe_tracks_.at(track).isEmpty());
   }
 
+  void set_data_type(NodeValue::Type type);
+
 private:
   /**
    * @brief Non-keyframed value
    */
   SplitValue standard_value_;
+
+  /**
+   * @brief Default value
+   */
+  SplitValue default_value_;
 
   /**
    * @brief Internal keyframe array

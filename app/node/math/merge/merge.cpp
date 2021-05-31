@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -19,6 +19,8 @@
 ***/
 
 #include "merge.h"
+
+#include "node/traverser.h"
 
 namespace olive {
 
@@ -93,6 +95,11 @@ NodeValueTable MergeNode::Value(const QString &output, NodeValueDatabase &value)
       table.Push(job.GetValue(kBaseIn));
     } else {
       // We have both textures, push the job
+      if (base_tex->channel_count() < VideoParams::kRGBAChannelCount) {
+        // Base has no alpha, therefore this merge operation will not add an alpha channel
+        job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOff);
+      }
+
       table.Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
     }
   }
@@ -100,35 +107,36 @@ NodeValueTable MergeNode::Value(const QString &output, NodeValueDatabase &value)
   return table;
 }
 
-void MergeNode::Hash(const QString &output, QCryptographicHash &hash, const rational &time) const
+void MergeNode::Hash(const QString &output, QCryptographicHash &hash, const rational &time, const VideoParams &video_params) const
 {
-  // We do some hash optimization here. If only one of the inputs is connected, this node
-  // functions as a passthrough so there's no alteration to the hash. The same is true if the
-  // connected node happens to return nothing (a gap for instance). Therefore we only add our
-  // fingerprint if the base AND the blend change the hash. Otherwise, we assume it's a passthrough.
+  NodeTraverser traverser;
+  traverser.SetCacheVideoParams(video_params);
 
-  QByteArray current_result = hash.result();
+  NodeValueDatabase db = traverser.GenerateDatabase(this, output, TimeRange(time, time+video_params.frame_rate_as_time_base()));
 
-  bool base_changed_hash = false;
-  bool blend_changed_hash = false;
+  TexturePtr base_tex = db[kBaseIn].Get(NodeValue::kTexture).value<TexturePtr>();
+  TexturePtr blend_tex = db[kBlendIn].Get(NodeValue::kTexture).value<TexturePtr>();
 
-  if (IsInputConnected(kBaseIn)) {
-    GetConnectedNode(kBaseIn)->Hash(output, hash, time);
+  if (base_tex || blend_tex) {
+    bool passthrough_base = !blend_tex;
+    bool passthrough_blend = !base_tex || (blend_tex && blend_tex->channel_count() < VideoParams::kRGBAChannelCount);
 
-    QByteArray post_base_hash = hash.result();
-    base_changed_hash = (post_base_hash != current_result);
-    current_result = post_base_hash;
-  }
+    if (!passthrough_base && !passthrough_blend) {
+      // This merge will actually do something so we add a fingerprint
+      hash.addData(id().toUtf8());
+    }
 
-  if(IsInputConnected(kBlendIn)) {
-    GetConnectedNode(kBlendIn)->Hash(output, hash, time);
+    if (!passthrough_base) {
+      NodeOutput blend_output = GetConnectedOutput(kBlendIn);
+      blend_output.node()->Hash(blend_output.output(), hash, time, video_params);
+    }
 
-    blend_changed_hash = (hash.result() != current_result);
-  }
+    if (!passthrough_blend) {
+      NodeOutput base_output = GetConnectedOutput(kBaseIn);
+      base_output.node()->Hash(base_output.output(), hash, time, video_params);
+    }
 
-  if (base_changed_hash && blend_changed_hash) {
-    // Something changed, so we'll add our fingerprint
-    hash.addData(id().toUtf8());
+    Q_ASSERT(!passthrough_base || !passthrough_blend);
   }
 }
 

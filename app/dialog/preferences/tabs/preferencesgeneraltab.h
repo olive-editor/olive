@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,8 +26,9 @@
 #include <QSpinBox>
 
 #include "dialog/configbase/configdialogbase.h"
-#include "project/item/sequence/sequence.h"
-#include "widget/slider/floatslider.h"
+#include "node/project/sequence/sequence.h"
+#include "widget/slider/rationalslider.h"
+#include "widget/slider/integerslider.h"
 
 namespace olive {
 
@@ -48,7 +49,13 @@ private:
 
   QCheckBox* rectified_waveforms_;
 
-  FloatSlider* default_still_length_;
+  RationalSlider* default_still_length_;
+
+  QCheckBox* autorecovery_enabled_;
+
+  IntegerSlider* autorecovery_interval_;
+
+  IntegerSlider* autorecovery_maximum_;
 
 };
 

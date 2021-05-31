@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -46,9 +46,9 @@ public:
 
   void ZoomOut();
 
-  Sequence* GetConnectedNode() const;
+  ViewerOutput* GetConnectedNode() const;
 
-  void ConnectViewerNode(Sequence *node);
+  void ConnectViewerNode(ViewerOutput *node);
 
   void SetScaleAndCenterOnPlayhead(const double& scale);
 
@@ -105,21 +105,15 @@ protected:
 
   virtual void ScaleChangedEvent(const double &) override;
 
-  virtual void ConnectedNodeChanged(Sequence*){}
+  virtual void ConnectedNodeChangeEvent(ViewerOutput*){}
 
-  virtual void ConnectNodeInternal(Sequence*){}
+  virtual void ConnectNodeEvent(ViewerOutput*){}
 
-  virtual void DisconnectNodeInternal(Sequence*){}
+  virtual void DisconnectNodeEvent(ViewerOutput*){}
 
   void SetAutoMaxScrollBar(bool e);
 
   virtual void resizeEvent(QResizeEvent *event) override;
-
-  virtual TimelinePoints* ConnectTimelinePoints();
-
-  virtual Project* GetTimelinePointsProject();
-
-  TimelinePoints* GetConnectedTimelinePoints() const;
 
   void ConnectTimelineView(TimeBasedView* base, bool connect_time_change_event = true);
 
@@ -143,6 +137,8 @@ signals:
   void TimeChanged(const int64_t&);
 
   void TimebaseChanged(const rational&);
+
+  void ConnectedNodeChanged(ViewerOutput* old, ViewerOutput* now);
 
 private:
   class MarkerAddCommand : public UndoCommand
@@ -189,15 +185,13 @@ private:
 
   bool UserIsDraggingPlayhead() const;
 
-  Sequence* viewer_node_;
+  ViewerOutput* viewer_node_;
 
   TimeRuler* ruler_;
 
   ResizableTimelineScrollBar* scrollbar_;
 
   bool auto_max_scrollbar_;
-
-  TimelinePoints* points_;
 
   QList<TimeBasedView*> timeline_views_;
 
@@ -233,6 +227,10 @@ private slots:
   void CatchUpScrollToPlayhead();
 
   void CatchUpScrollToPoint(int point);
+
+  void AutoUpdateTimebase();
+
+  void ConnectedNodeRemovedFromGraph();
 
 };
 

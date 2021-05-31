@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -31,8 +31,8 @@
 #include "common/xmlutils.h"
 #include "core.h"
 #include "config/config.h"
+#include "node/project/footage/footage.h"
 #include "project/project.h"
-#include "project/item/footage/footage.h"
 #include "ui/colorcoding.h"
 #include "ui/icons/icons.h"
 #include "widget/nodeview/nodeviewundo.h"
@@ -47,7 +47,9 @@ Node::Node(bool create_default_output) :
   can_be_deleted_(true),
   override_color_(-1),
   last_change_time_(0),
-  folder_(nullptr)
+  folder_(nullptr),
+  operation_stack_(0),
+  cache_result_(false)
 {
   if (create_default_output) {
     AddOutput();
@@ -116,7 +118,11 @@ void Node::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, uint versi
         }
       }
     } else if (reader->name() == QStringLiteral("custom")) {
-      LoadInternal(reader, xml_node_data, version, cancelled);
+      while (XMLReadNextStartElement(reader)) {
+        if (!LoadCustom(reader, xml_node_data, version, cancelled)) {
+          reader->skipCurrentElement();
+        }
+      }
     } else if (reader->name() == QStringLiteral("connections")) {
       // Load connections
       while (XMLReadNextStartElement(reader)) {
@@ -197,7 +203,7 @@ void Node::Save(QXmlStreamWriter *writer) const
   writer->writeEndElement(); // connections
 
   writer->writeStartElement(QStringLiteral("custom"));
-  SaveInternal(writer);
+  SaveCustom(writer);
   writer->writeEndElement(); // custom
 }
 
@@ -499,10 +505,15 @@ NodeValue::Type Node::GetInputDataType(const QString &id) const
 
 void Node::SetInputDataType(const QString &id, const NodeValue::Type &type)
 {
-  Input* i = GetInternalInputData(id);
+  Input* input_meta = GetInternalInputData(id);
 
-  if (i) {
-    i->type = type;
+  if (input_meta) {
+    input_meta->type = type;
+
+    int array_sz = InputArraySize(id);
+    for (int i=-1; i<array_sz; i++) {
+      GetImmediate(id, i)->set_data_type(type);
+    }
 
     emit InputDataTypeChanged(id, type);
   } else {
@@ -591,14 +602,15 @@ QVariant Node::GetSplitValueAtTimeOnTrack(const QString &input, const rational &
       return key_track.last()->value();
     }
 
+    NodeValue::Type type = GetInputDataType(input);
+
     // If we're here, the time must be somewhere in between the keyframes
     for (int i=0;i<key_track.size()-1;i++) {
       NodeKeyframe* before = key_track.at(i);
       NodeKeyframe* after = key_track.at(i+1);
 
       if (before->time() == time
-          || !NodeValue::type_can_be_interpolated(GetInputDataType(input))
-          || (before->type() == NodeKeyframe::kHold && after->time() > time)) {
+          || ((!NodeValue::type_can_be_interpolated(type) || before->type() == NodeKeyframe::kHold) && after->time() > time)) {
 
         // Time == keyframe time, so value is precise
         return before->value();
@@ -611,6 +623,15 @@ QVariant Node::GetSplitValueAtTimeOnTrack(const QString &input, const rational &
       } else if (before->time() < time && after->time() > time) {
         // We must interpolate between these keyframes
 
+        double before_val, after_val, interpolated;
+        if (type == NodeValue::kRational) {
+          before_val = before->value().value<rational>().toDouble();
+          after_val = after->value().value<rational>().toDouble();
+        } else {
+          before_val = before->value().toDouble();
+          after_val = after->value().toDouble();
+        }
+
         if (before->type() == NodeKeyframe::kBezier && after->type() == NodeKeyframe::kBezier) {
           // Perform a cubic bezier with two control points
 
@@ -620,13 +641,13 @@ QVariant Node::GetSplitValueAtTimeOnTrack(const QString &input, const rational &
                                        after->time().toDouble() + after->valid_bezier_control_in().x(),
                                        after->time().toDouble());
 
-          double y = Bezier::CubicTtoY(before->value().toDouble(),
-                                       before->value().toDouble() + before->valid_bezier_control_out().y(),
-                                       after->value().toDouble() + after->valid_bezier_control_in().y(),
-                                       after->value().toDouble(),
+          double y = Bezier::CubicTtoY(before_val,
+                                       before_val + before->valid_bezier_control_out().y(),
+                                       after_val + after->valid_bezier_control_in().y(),
+                                       after_val,
                                        t);
 
-          return y;
+          interpolated = y;
 
         } else if (before->type() == NodeKeyframe::kBezier || after->type() == NodeKeyframe::kBezier) {
           // Perform a quadratic bezier with only one control point
@@ -638,26 +659,32 @@ QVariant Node::GetSplitValueAtTimeOnTrack(const QString &input, const rational &
           if (before->type() == NodeKeyframe::kBezier) {
             control_point = before->valid_bezier_control_out();
             control_point_time = before->time().toDouble() + control_point.x();
-            control_point_value = before->value().toDouble() + control_point.y();
+            control_point_value = before_val + control_point.y();
           } else {
             control_point = after->valid_bezier_control_in();
             control_point_time = after->time().toDouble() + control_point.x();
-            control_point_value = after->value().toDouble() + control_point.y();
+            control_point_value = after_val + control_point.y();
           }
 
           // Generate T from time values - used to determine bezier progress
           double t = Bezier::QuadraticXtoT(time.toDouble(), before->time().toDouble(), control_point_time, after->time().toDouble());
 
           // Generate value using T
-          double y = Bezier::QuadraticTtoY(before->value().toDouble(), control_point_value, after->value().toDouble(), t);
+          double y = Bezier::QuadraticTtoY(before_val, control_point_value, after_val, t);
 
-          return y;
+          interpolated = y;
 
         } else {
           // To have arrived here, the keyframes must both be linear
           qreal period_progress = (time.toDouble() - before->time().toDouble()) / (after->time().toDouble() - before->time().toDouble());
 
-          return lerp(before->value().toDouble(), after->value().toDouble(), period_progress);
+          interpolated = lerp(before_val, after_val, period_progress);
+        }
+
+        if (type == NodeValue::kRational) {
+          return QVariant::fromValue(rational::fromDouble(interpolated));
+        } else {
+          return interpolated;
         }
       }
     }
@@ -687,7 +714,12 @@ SplitValue Node::GetSplitDefaultValue(const QString &input) const
 
 QVariant Node::GetSplitDefaultValueOnTrack(const QString &input, int track) const
 {
-  return GetSplitDefaultValue(input).at(track);
+  SplitValue val = GetSplitDefaultValue(input);
+  if (track < val.size()) {
+    return val.at(track);
+  } else {
+    return QVariant();
+  }
 }
 
 const QVector<NodeKeyframeTrack> &Node::GetKeyframeTracks(const QString &input, int element) const
@@ -1023,18 +1055,14 @@ void Node::InvalidateCache(const TimeRange &range, const QString &from, int elem
 
 void Node::BeginOperation()
 {
-  // Ripple through graph
-  for (const std::pair<NodeOutput, NodeInput>& output : output_connections_) {
-    output.second.node()->BeginOperation();
-  }
+  // Increase operation stack
+  operation_stack_++;
 }
 
 void Node::EndOperation()
 {
-  // Ripple through graph
-  for (const std::pair<NodeOutput, NodeInput>& output : output_connections_) {
-    output.second.node()->EndOperation();
-  }
+  // Decrease operation stack
+  operation_stack_--;
 }
 
 TimeRange Node::InputTimeAdjustment(const QString &, int, const TimeRange &input_time) const
@@ -1057,7 +1085,7 @@ QVector<Node *> Node::CopyDependencyGraph(const QVector<Node *> &nodes, MultiUnd
 
   for (int i=0; i<nb_nodes; i++) {
     // Create another of the same node
-    Node* c = nodes.at(i)->copy();;
+    Node* c = nodes.at(i)->copy();
 
     // Copy the values, but NOT the connections, since we'll be connecting to our own clones later
     Node::CopyInputs(nodes.at(i), c, false);
@@ -1173,11 +1201,13 @@ Node *Node::CopyNodeInGraph(const Node *node, MultiUndoCommand *command)
 
 void Node::SendInvalidateCache(const TimeRange &range, qint64 job_time)
 {
-  for (const OutputConnection& conn : output_connections_) {
-    // Send clear cache signal to the Node
-    const NodeInput& in = conn.second;
+  if (GetOperationStack() == 0) {
+    for (const OutputConnection& conn : output_connections_) {
+      // Send clear cache signal to the Node
+      const NodeInput& in = conn.second;
 
-    in.node()->InvalidateCache(range, in.input(), in.element(), job_time);
+      in.node()->InvalidateCache(range, in.input(), in.element(), job_time);
+    }
   }
 }
 
@@ -1231,7 +1261,7 @@ bool Node::AreLinked(Node *a, Node *b)
   return a->links_.contains(b);
 }
 
-void Node::AddInput(const QString &id, NodeValue::Type type, const QVariant &default_value, Node::InputFlags flags)
+void Node::InsertInput(const QString &id, NodeValue::Type type, const QVariant &default_value, Node::InputFlags flags, int index)
 {
   if (id.isEmpty()) {
     qWarning() << "Rejected adding input with an empty ID on node" << this->id();
@@ -1250,8 +1280,8 @@ void Node::AddInput(const QString &id, NodeValue::Type type, const QVariant &def
   i.flags = flags;
   i.array_size = 0;
 
-  input_ids_.append(id);
-  input_data_.append(i);
+  input_ids_.insert(index, id);
+  input_data_.insert(index, i);
 
   if (!standard_immediates_.value(id, nullptr)) {
     standard_immediates_.insert(id, CreateImmediate(id));
@@ -1342,8 +1372,9 @@ void Node::ArrayResizeInternal(const QString &id, int size)
       // equal subinputs_.size()
     }
 
+    int old_sz = imm->array_size;
     imm->array_size = size;
-    emit InputArraySizeChanged(id, size);
+    emit InputArraySizeChanged(id, old_sz, size);
     ParameterValueChanged(id, -1, TimeRange(RATIONAL_MIN, RATIONAL_MAX));
   }
 }
@@ -1376,12 +1407,12 @@ void Node::IgnoreHashingFrom(const QString &input_id)
   ignore_when_hashing_.append(input_id);
 }
 
-void Node::LoadInternal(QXmlStreamReader *reader, XMLNodeData &, uint, const QAtomicInt*)
+bool Node::LoadCustom(QXmlStreamReader *, XMLNodeData &, uint, const QAtomicInt*)
 {
-  reader->skipCurrentElement();
+  return false;
 }
 
-void Node::SaveInternal(QXmlStreamWriter *) const
+void Node::SaveCustom(QXmlStreamWriter *) const
 {
 }
 
@@ -1421,7 +1452,7 @@ void Node::SetLabel(const QString &s)
   }
 }
 
-void Node::Hash(const QString &output, QCryptographicHash &hash, const rational& time) const
+void Node::Hash(const QString &output, QCryptographicHash &hash, const rational& time, const VideoParams &video_params) const
 {
   Q_UNUSED(output)
 
@@ -1429,7 +1460,8 @@ void Node::Hash(const QString &output, QCryptographicHash &hash, const rational&
   hash.addData(id().toUtf8());
   hash.addData(output.toUtf8());
 
-  foreach (const QString& input, input_ids_) {
+  auto inputs = inputs_for_output(output);
+  foreach (const QString& input, inputs) {
     // For each input, try to hash its value
     if (ignore_when_hashing_.contains(input)) {
       continue;
@@ -1437,7 +1469,7 @@ void Node::Hash(const QString &output, QCryptographicHash &hash, const rational&
 
     int arr_sz = InputArraySize(input);
     for (int i=-1; i<arr_sz; i++) {
-      HashInputElement(hash, input, i, time);
+      HashInputElement(hash, input, i, time, video_params);
     }
   }
 }
@@ -1452,6 +1484,7 @@ void Node::CopyInputs(const Node *source, Node *destination, bool include_connec
 
   destination->SetPosition(source->GetPosition());
   destination->SetLabel(source->GetLabel());
+  destination->SetOverrideColor(source->GetOverrideColor());
 }
 
 void Node::CopyInput(const Node *src, Node *dst, const QString &input, bool include_connections, bool traverse_arrays)
@@ -1559,7 +1592,7 @@ QVector<Node *> Node::GetDependenciesInternal(bool traverse, bool exclusive_only
   return list;
 }
 
-void Node::HashInputElement(QCryptographicHash &hash, const QString& input, int element, const rational &time) const
+void Node::HashInputElement(QCryptographicHash &hash, const QString& input, int element, const rational &time, const VideoParams& video_params) const
 {
   // Get time adjustment
   // For a single frame, we only care about one of the times
@@ -1569,7 +1602,7 @@ void Node::HashInputElement(QCryptographicHash &hash, const QString& input, int 
     // Traverse down this edge
     NodeOutput output = GetConnectedOutput(input, element);
 
-    output.node()->Hash(output.output(), hash, input_time);
+    output.node()->Hash(output.output(), hash, input_time, video_params);
   } else {
     // Grab the value at this time
     QVariant value = GetValueAtTime(input, input_time, element);
@@ -1838,6 +1871,8 @@ void Node::ParameterValueChanged(const QString& input, int element, const TimeRa
 
 void Node::LoadImmediate(QXmlStreamReader *reader, const QString& input, int element, XMLNodeData &xml_node_data, const QAtomicInt *cancelled)
 {
+  Q_UNUSED(xml_node_data)
+
   NodeValue::Type data_type = GetInputDataType(input);
 
   while (XMLReadNextStartElement(reader)) {
@@ -2278,11 +2313,14 @@ void NodeSetPositionAndShiftSurroundingsCommand::redo()
     foreach (Node* surrounding, node_->parent()->nodes()) {
       if (bounding_rect.contains(surrounding->GetPosition()) && surrounding != node_) {
         QPointF new_pos = surrounding->GetPosition();
-        if (surrounding->GetPosition().y() > position_.y()) {
-          new_pos.setY(new_pos.y() + 0.5);
-        } else {
-          new_pos.setY(new_pos.y() - 0.5);
+
+        qreal move_rate = 0.50;
+
+        if (surrounding->GetPosition().y() < position_.y()) {
+          move_rate = -move_rate;
         }
+
+        new_pos.setY(new_pos.y() + move_rate);
 
         auto sur_command = new NodeSetPositionAndShiftSurroundingsCommand(surrounding, new_pos, true);
         sur_command->redo();

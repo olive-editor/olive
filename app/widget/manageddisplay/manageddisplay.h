@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
 #include <QOpenGLContext>
 #include <QOpenGLWidget>
 
-#include "render/colormanager.h"
+#include "node/color/colormanager/colormanager.h"
 #include "render/renderer.h"
 #include "widget/menu/menu.h"
 
@@ -81,6 +81,11 @@ private slots:
   }
 
 };
+
+#define MANAGEDDISPLAYWIDGET_DEFAULT_DESTRUCTOR_INNER \
+  makeCurrent();OnDestroy();doneCurrent()
+#define MANAGEDDISPLAYWIDGET_DEFAULT_DESTRUCTOR(x) \
+  virtual ~x() override{MANAGEDDISPLAYWIDGET_DEFAULT_DESTRUCTOR_INNER;}
 
 class ManagedDisplayWidget : public QWidget
 {

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -32,18 +32,16 @@ class TimeSlider : public IntegerSlider
 public:
   TimeSlider(QWidget* parent = nullptr);
 
+public slots:
   void SetTimebase(const rational& timebase);
 
 protected:
-  virtual QString ValueToString(const QVariant& v) override;
+  virtual QString ValueToString(const QVariant& v) const override;
 
-  virtual QVariant StringToValue(const QString& s, bool* ok) override;
+  virtual QVariant StringToValue(const QString& s, bool* ok) const override;
 
 private:
   rational timebase_;
-
-private slots:
-  void TimecodeDisplayChanged();
 
 };
 

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -70,6 +70,11 @@ public:
     return to_item_;
   }
 
+  const QRectF arrow_bounding_rect() const
+  {
+    return arrow_bounding_rect_;
+  }
+
   void Adjust();
 
   /**
@@ -83,6 +88,11 @@ public:
    * be set when an edge is being created/dragged.
    */
   void SetConnected(bool c);
+
+  bool IsConnected() const
+  {
+    return connected_;
+  }
 
   /**
    * @brief Set highlighted state
@@ -135,6 +145,8 @@ private:
   QPolygonF arrow_;
 
   int arrow_size_;
+
+  QRectF arrow_bounding_rect_;
 
 };
 

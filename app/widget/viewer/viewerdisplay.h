@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,9 +24,9 @@
 #include <QOpenGLWidget>
 #include <QMatrix4x4>
 
+#include "node/color/colormanager/colormanager.h"
 #include "node/node.h"
 #include "render/color.h"
-#include "render/colormanager.h"
 #include "tool/tool.h"
 #include "viewersafemargininfo.h"
 #include "widget/manageddisplay/manageddisplay.h"
@@ -62,7 +62,7 @@ public:
    */
   ViewerDisplayWidget(QWidget* parent = nullptr);
 
-  virtual ~ViewerDisplayWidget() override;
+  MANAGEDDISPLAYWIDGET_DEFAULT_DESTRUCTOR(ViewerDisplayWidget)
 
   const ViewerSafeMarginInfo& GetSafeMargin() const;
   void SetSafeMargins(const ViewerSafeMarginInfo& safe_margin);
@@ -71,7 +71,11 @@ public:
   void SetVideoParams(const VideoParams &params);
   void SetTime(const rational& time);
 
-  FramePtr last_loaded_buffer() const;
+  void SetShowWidgetBackground(bool e)
+  {
+    show_widget_background_ = e;
+    update();
+  }
 
   /**
    * @brief Transform a point from viewer space to the buffer space.
@@ -91,14 +95,16 @@ public:
     return show_fps_;
   }
 
-  void IncrementSkippedFrames()
-  {
-    frames_skipped_++;
-  }
+  void IncrementSkippedFrames();
 
   void IncrementFrameCount()
   {
     fps_timer_update_count_++;
+  }
+
+  TexturePtr GetCurrentTexture() const
+  {
+    return texture_;
   }
 
 public slots:
@@ -114,6 +120,8 @@ public slots:
   */
   void SetMatrixZoom(const QMatrix4x4& mat);
 
+  void SetMatrixCrop(const QMatrix4x4& mat);
+
   /**
    * @brief Enables or disables whether this color at the cursor should be emitted
    *
@@ -123,13 +131,9 @@ public slots:
    */
   void SetSignalCursorColorEnabled(bool e);
 
-  /**
-   * @brief Overrides the image with the load buffer of another ViewerGLWidget
-   *
-   * If there are multiple ViewerGLWidgets showing the same thing, this is faster than decoding the image from file
-   * each time.
-   */
-  void SetImage(FramePtr in_buffer);
+  void SetImage(const QVariant &buffer);
+
+  void SetBlank();
 
   /**
    * @brief Changes the pointer type if the tool is changed to the hand tool. Otherwise resets the pointer to it's
@@ -170,6 +174,16 @@ signals:
    */
   void CursorColor(const Color& reference, const Color& display);
 
+  void DragEntered(QDragEnterEvent* event);
+
+  void DragLeft(QDragLeaveEvent* event);
+
+  void Dropped(QDropEvent* event);
+
+  void VisibilityChanged(bool visible);
+
+  void TextureChanged(TexturePtr texture);
+
 protected:
   /**
    * @brief Override the mouse press event for the DragStarted() signal and gizmos
@@ -185,6 +199,16 @@ protected:
    * @brief Override mouse release event for gizmos
    */
   virtual void mouseReleaseEvent(QMouseEvent* event) override;
+
+  virtual void dragEnterEvent(QDragEnterEvent* event) override;
+
+  virtual void dragLeaveEvent(QDragLeaveEvent* event) override;
+
+  virtual void dropEvent(QDropEvent* event) override;
+
+  virtual void showEvent(QShowEvent* event) override;
+
+  virtual void hideEvent(QHideEvent* event) override;
 
 protected slots:
   /**
@@ -229,6 +253,11 @@ private:
   QVariant deinterlace_shader_;
 
   /**
+   * @brief Blank shader
+   */
+  QVariant blank_shader_;
+
+  /**
    * @brief Translation only matrix (defaults to identity).
    */
   QMatrix4x4 translate_matrix_;
@@ -237,6 +266,11 @@ private:
    * @breif Scale only matrix.
    */
   QMatrix4x4 scale_matrix_;
+
+  /**
+   * @brief Crop only matrix
+   */
+  QMatrix4x4 crop_matrix_;
 
   /**
    * @brief Cached result of translate_matrix_ and scale_matrix_ multiplied
@@ -257,8 +291,6 @@ private:
 
   rational time_;
 
-  FramePtr last_loaded_buffer_;
-
   /**
    * @brief Position of mouse to calculate delta from.
    */
@@ -275,6 +307,26 @@ private:
 
   QVector<double> frame_rate_averages_;
   int frame_rate_average_count_;
+
+  bool show_widget_background_;
+
+  QVariant load_frame_;
+
+  enum PushMode {
+    /// New frame to push to internal texture
+    kPushFrame,
+
+    /// Internal texture reference is up to date, keep showing it
+    kPushUnnecessary,
+
+    /// Draw blank/black screen
+    kPushBlank,
+
+    /// Draw nothing (not even a black frame)
+    kPushNull,
+  };
+
+  PushMode push_mode_;
 
 private slots:
   void EmitColorAtCursor(QMouseEvent* e);

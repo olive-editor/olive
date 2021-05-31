@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@
 #include "core.h"
 #include "nodeviewundo.h"
 #include "node/factory.h"
+#include "node/traverser.h"
 #include "widget/menu/menushared.h"
 #include "widget/timebased/timebasedview.h"
 
@@ -298,11 +299,11 @@ void NodeView::Paste()
 
   QVector<Node*> pasted_nodes = PasteNodesFromClipboard(graph_, command);
 
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
-
   if (!pasted_nodes.isEmpty()) {
-    AttachNodesToCursor(pasted_nodes);
+    command->add_child(new NodeViewAttachNodesToCursor(this, pasted_nodes));
   }
+
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
 void NodeView::Duplicate()
@@ -321,9 +322,11 @@ void NodeView::Duplicate()
 
   QVector<Node*> duplicated_nodes = Node::CopyDependencyGraph(selected, command);
 
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
+  if (!duplicated_nodes.isEmpty()) {
+    command->add_child(new NodeViewAttachNodesToCursor(this, duplicated_nodes));
+  }
 
-  AttachNodesToCursor(duplicated_nodes);
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
 void NodeView::SetColorLabel(int index)
@@ -360,9 +363,20 @@ void NodeView::mousePressEvent(QMouseEvent *event)
 {
   if (HandPress(event)) return;
 
-  if (event->button() == Qt::RightButton) {
-    QGraphicsItem* item = itemAt(event->pos());
+  QGraphicsItem* item = itemAt(event->pos());
 
+  if (event->button() == Qt::LeftButton) {
+    NodeViewEdge* edge_item = dynamic_cast<NodeViewEdge*>(item);
+    if (edge_item && edge_item->arrow_bounding_rect().contains(mapToScene(event->pos()))) {
+      create_edge_src_ = scene_.NodeToUIObject(edge_item->output().node());
+      create_edge_src_output_ = edge_item->output().output();
+      create_edge_ = edge_item;
+      create_edge_already_exists_ = true;
+      return;
+    }
+  }
+
+  if (event->button() == Qt::RightButton) {
     if (!item || !item->isSelected()) {
       // Qt doesn't do this by default for some reason
       if (!(event->modifiers() & Qt::ShiftModifier)) {
@@ -377,11 +391,12 @@ void NodeView::mousePressEvent(QMouseEvent *event)
   }
 
   if (event->modifiers() & Qt::ControlModifier) {
-    NodeViewItem* item = dynamic_cast<NodeViewItem*>(itemAt(event->pos()));
-
-    if (item) {
+    NodeViewItem* node_item = dynamic_cast<NodeViewItem*>(item);
+    if (node_item) {
       create_edge_ = new NodeViewEdge();
-      create_edge_src_ = item;
+      create_edge_src_ = node_item;
+      create_edge_src_output_ = Node::kDefaultOutput;
+      create_edge_already_exists_ = false;
 
       create_edge_->SetCurved(scene_.GetEdgesAreCurved());
       create_edge_->SetFlowDirection(scene_.GetFlowDirection());
@@ -405,8 +420,13 @@ void NodeView::mouseMoveEvent(QMouseEvent *event)
     // Find if the cursor is currently inside an item
     NodeViewItem* item_at_cursor = dynamic_cast<NodeViewItem*>(itemAt(event->pos()));
 
-    // Filter out connecting to self1
+    // Filter out connecting to self
     if (item_at_cursor == create_edge_src_) {
+      item_at_cursor = nullptr;
+    }
+
+    // Filter out connecting to a node that connects to us
+    if (item_at_cursor && item_at_cursor->GetNode()->OutputsTo(create_edge_src_->GetNode(), true)) {
       item_at_cursor = nullptr;
     }
 
@@ -419,6 +439,7 @@ void NodeView::mouseMoveEvent(QMouseEvent *event)
         if (create_edge_dst_temp_expanded_) {
           // We expanded this item, so we can un-expand it
           create_edge_dst_->SetExpanded(false);
+          create_edge_dst_->setZValue(0);
         }
       }
 
@@ -429,6 +450,7 @@ void NodeView::mouseMoveEvent(QMouseEvent *event)
       if (create_edge_dst_) {
         if ((create_edge_dst_temp_expanded_ = (!create_edge_dst_->IsExpanded()))) {
           create_edge_dst_->SetExpanded(true, true);
+          create_edge_dst_->setZValue(100); // Ensure item is in front
         }
       }
     }
@@ -484,14 +506,27 @@ void NodeView::mouseMoveEvent(QMouseEvent *event)
         if (new_drop_edge) {
           drop_input_.Reset();
 
+          NodeValue::Type drop_edge_data_type = NodeValue::kNone;
+
+          // Run the Node and guess what type it's actually returning
+          NodeTraverser traverser;
+          NodeValueTable table = traverser.GenerateTable(new_drop_edge->output(), TimeRange(0, 0));
+          if (table.Count() > 0) {
+            drop_edge_data_type = table.at(table.Count() - 1).type();
+          }
+
+          // Iterate through the inputs of our dragging node and see if our node has any acceptable
+          // inputs to connect to for this type
           foreach (const QString& input, attached_node->inputs()) {
             NodeInput i(attached_node, input);
 
             if (attached_node->IsInputConnectable(input)) {
-              if (attached_node->GetInputDataType(input) == new_drop_edge->input().GetDataType()) {
+              if (attached_node->GetInputDataType(input) == drop_edge_data_type) {
+                // Found exactly the type we're looking for, set and break this loop
                 drop_input_ = i;
                 break;
               } else if (!drop_input_.IsValid()) {
+                // Default to first connectable input
                 drop_input_ = i;
               }
             }
@@ -525,7 +560,16 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
   if (HandRelease(event)) return;
 
   if (create_edge_) {
-    delete create_edge_;
+    MultiUndoCommand* command = new MultiUndoCommand();
+
+    if (create_edge_already_exists_) {
+      if (!create_edge_->IsConnected()) {
+        command->add_child(new NodeEdgeRemoveCommand(create_edge_->output(), create_edge_->input()));
+      }
+    } else {
+      delete create_edge_;
+    }
+
     create_edge_ = nullptr;
 
     if (create_edge_dst_) {
@@ -535,16 +579,19 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
       // Collapse if we expanded it
       if (create_edge_dst_temp_expanded_) {
         create_edge_dst_->SetExpanded(false);
+        create_edge_dst_->setZValue(0);
       }
 
       if (create_edge_dst_input_.IsValid()) {
         // Make connection
-        Core::instance()->undo_stack()->push(new NodeEdgeAddCommand(create_edge_src_->GetNode(), create_edge_dst_input_));
+        command->add_child(new NodeEdgeAddCommand(NodeOutput(create_edge_src_->GetNode(), create_edge_src_output_), create_edge_dst_input_));
         create_edge_dst_input_.Reset();
       }
 
       create_edge_dst_ = nullptr;
     }
+
+    Core::instance()->undo_stack()->pushIfHasChildren(command);
     return;
   }
 
@@ -573,24 +620,6 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
   }
 
   super::mouseReleaseEvent(event);
-}
-
-void NodeView::wheelEvent(QWheelEvent *event)
-{
-  if (TimeBasedView::WheelEventIsAZoomEvent(event)) {
-    qreal multiplier = 1.0 + (static_cast<qreal>(event->angleDelta().x() + event->angleDelta().y()) * 0.001);
-
-    QPointF cursor_pos;
-#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
-    cursor_pos = event->position();
-#else
-    cursor_pos = event->posF();
-#endif
-
-    ZoomIntoCursorPosition(multiplier, cursor_pos);
-  } else {
-    QWidget::wheelEvent(event);
-  }
 }
 
 void NodeView::UpdateSelectionCache()
@@ -666,12 +695,23 @@ void NodeView::ShowContextMenu(const QPoint &pos)
     QAction* autopos = m.addAction(tr("Auto-Position"));
     connect(autopos, &QAction::triggered, this, &NodeView::AutoPositionDescendents);
 
+    ViewerOutput* viewer = dynamic_cast<ViewerOutput*>(selected.first()->GetNode());
+    if (viewer) {
+      m.addSeparator();
+      QAction* open_in_viewer_action = m.addAction(tr("Open in Viewer"));
+      connect(open_in_viewer_action, &QAction::triggered, this, &NodeView::OpenSelectedNodeInViewer);
+    }
+
   } else {
 
     QAction* curved_action = m.addAction(tr("Smooth Edges"));
     curved_action->setCheckable(true);
     curved_action->setChecked(scene_.GetEdgesAreCurved());
     connect(curved_action, &QAction::triggered, &scene_, &NodeViewScene::SetEdgesAreCurved);
+
+    m.addSeparator();
+
+    AddSetScrollZoomsByDefaultActionToMenu(&m);
 
     m.addSeparator();
 
@@ -754,6 +794,16 @@ void NodeView::ContextMenuFilterChanged(QAction *action)
   Q_UNUSED(action)
 }
 
+void NodeView::OpenSelectedNodeInViewer()
+{
+  QVector<Node*> selected = scene_.GetSelectedNodes();
+  ViewerOutput* viewer = selected.isEmpty() ? nullptr : dynamic_cast<ViewerOutput*>(selected.first());
+
+  if (viewer) {
+    Core::instance()->OpenNodeInViewer(viewer);
+  }
+}
+
 void NodeView::AttachNodesToCursor(const QVector<Node *> &nodes)
 {
   QVector<NodeViewItem*> items(nodes.size());
@@ -774,8 +824,6 @@ void NodeView::AttachItemsToCursor(const QVector<NodeViewItem*>& items)
       attached_items_.append({i, i->pos() - items.first()->pos()});
     }
 
-    setMouseTracking(true);
-
     MoveAttachedNodesToCursor(mapFromGlobal(QCursor::pos()));
   }
 }
@@ -783,7 +831,6 @@ void NodeView::AttachItemsToCursor(const QVector<NodeViewItem*>& items)
 void NodeView::DetachItemsFromCursor()
 {
   attached_items_.clear();
-  setMouseTracking(false);
 }
 
 void NodeView::SetFlowDirection(NodeViewCommon::FlowDirection dir)
@@ -810,8 +857,10 @@ void NodeView::DisconnectSelectionChangedSignal()
   disconnect(&scene_, &QGraphicsScene::selectionChanged, this, &NodeView::UpdateSelectionCache);
 }
 
-void NodeView::ZoomIntoCursorPosition(double multiplier, const QPointF& cursor_pos)
+void NodeView::ZoomIntoCursorPosition(QWheelEvent *event, double multiplier, const QPointF& cursor_pos)
 {
+  Q_UNUSED(event)
+
   double test_scale = scale_ * multiplier;
 
   if (test_scale > kMinimumScale) {
@@ -836,7 +885,29 @@ void NodeView::ZoomFromKeyboard(double multiplier)
     cursor_pos = QPoint(width()/2, height()/2);
   }
 
-  ZoomIntoCursorPosition(multiplier, cursor_pos);
+  ZoomIntoCursorPosition(nullptr, multiplier, cursor_pos);
+}
+
+NodeView::NodeViewAttachNodesToCursor::NodeViewAttachNodesToCursor(NodeView *view, const QVector<Node *> &nodes) :
+  view_(view),
+  nodes_(nodes)
+{
+}
+
+void NodeView::NodeViewAttachNodesToCursor::redo()
+{
+  view_->AttachNodesToCursor(nodes_);
+}
+
+void NodeView::NodeViewAttachNodesToCursor::undo()
+{
+  view_->DetachItemsFromCursor();
+}
+
+Project *NodeView::NodeViewAttachNodesToCursor::GetRelevantProject() const
+{
+  // Will either return a project or a nullptr which is also acceptable
+  return dynamic_cast<Project*>(view_->graph_);
 }
 
 }

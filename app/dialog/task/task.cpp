@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,10 +24,13 @@
 
 namespace olive {
 
+#define super ProgressDialog
+
 TaskDialog::TaskDialog(Task* task, const QString& title, QWidget *parent) :
-  ProgressDialog(task->GetTitle(), title, parent),
+  super(task->GetTitle(), title, parent),
   task_(task),
-  destroy_on_close_(true)
+  destroy_on_close_(true),
+  already_shown_(false)
 {
   // Clear task when this dialog is destroyed
   task_->setParent(this);
@@ -42,17 +45,21 @@ TaskDialog::TaskDialog(Task* task, const QString& title, QWidget *parent) :
 
 void TaskDialog::showEvent(QShowEvent *e)
 {
-  ProgressDialog::showEvent(e);
+  super::showEvent(e);
 
-  // Create watcher for when the task finishes
-  QFutureWatcher<bool>* task_watcher = new QFutureWatcher<bool>();
+  if (!already_shown_) {
+    // Create watcher for when the task finishes
+    QFutureWatcher<bool>* task_watcher = new QFutureWatcher<bool>();
 
-  // Listen for when the task finishes
-  connect(task_watcher, &QFutureWatcher<bool>::finished,
-          this, &TaskDialog::TaskFinished, Qt::QueuedConnection);
+    // Listen for when the task finishes
+    connect(task_watcher, &QFutureWatcher<bool>::finished,
+            this, &TaskDialog::TaskFinished, Qt::QueuedConnection);
 
-  // Run task in another thread with QtConcurrent
-  task_watcher->setFuture(QtConcurrent::run(task_, &Task::Start));
+    // Run task in another thread with QtConcurrent
+    task_watcher->setFuture(QtConcurrent::run(task_, &Task::Start));
+
+    already_shown_ = true;
+  }
 }
 
 void TaskDialog::closeEvent(QCloseEvent *e)
@@ -61,7 +68,10 @@ void TaskDialog::closeEvent(QCloseEvent *e)
   task_->Cancel();
 
   // Standard close function
-  ProgressDialog::closeEvent(e);
+  super::closeEvent(e);
+
+  // Reset shown
+  already_shown_ = false;
 
   // Clean up this task and dialog
   if (destroy_on_close_) {

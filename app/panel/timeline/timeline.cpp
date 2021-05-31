@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -170,12 +170,12 @@ void TimelinePanel::SetColorLabel(int index)
   static_cast<TimelineWidget*>(GetTimeBasedWidget())->SetColorLabel(index);
 }
 
-void TimelinePanel::InsertFootageAtPlayhead(const QVector<Footage *> &footage)
+void TimelinePanel::InsertFootageAtPlayhead(const QVector<ViewerOutput *> &footage)
 {
   static_cast<TimelineWidget*>(GetTimeBasedWidget())->InsertFootageAtPlayhead(footage);
 }
 
-void TimelinePanel::OverwriteFootageAtPlayhead(const QVector<Footage *> &footage)
+void TimelinePanel::OverwriteFootageAtPlayhead(const QVector<ViewerOutput *> &footage)
 {
   static_cast<TimelineWidget*>(GetTimeBasedWidget())->OverwriteFootageAtPlayhead(footage);
 }

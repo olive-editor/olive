@@ -4,9 +4,7 @@ uniform vec4 color_in;
 
 uniform vec2 resolution_in;
 
-in vec2 ove_texcoord;
-
-out vec4 fragColor;
+varying vec2 ove_texcoord;
 
 /*
 int pnpoly(int npol, float *xp, float *yp, float x, float y) {
@@ -35,8 +33,8 @@ bool pnpoly(vec2 p) {
 
 void main(void) {
     if (points_in_count > 0 && pnpoly(ove_texcoord * resolution_in)) {
-        fragColor = color_in;
+        gl_FragColor = color_in;
     } else {
-        fragColor = vec4(0.0, 0.0, 0.0, 0.0);
+        gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
     }
 }

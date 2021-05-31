@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -50,7 +50,7 @@ public:
   static QString TypeToName(Type t);
 
 public slots:
-  void SetReferenceBuffer(Frame* frame);
+  void SetReferenceBuffer(TexturePtr frame);
 
   void SetColorManager(ColorManager* manager);
 

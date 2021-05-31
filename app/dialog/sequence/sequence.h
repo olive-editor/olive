@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
 #include <QDialog>
 #include <QSpinBox>
 
-#include "project/item/sequence/sequence.h"
+#include "node/project/sequence/sequence.h"
 #include "sequencedialogparametertab.h"
 #include "sequencedialogpresettab.h"
 #include "undo/undocommand.h"
@@ -129,6 +129,10 @@ private:
     AudioParams old_audio_params_;
     QString old_name_;
   };
+
+private slots:
+  void SetAsDefaultClicked();
+
 };
 
 }

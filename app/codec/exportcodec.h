@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@
 #include <QString>
 
 #include "common/define.h"
+#include "render/subtitleparams.h"
 
 namespace olive {
 
@@ -33,6 +34,7 @@ class ExportCodec : public QObject
   Q_OBJECT
 public:
   enum Codec {
+    // Video codecs
     kCodecDNxHD,
     kCodecH264,
     kCodecH265,
@@ -40,11 +42,19 @@ public:
     kCodecPNG,
     kCodecProRes,
     kCodecTIFF,
+    kCodecVP9,
 
+    // Audio codecs
     kCodecMP2,
     kCodecMP3,
     kCodecAAC,
     kCodecPCM,
+    kCodecOpus,
+    kCodecVorbis,
+    kCodecFLAC,
+
+    // Subtitle codecs
+    kCodecSRT,
 
     kCodecCount
   };
@@ -52,8 +62,6 @@ public:
   static QString GetCodecName(Codec c);
 
   static bool IsCodecAStillImage(Codec c);
-
-  static QStringList GetPixelFormatsForCodec(Codec c);
 
 };
 

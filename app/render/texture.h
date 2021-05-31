@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -45,6 +45,19 @@ public:
 
   static const Interpolation kDefaultInterpolation;
 
+  /**
+   * @brief Construct a dummy texture with no renderer backend
+   */
+  Texture(const VideoParams& param) :
+    renderer_(nullptr),
+    params_(param),
+    type_(k2D)
+  {
+  }
+
+  /**
+   * @brief Construct a real texture linked to a renderer backend
+   */
   Texture(Renderer* renderer, const QVariant& native, const VideoParams& param, Type type) :
     renderer_(renderer),
     params_(param),
@@ -66,6 +79,11 @@ public:
   }
 
   void Upload(void* data, int linesize);
+
+  bool IsDummy() const
+  {
+    return !renderer_;
+  }
 
   int width() const
   {
@@ -100,6 +118,11 @@ public:
   Type type() const
   {
     return type_;
+  }
+
+  Renderer* renderer() const
+  {
+    return renderer_;
   }
 
 private:

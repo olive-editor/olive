@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,21 +22,20 @@
 
 namespace olive {
 
+#define super Block
+
 const QString ClipBlock::kBufferIn = QStringLiteral("buffer_in");
 
-ClipBlock::ClipBlock()
+ClipBlock::ClipBlock(bool create_buffer_in)
 {
-  AddInput(kBufferIn, NodeValue::kNone, InputFlags(kInputFlagNotKeyframable));
+  if (create_buffer_in) {
+    AddInput(kBufferIn, NodeValue::kNone, InputFlags(kInputFlagNotKeyframable));
+  }
 }
 
 Node *ClipBlock::copy() const
 {
   return new ClipBlock();
-}
-
-Block::Type ClipBlock::type() const
-{
-  return kClip;
 }
 
 QString ClipBlock::Name() const
@@ -64,10 +63,10 @@ void ClipBlock::InvalidateCache(const TimeRange& range, const QString& from, int
     rational start = MediaToSequenceTime(range.in());
     rational end = MediaToSequenceTime(range.out());
 
-    Block::InvalidateCache(TimeRange(start, end), from, element, job_time);
+    super::InvalidateCache(TimeRange(start, end), from, element, job_time);
   } else {
     // Otherwise, pass signal along normally
-    Block::InvalidateCache(range, from, element, job_time);
+    super::InvalidateCache(range, from, element, job_time);
   }
 }
 
@@ -79,7 +78,7 @@ TimeRange ClipBlock::InputTimeAdjustment(const QString& input, int element, cons
     return TimeRange(SequenceToMediaTime(input_time.in()), SequenceToMediaTime(input_time.out()));
   }
 
-  return Block::InputTimeAdjustment(input, element, input_time);
+  return super::InputTimeAdjustment(input, element, input_time);
 }
 
 TimeRange ClipBlock::OutputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const
@@ -90,7 +89,7 @@ TimeRange ClipBlock::OutputTimeAdjustment(const QString& input, int element, con
     return TimeRange(MediaToSequenceTime(input_time.in()), MediaToSequenceTime(input_time.out()));
   }
 
-  return Block::OutputTimeAdjustment(input, element, input_time);
+  return super::OutputTimeAdjustment(input, element, input_time);
 }
 
 NodeValueTable ClipBlock::Value(const QString &output, NodeValueDatabase &value) const
@@ -109,17 +108,22 @@ NodeValueTable ClipBlock::Value(const QString &output, NodeValueDatabase &value)
 
 void ClipBlock::Retranslate()
 {
-  Block::Retranslate();
+  super::Retranslate();
 
-  SetInputName(kBufferIn, tr("Buffer"));
+  if (HasInputWithID(kBufferIn)) {
+    SetInputName(kBufferIn, tr("Buffer"));
+  }
 }
 
-void ClipBlock::Hash(const QString &output, QCryptographicHash &hash, const rational &time) const
+void ClipBlock::Hash(const QString &out, QCryptographicHash &hash, const rational &time, const VideoParams &video_params) const
 {
+  Q_UNUSED(out)
+
   if (IsInputConnected(kBufferIn)) {
     rational t = InputTimeAdjustment(kBufferIn, -1, TimeRange(time, time)).in();
 
-    GetConnectedNode(kBufferIn)->Hash(output, hash, t);
+    NodeOutput output = GetConnectedOutput(kBufferIn);
+    output.node()->Hash(output.output(), hash, t, video_params);
   }
 }
 

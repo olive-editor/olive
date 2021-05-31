@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -45,7 +45,7 @@ void TransitionTool::MousePress(TimelineViewMouseEvent *event)
   }
 
   Block* block_at_time = t->BlockAtTime(event->GetFrame());
-  if (!block_at_time || block_at_time->type() != Block::kClip) {
+  if (!dynamic_cast<ClipBlock*>(block_at_time)) {
     return;
   }
 
@@ -60,8 +60,7 @@ void TransitionTool::MousePress(TimelineViewMouseEvent *event)
     trim_mode = Timeline::kTrimIn;
 
     if (cursor_frame < tenth_point
-        && block_at_time->previous()
-        && block_at_time->previous()->type() == Block::kClip) {
+        && dynamic_cast<ClipBlock*>(block_at_time->previous())) {
       other_block = block_at_time->previous();
     }
   } else {
@@ -70,8 +69,7 @@ void TransitionTool::MousePress(TimelineViewMouseEvent *event)
     dual_transition_ = (cursor_frame > block_at_time->length() - tenth_point);
 
     if (cursor_frame > block_at_time->length() - tenth_point
-        && block_at_time->next()
-        && block_at_time->next()->type() == Block::kClip) {
+        && dynamic_cast<ClipBlock*>(block_at_time->next())) {
       other_block = block_at_time->next();
     }
   }

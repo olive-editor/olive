@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -73,6 +73,17 @@ ExportAudioTab::ExportAudioTab(QWidget* parent) :
   layout->addWidget(bit_rate_slider_, row, 1);
 
   outer_layout->addStretch();
+}
+
+int ExportAudioTab::SetFormat(ExportFormat::Format format)
+{
+  QList<ExportCodec::Codec> acodecs = ExportFormat::GetAudioCodecs(format);
+  setEnabled(!acodecs.isEmpty());
+  codec_combobox()->clear();
+  foreach (ExportCodec::Codec acodec, acodecs) {
+    codec_combobox()->addItem(ExportCodec::GetCodecName(acodec), acodec);
+  }
+  return acodecs.size();
 }
 
 }

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -31,13 +31,15 @@
 #include "common/flipmodifiers.h"
 #include "common/qtutils.h"
 #include "common/timecodefunctions.h"
-#include "project/item/footage/footage.h"
+#include "node/project/footage/footage.h"
 #include "ui/colorcoding.h"
 
 namespace olive {
 
+#define super TimeBasedView
+
 TimelineView::TimelineView(Qt::Alignment vertical_alignment, QWidget *parent) :
-  TimeBasedView(parent),
+  super(parent),
   selections_(nullptr),
   ghosts_(nullptr),
   show_beam_cursor_(false),
@@ -58,14 +60,14 @@ void TimelineView::mousePressEvent(QMouseEvent *event)
   TimelineViewMouseEvent timeline_event = CreateMouseEvent(event);
 
   if (HandPress(event)
-      || (!GetItemAtScenePos(timeline_event.GetFrame(), timeline_event.GetTrack().index()) && PlayheadPress(event))) {
+      || (!GetItemAtScenePos(timeline_event.GetFrame(), timeline_event.GetTrack().index()) && Core::instance()->tool() != Tool::kAdd && PlayheadPress(event))) {
     // Let the parent handle this
     return;
   }
 
   if (dragMode() != GetDefaultDragMode()) {
     // Use default behavior when hand dragging for instance
-    TimeBasedView::mousePressEvent(event);
+    super::mousePressEvent(event);
     return;
   }
 
@@ -82,7 +84,7 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event)
   }
 
   if (dragMode() != GetDefaultDragMode()) {
-    TimeBasedView::mouseMoveEvent(event);
+    super::mouseMoveEvent(event);
     return;
   }
 
@@ -97,7 +99,7 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event)
   }
 
   if (dragMode() != GetDefaultDragMode()) {
-    TimeBasedView::mouseReleaseEvent(event);
+    super::mouseReleaseEvent(event);
     return;
   }
 
@@ -115,14 +117,14 @@ void TimelineView::mouseDoubleClickEvent(QMouseEvent *event)
 
 void TimelineView::wheelEvent(QWheelEvent *event)
 {
-  if (HandleZoomFromScroll(event)) {
-    return;
+  if (WheelEventIsAZoomEvent(event)) {
+    super::wheelEvent(event);
   } else {
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
 
     QPoint angle_delta = event->angleDelta();
 
-    if (Config::Current()["InvertTimelineScrollAxes"].toBool() // Check if config is set to invert timeline axes
+    if (Config::Current()[QStringLiteral("InvertTimelineScrollAxes")].toBool() // Check if config is set to invert timeline axes
         && event->source() != Qt::MouseEventSynthesizedBySystem) { // Never flip axes on Apple trackpads though
       angle_delta = QPoint(angle_delta.y(), angle_delta.x());
     }
@@ -164,7 +166,7 @@ void TimelineView::wheelEvent(QWheelEvent *event)
           );
 #endif
 
-    QGraphicsView::wheelEvent(&e);
+    super::wheelEvent(&e);
   }
 }
 
@@ -296,7 +298,7 @@ void TimelineView::drawForeground(QPainter *painter, const QRectF &rect)
   }
 
   // Draw standard TimelineViewBase things (such as playhead)
-  TimeBasedView::drawForeground(painter, rect);
+  super::drawForeground(painter, rect);
 }
 
 void TimelineView::ToolChangedEvent(Tool::Item tool)
@@ -344,23 +346,6 @@ Track::Type TimelineView::ConnectedTrackType()
   return Track::kNone;
 }
 
-Stream::Type TimelineView::TrackTypeToStreamType(Track::Type track_type)
-{
-  switch (track_type) {
-  case Track::kNone:
-  case Track::kCount:
-    break;
-  case Track::kVideo:
-    return Stream::kVideo;
-  case Track::kAudio:
-    return Stream::kAudio;
-  case Track::kSubtitle:
-    return Stream::kSubtitle;
-  }
-
-  return Stream::kUnknown;
-}
-
 TimelineCoordinate TimelineView::ScreenToCoordinate(const QPoint& pt)
 {
   return SceneToCoordinate(mapToScene(pt));
@@ -401,7 +386,7 @@ void TimelineView::DrawBlocks(QPainter *painter, bool foreground)
     Block* block = track->NearestBlockBeforeOrAt(start_time);
 
     while (block) {
-      if (block->type() == Block::kClip || block->type() == Block::kTransition) {
+      if (dynamic_cast<ClipBlock*>(block) || dynamic_cast<TransitionBlock*>(block)) {
 
         qreal block_left = qMax(left_bound, TimeToScene(block->in()));
         qreal block_right = qMin(right_bound, TimeToScene(block->out())) - 1;
@@ -423,13 +408,15 @@ void TimelineView::DrawBlocks(QPainter *painter, bool foreground)
         if (foreground) {
           painter->setBrush(Qt::NoBrush);
 
+          QString using_label = block->GetLabel().isEmpty() ? block->Name() : block->GetLabel();
+
           QRectF text_rect = r.adjusted(text_padding, text_padding, -text_padding, -text_padding);
           painter->setPen(block->is_enabled() ? ColorCoding::GetUISelectorColor(block->color()) : Qt::lightGray);
-          painter->drawText(text_rect, Qt::AlignLeft | Qt::AlignTop, block->GetLabel());
+          painter->drawText(text_rect, Qt::AlignLeft | Qt::AlignTop, using_label);
 
           if (block->HasLinks()) {
             int text_width = qMin(qRound(text_rect.width()),
-                                  QtUtils::QFontMetricsWidth(fm, block->GetLabel()));
+                                  QtUtils::QFontMetricsWidth(fm, using_label));
 
             int underline_y = text_rect.y() + text_height;
 
@@ -455,6 +442,23 @@ void TimelineView::DrawBlocks(QPainter *painter, bool foreground)
             QRect waveform_rect = r.adjusted(0, text_total_height, 0, 0).toRect();
             painter->setPen(shadow_color);
             AudioVisualWaveform::DrawWaveform(painter, waveform_rect, this->GetScale(), track->waveform(), SceneToTime(block_left));
+          }
+
+          // For transitions, show lines representing a transition
+          TransitionBlock* transition = dynamic_cast<TransitionBlock*>(block);
+          if (transition) {
+            QVector<QLineF> lines;
+
+            if (transition->connected_in_block()) {
+              lines.append(QLineF(r.bottomLeft(), r.topRight()));
+            }
+
+            if (transition->connected_out_block()) {
+              lines.append(QLineF(r.topLeft(), r.bottomRight()));
+            }
+
+            painter->setPen(shadow_color);
+            painter->drawLines(lines);
           }
         }
 
@@ -531,7 +535,15 @@ void TimelineView::SetScrollCoordinates(const QPoint &pt)
 
 void TimelineView::ConnectTrackList(TrackList *list)
 {
+  if (connected_track_list_) {
+    disconnect(connected_track_list_, &TrackList::TrackListChanged, this, &TimelineView::TrackListChanged);
+  }
+
   connected_track_list_ = list;
+
+  if (connected_track_list_) {
+    connect(connected_track_list_, &TrackList::TrackListChanged, this, &TimelineView::TrackListChanged);
+  }
 }
 
 void TimelineView::SetBeamCursor(const TimelineCoordinate &coord)
@@ -585,6 +597,12 @@ void TimelineView::UserSetTime(const int64_t &time)
 {
   SetTime(time);
   emit TimeChanged(time);
+}
+
+void TimelineView::TrackListChanged()
+{
+  UpdateSceneRect();
+  viewport()->update();
 }
 
 }

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -112,7 +112,8 @@ VideoParams::VideoParams(int width, int height, const rational &time_base, Forma
   channel_count_(nb_channels),
   pixel_aspect_ratio_(pixel_aspect_ratio),
   interlacing_(interlacing),
-  divider_(divider)
+  divider_(divider),
+  frame_rate_(time_base.flipped())
 {
   calculate_effective_size();
   validate_pixel_aspect_ratio();
@@ -159,10 +160,12 @@ bool VideoParams::operator==(const VideoParams &rhs) const
 {
   return width() == rhs.width()
       && height() == rhs.height()
+      && depth() == rhs.depth()
       && time_base() == rhs.time_base()
       && format() == rhs.format()
       && pixel_aspect_ratio() == rhs.pixel_aspect_ratio()
-      && divider() == rhs.divider();
+      && divider() == rhs.divider()
+      && channel_count() == rhs.channel_count();
 }
 
 bool VideoParams::operator!=(const VideoParams &rhs) const
@@ -233,6 +236,7 @@ void VideoParams::calculate_effective_size()
   effective_width_ = GetScaledDimension(width(), divider_);
   effective_height_ = GetScaledDimension(height(), divider_);
   effective_depth_ = GetScaledDimension(depth(), divider_);
+  calculate_square_pixel_width();
 }
 
 void VideoParams::validate_pixel_aspect_ratio()
@@ -240,6 +244,7 @@ void VideoParams::validate_pixel_aspect_ratio()
   if (pixel_aspect_ratio_.isNull()) {
     pixel_aspect_ratio_ = 1;
   }
+  calculate_square_pixel_width();
 }
 
 void VideoParams::set_defaults_for_footage()
@@ -250,6 +255,15 @@ void VideoParams::set_defaults_for_footage()
   start_time_ = 0;
   duration_ = 0;
   premultiplied_alpha_ = false;
+}
+
+void VideoParams::calculate_square_pixel_width()
+{
+  if (pixel_aspect_ratio_.denominator() != 0) {
+    par_width_ = width_ * pixel_aspect_ratio_.numerator() / pixel_aspect_ratio_.denominator();
+  } else {
+    par_width_ = width_;
+  }
 }
 
 bool VideoParams::is_valid() const

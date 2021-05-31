@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@
 #include <QMainWindow>
 
 #include "mainwindowlayoutinfo.h"
+#include "node/project/project.h"
 #include "panel/panelmanager.h"
 #include "panel/audiomonitor/audiomonitor.h"
 #include "panel/curve/curve.h"
@@ -38,7 +39,6 @@
 #include "panel/footageviewer/footageviewer.h"
 #include "panel/sequenceviewer/sequenceviewer.h"
 #include "panel/pixelsampler/pixelsamplerpanel.h"
-#include "project/project.h"
 
 #ifdef Q_OS_WINDOWS
 #include <shobjidl.h>
@@ -70,6 +70,8 @@ public:
   void FolderOpen(Project* p, Folder *i, bool floating);
 
   ScopePanel* AppendScopePanel();
+
+  void OpenNodeInViewer(ViewerOutput* node);
 
   enum ProgressStatus {
     kProgressNone,
@@ -130,7 +132,15 @@ private:
 
   void RemoveProjectPanel(ProjectPanel* panel);
 
-  void TimelineFocused(Sequence *viewer);
+  void TimelineFocused(ViewerOutput *viewer);
+
+  static QString GetCustomShortcutsFile();
+
+  void LoadCustomShortcuts();
+
+  void SaveCustomShortcuts();
+
+  void UpdateAudioMonitorParams(ViewerOutput* viewer);
 
   QByteArray premaximized_state_;
 
@@ -149,6 +159,7 @@ private:
   PixelSamplerPanel* pixel_sampler_panel_;
   QList<ScopePanel*> scope_panels_;
   NodeTablePanel* table_panel_;
+  QMap<ViewerOutput*, ViewerPanel*> viewer_panels_;
 
 #ifdef Q_OS_WINDOWS
   unsigned int taskbar_btn_id_;
@@ -156,9 +167,7 @@ private:
   ITaskbarList3* taskbar_interface_;
 #endif
 
-#ifdef Q_OS_LINUX
-  bool checked_graphics_vendor_;
-#endif
+  bool first_show_;
 
 private slots:
   void FocusedPanelChanged(PanelWidget* panel);
@@ -168,6 +177,10 @@ private slots:
   void TimelineCloseRequested();
 
   void ProjectCloseRequested();
+
+  void ViewerCloseRequested();
+
+  void ViewerWithPanelRemovedFromGraph();
 
   void FloatingPanelCloseRequested();
 

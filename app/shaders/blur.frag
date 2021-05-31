@@ -8,9 +8,7 @@ uniform vec2 resolution_in;
 
 uniform int ove_iteration;
 
-in vec2 ove_texcoord;
-
-out vec4 fragColor;
+varying vec2 ove_texcoord;
 
 // Gaussian function uses PI
 #define M_PI 3.1415926535897932384626433832795
@@ -65,7 +63,7 @@ void main(void) {
     int mode = determine_mode();
 
     if (mode == MODE_NONE) {
-        fragColor = texture(tex_in, ove_texcoord);
+        gl_FragColor = texture2D(tex_in, ove_texcoord);
         return;
     }
 
@@ -117,9 +115,9 @@ void main(void) {
                 && pixel_coord.x < 1.0
                 && pixel_coord.y >= 0.0
                 && pixel_coord.y < 1.0)) {
-            composite += texture(tex_in, pixel_coord) * weight;
+            composite += texture2D(tex_in, pixel_coord) * weight;
         }
     }
 
-    fragColor = composite;
+    gl_FragColor = composite;
 }

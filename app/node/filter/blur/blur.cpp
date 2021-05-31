@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -118,7 +118,7 @@ NodeValueTable BlurFilterNode::Value(const QString &output, NodeValueDatabase &v
 
       // If we're not repeating pixels, expect an alpha channel to appear
       if (!job.GetValue(kRepeatEdgePixelsInput).data().toBool()) {
-        job.SetAlphaChannelRequired(true);
+        job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
       }
 
       table.Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);

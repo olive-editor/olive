@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@
 #include <QCheckBox>
 
 #include "codecsection.h"
+#include "widget/slider/timeslider.h"
 
 namespace olive {
 
@@ -33,10 +34,33 @@ class ImageSection : public CodecSection
 public:
   ImageSection(QWidget* parent = nullptr);
 
-  QCheckBox* image_sequence_checkbox() const;
+  bool IsImageSequenceChecked() const
+  {
+    return image_sequence_checkbox_->isChecked();
+  }
+
+  void SetTimebase(const rational& r)
+  {
+    frame_slider_->SetTimebase(r);
+  }
+
+  int64_t GetTimestamp() const
+  {
+    return frame_slider_->GetValue();
+  }
+
+  void SetTimestamp(int64_t t)
+  {
+    frame_slider_->SetValue(t);
+  }
 
 private:
   QCheckBox* image_sequence_checkbox_;
+
+  TimeSlider* frame_slider_;
+
+private slots:
+  void ImageSequenceCheckBoxToggled(bool e);
 
 };
 

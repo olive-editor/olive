@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -101,9 +101,10 @@ void ViewerSizer::UpdateSize()
     return;
   }
 
-  // If the aspect ratio is 0, the widget is always hidden
+  // If the aspect ratio is 0, default to taking all space
   if (!width_ || !height_) {
-    widget_->setVisible(false);
+    widget_->move(0, 0);
+    widget_->resize(width(), height());
     return;
   }
 
@@ -142,7 +143,6 @@ void ViewerSizer::UpdateSize()
   }
 
   // Size widget to the UI space we've calculated
-  widget_->setVisible(true);
   widget_->resize(available_width, available_height);
 
   // Adjust to aspect ratio

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -95,7 +95,7 @@ NodeValueTable PolygonGenerator::Value(const QString &output, NodeValueDatabase 
   job.InsertValue(this, kPointsInput, value);
   job.InsertValue(this, kColorInput, value);
   job.InsertValue(QStringLiteral("resolution_in"), value[QStringLiteral("global")].GetWithMeta(NodeValue::kVec2, QStringLiteral("resolution")));
-  job.SetAlphaChannelRequired(true);
+  job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
 
   NodeValueTable table = value.Merge();
   table.Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);

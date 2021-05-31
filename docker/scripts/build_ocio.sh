@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Copyright (C) 2020 Olive Team
+# Copyright (C) 2021 Olive Team
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 set -ex
@@ -7,7 +7,7 @@ set -ex
 mkdir ocio
 cd ocio
 
-git clone --depth 1 https://github.com/AcademySoftwareFoundation/OpenColorIO.git
+git clone --depth 1 --branch "${OCIO_VERSION}" https://github.com/AcademySoftwareFoundation/OpenColorIO.git
 cd OpenColorIO
 
 mkdir build

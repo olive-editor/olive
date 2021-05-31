@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -39,7 +39,8 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
   bar_->setVisible(false);
 
   showMessage(tr("Welcome to %1 %2").arg(QCoreApplication::applicationName(),
-                                         QCoreApplication::applicationVersion()));
+                                         QCoreApplication::applicationVersion()),
+              10000);
 }
 
 void MainStatusBar::ConnectTaskManager(TaskManager *manager)
@@ -71,7 +72,7 @@ void MainStatusBar::UpdateStatus()
     if (manager_->GetTaskCount() == 1) {
       showMessage(t->GetTitle());
     } else {
-      showMessage(tr("Running %1 background task(s)").arg(manager_->GetTaskCount()));
+      showMessage(tr("Running %n background task(s)", nullptr, manager_->GetTaskCount()));
     }
 
     bar_->setVisible(true);

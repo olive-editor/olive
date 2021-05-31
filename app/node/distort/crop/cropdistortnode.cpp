@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -68,7 +68,7 @@ NodeValueTable CropDistortNode::Value(const QString &output, NodeValueDatabase &
   job.InsertValue(this, kFeatherInput, value);
   job.InsertValue(QStringLiteral("resolution_in"),
                   NodeValue(NodeValue::kVec2, value[QStringLiteral("global")].Get(NodeValue::kVec2, QStringLiteral("resolution")), this));
-  job.SetAlphaChannelRequired(true);
+  job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
 
   NodeValueTable table = value.Merge();
 

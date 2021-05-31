@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,8 +27,8 @@
 
 #include "common/qtutils.h"
 #include "core.h"
+#include "node/project/sequence/sequence.h"
 #include "nodeparamviewundo.h"
-#include "project/item/sequence/sequence.h"
 
 namespace olive {
 
@@ -36,8 +36,13 @@ const int NodeParamViewItemBody::kKeyControlColumn = 10;
 const int NodeParamViewItemBody::kArrayInsertColumn = kKeyControlColumn-1;
 const int NodeParamViewItemBody::kArrayRemoveColumn = kArrayInsertColumn-1;
 
+// 0 is for the array collapse button, 1 is for the main label, widgets start at 2
+const int NodeParamViewItemBody::kWidgetStartColumn = 2;
+
+#define super QDockWidget
+
 NodeParamViewItem::NodeParamViewItem(Node *node, QWidget *parent) :
-  QDockWidget(parent),
+  super(parent),
   node_(node),
   highlighted_(false)
 {
@@ -81,6 +86,11 @@ void NodeParamViewItem::SetTime(const rational &time)
   body_->SetTime(time_);
 }
 
+void NodeParamViewItem::SetTimebase(const rational& timebase)
+{
+    body_->SetTimebase(timebase);
+}
+
 Node *NodeParamViewItem::GetNode() const
 {
   return node_;
@@ -92,12 +102,12 @@ void NodeParamViewItem::changeEvent(QEvent *e)
     Retranslate();
   }
 
-  QWidget::changeEvent(e);
+  super::changeEvent(e);
 }
 
 void NodeParamViewItem::paintEvent(QPaintEvent *event)
 {
-  QDockWidget::paintEvent(event);
+  super::paintEvent(event);
 
   // Draw border if focused
   if (highlighted_) {
@@ -106,6 +116,13 @@ void NodeParamViewItem::paintEvent(QPaintEvent *event)
     p.setPen(palette().highlight().color());
     p.drawRect(rect().adjusted(0, 0, -1, -1));
   }
+}
+
+void NodeParamViewItem::moveEvent(QMoveEvent *event)
+{
+  super::moveEvent(event);
+
+  emit Moved();
 }
 
 void NodeParamViewItem::Retranslate()
@@ -252,6 +269,10 @@ void NodeParamViewItemBody::CreateWidgets(QGridLayout* layout, Node *node, const
 
   InputUI ui_objects;
 
+  // Store layout and row
+  ui_objects.layout = layout;
+  ui_objects.row = row;
+
   // Add descriptor label
   ui_objects.main_label = new QLabel();
 
@@ -294,23 +315,24 @@ void NodeParamViewItemBody::CreateWidgets(QGridLayout* layout, Node *node, const
 
   // Create a widget/input bridge for this input
   ui_objects.widget_bridge = new NodeParamViewWidgetBridge(NodeInput(node, input, element), this);
+  connect(ui_objects.widget_bridge, &NodeParamViewWidgetBridge::WidgetsRecreated, this, &NodeParamViewItemBody::ReplaceWidgets);
   connect(ui_objects.widget_bridge, &NodeParamViewWidgetBridge::ArrayWidgetDoubleClicked, this, &NodeParamViewItemBody::ToggleArrayExpanded);
 
-  // 0 is for the array collapse button, 1 is for the main label, widgets start at 2
-  const int widget_start = 2;
+  // Place widgets into layout
+  PlaceWidgetsFromBridge(layout, ui_objects.widget_bridge, row);
 
   // Add widgets for this parameter to the layout
   for (int i=0; i<ui_objects.widget_bridge->widgets().size(); i++) {
     QWidget* w = ui_objects.widget_bridge->widgets().at(i);
 
-    layout->addWidget(w, row, i+widget_start);
+    layout->addWidget(w, row, i+kWidgetStartColumn);
   }
 
   if (node->IsInputConnectable(input)) {
     // Create clickable label used when an input is connected
     ui_objects.connected_label = new NodeParamViewConnectedLabel(input_ref);
     connect(ui_objects.connected_label, &NodeParamViewConnectedLabel::RequestSelectNode, this, &NodeParamViewItemBody::RequestSelectNode);
-    layout->addWidget(ui_objects.connected_label, row, widget_start);
+    layout->addWidget(ui_objects.connected_label, row, kWidgetStartColumn);
   }
 
   // Add keyframe control to this layout if parameter is keyframable
@@ -359,7 +381,7 @@ void NodeParamViewItemBody::Retranslate()
 
     if (ic.IsArray() && ic.element() >= 0) {
       // Make the label the array index
-      i.value().main_label->setText(tr("%n:", nullptr, ic.element()));
+      i.value().main_label->setText(tr("%1:").arg(ic.element()));
     } else {
       // Set to the input's name
       i.value().main_label->setText(tr("%1:").arg(ic.name()));
@@ -409,6 +431,16 @@ void NodeParamViewItemBody::UpdateUIForEdgeConnection(const NodeInput& input)
   }
 }
 
+void NodeParamViewItemBody::PlaceWidgetsFromBridge(QGridLayout* layout, NodeParamViewWidgetBridge *bridge, int row)
+{
+  // Add widgets for this parameter to the layout
+  for (int i=0; i<bridge->widgets().size(); i++) {
+    QWidget* w = bridge->widgets().at(i);
+
+    layout->addWidget(w, row, i+kWidgetStartColumn);
+  }
+}
+
 void NodeParamViewItemBody::ArrayCollapseBtnPressed(bool checked)
 {
   const NodeInputPair& input = array_collapse_buttons_.key(static_cast<CollapseButton*>(sender()));
@@ -418,8 +450,10 @@ void NodeParamViewItemBody::ArrayCollapseBtnPressed(bool checked)
   emit ArrayExpandedChanged(checked);
 }
 
-void NodeParamViewItemBody::InputArraySizeChanged(const QString& input, int size)
+void NodeParamViewItemBody::InputArraySizeChanged(const QString& input, int old_sz, int size)
 {
+  Q_UNUSED(old_sz)
+
   Node* node = static_cast<Node*>(sender());
 
   ArrayUI& array_ui = array_ui_[{node, input}];
@@ -501,6 +535,19 @@ void NodeParamViewItemBody::ToggleArrayExpanded()
       return;
     }
   }
+}
+
+void NodeParamViewItemBody::SetTimebase(const rational& timebase) 
+{
+  foreach (const InputUI& ui_obj, input_ui_map_) {
+      ui_obj.widget_bridge->SetTimebase(timebase);
+  }
+}
+
+void NodeParamViewItemBody::ReplaceWidgets(const NodeInput &input)
+{
+  InputUI ui = input_ui_map_.value(input);
+  PlaceWidgetsFromBridge(ui.layout, ui.widget_bridge, ui.row);
 }
 
 NodeParamViewItemBody::InputUI::InputUI() :

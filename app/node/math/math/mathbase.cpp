@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -324,7 +324,7 @@ NodeValueTable MathNodeBase::ValueInternal(NodeValueDatabase &value, Operation o
                         NodeValue(NodeValue::kMatrix, adjusted_matrix, this));
 
         // It's likely an alpha channel will result from this operation
-        job.SetAlphaChannelRequired(true);
+        job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
       }
     }
 

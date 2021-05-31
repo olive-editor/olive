@@ -1,5 +1,5 @@
 # Olive - Non-Linear Video Editor
-# Copyright (C) 2020 Olive Team
+# Copyright (C) 2021 Olive Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,12 +22,14 @@ set(OLIVE_SOURCES
   widget/nodeparamview/nodeparamviewarraywidget.cpp
   widget/nodeparamview/nodeparamviewconnectedlabel.h
   widget/nodeparamview/nodeparamviewconnectedlabel.cpp
+  widget/nodeparamview/nodeparamviewdockarea.h
+  widget/nodeparamview/nodeparamviewdockarea.cpp
   widget/nodeparamview/nodeparamviewitem.h
   widget/nodeparamview/nodeparamviewitem.cpp
   widget/nodeparamview/nodeparamviewkeyframecontrol.h
   widget/nodeparamview/nodeparamviewkeyframecontrol.cpp
-  widget/nodeparamview/nodeparamviewrichtext.h
-  widget/nodeparamview/nodeparamviewrichtext.cpp
+  widget/nodeparamview/nodeparamviewtextedit.h
+  widget/nodeparamview/nodeparamviewtextedit.cpp
   widget/nodeparamview/nodeparamviewundo.h
   widget/nodeparamview/nodeparamviewundo.cpp
   widget/nodeparamview/nodeparamviewwidgetbridge.h

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 
 #include "node/graph.h"
 #include "node/node.h"
-#include "project/project.h"
+#include "node/project/project.h"
 #include "undo/undocommand.h"
 
 namespace olive {
@@ -75,6 +75,8 @@ private:
 class NodeAddCommand : public UndoCommand {
 public:
   NodeAddCommand(NodeGraph* graph, Node* node);
+
+  void PushToThread(QThread* thread);
 
   virtual Project* GetRelevantProject() const override;
 

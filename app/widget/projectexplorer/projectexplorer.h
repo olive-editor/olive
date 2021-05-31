@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,8 +26,8 @@
 #include <QTimer>
 #include <QTreeView>
 
-#include "project/project.h"
-#include "project/projectviewmodel.h"
+#include "node/project/project.h"
+#include "node/project/projectviewmodel.h"
 #include "widget/projectexplorer/projectexplorericonview.h"
 #include "widget/projectexplorer/projectexplorerlistview.h"
 #include "widget/projectexplorer/projectexplorertreeview.h"
@@ -55,8 +55,7 @@ public:
   Project* project() const;
   void set_project(Project* p);
 
-  QModelIndex get_root_index() const;
-
+  Folder *get_root() const;
   void set_root(Folder *item);
 
   QVector<Node *> SelectedItems() const;

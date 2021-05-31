@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -221,6 +221,10 @@ bool ProjectExplorer::DeleteItemsInternal(const QVector<Node*>& selected, bool& 
       Sequence* sequence = dynamic_cast<Sequence*>(node);
       if (sequence && Core::instance()->main_window()->IsSequenceOpen(sequence)) {
         command->add_child(new CloseSequenceCommand(sequence));
+      }
+
+      if (node->folder()) {
+        command->add_child(new Folder::RemoveElementCommand(node->folder(), node));
       }
 
       command->add_child(new NodeRemoveWithExclusiveDependenciesAndDisconnect(node));
@@ -488,15 +492,19 @@ void ProjectExplorer::ContextMenuStartProxy(QAction *a)
   Sequence* sequence = Node::ValueToPtr<Sequence>(a->data());
 
   // To get here, the `context_menu_items_` must be all kFootage
-  foreach (Node* i, context_menu_items_) {
-    Footage* f = static_cast<Footage*>(i);
+  foreach (Node* item, context_menu_items_) {
+    Footage* f = static_cast<Footage*>(item);
 
-    QVector<VideoParams> enabled_streams = f->GetEnabledVideoStreams();
+    int sz = f->InputArraySize(Footage::kVideoParamsInput);
 
-    foreach (const VideoParams& stream, enabled_streams) {
-      // Start a background task for proxying
-      PreCacheTask* proxy_task = new PreCacheTask(f, stream.stream_index(), sequence);
-      TaskManager::instance()->AddTask(proxy_task);
+    for (int j=0; j<sz; j++) {
+      VideoParams vp = f->GetVideoParams(j);
+
+      if (vp.enabled()) {
+        // Start a background task for proxying
+        PreCacheTask* proxy_task = new PreCacheTask(f, j, sequence);
+        TaskManager::instance()->AddTask(proxy_task);
+      }
     }
   }
 }
@@ -511,9 +519,15 @@ void ProjectExplorer::set_project(Project *p)
   model_.set_project(p);
 }
 
-QModelIndex ProjectExplorer::get_root_index() const
+Folder *ProjectExplorer::get_root() const
 {
-  return tree_view_->rootIndex();
+  QModelIndex root_index = sort_model_.mapToSource(tree_view_->rootIndex());
+
+  if (!root_index.isValid()) {
+    return project()->root();
+  }
+
+  return static_cast<Folder *>(root_index.internalPointer());
 }
 
 void ProjectExplorer::set_root(Folder *item)

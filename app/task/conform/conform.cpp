@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,42 +20,33 @@
 
 #include "conform.h"
 
-#include "codec/decoder.h"
-
 namespace olive {
 
-ConformTask::ConformTask(Footage* footage, int index, const AudioParams& params) :
-  footage_(footage),
-  index_(index),
-  params_(params)
+ConformTask::ConformTask(const QString &decoder_id, const Decoder::CodecStream &stream, const AudioParams& params, const QString &output_filename) :
+  decoder_id_(decoder_id),
+  stream_(stream),
+  params_(params),
+  output_filename_(output_filename)
 {
-  SetTitle(tr("Conforming Audio %1:%2").arg(footage_->filename(), QString::number(index_)));
+  SetTitle(tr("Conforming Audio %1:%2").arg(stream.filename(), QString::number(stream.stream())));
 }
 
 bool ConformTask::Run()
 {
-  // Conforming is done by the renderer now, but I would like to use something like this just to
-  // show progress
+  DecoderPtr decoder = Decoder::CreateFromID(decoder_id_);
 
-  /*if (stream_->footage()->decoder().isEmpty()) {
-    SetError(tr("Failed to find decoder to conform audio stream"));
+  if (!decoder->Open(stream_)) {
+    SetError(tr("Failed to open decoder for audio conform"));
     return false;
-  } else {
-    DecoderPtr decoder = Decoder::CreateFromID(stream_->footage()->decoder());
+  }
 
-    decoder->set_stream(stream_);
+  connect(decoder.get(), &Decoder::IndexProgress, this, &ConformTask::ProgressChanged);
 
-    connect(decoder.get(), &Decoder::IndexProgress, this, &ConformTask::ProgressChanged);
+  bool ret = decoder->ConformAudio(output_filename_, params_, &IsCancelled());
 
-    if (!decoder->ConformAudio(&IsCancelled(), params_)) {
-      SetError(tr("Failed to conform audio"));
-      return false;
-    } else {
-      return true;
-    }
-  }*/
+  decoder->Close();
 
-  return true;
+  return ret;
 }
 
 }

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@
 #include "common/rational.h"
 #include "dialog/export/codec/h264section.h"
 #include "dialog/export/codec/imagesection.h"
-#include "render/colormanager.h"
+#include "node/color/colormanager/colormanager.h"
 #include "widget/colorwheel/colorspacechooser.h"
 #include "widget/slider/integerslider.h"
 #include "widget/standardcombos/standardcombos.h"
@@ -40,6 +40,15 @@ class ExportVideoTab : public QWidget
   Q_OBJECT
 public:
   ExportVideoTab(ColorManager* color_manager, QWidget* parent = nullptr);
+
+  int SetFormat(ExportFormat::Format format);
+
+  bool IsImageSequenceSet() const;
+
+  int64_t GetStillImageTime() const
+  {
+    return image_section_->GetTimestamp();
+  }
 
   ExportCodec::Codec GetSelectedCodec() const
   {
@@ -71,9 +80,15 @@ public:
     return scaling_method_combobox_;
   }
 
-  FrameRateComboBox* frame_rate_combobox() const
+  rational GetSelectedFrameRate() const
   {
-    return frame_rate_combobox_;
+    return frame_rate_combobox_->GetFrameRate();
+  }
+
+  void SetSelectedFrameRate(const rational& fr)
+  {
+    frame_rate_combobox_->SetFrameRate(fr);
+    UpdateFrameRate(fr);
   }
 
   QString CurrentOCIOColorSpace()
@@ -88,17 +103,12 @@ public:
 
   void SetCodecSection(CodecSection* section)
   {
-    codec_stack_->setCurrentWidget(section);
-  }
-
-  ImageSection* image_section() const
-  {
-    return image_section_;
-  }
-
-  H264Section* h264_section() const
-  {
-    return h264_section_;
+    if (section) {
+      codec_stack_->setVisible(true);
+      codec_stack_->setCurrentWidget(section);
+    } else {
+      codec_stack_->setVisible(false);
+    }
   }
 
   InterlacedComboBox* interlaced_combobox() const
@@ -128,8 +138,12 @@ public:
 public slots:
   void VideoCodecChanged();
 
+  void SetTimestamp(int64_t timestamp);
+
 signals:
   void ColorSpaceChanged(const QString& colorspace);
+
+  void ImageSequenceCheckBoxChanged(bool e);
 
 private:
   QWidget* SetupResolutionSection();
@@ -144,6 +158,7 @@ private:
   QStackedWidget* codec_stack_;
   ImageSection* image_section_;
   H264Section* h264_section_;
+  H264Section* h265_section_;
 
   ColorSpaceChooser* color_space_chooser_;
 
@@ -160,10 +175,14 @@ private:
 
   QString pix_fmt_;
 
+  ExportFormat::Format format_;
+
 private slots:
   void MaintainAspectRatioChanged(bool val);
 
   void OpenAdvancedDialog();
+
+  void UpdateFrameRate(rational r);
 
 };
 

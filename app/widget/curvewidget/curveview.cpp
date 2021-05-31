@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -305,17 +305,8 @@ void CurveView::VerticalScaleChangedEvent(double scale)
   }
 }
 
-void CurveView::wheelEvent(QWheelEvent *event)
-{
-  if (!HandleZoomFromScroll(event)) {
-    KeyframeViewBase::wheelEvent(event);
-  }
-}
-
 void CurveView::ContextMenuEvent(Menu &m)
 {
-  m.addSeparator();
-
   // View settings
   QAction* zoom_fit_action = m.addAction(tr("Zoom to Fit"));
   connect(zoom_fit_action, &QAction::triggered, this, &CurveView::ZoomToFit);

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,15 +21,17 @@
 #include "render.h"
 
 #include "common/timecodefunctions.h"
+#include "node/project/sequence/sequence.h"
 #include "render/rendermanager.h"
 
 namespace olive {
 
-RenderTask::RenderTask(Sequence* viewer, const VideoParams &vparams, const AudioParams &aparams) :
+RenderTask::RenderTask(ViewerOutput *viewer, const VideoParams &vparams, const AudioParams &aparams) :
   viewer_(viewer),
   video_params_(vparams),
   audio_params_(aparams),
-  running_tickets_(0)
+  running_tickets_(0),
+  native_progress_signalling_(true)
 {
 }
 
@@ -39,7 +41,7 @@ RenderTask::~RenderTask()
 
 bool RenderTask::Render(ColorManager* manager,
                         const TimeRangeList& video_range,
-                        const TimeRangeList &audio_range,
+                        const TimeRangeList &audio_range, const TimeRange &subtitle_range,
                         RenderMode::Mode mode,
                         FrameHashCache* cache, const QSize &force_size,
                         const QMatrix4x4 &force_matrix, VideoParams::Format force_format,
@@ -51,23 +53,29 @@ bool RenderTask::Render(ColorManager* manager,
 
   double progress_counter = 0;
   double total_length = 0;
-  double video_frame_sz = video_params().time_base().toDouble();
 
   // Store real time before any rendering takes place
   qint64 job_time = QDateTime::currentMSecsSinceEpoch();
 
   // Queue audio jobs
-  foreach (const TimeRange& r, audio_range) {
+  foreach (const TimeRange& range, audio_range) {
     // Don't count audio progress, since it's generally a lot faster than video and is weighted at
     // 50%, which makes the progress bar look weird to the uninitiated
     //total_length += r.length().toDouble();
 
-    IncrementRunningTickets();
+    rational r = range.in();
+    while (r != range.out()) {
+      rational end = qMin(range.out(), r+1);
+      TimeRange this_range(r, end);
 
-    RenderTicketWatcher* watcher = new RenderTicketWatcher();
-    watcher->setProperty("range", QVariant::fromValue(r));
-    PrepareWatcher(watcher, &watcher_thread);
-    watcher->SetTicket(RenderManager::instance()->RenderAudio(viewer_, r, audio_params_, false));
+      RenderTicketWatcher* watcher = new RenderTicketWatcher();
+      watcher->setProperty("range", QVariant::fromValue(this_range));
+      PrepareWatcher(watcher, &watcher_thread);
+      IncrementRunningTickets();
+      watcher->SetTicket(RenderManager::instance()->RenderAudio(viewer_, this_range, audio_params_, mode, false));
+
+      r = end;
+    }
   }
 
   // Look up hashes
@@ -76,7 +84,7 @@ bool RenderTask::Render(ColorManager* manager,
 
   if (!video_range.isEmpty()) {
     // Get list of discrete frames from range
-    QVector<rational> times = viewer()->video_frame_cache()->GetFrameListFromTimeRange(video_range);
+    QVector<rational> times = FrameHashCache::GetFrameListFromTimeRange(video_range, video_params().frame_rate_as_time_base());
     QVector<QByteArray> hashes(times.size());
 
     // Generate hashes
@@ -85,7 +93,7 @@ bool RenderTask::Render(ColorManager* manager,
         return true;
       }
 
-      hashes[i] = RenderManager::instance()->Hash(viewer(), video_params_, times.at(i));
+      hashes[i] = RenderManager::instance()->Hash(viewer()->GetConnectedTextureOutput(), video_params_, times.at(i));
     }
 
     // Filter out duplicates
@@ -105,7 +113,9 @@ bool RenderTask::Render(ColorManager* manager,
     }
 
     // Add to "total progress"
-    total_length += video_frame_sz * time_map.size();
+    total_number_of_frames_ = times.size();
+    total_number_of_unique_frames_ = time_map.size();
+    total_length += total_number_of_unique_frames_;
   }
 
   // Start a render of a limited amount, and then render one frame for each frame that gets
@@ -118,6 +128,50 @@ bool RenderTask::Render(ColorManager* manager,
   for (int i=0; i<maximum_rendered_frames && frame_iterator!=frame_render_order.cend(); i++, frame_iterator++) {
     StartTicket(frame_iterator->second, &watcher_thread, manager, frame_iterator->first,
                 mode, cache, force_size, force_matrix, force_format, force_color_output);
+  }
+
+  // Subtitle loop, loops over all blocks in sequence on all tracks
+  if (!subtitle_range.length().isNull()) {
+    Sequence *sequence = dynamic_cast<Sequence*>(viewer_);
+    if (sequence) {
+      TrackList *list = sequence->track_list(Track::kSubtitle);
+      QVector<int> block_indexes(list->GetTrackCount(), 0);
+
+      QVector<int> tracks_to_push;
+      do {
+        tracks_to_push.clear();
+
+        for (int i=0; i<block_indexes.size(); i++) {
+          Track *this_track = list->GetTrackAt(i);
+          int &this_block_index = block_indexes[i];
+          if (this_block_index >= this_track->Blocks().size()) {
+            continue;
+          }
+          Block *this_block = this_track->Blocks().at(this_block_index);
+
+          Track *compare_track = tracks_to_push.isEmpty() ? nullptr : list->GetTrackAt(tracks_to_push.first());
+          const int &compare_block_index = tracks_to_push.isEmpty() ? -1 : block_indexes.at(tracks_to_push.first());
+          Block *compare_block = compare_track ? compare_track->Blocks().at(compare_block_index) : nullptr;
+          if (!compare_track || compare_block->in() >= this_block->in()) {
+            if (compare_track && compare_block->in() != this_block->in()) {
+              tracks_to_push.clear();
+            }
+            tracks_to_push.append(i);
+          }
+        }
+
+        for (int i=0; i<tracks_to_push.size(); i++) {
+          Track *this_track = list->GetTrackAt(tracks_to_push.at(i));
+          Block *this_block = this_track->Blocks().at(block_indexes.at(tracks_to_push.at(i)));
+
+          if (const SubtitleBlock *sub = dynamic_cast<const SubtitleBlock*>(this_block)) {
+            EncodeSubtitle(sub);
+          }
+
+          block_indexes[tracks_to_push.at(i)]++;
+        }
+      } while (!tracks_to_push.isEmpty());
+    }
   }
 
   finished_watcher_mutex_.lock();
@@ -151,8 +205,10 @@ bool RenderTask::Render(ColorManager* manager,
                       watcher->Get().value<FramePtr>(),
                       watcher->property("hash").toByteArray());
 
-        progress_counter += video_frame_sz * 0.5;
-        emit ProgressChanged(progress_counter / total_length);
+        if (native_progress_signalling_) {
+          progress_counter += 0.5;
+          emit ProgressChanged(progress_counter / total_length);
+        }
 
       } else {
 
@@ -160,13 +216,15 @@ bool RenderTask::Render(ColorManager* manager,
         QByteArray rendered_hash = watcher->property("hash").toByteArray();
         FrameDownloaded(watcher->Get().value<FramePtr>(), rendered_hash, time_map.value(rendered_hash), job_time);
 
-        double progress_to_add = video_frame_sz;
-        if (TwoStepFrameRendering()) {
-          progress_to_add *= 0.5;
-        }
-        progress_counter += progress_to_add;
+        if (native_progress_signalling_) {
+          double progress_to_add = 1.0;
+          if (TwoStepFrameRendering()) {
+            progress_to_add *= 0.5;
+          }
+          progress_counter += progress_to_add;
 
-        emit ProgressChanged(progress_counter / total_length);
+          emit ProgressChanged(progress_counter / total_length);
+        }
 
         if (frame_iterator != frame_render_order.cend()) {
           StartTicket(frame_iterator->second, &watcher_thread, manager, frame_iterator->first,
@@ -202,7 +260,7 @@ bool RenderTask::Render(ColorManager* manager,
     // Cancel every watcher we created
     foreach (RenderTicketWatcher* watcher, running_watchers_) {
       disconnect(watcher, &RenderTicketWatcher::Finished, this, &RenderTask::TicketDone);
-      watcher->Cancel();
+      RenderManager::instance()->RemoveTicket(watcher->GetTicket());
     }
   }
 
@@ -223,6 +281,11 @@ void RenderTask::DownloadFrame(QThread *thread, FramePtr frame, const QByteArray
   watcher->SetTicket(RenderManager::instance()->SaveFrameToCache(viewer_->video_frame_cache(),
                                                                  frame,
                                                                  hash));
+}
+
+void RenderTask::EncodeSubtitle(const SubtitleBlock *subtitle)
+{
+  Q_UNUSED(subtitle)
 }
 
 void RenderTask::PrepareWatcher(RenderTicketWatcher *watcher, QThread *thread)

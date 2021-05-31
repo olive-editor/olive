@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 #include "menushared.h"
 
 #include "core.h"
+#include "common/timecodefunctions.h"
 #include "panel/panelmanager.h"
 #include "panel/timeline/timeline.h"
 
@@ -168,11 +169,21 @@ void MenuShared::AddItemsForTimeRulerMenu(Menu *m)
   m->addAction(view_timecode_view_milliseconds_item_);
 }
 
-void MenuShared::AboutToShowTimeRulerActions()
+void MenuShared::AboutToShowTimeRulerActions(const rational& timebase)
 {
   QList<QAction*> timecode_display_actions = frame_view_mode_group_->actions();
+  Timecode::Display current_timecode_display = Core::instance()->GetTimecodeDisplay();
+
+  // Only show the drop-frame option if the timebase is drop-frame
+  view_timecode_view_dropframe_item_->setVisible(!timebase.isNull() && Timecode::TimebaseIsDropFrame(timebase));
+
+  if (!view_timecode_view_dropframe_item_->isVisible() && current_timecode_display == Timecode::kTimecodeDropFrame) {
+    // If the current setting is drop-frame, correct to non-drop frame
+    current_timecode_display = Timecode::kTimecodeNonDropFrame;
+  }
+
   foreach (QAction* a, timecode_display_actions) {
-    if (a->data() == Core::instance()->GetTimecodeDisplay()) {
+    if (a->data() == current_timecode_display) {
       a->setChecked(true);
       break;
     }

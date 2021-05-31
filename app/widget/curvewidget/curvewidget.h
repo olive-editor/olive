@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -67,7 +67,7 @@ protected:
 
   virtual void TimeTargetChangedEvent(Node* target) override;
 
-  virtual void ConnectedNodeChanged(Sequence* n) override;
+  virtual void ConnectedNodeChangeEvent(ViewerOutput* n) override;
 
 private:
   void SetKeyframeButtonEnabled(bool enable);

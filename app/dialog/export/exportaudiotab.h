@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@
 #include <QWidget>
 
 #include "common/define.h"
+#include "codec/exportformat.h"
 #include "widget/slider/integerslider.h"
 #include "widget/standardcombos/standardcombos.h"
 
@@ -35,6 +36,8 @@ class ExportAudioTab : public QWidget
   Q_OBJECT
 public:
   ExportAudioTab(QWidget* parent = nullptr);
+
+  int SetFormat(ExportFormat::Format format);
 
   QComboBox* codec_combobox() const
   {

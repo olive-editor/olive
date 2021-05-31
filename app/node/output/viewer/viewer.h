@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,20 +21,32 @@
 #ifndef VIEWER_H
 #define VIEWER_H
 
-#include "project/item/sequence/sequence.h"
+#include "common/rational.h"
+#include "node/node.h"
+#include "node/output/track/track.h"
+#include "render/audioparams.h"
+#include "render/audioplaybackcache.h"
+#include "render/framehashcache.h"
+#include "render/videoparams.h"
+#include "render/videoparams.h"
+#include "timeline/timelinepoints.h"
 
 namespace olive {
+
+class Footage;
 
 /**
  * @brief A bridge between a node system and a ViewerPanel
  *
  * Receives update/time change signals from ViewerPanels and responds by sending them a texture of that frame
  */
-class ViewerOutput : public Sequence
+class ViewerOutput : public Node
 {
   Q_OBJECT
 public:
-  ViewerOutput();
+  ViewerOutput(bool create_default_streams = true);
+
+  NODE_DEFAULT_DESTRUCTOR(ViewerOutput)
 
   virtual Node* copy() const override;
 
@@ -42,6 +54,179 @@ public:
   virtual QString id() const override;
   virtual QVector<CategoryID> Category() const override;
   virtual QString Description() const override;
+
+  virtual QString duration() const override;
+  virtual QString rate() const override;
+
+  void set_default_parameters();
+
+  void set_parameters_from_footage(const QVector<ViewerOutput *> footage);
+
+  void ShiftVideoCache(const rational& from, const rational& to);
+  void ShiftAudioCache(const rational& from, const rational& to);
+  void ShiftCache(const rational& from, const rational& to);
+
+  virtual void InvalidateCache(const TimeRange& range, const QString& from, int element, qint64 job_time) override;
+
+  virtual QVector<QString> inputs_for_output(const QString& output) const override;
+
+  VideoParams GetVideoParams(int index = 0) const
+  {
+    // This check isn't strictly necessary (GetStandardValue will return a null VideoParams anyway),
+    // but it does suppress a warning message that we don't need
+    if (index < InputArraySize(kVideoParamsInput)) {
+      return GetStandardValue(kVideoParamsInput, index).value<VideoParams>();
+    } else {
+      return VideoParams();
+    }
+  }
+
+  AudioParams GetAudioParams(int index = 0) const
+  {
+    // This check isn't strictly necessary (GetStandardValue will return a null VideoParams anyway),
+    // but it does suppress a warning message that we don't need
+    if (index < InputArraySize(kAudioParamsInput)) {
+      return GetStandardValue(kAudioParamsInput, index).value<AudioParams>();
+    } else {
+      return AudioParams();
+    }
+  }
+
+  void SetVideoParams(const VideoParams &video, int index = 0)
+  {
+    SetStandardValue(kVideoParamsInput, QVariant::fromValue(video), index);
+  }
+
+  void SetAudioParams(const AudioParams &audio, int index = 0)
+  {
+    SetStandardValue(kAudioParamsInput, QVariant::fromValue(audio), index);
+  }
+
+  int GetVideoStreamCount() const
+  {
+    return InputArraySize(kVideoParamsInput);
+  }
+
+  int GetAudioStreamCount() const
+  {
+    return InputArraySize(kAudioParamsInput);
+  }
+
+  int GetTotalStreamCount() const
+  {
+    return GetVideoStreamCount() + GetAudioStreamCount();
+  }
+
+  bool HasEnabledVideoStreams() const;
+  bool HasEnabledAudioStreams() const;
+
+  VideoParams GetFirstEnabledVideoStream() const;
+  AudioParams GetFirstEnabledAudioStream() const;
+
+  const rational &GetLength() const { return last_length_; }
+  const rational &GetVideoLength() const { return video_length_; }
+  const rational &GetAudioLength() const { return audio_length_; }
+
+  FrameHashCache* video_frame_cache()
+  {
+    return &video_frame_cache_;
+  }
+
+  AudioPlaybackCache* audio_playback_cache()
+  {
+    return &audio_playback_cache_;
+  }
+
+  TimelinePoints* GetTimelinePoints()
+  {
+    return &timeline_points_;
+  }
+
+  QVector<Track::Reference> GetEnabledStreamsAsReferences() const;
+
+  QVector<VideoParams> GetEnabledVideoStreams() const;
+
+  QVector<AudioParams> GetEnabledAudioStreams() const;
+
+  virtual void Retranslate() override;
+
+  virtual NodeOutput GetConnectedTextureOutput();
+
+  virtual NodeOutput GetConnectedSampleOutput();
+
+  static const QString kVideoParamsInput;
+  static const QString kAudioParamsInput;
+
+  static const QString kTextureInput;
+  static const QString kSamplesInput;
+
+  static const uint64_t kVideoParamEditMask;
+
+signals:
+  void FrameRateChanged(const rational&);
+
+  void LengthChanged(const rational& length);
+
+  void SizeChanged(int width, int height);
+
+  void PixelAspectChanged(const rational& pixel_aspect);
+
+  void InterlacingChanged(VideoParams::Interlacing mode);
+
+  void VideoParamsChanged();
+  void AudioParamsChanged();
+
+  void TextureInputChanged();
+
+  void SampleRateChanged(int sr);
+
+public slots:
+  void VerifyLength();
+
+protected:
+  virtual void InputConnectedEvent(const QString &input, int element, const NodeOutput &output) override;
+
+  virtual void InputDisconnectedEvent(const QString &input, int element, const NodeOutput &output) override;
+
+  virtual rational VerifyLengthInternal(Track::Type type) const;
+
+  virtual void ShiftVideoEvent(const rational &from, const rational &to);
+
+  virtual void ShiftAudioEvent(const rational &from, const rational &to);
+
+  virtual void InputValueChangedEvent(const QString& input, int element) override;
+
+  virtual bool LoadCustom(QXmlStreamReader* reader, XMLNodeData &xml_node_data, uint version, const QAtomicInt* cancelled) override;
+
+  virtual void SaveCustom(QXmlStreamWriter *writer) const override;
+
+  int AddStream(Track::Type type, const QVariant &value);
+
+  void SetViewerVideoCacheEnabled(bool e) { video_cache_enabled_ = e; }
+  void SetViewerAudioCacheEnabled(bool e) { audio_cache_enabled_ = e; }
+
+private:
+  rational last_length_;
+  rational video_length_;
+  rational audio_length_;
+
+  FrameHashCache video_frame_cache_;
+
+  AudioPlaybackCache audio_playback_cache_;
+
+  int operation_stack_;
+
+  VideoParams cached_video_params_;
+
+  AudioParams cached_audio_params_;
+
+  TimelinePoints timeline_points_;
+
+  bool video_cache_enabled_;
+  bool audio_cache_enabled_;
+
+private slots:
+  void InputResized(const QString& input, int old_size, int new_size);
 
 };
 

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -37,13 +37,7 @@ class Block : public Node
 public:
   Block();
 
-  enum Type {
-    kClip,
-    kGap,
-    kTransition
-  };
-
-  virtual Type type() const = 0;
+  NODE_DEFAULT_DESTRUCTOR(Block)
 
   virtual QVector<CategoryID> Category() const override;
 
@@ -149,12 +143,23 @@ public:
     return block_links_;
   }
 
-  virtual void Hash(const QString& output, QCryptographicHash &hash, const rational &time) const override;
+  double speed() const
+  {
+    return GetStandardValue(kSpeedInput).toDouble();
+  }
+
+  bool reverse() const
+  {
+    return GetStandardValue(kReverseInput).toBool();
+  }
+
+  virtual void Hash(const QString& output, QCryptographicHash &hash, const rational &time, const VideoParams& video_params) const override;
 
   static const QString kLengthInput;
   static const QString kMediaInInput;
   static const QString kEnabledInput;
   static const QString kSpeedInput;
+  static const QString kReverseInput;
 
 public slots:
 
@@ -164,7 +169,7 @@ signals:
   void LengthChanged();
 
 protected:
-  rational SequenceToMediaTime(const rational& sequence_time) const;
+  rational SequenceToMediaTime(const rational& sequence_time, bool ignore_reverse = false) const;
 
   rational MediaToSequenceTime(const rational& media_time) const;
 

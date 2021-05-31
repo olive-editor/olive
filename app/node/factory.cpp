@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@
 #include "audio/volume/volume.h"
 #include "block/clip/clip.h"
 #include "block/gap/gap.h"
+#include "block/subtitle/subtitle.h"
 #include "block/transition/crossdissolve/crossdissolvetransition.h"
 #include "block/transition/diptocolor/diptocolortransition.h"
 #include "distort/crop/cropdistortnode.h"
@@ -38,14 +39,16 @@
 #include "filter/mosaic/mosaicfilternode.h"
 #include "filter/stroke/stroke.h"
 #include "input/time/timeinput.h"
+#include "input/value/valuenode.h"
 #include "math/math/math.h"
 #include "math/merge/merge.h"
 #include "math/trigonometry/trigonometry.h"
 #include "output/track/track.h"
 #include "output/viewer/viewer.h"
-#include "project/item/folder/folder.h"
-#include "project/item/footage/footage.h"
-#include "project/item/sequence/sequence.h"
+#include "project/folder/folder.h"
+#include "project/footage/footage.h"
+#include "project/sequence/sequence.h"
+#include "time/timeremap/timeremap.h"
 
 namespace olive {
 QList<Node*> NodeFactory::library_;
@@ -59,10 +62,6 @@ void NodeFactory::Initialize()
     Node* created_node = CreateFromFactoryIndex(static_cast<InternalID>(i));
 
     library_.append(created_node);
-
-    if (created_node->inputs().isEmpty()) {
-      qWarning() << "Node" << created_node->id() << "has no inputs";
-    }
 
     if (created_node->outputs().isEmpty()) {
       qWarning() << "Node" << created_node->id() << "has no outputs";
@@ -234,6 +233,12 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new Folder();
   case kProjectSequence:
     return new Sequence();
+  case kValueNode:
+    return new ValueNode();
+  case kTimeRemapNode:
+    return new TimeRemapNode();
+  case kSubtitleBlock:
+    return new SubtitleBlock();
 
   case kInternalNodeCount:
     break;

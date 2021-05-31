@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,7 +21,10 @@
 #include "framehashcache.h"
 
 #include <OpenEXR/ImfFloatAttribute.h>
+#include <OpenEXR/ImfFrameBuffer.h>
+#include <OpenEXR/ImfHeader.h>
 #include <OpenEXR/ImfInputFile.h>
+#include <OpenEXR/ImfIntAttribute.h>
 #include <OpenEXR/ImfOutputFile.h>
 #include <OpenEXR/ImfChannelList.h>
 #include <QDir>
@@ -33,6 +36,9 @@
 #include "render/diskmanager.h"
 
 namespace olive {
+
+QMutex FrameHashCache::currently_saving_frames_mutex_;
+QMap<QByteArray, FramePtr> FrameHashCache::currently_saving_frames_;
 
 FrameHashCache::FrameHashCache(QObject *parent) :
   PlaybackCache(parent)
@@ -146,22 +152,13 @@ QVector<rational> FrameHashCache::GetFrameListFromTimeRange(TimeRangeList range_
 
   QVector<rational> times;
 
-  while (!range_list.isEmpty()) {
-    const TimeRange& range = range_list.first();
+  foreach (const TimeRange &range, range_list) {
+    rational frame = Timecode::snap_time_to_timebase(range.in(), timebase, true);
 
-    rational time = range.in();
-    rational snapped = Timecode::snap_time_to_timebase(time, timebase);
-    rational next;
-
-    if (snapped > time) {
-      next = snapped;
-      snapped -= timebase;
-    } else {
-      next = snapped + timebase;
+    while (frame < range.out()) {
+      times.append(frame);
+      frame += timebase;
     }
-
-    times.append(snapped);
-    range_list.remove(TimeRange(snapped, next));
   }
 
   return times;
@@ -187,14 +184,29 @@ bool FrameHashCache::SaveCacheFrame(const QByteArray& hash,
                                     const VideoParams& vparam,
                                     int linesize_bytes) const
 {
-  QString fn = CachePathName(hash);
+  return SaveCacheFrame(GetCacheDirectory(), hash, data, vparam, linesize_bytes);
+}
+
+bool FrameHashCache::SaveCacheFrame(const QByteArray &hash, FramePtr frame) const
+{
+  return SaveCacheFrame(GetCacheDirectory(), hash, frame);
+}
+
+bool FrameHashCache::SaveCacheFrame(const QString &cache_path, const QByteArray &hash, char *data, const VideoParams &vparam, int linesize_bytes)
+{
+  if (cache_path.isEmpty()) {
+    qWarning() << "Failed to save cache frame with empty path";
+    return false;
+  }
+
+  QString fn = CachePathName(cache_path, hash);
 
   if (SaveCacheFrame(fn, data, vparam, linesize_bytes)) {
     // Register frame with the disk manager
     QMetaObject::invokeMethod(DiskManager::instance(),
                               "CreatedFile",
                               Qt::QueuedConnection,
-                              Q_ARG(QString, GetCacheDirectory()),
+                              Q_ARG(QString, cache_path),
                               Q_ARG(QString, fn),
                               Q_ARG(QByteArray, hash));
 
@@ -204,10 +216,20 @@ bool FrameHashCache::SaveCacheFrame(const QByteArray& hash,
   }
 }
 
-bool FrameHashCache::SaveCacheFrame(const QByteArray &hash, FramePtr frame) const
+bool FrameHashCache::SaveCacheFrame(const QString &cache_path, const QByteArray &hash, FramePtr frame)
 {
   if (frame) {
-    return SaveCacheFrame(hash, frame->data(), frame->video_params(), frame->linesize_bytes());
+    QMutexLocker locker(&currently_saving_frames_mutex_);
+    currently_saving_frames_.insert(hash, frame);
+    locker.unlock();
+
+    bool ret = SaveCacheFrame(cache_path, hash, frame->data(), frame->video_params(), frame->linesize_bytes());
+
+    locker.relock();
+    currently_saving_frames_.remove(hash);
+    locker.unlock();
+
+    return ret;
   } else {
     qWarning() << "Attempted to save a NULL frame to the cache. This may or may not be desirable.";
     return false;
@@ -216,12 +238,26 @@ bool FrameHashCache::SaveCacheFrame(const QByteArray &hash, FramePtr frame) cons
 
 FramePtr FrameHashCache::LoadCacheFrame(const QString &cache_path, const QByteArray &hash)
 {
+  // Minor optimization, we store frames currently being saved just in case something tries to load
+  // while we're saving. This should *occasionally* optimize and also prevent scenarios where
+  // we try to load a frame that's half way through being saved.
+  QMutexLocker locker(&currently_saving_frames_mutex_);
+  if (currently_saving_frames_.contains(hash)) {
+    return currently_saving_frames_.value(hash);
+  }
+  locker.unlock();
+
+  if (cache_path.isEmpty()) {
+    qWarning() << "Failed to load cache frame with empty path";
+    return nullptr;
+  }
+
   return LoadCacheFrame(CachePathName(cache_path, hash));
 }
 
 FramePtr FrameHashCache::LoadCacheFrame(const QByteArray &hash) const
 {
-  return LoadCacheFrame(CachePathName(hash));
+  return LoadCacheFrame(GetCacheDirectory(), hash);
 }
 
 FramePtr FrameHashCache::LoadCacheFrame(const QString &fn)
@@ -237,6 +273,8 @@ FramePtr FrameHashCache::LoadCacheFrame(const QString &fn)
     int height = dw.max.y - dw.min.y + 1;
     bool has_alpha = file.header().channels().findChannel("A");
 
+    int div = qMax(1, static_cast<const Imf::IntAttribute&>(file.header()["oliveDivider"]).value());
+
     VideoParams::Format image_format;
     if (pix_type == Imf::HALF) {
       image_format = VideoParams::kFormatFloat16;
@@ -247,11 +285,13 @@ FramePtr FrameHashCache::LoadCacheFrame(const QString &fn)
     int channel_count = has_alpha ? VideoParams::kRGBAChannelCount : VideoParams::kRGBChannelCount;
 
     frame = Frame::Create();
-    frame->set_video_params(VideoParams(width,
-                                        height,
+    frame->set_video_params(VideoParams(width * div,
+                                        height * div,
                                         image_format,
                                         channel_count,
-                                        rational::fromDouble(file.header().pixelAspectRatio())));
+                                        rational::fromDouble(file.header().pixelAspectRatio()),
+                                        VideoParams::kInterlaceNone,
+                                        div));
 
     frame->allocate();
 
@@ -302,7 +342,7 @@ void FrameHashCache::ShiftEvent(const rational &from, const rational &to)
   // POSITIVE if moving forward ->
   // NEGATIVE if moving backward <-
   rational diff = to - from;
-  bool diff_is_negative = (diff < rational());
+  bool diff_is_negative = (diff < 0);
 
   QList<HashTimePair> shifted_times;
 
@@ -333,10 +373,12 @@ void FrameHashCache::ShiftEvent(const rational &from, const rational &to)
 
 void FrameHashCache::InvalidateEvent(const TimeRange &range)
 {
-  QVector<rational> invalid_frames = GetFrameListFromTimeRange({range});
+  if (!timebase_.isNull()) {
+    QVector<rational> invalid_frames = GetFrameListFromTimeRange({range});
 
-  foreach (const rational& r, invalid_frames) {
-    time_hash_map_.remove(r);
+    foreach (const rational& r, invalid_frames) {
+      time_hash_map_.remove(r);
+    }
   }
 }
 
@@ -380,7 +422,6 @@ QString FrameHashCache::CachePathName(const QString &cache_path, const QByteArra
   QString ext = GetFormatExtension();
 
   QDir cache_dir(QDir(cache_path).filePath(QString(hash.left(1).toHex())));
-  cache_dir.mkpath(".");
 
   QString filename = QStringLiteral("%1%2").arg(QString(hash.mid(1).toHex()), ext);
 
@@ -394,11 +435,16 @@ QString FrameHashCache::CachePathName(const QString &cache_path, const QByteArra
   return cache_dir.filePath(filename);
 }
 
-bool FrameHashCache::SaveCacheFrame(const QString &filename, char *data, const VideoParams &vparam, int linesize_bytes) const
+bool FrameHashCache::SaveCacheFrame(const QString &filename, char *data, const VideoParams &vparam, int linesize_bytes)
 {
   if (!VideoParams::FormatIsFloat(vparam.format())) {
-    qCritical() << "Tried to cache frame with non-float pixel format";
     return false;
+  }
+
+  // Ensure directory is created
+  QDir cache_dir = QFileInfo(filename).dir();
+  if (!cache_dir.exists()) {
+    cache_dir.mkpath(".");
   }
 
   // Floating point types are stored in EXR
@@ -422,6 +468,8 @@ bool FrameHashCache::SaveCacheFrame(const QString &filename, char *data, const V
   header.compression() = Imf::DWAA_COMPRESSION;
   header.insert("dwaCompressionLevel", Imf::FloatAttribute(200.0f));
   header.pixelAspectRatio() = vparam.pixel_aspect_ratio().toDouble();
+
+  header.insert("oliveDivider", Imf::IntAttribute(vparam.divider()));
 
   Imf::OutputFile out(filename.toUtf8(), header, 0);
 

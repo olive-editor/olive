@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -108,12 +108,12 @@ void ViewerPanelBase::CreateScopePanel(ScopePanel::Type type)
   p->SetType(type);
 
   // Connect viewer widget texture drawing to scope panel
-  connect(vw, &ViewerWidget::LoadedBuffer, p, &ScopePanel::SetReferenceBuffer);
+  connect(vw, &ViewerWidget::TextureChanged, p, &ScopePanel::SetReferenceBuffer);
   connect(vw, &ViewerWidget::ColorManagerChanged, p, &ScopePanel::SetColorManager);
 
   p->SetColorManager(vw->color_manager());
 
-  vw->ForceUpdate();
+  vw->UpdateTextureFromNode();
 }
 
 void ViewerPanelBase::closeEvent(QCloseEvent *e)

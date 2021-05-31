@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,11 +21,11 @@
 #include "export.h"
 
 #include "common/timecodefunctions.h"
-#include "render/colormanager.h"
+#include "node/color/colormanager/colormanager.h"
 
 namespace olive {
 
-ExportTask::ExportTask(Sequence *viewer_node,
+ExportTask::ExportTask(ViewerOutput *viewer_node,
                        ColorManager* color_manager,
                        const ExportParams& params) :
   RenderTask(viewer_node, params.video_params(), params.audio_params()),
@@ -33,6 +33,7 @@ ExportTask::ExportTask(Sequence *viewer_node,
   params_(params)
 {
   SetTitle(tr("Exporting \"%1\"").arg(viewer_node->GetLabel()));
+  SetNativeProgressSignallingEnabled(false);
 }
 
 bool ExportTask::Run()
@@ -55,7 +56,7 @@ bool ExportTask::Run()
   }
 
   if (!encoder_->Open()) {
-    SetError(tr("Failed to open file"));
+    SetError(tr("Failed to open file: %1").arg(encoder_->GetError()));
     encoder_->deleteLater();
     return false;
   }
@@ -76,14 +77,15 @@ bool ExportTask::Run()
   if (params_.video_enabled()) {
 
     // If a transformation matrix is applied to this video, create it here
-    if (viewer()->video_params().width() != params_.video_params().width()
+    VideoParams vp = viewer()->GetVideoParams();
+    if (vp.width() != params_.video_params().width()
         || params_.video_params().height() != params_.video_params().height()) {
       video_force_size = QSize(params_.video_params().width(), params_.video_params().height());
 
       if (params_.video_scaling_method() != ExportParams::kStretch) {
         video_force_matrix = ExportParams::GenerateMatrix(params_.video_scaling_method(),
-                                                          viewer()->video_params().width(),
-                                                          viewer()->video_params().height(),
+                                                          vp.width(),
+                                                          vp.height(),
                                                           params_.video_params().width(),
                                                           params_.video_params().height());
       }
@@ -98,12 +100,9 @@ bool ExportTask::Run()
                                               params_.color_transform());
   }
 
-  if (params_.audio_enabled()) {
-    audio_data_.SetParameters(audio_params());
-  }
-
   // Start render process
   TimeRangeList video_range, audio_range;
+  TimeRange subtitle_range;
 
   if (params_.video_enabled()) {
     video_range = {range};
@@ -111,21 +110,24 @@ bool ExportTask::Run()
 
   if (params_.audio_enabled()) {
     audio_range = {range};
-    audio_data_.SetLength(range.length());
   }
 
-  Render(color_manager_, video_range, audio_range, RenderMode::kOnline, nullptr,
+  if (params_.subtitles_enabled()) {
+    subtitle_range = range;
+  }
+
+  Render(color_manager_, video_range, audio_range, subtitle_range, RenderMode::kOnline, nullptr,
          video_force_size, video_force_matrix, encoder_->GetDesiredPixelFormat(),
          color_processor_);
 
   bool success = true;
 
-  if (params_.audio_enabled()) {
-    // Write audio data now
-    encoder_->WriteAudio(audio_params(), audio_data_.CreatePlaybackDevice(encoder_));
-  }
-
   encoder_->Close();
+
+  if (!encoder_->GetError().isEmpty()) {
+    SetError(encoder_->GetError());
+    success = false;
+  }
 
   delete encoder_;
 
@@ -160,9 +162,9 @@ void ExportTask::FrameDownloaded(FramePtr f, const QByteArray &hash, const QVect
     time_map_.insert(actual_time, f);
   }
 
-  forever {
+  while (!IsCancelled()) {
     rational real_time = Timecode::timestamp_to_time(frame_time_,
-                                                     viewer()->video_params().time_base());
+                                                     video_params().frame_rate_as_time_base());
 
     if (!time_map_.contains(real_time)) {
       break;
@@ -173,6 +175,7 @@ void ExportTask::FrameDownloaded(FramePtr f, const QByteArray &hash, const QVect
     encoder_->WriteFrame(time_map_.take(real_time), real_time);
 
     frame_time_++;
+    emit ProgressChanged(double(frame_time_) / double(GetTotalNumberOfFrames()));
   }
 }
 
@@ -186,7 +189,38 @@ void ExportTask::AudioDownloaded(const TimeRange &range, SampleBufferPtr samples
     adjusted_range -= params_.custom_range().in();
   }
 
-  audio_data_.WritePCM(adjusted_range, samples, QDateTime::currentMSecsSinceEpoch());
+  if (adjusted_range.in() == audio_time_) {
+    WriteAudioLoop(adjusted_range, samples);
+  } else {
+    audio_map_.insert(adjusted_range, samples);
+  }
+}
+
+void ExportTask::EncodeSubtitle(const SubtitleBlock *sub)
+{
+  encoder_->WriteSubtitle(sub);
+}
+
+void ExportTask::WriteAudioLoop(const TimeRange& time, SampleBufferPtr samples)
+{
+  encoder_->WriteAudio(samples);
+  audio_time_ = time.out();
+
+  for (auto it=audio_map_.begin(); it!=audio_map_.end(); it++) {
+    TimeRange t = it.key();
+    SampleBufferPtr s = it.value();
+
+    if (t.in() == audio_time_) {
+      // Erase from audio map since we're just about to write it
+      audio_map_.erase(it);
+
+      // Call recursively to write the next sample buffer
+      WriteAudioLoop(t, s);
+
+      // Break out of loop
+      break;
+    }
+  }
 }
 
 }

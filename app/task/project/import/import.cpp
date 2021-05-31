@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
 
 #include "config/config.h"
 #include "core.h"
-#include "project/item/footage/footage.h"
+#include "node/project/footage/footage.h"
 #include "widget/nodeview/nodeviewundo.h"
 
 namespace olive {
@@ -41,7 +41,7 @@ ProjectImportTask::ProjectImportTask(ProjectViewModel *model, Folder *folder, co
 
   file_count_ = Core::CountFilesInFileList(filenames_);
 
-  SetTitle(tr("Importing %1 file(s)").arg(file_count_));
+  SetTitle(tr("Importing %n file(s)", nullptr, file_count_));
 }
 
 const int &ProjectImportTask::GetFileCount() const
@@ -96,13 +96,10 @@ void ProjectImportTask::Import(Folder *folder, QFileInfoList import, int &counte
         // Create a folder corresponding to the directory
         Folder* f = new Folder();
 
-        f->moveToThread(folder->thread());
-
         f->SetLabel(file_info.fileName());
 
         // Create undoable command that adds the items to the model
-        parent_command->add_child(new NodeAddCommand(folder->parent(), f));
-        parent_command->add_child(new FolderAddChild(folder, f));
+        AddItemToFolder(folder, f, parent_command);
 
         // Recursively follow this path
         Import(f, entry_list, counter, parent_command);
@@ -115,15 +112,11 @@ void ProjectImportTask::Import(Folder *folder, QFileInfoList import, int &counte
       footage->SetLabel(file_info.fileName());
 
       if (footage->IsValid()) {
-        // Move footage to main thread
-        footage->moveToThread(folder->thread());
-
         // See if this footage is an image sequence
         ValidateImageSequence(footage, import, i);
 
         // Create undoable command that adds the items to the model
-        parent_command->add_child(new NodeAddCommand(folder->parent(), footage));
-        parent_command->add_child(new FolderAddChild(folder, footage));
+        AddItemToFolder(folder, footage, parent_command);
       } else {
         // Add to list so we can tell the user about it later
         invalid_files_.append(file_info.absoluteFilePath());
@@ -146,7 +139,8 @@ void ProjectImportTask::ValidateImageSequence(Footage *footage, QFileInfoList& i
   // By this point we've established that video contains a single still image stream. Now we'll
   // see if it ends with numbers.
   if (Decoder::GetImageSequenceDigitCount(footage->filename()) > 0
-      && !image_sequence_ignore_files_.contains(footage->filename())) {
+      && !image_sequence_ignore_files_.contains(footage->filename())
+      && footage->InputArraySize(Footage::kVideoParamsInput)) {
     VideoParams video_stream = footage->GetVideoParams(0);
     QSize dim(video_stream.width(), video_stream.height());
 
@@ -214,13 +208,25 @@ void ProjectImportTask::ValidateImageSequence(Footage *footage, QFileInfoList& i
         video_stream.set_start_time(start_index);
         video_stream.set_duration(end_index - start_index + 1);
 
-        footage->SetVideoParams(0, video_stream);
+        footage->SetVideoParams(video_stream, 0);
       }
     }
 
     delete previous_file;
     delete next_file;
   }
+}
+
+void ProjectImportTask::AddItemToFolder(Folder *folder, Node *item, MultiUndoCommand *command)
+{
+  // Create undoable command that adds the items to the model
+  Project* project = model_->project();
+
+  NodeAddCommand* nac = new NodeAddCommand(project, item);
+  nac->PushToThread(project->thread());
+  command->add_child(nac);
+
+  command->add_child(new FolderAddChild(folder, item));
 }
 
 bool ProjectImportTask::ItemIsStillImageFootageOnly(Footage* footage)

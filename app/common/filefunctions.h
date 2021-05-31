@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -83,6 +83,17 @@ public:
    * @brief Renames a file from `from` to `to`, deleting `to` if such a file already exists first
    */
   static bool RenameFileAllowOverwrite(const QString& from, const QString& to);
+
+  inline static QString GetFormattedExecutableForPlatform(QString unformatted)
+  {
+#ifdef Q_OS_WINDOWS
+    unformatted.append(QStringLiteral(".exe"));
+#endif
+
+    return unformatted;
+  }
+
+  static QString GetAutoRecoveryRoot();
 
 };
 

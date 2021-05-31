@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -42,29 +42,22 @@ void RenderTicketWatcher::SetTicket(RenderTicketPtr ticket)
 
   ticket_ = ticket;
 
+  // Lock ticket so we can query if it's already finished by the time this code runs
   QMutexLocker locker(ticket->lock());
 
-  if (ticket_->IsFinished(false)) {
+  connect(ticket_.get(), &RenderTicket::Finished, this, &RenderTicketWatcher::TicketFinished);
+
+  if (!ticket_->IsRunning(false) && ticket_->GetFinishCount(false) > 0) {
+    // Ticket has already finished before, so we emit a signal
     locker.unlock();
-    emit Finished(this);
-  } else {
-    connect(ticket_.get(), &RenderTicket::Finished, this, &RenderTicketWatcher::TicketFinished);
+    TicketFinished();
   }
 }
 
-bool RenderTicketWatcher::WasCancelled()
+bool RenderTicketWatcher::IsRunning()
 {
   if (ticket_) {
-    return ticket_->WasCancelled();
-  } else {
-    return false;
-  }
-}
-
-bool RenderTicketWatcher::IsFinished()
-{
-  if (ticket_) {
-    return ticket_->IsFinished();
+    return ticket_->IsRunning();
   } else {
     return false;
   }
@@ -86,10 +79,12 @@ QVariant RenderTicketWatcher::Get()
   }
 }
 
-void RenderTicketWatcher::Cancel()
+bool RenderTicketWatcher::HasResult()
 {
   if (ticket_) {
-    ticket_->Cancel();
+    return ticket_->HasResult();
+  } else {
+    return false;
   }
 }
 

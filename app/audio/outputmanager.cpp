@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -78,6 +78,8 @@ void AudioOutputManager::Close()
 {
   if (output_) {
     output_->stop();
+
+    push_device_ = nullptr;
 
     if (device_proxy_.isOpen()) {
       device_proxy_.close();

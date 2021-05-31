@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -75,9 +75,9 @@ public:
 
   void DecreaseTrackHeight();
 
-  void InsertFootageAtPlayhead(const QVector<Footage *> &footage);
+  void InsertFootageAtPlayhead(const QVector<ViewerOutput *> &footage);
 
-  void OverwriteFootageAtPlayhead(const QVector<Footage *> &footage);
+  void OverwriteFootageAtPlayhead(const QVector<ViewerOutput *> &footage);
 
   void ToggleLinksOnSelected();
 
@@ -245,8 +245,8 @@ protected:
   virtual void TimeChangedEvent(const int64_t &) override;
   virtual void ScaleChangedEvent(const double &) override;
 
-  virtual void ConnectNodeInternal(Sequence* n) override;
-  virtual void DisconnectNodeInternal(Sequence* n) override;
+  virtual void ConnectNodeEvent(ViewerOutput* n) override;
+  virtual void DisconnectNodeEvent(ViewerOutput* n) override;
 
   virtual void CopyNodesToClipboardInternal(QXmlStreamWriter *writer, void* userdata) override;
   virtual void PasteNodesFromClipboardInternal(QXmlStreamReader *reader, XMLNodeData &xml_node_data, void* userdata) override;
@@ -346,6 +346,14 @@ private slots:
   void ToolChanged();
 
   void SetViewWaveformsEnabled(bool e);
+
+  void FrameRateChanged();
+
+  void SampleRateChanged();
+
+  void TrackIndexChanged(int old, int now);
+
+  void SetScrollZoomsByDefaultOnAllViews(bool e);
 
 };
 

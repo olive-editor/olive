@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,11 +21,11 @@
 #ifndef NODEPARAMVIEW_H
 #define NODEPARAMVIEW_H
 
-#include <QMainWindow>
 #include <QVBoxLayout>
 #include <QWidget>
 
 #include "node/node.h"
+#include "nodeparamviewdockarea.h"
 #include "nodeparamviewitem.h"
 #include "widget/keyframeview/keyframeview.h"
 #include "widget/timebased/timebasedwidget.h"
@@ -96,7 +96,7 @@ protected:
   virtual void TimebaseChangedEvent(const rational&) override;
   virtual void TimeChangedEvent(const int64_t &) override;
 
-  virtual void ConnectedNodeChanged(Sequence* n) override;
+  virtual void ConnectedNodeChangeEvent(ViewerOutput* n) override;
 
 private:
   void UpdateItemTime(const int64_t &timestamp);
@@ -121,7 +121,7 @@ private:
 
   // This may look weird, but QMainWindow is just a QWidget with a fancy layout that allows
   // docking windows
-  QMainWindow* param_widget_area_;
+  NodeParamViewDockArea* param_widget_area_;
 
   QVector<Node*> pinned_nodes_;
 

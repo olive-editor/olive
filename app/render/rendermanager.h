@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -67,7 +67,11 @@ public:
   /**
    * @brief Generate a unique identifier for a certain node at a certain time
    */
-  static QByteArray Hash(const Node *n, const VideoParams &params, const rational &time);
+  static QByteArray Hash(const Node *n, const QString &output, const VideoParams &params, const rational &time);
+  static QByteArray Hash(const NodeOutput &output, const VideoParams &params, const rational &time)
+  {
+    return Hash(output.node(), output.output(), params, time);
+  }
 
   /**
    * @brief Asynchronously generate a frame at a given time
@@ -80,16 +84,16 @@ public:
    *
    * This function is thread-safe.
    */
-  RenderTicketPtr RenderFrame(Sequence *viewer, ColorManager* color_manager,
+  RenderTicketPtr RenderFrame(ViewerOutput *viewer, ColorManager* color_manager,
                               const rational& time, RenderMode::Mode mode,
-                              FrameHashCache* cache = nullptr, bool prioritize = false);
-  RenderTicketPtr RenderFrame(Sequence* viewer, ColorManager* color_manager,
+                              FrameHashCache* cache = nullptr, bool prioritize = false, bool texture_only = false);
+  RenderTicketPtr RenderFrame(ViewerOutput* viewer, ColorManager* color_manager,
                               const rational& time, RenderMode::Mode mode,
                               const VideoParams& video_params, const AudioParams& audio_params,
                               const QSize& force_size,
                               const QMatrix4x4& force_matrix, VideoParams::Format force_format,
                               ColorProcessorPtr force_color_output,
-                              FrameHashCache* cache = nullptr, bool prioritize = false);
+                              FrameHashCache* cache = nullptr, bool prioritize = false, bool texture_only = false);
 
   /**
    * @brief Asynchronously generate a chunk of audio
@@ -101,8 +105,8 @@ public:
    *
    * This function is thread-safe.
    */
-  RenderTicketPtr RenderAudio(Sequence* viewer, const TimeRange& r, const AudioParams& params, bool generate_waveforms, bool prioritize = false);
-  RenderTicketPtr RenderAudio(Sequence *viewer, const TimeRange& r, bool generate_waveforms, bool prioritize = false);
+  RenderTicketPtr RenderAudio(ViewerOutput* viewer, const TimeRange& r, const AudioParams& params, RenderMode::Mode mode, bool generate_waveforms, bool prioritize = false);
+  RenderTicketPtr RenderAudio(ViewerOutput *viewer, const TimeRange& r, RenderMode::Mode mode, bool generate_waveforms, bool prioritize = false);
 
   RenderTicketPtr SaveFrameToCache(FrameHashCache* cache, FramePtr frame, const QByteArray& hash, bool prioritize = false);
 
@@ -139,6 +143,13 @@ private:
   ShaderCache* shader_cache_;
 
   QVariant default_shader_;
+
+  QTimer decoder_clear_timer_;
+
+  static const int kDecoderMaximumInactivity;
+
+private slots:
+  void ClearOldDecoders();
 
 };
 

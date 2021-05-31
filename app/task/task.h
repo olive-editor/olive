@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@
 
 #include <memory>
 #include <QDateTime>
+#include <QDebug>
 #include <QObject>
 
 #include "common/cancelableobject.h"
@@ -93,7 +94,14 @@ public slots:
   {
     start_time_ = QDateTime::currentMSecsSinceEpoch();
 
-    return Run();
+    bool ret = Run();
+
+    // Print how long this task took for debugging purposes
+    qDebug() << this << "took" << (QDateTime::currentMSecsSinceEpoch() - start_time_);
+
+    emit Finished(this, ret);
+
+    return ret;
   }
 
   /**
@@ -152,6 +160,13 @@ signals:
    * A progress value between 0.0 and 1.0.
    */
   void ProgressChanged(double d);
+
+  /**
+   * @brief Emitted when task is finished
+   *
+   * Do NOT delete immediately after this signal, call deleteLater() instead.
+   */
+  void Finished(Task *task, bool succeeded);
 
 private:
   QString title_;

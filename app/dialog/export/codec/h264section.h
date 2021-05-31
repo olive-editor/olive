@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -33,15 +33,15 @@ class H264CRFSection : public QWidget
 {
   Q_OBJECT
 public:
-  H264CRFSection(QWidget* parent = nullptr);
+  H264CRFSection(int default_crf, QWidget* parent = nullptr);
 
   int GetValue() const;
 
+  static const int kDefaultH264CRF = 23;
+  static const int kDefaultH265CRF = 28;
+
 private:
   static const int kMinimumCRF = 0;
-
-  static const int kDefaultCRF = 23;
-
   static const int kMaximumCRF = 51;
 
   QSlider* crf_slider_;
@@ -98,6 +98,7 @@ public:
   };
 
   H264Section(QWidget* parent = nullptr);
+  H264Section(int default_crf, QWidget* parent);
 
   virtual void AddOpts(EncodingParams* params) override;
 
@@ -110,6 +111,13 @@ private:
 
   H264FileSizeSection* filesize_section_;
 
+};
+
+class H265Section : public H264Section
+{
+  Q_OBJECT
+public:
+  H265Section(QWidget* parent = nullptr);
 };
 
 }

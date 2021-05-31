@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -41,15 +41,24 @@ public:
     kFormatQuickTime,
     kFormatPNG,
     kFormatTIFF,
+    kFormatWAV,
+    kFormatAIFF,
+    kFormatMP3,
+    kFormatFLAC,
+    kFormatOgg,
+    kFormatWebM,
+    kFormatSRT,
 
     kFormatCount
   };
 
   static QString GetName(Format f);
   static QString GetExtension(Format f);
-  static QString GetEncoder(Format f);
   static QList<ExportCodec::Codec> GetVideoCodecs(ExportFormat::Format f);
   static QList<ExportCodec::Codec> GetAudioCodecs(ExportFormat::Format f);
+  static QList<ExportCodec::Codec> GetSubtitleCodecs(ExportFormat::Format f);
+
+  static QStringList GetPixelFormatsForCodec(Format f, ExportCodec::Codec c);
 
 };
 

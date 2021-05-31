@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@
 #include <memory>
 #include <QVector>
 
+#include "common/define.h"
 #include "common/rational.h"
 #include "render/color.h"
 #include "render/videoparams.h"
@@ -41,10 +42,16 @@ class Frame
 public:
   Frame();
 
+  ~Frame();
+
+  DISABLE_COPY_MOVE(Frame)
+
   static FramePtr Create();
 
   const VideoParams& video_params() const;
   void set_video_params(const VideoParams& params);
+
+  static FramePtr Interlace(FramePtr top, FramePtr bottom);
 
   static int generate_linesize_bytes(int width, VideoParams::Format format, int channel_count);
 
@@ -102,7 +109,7 @@ public:
    */
   char* data()
   {
-    return data_.data();
+    return data_;
   }
 
   /**
@@ -110,7 +117,7 @@ public:
    */
   const char* const_data() const
   {
-    return data_.constData();
+    return data_;
   }
 
   /**
@@ -127,16 +134,13 @@ public:
    */
   bool is_allocated() const
   {
-    return !data_.isEmpty();
+    return data_;
   }
 
   /**
    * @brief Destroy a memory buffer allocated with allocate()
    */
-  void destroy()
-  {
-    data_.clear();
-  }
+  void destroy();
 
   /**
    * @brief Returns the size of the array returned in data() in bytes
@@ -145,7 +149,7 @@ public:
    */
   int allocated_size() const
   {
-    return data_.size();
+    return data_size_;
   }
 
   FramePtr convert(VideoParams::Format format) const;
@@ -153,7 +157,8 @@ public:
 private:
   VideoParams params_;
 
-  QByteArray data_;
+  char* data_;
+  int data_size_;
 
   rational timestamp_;
 

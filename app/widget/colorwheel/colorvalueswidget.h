@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,8 +24,8 @@
 #include <QWidget>
 
 #include "colorpreviewbox.h"
+#include "node/color/colormanager/colormanager.h"
 #include "render/color.h"
-#include "render/colormanager.h"
 #include "widget/slider/floatslider.h"
 
 namespace olive {

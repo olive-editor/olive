@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -30,6 +30,8 @@ class TransformDistortNode : public MatrixGenerator
   Q_OBJECT
 public:
   TransformDistortNode();
+
+  NODE_DEFAULT_DESTRUCTOR(TransformDistortNode)
 
   virtual Node* copy() const override
   {
@@ -78,6 +80,8 @@ public:
   virtual void GizmoMove(const QPointF &p, const rational &time) override;
   virtual void GizmoRelease() override;
 
+  virtual void Hash(const QString& output, QCryptographicHash& hash, const rational &time, const VideoParams& video_params) const override;
+
   enum AutoScaleType {
     kAutoScaleNone,
     kAutoScaleFit,
@@ -96,6 +100,8 @@ public:
 
 private:
   static QPointF CreateScalePoint(double x, double y, const QPointF& half_res, const QMatrix4x4& mat);
+
+  QMatrix4x4 GenerateAutoScaledMatrix(const QMatrix4x4 &generated_matrix, NodeValueDatabase &db, const VideoParams &texture_params) const;
 
   // Gizmo variables
   QString gizmo_drag_;

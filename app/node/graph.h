@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -39,6 +39,11 @@ public:
    * @brief NodeGraph Constructor
    */
   NodeGraph();
+
+  /**
+   * @brief NodeGraph Destructor
+   */
+  virtual ~NodeGraph() override;
 
   /**
    * @brief Destructively destroys all nodes in the graph

@@ -36,13 +36,13 @@
     <name>Config</name>
     <message>
         <source>Error loading settings</source>
-        <translation>Chyba při nahrávání nastavení</translation>
+        <translation>Chyba při načítání nastavení</translation>
     </message>
     <message>
         <source>Failed to load application settings. This session will use defaults.
 
 %1</source>
-        <translation>Nepodařilo se nahrát nastavení programu. Toto sezení bude používat výchozí nastavení.
+        <translation>Nepodařilo se načíst nastavení programu. Toto sezení bude používat výchozí nastavení.
 
 %1</translation>
     </message>
@@ -51,12 +51,8 @@
         <translation>Chyba při ukládání nastavení</translation>
     </message>
     <message>
-        <source>Failed to save application settings. The application may lack write permissions to this location.</source>
-        <translation type="vanished">Nepodařilo se uložit nastavení programu. Program může postrádat oprávnění k zápisu do tohoto umístění.</translation>
-    </message>
-    <message>
         <source>Failed to save application settings. The application may lack write permissions for this location.</source>
-        <translation>Nepodařilo se uložit nastavení programu. Program může postrádat oprávnění k zápisu do tohoto umístění.</translation>
+        <translation type="vanished">Nepodařilo se uložit nastavení programu. Program může postrádat oprávnění k zápisu do tohoto umístění.</translation>
     </message>
 </context>
 <context>
@@ -94,7 +90,7 @@
     </message>
     <message>
         <source>Automatically Detect Parameters From Footage</source>
-        <translation>Parametry zjistit automaticky ze záznamu</translation>
+        <translation>Automaticky zjistit parametry ze záznamu</translation>
     </message>
     <message>
         <source>Set Parameters Manually</source>
@@ -232,7 +228,7 @@
     </message>
     <message>
         <source>A preset with this name already exists. Would you like to replace it?</source>
-        <translation>Již je přednastavení s tímto názvem. Chcete je nahradit?</translation>
+        <translation>Přednastavení s tímto názvem již existuje. Chcete je nahradit?</translation>
     </message>
 </context>
 <context>
@@ -247,7 +243,7 @@
     </message>
     <message>
         <source>Failed to parse &quot;%1&quot; into an aspect ratio. Please format a rational fraction with a &apos;:&apos; or a &apos;/&apos; separator.</source>
-        <translation>Nepodařilo se zpracovat &quot;%1&quot; do poměru stran. Naformátujte, prosím, racionální zlomek pomocí oddělovače &apos;:&apos; nebo a &apos;/&apos;.</translation>
+        <translation>Nepodařilo se zpracovat &quot;%1&quot; do poměru stran. Naformátujte, prosím, racionální zlomek pomocí oddělovače &apos;:&apos; nebo &apos;/&apos;.</translation>
     </message>
 </context>
 <context>
@@ -391,11 +387,11 @@ Délka: %4</translation>
     <name>main</name>
     <message>
         <source>Show this help text</source>
-        <translation>Ukázat tento text s nápovědou</translation>
+        <translation>Ukáže tento text s nápovědou</translation>
     </message>
     <message>
         <source>Show application version</source>
-        <translation>Ukázat verzi programu</translation>
+        <translation>Ukáže verzi programu</translation>
     </message>
     <message>
         <source>Start in full-screen mode</source>
@@ -403,7 +399,7 @@ Délka: %4</translation>
     </message>
     <message>
         <source>Export only (No GUI)</source>
-        <translation>Pouze vyvést (žádné tozhraní)</translation>
+        <translation>Pouze exportovat (bez rozhraní)</translation>
     </message>
     <message>
         <source>Override language with file</source>
@@ -452,7 +448,7 @@ Délka: %4</translation>
     </message>
     <message>
         <source>Import an audio footage stream.</source>
-        <translation type="vanished">Zavést zvukový záznam.</translation>
+        <translation type="vanished">Importovat zvukový záznam.</translation>
     </message>
 </context>
 <context>
@@ -724,30 +720,30 @@ Délka: %4</translation>
     <name>olive::ConformTask</name>
     <message>
         <source>Conforming Audio %1:%2</source>
-        <translation>Přizpůsobující se zvuk %1:%2</translation>
+        <translation>Přizpůsobuji zvuk %1:%2</translation>
     </message>
 </context>
 <context>
     <name>olive::Core</name>
     <message>
         <source>Import error</source>
-        <translation>Chyba při zavádění</translation>
+        <translation>Chyba při importu</translation>
     </message>
     <message>
         <source>Nothing to import</source>
-        <translation>Nic k zavedení</translation>
+        <translation>Nic k importu</translation>
     </message>
     <message>
         <source>Importing...</source>
-        <translation>Zavádí se...</translation>
+        <translation>Importuje se...</translation>
     </message>
     <message>
         <source>Import footage...</source>
-        <translation>Zavést záznam...</translation>
+        <translation>Importovat záznam...</translation>
     </message>
     <message>
         <source>Failed to import footage</source>
-        <translation>Nepodařilo se zavést záznam</translation>
+        <translation>Nepodařilo se importovat záznam</translation>
     </message>
     <message>
         <source>Failed to find active Project panel</source>
@@ -783,11 +779,11 @@ Délka: %4</translation>
     </message>
     <message>
         <source>The file &apos;%1&apos; looks like it might be part of an image sequence. Would you like to import it as such?</source>
-        <translation>Soubor &apos;%1&apos; vypadá na to, že by mohl být součástí obrázkové řady. Chcete jej zavést jako takový?</translation>
+        <translation>Soubor &apos;%1&apos; může být součástí obrázkové řady. Chcete jej tak importovat?</translation>
     </message>
     <message>
         <source>You must specify a project file to export</source>
-        <translation>Musíte určit soubor projektu, který chcete vyvést</translation>
+        <translation>Musíte určit soubor projektu pro export</translation>
     </message>
     <message>
         <source>Specified project does not exist</source>
@@ -795,11 +791,11 @@ Délka: %4</translation>
     </message>
     <message>
         <source>Project contains no sequences, nothing to export</source>
-        <translation type="vanished">Projekt neobsahuje žádné úryvky, není co vyvést</translation>
+        <translation type="vanished">Projekt neobsahuje žádné úryvky, není co exportovat</translation>
     </message>
     <message>
         <source>This project has multiple sequences. Which do you wish to export?</source>
-        <translation type="vanished">V tomto projektu je více úryvků. Který chcete vyvést?</translation>
+        <translation type="vanished">V tomto projektu je více úryvků. Který chcete exportovat?</translation>
     </message>
     <message>
         <source>Enter number (or %1 to cancel): </source>
@@ -811,15 +807,15 @@ Délka: %4</translation>
     </message>
     <message>
         <source>Export succeeded</source>
-        <translation type="vanished">Podařilo se vyvést</translation>
+        <translation type="vanished">Export proběhl v pořádku</translation>
     </message>
     <message>
         <source>Export failed: %1</source>
-        <translation type="vanished">Nepodařilo se vyvést: %1</translation>
+        <translation type="vanished">Nepodařilo se exportovat: %1</translation>
     </message>
     <message>
         <source>Project failed to load: %1</source>
-        <translation type="vanished">Projekt se nepodařilo nahrát: %1</translation>
+        <translation type="vanished">Projekt se nepodařilo načíst: %1</translation>
     </message>
     <message>
         <source>Failed to open startup file</source>
@@ -847,7 +843,7 @@ Délka: %4</translation>
     </message>
     <message>
         <source>This Sequence is empty. There is nothing to export.</source>
-        <translation>Tento úryvek je prázdný. Není co vyvádět.</translation>
+        <translation>Tento úryvek je prázdný. Není co exportovat.</translation>
     </message>
     <message>
         <source>No valid sequence detected.
@@ -855,7 +851,7 @@ Délka: %4</translation>
 Make sure a sequence is loaded and it has a connected Viewer node.</source>
         <translation>Nezjištěn žádný platný úryvek.
 
-Ujistěte se, že je úryvek nahrán  a má připojený uzel prohlížeče.</translation>
+Ujistěte se, že je úryvek načten a má připojený uzel prohlížeče.</translation>
     </message>
     <message>
         <source>Olive Project</source>
@@ -871,7 +867,7 @@ Ujistěte se, že je úryvek nahrán  a má připojený uzel prohlížeče.</tra
     </message>
     <message>
         <source>Load Project</source>
-        <translation>Nahrát projekt</translation>
+        <translation>Načíst projekt</translation>
     </message>
     <message>
         <source>Label Node</source>
@@ -919,7 +915,7 @@ Ujistěte se, že je úryvek nahrán  a má připojený uzel prohlížeče.</tra
     </message>
     <message>
         <source>Failed to cache sequence</source>
-        <translation>Úryvek se nepodařilo uložit do vyrovnávací paměti</translation>
+        <translation>Nepodařilo se uložit úryvek do vyrovnávací paměti</translation>
     </message>
     <message>
         <source>No active viewer found with this sequence.</source>
@@ -1036,7 +1032,7 @@ Ujistěte se, že je úryvek nahrán  a má připojený uzel prohlížeče.</tra
     <name>olive::CrossDissolveTransition</name>
     <message>
         <source>Cross Dissolve</source>
-        <translation>Prolínat obraz křížem</translation>
+        <translation>Prolnutí záběrů</translation>
     </message>
     <message>
         <source>Smoothly transition between two clips.</source>
@@ -1131,7 +1127,7 @@ Ujistěte se, že je úryvek nahrán  a má připojený uzel prohlížeče.</tra
     </message>
     <message>
         <source>Disk Cache Partially Cleared</source>
-        <translation>Disková vyrovnávací paměť vyprázdněna částečně</translation>
+        <translation>Disková vyrovnávací paměť částečně vyprázdněna</translation>
     </message>
 </context>
 <context>
@@ -1142,7 +1138,7 @@ Ujistěte se, že je úryvek nahrán  a má připojený uzel prohlížeče.</tra
     </message>
     <message>
         <source>Unable to set custom application disk cache. Using default instead.</source>
-        <translation>Nelze nastavit diskovou vyrovnávací paměť vlastní aplikace. Místo toho se používá výchozí.</translation>
+        <translation>Nelze nastavit vlastní diskovou vyrovnávací paměť aplikace. Místo toho se používá výchozí.</translation>
     </message>
     <message>
         <source>Disk Cache</source>
@@ -1150,7 +1146,7 @@ Ujistěte se, že je úryvek nahrán  a má připojený uzel prohlížeče.</tra
     </message>
     <message>
         <source>You&apos;ve chosen to change the default disk cache location. This will invalidate your current cache. Would you like to continue?</source>
-        <translation>Rozhodl jste se změnit výchozí umístění diskové vyrovnávací paměti disku. To zneplatní vaši nynější vyrovnávací paměť. Chcete pokračovat?</translation>
+        <translation>Rozhodl jste se změnit výchozí umístění diskové vyrovnávací paměti. To zneplatní vaši nynější vyrovnávací paměť. Chcete pokračovat?</translation>
     </message>
     <message>
         <source>Failed to open disk cache at &quot;%1&quot;. Try a different folder.</source>
@@ -1277,7 +1273,7 @@ Ujistěte se, že je úryvek nahrán  a má připojený uzel prohlížeče.</tra
     </message>
     <message>
         <source>Browse for exported file filename</source>
-        <translation>Procházet na souborový název vyvedeného souboru</translation>
+        <translation>Procházet na souborový název eportovaného souboru</translation>
     </message>
     <message>
         <source>Preset:</source>
@@ -1285,15 +1281,15 @@ Ujistěte se, že je úryvek nahrán  a má připojený uzel prohlížeče.</tra
     </message>
     <message>
         <source>Same As Source - High Quality</source>
-        <translation>Stejné jako zdroj - vysoká jakost</translation>
+        <translation>Stejné jako zdroj - vysoká kvalita</translation>
     </message>
     <message>
         <source>Same As Source - Medium Quality</source>
-        <translation>Stejné jako zdroj - střední jakost</translation>
+        <translation>Stejné jako zdroj - střední kvalita</translation>
     </message>
     <message>
         <source>Same As Source - Low Quality</source>
-        <translation>Stejné jako zdroj - nízká jakost</translation>
+        <translation>Stejné jako zdroj - nízká kvalita</translation>
     </message>
     <message>
         <source>Range:</source>
@@ -1313,11 +1309,11 @@ Ujistěte se, že je úryvek nahrán  a má připojený uzel prohlížeče.</tra
     </message>
     <message>
         <source>Export Video</source>
-        <translation>Vyvést obraz</translation>
+        <translation>Exportovat obraz</translation>
     </message>
     <message>
         <source>Export Audio</source>
-        <translation>Vyvést zvuk</translation>
+        <translation>Exportovat zvuk</translation>
     </message>
     <message>
         <source>Video</source>
@@ -1329,7 +1325,7 @@ Ujistěte se, že je úryvek nahrán  a má připojený uzel prohlížeče.</tra
     </message>
     <message>
         <source>Export</source>
-        <translation>Vyvést</translation>
+        <translation>Exportovat</translation>
     </message>
     <message>
         <source>Preview</source>
@@ -1341,7 +1337,7 @@ Ujistěte se, že je úryvek nahrán  a má připojený uzel prohlížeče.</tra
     </message>
     <message>
         <source>Both video and audio are disabled. There&apos;s nothing to export.</source>
-        <translation>Obraz i zvuk jsou vypnuty. Není co vyvádět.</translation>
+        <translation>Obraz i zvuk jsou vypnuty. Není co exportovat.</translation>
     </message>
     <message>
         <source>Invalid filename</source>
@@ -1415,7 +1411,7 @@ Ujistěte se, že je úryvek nahrán  a má připojený uzel prohlížeče.</tra
     <name>olive::ExportTask</name>
     <message>
         <source>Exporting &quot;%1&quot;</source>
-        <translation>Vyvádí se &quot;%1&quot;</translation>
+        <translation>Exportuje se &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Failed to create encoder</source>
@@ -1427,7 +1423,7 @@ Ujistěte se, že je úryvek nahrán  a má připojený uzel prohlížeče.</tra
     </message>
     <message>
         <source>Failed to overwrite &quot;%1&quot;. Export has been saved as &quot;%2&quot; instead.</source>
-        <translation>Nepodařilo se přepsat &quot;%1&quot;. Vyvedení bylo místo toho uloženo jako &quot;%2&quot;.</translation>
+        <translation>Nepodařilo se přepsat &quot;%1&quot;. Výsledný soubor byl místo toho uložen jako &quot;%2&quot;.</translation>
     </message>
 </context>
 <context>
@@ -1466,7 +1462,7 @@ Ujistěte se, že je úryvek nahrán  a má připojený uzel prohlížeče.</tra
     </message>
     <message>
         <source>Frame Rate:</source>
-        <translation>Snímkování:</translation>
+        <translation>Snímková frekvence:</translation>
     </message>
     <message>
         <source>Pixel Aspect Ratio:</source>
@@ -1478,7 +1474,7 @@ Ujistěte se, že je úryvek nahrán  a má připojený uzel prohlížeče.</tra
     </message>
     <message>
         <source>Quality:</source>
-        <translation>Jakost:</translation>
+        <translation>Kvalita:</translation>
     </message>
     <message>
         <source>Codec</source>
@@ -1695,7 +1691,7 @@ Ujistěte se, že je úryvek nahrán  a má připojený uzel prohlížeče.</tra
     <name>olive::H264Section</name>
     <message>
         <source>Compression Method:</source>
-        <translation>Kompresní postup:</translation>
+        <translation>Metoda komprese:</translation>
     </message>
     <message>
         <source>Constant Rate Factor</source>
@@ -1782,7 +1778,7 @@ Ujistěte se, že je úryvek nahrán  a má připojený uzel prohlížeče.</tra
     <name>olive::LoadOTIOTask</name>
     <message>
         <source>Failed to load OpenTimelineIO from file &quot;%1&quot;</source>
-        <translation>Nepodařilo se nahrát OpenTimelineIO ze souboru &quot;%1&quot;</translation>
+        <translation>Nepodařilo se načíst OpenTimelineIO ze souboru &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Unknown OpenTimelineIO root element</source>
@@ -1790,7 +1786,7 @@ Ujistěte se, že je úryvek nahrán  a má připojený uzel prohlížeče.</tra
     </message>
     <message>
         <source>Failed to load clip</source>
-        <translation>Nepodařilo se nahrát záběr</translation>
+        <translation>Nepodařilo se načíst záběr</translation>
     </message>
 </context>
 <context>
@@ -1857,11 +1853,11 @@ Ujistěte se, že je úryvek nahrán  a má připojený uzel prohlížeče.</tra
     </message>
     <message>
         <source>&amp;Import...</source>
-        <translation>&amp;Zavést...</translation>
+        <translation>&amp;Importovat...</translation>
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation>&amp;Vyvést</translation>
+        <translation>&amp;Exportovat</translation>
     </message>
     <message>
         <source>&amp;Media...</source>
@@ -2005,15 +2001,15 @@ Ujistěte se, že je úryvek nahrán  a má připojený uzel prohlížeče.</tra
     </message>
     <message>
         <source>Shuttle Left</source>
-        <translation>Jezdit tam a zpět vlevo</translation>
+        <translation>Přehrát pozpátku</translation>
     </message>
     <message>
         <source>Shuttle Stop</source>
-        <translation>Zastavit pendlování</translation>
+        <translation>Zastavit přehrávání</translation>
     </message>
     <message>
         <source>Shuttle Right</source>
-        <translation>Jezdit tam a zpět vpravo</translation>
+        <translation>Přehrát</translation>
     </message>
     <message>
         <source>Loop</source>
@@ -2030,6 +2026,10 @@ Ujistěte se, že je úryvek nahrán  a má připojený uzel prohlížeče.</tra
     <message>
         <source>Cache Sequence In/Out</source>
         <translation>Uložit začátek/konec úryvku do vyrovnávací paměti</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <translation>Okno</translation>
     </message>
     <message>
         <source>Maximize Panel</source>
@@ -2235,15 +2235,15 @@ Je známo, že tento ovladač má u Olive problémy se stabilitou a výkonem. D�
     <name>olive::MatrixGenerator</name>
     <message>
         <source>Orthographic Matrix</source>
-        <translation>Pravopisná matice</translation>
+        <translation>Ortografická matice</translation>
     </message>
     <message>
         <source>Ortho</source>
-        <translation>Pravopis</translation>
+        <translation>Orto</translation>
     </message>
     <message>
         <source>Generate an orthographic matrix using position, rotation, and scale.</source>
-        <translation>Vytvořte ortografickou matici pomocí polohy, otočení a měřítka.</translation>
+        <translation>Vytvoří ortografickou matici pomocí polohy, otočení a měřítka.</translation>
     </message>
     <message>
         <source>Position</source>
@@ -2353,7 +2353,7 @@ Je známo, že tento ovladač má u Olive problémy se stabilitou a výkonem. D�
     </message>
     <message>
         <source>Nest</source>
-        <translation>Vnořovat</translation>
+        <translation>Vnořit</translation>
     </message>
     <message>
         <source>Frames</source>
@@ -2365,7 +2365,7 @@ Je známo, že tento ovladač má u Olive problémy se stabilitou a výkonem. D�
     </message>
     <message>
         <source>Non-Drop Frame</source>
-        <translation>Nezahodit snímek</translation>
+        <translation>Nezahazovat snímek</translation>
     </message>
     <message>
         <source>Milliseconds</source>
@@ -2384,7 +2384,7 @@ Je známo, že tento ovladač má u Olive problémy se stabilitou a výkonem. D�
     </message>
     <message>
         <source>Merge two textures together.</source>
-        <translation>Sloučit dva povrchy dohromady.</translation>
+        <translation>Sloučit dvě textury dohromady.</translation>
     </message>
     <message>
         <source>Base</source>
@@ -2450,7 +2450,7 @@ Je známo, že tento ovladač má u Olive problémy se stabilitou a výkonem. D�
     </message>
     <message>
         <source>Generator</source>
-        <translation>Tvůrce</translation>
+        <translation>Vytvořit</translation>
     </message>
     <message>
         <source>Channel</source>
@@ -2542,7 +2542,7 @@ Je známo, že tento ovladač má u Olive problémy se stabilitou a výkonem. D�
     </message>
     <message>
         <source>Texture</source>
-        <translation type="vanished">Povrch</translation>
+        <translation type="vanished">Textura</translation>
     </message>
     <message>
         <source>Samples</source>
@@ -2640,7 +2640,7 @@ Je známo, že tento ovladač má u Olive problémy se stabilitou a výkonem. D�
     </message>
     <message>
         <source>Are you sure you want to disable keyframing on this value? This will clear all existing keyframes.</source>
-        <translation>Opravdu chcete zakázat klíčování snímků na této hodnotě? Tím budou vyprázdněny všechny stávající klíčové snímky.</translation>
+        <translation>Opravdu chcete zakázat klíčování snímků na této hodnotě? Tím budou odebrán všechny stávající klíčové snímky.</translation>
     </message>
 </context>
 <context>
@@ -2859,7 +2859,7 @@ Je známo, že tento ovladač má u Olive problémy se stabilitou a výkonem. D�
     <name>olive::PreCacheTask</name>
     <message>
         <source>Pre-caching %1:%2</source>
-        <translation>Ukládání do vyrovnávací paměti dopředu %1:%2</translation>
+        <translation>Ukládání do vyrovnávací paměti %1:%2</translation>
     </message>
 </context>
 <context>
@@ -2956,7 +2956,7 @@ Je známo, že tento ovladač má u Olive problémy se stabilitou a výkonem. D�
     </message>
     <message>
         <source>Auto-Seek to Imported Clips</source>
-        <translation>Přehrávat automaticky normální rychlostí s přeskakováním k zavedeným záběrům</translation>
+        <translation>Přehrávat automaticky normální rychlostí s přeskakováním k importovaným záběrům</translation>
     </message>
     <message>
         <source>Edit Tool Also Seeks</source>
@@ -2976,7 +2976,7 @@ Je známo, že tento ovladač má u Olive problémy se stabilitou a výkonem. D�
     </message>
     <message>
         <source>Hold ALT on any UI element to switch scrolling axes</source>
-        <translation>Podržení Alt na libovolném prvku uživatelského rozhraní pro přepnutí os posunování</translation>
+        <translation>Držte Alt na libovolném prvku uživatelského rozhraní pro přepnutí os posunování</translation>
     </message>
     <message>
         <source>Seek Also Selects</source>
@@ -3126,7 +3126,7 @@ Je známo, že tento ovladač má u Olive problémy se stabilitou a výkonem. D�
     </message>
     <message>
         <source>Page Scrolling</source>
-        <translation>Posunování strany</translation>
+        <translation>Posunování po stránkách</translation>
     </message>
     <message>
         <source>Smooth Scrolling</source>
@@ -3169,11 +3169,11 @@ Je známo, že tento ovladač má u Olive problémy se stabilitou a výkonem. D�
     </message>
     <message>
         <source>Import</source>
-        <translation>Zavést</translation>
+        <translation>Importovat</translation>
     </message>
     <message>
         <source>Export</source>
-        <translation>Vyvést</translation>
+        <translation>Exportovat</translation>
     </message>
     <message>
         <source>Reset Selected</source>
@@ -3185,7 +3185,7 @@ Je známo, že tento ovladač má u Olive problémy se stabilitou a výkonem. D�
     </message>
     <message>
         <source>Confirm Reset All Shortcuts</source>
-        <translation>Potvrdit obnovení výchozího nastavení všech klávesových zkratek</translation>
+        <translation>Potvrzení obnovení výchozího nastavení všech klávesových zkratek</translation>
     </message>
     <message>
         <source>Are you sure you wish to reset all keyboard shortcuts to their defaults?</source>
@@ -3193,7 +3193,7 @@ Je známo, že tento ovladač má u Olive problémy se stabilitou a výkonem. D�
     </message>
     <message>
         <source>Import Keyboard Shortcuts</source>
-        <translation>Zavést klávesové zkratky</translation>
+        <translation>Importovat klávesové zkratky</translation>
     </message>
     <message>
         <source>Error saving shortcuts</source>
@@ -3201,15 +3201,15 @@ Je známo, že tento ovladač má u Olive problémy se stabilitou a výkonem. D�
     </message>
     <message>
         <source>Failed to open file for reading</source>
-        <translation>Soubor se nepodařilo otevřít pro čtení</translation>
+        <translation>Nelze otevřít soubor pro čtení</translation>
     </message>
     <message>
         <source>Export Keyboard Shortcuts</source>
-        <translation>Vyvést klávesové zkratky</translation>
+        <translation>Exportovat klávesové zkratky</translation>
     </message>
     <message>
         <source>Export Shortcuts</source>
-        <translation>Vyvést zkratky</translation>
+        <translation>Exportovat zkratky</translation>
     </message>
     <message>
         <source>Shortcuts exported successfully</source>
@@ -3217,7 +3217,7 @@ Je známo, že tento ovladač má u Olive problémy se stabilitou a výkonem. D�
     </message>
     <message>
         <source>Failed to open file for writing</source>
-        <translation>Soubor se nepodařilo otevřít pro zápis</translation>
+        <translation>Nelze otevřít soubor pro zápis</translation>
     </message>
 </context>
 <context>
@@ -3250,7 +3250,7 @@ Je známo, že tento ovladač má u Olive problémy se stabilitou a výkonem. D�
     </message>
     <message>
         <source>&amp;Import...</source>
-        <translation>&amp;Zavést...</translation>
+        <translation>&amp;Importovat...</translation>
     </message>
     <message>
         <source>&amp;Project Properties...</source>
@@ -3346,29 +3346,25 @@ Opravdu chcete tento záznam smazat?</translation>
     <name>olive::ProjectImportErrorDialog</name>
     <message>
         <source>Import Error</source>
-        <translation>Chyba při zavádění</translation>
+        <translation>Chyba při importu</translation>
     </message>
     <message>
         <source>The following files failed to import. Olive likely does not support their formats.</source>
-        <translation>Následující soubory se nepodařilo zavést. Olive pravděpodobně nepodporuje jejich formáty.</translation>
+        <translation>Následující soubory se nepodařilo importovat. Olive pravděpodobně nepodporuje jejich formáty.</translation>
     </message>
 </context>
 <context>
     <name>olive::ProjectImportTask</name>
     <message>
-        <source>Importing %1 files</source>
-        <translation type="vanished">Zavádí se %1 souborů</translation>
-    </message>
-    <message>
         <source>Importing %1 file(s)</source>
-        <translation>Zavádí se %1 soubor(ů)</translation>
+        <translation>Importuje se %1 soubor(ů)</translation>
     </message>
 </context>
 <context>
     <name>olive::ProjectLoadBaseTask</name>
     <message>
         <source>Loading &apos;%1&apos;</source>
-        <translation>Nahrává se &apos;%1&apos;</translation>
+        <translation>Načítá se &apos;%1&apos;</translation>
     </message>
 </context>
 <context>
@@ -3453,7 +3449,7 @@ Opravdu chcete tento záznam smazat?</translation>
     </message>
     <message>
         <source>&quot;Store alignside project&quot; functionality not implemented yet</source>
-        <translation type="vanished">Funkce pro Uložit projekt vedle dosud není udělána</translation>
+        <translation type="vanished">Funkce pro Uložit projekt vedle není dosud hotova</translation>
     </message>
     <message>
         <source>Disk Cache</source>
@@ -3597,7 +3593,7 @@ Opravdu chcete tento záznam smazat?</translation>
     </message>
     <message>
         <source>Rate</source>
-        <translation>Rychlost</translation>
+        <translation>Snímková frekvence</translation>
     </message>
     <message>
         <source>Move Items</source>
@@ -3608,7 +3604,7 @@ Opravdu chcete tento záznam smazat?</translation>
     <name>olive::RenderCancelDialog</name>
     <message>
         <source>Waiting for workers to finish...</source>
-        <translation>Čeká se na dokončení dělníky...</translation>
+        <translation>Čeká se na dokončení vláken na pozadí...</translation>
     </message>
     <message>
         <source>Renderer</source>
@@ -3671,7 +3667,7 @@ Opravdu chcete tento záznam smazat?</translation>
     </message>
     <message>
         <source>Center Align</source>
-        <translation>Na střed</translation>
+        <translation>Zarovnat na střed</translation>
     </message>
     <message>
         <source>R</source>
@@ -3694,15 +3690,15 @@ Opravdu chcete tento záznam smazat?</translation>
     <name>olive::SaveOTIOTask</name>
     <message>
         <source>Exporting project to OpenTimelineIO</source>
-        <translation>Projekt se vyvádí do OpenTimelineIO</translation>
+        <translation>Projekt se exportuje do OpenTimelineIO</translation>
     </message>
     <message>
         <source>Project contains no sequences to export.</source>
-        <translation>Projekt neobsahuje žádné úryvky k vyvedení.</translation>
+        <translation>Projekt neobsahuje žádné úryvky k exportu.</translation>
     </message>
     <message>
         <source>Failed to serialize sequence &quot;%1&quot;</source>
-        <translation>Nepodařilo se vydat na pokračování úryvek &quot;%1&quot;</translation>
+        <translation>Nepodařilo se serializovat úryvek &quot;%1&quot;</translation>
     </message>
 </context>
 <context>
@@ -3713,7 +3709,7 @@ Opravdu chcete tento záznam smazat?</translation>
     </message>
     <message>
         <source>Histogram</source>
-        <translation>Sloupcový graf</translation>
+        <translation>Histogram</translation>
     </message>
     <message>
         <source>Scope</source>
@@ -3802,7 +3798,7 @@ Opravdu chcete tento záznam smazat?</translation>
     </message>
     <message>
         <source>Frame Rate:</source>
-        <translation type="vanished">Snímkování:</translation>
+        <translation type="vanished">Snímková frekvence:</translation>
     </message>
     <message>
         <source>Pixel Aspect Ratio:</source>
@@ -3834,7 +3830,7 @@ Opravdu chcete tento záznam smazat?</translation>
     </message>
     <message>
         <source>Quality:</source>
-        <translation>Jakost:</translation>
+        <translation>Kvalita:</translation>
     </message>
     <message>
         <source>Save Preset</source>
@@ -3877,23 +3873,23 @@ Opravdu chcete tento záznam smazat?</translation>
     </message>
     <message>
         <source>%1 23.976 FPS</source>
-        <translation>%1 23.976 snímků za sekundu</translation>
+        <translation>%1 23.976 FPS</translation>
     </message>
     <message>
         <source>%1 25 FPS</source>
-        <translation>%1 25 snímků za sekundu</translation>
+        <translation>%1 25 FPS</translation>
     </message>
     <message>
         <source>%1 29.97 FPS</source>
-        <translation>%1 29.97 snímků za sekundu</translation>
+        <translation>%1 29.97 FPS</translation>
     </message>
     <message>
         <source>%1 50 FPS</source>
-        <translation>%1 50 snímků za sekundu</translation>
+        <translation>%1 50 FPS</translation>
     </message>
     <message>
         <source>%1 59.94 FPS</source>
-        <translation>%1 59.94 snímků za sekundu</translation>
+        <translation>%1 59.94 FPS</translation>
     </message>
     <message>
         <source>%1 Standard</source>
@@ -3934,7 +3930,7 @@ Opravdu chcete tento záznam smazat?</translation>
     </message>
     <message>
         <source>Generate a solid color.</source>
-        <translation>Vytvořit jednobarevné.</translation>
+        <translation>Vytvoří jednobarevnou plochu.</translation>
     </message>
     <message>
         <source>Color</source>
@@ -3956,7 +3952,7 @@ Opravdu chcete tento záznam smazat?</translation>
     </message>
     <message>
         <source>Creates a stroke outline around an image.</source>
-        <translation>Vytvoří obrys tahu kolem obrázku.</translation>
+        <translation>Vytvoří obrys kolem obrázku.</translation>
     </message>
     <message>
         <source>Input</source>
@@ -4080,7 +4076,7 @@ Opravdu chcete tento záznam smazat?</translation>
     </message>
     <message>
         <source>Generates the time (in seconds) at this frame</source>
-        <translation>Vytvořit na tomto snímku čas (v sekundách)</translation>
+        <translation>Vytvoří na tomto snímku čas (v sekundách)</translation>
     </message>
 </context>
 <context>
@@ -4323,7 +4319,7 @@ Opravdu chcete tento záznam smazat?</translation>
     </message>
     <message>
         <source>Logarithmic</source>
-        <translation>Logaritmický</translation>
+        <translation>Logaritmická</translation>
     </message>
 </context>
 <context>
@@ -4334,7 +4330,7 @@ Opravdu chcete tento záznam smazat?</translation>
     </message>
     <message>
         <source>Perform a trigonometry operation on a value.</source>
-        <translation>Provést s hodnotou trigonometrickou operaci.</translation>
+        <translation>Provede s hodnotou trigonometrickou operaci.</translation>
     </message>
     <message>
         <source>Sine</source>
@@ -4342,7 +4338,7 @@ Opravdu chcete tento záznam smazat?</translation>
     </message>
     <message>
         <source>Cosine</source>
-        <translation>Cosinus</translation>
+        <translation>Kosinus</translation>
     </message>
     <message>
         <source>Tangent</source>
@@ -4350,15 +4346,15 @@ Opravdu chcete tento záznam smazat?</translation>
     </message>
     <message>
         <source>Inverse Sine</source>
-        <translation>Obrátit sinus</translation>
+        <translation>Arkus sinus</translation>
     </message>
     <message>
         <source>Inverse Cosine</source>
-        <translation>Obrátit cosinus</translation>
+        <translation>Arkus kosinus</translation>
     </message>
     <message>
         <source>Inverse Tangent</source>
-        <translation>Obrátit tangens</translation>
+        <translation>Arkus tangens</translation>
     </message>
     <message>
         <source>Hyperbolic Sine</source>
@@ -4366,7 +4362,7 @@ Opravdu chcete tento záznam smazat?</translation>
     </message>
     <message>
         <source>Hyperbolic Cosine</source>
-        <translation>Hyperbolický cosinus</translation>
+        <translation>Hyperbolický kosinus</translation>
     </message>
     <message>
         <source>Hyperbolic Tangent</source>
@@ -4400,7 +4396,7 @@ Opravdu chcete tento záznam smazat?</translation>
     </message>
     <message>
         <source>Import a video footage stream.</source>
-        <translation type="vanished">Zavést obrazový záznam.</translation>
+        <translation type="vanished">Importovat obrazový záznam.</translation>
     </message>
 </context>
 <context>
@@ -4530,7 +4526,7 @@ Opravdu chcete tento záznam smazat?</translation>
     </message>
     <message>
         <source>Frame Rate:</source>
-        <translation type="vanished">Snímkování:</translation>
+        <translation type="vanished">Snímková frekvence:</translation>
     </message>
     <message>
         <source>Invalid Configuration</source>
@@ -4564,7 +4560,7 @@ Opravdu chcete tento záznam smazat?</translation>
     </message>
     <message>
         <source>Texture</source>
-        <translation type="vanished">Povrch</translation>
+        <translation type="vanished">Textura</translation>
     </message>
     <message>
         <source>Samples</source>
@@ -4598,7 +4594,7 @@ Opravdu chcete tento záznam smazat?</translation>
     </message>
     <message>
         <source>No in or out points are set to cache.</source>
-        <translation>Do vyrovnávací paměti nejsou nastaveny žádný bod začátku nebo konce.</translation>
+        <translation>Do vyrovnávací paměti nenejsou nastaveny žádné body začátku nebo konce.</translation>
     </message>
     <message>
         <source>Safe Margins</source>

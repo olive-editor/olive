@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -65,6 +65,12 @@ private slots:
    * @brief Slot triggered just before the File menu shows
    */
   void FileMenuAboutToShow();
+
+  /**
+   * @brief Slot triggered just before the Edit menu shows
+   */
+  void EditMenuAboutToShow();
+  void EditMenuAboutToHide();
 
   /**
    * @brief Slot triggered just before the View menu shows
@@ -202,6 +208,7 @@ private:
   Menu* edit_menu_;
   QAction* edit_undo_item_;
   QAction* edit_redo_item_;
+  QAction* edit_delete2_item_;
   QAction* edit_select_all_item_;
   QAction* edit_deselect_all_item_;
   QAction* edit_insert_item_;

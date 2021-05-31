@@ -54,16 +54,18 @@ SequenceDialogParameterTab::SequenceDialogParameterTab(Sequence* sequence, QWidg
   preview_layout->addWidget(preview_resolution_label_, row, 2);
   row++;
   preview_layout->addWidget(new QLabel(tr("Quality:")), row, 0);
-  preview_format_field_ = new PixelFormatComboBox(true);
+  preview_format_field_ = new PixelFormatComboBox(false);
   preview_layout->addWidget(preview_format_field_, row, 1, 1, 2);
   layout->addWidget(preview_group);
 
   // Set values based on input sequence
-  video_section_->SetVideoParams(sequence->video_params());
-  preview_resolution_field_->SetDivider(sequence->video_params().divider());
-  preview_format_field_->SetPixelFormat(sequence->video_params().format());
-  audio_sample_rate_field_->SetSampleRate(sequence->audio_params().sample_rate());
-  audio_channels_field_->SetChannelLayout(sequence->audio_params().channel_layout());
+  VideoParams vp = sequence->GetVideoParams();
+  AudioParams ap = sequence->GetAudioParams();
+  video_section_->SetVideoParams(vp);
+  preview_resolution_field_->SetDivider(vp.divider());
+  preview_format_field_->SetPixelFormat(vp.format());
+  audio_sample_rate_field_->SetSampleRate(ap.sample_rate());
+  audio_channels_field_->SetChannelLayout(ap.channel_layout());
 
   connect(preview_resolution_field_, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
           this, &SequenceDialogParameterTab::UpdatePreviewResolutionLabel);

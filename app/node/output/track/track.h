@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@ public:
 
   Track();
 
-  virtual ~Track() override;
+  NODE_DEFAULT_DESTRUCTOR(Track)
 
   const Track::Type& type() const;
   void set_type(const Track::Type& track_type);
@@ -132,6 +132,70 @@ public:
     bool operator!=(const Reference& ref) const
     {
       return !(*this == ref);
+    }
+
+    bool operator<(const Track::Reference& rhs) const
+    {
+      if (type_ != rhs.type_) {
+        return type_ < rhs.type_;
+      }
+
+      return index_ < rhs.index_;
+    }
+
+    QString ToString() const
+    {
+      QString type_string;
+
+      if (type_ == Track::kVideo) {
+        type_string = QStringLiteral("v");
+      } else if (type_ == Track::kAudio) {
+        type_string = QStringLiteral("a");
+      } else {
+        return QString();
+      }
+
+      return QStringLiteral("%1:%2").arg(type_string, QString::number(index_));
+    }
+
+    static Type TypeFromString(const QString& s)
+    {
+      if (s.size() >= 3) {
+        if (s.at(1) == ':') {
+          if (s.at(0) == 'v') {
+            // Video stream
+            return Track::kVideo;
+          } else if (s.at(0) == 'a') {
+            // Audio stream
+            return Track::kAudio;
+          }
+        }
+      }
+
+      return Track::kNone;
+    }
+
+    static Reference FromString(const QString& s)
+    {
+      Reference ref;
+      Type parse_type = TypeFromString(s);
+
+      if (parse_type != Track::kNone) {
+        bool ok;
+        int parse_index = s.mid(2).toInt(&ok);
+
+        if (ok) {
+          ref.type_ = parse_type;
+          ref.index_ = parse_index;
+        }
+      }
+
+      return ref;
+    }
+
+    bool IsValid() const
+    {
+      return type_ > kNone && type_ < kCount && index_ >= 0;
     }
 
   private:
@@ -274,12 +338,14 @@ public:
 
   bool IsLocked() const;
 
-  virtual void Hash(const QString& output, QCryptographicHash& hash, const rational &time) const override;
+  virtual void Hash(const QString& output, QCryptographicHash& hash, const rational &time, const VideoParams& video_params) const override;
 
   AudioVisualWaveform& waveform()
   {
     return waveform_;
   }
+
+  virtual void EndOperation() override;
 
   static const double kTrackHeightDefault;
   static const double kTrackHeightMinimum;
@@ -322,7 +388,7 @@ signals:
   /**
    * @brief Signal emitted when the index has changed
    */
-  void IndexChanged(int i);
+  void IndexChanged(int old, int now);
 
   /**
    * @brief Signal emitted when preview (waveform) has changed and UI should be updated
@@ -335,9 +401,9 @@ signals:
   void BlocksRefreshed();
 
 protected:
-  virtual void LoadInternal(QXmlStreamReader* reader, XMLNodeData& xml_node_data, uint version, const QAtomicInt* cancelled) override;
+  virtual bool LoadCustom(QXmlStreamReader* reader, XMLNodeData& xml_node_data, uint version, const QAtomicInt* cancelled) override;
 
-  virtual void SaveInternal(QXmlStreamWriter* writer) const override;
+  virtual void SaveCustom(QXmlStreamWriter* writer) const override;
 
   virtual void InputConnectedEvent(const QString& input, int element, const NodeOutput& output) override;
 
@@ -356,6 +422,8 @@ private:
 
   void SetLengthInternal(const rational& r, bool invalidate = true);
 
+  TimeRangeList block_length_pending_invalidations_;
+
   QVector<Block*> blocks_;
   QVector<int> block_array_indexes_;
 
@@ -363,7 +431,9 @@ private:
 
   rational track_length_;
 
-  rational last_invalidated_length_;
+  rational midop_track_length_;
+
+  rational preop_track_length_;
 
   double track_height_;
 
@@ -379,6 +449,10 @@ private slots:
 };
 
 uint qHash(const Track::Reference& r, uint seed = 0);
+
+QDataStream &operator<<(QDataStream &out, const Track::Reference &ref);
+
+QDataStream &operator>>(QDataStream &in, Track::Reference &ref);
 
 }
 

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -31,6 +31,8 @@ class TextGenerator : public Node
 public:
   TextGenerator();
 
+  NODE_DEFAULT_DESTRUCTOR(TextGenerator)
+
   virtual Node* copy() const override;
 
   virtual QString Name() const override;
@@ -45,6 +47,7 @@ public:
   virtual void GenerateFrame(FramePtr frame, const GenerateJob &job) const override;
 
   static const QString kTextInput;
+  static const QString kHtmlInput;
   static const QString kColorInput;
   static const QString kVAlignInput;
   static const QString kFontInput;

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,12 +24,14 @@
 #include "node/math/math/math.h"
 #include "node/math/merge/merge.h"
 #include "node/output/viewer/viewer.h"
+#include "node/project/sequence/sequence.h"
 
 namespace olive {
 
 TrackList::TrackList(Sequence *parent, const Track::Type &type, const QString &track_input) :
   QObject(parent),
   track_input_(track_input),
+  total_length_(0),
   type_(type)
 {
 }

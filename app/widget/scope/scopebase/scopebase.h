@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -32,10 +32,10 @@ class ScopeBase : public ManagedDisplayWidget
 public:
   ScopeBase(QWidget* parent = nullptr);
 
-  virtual ~ScopeBase() override;
+  MANAGEDDISPLAYWIDGET_DEFAULT_DESTRUCTOR(ScopeBase)
 
 public slots:
-  void SetBuffer(Frame* frame);
+  void SetBuffer(TexturePtr frame);
 
 protected slots:
   virtual void OnInit() override;
@@ -57,15 +57,13 @@ protected:
   virtual void DrawScope(TexturePtr managed_tex, QVariant pipeline);
 
 private:
-  void UploadTextureFromBuffer();
-
   QVariant pipeline_;
 
   TexturePtr texture_;
 
   TexturePtr managed_tex_;
 
-  Frame* buffer_;
+  bool managed_tex_up_to_date_;
 
 };
 

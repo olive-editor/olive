@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -28,15 +28,16 @@
 
 #include "core.h"
 #include "node/node.h"
+#include "node/project/sequence/sequence.h"
 #include "nodeparamviewarraywidget.h"
-#include "nodeparamviewrichtext.h"
+#include "nodeparamviewtextedit.h"
 #include "nodeparamviewundo.h"
-#include "project/item/sequence/sequence.h"
 #include "undo/undostack.h"
 #include "widget/colorbutton/colorbutton.h"
 #include "widget/filefield/filefield.h"
 #include "widget/slider/floatslider.h"
 #include "widget/slider/integerslider.h"
+#include "widget/slider/rationalslider.h"
 #include "widget/videoparamedit/videoparamedit.h"
 
 namespace olive {
@@ -49,6 +50,7 @@ NodeParamViewWidgetBridge::NodeParamViewWidgetBridge(const NodeInput &input, QOb
 
   connect(input_.node(), &Node::ValueChanged, this, &NodeParamViewWidgetBridge::InputValueChanged);
   connect(input_.node(), &Node::InputPropertyChanged, this, &NodeParamViewWidgetBridge::PropertyChanged);
+  connect(input_.node(), &Node::InputDataTypeChanged, this, &NodeParamViewWidgetBridge::InputDataTypeChanged);
 }
 
 void NodeParamViewWidgetBridge::SetTime(const rational &time)
@@ -76,7 +78,6 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     case NodeValue::kNone:
     case NodeValue::kTexture:
     case NodeValue::kMatrix:
-    case NodeValue::kRational:
     case NodeValue::kSamples:
     case NodeValue::kFootageJob:
     case NodeValue::kShaderJob:
@@ -91,6 +92,11 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     case NodeValue::kFloat:
     {
       CreateSliders<FloatSlider>(1);
+      break;
+    }
+    case NodeValue::kRational:
+    {
+      CreateSliders<RationalSlider>(1);
       break;
     }
     case NodeValue::kVec2:
@@ -137,9 +143,9 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     }
     case NodeValue::kText:
     {
-      NodeParamViewRichText* line_edit = new NodeParamViewRichText();
+      NodeParamViewTextEdit* line_edit = new NodeParamViewTextEdit();
       widgets_.append(line_edit);
-      connect(line_edit, &NodeParamViewRichText::textEdited, this, &NodeParamViewWidgetBridge::WidgetCallback);
+      connect(line_edit, &NodeParamViewTextEdit::textEdited, this, &NodeParamViewWidgetBridge::WidgetCallback);
       break;
     }
     case NodeValue::kBoolean:
@@ -191,12 +197,12 @@ void NodeParamViewWidgetBridge::SetInputValue(const QVariant &value, int track)
 {
   MultiUndoCommand* command = new MultiUndoCommand();
 
-  SetInputValueInternal(value, track, command);
+  SetInputValueInternal(value, track, command, true);
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
-void NodeParamViewWidgetBridge::SetInputValueInternal(const QVariant &value, int track, MultiUndoCommand *command)
+void NodeParamViewWidgetBridge::SetInputValueInternal(const QVariant &value, int track, MultiUndoCommand *command, bool insert_on_all_tracks_if_no_key)
 {
   rational node_time = GetCurrentTimeAsNodeTime();
 
@@ -207,21 +213,34 @@ void NodeParamViewWidgetBridge::SetInputValueInternal(const QVariant &value, int
       command->add_child(new NodeParamSetKeyframeValueCommand(existing_key, value));
     } else {
       // No existing key, create a new one
-      NodeKeyframe* new_key = new NodeKeyframe(node_time,
-                                               value,
-                                               input_.node()->GetBestKeyframeTypeForTimeOnTrack(NodeKeyframeTrackReference(input_, track), node_time),
-                                               track,
-                                               input_.element(),
-                                               input_.input());
+      int nb_tracks = NodeValue::get_number_of_keyframe_tracks(input_.node()->GetInputDataType(input_.input()));
+      for (int i=0; i<nb_tracks; i++) {
+        QVariant track_value;
 
-      command->add_child(new NodeParamInsertKeyframeCommand(input_.node(), new_key));
+        if (i == track) {
+          track_value = value;
+        } else if (!insert_on_all_tracks_if_no_key) {
+          continue;
+        } else {
+          track_value = input_.node()->GetSplitValueAtTimeOnTrack(input_.input(), node_time, i, input_.element());
+        }
+
+        NodeKeyframe* new_key = new NodeKeyframe(node_time,
+                                                 track_value,
+                                                 input_.node()->GetBestKeyframeTypeForTimeOnTrack(NodeKeyframeTrackReference(input_, i), node_time),
+                                                 i,
+                                                 input_.element(),
+                                                 input_.input());
+
+        command->add_child(new NodeParamInsertKeyframeCommand(input_.node(), new_key));
+      }
     }
   } else {
     command->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(input_, track), value));
   }
 }
 
-void NodeParamViewWidgetBridge::ProcessSlider(SliderBase *slider, const QVariant &value)
+void NodeParamViewWidgetBridge::ProcessSlider(NumericSliderBase *slider, const QVariant &value)
 {
   rational node_time = GetCurrentTimeAsNodeTime();
 
@@ -258,7 +277,6 @@ void NodeParamViewWidgetBridge::WidgetCallback()
   case NodeValue::kTexture:
   case NodeValue::kMatrix:
   case NodeValue::kSamples:
-  case NodeValue::kRational:
   case NodeValue::kFootageJob:
   case NodeValue::kShaderJob:
   case NodeValue::kSampleJob:
@@ -278,6 +296,13 @@ void NodeParamViewWidgetBridge::WidgetCallback()
     FloatSlider* slider = static_cast<FloatSlider*>(sender());
 
     ProcessSlider(slider, slider->GetValue());
+    break;
+  }
+  case NodeValue::kRational:
+  {
+    // Widget is a RationalSlider
+    RationalSlider* slider = static_cast<RationalSlider*>(sender());
+    ProcessSlider(slider, QVariant::fromValue(slider->GetValue()));
     break;
   }
   case NodeValue::kVec2:
@@ -316,10 +341,10 @@ void NodeParamViewWidgetBridge::WidgetCallback()
 
     MultiUndoCommand* command = new MultiUndoCommand();
 
-    SetInputValueInternal(c.red(), 0, command);
-    SetInputValueInternal(c.green(), 1, command);
-    SetInputValueInternal(c.blue(), 2, command);
-    SetInputValueInternal(c.alpha(), 3, command);
+    SetInputValueInternal(c.red(), 0, command, false);
+    SetInputValueInternal(c.green(), 1, command, false);
+    SetInputValueInternal(c.blue(), 2, command, false);
+    SetInputValueInternal(c.alpha(), 3, command, false);
 
     Node* n = input_.node();
     n->blockSignals(true);
@@ -335,7 +360,7 @@ void NodeParamViewWidgetBridge::WidgetCallback()
   case NodeValue::kText:
   {
     // Sender is a NodeParamViewRichText
-    SetInputValue(static_cast<NodeParamViewRichText*>(sender())->text(), 0);
+    SetInputValue(static_cast<NodeParamViewTextEdit*>(sender())->text(), 0);
     break;
   }
   case NodeValue::kBoolean:
@@ -383,7 +408,7 @@ void NodeParamViewWidgetBridge::CreateSliders(int count)
 {
   for (int i=0;i<count;i++) {
     T* fs = new T();
-    fs->SetDefaultValue(input_.GetSplitDefaultValueForTrack(i));
+    fs->SliderBase::SetDefaultValue(input_.GetSplitDefaultValueForTrack(i));
     fs->SetLadderElementCount(2);
     widgets_.append(fs);
     connect(fs, &T::ValueChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
@@ -404,7 +429,6 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
   case NodeValue::kNone:
   case NodeValue::kTexture:
   case NodeValue::kMatrix:
-  case NodeValue::kRational:
   case NodeValue::kSamples:
   case NodeValue::kFootageJob:
   case NodeValue::kShaderJob:
@@ -419,6 +443,11 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
   case NodeValue::kFloat:
   {
     static_cast<FloatSlider*>(widgets_.first())->SetValue(input_.GetValueAtTime(node_time).toDouble());
+    break;
+  }
+  case NodeValue::kRational:
+  {
+    static_cast<RationalSlider*>(widgets_.first())->SetValue(input_.GetValueAtTime(node_time).value<rational>());
     break;
   }
   case NodeValue::kVec2:
@@ -471,7 +500,7 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
   }
   case NodeValue::kText:
   {
-    NodeParamViewRichText* e = static_cast<NodeParamViewRichText*>(widgets_.first());
+    NodeParamViewTextEdit* e = static_cast<NodeParamViewTextEdit*>(widgets_.first());
     e->setTextPreservingCursor(input_.GetValueAtTime(node_time).toString());
     break;
   }
@@ -511,6 +540,13 @@ rational NodeParamViewWidgetBridge::GetCurrentTimeAsNodeTime() const
   return GetAdjustedTime(GetTimeTarget(), input_.node(), time_, true);
 }
 
+void NodeParamViewWidgetBridge::SetTimebase(const rational& timebase)
+{
+  if (input_.GetDataType() == NodeValue::kRational) {
+    static_cast<RationalSlider*>(widgets_.first())->SetTimebase(timebase);
+  }
+}
+
 void NodeParamViewWidgetBridge::InputValueChanged(const NodeInput &input, const TimeRange &range)
 {
   if (input_ == input
@@ -523,7 +559,7 @@ void NodeParamViewWidgetBridge::InputValueChanged(const NodeInput &input, const 
 
 void NodeParamViewWidgetBridge::PropertyChanged(const QString& input, const QString &key, const QVariant &value)
 {
-  if (input != input_.input()) {
+  if (input != input_.input() || (input_.IsArray() && input_.element() == -1)) {
     return;
   }
 
@@ -560,7 +596,7 @@ void NodeParamViewWidgetBridge::PropertyChanged(const QString& input, const QStr
         static_cast<FloatSlider*>(widgets_.first())->SetMinimum(value.toDouble());
         break;
       case NodeValue::kRational:
-        // FIXME: Rational doesn't have a UI implementation yet
+        static_cast<RationalSlider*>(widgets_.first())->SetMinimum(value.value<rational>());
         break;
       case NodeValue::kVec2:
       {
@@ -598,7 +634,7 @@ void NodeParamViewWidgetBridge::PropertyChanged(const QString& input, const QStr
         static_cast<FloatSlider*>(widgets_.first())->SetMaximum(value.toDouble());
         break;
       case NodeValue::kRational:
-        // FIXME: Rational doesn't have a UI implementation yet
+        static_cast<RationalSlider*>(widgets_.first())->SetMaximum(value.value<rational>());
         break;
       case NodeValue::kVec2:
       {
@@ -636,7 +672,7 @@ void NodeParamViewWidgetBridge::PropertyChanged(const QString& input, const QStr
         static_cast<FloatSlider*>(widgets_.first())->SetOffset(value);
         break;
       case NodeValue::kRational:
-        // FIXME: Rational doesn't have a UI implementation yet
+        static_cast<RationalSlider*>(widgets_.first())->SetOffset(value);
         break;
       case NodeValue::kVec2:
       {
@@ -724,6 +760,22 @@ void NodeParamViewWidgetBridge::PropertyChanged(const QString& input, const QStr
     }
   }
 
+  if (data_type == NodeValue::kRational) {
+    if (key == QStringLiteral("view")) {
+      RationalSlider::DisplayType display_type = static_cast<RationalSlider::DisplayType>(value.toInt());
+
+      foreach (QWidget* w, widgets_) {
+        static_cast<RationalSlider*>(w)->SetDisplayType(display_type);
+      }
+    } else if (key == QStringLiteral("viewlock")) {
+      bool locked = value.toBool();
+
+      foreach (QWidget* w, widgets_) {
+        static_cast<RationalSlider*>(w)->SetLockDisplayType(locked);
+      }
+    }
+  }
+
   // Parameters for files
   if (data_type == NodeValue::kFile) {
     FileField* ff = static_cast<FileField*>(widgets_.first());
@@ -742,6 +794,22 @@ void NodeParamViewWidgetBridge::PropertyChanged(const QString& input, const QStr
     if (key == QStringLiteral("mask")) {
       edit->SetParameterMask(value.toULongLong());
     }
+  }
+}
+
+void NodeParamViewWidgetBridge::InputDataTypeChanged(const QString &input, NodeValue::Type type)
+{
+  Q_UNUSED(type)
+  if (input == this->input_.input()) {
+    // Delete all widgets
+    qDeleteAll(widgets_);
+    widgets_.clear();
+
+    // Create new widgets
+    CreateWidgets();
+
+    // Signal that widgets are new
+    emit WidgetsRecreated(input_);
   }
 }
 

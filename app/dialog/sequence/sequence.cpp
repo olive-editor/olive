@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,11 +25,14 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QMessageBox>
+#include <QPushButton>
 #include <QSplitter>
 #include <QVBoxLayout>
 
+#include "config/config.h"
 #include "core.h"
 #include "common/channellayout.h"
+#include "common/qtutils.h"
 #include "common/rational.h"
 #include "undo/undostack.h"
 
@@ -67,9 +70,10 @@ SequenceDialog::SequenceDialog(Sequence* s, Type t, QWidget* parent) :
 
   // Set up dialog buttons
   QDialogButtonBox* buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-  buttons->setCenterButtons(true);
+  QPushButton *default_btn = buttons->addButton(tr("Set As Default"), QDialogButtonBox::ActionRole);
   connect(buttons, &QDialogButtonBox::accepted, this, &SequenceDialog::accept);
   connect(buttons, &QDialogButtonBox::rejected, this, &SequenceDialog::reject);
+  connect(default_btn, &QPushButton::clicked, this, &SequenceDialog::SetAsDefaultClicked);
   layout->addWidget(buttons);
 
   // Set window title based on type
@@ -98,7 +102,7 @@ void SequenceDialog::SetNameIsEditable(bool e)
 void SequenceDialog::accept()
 {
   if (name_field_->isEnabled() && name_field_->text().isEmpty()) {
-    QMessageBox::critical(this, tr("Error editing Sequence"), tr("Please enter a name for this Sequence."));
+    QtUtils::MessageBox(this, QMessageBox::Critical, tr("Error editing Sequence"), tr("Please enter a name for this Sequence."));
     return;
   }
 
@@ -128,12 +132,28 @@ void SequenceDialog::accept()
 
   } else {
     // Set sequence values directly with no undo command
-    sequence_->set_video_params(video_params);
-    sequence_->set_audio_params(audio_params);
+    sequence_->SetVideoParams(video_params);
+    sequence_->SetAudioParams(audio_params);
     sequence_->SetLabel(name_field_->text());
   }
 
   QDialog::accept();
+}
+
+void SequenceDialog::SetAsDefaultClicked()
+{
+  if (QtUtils::MessageBox(this, QMessageBox::Question, tr("Confirm Set As Default"),
+                          tr("Are you sure you want to set the current parameters as defaults?"),
+                          QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+    // Maybe replace with Preset system
+    Config::Current()[QStringLiteral("DefaultSequenceWidth")] = parameter_tab_->GetSelectedVideoWidth();
+    Config::Current()[QStringLiteral("DefaultSequenceHeight")] = parameter_tab_->GetSelectedVideoHeight();
+    Config::Current()[QStringLiteral("DefaultSequencePixelAspect")] = QVariant::fromValue(parameter_tab_->GetSelectedVideoPixelAspect());
+    Config::Current()[QStringLiteral("DefaultSequenceFrameRate")] = QVariant::fromValue(parameter_tab_->GetSelectedVideoFrameRate().flipped());
+    Config::Current()[QStringLiteral("DefaultSequenceInterlacing")] = parameter_tab_->GetSelectedVideoInterlacingMode();
+    Config::Current()[QStringLiteral("DefaultSequenceAudioFrequency")] = parameter_tab_->GetSelectedAudioSampleRate();
+    Config::Current()[QStringLiteral("DefaultSequenceAudioLayout")] = QVariant::fromValue(parameter_tab_->GetSelectedAudioChannelLayout());
+  }
 }
 
 SequenceDialog::SequenceParamCommand::SequenceParamCommand(Sequence* s,
@@ -144,8 +164,8 @@ SequenceDialog::SequenceParamCommand::SequenceParamCommand(Sequence* s,
   new_video_params_(video_params),
   new_audio_params_(audio_params),
   new_name_(name),
-  old_video_params_(s->video_params()),
-  old_audio_params_(s->audio_params()),
+  old_video_params_(s->GetVideoParams()),
+  old_audio_params_(s->GetAudioParams()),
   old_name_(s->GetLabel())
 {
 }
@@ -157,15 +177,15 @@ Project *SequenceDialog::SequenceParamCommand::GetRelevantProject() const
 
 void SequenceDialog::SequenceParamCommand::redo()
 {
-  sequence_->set_video_params(new_video_params_);
-  sequence_->set_audio_params(new_audio_params_);
+  sequence_->SetVideoParams(new_video_params_);
+  sequence_->SetAudioParams(new_audio_params_);
   sequence_->SetLabel(new_name_);
 }
 
 void SequenceDialog::SequenceParamCommand::undo()
 {
-  sequence_->set_video_params(old_video_params_);
-  sequence_->set_audio_params(old_audio_params_);
+  sequence_->SetVideoParams(old_video_params_);
+  sequence_->SetAudioParams(old_audio_params_);
   sequence_->SetLabel(old_name_);
 }
 

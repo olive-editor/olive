@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -50,9 +50,7 @@ MainWindow::MainWindow(QWidget *parent) :
   taskbar_interface_ = nullptr;
 #endif
 
-#ifdef Q_OS_LINUX
-  checked_graphics_vendor_ = false;
-#endif
+  first_show_ = true;
 
   // Create empty central widget - we don't actually want a central widget (so we set its maximum
   // size to 0,0) but some of Qt's docking/undocking fails without it
@@ -69,6 +67,8 @@ MainWindow::MainWindow(QWidget *parent) :
   // Create and set main menu
   MainMenu* main_menu = new MainMenu(this);
   setMenuBar(main_menu);
+
+  LoadCustomShortcuts();
 
   // Create and set status bar
   MainStatusBar* status_bar = new MainStatusBar(this);
@@ -154,7 +154,7 @@ MainWindowLayoutInfo MainWindow::SaveLayout() const
 
   foreach (ProjectPanel* panel, folder_panels_) {
     if (panel->project()) {
-      info.add_folder(static_cast<Folder*>(panel->get_root_index().internalPointer()));
+      info.add_folder(panel->get_root());
     }
   }
 
@@ -194,6 +194,7 @@ TimelinePanel* MainWindow::OpenSequence(Sequence *sequence, bool enable_focus)
 
   if (enable_focus) {
     TimelineFocused(sequence);
+    UpdateAudioMonitorParams(sequence);
   }
 
   return panel;
@@ -259,6 +260,27 @@ void MainWindow::FolderOpen(Project* p, Folder *i, bool floating)
 ScopePanel *MainWindow::AppendScopePanel()
 {
   return AppendFloatingPanelInternal<ScopePanel>(scope_panels_);
+}
+
+void MainWindow::OpenNodeInViewer(ViewerOutput *node)
+{
+  if (viewer_panels_.contains(node)) {
+    // This node already has a viewer, raise it
+    viewer_panels_.value(node)->raise();
+  } else {
+    // Create a viewer for this node
+    ViewerPanel* viewer = PanelManager::instance()->CreatePanel<ViewerPanel>(this);
+
+    viewer->SetSignalInsteadOfClose(true);
+    viewer->setFloating(true);
+    viewer->setVisible(true);
+    viewer->ConnectViewerNode(node);
+
+    connect(viewer, &ViewerPanel::CloseRequested, this, &MainWindow::ViewerCloseRequested);
+    connect(node, &ViewerOutput::RemovedFromGraph, this, &MainWindow::ViewerWithPanelRemovedFromGraph);
+
+    viewer_panels_.insert(node, viewer);
+  }
 }
 
 void MainWindow::SetFullscreen(bool fullscreen)
@@ -328,28 +350,22 @@ void MainWindow::ProjectOpen(Project *p)
   }
 
   panel->set_project(p);
+  panel->setFocus();
 }
 
 void MainWindow::ProjectClose(Project *p)
 {
-  // Close any open sequences from project
-  QVector<Sequence*> open_sequences = p->root()->ListChildrenOfType<Sequence>();
+  // Close any nodes open in TimeBasedWidgets
+  foreach (PanelWidget* panel, PanelManager::instance()->panels()) {
+    TimeBasedPanel* tbp = dynamic_cast<TimeBasedPanel*>(panel);
 
-  foreach (Sequence* seq, open_sequences) {
-    if (IsSequenceOpen(seq)) {
-      CloseSequence(seq);
-    }
-  }
-
-  // Close any open footage in footage viewer
-  QVector<Footage*> footage_in_project = p->root()->ListChildrenOfType<Footage>();
-  QVector<Footage*> footage_in_viewer = footage_viewer_panel_->GetSelectedFootage();
-
-  if (!footage_in_viewer.isEmpty()) {
-    // FootageViewer only has the one footage item, check if it's in the project in which case
-    // we'll close it
-    if (footage_in_project.contains(footage_in_viewer.first())) {
-      footage_viewer_panel_->SetFootage(nullptr);
+    if (tbp && tbp->GetConnectedViewer() && tbp->GetConnectedViewer()->project() == p) {
+      if (dynamic_cast<TimelinePanel*>(tbp)) {
+        // Prefer our CloseSequence function which will delete any unnecessary timeline panels
+        CloseSequence(static_cast<Sequence*>(tbp->GetConnectedViewer()));
+      } else {
+        tbp->DisconnectViewerNode();
+      }
     }
   }
 
@@ -413,6 +429,8 @@ void MainWindow::closeEvent(QCloseEvent *e)
   }
 
   PanelManager::instance()->DeleteAllPanels();
+
+  SaveCustomShortcuts();
 
   QMainWindow::closeEvent(e);
 }
@@ -485,6 +503,22 @@ void MainWindow::ProjectCloseRequested()
   Core::instance()->CloseProject(p, true);
 }
 
+void MainWindow::ViewerCloseRequested()
+{
+  ViewerPanel* panel = static_cast<ViewerPanel*>(sender());
+
+  viewer_panels_.remove(viewer_panels_.key(panel));
+
+  panel->deleteLater();
+}
+
+void MainWindow::ViewerWithPanelRemovedFromGraph()
+{
+  ViewerOutput* vo = static_cast<ViewerOutput*>(sender());
+  viewer_panels_.take(vo)->deleteLater();
+  disconnect(vo, &ViewerOutput::RemovedFromGraph, this, &MainWindow::ViewerWithPanelRemovedFromGraph);
+}
+
 void MainWindow::FloatingPanelCloseRequested()
 {
   PanelWidget* panel = static_cast<PanelWidget*>(sender());
@@ -530,11 +564,9 @@ void MainWindow::RemoveTimelinePanel(TimelinePanel *panel)
 {
   // Stop showing this timeline in the viewer
   TimelineFocused(nullptr);
+  panel->ConnectViewerNode(nullptr);
 
-  if (timeline_panels_.size() == 1) {
-    // Leave our single remaining timeline panel open
-    panel->ConnectViewerNode(nullptr);
-  } else {
+  if (timeline_panels_.size() != 1) {
     timeline_panels_.removeOne(panel);
     panel->deleteLater();
   }
@@ -550,24 +582,138 @@ void MainWindow::RemoveProjectPanel(ProjectPanel *panel)
   }
 }
 
-void MainWindow::TimelineFocused(Sequence* viewer)
+void MainWindow::TimelineFocused(ViewerOutput* viewer)
 {
   sequence_viewer_panel_->ConnectViewerNode(viewer);
   param_panel_->ConnectViewerNode(viewer);
   curve_panel_->ConnectViewerNode(viewer);
 }
 
+QString MainWindow::GetCustomShortcutsFile()
+{
+  return QDir(FileFunctions::GetConfigurationLocation()).filePath(QStringLiteral("shortcuts"));
+}
+
+void LoadCustomShortcutsInternal(QMenu* menu, const QMap<QString, QString>& shortcuts)
+{
+  QList<QAction*> actions = menu->actions();
+
+  foreach (QAction* a, actions) {
+    if (a->menu()) {
+      LoadCustomShortcutsInternal(a->menu(), shortcuts);
+    } else if (!a->isSeparator()) {
+      QString action_id = a->property("id").toString();
+
+      if (shortcuts.contains(action_id)) {
+        a->setShortcut(shortcuts.value(action_id));
+      }
+    }
+  }
+}
+
+void MainWindow::LoadCustomShortcuts()
+{
+  QFile shortcut_file(GetCustomShortcutsFile());
+  if (shortcut_file.exists() && shortcut_file.open(QFile::ReadOnly)) {
+    QMap<QString, QString> shortcuts;
+
+    QString shortcut_str = QString::fromUtf8(shortcut_file.readAll());
+
+    QStringList shortcut_list = shortcut_str.split(QStringLiteral("\n"));
+
+    foreach (const QString& s, shortcut_list) {
+      QStringList shortcut_line = s.split(QStringLiteral("\t"));
+      if (shortcut_line.size() >= 2) {
+        shortcuts.insert(shortcut_line.at(0), shortcut_line.at(1));
+      }
+    }
+
+    shortcut_file.close();
+
+    if (!shortcuts.isEmpty()) {
+      QList<QAction*> menus = menuBar()->actions();
+
+      foreach (QAction* menu, menus) {
+        LoadCustomShortcutsInternal(menu->menu(), shortcuts);
+      }
+    }
+  }
+}
+
+void SaveCustomShortcutsInternal(QMenu* menu, QMap<QString, QString>* shortcuts)
+{
+  QList<QAction*> actions = menu->actions();
+
+  foreach (QAction* a, actions) {
+    if (a->menu()) {
+      SaveCustomShortcutsInternal(a->menu(), shortcuts);
+    } else if (!a->isSeparator()) {
+      QString default_shortcut = a->property("keydefault").toString();
+      QString current_shortcut = a->shortcut().toString();
+      if (current_shortcut != default_shortcut) {
+        QString action_id = a->property("id").toString();
+        shortcuts->insert(action_id, current_shortcut);
+      }
+    }
+  }
+}
+
+void MainWindow::SaveCustomShortcuts()
+{
+  QMap<QString, QString> shortcuts;
+  QList<QAction*> menus = menuBar()->actions();
+
+  foreach (QAction* menu, menus) {
+    SaveCustomShortcutsInternal(menu->menu(), &shortcuts);
+  }
+
+  QFile shortcut_file(GetCustomShortcutsFile());
+  if (shortcuts.isEmpty()) {
+    if (shortcut_file.exists()) {
+      // No custom shortcuts, remove any existing file
+      shortcut_file.remove();
+    }
+  } else if (shortcut_file.open(QFile::WriteOnly)) {
+    for (auto it=shortcuts.cbegin(); it!=shortcuts.cend(); it++) {
+      if (it != shortcuts.cbegin()) {
+        shortcut_file.write(QStringLiteral("\n").toUtf8());
+      }
+
+      shortcut_file.write(it.key().toUtf8());
+      shortcut_file.write(QStringLiteral("\t").toUtf8());
+      shortcut_file.write(it.value().toUtf8());
+    }
+    shortcut_file.close();
+  } else {
+    qCritical() << "Failed to save custom keyboard shortcuts";
+  }
+
+}
+
+void MainWindow::UpdateAudioMonitorParams(ViewerOutput *viewer)
+{
+  if (!audio_monitor_panel_->IsPlaying()) {
+    audio_monitor_panel_->SetParams(viewer ? viewer->GetAudioParams() : AudioParams());
+  }
+}
+
 void MainWindow::FocusedPanelChanged(PanelWidget *panel)
 {
-  TimelinePanel* timeline = dynamic_cast<TimelinePanel*>(panel);
+  // Update audio monitor panel
+  TimeBasedPanel* tbp = dynamic_cast<TimeBasedPanel*>(panel);
+  if (tbp) {
+    UpdateAudioMonitorParams(tbp->GetConnectedViewer());
+  }
 
+  // Signal timeline focus
+  TimelinePanel* timeline = dynamic_cast<TimelinePanel*>(panel);
   if (timeline) {
     TimelineFocused(timeline->GetConnectedViewer());
     return;
   }
 
+  // Signal project panel focus
   ProjectPanel* project = dynamic_cast<ProjectPanel*>(panel);
-
   if (project) {
     UpdateTitle();
     node_panel_->SetGraph(project->project());
@@ -635,8 +781,10 @@ void MainWindow::showEvent(QShowEvent *e)
 {
   QMainWindow::showEvent(e);
 
+  if (first_show_) {
+    QMetaObject::invokeMethod(Core::instance(), "CheckForAutoRecoveries", Qt::QueuedConnection);
+
 #ifdef Q_OS_LINUX
-  if (!checked_graphics_vendor_) {
     // Check for nouveau since that driver really doesn't work with Olive
     QOffscreenSurface surface;
     surface.create();
@@ -648,10 +796,10 @@ void MainWindow::showEvent(QShowEvent *e)
     if (!strcmp(vendor, "nouveau")) {
       QMetaObject::invokeMethod(this, "ShowNouveauWarning", Qt::QueuedConnection);
     }
-
-    checked_graphics_vendor_ = true;
-  }
 #endif
+
+    first_show_ = false;
+  }
 }
 
 template<typename T>

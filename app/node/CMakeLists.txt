@@ -1,5 +1,5 @@
 # Olive - Non-Linear Video Editor
-# Copyright (C) 2020 Olive Team
+# Copyright (C) 2021 Olive Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,6 +16,7 @@
 
 add_subdirectory(audio)
 add_subdirectory(block)
+add_subdirectory(color)
 add_subdirectory(distort)
 add_subdirectory(filter)
 add_subdirectory(generator)
@@ -23,6 +24,7 @@ add_subdirectory(input)
 add_subdirectory(math)
 add_subdirectory(output)
 add_subdirectory(project)
+add_subdirectory(time)
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}

@@ -2,9 +2,7 @@ uniform sampler2D ove_maintex;
 uniform vec2 viewport;
 uniform float histogram_scale;
 
-in vec2 ove_texcoord;
-
-out vec4 fragColor;
+varying vec2 ove_texcoord;
 
 void main(void) {
     float histogram_width = ceil(histogram_scale * viewport.y);
@@ -13,9 +11,9 @@ void main(void) {
     vec3 sum = vec3(0.0);
     float ratio = 0.0;
 
-    for (int i = 0; i < histogram_width; i++) {
-        ratio = float(i) / float(histogram_width - 1);
-        cur_col = texture(
+    for (int i = 0; float(i) < histogram_width; i++) {
+        ratio = float(i) / float(histogram_width - 1.0);
+        cur_col = texture2D(
             ove_maintex,
             vec2(ove_texcoord.y, ratio)
         ).rgb;
@@ -29,5 +27,5 @@ void main(void) {
             );
     }
 
-    fragColor = vec4(sum, 1.0);
+    gl_FragColor = vec4(sum, 1.0);
 }

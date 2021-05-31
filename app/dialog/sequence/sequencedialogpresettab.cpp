@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -81,7 +81,7 @@ SequenceDialogPresetTab::SequenceDialogPresetTab(QWidget* parent) :
 
 SequenceDialogPresetTab::~SequenceDialogPresetTab()
 {
-  qDeleteAll(child_presets_);
+  qDeleteAll(default_preset_data_);
 }
 
 void SequenceDialogPresetTab::SaveParametersAsPreset(SequencePreset preset)
@@ -234,8 +234,6 @@ void SequenceDialogPresetTab::AddItemInternal(QTreeWidgetItem *folder, Preset* p
   item->setData(0, kDataIsPreset, true);
   item->setData(0, kDataPresetIsCustomRole, is_custom);
   item->setData(0, kDataPresetDataRole, index);
-
-  child_presets_.append(preset);
 
   folder->addChild(item);
 }

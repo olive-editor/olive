@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,9 +25,10 @@
 #include <QLabel>
 #include <QWidget>
 
-#include "render/colormanager.h"
+#include "node/color/colormanager/colormanager.h"
 #include "render/videoparams.h"
 #include "widget/slider/integerslider.h"
+#include "widget/slider/rationalslider.h"
 #include "widget/standardcombos/frameratecombobox.h"
 #include "widget/standardcombos/interlacedcombobox.h"
 #include "widget/standardcombos/pixelaspectratiocombobox.h"
@@ -60,6 +61,7 @@ public:
     kPremultipliedAlpha = 0x2000,
     kColorspace = 0x4000,
     kFrameRateIsNotTimebase = 0x8000,
+    kFrameRateIsArbitrary = 0x10000
   };
 
   void SetParameterMask(uint64_t mask);
@@ -143,6 +145,7 @@ private:
   IntegerSlider* depth_slider_;
   QLabel* frame_rate_lbl_;
   FrameRateComboBox* frame_rate_combobox_;
+  RationalSlider* frame_rate_slider_;
   QLabel* pixel_aspect_lbl_;
   PixelAspectRatioComboBox* pixel_aspect_combobox_;
   QLabel* interlaced_lbl_;

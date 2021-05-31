@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -30,27 +30,24 @@
 #include "common/ffmpegutils.h"
 #include "common/filefunctions.h"
 #include "common/timecodefunctions.h"
-#ifdef USE_OTIO
-#include "task/project/loadotio/loadotio.h"
-#endif
+#include "conformmanager.h"
+#include "node/project/project.h"
 #include "task/taskmanager.h"
-#include "project/project.h"
 
 namespace olive {
-
-QMutex Decoder::currently_conforming_mutex_;
-QWaitCondition Decoder::currently_conforming_wait_cond_;
-QVector<Decoder::CurrentlyConforming> Decoder::currently_conforming_;
 
 const rational Decoder::kAnyTimecode = RATIONAL_MIN;
 
 Decoder::Decoder()
 {
+  UpdateLastAccessed();
 }
 
 bool Decoder::Open(const CodecStream &stream)
 {
   QMutexLocker locker(&mutex_);
+
+  UpdateLastAccessed();
 
   if (stream_.IsValid()) {
     // Decoder is already open. Return TRUE if the stream is the stream we have, or FALSE if not.
@@ -90,9 +87,11 @@ bool Decoder::Open(const CodecStream &stream)
   }
 }
 
-FramePtr Decoder::RetrieveVideo(const rational &timecode, const int &divider)
+FramePtr Decoder::RetrieveVideo(const rational &timecode, const RetrieveVideoParams &divider)
 {
   QMutexLocker locker(&mutex_);
+
+  UpdateLastAccessed();
 
   if (!stream_.IsValid()) {
     qCritical() << "Can't retrieve video on a closed decoder";
@@ -107,69 +106,45 @@ FramePtr Decoder::RetrieveVideo(const rational &timecode, const int &divider)
   return RetrieveVideoInternal(timecode, divider);
 }
 
-SampleBufferPtr Decoder::RetrieveAudio(const TimeRange &range, const AudioParams &params, const QString& cache_path, const QAtomicInt *cancelled)
+Decoder::RetrieveAudioData Decoder::RetrieveAudio(const TimeRange &range, const AudioParams &params, const QString& cache_path, Footage::LoopMode loop_mode, RenderMode::Mode mode)
 {
   QMutexLocker locker(&mutex_);
 
+  UpdateLastAccessed();
+
   if (!stream_.IsValid()) {
     qCritical() << "Can't retrieve audio on a closed decoder";
-    return nullptr;
+    return {kInvalid, nullptr, nullptr};
   }
 
   if (!SupportsAudio()) {
     qCritical() << "Decoder doesn't support audio";
-    return nullptr;
+    return {kInvalid, nullptr, nullptr};
   }
 
-  // Determine if we already have a conformed version
-  QString conform_filename = GetConformedFilename(cache_path, params);
-  CurrentlyConforming want_conform = {stream_, params};
-
-  currently_conforming_mutex_.lock();
-
-  // Wait for conform to complete
-  while (currently_conforming_.contains(want_conform)) {
-    currently_conforming_wait_cond_.wait(&currently_conforming_mutex_);
+  // Get conform state from ConformManager
+  ConformManager::Conform conform = ConformManager::instance()->GetConformState(id(), cache_path, stream_, params, (mode == RenderMode::kOnline));
+  if (conform.state == ConformManager::kConformGenerating) {
+    return {kWaitingForConform, nullptr, conform.task};
   }
 
   // See if we got the conform
-  SampleBufferPtr buffer = RetrieveAudioFromConform(conform_filename, range);
+  SampleBufferPtr out_buffer = RetrieveAudioFromConform(conform.filename, range, loop_mode);
 
-  if (!buffer) {
-    // We'll need to conform this ourselves
-    currently_conforming_.append(want_conform);
-    currently_conforming_mutex_.unlock();
+  return {kOK, out_buffer, nullptr};
+}
 
-    // We conform to a different filename until it's done to make it clear even across sessions
-    // whether this conform is ready or not
-    QString working_fn = conform_filename;
-    working_fn.append(QStringLiteral(".working"));
-
-    if (ConformAudioInternal(working_fn, params, cancelled)) {
-      // Move file to standard conform name, making it clear this conform is ready for use
-      QFile::remove(conform_filename);
-      QFile::rename(working_fn, conform_filename);
-
-      // Return audio as planned
-      buffer = RetrieveAudioFromConform(conform_filename, range);
-    } else {
-      // Failed
-      qCritical() << "Failed to conform audio";
-    }
-
-    currently_conforming_mutex_.lock();
-    currently_conforming_.removeOne(want_conform);
-    currently_conforming_wait_cond_.wakeAll();
-  }
-
-  currently_conforming_mutex_.unlock();
-
-  return buffer;
+qint64 Decoder::GetLastAccessedTime()
+{
+  QMutexLocker locker(&mutex_);
+  return last_accessed_;
 }
 
 void Decoder::Close()
 {
   QMutexLocker locker(&mutex_);
+
+  UpdateLastAccessed();
 
   if (stream_.IsValid()) {
     CloseInternal();
@@ -177,6 +152,11 @@ void Decoder::Close()
   } else {
     qWarning() << "Tried to close a decoder that wasn't open";
   }
+}
+
+bool Decoder::ConformAudio(const QString &output_filename, const AudioParams &params, const QAtomicInt *cancelled)
+{
+  return ConformAudioInternal(output_filename, params, cancelled);
 }
 
 /*
@@ -213,23 +193,6 @@ DecoderPtr Decoder::CreateFromID(const QString &id)
   return nullptr;
 }
 
-QString Decoder::GetConformedFilename(const QString& cache_path, const AudioParams &params)
-{
-  QString index_fn = QStringLiteral("%1.%2:%3").arg(FileFunctions::GetUniqueFileIdentifier(stream_.filename()),
-                                                    QString::number(stream_.stream()));
-
-  index_fn = QDir(cache_path).filePath(index_fn);
-
-  index_fn.append('.');
-  index_fn.append(QString::number(params.sample_rate()));
-  index_fn.append('.');
-  index_fn.append(QString::number(params.format()));
-  index_fn.append('.');
-  index_fn.append(QString::number(params.channel_layout()));
-
-  return index_fn;
-}
-
 int64_t Decoder::GetTimeInTimebaseUnits(const rational &time, const rational &timebase, int64_t start_time)
 {
   return Timecode::time_to_timestamp(time, timebase) + start_time;
@@ -248,7 +211,7 @@ QString Decoder::TransformImageSequenceFileName(const QString &filename, const i
 
   QFileInfo file_info(filename);
 
-  QString original_basename = file_info.baseName();
+  QString original_basename = file_info.completeBaseName();
 
   QString new_basename = original_basename.left(original_basename.size() - digit_count)
       .append(QStringLiteral("%1").arg(number, digit_count, 10, QChar('0')));
@@ -258,7 +221,7 @@ QString Decoder::TransformImageSequenceFileName(const QString &filename, const i
 
 int Decoder::GetImageSequenceDigitCount(const QString &filename)
 {
-  QString basename = QFileInfo(filename).baseName();
+  QString basename = QFileInfo(filename).completeBaseName();
 
   // See if basename contains a number at the end
   int digit_count = 0;
@@ -280,14 +243,14 @@ int64_t Decoder::GetImageSequenceIndex(const QString &filename)
 
   QFileInfo file_info(filename);
 
-  QString original_basename = file_info.baseName();
+  QString original_basename = file_info.completeBaseName();
 
   QString number_only = original_basename.mid(original_basename.size() - digit_count);
 
   return number_only.toLongLong();
 }
 
-FramePtr Decoder::RetrieveVideoInternal(const rational &timecode, const int &divider)
+FramePtr Decoder::RetrieveVideoInternal(const rational &timecode, const RetrieveVideoParams &divider)
 {
   Q_UNUSED(timecode)
   Q_UNUSED(divider)
@@ -302,16 +265,48 @@ bool Decoder::ConformAudioInternal(const QString& filename, const AudioParams &p
   return false;
 }
 
-SampleBufferPtr Decoder::RetrieveAudioFromConform(const QString &conform_filename, const TimeRange& range)
+SampleBufferPtr Decoder::RetrieveAudioFromConform(const QString &conform_filename, const TimeRange& range, Footage::LoopMode loop_mode)
 {
   WaveInput input(conform_filename);
 
   if (input.open()) {
     const AudioParams& input_params = input.params();
 
-    // Read bytes from wav
-    QByteArray packed_data = input.read(input_params.time_to_bytes(range.in()),
-                                        input_params.time_to_bytes(range.length()));
+    QByteArray packed_data(input_params.time_to_bytes(range.length()), Qt::Uninitialized);
+
+    qint64 read_index = input_params.time_to_bytes(range.in());
+    qint64 write_index = 0;
+
+    while (write_index < packed_data.size()) {
+      if (loop_mode == Footage::kLoopModeLoop) {
+        while (read_index >= input.data_length()) {
+          read_index -= input.data_length();
+        }
+
+        while (read_index < 0) {
+          read_index += input.data_length();
+        }
+      }
+
+      qint64 write_count = 0;
+
+      if (read_index < 0) {
+        // Reading before 0, write silence here until audio data would actually start
+        write_count = qMin(-read_index, qint64(packed_data.size()));
+        memset(packed_data.data() + write_index, 0, write_count);
+      } else if (read_index >= input.data_length()) {
+        // Reading after data length, write silence until the end of the buffer
+        write_count = packed_data.size() - write_index;
+        memset(packed_data.data() + write_index, 0, write_count);
+      } else {
+        write_count = qMin(input.data_length() - read_index, packed_data.size() - write_index);
+        input.read(read_index, packed_data.data() + write_index, write_count);
+      }
+
+      read_index += write_count;
+      write_index += write_count;
+    }
+
     input.close();
 
     // Create sample buffer
@@ -321,6 +316,11 @@ SampleBufferPtr Decoder::RetrieveAudioFromConform(const QString &conform_filenam
   }
 
   return nullptr;
+}
+
+void Decoder::UpdateLastAccessed()
+{
+  last_accessed_ = QDateTime::currentMSecsSinceEpoch();
 }
 
 uint qHash(Decoder::CodecStream stream, uint seed)

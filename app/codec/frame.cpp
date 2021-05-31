@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,12 +26,20 @@
 #include <QtMath>
 
 #include "common/oiioutils.h"
+#include "render/framemanager.h"
 
 namespace olive {
 
 Frame::Frame() :
+  data_(nullptr),
+  data_size_(0),
   timestamp_(0)
 {
+}
+
+Frame::~Frame()
+{
+  destroy();
 }
 
 FramePtr Frame::Create()
@@ -52,6 +60,30 @@ void Frame::set_video_params(const VideoParams &params)
   linesize_pixels_ = linesize_ / params_.GetBytesPerPixel();
 }
 
+FramePtr Frame::Interlace(FramePtr top, FramePtr bottom)
+{
+  if (top->video_params() != bottom->video_params()) {
+    qCritical() << "Tried to interlace two frames that had incompatible parameters";
+    return nullptr;
+  }
+
+  FramePtr interlaced = Frame::Create();
+  interlaced->set_video_params(top->video_params());
+  interlaced->allocate();
+
+  int linesize = interlaced->linesize_bytes();
+
+  for (int i=0; i<interlaced->height(); i++) {
+    FramePtr which = (i%2 == 0) ? top : bottom;
+
+    memcpy(interlaced->data() + i*linesize,
+           which->const_data() + i*linesize,
+           linesize);
+  }
+
+  return interlaced;
+}
+
 int Frame::generate_linesize_bytes(int width, VideoParams::Format format, int channel_count)
 {
   // Align to 32 bytes (not sure if this is necessary?)
@@ -66,7 +98,7 @@ Color Frame::get_pixel(int x, int y) const
 
   int byte_offset = y * linesize_bytes() + x * video_params().GetBytesPerPixel();
 
-  return Color(data_.data() + byte_offset, video_params().format(), video_params().channel_count());
+  return Color(reinterpret_cast<const char*>(data_ + byte_offset), video_params().format(), video_params().channel_count());
 }
 
 bool Frame::contains_pixel(int x, int y) const
@@ -82,7 +114,7 @@ void Frame::set_pixel(int x, int y, const Color &c)
 
   int byte_offset = y * linesize_bytes() + x * video_params().GetBytesPerPixel();
 
-  c.toData(data_.data() + byte_offset, video_params().format(), video_params().channel_count());
+  c.toData(reinterpret_cast<char*>(data_ + byte_offset), video_params().format(), video_params().channel_count());
 }
 
 bool Frame::allocate()
@@ -93,9 +125,25 @@ bool Frame::allocate()
     return false;
   }
 
-  data_.resize(VideoParams::GetBufferSize(linesize_, height(), params_.format(), params_.channel_count()));
+  if (is_allocated()) {
+    // Already allocated
+    return true;
+  }
+
+  data_size_ = linesize_ * height();
+  data_ = FrameManager::Allocate(data_size_);
 
   return true;
+}
+
+void Frame::destroy()
+{
+  if (is_allocated()) {
+    FrameManager::Deallocate(data_size_, data_);
+
+    data_size_ = 0;
+    data_ = nullptr;
+  }
 }
 
 FramePtr Frame::convert(VideoParams::Format format) const

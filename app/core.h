@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -28,10 +28,10 @@
 
 #include "common/rational.h"
 #include "common/timecodefunctions.h"
-#include "project/item/footage/footage.h"
-#include "project/item/sequence/sequence.h"
-#include "project/project.h"
-#include "project/projectviewmodel.h"
+#include "node/project/footage/footage.h"
+#include "node/project/project.h"
+#include "node/project/projectviewmodel.h"
+#include "node/project/sequence/sequence.h"
 #include "task/task.h"
 #include "tool/tool.h"
 #include "undo/undostack.h"
@@ -296,7 +296,13 @@ public:
    *
    * Shorthand for Core::instance()->main_window()->statusBar()->showMessage();
    */
-  void ShowStatusBarMessage(const QString& s);
+  void ShowStatusBarMessage(const QString& s, int timeout = 0);
+
+  void ClearStatusBarMessage();
+
+  void OpenRecoveryProject(const QString& filename);
+
+  void OpenNodeInViewer(ViewerOutput* viewer);
 
   static const uint kProjectVersion;
 
@@ -405,6 +411,10 @@ public slots:
    */
   void CreateNewProject();
 
+  void CheckForAutoRecoveries();
+
+  void BrowseAutoRecoveries();
+
 signals:
   /**
    * @brief Signal emitted when a project is opened
@@ -485,12 +495,16 @@ private:
   /**
    * @brief Internal function for saving a project to a file
    */
-  void SaveProjectInternal(Project *project);
+  void SaveProjectInternal(Project *project, const QString &override_filename = QString());
 
   /**
    * @brief Retrieves the currently most active sequence for exporting
    */
-  Sequence* GetSequenceToExport();
+  ViewerOutput *GetSequenceToExport();
+
+  static QString GetAutoRecoveryIndexFilename();
+
+  void SaveUnrecoveredList();
 
   /**
    * @brief Internal main window object
@@ -552,6 +566,11 @@ private:
    */
   QTranslator* translator_;
 
+  /**
+   * @brief List of projects that are unsaved but have autorecovery projects
+   */
+  QVector<QUuid> autorecovered_projects_;
+
 private slots:
   void SaveAutorecovery();
 
@@ -562,7 +581,7 @@ private slots:
    */
   void AddOpenProject(olive::Project* p);
 
-  void AddOpenProjectFromTask(Task* task);
+  bool AddOpenProjectFromTask(Task* task);
 
   void ImportTaskComplete(Task *task);
 
@@ -574,10 +593,12 @@ private slots:
 
   void OpenStartupProject();
 
+  void AddRecoveryProjectFromTask(Task* task);
+
   /**
    * @brief Internal project open
    */
-  void OpenProjectInternal(const QString& filename);
+  void OpenProjectInternal(const QString& filename, bool recovery_project = false);
 
 };
 

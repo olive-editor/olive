@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -36,6 +36,7 @@
 namespace olive {
 
 RenderManager* RenderManager::instance_ = nullptr;
+const int RenderManager::kDecoderMaximumInactivity = 10000;
 
 RenderManager::RenderManager(QObject *parent) :
   ThreadPool(QThread::IdlePriority, 0, parent),
@@ -56,6 +57,10 @@ RenderManager::RenderManager(QObject *parent) :
     decoder_cache_ = new DecoderCache();
     shader_cache_ = new ShaderCache();
     default_shader_ = context_->CreateNativeShader(ShaderCode(QString(), QString()));
+
+    decoder_clear_timer_.setInterval(kDecoderMaximumInactivity);
+    connect(&decoder_clear_timer_, &QTimer::timeout, this, &RenderManager::ClearOldDecoders);
+    decoder_clear_timer_.start();
   } else {
     qCritical() << "Tried to initialize unknown graphics backend";
     context_ = nullptr;
@@ -79,7 +84,25 @@ RenderManager::~RenderManager()
   }
 }
 
-QByteArray RenderManager::Hash(const Node *n, const VideoParams &params, const rational &time)
+void RenderManager::ClearOldDecoders()
+{
+  QMutexLocker locker(decoder_cache_->mutex());
+
+  qint64 min_age = QDateTime::currentMSecsSinceEpoch() - kDecoderMaximumInactivity;
+
+  for (auto it=decoder_cache_->begin(); it!=decoder_cache_->end(); ) {
+    DecoderPair decoder = it.value();
+
+    if (decoder.decoder->GetLastAccessedTime() < min_age) {
+      decoder.decoder->Close();
+      it = decoder_cache_->erase(it);
+    } else {
+      it++;
+    }
+  }
+}
+
+QByteArray RenderManager::Hash(const Node *n, const QString& output, const VideoParams &params, const rational &time)
 {
   QCryptographicHash hasher(QCryptographicHash::Sha1);
 
@@ -87,43 +110,46 @@ QByteArray RenderManager::Hash(const Node *n, const VideoParams &params, const r
   int width = params.effective_width();
   int height = params.effective_height();
   VideoParams::Format format = params.format();
+  VideoParams::Interlacing interlacing = params.interlacing();
 
-  hasher.addData(reinterpret_cast<const char*>(&width), sizeof(int));
-  hasher.addData(reinterpret_cast<const char*>(&height), sizeof(int));
-  hasher.addData(reinterpret_cast<const char*>(&format), sizeof(VideoParams::Format));
+  hasher.addData(reinterpret_cast<const char*>(&width), sizeof(width));
+  hasher.addData(reinterpret_cast<const char*>(&height), sizeof(height));
+  hasher.addData(reinterpret_cast<const char*>(&format), sizeof(format));
+  hasher.addData(reinterpret_cast<const char*>(&interlacing), sizeof(interlacing));
 
   if (n) {
-    n->Hash(Node::kDefaultOutput, hasher, time);
+    n->Hash(output, hasher, time, params);
   }
 
   return hasher.result();
 }
 
-RenderTicketPtr RenderManager::RenderFrame(Sequence* viewer, ColorManager* color_manager,
+RenderTicketPtr RenderManager::RenderFrame(ViewerOutput *viewer, ColorManager* color_manager,
                                            const rational& time, RenderMode::Mode mode,
-                                           FrameHashCache* cache, bool prioritize)
+                                           FrameHashCache* cache, bool prioritize, bool texture_only)
 {
   return RenderFrame(viewer,
                      color_manager,
                      time,
                      mode,
-                     viewer->video_params(),
-                     viewer->audio_params(),
+                     viewer->GetVideoParams(),
+                     viewer->GetAudioParams(),
                      QSize(0, 0),
                      QMatrix4x4(),
                      VideoParams::kFormatInvalid,
                      nullptr,
                      cache,
-                     prioritize);
+                     prioritize,
+                     texture_only);
 }
 
-RenderTicketPtr RenderManager::RenderFrame(Sequence* viewer, ColorManager* color_manager,
+RenderTicketPtr RenderManager::RenderFrame(ViewerOutput *viewer, ColorManager* color_manager,
                                            const rational& time, RenderMode::Mode mode,
                                            const VideoParams &video_params, const AudioParams &audio_params,
                                            const QSize& force_size,
                                            const QMatrix4x4& force_matrix, VideoParams::Format force_format,
                                            ColorProcessorPtr force_color_output,
-                                           FrameHashCache* cache, bool prioritize)
+                                           FrameHashCache* cache, bool prioritize, bool texture_only)
 {
   // Create ticket
   RenderTicketPtr ticket = std::make_shared<RenderTicket>();
@@ -139,6 +165,7 @@ RenderTicketPtr RenderManager::RenderFrame(Sequence* viewer, ColorManager* color
   ticket->setProperty("coloroutput", QVariant::fromValue(force_color_output));
   ticket->setProperty("vparam", QVariant::fromValue(video_params));
   ticket->setProperty("aparam", QVariant::fromValue(audio_params));
+  ticket->setProperty("textureonly", texture_only);
 
   if (cache) {
     ticket->setProperty("cache", cache->GetCacheDirectory());
@@ -156,12 +183,12 @@ RenderTicketPtr RenderManager::RenderFrame(Sequence* viewer, ColorManager* color
   return ticket;
 }
 
-RenderTicketPtr RenderManager::RenderAudio(Sequence* viewer, const TimeRange& r, bool generate_waveforms, bool prioritize)
+RenderTicketPtr RenderManager::RenderAudio(ViewerOutput* viewer, const TimeRange& r, RenderMode::Mode mode, bool generate_waveforms, bool prioritize)
 {
-  return RenderAudio(viewer, r, viewer->audio_params(), generate_waveforms, prioritize);
+  return RenderAudio(viewer, r, viewer->GetAudioParams(), mode, generate_waveforms, prioritize);
 }
 
-RenderTicketPtr RenderManager::RenderAudio(Sequence* viewer, const TimeRange &r, const AudioParams &params, bool generate_waveforms, bool prioritize)
+RenderTicketPtr RenderManager::RenderAudio(ViewerOutput* viewer, const TimeRange &r, const AudioParams &params, RenderMode::Mode mode, bool generate_waveforms, bool prioritize)
 {
   // Create ticket
   RenderTicketPtr ticket = std::make_shared<RenderTicket>();
@@ -169,6 +196,7 @@ RenderTicketPtr RenderManager::RenderAudio(Sequence* viewer, const TimeRange &r,
   ticket->setProperty("viewer", Node::PtrToValue(viewer));
   ticket->setProperty("time", QVariant::fromValue(r));
   ticket->setProperty("type", kTypeAudio);
+  ticket->setProperty("mode", mode);
   ticket->setProperty("enablewaveforms", generate_waveforms);
   ticket->setProperty("aparam", QVariant::fromValue(params));
 
@@ -189,7 +217,7 @@ RenderTicketPtr RenderManager::SaveFrameToCache(FrameHashCache *cache, FramePtr 
   // Create ticket
   RenderTicketPtr ticket = std::make_shared<RenderTicket>();
 
-  ticket->setProperty("cache", Node::PtrToValue(cache));
+  ticket->setProperty("cache", cache->GetCacheDirectory());
   ticket->setProperty("frame", QVariant::fromValue(frame));
   ticket->setProperty("hash", hash);
   ticket->setProperty("type", kTypeVideoDownload);

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ class OIIODecoder : public Decoder
 public:
   OIIODecoder();
 
-  virtual ~OIIODecoder() override;
+  DECODER_DEFAULT_DESTRUCTOR(OIIODecoder)
 
   virtual QString id() const override;
 
@@ -44,7 +44,7 @@ public:
 
 protected:
   virtual bool OpenInternal() override;
-  virtual FramePtr RetrieveVideoInternal(const rational &timecode, const int& divider) override;
+  virtual FramePtr RetrieveVideoInternal(const rational &timecode, const RetrieveVideoParams& divider) override;
   virtual void CloseInternal() override;
 
 private:

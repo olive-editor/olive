@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2020 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -40,9 +40,9 @@ public:
 
   bool is_open() const;
 
-  QByteArray read(int length);
-  QByteArray read(int offset, int length);
-  qint64 read(int offset, char *buffer, int length);
+  QByteArray read(qint64 length);
+  QByteArray read(qint64 offset, qint64 length);
+  qint64 read(qint64 offset, char *buffer, qint64 length);
 
   bool seek(qint64 pos);
 
