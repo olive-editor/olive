@@ -1560,7 +1560,7 @@ Ses Kanalları: %6</translation>
     <message>
         <location filename="../dialogs/mediapropertiesdialog.cpp" line="77"/>
         <source>Audio %1: %2Hz %3</source>
-        <translation>Ses %1: %2Hz %3<</translation>
+        <translation>Ses %1: %2Hz %3</translation>
     </message>
     <message numerus="yes">
         <location filename="../dialogs/mediapropertiesdialog.cpp" line="80"/>
@@ -1979,7 +1979,7 @@ Ses Kanalları: %6</translation>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="414"/>
         <source>Import Keyboard Shortcuts</source>
-        <translation>Klavye Kısayollarını İçe Aktar/translation>
+        <translation>Klavye Kısayollarını İçe Aktar</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="438"/>
@@ -3043,7 +3043,7 @@ Hızlı konumlandırma (belki yanlış çerçeve ekranı-oynatmayı etkilemez)</
     <message>
         <location filename="../dialogs/texteditdialog.cpp" line="70"/>
         <source>Light</source>
-        <translatorcomment>rafine/translatorcomment>
+        <translatorcomment>rafine</translatorcomment>
         <translation>Işık</translation>
     </message>
     <message>
