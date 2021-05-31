@@ -1425,6 +1425,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="57"/>
         <source>Basic</source>
+        <translatorcomment>Would &quot;基本&quot; / &quot;基本的&quot; be more appropriate?</translatorcomment>
         <translation type="unfinished">基本设置</translation>
     </message>
     <message>
