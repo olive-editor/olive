@@ -639,8 +639,7 @@ void MainMenu::Retranslate()
 
   // Edit menu
   edit_menu_->setTitle(tr("&Edit"));
-  //edit_undo_item_->setText(tr("&Undo")); FIXME: Does Qt translate these automatically?
-  //edit_redo_item_->setText(tr("Redo"));
+  Core::instance()->undo_stack()->UpdateActions(); // Update undo and redo
   edit_delete2_item_->setText(tr("Delete (alt)"));
   edit_insert_item_->setText(tr("Insert"));
   edit_overwrite_item_->setText(tr("Overwrite"));
