@@ -51,10 +51,10 @@ ShaderCode MathNodeBase::GetShaderCodeInternal(const QString &shader_id, const Q
 
     vert = QStringLiteral("uniform mat4 %1;\n"
                           "\n"
-                          "in vec4 a_position;\n"
-                          "in vec2 a_texcoord;\n"
+                          "attribute vec4 a_position;\n"
+                          "attribute vec2 a_texcoord;\n"
                           "\n"
-                          "out vec2 ove_texcoord;\n"
+                          "varying vec2 ove_texcoord;\n"
                           "\n"
                           "void main() {\n"
                           "    gl_Position = %1 * a_position;\n"
@@ -96,12 +96,10 @@ ShaderCode MathNodeBase::GetShaderCodeInternal(const QString &shader_id, const Q
   frag = QStringLiteral("uniform %1 %3;\n"
                         "uniform %2 %4;\n"
                         "\n"
-                        "in vec2 ove_texcoord;\n"
-                        "\n"
-                        "out vec4 fragColor;\n"
+                        "varying vec2 ove_texcoord;\n"
                         "\n"
                         "void main(void) {\n"
-                        "    fragColor = %5;\n"
+                        "    gl_FragColor = %5;\n"
                         "}\n").arg(GetShaderUniformType(type_a),
                                    GetShaderUniformType(type_b),
                                    param_a_in,
