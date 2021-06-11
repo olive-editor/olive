@@ -153,11 +153,11 @@ rational Block::SequenceToMediaTime(const rational &sequence_time, bool ignore_r
     local_time = rational::fromDouble(local_time.toDouble() * speed_value);
   }
 
-  rational media_time = local_time + media_in();
-
   if (reverse() && !ignore_reverse) {
-    media_time = length() - media_time;
+    local_time = length() - local_time;
   }
+
+  rational media_time = local_time + media_in();
 
   return media_time;
 }
