@@ -162,6 +162,28 @@ void AudioVisualWaveform::OverwriteSums(const AudioVisualWaveform &sums, const r
   length_ = qMax(length_, dest + length);
 }
 
+void AudioVisualWaveform::OverwriteSilence(const rational &start, const rational &length)
+{
+  for (auto it=mipmapped_data_.begin(); it!=mipmapped_data_.end(); it++) {
+    rational rate = it->first;
+
+    Sample& our_arr = it->second;
+
+    double rate_dbl = rate.toDouble();
+
+    // Get our destination sample
+    int our_start_index = time_to_samples(start, rate_dbl);
+    int our_length_index = time_to_samples(length, rate_dbl);
+    int our_end_index = our_start_index + our_length_index;
+
+    if (our_arr.size() < our_end_index) {
+      our_arr.resize(our_end_index);
+    }
+
+    memset(reinterpret_cast<char*>(our_arr.data()) + our_start_index, 0, our_length_index);
+  }
+}
+
 void AudioVisualWaveform::Shift(const rational &from, const rational &to)
 {
   for (auto it=mipmapped_data_.begin(); it!=mipmapped_data_.end(); it++) {

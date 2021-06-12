@@ -60,8 +60,7 @@ void AudioWaveformView::SetViewer(AudioPlaybackCache *playback)
     pool_.clear();
     pool_.waitForDone();
 
-    disconnect(playback_, &AudioPlaybackCache::Validated, this, &AudioWaveformView::RenderRange);
-    //disconnect(playback_, &AudioPlaybackCache::ParametersChanged, this, &AudioWaveformView::RenderRange);
+    disconnect(playback_, &AudioPlaybackCache::Validated, this, static_cast<void(AudioWaveformView::*)()>(&AudioWaveformView::update));
 
     SetTimebase(0);
   }
@@ -69,14 +68,9 @@ void AudioWaveformView::SetViewer(AudioPlaybackCache *playback)
   playback_ = playback;
 
   if (playback_) {
-    connect(playback_, &AudioPlaybackCache::Validated, this, &AudioWaveformView::RenderRange);
-    //connect(playback_, &AudioPlaybackCache::ParametersChanged, this, &AudioWaveformView::RenderRange);
+    connect(playback_, &AudioPlaybackCache::Validated, this, static_cast<void(AudioWaveformView::*)()>(&AudioWaveformView::update));
 
     SetTimebase(playback_->GetParameters().sample_rate_as_time_base());
-
-    waveform_.set_channel_count(playback_->GetParameters().channel_count());
-
-    RenderRange(TimeRange(0, playback_->GetLength()));
   }
 }
 
@@ -101,51 +95,13 @@ void AudioWaveformView::paintEvent(QPaintEvent *event)
 
   // Draw waveform
   p.setPen(QColor(64, 255, 160)); // FIXME: Hardcoded color
-  AudioVisualWaveform::DrawWaveform(&p, rect(), GetScale(), waveform_, SceneToTime(GetScroll()));
+  AudioVisualWaveform::DrawWaveform(&p, rect(), GetScale(), playback_->visual(), SceneToTime(GetScroll()));
 
   // Draw playhead
   p.setPen(PLAYHEAD_COLOR);
 
   int playhead_x = UnitToScreen(GetTime());
   p.drawLine(playhead_x, 0, playhead_x, height());
-}
-
-void AudioWaveformView::RenderRange(TimeRange range)
-{
-  // Limit range to length
-  range = TimeRange(qMax(rational(0), range.in()), qMin(playback_->GetLength(), range.out()));
-
-  // Floor to second increments
-  int64_t start = qFloor(range.in().toDouble());
-  int64_t end = qCeil(range.out().toDouble());
-
-  for (; start!=end; start++) {
-    TimeRange this_range(start, start+1);
-
-    QFutureWatcher<AudioVisualWaveform>* watcher = new QFutureWatcher<AudioVisualWaveform>();
-    connect(watcher, &QFutureWatcher<AudioVisualWaveform>::finished, this, &AudioWaveformView::BackgroundFinished);
-
-    jobs_.insert(this_range, watcher);
-
-    watcher->setFuture(QtConcurrent::run(&pool_, GenerateWaveform, playback_->CreatePlaybackDevice(), playback_->GetParameters(), this_range));
-  }
-}
-
-void AudioWaveformView::BackgroundFinished()
-{
-  QFutureWatcher<AudioVisualWaveform>* watcher = static_cast<QFutureWatcher<AudioVisualWaveform>*>(sender());
-
-  for (auto it=jobs_.begin(); it!=jobs_.end(); it++) {
-    if (it.value() == watcher) {
-      AudioVisualWaveform rendered = watcher->result();
-      waveform_.OverwriteSums(rendered, it.key().in());
-      jobs_.erase(it);
-      update();
-      break;
-    }
-  }
-
-  delete watcher;
 }
 
 }

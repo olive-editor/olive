@@ -173,7 +173,16 @@ void RenderProcessor::Run()
       table = GenerateTable(texture_output.node(), texture_output.output(), time);
     }
 
-    ticket_->Finish(table.Get(NodeValue::kSamples));
+    QVariant sample_variant = table.Get(NodeValue::kSamples);
+    SampleBufferPtr samples = sample_variant.value<SampleBufferPtr>();
+    if (samples && ticket_->property("enablewaveforms").toBool()) {
+      AudioVisualWaveform vis;
+      vis.set_channel_count(samples->audio_params().channel_count());
+      vis.OverwriteSamples(samples, samples->audio_params().sample_rate());
+      ticket_->setProperty("waveform", QVariant::fromValue(vis));
+    }
+
+    ticket_->Finish(sample_variant);
     break;
   }
   case RenderManager::kTypeVideoDownload:

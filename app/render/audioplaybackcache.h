@@ -21,6 +21,7 @@
 #ifndef AUDIOPLAYBACKCACHE_H
 #define AUDIOPLAYBACKCACHE_H
 
+#include "audio/audiovisualwaveform.h"
 #include "common/timerange.h"
 #include "codec/samplebuffer.h"
 #include "render/playbackcache.h"
@@ -65,7 +66,7 @@ public:
 
   void SetParameters(const AudioParams& params);
 
-  void WritePCM(const TimeRange &range, SampleBufferPtr samples, const qint64& job_time);
+  void WritePCM(const TimeRange &range, SampleBufferPtr samples, const AudioVisualWaveform *waveform, const qint64& job_time);
 
   void WriteSilence(const TimeRange &range, qint64 job_time);
 
@@ -181,6 +182,11 @@ public:
    */
   PlaybackDevice* CreatePlaybackDevice(QObject *parent = nullptr) const;
 
+  const AudioVisualWaveform &visual() const
+  {
+    return visual_;
+  }
+
 signals:
   void ParametersChanged();
 
@@ -211,6 +217,8 @@ private:
   Playlist playlist_;
 
   AudioParams params_;
+
+  AudioVisualWaveform visual_;
 
 };
 

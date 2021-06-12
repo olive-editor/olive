@@ -24,7 +24,6 @@
 #include <QtConcurrent/QtConcurrent>
 #include <QWidget>
 
-#include "audio/audiovisualwaveform.h"
 #include "render/audioparams.h"
 #include "render/audioplaybackcache.h"
 #include "widget/timeruler/seekablewidget.h"
@@ -37,31 +36,15 @@ class AudioWaveformView : public SeekableWidget
 public:
   AudioWaveformView(QWidget* parent = nullptr);
 
-  //void SetData(const QString& file, const AudioRenderingParams& params);
-
   void SetViewer(AudioPlaybackCache *playback);
-
-  const AudioVisualWaveform* waveform() const
-  {
-    return &waveform_;
-  }
 
 protected:
   virtual void paintEvent(QPaintEvent* event) override;
 
 private:
-  void RenderRange(TimeRange range);
-
   QThreadPool pool_;
 
   AudioPlaybackCache *playback_;
-
-  AudioVisualWaveform waveform_;
-
-  QHash<TimeRange, QFutureWatcher<AudioVisualWaveform>*> jobs_;
-
-private slots:
-  void BackgroundFinished();
 
 };
 
