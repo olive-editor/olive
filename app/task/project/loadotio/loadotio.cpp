@@ -57,7 +57,7 @@ bool LoadOTIOTask::Run()
   }
 
   project_ = new Project();
-  project_->set_filename(GetFilename());
+  project_->set_modified(true);
 
   std::vector<OTIO::Timeline*> timelines;
 
@@ -87,6 +87,12 @@ bool LoadOTIOTask::Run()
     sequence->SetLabel(QString::fromStdString(timeline->name()));
     sequence->setParent(project_);
     FolderAddChild(project_->root(), sequence).redo();
+
+    // Create a folder for this sequence's footage
+    Folder* sequence_footage = new Folder();
+    sequence_footage->SetLabel(QString::fromStdString(timeline->name()));
+    sequence_footage->setParent(project_);
+    FolderAddChild(project_->root(), sequence_footage).redo();
 
     // FIXME: As far as I know, OTIO doesn't store video/audio parameters?
     sequence->set_default_parameters();
@@ -214,6 +220,12 @@ bool LoadOTIOTask::Run()
               probed_item = new Footage(footage_url);
               imported_footage.insert(footage_url, probed_item);
               probed_item->setParent(project_);
+
+              QFileInfo info(probed_item->filename());
+              probed_item->SetLabel(info.fileName());
+
+              FolderAddChild add(sequence_footage, probed_item, false);
+              add.redo();
             }
 
             Track::Reference reference;
