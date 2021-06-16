@@ -70,8 +70,6 @@ public:
   FramePtr LoadCacheFrame(const QByteArray& hash) const;
   static FramePtr LoadCacheFrame(const QString& fn);
 
-  static QString GetFormatExtension();
-
   static QVector<rational> GetFrameListFromTimeRange(TimeRangeList range_list, const rational& timebase);
   QVector<rational> GetFrameListFromTimeRange(const TimeRangeList &range);
   QVector<rational> GetInvalidatedFrames();
@@ -94,6 +92,7 @@ private:
 
   static QMutex currently_saving_frames_mutex_;
   static QMap<QByteArray, FramePtr> currently_saving_frames_;
+  static const QString kCacheFormatExtension;
 
 private slots:
   void HashDeleted(const QString &s, const QByteArray& hash);
