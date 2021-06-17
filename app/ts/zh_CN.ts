@@ -266,8 +266,7 @@ Length: %4</source>
     <message>
         <location filename="../tool/tool.h" line="108"/>
         <source>Bars</source>
-        <translatorcomment>彩条</translatorcomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">彩条</translation>
     </message>
     <message>
         <location filename="../tool/tool.h" line="110"/>
@@ -282,8 +281,7 @@ Length: %4</source>
     <message>
         <location filename="../tool/tool.h" line="114"/>
         <source>Tone</source>
-        <translatorcomment>音调</translatorcomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">音调</translation>
     </message>
     <message>
         <location filename="../tool/tool.h" line="119"/>
@@ -1425,7 +1423,8 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="57"/>
         <source>Basic</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Would &quot;基本&quot; / &quot;基本的&quot; be more appropriate?</translatorcomment>
+        <translation type="unfinished">基本设置</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="61"/>
@@ -2032,7 +2031,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="664"/>
         <source>Cache Entire Sequence</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">缓存整个序列</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="665"/>
@@ -2112,7 +2111,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="685"/>
         <source>Enable Snapping</source>
-        <translation type="unfinished">开启边缘吸合/自动对齐</translation>
+        <translation type="unfinished">启用吸附</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="686"/>
@@ -4369,7 +4368,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../widget/toolbar/toolbar.cpp" line="108"/>
         <source>Toggle Snapping</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">切换吸附</translation>
     </message>
 </context>
 <context>

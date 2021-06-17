@@ -148,10 +148,14 @@ bool FFmpegDecoder::OpenInternal()
 
 FramePtr FFmpegDecoder::RetrieveVideoInternal(const rational &timecode, const RetrieveVideoParams &params)
 {
+  if (!InitScaler(params)) {
+    return nullptr;
+  }
+
   AVStream* s = instance_.avstream();
 
   // Retrieve frame
-  FFmpegFramePool::ElementPtr return_frame = RetrieveFrame(timecode, params);
+  FFmpegFramePool::ElementPtr return_frame = RetrieveFrame(timecode);
 
   // We found the frame, we'll return a copy
   if (return_frame) {
@@ -161,7 +165,7 @@ FramePtr FFmpegDecoder::RetrieveVideoInternal(const rational &timecode, const Re
                                        native_pix_fmt_,
                                        native_channel_count_,
                                        av_guess_sample_aspect_ratio(instance_.fmt_ctx(), s, nullptr), // May be incorrect,
-                                       VideoParams::kInterlaceNone, // May be incorrect
+                                       VideoParams::kInterlaceNone,
                                        filter_params_.divider));
     copy->set_timestamp(timecode);
     copy->allocate();
@@ -182,13 +186,9 @@ void FFmpegDecoder::CloseInternal()
   instance_.Close();
 }
 
-int FFmpegDecoder::GetFilteredFrame(AVPacket* packet, AVFrame* output_frame, const RetrieveVideoParams& params)
+int FFmpegDecoder::GetFilteredFrame(AVPacket* packet, AVFrame* output_frame)
 {
   // Ensure scaler is correct for these parameters
-  if (!InitScaler(params)) {
-    return AVERROR(EINVAL);
-  }
-
   int ret;
 
   AVFrame* working_frame = av_frame_alloc();
@@ -642,15 +642,18 @@ void FFmpegDecoder::CacheFrameToDisk(AVFrame *f)
 
 void FFmpegDecoder::ClearFrameCache()
 {
-  cached_frames_.clear();
-  cache_at_eof_ = false;
-  cache_at_zero_ = false;
+  if (!cached_frames_.isEmpty()) {
+    cached_frames_.clear();
+    cache_at_eof_ = false;
+    cache_at_zero_ = false;
 
-  // Filter graph may rely on "continuous" video frames, so we free the scaler here
-  FreeScaler();
+    // Filter graph may rely on "continuous" video frames, so we free the scaler here
+    FreeScaler();
+    InitScaler(filter_params_);
+  }
 }
 
-FFmpegFramePool::ElementPtr FFmpegDecoder::RetrieveFrame(const rational& time, const RetrieveVideoParams &params)
+FFmpegFramePool::ElementPtr FFmpegDecoder::RetrieveFrame(const rational& time)
 {
   int64_t target_ts = GetTimeInTimebaseUnits(time, instance_.avstream()->time_base, instance_.avstream()->start_time);
 
@@ -658,7 +661,7 @@ FFmpegFramePool::ElementPtr FFmpegDecoder::RetrieveFrame(const rational& time, c
   int64_t seek_ts = target_ts;
   bool still_seeking = false;
 
-  if (params.src_interlacing != VideoParams::kInterlaceNone) {
+  if (filter_params_.src_interlacing != VideoParams::kInterlaceNone) {
     // If we are de-interlacing, the timebase is doubled because we get one frame per field, so we
     // double the target timestamp too
     target_ts *= 2;
@@ -696,7 +699,7 @@ FFmpegFramePool::ElementPtr FFmpegDecoder::RetrieveFrame(const rational& time, c
 
     // Pull from the decoder
     av_frame_unref(working_frame);
-    ret = GetFilteredFrame(pkt, working_frame, params);
+    ret = GetFilteredFrame(pkt, working_frame);
 
     // Handle any errors that aren't EOF (EOF is handled later on)
     if (ret < 0 && ret != AVERROR_EOF) {

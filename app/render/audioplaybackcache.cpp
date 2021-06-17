@@ -48,6 +48,7 @@ void AudioPlaybackCache::SetParameters(const AudioParams &params)
   }
 
   params_ = params;
+  visual_.set_channel_count(params_.channel_count());
 
   // Restart empty file so there's always "something" to play
   ClearPlaylist();
@@ -55,7 +56,7 @@ void AudioPlaybackCache::SetParameters(const AudioParams &params)
   emit ParametersChanged();
 }
 
-void AudioPlaybackCache::WritePCM(const TimeRange &range, SampleBufferPtr samples, const qint64 &job_time)
+void AudioPlaybackCache::WritePCM(const TimeRange &range, SampleBufferPtr samples, const AudioVisualWaveform *waveform, const qint64 &job_time)
 {
   QList<TimeRange> valid_ranges = GetValidRanges(range, job_time);
   if (valid_ranges.isEmpty()) {
@@ -83,6 +84,7 @@ void AudioPlaybackCache::WritePCM(const TimeRange &range, SampleBufferPtr sample
   foreach (const TimeRange& r, valid_ranges) {
     rational this_segment_in = 0;
 
+    // Write PCM to playlist
     for (auto it=playlist_.begin(); it!=playlist_.end(); it++) {
       rational this_segment_out = this_segment_in + params_.bytes_to_time((*it).size());
 
@@ -138,6 +140,13 @@ void AudioPlaybackCache::WritePCM(const TimeRange &range, SampleBufferPtr sample
       // Each segment is contiguous, so this out will be the next segment's in
       this_segment_in = this_segment_out;
     }
+
+    // Write visual
+    if (waveform) {
+      visual_.OverwriteSums(*waveform, r.in(), r.in() - range.in(), r.length());
+    } else {
+      visual_.OverwriteSilence(r.in(), r.length());
+    }
   }
 
   foreach (const TimeRange& v, ranges_we_validated) {
@@ -149,7 +158,7 @@ void AudioPlaybackCache::WriteSilence(const TimeRange &range, qint64 job_time)
 {
   // WritePCM will automatically fill non-existent bytes with silence, so we just have to send
   // it an empty sample buffer
-  WritePCM(range, nullptr, job_time);
+  WritePCM(range, nullptr, nullptr, job_time);
 }
 
 void AudioPlaybackCache::ShiftEvent(const rational &from_in_time, const rational &to_in_time)

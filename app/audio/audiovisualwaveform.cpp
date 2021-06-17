@@ -162,6 +162,28 @@ void AudioVisualWaveform::OverwriteSums(const AudioVisualWaveform &sums, const r
   length_ = qMax(length_, dest + length);
 }
 
+void AudioVisualWaveform::OverwriteSilence(const rational &start, const rational &length)
+{
+  for (auto it=mipmapped_data_.begin(); it!=mipmapped_data_.end(); it++) {
+    rational rate = it->first;
+
+    Sample& our_arr = it->second;
+
+    double rate_dbl = rate.toDouble();
+
+    // Get our destination sample
+    int our_start_index = time_to_samples(start, rate_dbl);
+    int our_length_index = time_to_samples(length, rate_dbl);
+    int our_end_index = our_start_index + our_length_index;
+
+    if (our_arr.size() < our_end_index) {
+      our_arr.resize(our_end_index);
+    }
+
+    memset(reinterpret_cast<char*>(our_arr.data()) + our_start_index, 0, our_length_index);
+  }
+}
+
 void AudioVisualWaveform::Shift(const rational &from, const rational &to)
 {
   for (auto it=mipmapped_data_.begin(); it!=mipmapped_data_.end(); it++) {
@@ -184,9 +206,7 @@ void AudioVisualWaveform::Shift(const rational &from, const rational &to)
       // Shifting backwards <-
       int copy_sz = data.size() - from_index;
 
-      for (int i=0; i<copy_sz; i++) {
-        data.replace(to_index + i, data.at(from_index + i));
-      }
+      memcpy(&data.data()[to_index], &data.data()[from_index], copy_sz * sizeof(SamplePerChannel));
 
       data.resize(data.size() - (from_index - to_index));
     } else {
@@ -199,9 +219,10 @@ void AudioVisualWaveform::Shift(const rational &from, const rational &to)
 
       int copy_sz = old_sz - from_index;
 
-      for (int i=0; i<copy_sz; i++) {
-        data.replace(data.size() - i - 1, data.at(old_sz - i - 1));
-      }
+      // Copy to a temporary buffer first to prevent overwriting bytes we need to copy
+      QByteArray temp(copy_sz * sizeof(SamplePerChannel), Qt::Uninitialized);
+      memcpy(temp.data(), &data.data()[from_index], temp.size());
+      memcpy(&data.data()[to_index], temp.data(), temp.size());
 
       memset(reinterpret_cast<char*>(&data[from_index]), 0, distance * sizeof(SamplePerChannel));
     }

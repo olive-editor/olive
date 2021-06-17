@@ -88,6 +88,8 @@ public:
    */
   void OverwriteSums(const AudioVisualWaveform& sums, const rational& dest, const rational& offset = 0, const rational &length = 0);
 
+  void OverwriteSilence(const rational &start, const rational &length);
+
   void Shift(const rational& from, const rational& to);
 
   Sample GetSummaryFromTime(const rational& start, const rational& length) const;

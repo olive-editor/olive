@@ -171,8 +171,11 @@ void PreviewAutoCacher::AudioRendered()
     if (watcher->HasResult()) {
       const TimeRange &range = audio_tasks_.value(watcher);
 
+      AudioVisualWaveform waveform = watcher->GetTicket()->property("waveform").value<AudioVisualWaveform>();
+
       viewer_node_->audio_playback_cache()->WritePCM(range,
                                                      watcher->Get().value<SampleBufferPtr>(),
+                                                     &waveform,
                                                      watcher->GetTicket()->GetJobTime());
 
       bool pcm_is_usable = true;
@@ -506,7 +509,7 @@ void PreviewAutoCacher::TryRender()
 
   if (!invalidated_audio_.isEmpty()) {
     foreach (const TimeRange& range, invalidated_audio_) {
-      std::list<TimeRange> chunks = range.Split(2);
+      std::list<TimeRange> chunks = range.Split(30);
 
       foreach (const TimeRange& r, chunks) {
         RenderTicketWatcher* watcher = new RenderTicketWatcher();
