@@ -143,11 +143,6 @@ QMap<rational, QByteArray> FrameHashCache::time_hash_map()
   return time_hash_map_;
 }
 
-QString FrameHashCache::GetFormatExtension()
-{
-  return QStringLiteral(".exr");
-}
-
 QVector<rational> FrameHashCache::GetFrameListFromTimeRange(TimeRangeList range_list, const rational &timebase)
 {
   // If timebase is null, this will be an infinite loop
