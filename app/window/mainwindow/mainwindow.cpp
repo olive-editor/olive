@@ -95,7 +95,9 @@ MainWindow::MainWindow(QWidget *parent) :
   connect(node_panel_, &NodePanel::NodesDeselected, param_panel_, &ParamPanel::DeselectNodes);
   connect(node_panel_, &NodePanel::NodesSelected, table_panel_, &NodeTablePanel::SelectNodes);
   connect(node_panel_, &NodePanel::NodesDeselected, table_panel_, &NodeTablePanel::DeselectNodes);
-  connect(param_panel_, &ParamPanel::RequestSelectNode, node_panel_, &NodePanel::Select);
+  connect(param_panel_, &ParamPanel::RequestSelectNode, this, [this](const QVector<Node*>& target){
+    node_panel_->Select(target, true);
+  });
   connect(param_panel_, &ParamPanel::FocusedNodeChanged, sequence_viewer_panel_, &ViewerPanel::SetGizmos);
 
   // Connect time signals together
@@ -480,7 +482,7 @@ void MainWindow::ProjectPanelSelectionChanged(const QVector<Node *> &nodes)
   ProjectPanel *panel = static_cast<ProjectPanel *>(sender());
 
   if (PanelManager::instance()->CurrentlyFocused(false) == panel) {
-    node_panel_->Select(nodes);
+    node_panel_->Select(nodes, true);
   }
 }
 
@@ -732,7 +734,7 @@ void MainWindow::UpdateNodePanelContextFromTimelinePanel(TimelinePanel *panel)
 
   node_panel_->SetGraph(viewer ? viewer->parent() : nullptr, context);
   if (viewer) {
-    node_panel_->SelectWithDependencies(context);
+    node_panel_->SelectWithDependencies(context, false);
   }
 }
 
@@ -752,7 +754,9 @@ void MainWindow::FocusedPanelChanged(PanelWidget *panel)
     // Signal project panel focus
     UpdateTitle();
     if (project->project()) {
-      node_panel_->SetGraph(project->project(), {project->project()->root()});
+      QVector<Node*> context = {project->project()->root()};
+      node_panel_->SetGraph(project->project(), context);
+      node_panel_->SelectWithDependencies(context, false);
     }
   }
 }

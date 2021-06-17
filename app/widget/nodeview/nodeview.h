@@ -63,8 +63,8 @@ public:
   void SelectAll();
   void DeselectAll();
 
-  void Select(QVector<Node *> nodes);
-  void SelectWithDependencies(QVector<Node *> nodes);
+  void Select(QVector<Node *> nodes, bool center_view_on_item);
+  void SelectWithDependencies(QVector<Node *> nodes, bool center_view_on_item);
 
   void CopySelected(bool cut);
   void Paste();
@@ -216,6 +216,10 @@ private slots:
 
   void AddNodePosition(Node *node, Node *relative);
   void RemoveNodePosition(Node *node, Node *relative);
+
+  void UpdateSceneBoundingRect();
+
+  void CenterOnItemsBoundingRect();
 
 };
 

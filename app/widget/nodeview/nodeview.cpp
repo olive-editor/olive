@@ -61,6 +61,9 @@ NodeView::NodeView(QWidget *parent) :
   ConnectSelectionChangedSignal();
 
   SetFlowDirection(NodeViewCommon::kTopToBottom);
+
+  UpdateSceneBoundingRect();
+  connect(&scene_, &QGraphicsScene::changed, this, &NodeView::UpdateSceneBoundingRect);
 }
 
 NodeView::~NodeView()
@@ -146,6 +149,9 @@ void NodeView::SetGraph(NodeGraph *graph, const QVector<Node*> &nodes)
             AddNodePosition(it.key(), n);
           }
         }
+
+        // Center on something
+        CenterOnItemsBoundingRect();
       }
     }
   }
@@ -245,7 +251,7 @@ void NodeView::DeselectAll()
   selected_nodes_.clear();
 }
 
-void NodeView::Select(QVector<Node *> nodes)
+void NodeView::Select(QVector<Node *> nodes, bool center_view_on_item)
 {
   if (!graph_) {
     return;
@@ -290,7 +296,7 @@ void NodeView::Select(QVector<Node *> nodes)
   }
 
   // Center on something
-  if (first_item) {
+  if (center_view_on_item && first_item) {
     centerOn(first_item);
   }
 
@@ -310,7 +316,7 @@ void NodeView::Select(QVector<Node *> nodes)
   selected_nodes_ = nodes;
 }
 
-void NodeView::SelectWithDependencies(QVector<Node *> nodes)
+void NodeView::SelectWithDependencies(QVector<Node *> nodes, bool center_view_on_item)
 {
   if (!graph_) {
     return;
@@ -321,7 +327,7 @@ void NodeView::SelectWithDependencies(QVector<Node *> nodes)
     nodes.append(nodes.at(i)->GetDependencies());
   }
 
-  Select(nodes);
+  Select(nodes, center_view_on_item);
 }
 
 void NodeView::CopySelected(bool cut)
@@ -1001,6 +1007,23 @@ void NodeView::RemoveNodePosition(Node *node, Node *relative)
       }
     }
   }
+}
+
+void NodeView::UpdateSceneBoundingRect()
+{
+  // Get current items bounding rect
+  QRectF r = scene_.itemsBoundingRect();
+
+  // Adjust so that it fills the view
+  r.adjust(-width(), -height(), width(), height());
+
+  // Set it
+  scene_.setSceneRect(r);
+}
+
+void NodeView::CenterOnItemsBoundingRect()
+{
+  centerOn(scene_.itemsBoundingRect().center());
 }
 
 void NodeView::AttachNodesToCursor(const QVector<Node *> &nodes)

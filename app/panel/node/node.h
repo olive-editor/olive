@@ -101,14 +101,14 @@ public:
   }
 
 public slots:
-  void Select(const QVector<Node*>& nodes)
+  void Select(const QVector<Node*>& nodes, bool center_view_on_item)
   {
-    node_view_->Select(nodes);
+    node_view_->Select(nodes, center_view_on_item);
   }
 
-  void SelectWithDependencies(const QVector<Node*>& nodes)
+  void SelectWithDependencies(const QVector<Node*>& nodes, bool center_view_on_item)
   {
-    node_view_->SelectWithDependencies(nodes);
+    node_view_->SelectWithDependencies(nodes, center_view_on_item);
   }
 
 signals:
