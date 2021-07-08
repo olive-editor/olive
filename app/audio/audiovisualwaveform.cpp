@@ -318,10 +318,12 @@ void AudioVisualWaveform::DrawSample(QPainter *painter, const Sample& sample, in
     } else {
       int channel_mid = y + channel_height * i + channel_half_height;
 
+      // We subtract the sample so that positive Y values go up on the screen rather than down,
+      // which is how waveforms are usually rendered
       painter->drawLine(x,
-                        channel_mid + qRound(min * static_cast<float>(channel_half_height)),
+                        channel_mid - qRound(min * static_cast<float>(channel_half_height)),
                         x,
-                        channel_mid + qRound(max * static_cast<float>(channel_half_height)));
+                        channel_mid - qRound(max * static_cast<float>(channel_half_height)));
     }
   }
 }
