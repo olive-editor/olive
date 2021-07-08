@@ -1151,14 +1151,38 @@ private:
 
 class TimelineAddTrackCommand : public UndoCommand {
 public:
-  TimelineAddTrackCommand(TrackList *timeline)
+  TimelineAddTrackCommand(TrackList *timeline) :
+    TimelineAddTrackCommand(timeline, Config::Current()[QStringLiteral("AutoMergeTracks")].toBool())
   {
-    Init(timeline, Config::Current()[QStringLiteral("AutoMergeTracks")].toBool());
   }
 
   TimelineAddTrackCommand(TrackList *timeline, bool automerge_tracks)
   {
-    Init(timeline, automerge_tracks);
+    timeline_ = timeline;
+    position_command_ = nullptr;
+
+    track_ = new Track();
+    track_->setParent(&memory_manager_);
+
+    if (timeline->GetTrackCount() > 0 && automerge_tracks) {
+      if (timeline_->type() == Track::kVideo) {
+        merge_ = new MergeNode();
+        base_ = NodeInput(merge_, MergeNode::kBaseIn);
+        blend_ = NodeInput(merge_, MergeNode::kBlendIn);
+      } else if (timeline_->type() == Track::kAudio) {
+        merge_ = new MathNode();
+        base_ = NodeInput(merge_, MathNode::kParamAIn);
+        blend_ = NodeInput(merge_, MathNode::kParamBIn);
+      } else {
+        merge_ = nullptr;
+      }
+    } else {
+      merge_ = nullptr;
+    }
+
+    if (merge_) {
+      merge_->setParent(&memory_manager_);
+    }
   }
 
   static Track* RunImmediately(TrackList *timeline)
@@ -1195,18 +1219,14 @@ public:
     // Add track
     track_->setParent(timeline_->GetParentGraph());
     timeline_->ArrayAppend();
-    int track_total_index = timeline_->parent()->GetTracks().size();
-    if (!position_command_) {
-      position_command_ = new NodeSetPositionAsChildCommand(track_, timeline_->parent(), timeline_->parent(), track_total_index, track_total_index + 1, true);
-    }
-    position_command_->redo();
     Node::ConnectEdge(track_, timeline_->track_input(timeline_->ArraySize() - 1));
 
     // Add merge if applicable
+    Track* last_track = nullptr;
     if (merge_) {
       merge_->setParent(timeline_->GetParentGraph());
 
-      Track* last_track = timeline_->GetTrackAt(timeline_->GetTrackCount()-2);
+      last_track = timeline_->GetTrackAt(timeline_->GetTrackCount()-2);
 
       // Whatever this track used to be connected to, connect the merge instead
       const Node::OutputConnections edges = last_track->output_connections();
@@ -1241,10 +1261,36 @@ public:
         direct_ = NodeInput();
       }
     }
+
+    // Position track in context
+    if (!position_command_) {
+      int track_count = timeline_->parent()->GetTracks().size();
+      position_command_ = new MultiUndoCommand();
+
+      // Position either the merge or the track as an "element"
+      Node *node_to_position = merge_ ? merge_ : track_;
+      double node_index = track_count - 1;
+      if (merge_) {
+        node_index -= 1;
+        position_command_->add_child(new NodeRemovePositionFromContextCommand(last_track, timeline_->parent()));
+      }
+
+      position_command_->add_child(new NodeSetPositionAsChildCommand(node_to_position, timeline_->parent(), timeline_->parent(), node_index, track_count, true));
+
+      // If we positioned a merge, position the tracks as children of the merge
+      if (merge_) {
+        // `last_track` should be non-null if `merge_` is non-null
+        position_command_->add_child(new NodeSetPositionAsChildCommand(last_track, merge_, timeline_->parent(), 0, 2, true));
+        position_command_->add_child(new NodeSetPositionAsChildCommand(track_, merge_, timeline_->parent(), 1, 2, true));
+      }
+    }
+    position_command_->redo();
   }
 
   virtual void undo() override
   {
+    position_command_->undo();
+
     // Remove merge if applicable
     if (merge_) {
       // Assume whatever this merge is connected to USED to be connected to the last track
@@ -1269,41 +1315,11 @@ public:
 
     // Remove track
     Node::DisconnectEdge(track_, timeline_->track_input(timeline_->ArraySize() - 1));
-    position_command_->undo();
     timeline_->ArrayRemoveLast();
     track_->setParent(&memory_manager_);
   }
 
 private:
-  void Init(TrackList* timeline, bool automerge)
-  {
-    timeline_ = timeline;
-    position_command_ = nullptr;
-
-    track_ = new Track();
-    track_->setParent(&memory_manager_);
-
-    if (timeline->GetTrackCount() > 0 && automerge) {
-      if (timeline_->type() == Track::kVideo) {
-        merge_ = new MergeNode();
-        base_ = NodeInput(merge_, MergeNode::kBaseIn);
-        blend_ = NodeInput(merge_, MergeNode::kBlendIn);
-      } else if (timeline_->type() == Track::kAudio) {
-        merge_ = new MathNode();
-        base_ = NodeInput(merge_, MathNode::kParamAIn);
-        blend_ = NodeInput(merge_, MathNode::kParamBIn);
-      } else {
-        merge_ = nullptr;
-      }
-    } else {
-      merge_ = nullptr;
-    }
-
-    if (merge_) {
-      merge_->setParent(&memory_manager_);
-    }
-  }
-
   TrackList* timeline_;
 
   Track* track_;
@@ -1313,7 +1329,7 @@ private:
 
   NodeInput direct_;
 
-  NodeSetPositionAsChildCommand* position_command_;
+  MultiUndoCommand* position_command_;
 
   QObject memory_manager_;
 
