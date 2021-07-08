@@ -52,8 +52,8 @@ void AudioVisualWaveform::OverwriteSamplesFromBuffer(SampleBufferPtr samples, in
   double chunk_size = double(sample_rate) / double(target_rate);
 
   for (int i=0; i<samples_length; i+=channels_) {
-    int src_start = qRound((double(i) * chunk_size) / double(channels_));
-    int src_end = qMin(qRound((double(i + channels_) * chunk_size) / double(channels_)), samples->sample_count());
+    int src_start = qRound((double(i) * chunk_size)) / channels_;
+    int src_end = qMin(qRound((double(i + channels_) * chunk_size)) / channels_, samples->sample_count());
 
     Sample summary = SumSamples(samples,
                                 src_start,
@@ -75,6 +75,7 @@ void AudioVisualWaveform::OverwriteSamplesFromMipmap(const AudioVisualWaveform::
     output_data.resize(end_index);
   }
 
+  // We guarantee mipmaps are powers of two so integer division should be perfectly accurate here
   int chunk_size = input_sample_rate / output_rate;
 
   for (int i=0; i<samples_length; i+=channels_) {
