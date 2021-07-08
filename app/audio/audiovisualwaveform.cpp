@@ -49,14 +49,15 @@ void AudioVisualWaveform::OverwriteSamplesFromBuffer(SampleBufferPtr samples, in
     data.resize(end_index);
   }
 
-  int chunk_size = sample_rate / target_rate;
+  double chunk_size = double(sample_rate) / double(target_rate);
 
   for (int i=0; i<samples_length; i+=channels_) {
-    int src_index = (i * chunk_size) / channels_;
+    int src_start = qRound((double(i) * chunk_size) / double(channels_));
+    int src_end = qMin(qRound((double(i + channels_) * chunk_size) / double(channels_)), samples->sample_count());
 
     Sample summary = SumSamples(samples,
-                                src_index,
-                                qMin(chunk_size, samples->sample_count() - src_index));
+                                src_start,
+                                src_end - src_start);
 
     memcpy(&data.data()[i + start_index],
         summary.constData(),
