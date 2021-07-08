@@ -396,7 +396,7 @@ bool FFmpegEncoder::WriteSubtitle(const SubtitleBlock *sub_block)
   subtitle.num_rects = 1;
   subtitle.rects = &rect_array;
 
-  subtitle.pts = Timecode::time_to_timestamp(sub_block->in(), av_get_time_base_q(), true);
+  subtitle.pts = Timecode::time_to_timestamp(sub_block->in(), av_get_time_base_q(), Timecode::kFloor);
   subtitle.end_display_time = qRound64(sub_block->length().toDouble() * 1000);
 
   QVector<uint8_t> out_buf(1024 * 1024);
