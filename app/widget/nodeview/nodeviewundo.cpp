@@ -142,6 +142,8 @@ void NodeRemoveAndDisconnectCommand::prep()
   for (const Node::OutputConnection& conn : node_->output_connections()) {
     command_->add_child(new NodeEdgeRemoveCommand(conn.first, conn.second));
   }
+
+  command_->add_child(new NodeRemovePositionFromAllContextsCommand(node_));
 }
 
 void NodeRenameCommand::AddNode(Node *node, const QString &new_name)
