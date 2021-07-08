@@ -49,14 +49,15 @@ void AudioVisualWaveform::OverwriteSamplesFromBuffer(SampleBufferPtr samples, in
     data.resize(end_index);
   }
 
-  int chunk_size = sample_rate / target_rate;
+  double chunk_size = double(sample_rate) / double(target_rate);
 
   for (int i=0; i<samples_length; i+=channels_) {
-    int src_index = (i * chunk_size) / channels_;
+    int src_start = qRound((double(i) * chunk_size)) / channels_;
+    int src_end = qMin(qRound((double(i + channels_) * chunk_size)) / channels_, samples->sample_count());
 
     Sample summary = SumSamples(samples,
-                                src_index,
-                                qMin(chunk_size, samples->sample_count() - src_index));
+                                src_start,
+                                src_end - src_start);
 
     memcpy(&data.data()[i + start_index],
         summary.constData(),
@@ -74,6 +75,7 @@ void AudioVisualWaveform::OverwriteSamplesFromMipmap(const AudioVisualWaveform::
     output_data.resize(end_index);
   }
 
+  // We guarantee mipmaps are powers of two so integer division should be perfectly accurate here
   int chunk_size = input_sample_rate / output_rate;
 
   for (int i=0; i<samples_length; i+=channels_) {
@@ -318,10 +320,12 @@ void AudioVisualWaveform::DrawSample(QPainter *painter, const Sample& sample, in
     } else {
       int channel_mid = y + channel_height * i + channel_half_height;
 
+      // We subtract the sample so that positive Y values go up on the screen rather than down,
+      // which is how waveforms are usually rendered
       painter->drawLine(x,
-                        channel_mid + qRound(min * static_cast<float>(channel_half_height)),
+                        channel_mid - qRound(min * static_cast<float>(channel_half_height)),
                         x,
-                        channel_mid + qRound(max * static_cast<float>(channel_half_height)));
+                        channel_mid - qRound(max * static_cast<float>(channel_half_height)));
     }
   }
 }
