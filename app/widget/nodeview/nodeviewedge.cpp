@@ -185,25 +185,20 @@ void NodeViewEdge::UpdateCurve()
     if (!qFuzzyCompare(start.x(), end.x())) {
       double continue_x = end.x() - qCos(angle)*arrow_size_;
 
-      double x1, x2, x3, x4, y1, y2, y3, y4;
-      if (start.x() < end.x()) {
-        x1 = start.x();
-        x2 = cp1.x();
-        x3 = cp2.x();
-        x4 = end.x();
-        y1 = start.y();
-        y2 = cp1.y();
-        y3 = cp2.y();
-        y4 = end.y();
-      } else {
-        x1 = end.x();
-        x2 = cp2.x();
-        x3 = cp1.x();
-        x4 = start.x();
-        y1 = end.y();
-        y2 = cp2.y();
-        y3 = cp1.y();
-        y4 = start.y();
+      double x1 = start.x();
+      double x2 = cp1.x();
+      double x3 = cp2.x();
+      double x4 = end.x();
+      double y1 = start.y();
+      double y2 = cp1.y();
+      double y3 = cp2.y();
+      double y4 = end.y();
+
+      if (start.x() >= end.x()) {
+        std::swap(x1, x4);
+        std::swap(x2, x3);
+        std::swap(y1, y4);
+        std::swap(y2, y3);
       }
 
       double t = Bezier::CubicXtoT(continue_x, x1, x2, x3, x4);
@@ -220,7 +215,7 @@ void NodeViewEdge::UpdateCurve()
 
   setPath(path);
 
-  const double arrow_angle = 150.0 * 3.141592 / 180.0;
+  const double arrow_angle = 150.0 * M_PI / 180.0;
   QVector<QPointF> arrow_points(4);
   arrow_points[0] = end;
   arrow_points[1] = end + QPointF(qCos(angle + arrow_angle) * arrow_size_, qSin(angle + arrow_angle) * arrow_size_);
