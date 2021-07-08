@@ -353,6 +353,7 @@ void ImportTool::DropGhosts(bool insert)
 
           command->add_child(new NodeAddCommand(dst_graph, new_sequence));
           command->add_child(new FolderAddChild(Core::instance()->GetSelectedFolderInActiveProject(), new_sequence));
+          command->add_child(new NodeSetPositionCommand(new_sequence, new_sequence, QPointF(0, 0), false));
           new_sequence->add_default_nodes(command);
 
           FootageToGhosts(0, dragged_footage_, new_sequence->GetVideoParams().time_base(), 0);
