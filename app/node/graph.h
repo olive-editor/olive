@@ -108,6 +108,10 @@ public:
     return position_map_;
   }
 
+  int GetNumberOfContextsNodeIsIn(Node *node) const;
+
+  bool NodeOutputsToContext(Node *node) const;
+
 signals:
   /**
    * @brief Signal emitted when a Node is added to the graph

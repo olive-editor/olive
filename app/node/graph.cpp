@@ -58,6 +58,31 @@ qreal NodeGraph::GetNodeContextHeight(Node *context)
   return bottom - top;
 }
 
+int NodeGraph::GetNumberOfContextsNodeIsIn(Node *node) const
+{
+  int count = 0;
+
+  for (auto it=position_map_.cbegin(); it!=position_map_.cend(); it++) {
+    if (it.value().contains(node)) {
+      count++;
+    }
+  }
+
+  return count;
+}
+
+bool NodeGraph::NodeOutputsToContext(Node *node) const
+{
+  for (auto it=position_map_.cbegin(); it!=position_map_.cend(); it++) {
+    const PositionMap &pm = it.value();
+    if (pm.contains(node) && node->OutputsTo(it.key(), true)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 void NodeGraph::childEvent(QChildEvent *event)
 {
   super::childEvent(event);
