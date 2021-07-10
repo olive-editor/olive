@@ -36,6 +36,8 @@ NodeViewMiniMap::NodeViewMiniMap(NodeViewScene *scene, QWidget *parent) :
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setViewportUpdateMode(FullViewportUpdate);
+  setFrameShape(QFrame::Panel);
+  setFrameShadow(QFrame::Plain);
 
   QMetaObject::invokeMethod(this, &NodeViewMiniMap::SetDefaultSize, Qt::QueuedConnection);
 
