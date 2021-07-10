@@ -505,12 +505,23 @@ void NodeView::mousePressEvent(QMouseEvent *event)
   if (HandPress(event)) return;
 
   if (event->button() == Qt::LeftButton) {
+    // See if we're dragging the arrow of an edge
+    QPointF scene_pt = mapToScene(event->pos());
+
     foreach (NodeViewEdge *edge_item, scene_.edges()) {
-      if (edge_item->arrow_bounding_rect().contains(mapToScene(event->pos()))) {
+      if (edge_item->arrow_bounding_rect().contains(scene_pt)) {
         create_edge_src_ = scene_.NodeToUIObject(edge_item->output().node());
         create_edge_src_output_ = edge_item->output().output();
         create_edge_ = edge_item;
         create_edge_already_exists_ = true;
+        return;
+      }
+    }
+
+    // See if we're dragging the arrow of a node
+    foreach (NodeViewItem *node_item, scene_.item_map()) {
+      if (node_item->GetOutputTriangle().boundingRect().translated(node_item->pos()).contains(scene_pt)) {
+        CreateNewEdge(node_item);
         return;
       }
     }
@@ -535,15 +546,7 @@ void NodeView::mousePressEvent(QMouseEvent *event)
   if (event->modifiers() & Qt::ControlModifier) {
     NodeViewItem* node_item = dynamic_cast<NodeViewItem*>(item);
     if (node_item) {
-      create_edge_ = new NodeViewEdge();
-      create_edge_src_ = node_item;
-      create_edge_src_output_ = Node::kDefaultOutput;
-      create_edge_already_exists_ = false;
-
-      create_edge_->SetCurved(scene_.GetEdgesAreCurved());
-      create_edge_->SetFlowDirection(scene_.GetFlowDirection());
-
-      scene_.addItem(create_edge_);
+      CreateNewEdge(node_item);
       return;
     }
   }
@@ -1499,6 +1502,19 @@ Menu *NodeView::CreateAddMenu(Menu *parent)
   add_menu->setTitle(tr("Add"));
   connect(add_menu, &Menu::triggered, this, &NodeView::CreateNodeSlot);
   return add_menu;
+}
+
+void NodeView::CreateNewEdge(NodeViewItem *output_item)
+{
+  create_edge_ = new NodeViewEdge();
+  create_edge_src_ = output_item;
+  create_edge_src_output_ = Node::kDefaultOutput;
+  create_edge_already_exists_ = false;
+
+  create_edge_->SetCurved(scene_.GetEdgesAreCurved());
+  create_edge_->SetFlowDirection(scene_.GetFlowDirection());
+
+  scene_.addItem(create_edge_);
 }
 
 NodeView::NodeViewAttachNodesToCursor::NodeViewAttachNodesToCursor(NodeView *view, const QVector<Node *> &nodes) :

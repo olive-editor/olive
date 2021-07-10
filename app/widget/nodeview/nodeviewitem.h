@@ -125,6 +125,11 @@ public:
     return prevent_removing_;
   }
 
+  const QPolygonF &GetOutputTriangle() const
+  {
+    return output_triangle_;
+  }
+
 protected:
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
@@ -189,6 +194,8 @@ private:
   QPointF cached_node_pos_;
 
   bool prevent_removing_;
+
+  QPolygonF output_triangle_;
 
 };
 

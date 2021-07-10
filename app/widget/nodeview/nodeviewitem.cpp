@@ -65,6 +65,8 @@ NodeViewItem::NodeViewItem(QGraphicsItem *parent) :
 
   title_bar_rect_ = QRectF(-widget_width/2, -widget_height/2, widget_width, widget_height);
   setRect(title_bar_rect_);
+
+  output_triangle_.resize(3);
 }
 
 QPointF NodeViewItem::GetNodePosition() const
@@ -341,6 +343,41 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
   painter->setBrush(Qt::NoBrush);
 
   painter->drawRect(rect());
+
+  // Draw output triangle
+  painter->setPen(Qt::NoPen);
+  painter->setBrush(app_pal.color(QPalette::Text));
+  int triangle_sz = qMin(rect().width(), rect().height()) / 2;
+  int triangle_sz_half = triangle_sz / 2;
+
+  switch (flow_dir_) {
+  case NodeViewCommon::kLeftToRight:
+    // Triangle pointing right
+    output_triangle_[0] = QPointF(rect().right(), rect().center().y() - triangle_sz_half);
+    output_triangle_[1] = QPointF(rect().right() + triangle_sz_half, rect().center().y());
+    output_triangle_[2] = QPointF(rect().right(), rect().center().y() + triangle_sz_half);
+    break;
+  case NodeViewCommon::kTopToBottom:
+    // Triangle pointing down
+    output_triangle_[0] = QPointF(rect().center().x() - triangle_sz_half, rect().bottom());
+    output_triangle_[1] = QPointF(rect().center().x(), rect().bottom() + triangle_sz_half);
+    output_triangle_[2] = QPointF(rect().center().x() + triangle_sz_half, rect().bottom());
+    break;
+  case NodeViewCommon::kBottomToTop:
+    // Triangle pointing up
+    output_triangle_[0] = QPointF(rect().center().x() - triangle_sz_half, rect().top());
+    output_triangle_[1] = QPointF(rect().center().x(), rect().top() - triangle_sz_half);
+    output_triangle_[2] = QPointF(rect().center().x() + triangle_sz_half, rect().top());
+    break;
+  case NodeViewCommon::kRightToLeft:
+    // Triangle pointing left
+    output_triangle_[0] = QPointF(rect().left(), rect().center().y() - triangle_sz_half);
+    output_triangle_[1] = QPointF(rect().left() - triangle_sz_half, rect().center().y());
+    output_triangle_[2] = QPointF(rect().left(), rect().center().y() + triangle_sz_half);
+    break;
+  }
+
+  painter->drawPolygon(output_triangle_);
 }
 
 void NodeViewItem::mousePressEvent(QGraphicsSceneMouseEvent *event)

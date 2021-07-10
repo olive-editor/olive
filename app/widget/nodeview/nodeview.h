@@ -136,6 +136,8 @@ private:
 
   Menu *CreateAddMenu(Menu *parent);
 
+  void CreateNewEdge(NodeViewItem *output_item);
+
   class NodeViewAttachNodesToCursor : public UndoCommand
   {
   public:
