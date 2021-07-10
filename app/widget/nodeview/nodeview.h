@@ -30,6 +30,7 @@
 #include "nodeviewminimap.h"
 #include "nodeviewscene.h"
 #include "widget/handmovableview/handmovableview.h"
+#include "widget/menu/menu.h"
 
 namespace olive {
 
@@ -84,6 +85,13 @@ public slots:
     minimap_->setVisible(e);
   }
 
+  void ShowAddMenu()
+  {
+    Menu *m = CreateAddMenu(nullptr);
+    m->exec(QCursor::pos());
+    delete m;
+  }
+
 signals:
   void NodesSelected(const QVector<Node*>& nodes);
 
@@ -125,6 +133,8 @@ private:
   void RecursivelyRemoveFloatingNodeFromContext(MultiUndoCommand *command, Node *node, Node *context, Node *source, const Node::OutputConnections &removed_edges, const Node::OutputConnection &added_edge, bool prevent_removing);
 
   QPointF GetEstimatedPositionForContext(NodeViewItem *item, Node *context) const;
+
+  Menu *CreateAddMenu(Menu *parent);
 
   class NodeViewAttachNodesToCursor : public UndoCommand
   {

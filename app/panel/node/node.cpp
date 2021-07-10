@@ -41,6 +41,7 @@ NodePanel::NodePanel(QWidget *parent) :
 
   // Connect toolbar to NodeView
   connect(toolbar, &NodeViewToolBar::MiniMapEnabledToggled, node_view_, &NodeView::SetMiniMapEnabled);
+  connect(toolbar, &NodeViewToolBar::AddNodeClicked, node_view_, &NodeView::ShowAddMenu);
 
   // Set defaults
   toolbar->SetMiniMapEnabled(true);

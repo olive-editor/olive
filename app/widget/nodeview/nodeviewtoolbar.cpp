@@ -3,6 +3,8 @@
 #include <QEvent>
 #include <QHBoxLayout>
 
+#include "ui/icons/icons.h"
+
 namespace olive {
 
 #define super QWidget
@@ -12,6 +14,10 @@ NodeViewToolBar::NodeViewToolBar(QWidget *parent) :
 {
   QHBoxLayout *layout = new QHBoxLayout(this);
   layout->setMargin(0);
+
+  add_node_btn_ = new QPushButton();
+  connect(add_node_btn_, &QPushButton::clicked, this, &NodeViewToolBar::AddNodeClicked);
+  layout->addWidget(add_node_btn_);
 
   minimap_btn_ = new QPushButton();
   minimap_btn_->setCheckable(true);
@@ -36,12 +42,14 @@ void NodeViewToolBar::changeEvent(QEvent *e)
 
 void NodeViewToolBar::Retranslate()
 {
+  add_node_btn_->setToolTip(tr("Add Node"));
   minimap_btn_->setText(tr("Mini-Map"));
   minimap_btn_->setToolTip(tr("Toggle Mini-Map"));
 }
 
 void NodeViewToolBar::UpdateIcons()
 {
+  add_node_btn_->setIcon(icon::Add);
 }
 
 }

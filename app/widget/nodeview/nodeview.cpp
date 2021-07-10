@@ -1026,9 +1026,7 @@ void NodeView::ShowContextMenu(const QPoint &pos)
 
     m.addSeparator();
 
-    Menu* add_menu = NodeFactory::CreateMenu(&m);
-    add_menu->setTitle(tr("Add"));
-    connect(add_menu, &Menu::triggered, this, &NodeView::CreateNodeSlot);
+    Menu* add_menu = CreateAddMenu(&m);
     m.addMenu(add_menu);
 
   }
@@ -1493,6 +1491,14 @@ void NodeView::UpdateContextsFromEdgeAdd(MultiUndoCommand *command, const Node::
 QPointF NodeView::GetEstimatedPositionForContext(NodeViewItem *item, Node *context) const
 {
   return item->GetNodePosition() - context_offsets_.value(context);
+}
+
+Menu *NodeView::CreateAddMenu(Menu *parent)
+{
+  Menu* add_menu = NodeFactory::CreateMenu(parent);
+  add_menu->setTitle(tr("Add"));
+  connect(add_menu, &Menu::triggered, this, &NodeView::CreateNodeSlot);
+  return add_menu;
 }
 
 NodeView::NodeViewAttachNodesToCursor::NodeViewAttachNodesToCursor(NodeView *view, const QVector<Node *> &nodes) :

@@ -19,6 +19,8 @@ public slots:
   }
 
 signals:
+  void AddNodeClicked();
+
   void MiniMapEnabledToggled(bool e);
 
 protected:
@@ -28,6 +30,8 @@ private:
   void Retranslate();
 
   void UpdateIcons();
+
+  QPushButton *add_node_btn_;
 
   QPushButton *minimap_btn_;
 
