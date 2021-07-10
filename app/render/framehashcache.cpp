@@ -32,7 +32,6 @@
 
 #include "codec/frame.h"
 #include "common/filefunctions.h"
-#include "common/timecodefunctions.h"
 #include "render/diskmanager.h"
 
 namespace olive {
@@ -52,9 +51,18 @@ FrameHashCache::FrameHashCache(QObject *parent) :
   }
 }
 
+QByteArray FrameHashCache::GetHash(const int64_t &time)
+{
+  if (time < GetMapSize()) {
+    return time_hash_map_.at(time);
+  } else {
+    return QByteArray();
+  }
+}
+
 QByteArray FrameHashCache::GetHash(const rational &time)
 {
-  return time_hash_map_.value(time);
+  return GetHash(ToTimestamp(time));
 }
 
 void FrameHashCache::SetHash(const rational &time, const QByteArray &hash, const qint64& job_time, bool frame_exists)
@@ -69,7 +77,15 @@ void FrameHashCache::SetHash(const rational &time, const QByteArray &hash, const
     }
   }
 
-  time_hash_map_.insert(time, hash);
+  int64_t ts = ToTimestamp(time);
+  if (ts >= GetMapSize()) {
+    // Reserve an extra minute to cut down on the amount of reallocations to make
+    time_hash_map_.reserve(ts + timebase_.flipped().toDouble() * 60);
+
+    // Add enough entries to insert this hash
+    time_hash_map_.resize(ts + 1);
+  }
+  time_hash_map_[ts] = hash;
 
   TimeRange validated_range;
   if (frame_exists) {
@@ -87,9 +103,9 @@ void FrameHashCache::ValidateFramesWithHash(const QByteArray &hash)
 {
   const TimeRangeList& invalidated_ranges = GetInvalidatedRanges();
 
-  for (auto iterator=time_hash_map_.begin();iterator!=time_hash_map_.end();iterator++) {
-    if (iterator.value() == hash) {
-      TimeRange frame_range(iterator.key(), iterator.key() + timebase_);
+  for (int64_t i=0; i<GetMapSize(); i++) {
+    if (time_hash_map_[i] == hash) {
+      TimeRange frame_range(ToTime(i), ToTime(i+1));
 
       if (invalidated_ranges.contains(frame_range)) {
         Validate(frame_range);
@@ -102,9 +118,9 @@ QList<rational> FrameHashCache::GetFramesWithHash(const QByteArray &hash)
 {
   QList<rational> times;
 
-  for (auto iterator=time_hash_map_.begin();iterator!=time_hash_map_.end();iterator++) {
-    if (iterator.value() == hash) {
-      times.append(iterator.key());
+  for (int64_t i=0; i<GetMapSize(); i++) {
+    if (time_hash_map_.at(i) == hash) {
+      times.append(ToTime(i));
     }
   }
 
@@ -116,16 +132,13 @@ QList<rational> FrameHashCache::TakeFramesWithHash(const QByteArray &hash)
   TimeRangeList range_to_invalidate;
   QList<rational> times;
 
-  auto iterator = time_hash_map_.begin();
+  for (int64_t i=0; i<GetMapSize(); i++) {
+    if (time_hash_map_.at(i) == hash) {
+      time_hash_map_[i].clear();
 
-  while (iterator != time_hash_map_.end()) {
-    if (iterator.value() == hash) {
-      times.append(iterator.key());
-      range_to_invalidate.insert(TimeRange(iterator.key(), iterator.key() + timebase_));
-
-      iterator = time_hash_map_.erase(iterator);
-    } else {
-      iterator++;
+      rational time = ToTime(i);
+      times.append(time);
+      range_to_invalidate.insert(TimeRange(time, time + timebase_));
     }
   }
 
@@ -136,11 +149,6 @@ QList<rational> FrameHashCache::TakeFramesWithHash(const QByteArray &hash)
   }
 
   return times;
-}
-
-QMap<rational, QByteArray> FrameHashCache::time_hash_map()
-{
-  return time_hash_map_;
 }
 
 QVector<rational> FrameHashCache::GetFrameListFromTimeRange(TimeRangeList range_list, const rational &timebase)
@@ -316,15 +324,11 @@ FramePtr FrameHashCache::LoadCacheFrame(const QString &fn)
 void FrameHashCache::LengthChangedEvent(const rational &old, const rational &newlen)
 {
   if (newlen < old) {
-    auto i = time_hash_map_.begin();
+    // Determine length in frames by ceil-ing the time
+    int64_t new_ts_length = ToTimestamp(newlen, Timecode::kCeil);
 
-    while (i != time_hash_map_.end()) {
-      if (i.key() >= newlen) {
-        i = time_hash_map_.erase(i);
-      } else {
-        i++;
-      }
-    }
+    // Resize vector to this length, which will discard all frames after it
+    time_hash_map_.resize(new_ts_length);
   }
 }
 
@@ -335,49 +339,46 @@ struct HashTimePair {
 
 void FrameHashCache::ShiftEvent(const rational &from, const rational &to)
 {
-  auto i = time_hash_map_.begin();
-
   // POSITIVE if moving forward ->
   // NEGATIVE if moving backward <-
   rational diff = to - from;
   bool diff_is_negative = (diff < 0);
 
-  QList<HashTimePair> shifted_times;
+  int64_t to_ts = ToTimestamp(to);
+  int64_t from_ts = ToTimestamp(from);
 
-  while (i != time_hash_map_.end()) {
-    if (diff_is_negative && i.key() >= to && i.key() < from) {
-
-      // This time will be removed in the shift so we just discard it
-      i = time_hash_map_.erase(i);
-
-    } else if (i.key() >= from) {
-
-      // This time is after the from time and must be shifted
-      shifted_times.append({i.key() + diff, i.value()});
-      i = time_hash_map_.erase(i);
-
-    } else {
-
-      // Do nothing
-      i++;
-
+  if (diff_is_negative) {
+    // We're moving the frames starting at `from` backwards to where `to` is
+    if (to_ts < GetMapSize()) {
+      time_hash_map_.erase(time_hash_map_.begin() + to_ts, time_hash_map_.begin() + from_ts);
     }
-  }
-
-  foreach (const HashTimePair& p, shifted_times) {
-    time_hash_map_.insert(p.time, p.hash);
+  } else {
+    // We're moving the frames starting at `from` forwards to where `to` is
+    if (from_ts < GetMapSize()) {
+      time_hash_map_.insert(time_hash_map_.begin() + from_ts, to_ts - from_ts, QByteArray());
+    }
   }
 }
 
 void FrameHashCache::InvalidateEvent(const TimeRange &range)
 {
   if (!timebase_.isNull()) {
-    QVector<rational> invalid_frames = GetFrameListFromTimeRange({range});
-
-    foreach (const rational& r, invalid_frames) {
-      time_hash_map_.remove(r);
+    int64_t start = ToTimestamp(range.in(), Timecode::kCeil);
+    int64_t end = ToTimestamp(range.out(), Timecode::kCeil);
+    for (int64_t i=start; i<GetMapSize() && i<end; i++) {
+      time_hash_map_[i].clear();
     }
   }
+}
+
+rational FrameHashCache::ToTime(const int64_t &ts) const
+{
+  return Timecode::timestamp_to_time(ts, timebase_);
+}
+
+int64_t FrameHashCache::ToTimestamp(const rational &ts, Timecode::Rounding rounding) const
+{
+  return Timecode::time_to_timestamp(ts, timebase_, rounding);
 }
 
 void FrameHashCache::HashDeleted(const QString& s, const QByteArray &hash)
@@ -388,9 +389,9 @@ void FrameHashCache::HashDeleted(const QString& s, const QByteArray &hash)
   }
 
   TimeRangeList ranges_to_invalidate;
-  for (auto i=time_hash_map_.constBegin(); i!=time_hash_map_.constEnd(); i++) {
-    if (i.value() == hash) {
-      ranges_to_invalidate.insert(TimeRange(i.key(), i.key() + timebase_));
+  for (int64_t i=0; i<GetMapSize(); i++) {
+    if (time_hash_map_.at(i) == hash) {
+      ranges_to_invalidate.insert(TimeRange(ToTime(i), ToTime(i+1)));
     }
   }
 

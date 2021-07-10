@@ -24,6 +24,7 @@
 #include <QMutex>
 
 #include "common/rational.h"
+#include "common/timecodefunctions.h"
 #include "common/timerange.h"
 #include "codec/frame.h"
 #include "render/playbackcache.h"
@@ -37,7 +38,13 @@ class FrameHashCache : public PlaybackCache
 public:
   FrameHashCache(QObject* parent = nullptr);
 
+  QByteArray GetHash(const int64_t& time);
   QByteArray GetHash(const rational& time);
+
+  const rational &GetTimebase() const
+  {
+    return timebase_;
+  }
 
   void SetTimebase(const rational& tb);
 
@@ -76,7 +83,7 @@ public:
   QVector<rational> GetInvalidatedFrames(const TimeRange& intersecting);
 
 public slots:
-  void SetHash(const olive::rational& time, const QByteArray& hash, const qint64 &job_time, bool frame_exists);
+  void SetHash(const olive::rational &time, const QByteArray& hash, const qint64 &job_time, bool frame_exists);
 
 protected:
   virtual void LengthChangedEvent(const rational& old, const rational& newlen) override;
@@ -86,7 +93,15 @@ protected:
   virtual void InvalidateEvent(const TimeRange& range) override;
 
 private:
-  QMap<rational, QByteArray> time_hash_map_;
+  rational ToTime(const int64_t &ts) const;
+  int64_t ToTimestamp(const rational &ts, Timecode::Rounding rounding = Timecode::kRound) const;
+
+  int64_t GetMapSize() const
+  {
+    return int64_t(time_hash_map_.size());
+  }
+
+  std::vector<QByteArray> time_hash_map_;
 
   rational timebase_;
 
