@@ -122,7 +122,15 @@ void NodeView::SetGraph(NodeGraph *graph, const QVector<Node*> &nodes)
     if (refresh_required && nodes_visible) {
 
       if (filter_mode_ == kFilterShowAll) {
-        // FIXME: Implement
+        /* = WIP =
+        for (auto it=graph_->GetPositionMap().cbegin(); it!=graph_->GetPositionMap().cend(); it++) {
+          Node *context = it.key();
+          const NodeGraph::PositionMap &map = it.value();
+
+          for (auto jt=map.cbegin(); jt!=map.cend(); jt++) {
+
+          }
+        }*/
       } else {
         // Reserve an arbitrary number to reduce the amount of reallocations
         qreal last_offset = 0;
