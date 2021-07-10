@@ -64,6 +64,13 @@ NodeView::NodeView(QWidget *parent) :
 
   UpdateSceneBoundingRect();
   connect(&scene_, &QGraphicsScene::changed, this, &NodeView::UpdateSceneBoundingRect);
+
+  minimap_ = new NodeViewMiniMap(&scene_, this);
+  minimap_->show();
+  connect(minimap_, &NodeViewMiniMap::Resized, this, &NodeView::RepositionMiniMap);
+  connect(minimap_, &NodeViewMiniMap::MoveToScenePoint, this, &NodeView::MoveToScenePoint);
+  connect(horizontalScrollBar(), &QScrollBar::valueChanged, this, &NodeView::UpdateViewportOnMiniMap);
+  connect(verticalScrollBar(), &QScrollBar::valueChanged, this, &NodeView::UpdateViewportOnMiniMap);
 }
 
 NodeView::~NodeView()
@@ -881,6 +888,13 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
   super::mouseReleaseEvent(event);
 }
 
+void NodeView::resizeEvent(QResizeEvent *event)
+{
+  super::resizeEvent(event);
+
+  RepositionMiniMap();
+}
+
 void NodeView::UpdateSelectionCache()
 {
   QVector<Node*> current_selection = scene_.GetSelectedNodes();
@@ -1202,6 +1216,40 @@ void NodeView::UpdateSceneBoundingRect()
 void NodeView::CenterOnItemsBoundingRect()
 {
   centerOn(scene_.itemsBoundingRect().center());
+}
+
+void NodeView::RepositionMiniMap()
+{
+  if (minimap_->isVisible()) {
+    int margin = fontMetrics().height();
+
+    int w = width() - minimap_->width() - margin;
+    int h = height() - minimap_->height() - margin;
+
+    if (verticalScrollBar()->isVisible()) {
+      w -= verticalScrollBar()->width();
+    }
+
+    if (horizontalScrollBar()->isVisible()) {
+      h -= horizontalScrollBar()->height();
+    }
+
+    minimap_->move(w, h);
+
+    UpdateViewportOnMiniMap();
+  }
+}
+
+void NodeView::UpdateViewportOnMiniMap()
+{
+  if (minimap_->isVisible()) {
+    minimap_->SetViewportRect(mapToScene(viewport()->rect()));
+  }
+}
+
+void NodeView::MoveToScenePoint(const QPointF &pos)
+{
+  centerOn(pos);
 }
 
 void NodeView::AttachNodesToCursor(const QVector<Node *> &nodes)

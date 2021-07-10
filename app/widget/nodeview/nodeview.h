@@ -27,6 +27,7 @@
 #include "node/graph.h"
 #include "node/nodecopypaste.h"
 #include "nodeviewedge.h"
+#include "nodeviewminimap.h"
 #include "nodeviewscene.h"
 #include "widget/handmovableview/handmovableview.h"
 
@@ -89,6 +90,8 @@ protected:
   virtual void mouseMoveEvent(QMouseEvent *event) override;
   virtual void mouseReleaseEvent(QMouseEvent* event) override;
 
+  virtual void resizeEvent(QResizeEvent *event) override;
+
   virtual void ZoomIntoCursorPosition(QWheelEvent *event, double multiplier, const QPointF &cursor_pos) override;
 
   virtual bool event(QEvent *event) override;
@@ -134,6 +137,8 @@ private:
     QVector<Node*> nodes_;
 
   };
+
+  NodeViewMiniMap *minimap_;
 
   NodeGraph* graph_;
 
@@ -256,6 +261,12 @@ private slots:
   void UpdateSceneBoundingRect();
 
   void CenterOnItemsBoundingRect();
+
+  void RepositionMiniMap();
+
+  void UpdateViewportOnMiniMap();
+
+  void MoveToScenePoint(const QPointF &pos);
 
 };
 
