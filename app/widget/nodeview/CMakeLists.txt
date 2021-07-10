@@ -27,6 +27,8 @@ set(OLIVE_SOURCES
   widget/nodeview/nodeviewminimap.h
   widget/nodeview/nodeviewscene.cpp
   widget/nodeview/nodeviewscene.h
+  widget/nodeview/nodeviewtoolbar.cpp
+  widget/nodeview/nodeviewtoolbar.h
   widget/nodeview/nodeviewundo.cpp
   widget/nodeview/nodeviewundo.h
   PARENT_SCOPE

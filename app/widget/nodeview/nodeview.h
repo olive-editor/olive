@@ -78,6 +78,12 @@ public:
 
   void ZoomOut();
 
+public slots:
+  void SetMiniMapEnabled(bool e)
+  {
+    minimap_->setVisible(e);
+  }
+
 signals:
   void NodesSelected(const QVector<Node*>& nodes);
 
