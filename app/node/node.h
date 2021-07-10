@@ -557,7 +557,8 @@ public:
    * Whether to keep traversing down outputs to find this node (TRUE) or stick to immediate outputs
    * (FALSE).
    */
-  bool OutputsTo(Node* n, bool recursively) const;
+  bool OutputsTo(Node* n, bool recursively, const OutputConnections &ignore_edges = OutputConnections(), const OutputConnection &added_edge = OutputConnection()) const;
+
   /**
    * @brief Same as OutputsTo(Node*), but for a node ID rather than a specific instance.
    */
@@ -581,7 +582,7 @@ public:
   /**
    * @brief Determines how many paths go from this node out to another node
    */
-  int GetRoutesTo(Node* n) const;
+  int GetNumberOfRoutesTo(Node* n) const;
 
   /**
    * @brief Severs all input and output connections
@@ -1327,6 +1328,7 @@ private:
   QPointF old_pos_;
   bool added_;
   bool move_deps_;
+  NodeGraph *graph_;
 
 };
 
@@ -1375,7 +1377,7 @@ private:
 class NodeSetPositionAsChildCommand : public UndoCommand
 {
 public:
-  NodeSetPositionAsChildCommand(Node* node, Node* parent, Node *relative, int this_index, int child_count, bool shift_surroundings) :
+  NodeSetPositionAsChildCommand(Node* node, Node* parent, Node *relative, double this_index, int child_count, bool shift_surroundings) :
     node_(node),
     parent_(parent),
     relative_(relative),
@@ -1408,12 +1410,31 @@ private:
   Node* parent_;
   Node *relative_;
 
-  int this_index_;
+  double this_index_;
   int child_count_;
 
   bool shift_surroundings_;
 
   MultiUndoCommand* sub_command_;
+
+};
+
+class NodePositionCloseChildGapCommand : public UndoCommand
+{
+public:
+  NodePositionCloseChildGapCommand(Node *parent, void *relative, int remove_index, int child_count, bool shift_surroundings);
+
+  virtual Project * GetRelevantProject() const override
+  {
+    return parent_->project();
+  }
+
+  virtual void redo() override;
+
+  virtual void undo() override;
+
+private:
+  Node *parent_;
 
 };
 
@@ -1471,6 +1492,30 @@ private:
   QPointF old_pos_;
 
   bool contained_;
+
+};
+
+class NodeRemovePositionFromAllContextsCommand : public UndoCommand
+{
+public:
+  NodeRemovePositionFromAllContextsCommand(Node *node) :
+    node_(node)
+  {
+  }
+
+  virtual Project * GetRelevantProject() const override
+  {
+    return node_->project();
+  }
+
+  virtual void redo() override;
+
+  virtual void undo() override;
+
+private:
+  Node *node_;
+
+  std::map<Node *, QPointF> points_;
 
 };
 

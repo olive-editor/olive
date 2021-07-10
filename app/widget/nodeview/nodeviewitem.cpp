@@ -45,7 +45,8 @@ NodeViewItem::NodeViewItem(QGraphicsItem *parent) :
   expanded_(false),
   hide_titlebar_(false),
   highlighted_index_(-1),
-  flow_dir_(NodeViewCommon::kLeftToRight)
+  flow_dir_(NodeViewCommon::kLeftToRight),
+  prevent_removing_(false)
 {
   // Set flags for this widget
   setFlag(QGraphicsItem::ItemIsMovable);
@@ -68,31 +69,7 @@ NodeViewItem::NodeViewItem(QGraphicsItem *parent) :
 
 QPointF NodeViewItem::GetNodePosition() const
 {
-  QPointF node_pos;
-
-  qreal adjusted_x = pos().x() / DefaultItemHorizontalPadding();
-  qreal adjusted_y = pos().y() / DefaultItemVerticalPadding();
-
-  switch (flow_dir_) {
-  case NodeViewCommon::kLeftToRight:
-    node_pos.setX(adjusted_x);
-    node_pos.setY(adjusted_y);
-    break;
-  case NodeViewCommon::kRightToLeft:
-    node_pos.setX(-adjusted_x);
-    node_pos.setY(adjusted_y);
-    break;
-  case NodeViewCommon::kTopToBottom:
-    node_pos.setX(adjusted_y);
-    node_pos.setY(adjusted_x);
-    break;
-  case NodeViewCommon::kBottomToTop:
-    node_pos.setX(-adjusted_y);
-    node_pos.setY(adjusted_x);
-    break;
-  }
-
-  return node_pos;
+  return ScreenToNodePoint(pos(), flow_dir_);
 }
 
 void NodeViewItem::SetNodePosition(const QPointF &pos)
@@ -122,22 +99,86 @@ int NodeViewItem::DefaultItemBorder()
   return QFontMetrics(QFont()).height() / 12;
 }
 
-qreal NodeViewItem::DefaultItemHorizontalPadding() const
+QPointF NodeViewItem::NodeToScreenPoint(QPointF p, NodeViewCommon::FlowDirection direction)
 {
-  if (NodeViewCommon::GetFlowOrientation(flow_dir_) == Qt::Horizontal) {
+  switch (direction) {
+  case NodeViewCommon::kLeftToRight:
+    // NodeGraphs are always left-to-right internally, no need to translate
+    break;
+  case NodeViewCommon::kRightToLeft:
+    // Invert X value
+    p.setX(-p.x());
+    break;
+  case NodeViewCommon::kTopToBottom:
+    // Swap X/Y
+    p = QPointF(p.y(), p.x());
+    break;
+  case NodeViewCommon::kBottomToTop:
+    // Swap X/Y and invert Y
+    p = QPointF(p.y(), -p.x());
+    break;
+  }
+
+  // Multiply by item sizes for this direction
+  p.setX(p.x() * DefaultItemHorizontalPadding(direction));
+  p.setY(p.y() * DefaultItemVerticalPadding(direction));
+
+  return p;
+}
+
+QPointF NodeViewItem::ScreenToNodePoint(QPointF p, NodeViewCommon::FlowDirection direction)
+{
+  // Divide by item sizes for this direction
+  p.setX(p.x() / DefaultItemHorizontalPadding(direction));
+  p.setY(p.y() / DefaultItemVerticalPadding(direction));
+
+  switch (direction) {
+  case NodeViewCommon::kLeftToRight:
+    // NodeGraphs are always left-to-right internally, no need to translate
+    break;
+  case NodeViewCommon::kRightToLeft:
+    // Invert X value
+    p.setX(-p.x());
+    break;
+  case NodeViewCommon::kTopToBottom:
+    // Swap X/Y
+      p = QPointF(p.y(), p.x());
+    break;
+  case NodeViewCommon::kBottomToTop:
+    // Swap X/Y and invert Y
+    p = QPointF(-p.y(), p.x());
+    break;
+  }
+
+  return p;
+}
+
+qreal NodeViewItem::DefaultItemHorizontalPadding(NodeViewCommon::FlowDirection dir)
+{
+  if (NodeViewCommon::GetFlowOrientation(dir) == Qt::Horizontal) {
     return DefaultItemWidth() * 1.5;
   } else {
     return DefaultItemWidth() * 1.25;
   }
 }
 
-qreal NodeViewItem::DefaultItemVerticalPadding() const
+qreal NodeViewItem::DefaultItemVerticalPadding(NodeViewCommon::FlowDirection dir)
 {
-  if (NodeViewCommon::GetFlowOrientation(flow_dir_) == Qt::Horizontal) {
+  if (NodeViewCommon::GetFlowOrientation(dir) == Qt::Horizontal) {
     return DefaultItemHeight() * 1.5;
   } else {
     return DefaultItemHeight() * 2.0;
   }
+}
+
+qreal NodeViewItem::DefaultItemHorizontalPadding() const
+{
+  return DefaultItemHorizontalPadding(flow_dir_);
+}
+
+qreal NodeViewItem::DefaultItemVerticalPadding() const
+{
+  return DefaultItemVerticalPadding(flow_dir_);
 }
 
 void NodeViewItem::AddEdge(NodeViewEdge *edge)
@@ -479,26 +520,7 @@ QPointF NodeViewItem::GetInputPointInternal(int index, const QPointF& source_pos
 
 void NodeViewItem::UpdateNodePosition()
 {
-  const QPointF &pos = cached_node_pos_;
-
-  switch (flow_dir_) {
-  case NodeViewCommon::kLeftToRight:
-    setPos(pos.x() * DefaultItemHorizontalPadding(),
-           pos.y() * DefaultItemVerticalPadding());
-    break;
-  case NodeViewCommon::kRightToLeft:
-    setPos(-pos.x() * DefaultItemHorizontalPadding(),
-           pos.y() * DefaultItemVerticalPadding());
-    break;
-  case NodeViewCommon::kTopToBottom:
-    setPos(pos.y() * DefaultItemHorizontalPadding(),
-           pos.x() * DefaultItemVerticalPadding());
-    break;
-  case NodeViewCommon::kBottomToTop:
-    setPos(pos.y() * DefaultItemHorizontalPadding(),
-           -pos.x() * DefaultItemVerticalPadding());
-    break;
-  }
+  setPos(NodeToScreenPoint(cached_node_pos_, flow_dir_));
 }
 
 }

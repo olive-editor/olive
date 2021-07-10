@@ -91,6 +91,8 @@ protected:
 
   virtual void ZoomIntoCursorPosition(QWheelEvent *event, double multiplier, const QPointF &cursor_pos) override;
 
+  virtual bool event(QEvent *event) override;
+
 private:
   void AttachNodesToCursor(const QVector<Node *> &nodes);
 
@@ -106,6 +108,14 @@ private:
   void DisconnectSelectionChangedSignal();
 
   void ZoomFromKeyboard(double multiplier);
+
+  bool DetermineIfNodeIsFloatingInContext(Node *node, Node *context, Node *source, const Node::OutputConnections &removed_edges, const Node::OutputConnection &added_edge);
+  void UpdateContextsFromEdgeRemove(MultiUndoCommand *command, const Node::OutputConnections &remove_edges);
+  void UpdateContextsFromEdgeAdd(MultiUndoCommand *command, const Node::OutputConnection &added_edge, const Node::OutputConnections &removed_edges = Node::OutputConnections());
+  void RecursivelyAddNodeToContext(MultiUndoCommand *command, Node *node, Node *context);
+  void RecursivelyRemoveFloatingNodeFromContext(MultiUndoCommand *command, Node *node, Node *context, Node *source, const Node::OutputConnections &removed_edges, const Node::OutputConnection &added_edge, bool prevent_removing);
+
+  QPointF GetEstimatedPositionForContext(NodeViewItem *item, Node *context) const;
 
   class NodeViewAttachNodesToCursor : public UndoCommand
   {
@@ -130,6 +140,32 @@ private:
   struct AttachedItem {
     NodeViewItem* item;
     QPointF original_pos;
+  };
+
+  class NodeViewItemPreventRemovingCommand : public UndoCommand
+  {
+  public:
+    NodeViewItemPreventRemovingCommand(NodeView *view, Node *node, bool prevent_removing) :
+      view_(view),
+      node_(node),
+      new_prevent_removing_(prevent_removing)
+    {}
+
+    virtual void redo() override;
+
+    virtual void undo() override;
+
+    virtual Project * GetRelevantProject() const override
+    {
+      return node_->project();
+    }
+
+  private:
+    NodeView *view_;
+    Node *node_;
+    bool new_prevent_removing_;
+    bool old_prevent_removing_;
+
   };
 
   QList<AttachedItem> attached_items_;

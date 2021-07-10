@@ -200,7 +200,7 @@ int NodeViewScene::DetermineWeight(Node *n)
   int weight = 0;
 
   foreach (Node* i, inputs) {
-    if (i->GetRoutesTo(n) == 1) {
+    if (i->GetNumberOfRoutesTo(n) == 1) {
       weight += DetermineWeight(i);
     }
   }

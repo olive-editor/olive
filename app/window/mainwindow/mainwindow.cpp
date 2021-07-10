@@ -754,9 +754,15 @@ void MainWindow::FocusedPanelChanged(PanelWidget *panel)
     // Signal project panel focus
     UpdateTitle();
     if (project->project()) {
-      QVector<Node*> context = {project->project()->root()};
-      node_panel_->SetGraph(project->project(), context);
-      node_panel_->SelectWithDependencies(context, false);
+      node_panel_->SetGraph(project->project(), {project->project()->root()});
+
+      bool center = true;
+      auto selected = project->SelectedItems();
+      if (selected.isEmpty()) {
+        selected.append(project->project()->root());
+        center = false;
+      }
+      node_panel_->Select(selected, center);
     }
   }
 }

@@ -1622,15 +1622,28 @@ void Node::GenerateFrame(FramePtr frame, const GenerateJob &job) const
   Q_UNUSED(job)
 }
 
-bool Node::OutputsTo(Node *n, bool recursively) const
+bool Node::OutputsTo(Node *n, bool recursively, const OutputConnections &ignore_edges, const OutputConnection &added_edge) const
 {
   for (const OutputConnection& conn : output_connections_) {
+    if (std::find(ignore_edges.cbegin(), ignore_edges.cend(), conn) != ignore_edges.cend()) {
+      // If this edge is in the "ignore edges" list, skip it
+      continue;
+    }
+
     Node* connected = conn.second.node();
 
     if (connected == n) {
       return true;
-    } else if (recursively && connected->OutputsTo(n, recursively)) {
+    } else if (recursively && connected->OutputsTo(n, recursively, ignore_edges, added_edge)) {
       return true;
+    } else if (added_edge.first.node() == this) {
+      Node *proposed_connected = added_edge.second.node();
+
+      if (proposed_connected == n) {
+        return true;
+      } else if (recursively && proposed_connected->OutputsTo(n, recursively, ignore_edges, added_edge)) {
+        return true;
+      }
     }
   }
 
@@ -1697,7 +1710,7 @@ bool Node::InputsFrom(const QString &id, bool recursively) const
   return false;
 }
 
-int Node::GetRoutesTo(Node *n) const
+int Node::GetNumberOfRoutesTo(Node *n) const
 {
   bool outputs_directly = false;
   int routes = 0;
@@ -1708,7 +1721,7 @@ int Node::GetRoutesTo(Node *n) const
     if (connected_node == n) {
       outputs_directly = true;
     } else {
-      routes += connected_node->GetRoutesTo(n);
+      routes += connected_node->GetNumberOfRoutesTo(n);
     }
   }
 
@@ -2264,25 +2277,29 @@ void NodeSetPositionAndShiftSurroundingsCommand::redo()
     commands_.append(set_pos_command);
 
     // Get bounding rect
-    QRectF bounding_rect(position_.x() - 0.5, position_.y() - 0.5, 1, 1);
+    qreal bounding_rect_sz = 1.0;
+    qreal bounding_rect_half_sz = bounding_rect_sz * 0.5;
+    QRectF bounding_rect(position_.x() - bounding_rect_half_sz, position_.y() - bounding_rect_half_sz, bounding_rect_sz, bounding_rect_sz);
 
     // Start moving other nodes
     foreach (Node* surrounding, node_->parent()->nodes()) {
-      QPointF surrounding_position = node_->parent()->GetNodePosition(surrounding, relative_);
-      if (bounding_rect.contains(surrounding_position) && surrounding != node_) {
-        QPointF new_pos = surrounding_position;
+      if (surrounding != node_) {
+        QPointF surrounding_position = node_->parent()->GetNodePosition(surrounding, relative_);
+        if (bounding_rect.contains(surrounding_position)) {
+          QPointF new_pos = surrounding_position;
 
-        qreal move_rate = 0.50;
+          qreal move_rate = 0.50;
 
-        if (surrounding_position.y() < position_.y()) {
-          move_rate = -move_rate;
+          if (surrounding_position.y() < position_.y()) {
+            move_rate = -move_rate;
+          }
+
+          new_pos.setY(new_pos.y() + move_rate);
+
+          auto sur_command = new NodeSetPositionAndShiftSurroundingsCommand(surrounding, relative_, new_pos, true);
+          sur_command->redo();
+          commands_.append(sur_command);
         }
-
-        new_pos.setY(new_pos.y() + move_rate);
-
-        auto sur_command = new NodeSetPositionAndShiftSurroundingsCommand(surrounding, relative_, new_pos, true);
-        sur_command->redo();
-        commands_.append(sur_command);
       }
     }
   } else {
@@ -2294,20 +2311,19 @@ void NodeSetPositionAndShiftSurroundingsCommand::redo()
 
 void NodeSetPositionCommand::redo()
 {
-  NodeGraph* graph = node_->parent();
-  if (!(added_ = !graph->NodeMapContainsNode(node_, relevant_))) {
-    old_pos_ = graph->GetNodePosition(node_, relevant_);
+  graph_ = node_->parent();
+  if (!(added_ = !graph_->NodeMapContainsNode(node_, relevant_))) {
+    old_pos_ = graph_->GetNodePosition(node_, relevant_);
   }
-  graph->SetNodePosition(node_, relevant_, pos_);
+  graph_->SetNodePosition(node_, relevant_, pos_);
 }
 
 void NodeSetPositionCommand::undo()
 {
-  NodeGraph* graph = node_->parent();
   if (added_) {
-    graph->RemoveNodePosition(node_, relevant_);
+    graph_->RemoveNodePosition(node_, relevant_);
   } else {
-    graph->SetNodePosition(node_, relevant_, old_pos_);
+    graph_->SetNodePosition(node_, relevant_, old_pos_);
   }
 }
 
@@ -2365,6 +2381,34 @@ void NodeRemovePositionFromContextCommand::undo()
   if (contained_) {
     NodeGraph *graph = node_->parent();
     graph->SetNodePosition(node_, context_, old_pos_);
+  }
+}
+
+void NodeRemovePositionFromAllContextsCommand::redo()
+{
+  NodeGraph *graph = node_->parent();
+
+  if (points_.empty()) {
+    // No points yet, let's see what points we should remove
+    auto map = graph->GetPositionMap();
+    for (auto it=map.cbegin(); it!=map.cend(); it++) {
+      if (it.value().contains(node_)) {
+        points_.insert({it.key(), it.value().value(node_)});
+      }
+    }
+  }
+
+  for (auto it=points_.cbegin(); it!=points_.cend(); it++) {
+    graph->RemoveNodePosition(node_, it->first);
+  }
+}
+
+void NodeRemovePositionFromAllContextsCommand::undo()
+{
+  NodeGraph *graph = node_->parent();
+
+  for (auto it=points_.crbegin(); it!=points_.crend(); it++) {
+    graph->SetNodePosition(node_, it->first, it->second);
   }
 }
 

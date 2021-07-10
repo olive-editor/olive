@@ -149,10 +149,10 @@ void NodeView::SetGraph(NodeGraph *graph, const QVector<Node*> &nodes)
             AddNodePosition(it.key(), n);
           }
         }
-
-        // Center on something
-        CenterOnItemsBoundingRect();
       }
+
+      // Center on something
+      QMetaObject::invokeMethod(this, &NodeView::CenterOnItemsBoundingRect, Qt::QueuedConnection);
     }
   }
 }
@@ -171,14 +171,25 @@ void NodeView::DeleteSelected()
   MultiUndoCommand* command = new MultiUndoCommand();
 
   {
+    // First remove any selected edges
     QVector<NodeViewEdge *> selected_edges = scene_.GetSelectedEdges();
 
-    foreach (NodeViewEdge* edge, selected_edges) {
-      command->add_child(new NodeEdgeRemoveCommand(edge->output(), edge->input()));
+    if (!selected_edges.isEmpty()) {
+      Node::OutputConnections removed_connections(selected_edges.size());
+
+      for (int i=0; i<selected_edges.size(); i++) {
+        NodeViewEdge* edge = selected_edges.at(i);
+        command->add_child(new NodeEdgeRemoveCommand(edge->output(), edge->input()));
+        removed_connections[i] = {edge->output(), edge->input()};
+      }
+
+      // Update contexts
+      UpdateContextsFromEdgeRemove(command, removed_connections);
     }
   }
 
   {
+    // Secondly remove any nodes
     QVector<Node*> selected_nodes = scene_.GetSelectedNodes();
 
     // Ensure no nodes are "undeletable"
@@ -408,17 +419,69 @@ void NodeView::ZoomOut()
 
 void NodeView::keyPressEvent(QKeyEvent *event)
 {
-  super::keyPressEvent(event);
+  switch (event->key()) {
+  case Qt::Key_Left:
+  case Qt::Key_Right:
+  case Qt::Key_Up:
+  case Qt::Key_Down:
+  {
+    if (graph_) {
+      MultiUndoCommand *pos_command = new MultiUndoCommand();
+      foreach (Node *n, selected_nodes_) {
+        foreach (Node *context, filter_nodes_) {
+          if (graph_->GetNodesForContext(context).contains(n)) {
+            QPointF old_pos = graph_->GetNodePosition(n, context);
 
-  if (event->key() == Qt::Key_Escape && !attached_items_.isEmpty()) {
-    DetachItemsFromCursor();
+            // Determine one pixel in scene units
+            double movement_amt = 1.0 / scale_;
 
-    // We undo the last action which SHOULD be adding the node
-    if (paste_command_) {
-      paste_command_->undo();
-      delete paste_command_;
-      paste_command_ = nullptr;
+            // Translate to 2D movement
+            QPointF node_movement;
+            switch (event->key()) {
+            case Qt::Key_Left:
+              node_movement.setX(-movement_amt);
+              break;
+            case Qt::Key_Right:
+              node_movement.setX(movement_amt);
+              break;
+            case Qt::Key_Up:
+              node_movement.setY(-movement_amt);
+              break;
+            case Qt::Key_Down:
+              node_movement.setY(movement_amt);
+              break;
+            }
+
+            // Translate from screen units into node units
+            node_movement = NodeViewItem::ScreenToNodePoint(node_movement, scene_.GetFlowDirection());
+
+            // Move command
+            pos_command->add_child(new NodeSetPositionCommand(n, context, old_pos + node_movement, false));
+          }
+        }
+      }
+      Core::instance()->undo_stack()->pushIfHasChildren(pos_command);
     }
+    break;
+  }
+  case Qt::Key_Escape:
+    if (!attached_items_.isEmpty()) {
+      DetachItemsFromCursor();
+
+      // We undo the last action which SHOULD be adding the node
+      if (paste_command_) {
+        paste_command_->undo();
+        delete paste_command_;
+        paste_command_ = nullptr;
+      }
+
+      break;
+    }
+
+    /* fall through */
+  default:
+    super::keyPressEvent(event);
+    break;
   }
 }
 
@@ -426,18 +489,19 @@ void NodeView::mousePressEvent(QMouseEvent *event)
 {
   if (HandPress(event)) return;
 
-  QGraphicsItem* item = itemAt(event->pos());
-
   if (event->button() == Qt::LeftButton) {
-    NodeViewEdge* edge_item = dynamic_cast<NodeViewEdge*>(item);
-    if (edge_item && edge_item->arrow_bounding_rect().contains(mapToScene(event->pos()))) {
-      create_edge_src_ = scene_.NodeToUIObject(edge_item->output().node());
-      create_edge_src_output_ = edge_item->output().output();
-      create_edge_ = edge_item;
-      create_edge_already_exists_ = true;
-      return;
+    foreach (NodeViewEdge *edge_item, scene_.edges()) {
+      if (edge_item->arrow_bounding_rect().contains(mapToScene(event->pos()))) {
+        create_edge_src_ = scene_.NodeToUIObject(edge_item->output().node());
+        create_edge_src_output_ = edge_item->output().output();
+        create_edge_ = edge_item;
+        create_edge_already_exists_ = true;
+        return;
+      }
     }
   }
+
+  QGraphicsItem* item = itemAt(event->pos());
 
   if (event->button() == Qt::RightButton) {
     if (!item || !item->isSelected()) {
@@ -623,13 +687,26 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
   if (HandRelease(event)) return;
 
   if (create_edge_) {
+    // We are creating a new edge or moving an existing one
     MultiUndoCommand* command = new MultiUndoCommand();
 
+    Node::OutputConnections removed_edges;
+    Node::OutputConnection added_edge;
+
+    bool reconnected_to_itself = false;
+
     if (create_edge_already_exists_) {
-      if (!create_edge_->IsConnected()) {
+      if (create_edge_dst_input_ == create_edge_->input()) {
+        reconnected_to_itself = true;
+      } else {
+        // We are moving (or removing) an existing edge
         command->add_child(new NodeEdgeRemoveCommand(create_edge_->output(), create_edge_->input()));
+
+        // Update contexts for edge removal
+        removed_edges.push_back({create_edge_->output(), create_edge_->input()});
       }
     } else {
+      // We're creating a new edge, which means this UI object is only temporary
       delete create_edge_;
     }
 
@@ -645,13 +722,35 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
         create_edge_dst_->setZValue(0);
       }
 
-      if (create_edge_dst_input_.IsValid()) {
+      NodeInput &creating_input = create_edge_dst_input_;
+      if (creating_input.IsValid()) {
         // Make connection
-        command->add_child(new NodeEdgeAddCommand(NodeOutput(create_edge_src_->GetNode(), create_edge_src_output_), create_edge_dst_input_));
-        create_edge_dst_input_.Reset();
+        if (!reconnected_to_itself) {
+          NodeOutput creating_output(create_edge_src_->GetNode(), create_edge_src_output_);
+
+          if (creating_input.IsConnected()) {
+            Node::OutputConnection existing_edge_to_remove = {creating_input.GetConnectedOutput(), creating_input};
+            command->add_child(new NodeEdgeRemoveCommand(existing_edge_to_remove.first, existing_edge_to_remove.second));
+            removed_edges.push_back(existing_edge_to_remove);
+          }
+
+          command->add_child(new NodeEdgeAddCommand(creating_output, creating_input));
+          added_edge = {creating_output, creating_input};
+        }
+
+        creating_input.Reset();
       }
 
       create_edge_dst_ = nullptr;
+    }
+
+    // Update contexts
+    if (!removed_edges.empty()) {
+      UpdateContextsFromEdgeRemove(command, removed_edges);
+    }
+
+    if (added_edge.first.IsValid()) {
+      UpdateContextsFromEdgeAdd(command, added_edge, removed_edges);
     }
 
     Core::instance()->undo_stack()->pushIfHasChildren(command);
@@ -668,44 +767,105 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
       command->add_child(paste_command_);
       paste_command_ = nullptr;
     }
-
-    if (attached_items_.size() == 1) {
-      Node* dropping_node = attached_items_.first().item->GetNode();
-
-      if (drop_edge_) {
-        // Remove old edge
-        command->add_child(new NodeEdgeRemoveCommand(drop_edge_->output(), drop_edge_->input()));
-
-        // Place new edges
-        command->add_child(new NodeEdgeAddCommand(drop_edge_->output(), drop_input_));
-        command->add_child(new NodeEdgeAddCommand(dropping_node, drop_edge_->input()));
-      }
-
-      drop_edge_ = nullptr;
-    }
-
-    DetachItemsFromCursor();
   }
 
-  for (auto it=positions_.begin(); it!=positions_.end(); it++) {
-    NodeViewItem *item = it.key();
-    Position &pos_data = it.value();
-    QPointF current_item_pos = item->GetNodePosition();
-    Node *node = pos_data.node;
+  {
+    // If any node positions changed, set them in their contexts now
+    MultiUndoCommand *set_pos_command = new MultiUndoCommand();
+    for (auto it=positions_.begin(); it!=positions_.end(); it++) {
+      NodeViewItem *item = it.key();
+      Position &pos_data = it.value();
+      QPointF current_item_pos = item->GetNodePosition();
+      Node *node = pos_data.node;
 
-    if (pos_data.original_item_pos != current_item_pos) {
-      QPointF diff = current_item_pos - pos_data.original_item_pos;
+      if (pos_data.original_item_pos != current_item_pos) {
+        QPointF diff = current_item_pos - pos_data.original_item_pos;
 
-      foreach (Node *context, filter_nodes_) {
-        if (graph_->ContextContainsNode(node, context)) {
-          QPointF current_node_pos_in_context = graph_->GetNodePosition(node, context);
-          current_node_pos_in_context += diff;
-          command->add_child(new NodeSetPositionCommand(node, context, current_node_pos_in_context, false));
+        foreach (Node *context, filter_nodes_) {
+          if (graph_->ContextContainsNode(node, context)) {
+            QPointF current_node_pos_in_context = graph_->GetNodePosition(node, context);
+            current_node_pos_in_context += diff;
+            set_pos_command->add_child(new NodeSetPositionCommand(node, context, current_node_pos_in_context, false));
+          }
+        }
+
+        pos_data.original_item_pos = current_item_pos;
+      }
+    }
+    if (set_pos_command->child_count()) {
+      set_pos_command->redo();
+      command->add_child(set_pos_command);
+    } else {
+      delete set_pos_command;
+    }
+  }
+
+
+  if (!attached_items_.isEmpty()) {
+    {
+      // Dropped attached item onto an edge, connect it between them
+      MultiUndoCommand *drop_edge_command = new MultiUndoCommand();
+      if (attached_items_.size() == 1) {
+        Node* dropping_node = attached_items_.first().item->GetNode();
+
+        if (drop_edge_) {
+          // Remove old edge
+          drop_edge_command->add_child(new NodeEdgeRemoveCommand(drop_edge_->output(), drop_edge_->input()));
+
+          // Place new edges
+          drop_edge_command->add_child(new NodeEdgeAddCommand(drop_edge_->output(), drop_input_));
+          drop_edge_command->add_child(new NodeEdgeAddCommand(dropping_node, drop_edge_->input()));
+        }
+
+        drop_edge_ = nullptr;
+      }
+      if (drop_edge_command->child_count()) {
+        drop_edge_command->redo();
+        command->add_child(drop_edge_command);
+      } else {
+        delete drop_edge_command;
+      }
+    }
+
+    {
+      // Remove from context any nodes that don't specifically output to said context
+      MultiUndoCommand *remove_pos_command = new MultiUndoCommand();
+
+      foreach (const AttachedItem &attached, attached_items_) {
+        MultiUndoCommand *remove_pos_subcommand = new MultiUndoCommand();
+        Node *attached_node = scene_.item_map().key(attached.item);
+
+        bool removed = false;
+        QVector<Node*> relevant_contexts;
+        foreach (Node *context, filter_nodes_) {
+          if (attached_node->OutputsTo(context, true)) {
+            relevant_contexts.append(context);
+          } else {
+            remove_pos_subcommand->add_child(new NodeRemovePositionFromContextCommand(attached_node, context));
+            removed = true;
+          }
+        }
+
+        if (removed && !relevant_contexts.isEmpty()) {
+          foreach (Node *relevant, relevant_contexts) {
+            remove_pos_subcommand->add_child(new NodeSetPositionCommand(attached_node, relevant, GetEstimatedPositionForContext(attached.item, relevant), false));
+          }
+
+          remove_pos_command->add_child(remove_pos_subcommand);
+        } else {
+          delete remove_pos_subcommand;
         }
       }
 
-      pos_data.original_item_pos = current_item_pos;
+      if (remove_pos_command->child_count()) {
+        remove_pos_command->redo();
+        command->add_child(remove_pos_command);
+      } else {
+        delete remove_pos_command;
+      }
     }
+
+    DetachItemsFromCursor();
   }
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);
@@ -991,19 +1151,29 @@ void NodeView::RemoveNodePosition(Node *node, Node *relative)
 {
   if (filter_mode_ == kFilterShowSelective) {
     if (filter_nodes_.contains(relative)) {
-      // Determine if any other contexts have this node
-      bool found = false;
+      NodeViewItem *item = scene_.item_map().value(node);
 
-      foreach (Node *context, filter_nodes_) {
-        if (graph_->ContextContainsNode(node, context)) {
-          found = true;
-          break;
+      if (item && !item->GetPreventRemoving()) {
+        // Determine if any other contexts have this node
+        bool found = false;
+
+        foreach (Node *context, filter_nodes_) {
+          if (graph_->ContextContainsNode(node, context)) {
+            found = true;
+            break;
+          }
         }
-      }
 
-      if (!found) {
-        positions_.remove(scene_.item_map().value(node));
-        scene_.RemoveNode(node);
+        if (!found) {
+          foreach (const Node::OutputConnection &oc, node->output_connections()) {
+            scene_.RemoveEdge(oc.first, oc.second);
+          }
+          for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
+            scene_.RemoveEdge(it->second, it->first);
+          }
+          positions_.remove(item);
+          scene_.RemoveNode(node);
+        }
       }
     }
   }
@@ -1098,6 +1268,22 @@ void NodeView::ZoomIntoCursorPosition(QWheelEvent *event, double multiplier, con
   }
 }
 
+bool NodeView::event(QEvent *event)
+{
+  if (event->type() == QEvent::ShortcutOverride) {
+    QKeyEvent *se = static_cast<QKeyEvent *>(event);
+    if (se->key() == Qt::Key_Left
+        || se->key() == Qt::Key_Right
+        || se->key() == Qt::Key_Up
+        || se->key() == Qt::Key_Down) {
+      se->accept();
+      return true;
+    }
+  }
+
+  return super::event(event);
+}
+
 void NodeView::ZoomFromKeyboard(double multiplier)
 {
   QPoint cursor_pos = mapFromGlobal(QCursor::pos());
@@ -1108,6 +1294,149 @@ void NodeView::ZoomFromKeyboard(double multiplier)
   }
 
   ZoomIntoCursorPosition(nullptr, multiplier, cursor_pos);
+}
+
+bool NodeView::DetermineIfNodeIsFloatingInContext(Node *node, Node *context, Node *source, const Node::OutputConnections &removed_edges, const Node::OutputConnection &added_edge)
+{
+  // Determines whether `node` outputs to another node in `context` besides `source`
+  foreach (const Node::OutputConnection &conn, node->output_connections()) {
+    Node *output_candidate = conn.second.node();
+
+    if (output_candidate == source) {
+      continue;
+    }
+
+    if (graph_->ContextContainsNode(output_candidate, context)) {
+      if (!output_candidate->OutputsTo(source, true, removed_edges, added_edge)) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+void NodeView::UpdateContextsFromEdgeRemove(MultiUndoCommand *command, const Node::OutputConnections &remove_edges)
+{
+  // For each edge we remove, determine if we should remove the node from a context as well
+  foreach (const Node::OutputConnection &edge, remove_edges) {
+    Node *output_node = edge.first.node();
+    QVector<Node *> contexts_to_remove_from;
+    int contexts_containing = 0;
+
+    for (auto it=graph_->GetPositionMap().cbegin(); it!=graph_->GetPositionMap().cend(); it++) {
+      Node *context = it.key();
+
+      if (it.value().contains(output_node)) {
+        bool currently_outputs = output_node->OutputsTo(context, true);
+        bool will_output_after_operation = output_node->OutputsTo(context, true, remove_edges);
+
+        if (currently_outputs && !will_output_after_operation) {
+          // Will remove
+          contexts_to_remove_from.append(context);
+        }
+
+        contexts_containing++;
+      }
+    }
+
+    // Removing from all current contexts, convert to a floating node (i.e. don't remove from the context)
+    if (contexts_to_remove_from.size() != contexts_containing) {
+      // Not removing from all contexts, can remove
+      bool removing_from_all_current_contexts = true;
+
+      foreach (Node *context, filter_nodes_) {
+        if (graph_->ContextContainsNode(output_node, context)) {
+          if (!contexts_to_remove_from.contains(context)) {
+            removing_from_all_current_contexts = false;
+            break;
+          }
+        }
+      }
+
+      foreach (Node *context, contexts_to_remove_from) {
+        RecursivelyRemoveFloatingNodeFromContext(command, output_node, context, output_node, remove_edges, Node::OutputConnection(), removing_from_all_current_contexts);
+      }
+    }
+  }
+}
+
+void NodeView::RecursivelyRemoveFloatingNodeFromContext(MultiUndoCommand *command, Node *node, Node *context, Node *source, const Node::OutputConnections &removed_edges, const Node::OutputConnection &added_edge, bool prevent_removing)
+{
+  if (prevent_removing) {
+    command->add_child(new NodeViewItemPreventRemovingCommand(this, node, true));
+  }
+
+  command->add_child(new NodeRemovePositionFromContextCommand(node, context));
+
+  // Remove any dependency from the context that's also floating
+  for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
+    Node *dependency = it->second.node();
+
+    // Determine if this node happens to output to anything else in the context (which may be
+    // another floating node that won't be removed by this operation)
+    if (!DetermineIfNodeIsFloatingInContext(dependency, context, source, removed_edges, added_edge)) {
+      RecursivelyRemoveFloatingNodeFromContext(command, dependency, context, source, removed_edges, added_edge, prevent_removing);
+    }
+  }
+}
+
+void NodeView::RecursivelyAddNodeToContext(MultiUndoCommand *command, Node *node, Node *context)
+{
+  command->add_child(new NodeSetPositionCommand(node, context, GetEstimatedPositionForContext(scene_.item_map().value(node), context), false));
+
+  // Add dependency
+  for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
+    Node *dependency = it->second.node();
+    RecursivelyAddNodeToContext(command, dependency, context);
+  }
+}
+
+void NodeView::UpdateContextsFromEdgeAdd(MultiUndoCommand *command, const Node::OutputConnection &added_edge, const Node::OutputConnections &removed_edges)
+{
+  // Determine if node currently does NOT output to a context that it WILL after this operation
+  QVector<Node*> contexts_to_add_to;
+  Node *connecting_node = added_edge.first.node();
+  Node *input_node = added_edge.second.node();
+  for (auto it=graph_->GetPositionMap().cbegin(); it!=graph_->GetPositionMap().cend(); it++) {
+    if (it.value().contains(input_node)) {
+      contexts_to_add_to.append(it.key());
+    }
+  }
+
+  if (!contexts_to_add_to.isEmpty()) {
+    // Determine whether the node is currently "floating", i.e. it outputs to none of the contexts
+    // that it currently belongs to. If so, we will take ownership of it with this node.
+    bool node_is_floating = true;
+    QVector<Node*> current_contexts;
+    for (auto it=graph_->GetPositionMap().cbegin(); it!=graph_->GetPositionMap().cend(); it++) {
+      if (it.value().contains(connecting_node)) {
+        if (connecting_node->OutputsTo(it.key(), true, removed_edges)) {
+          node_is_floating = false;
+          break;
+        } else {
+          current_contexts.append(it.key());
+        }
+      }
+    }
+
+    if (node_is_floating) {
+      // This action will unfloat this node, so remove it from all current contexts
+      foreach (Node *context, current_contexts) {
+        RecursivelyRemoveFloatingNodeFromContext(command, connecting_node, context, connecting_node, removed_edges, added_edge, false);
+      }
+    }
+
+    // Add nodes to contexts
+    foreach (Node *context, contexts_to_add_to) {
+      RecursivelyAddNodeToContext(command, connecting_node, context);
+    }
+  }
+}
+
+QPointF NodeView::GetEstimatedPositionForContext(NodeViewItem *item, Node *context) const
+{
+  return item->GetNodePosition() - context_offsets_.value(context);
 }
 
 NodeView::NodeViewAttachNodesToCursor::NodeViewAttachNodesToCursor(NodeView *view, const QVector<Node *> &nodes) :
@@ -1130,6 +1459,25 @@ Project *NodeView::NodeViewAttachNodesToCursor::GetRelevantProject() const
 {
   // Will either return a project or a nullptr which is also acceptable
   return dynamic_cast<Project*>(view_->graph_);
+}
+
+void NodeView::NodeViewItemPreventRemovingCommand::redo()
+{
+  NodeViewItem *item = view_->scene_.item_map().value(node_);
+
+  if (item) {
+    old_prevent_removing_ = item->GetPreventRemoving();
+    item->SetPreventRemoving(new_prevent_removing_);
+  }
+}
+
+void NodeView::NodeViewItemPreventRemovingCommand::undo()
+{
+  NodeViewItem *item = view_->scene_.item_map().value(node_);
+
+  if (item) {
+    item->SetPreventRemoving(old_prevent_removing_);
+  }
 }
 
 }
