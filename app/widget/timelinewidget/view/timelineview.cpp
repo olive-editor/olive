@@ -441,7 +441,8 @@ void TimelineView::DrawBlocks(QPainter *painter, bool foreground)
           if (show_waveforms_) {
             QRect waveform_rect = r.adjusted(0, text_total_height, 0, 0).toRect();
             painter->setPen(shadow_color);
-            AudioVisualWaveform::DrawWaveform(painter, waveform_rect, this->GetScale(), track->waveform(), SceneToTime(block_left));
+            AudioVisualWaveform::DrawWaveform(painter, waveform_rect, this->GetScale(), track->waveform(),
+                                              SceneToTime(block_left, GetScale(), connected_track_list_->parent()->GetAudioParams().sample_rate_as_time_base()));
           }
 
           // For transitions, show lines representing a transition
