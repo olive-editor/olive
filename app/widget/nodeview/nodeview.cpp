@@ -1049,6 +1049,8 @@ void NodeView::CreateNodeSlot(QAction *action)
     }
     paste_command_->add_child(new NodeViewAttachNodesToCursor(this, {new_node}));
     paste_command_->redo();
+
+    this->setFocus();
   }
 }
 
