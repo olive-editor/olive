@@ -28,7 +28,7 @@
 
 namespace olive {
 
-const qint64 AudioPlaybackCache::kDefaultSegmentSize = 5242880;
+const qint64 AudioPlaybackCache::kDefaultSegmentSize = 40 * 1024 * 1024;
 
 AudioPlaybackCache::AudioPlaybackCache(QObject* parent) :
   PlaybackCache(parent)
