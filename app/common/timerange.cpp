@@ -296,6 +296,68 @@ uint qHash(const TimeRange &r, uint seed)
   return qHash(r.in(), seed) ^ qHash(r.out(), seed);
 }
 
+TimeRangeListFrameIterator::TimeRangeListFrameIterator(const TimeRangeList &list, const rational &timebase) :
+  list_(list),
+  timebase_(timebase),
+  index_(-1),
+  size_(-1)
+{
+  UpdateIndexIfNecessary();
+}
+
+bool TimeRangeListFrameIterator::GetNext(rational *out)
+{
+  if (index_ == list_.size()) {
+    return false;
+  }
+
+  // Output current value
+  *out = current_;
+
+  // Determine next value by adding timebase
+  current_ += timebase_;
+
+  // If this time is outside the current range, jump to the next one
+  UpdateIndexIfNecessary();
+
+  return true;
+}
+
+int TimeRangeListFrameIterator::size()
+{
+  if (size_ == -1) {
+    // Size isn't calculated automatically for optimization, so we'll calculate it now
+    size_ = 0;
+
+    foreach (const TimeRange &range, list_) {
+      rational start = Timecode::snap_time_to_timebase(range.in(), timebase_, Timecode::kCeil);
+      rational end = Timecode::snap_time_to_timebase(range.out(), timebase_, Timecode::kFloor);
+
+      if (end == range.out()) {
+        end -= timebase_;
+      }
+
+      int64_t start_ts = Timecode::time_to_timestamp(start, timebase_);
+      int64_t end_ts = Timecode::time_to_timestamp(end, timebase_);
+
+      size_ += 1 + (end_ts - start_ts);
+    }
+  }
+
+  return size_;
+}
+
+void TimeRangeListFrameIterator::UpdateIndexIfNecessary()
+{
+  while (index_ < list_.size() && (index_ == -1 || current_ >= list_.at(index_).out())) {
+    index_++;
+
+    if (index_ < list_.size()) {
+      current_ = Timecode::snap_time_to_timebase(list_.at(index_).in(), timebase_, Timecode::kCeil);
+    }
+  }
+}
+
 }
 
 QDebug operator<<(QDebug debug, const olive::TimeRange &r)

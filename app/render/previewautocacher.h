@@ -80,7 +80,7 @@ public:
   void ClearVideoDownloadQueue(bool wait = false);
 
 private:
-  static void GenerateHashes(ViewerOutput *viewer, FrameHashCache *cache, const QVector<rational>& times, qint64 job_time);
+  static void GenerateHashes(ViewerOutput *viewer, FrameHashCache *cache, TimeRangeListFrameIterator times, qint64 job_time);
 
   void TryRender();
 

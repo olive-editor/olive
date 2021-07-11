@@ -21,6 +21,7 @@
 #include <iostream>
 
 #define OLIVE_ASSERT(x) if (!(x)) return false
+#define OLIVE_ASSERT_EQUAL(x, y) if (x != y) {std::cout << " - Equal assert failed on line " << __LINE__ << ": " << x << " != " << y; return false;}void()
 #define OLIVE_TEST_END return true
 
 #define OLIVE_ADD_TEST(x) bool Test##x()

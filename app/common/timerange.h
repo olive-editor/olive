@@ -22,6 +22,7 @@
 #define TIMERANGE_H
 
 #include "rational.h"
+#include "timecodefunctions.h"
 
 namespace olive {
 
@@ -127,13 +128,58 @@ public:
     return array_.last();
   }
 
+  const TimeRange& at(int index) const
+  {
+    return array_.at(index);
+  }
+
   const QVector<TimeRange>& internal_array() const
   {
     return array_;
   }
 
+  bool operator==(const TimeRangeList &rhs) const
+  {
+    return array_ == rhs.array_;
+  }
+
 private:
   QVector<TimeRange> array_;
+
+};
+
+class TimeRangeListFrameIterator
+{
+public:
+  TimeRangeListFrameIterator(const TimeRangeList &list, const rational &timebase);
+
+  bool GetNext(rational *out);
+
+  QVector<rational> ToVector() const
+  {
+    TimeRangeListFrameIterator copy(list_, timebase_);
+    QVector<rational> times;
+    rational r;
+    while (copy.GetNext(&r)) {
+      times.append(r);
+    }
+    return times;
+  }
+
+  int size();
+
+private:
+  void UpdateIndexIfNecessary();
+
+  TimeRangeList list_;
+
+  rational timebase_;
+
+  rational current_;
+
+  int index_;
+
+  int size_;
 
 };
 

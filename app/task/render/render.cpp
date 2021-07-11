@@ -84,16 +84,19 @@ bool RenderTask::Render(ColorManager* manager,
 
   if (!video_range.isEmpty()) {
     // Get list of discrete frames from range
-    QVector<rational> times = FrameHashCache::GetFrameListFromTimeRange(video_range, video_params().frame_rate_as_time_base());
-    QVector<QByteArray> hashes(times.size());
+    TimeRangeListFrameIterator iterator(video_range, video_params().frame_rate_as_time_base());
+    QVector<rational> times(iterator.size());
+    QVector<QByteArray> hashes(iterator.size());
 
     // Generate hashes
-    for (int i=0; i<times.size(); i++) {
+    rational r;
+    for (int i=0; iterator.GetNext(&r); i++) {
       if (IsCancelled()) {
         return true;
       }
 
-      hashes[i] = RenderManager::instance()->Hash(viewer()->GetConnectedTextureOutput(), video_params_, times.at(i));
+      times[i] = r;
+      hashes[i] = RenderManager::instance()->Hash(viewer()->GetConnectedTextureOutput(), video_params_, r);
     }
 
     // Filter out duplicates

@@ -91,8 +91,10 @@ void GenerateHashesInternal(ViewerOutput *viewer, FrameHashCache* cache, const Q
   }
 }
 
-void PreviewAutoCacher::GenerateHashes(ViewerOutput *viewer, FrameHashCache* cache, const QVector<rational> &times, qint64 job_time)
+void PreviewAutoCacher::GenerateHashes(ViewerOutput *viewer, FrameHashCache* cache, TimeRangeListFrameIterator iterator, qint64 job_time)
 {
+  QVector<rational> times = iterator.ToVector();
+
   // Ensure number of threads doesn't exceed idealThreadCount for maximum concurrency
   int hashes_per_thread = times.size() / qMax(1, QThread::idealThreadCount()-1);
 
@@ -493,7 +495,7 @@ void PreviewAutoCacher::TryRender()
 
   // If we're here, we must be able to render
   if (!invalidated_video_.isEmpty()) {
-    QVector<rational> frames = viewer_node_->video_frame_cache()->GetFrameListFromTimeRange(invalidated_video_);
+    TimeRangeListFrameIterator frames(invalidated_video_, viewer_node_->video_frame_cache()->GetTimebase());
 
     QFutureWatcher<void>* watcher = new QFutureWatcher<void>();
     hash_tasks_.append(watcher);
@@ -578,9 +580,11 @@ void PreviewAutoCacher::RequeueFrames()
       using_range = cache_range_;
     }
 
-    QVector<rational> invalidated_ranges = viewer_node_->video_frame_cache()->GetInvalidatedFrames(using_range);
+    TimeRangeList invalidated = viewer_node_->video_frame_cache()->GetInvalidatedRanges().Intersects(using_range);
+    TimeRangeListFrameIterator invalidated_ranges(invalidated, viewer_node_->video_frame_cache()->GetTimebase());
 
-    foreach (const rational& t, invalidated_ranges) {
+    rational t;
+    while (invalidated_ranges.GetNext(&t)) {
       const QByteArray& hash = viewer_node_->video_frame_cache()->GetHash(t);
 
       RenderTicketWatcher* render_task = video_tasks_.key(hash);

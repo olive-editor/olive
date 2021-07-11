@@ -50,16 +50,6 @@ public:
 
   void ValidateFramesWithHash(const QByteArray& hash);
 
-  /**
-   * @brief Returns a list of frames that use a particular hash
-   */
-  QList<rational> GetFramesWithHash(const QByteArray& hash);
-
-  /**
-   * @brief Same as FramesWithHash() but also removes these frames from the map
-   */
-  QList<rational> TakeFramesWithHash(const QByteArray& hash);
-
   QMap<rational, QByteArray> time_hash_map();
 
   /**
@@ -76,11 +66,6 @@ public:
   static FramePtr LoadCacheFrame(const QString& cache_path, const QByteArray& hash);
   FramePtr LoadCacheFrame(const QByteArray& hash) const;
   static FramePtr LoadCacheFrame(const QString& fn);
-
-  static QVector<rational> GetFrameListFromTimeRange(TimeRangeList range_list, const rational& timebase);
-  QVector<rational> GetFrameListFromTimeRange(const TimeRangeList &range);
-  QVector<rational> GetInvalidatedFrames();
-  QVector<rational> GetInvalidatedFrames(const TimeRange& intersecting);
 
 public slots:
   void SetHash(const olive::rational &time, const QByteArray& hash, const qint64 &job_time, bool frame_exists);
