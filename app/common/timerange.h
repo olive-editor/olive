@@ -151,6 +151,7 @@ private:
 class TimeRangeListFrameIterator
 {
 public:
+  TimeRangeListFrameIterator() = default;
   TimeRangeListFrameIterator(const TimeRangeList &list, const rational &timebase);
 
   bool GetNext(rational *out);
@@ -167,6 +168,11 @@ public:
   }
 
   int size();
+
+  void reset()
+  {
+    *this = TimeRangeListFrameIterator();
+  }
 
 private:
   void UpdateIndexIfNecessary();

@@ -274,6 +274,8 @@ void PreviewAutoCacher::VideoRendered()
     TryRender();
   }
 
+  QueueNextFrameInRange(1);
+
   delete watcher;
 }
 
@@ -442,6 +444,7 @@ void PreviewAutoCacher::ClearVideoQueue(bool hard)
 
   has_changed_ = true;
   use_custom_range_ = false;
+  queued_frame_iterator_.reset();
 }
 
 void PreviewAutoCacher::ClearAudioQueue(bool hard)
@@ -579,31 +582,9 @@ void PreviewAutoCacher::RequeueFrames()
     }
 
     TimeRangeList invalidated = viewer_node_->video_frame_cache()->GetInvalidatedRanges().Intersects(using_range);
-    TimeRangeListFrameIterator invalidated_ranges(invalidated, viewer_node_->video_frame_cache()->GetTimebase());
+    queued_frame_iterator_ = TimeRangeListFrameIterator(invalidated, viewer_node_->video_frame_cache()->GetTimebase());
 
-    rational t;
-    while (invalidated_ranges.GetNext(&t)) {
-      const QByteArray& hash = viewer_node_->video_frame_cache()->GetHash(t);
-
-      RenderTicketWatcher* render_task = video_tasks_.key(hash);
-
-      if (t >= using_range.in()
-          && t < using_range.out()) {
-        // We want this hash, if we're not already rendering, start render now
-        if (!render_task && !video_download_tasks_.key(hash)) {
-          // Don't render any hash more than once
-          RenderFrame(hash, t, false, false);
-        }
-      } else if (render_task) {
-        // Cancel this frame unless it's already started
-        QMutexLocker locker(render_task->GetTicket()->lock());
-
-        if (!render_task->GetTicket()->IsRunning(false)) {
-          video_tasks_.remove(render_task);
-          delete render_task;
-        }
-      }
-    }
+    QueueNextFrameInRange(RenderManager::GetNumberOfIdealConcurrentJobs());
 
     has_changed_ = false;
   }
@@ -775,6 +756,24 @@ void PreviewAutoCacher::ClearQueueRemoveEventInternal(QMap<RenderTicketWatcher*,
 void PreviewAutoCacher::ClearQueueRemoveEventInternal(QVector<RenderTicketWatcher*>::iterator it)
 {
   Q_UNUSED(it)
+}
+
+void PreviewAutoCacher::QueueNextFrameInRange(int max)
+{
+  rational t;
+  while (max && queued_frame_iterator_.GetNext(&t)) {
+    const QByteArray& hash = viewer_node_->video_frame_cache()->GetHash(t);
+
+    RenderTicketWatcher* render_task = video_tasks_.key(hash);
+
+    // We want this hash, if we're not already rendering, start render now
+    if (!render_task && !video_download_tasks_.key(hash)) {
+      // Don't render any hash more than once
+      RenderFrame(hash, t, false, false);
+
+      max--;
+    }
+  }
 }
 
 template<typename T, typename Func>

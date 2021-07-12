@@ -115,6 +115,9 @@ private:
   void ClearQueueRemoveEventInternal(QMap<RenderTicketWatcher*, TimeRange>::iterator it);
   void ClearQueueRemoveEventInternal(QVector<RenderTicketWatcher*>::iterator it);
 
+  void QueueNextFrameInRange(int max);
+  TimeRangeListFrameIterator queued_frame_iterator_;
+
   class QueuedJob {
   public:
     enum Type {

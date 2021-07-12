@@ -123,6 +123,11 @@ public:
     return backend_;
   }
 
+  static int GetNumberOfIdealConcurrentJobs()
+  {
+    return QThread::idealThreadCount();
+  }
+
 signals:
 
 private:
