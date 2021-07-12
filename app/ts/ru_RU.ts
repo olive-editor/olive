@@ -67,27 +67,27 @@
 <context>
     <name>ImportTool</name>
     <message>
-        <location filename="../widget/timelinewidget/tool/import.cpp" line="286"/>
+        <location filename="../widget/timelinewidget/tool/import.cpp" line="290"/>
         <source>Don&apos;t ask me again</source>
         <translation>Больше не спрашивать</translation>
     </message>
     <message>
-        <location filename="../widget/timelinewidget/tool/import.cpp" line="291"/>
+        <location filename="../widget/timelinewidget/tool/import.cpp" line="295"/>
         <source>No Active Sequence</source>
         <translation>Нет активной последовательности</translation>
     </message>
     <message>
-        <location filename="../widget/timelinewidget/tool/import.cpp" line="292"/>
+        <location filename="../widget/timelinewidget/tool/import.cpp" line="296"/>
         <source>No sequence is currently open. Would you like to create one?</source>
         <translation>Нет открытых последовательностей. Создать новую?</translation>
     </message>
     <message>
-        <location filename="../widget/timelinewidget/tool/import.cpp" line="295"/>
+        <location filename="../widget/timelinewidget/tool/import.cpp" line="299"/>
         <source>Automatically Detect Parameters From Footage</source>
         <translation>Автоматически определить</translation>
     </message>
     <message>
-        <location filename="../widget/timelinewidget/tool/import.cpp" line="296"/>
+        <location filename="../widget/timelinewidget/tool/import.cpp" line="300"/>
         <source>Set Parameters Manually</source>
         <translation>Указать вручную</translation>
     </message>
@@ -427,7 +427,7 @@
     <message>
         <location filename="../dialog/about/about.cpp" line="57"/>
         <source>Olive is a free open source non-linear video editor. This software is licensed under the GNU GPL Version 3.</source>
-        <translation type="unfinished"></translation>
+        <translation>Olive — свободный нелинейный видеоредактор. Программа распространяется на условиях GNU GPL v3.</translation>
     </message>
     <message>
         <location filename="../dialog/about/about.cpp" line="71"/>
@@ -959,7 +959,7 @@ Your recoverable projects are still available at: %1</source>
     <message>
         <location filename="../core.cpp" line="1142"/>
         <source>The following project versions have been auto-saved:</source>
-        <translation type="unfinished"></translation>
+        <translation>Следующие версии проектов были автоматически сохранены:</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="1150"/>
@@ -1057,7 +1057,7 @@ Your recoverable projects are still available at: %1</source>
     <message>
         <location filename="../crashhandler/crashhandler.cpp" line="63"/>
         <source>Describe what you were doing in as much detail as possible. If you can, provide steps to reproduce this crash.</source>
-        <translation type="unfinished"></translation>
+        <translation>Опишите свои действия макимально подробно. По возможности перечислите шаги, следуя которым можно воспроизвести падение.</translation>
     </message>
     <message>
         <location filename="../crashhandler/crashhandler.cpp" line="72"/>
@@ -1320,7 +1320,7 @@ Your recoverable projects are still available at: %1</source>
     <message>
         <location filename="../render/diskmanager.cpp" line="178"/>
         <source>Failed to open disk cache at &quot;%1&quot;. Try a different folder.</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удалось открыть дисковый кеш в &quot;%1&quot;. Попробуйте указать другую папку.</translation>
     </message>
 </context>
 <context>
@@ -1389,12 +1389,12 @@ Your recoverable projects are still available at: %1</source>
     <message>
         <location filename="../dialog/export/exportaudiotab.cpp" line="66"/>
         <source>Bit Rate:</source>
-        <translation type="unfinished"></translation>
+        <translation>Скорость потока:</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportaudiotab.cpp" line="72"/>
         <source>%1 kbps</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 Кбит/с</translation>
     </message>
 </context>
 <context>
@@ -1457,27 +1457,27 @@ Your recoverable projects are still available at: %1</source>
     <message>
         <location filename="../codec/exportcodec.cpp" line="56"/>
         <source>FLAC</source>
-        <translation type="unfinished">FLAC</translation>
+        <translation>FLAC</translation>
     </message>
     <message>
         <location filename="../codec/exportcodec.cpp" line="58"/>
         <source>Opus</source>
-        <translation type="unfinished"></translation>
+        <translation>Opus</translation>
     </message>
     <message>
         <location filename="../codec/exportcodec.cpp" line="60"/>
         <source>Vorbis</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorbis</translation>
     </message>
     <message>
         <location filename="../codec/exportcodec.cpp" line="62"/>
         <source>VP9</source>
-        <translation type="unfinished"></translation>
+        <translation>VP9</translation>
     </message>
     <message>
         <location filename="../codec/exportcodec.cpp" line="64"/>
         <source>SubRip SRT</source>
-        <translation type="unfinished">SubRip SRT</translation>
+        <translation>SubRip SRT</translation>
     </message>
     <message>
         <location filename="../codec/exportcodec.cpp" line="69"/>
