@@ -79,8 +79,9 @@ void FrameHashCache::SetHash(const rational &time, const QByteArray &hash, const
 
   int64_t ts = ToTimestamp(time);
   if (ts >= GetMapSize()) {
+    // Disabled: bizarrely causes the whole app to hang indefinitely when used
     // Reserve an extra minute to cut down on the amount of reallocations to make
-    time_hash_map_.reserve(ts + timebase_.flipped().toDouble() * 60);
+    //time_hash_map_.reserve(ts + timebase_.flipped().toDouble() * 60);
 
     // Add enough entries to insert this hash
     time_hash_map_.resize(ts + 1);
