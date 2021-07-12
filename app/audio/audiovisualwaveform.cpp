@@ -197,11 +197,11 @@ void AudioVisualWaveform::Shift(const rational &from, const rational &to)
     int to_index = time_to_samples(to, rate_dbl);
 
     if (from_index == to_index) {
-      return;
+      continue;
     }
 
     if (from_index > data.size()) {
-      return;
+      continue;
     }
 
     if (from_index > to_index) {
@@ -226,7 +226,7 @@ void AudioVisualWaveform::Shift(const rational &from, const rational &to)
       memcpy(temp.data(), &data.data()[from_index], temp.size());
       memcpy(&data.data()[to_index], temp.data(), temp.size());
 
-      memset(reinterpret_cast<char*>(&data[from_index]), 0, distance * sizeof(SamplePerChannel));
+      memset(&data.data()[from_index], 0, distance * sizeof(SamplePerChannel));
     }
   }
 
