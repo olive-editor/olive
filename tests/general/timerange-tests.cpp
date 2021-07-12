@@ -99,7 +99,7 @@ OLIVE_ADD_TEST(TimeRangeListFrameIteratorSize)
 
   QVector<rational> empty_vec = empty.ToVector();
 
-  OLIVE_ASSERT_EQUAL(empty_vec.size(), 0)
+  OLIVE_ASSERT_EQUAL(empty_vec.size(), 0);
   OLIVE_ASSERT_EQUAL(empty_vec.size(), empty.size());
 
   OLIVE_TEST_END;
