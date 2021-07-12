@@ -56,13 +56,8 @@ void AudioPlaybackCache::SetParameters(const AudioParams &params)
   emit ParametersChanged();
 }
 
-void AudioPlaybackCache::WritePCM(const TimeRange &range, SampleBufferPtr samples, const AudioVisualWaveform *waveform, const JobTime &job_time)
+void AudioPlaybackCache::WritePCM(const TimeRange &range, const TimeRangeList &valid_ranges, SampleBufferPtr samples, const AudioVisualWaveform *waveform)
 {
-  QList<TimeRange> valid_ranges = GetValidRanges(range, job_time);
-  if (valid_ranges.isEmpty()) {
-    return;
-  }
-
   // Ensure if we have enough segments to write this data, creating more if not
   qint64 length_diff = params_.time_to_bytes(range.out()) - playlist_.GetLength();
   while (length_diff > 0) {
@@ -154,11 +149,11 @@ void AudioPlaybackCache::WritePCM(const TimeRange &range, SampleBufferPtr sample
   }
 }
 
-void AudioPlaybackCache::WriteSilence(const TimeRange &range, JobTime job_time)
+void AudioPlaybackCache::WriteSilence(const TimeRange &range)
 {
   // WritePCM will automatically fill non-existent bytes with silence, so we just have to send
   // it an empty sample buffer
-  WritePCM(range, nullptr, nullptr, job_time);
+  WritePCM(range, {range}, nullptr, nullptr);
 }
 
 void AudioPlaybackCache::ShiftEvent(const rational &from_in_time, const rational &to_in_time)
@@ -389,21 +384,6 @@ void AudioPlaybackCache::UpdateOffsetsFrom(int index)
 
     current_offset += s.size();
   }
-}
-
-QList<TimeRange> AudioPlaybackCache::GetValidRanges(const TimeRange& range, const JobTime& job_time)
-{
-  QList<TimeRange> valid_ranges;
-
-  for (int i=jobs_.size()-1;i>=0;i--) {
-    const JobIdentifier& job = jobs_.at(i);
-
-    if (job_time >= job.job_time && job.range.OverlapsWith(range)) {
-      valid_ranges.append(job.range.Intersected(range));
-    }
-  }
-
-  return valid_ranges;
 }
 
 AudioPlaybackCache::PlaybackDevice *AudioPlaybackCache::CreatePlaybackDevice(QObject* parent) const

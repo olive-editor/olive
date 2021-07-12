@@ -92,16 +92,7 @@ protected:
 
   Project* GetProject() const;
 
-  struct JobIdentifier {
-    TimeRange range;
-    JobTime job_time;
-  };
-
-  QList<JobIdentifier> jobs_;
-
 private:
-  void RemoveRangeFromJobs(const TimeRange& remove);
-
   TimeRangeList invalidated_;
 
   rational length_;

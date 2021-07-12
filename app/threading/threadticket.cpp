@@ -27,7 +27,6 @@ RenderTicket::RenderTicket() :
   has_result_(false),
   finish_count_(0)
 {
-  SetJobTime();
 }
 
 void RenderTicket::WaitForFinished(QMutex *mutex)

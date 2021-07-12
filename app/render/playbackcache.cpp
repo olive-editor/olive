@@ -36,9 +36,6 @@ void PlaybackCache::Invalidate(const TimeRange &r)
 
   invalidated_.insert(r);
 
-  RemoveRangeFromJobs(r);
-  jobs_.append({r, JobTime()});
-
   InvalidateEvent(r);
 
   emit Invalidated(r);
@@ -66,15 +63,12 @@ void PlaybackCache::SetLength(const rational &r)
 
   if (r.isNull()) {
     invalidated_.clear();
-    jobs_.clear();
   } else if (r > length_) {
     // If new length is greater, simply extend the invalidated range for now
     invalidated_.insert(range_diff);
-    jobs_.append({range_diff, JobTime()});
   } else {
     // If new length is smaller, removed hashes
     invalidated_.remove(range_diff);
-    RemoveRangeFromJobs(range_diff);
   }
 
   rational old_length = length_;
@@ -110,7 +104,6 @@ void PlaybackCache::Shift(rational from, rational to)
 
   // Remove everything from the minimum point
   TimeRange remove_range = TimeRange(qMin(from, to), RATIONAL_MAX);
-  RemoveRangeFromJobs(remove_range);
   Validate(remove_range);
 
   // Shift invalidated ranges
@@ -161,31 +154,6 @@ Project *PlaybackCache::GetProject() const
   }
 
   return viewer->project();
-}
-
-void PlaybackCache::RemoveRangeFromJobs(const TimeRange &remove)
-{
-  // Code shamelessly copied from TimeRangeList::RemoveTimeRange
-  for (int i=0;i<jobs_.size();i++) {
-    JobIdentifier& job = jobs_[i];
-    TimeRange& compare = job.range;
-
-    if (remove.Contains(compare)) {
-      // This element is entirely encompassed in this range, remove it
-      jobs_.removeAt(i);
-      i--;
-    } else if (compare.Contains(remove, false, false)) {
-      // The remove range is within this element, only choice is to split the element into two
-      jobs_.append({TimeRange(remove.out(), compare.out()), job.job_time});
-      compare.set_out(remove.in());
-    } else if (compare.in() < remove.in() && compare.out() > remove.in()) {
-      // This element's out point overlaps the range's in, we'll trim it
-      compare.set_out(remove.in());
-    } else if (compare.in() < remove.out() && compare.out() > remove.out()) {
-      // This element's in point overlaps the range's out, we'll trim it
-      compare.set_in(remove.out());
-    }
-  }
 }
 
 QString PlaybackCache::GetCacheDirectory() const

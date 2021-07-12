@@ -65,18 +65,8 @@ QByteArray FrameHashCache::GetHash(const rational &time)
   return GetHash(ToTimestamp(time));
 }
 
-void FrameHashCache::SetHash(const rational &time, const QByteArray &hash, const JobTime& job_time, bool frame_exists)
+void FrameHashCache::SetHash(const rational &time, const QByteArray &hash, bool frame_exists)
 {
-  for (int i=jobs_.size()-1; i>=0; i--) {
-    const JobIdentifier& job = jobs_.at(i);
-
-    if (job.range.Contains(time)
-        && job_time < job.job_time) {
-      // Hash here has changed since this frame started rendering, discard it
-      return;
-    }
-  }
-
   int64_t ts = ToTimestamp(time);
   if (ts >= GetMapSize()) {
     // Disabled: bizarrely causes the whole app to hang indefinitely when used

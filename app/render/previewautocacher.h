@@ -9,6 +9,7 @@
 #include "node/node.h"
 #include "node/output/viewer/viewer.h"
 #include "node/project/project.h"
+#include "render/renderjobtracker.h"
 #include "threading/threadticketwatcher.h"
 
 namespace olive {
@@ -80,8 +81,6 @@ public:
   void ClearVideoDownloadQueue(bool wait = false);
 
 private:
-  static void GenerateHashes(ViewerOutput *viewer, FrameHashCache *cache, TimeRangeListFrameIterator times, JobTime job_time);
-
   void TryRender();
 
   RenderTicketWatcher *RenderFrame(const QByteArray& hash, const rational &time, bool prioritize, bool texture_only);
@@ -104,6 +103,7 @@ private:
 
   void InsertIntoCopyMap(Node* node, Node* copy);
 
+  void UpdateGraphChangeValue();
   void UpdateLastSyncedValue();
 
   void CancelQueuedSingleFrameRender();
@@ -116,7 +116,15 @@ private:
   void ClearQueueRemoveEventInternal(QVector<RenderTicketWatcher*>::iterator it);
 
   void QueueNextFrameInRange(int max);
-  TimeRangeListFrameIterator queued_frame_iterator_;
+  void QueueNextHashTask();
+
+  struct HashData {
+    rational time;
+    QByteArray hash;
+    bool exists;
+  };
+
+  static QVector<HashData> GenerateHashes(ViewerOutput *viewer, FrameHashCache* cache, const QVector<rational> &times);
 
   class QueuedJob {
   public:
@@ -158,12 +166,13 @@ private:
 
   RenderTicketPtr single_frame_render_;
 
-  QList<QFutureWatcher<void>*> hash_tasks_;
+  QList<QFutureWatcher< QVector<HashData> >*> hash_tasks_;
   QMap<RenderTicketWatcher*, TimeRange> audio_tasks_;
   QMap<RenderTicketWatcher*, QByteArray> video_tasks_;
   QMap<RenderTicketWatcher*, QByteArray> video_download_tasks_;
   QMap<RenderTicketWatcher*, QVector<RenderTicketPtr> > video_immediate_passthroughs_;
 
+  JobTime graph_changed_time_;
   JobTime last_update_time_;
 
   bool ignore_next_mouse_button_;
@@ -173,6 +182,12 @@ private:
   TimeRangeList audio_needing_conform_;
 
   JobTime last_conform_task_;
+
+  RenderJobTracker video_job_tracker_;
+  RenderJobTracker audio_job_tracker_;
+
+  TimeRangeListFrameIterator queued_frame_iterator_;
+  TimeRangeListFrameIterator hash_iterator_;
 
 private slots:
   /**

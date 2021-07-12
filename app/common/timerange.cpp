@@ -199,30 +199,7 @@ void TimeRangeList::insert(TimeRange range_to_add)
 
 void TimeRangeList::remove(const TimeRange &remove)
 {
-  int sz = this->size();
-
-  for (int i=0;i<sz;i++) {
-    TimeRange& compare = array_[i];
-
-    if (remove.Contains(compare)) {
-      // This element is entirely encompassed in this range, remove it
-      array_.removeAt(i);
-      i--;
-      sz--;
-    } else if (compare.Contains(remove, false, false)) {
-      // The remove range is within this element, only choice is to split the element into two
-      TimeRange new_range(remove.out(), compare.out());
-      compare.set_out(remove.in());
-      insert(new_range);
-      break;
-    } else if (compare.in() < remove.in() && compare.out() > remove.in()) {
-      // This element's out point overlaps the range's in, we'll trim it
-      compare.set_out(remove.in());
-    } else if (compare.in() < remove.out() && compare.out() > remove.out()) {
-      // This element's in point overlaps the range's out, we'll trim it
-      compare.set_in(remove.out());
-    }
-  }
+  util_remove(&array_, remove);
 }
 
 bool TimeRangeList::contains(const TimeRange &range, bool in_inclusive, bool out_inclusive) const
@@ -312,7 +289,7 @@ TimeRangeListFrameIterator::TimeRangeListFrameIterator(const TimeRangeList &list
 
 bool TimeRangeListFrameIterator::GetNext(rational *out)
 {
-  if (index_ == list_.size()) {
+  if (!HasNext()) {
     return false;
   }
 
@@ -326,6 +303,11 @@ bool TimeRangeListFrameIterator::GetNext(rational *out)
   UpdateIndexIfNecessary();
 
   return true;
+}
+
+bool TimeRangeListFrameIterator::HasNext() const
+{
+  return index_ < list_.size();
 }
 
 int TimeRangeListFrameIterator::size()
