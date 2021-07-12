@@ -296,6 +296,11 @@ uint qHash(const TimeRange &r, uint seed)
   return qHash(r.in(), seed) ^ qHash(r.out(), seed);
 }
 
+TimeRangeListFrameIterator::TimeRangeListFrameIterator() :
+  TimeRangeListFrameIterator(TimeRangeList(), rational::NaN)
+{
+}
+
 TimeRangeListFrameIterator::TimeRangeListFrameIterator(const TimeRangeList &list, const rational &timebase) :
   list_(list),
   timebase_(timebase),

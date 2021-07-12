@@ -151,7 +151,7 @@ private:
 class TimeRangeListFrameIterator
 {
 public:
-  TimeRangeListFrameIterator() = default;
+  TimeRangeListFrameIterator();
   TimeRangeListFrameIterator(const TimeRangeList &list, const rational &timebase);
 
   bool GetNext(rational *out);
