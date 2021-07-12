@@ -87,7 +87,11 @@ void ImportTool::DragEnter(TimelineViewMouseEvent *event)
     PrepGhosts(drag_start_.GetFrame() - parent()->SceneToTime(import_pre_buffer_),
                drag_start_.GetTrack().index());
 
-    event->accept();
+    if (parent()->HasGhosts() || !parent()->GetConnectedNode()) {
+      event->accept();
+    } else {
+      event->ignore();
+    }
   } else {
     // FIXME: Implement dropping from file
     event->ignore();

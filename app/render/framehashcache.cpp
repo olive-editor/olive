@@ -39,9 +39,12 @@ namespace olive {
 
 QMutex FrameHashCache::currently_saving_frames_mutex_;
 QMap<QByteArray, FramePtr> FrameHashCache::currently_saving_frames_;
+const QString FrameHashCache::kCacheFormatExtension = QStringLiteral(".exr");
+
+#define super PlaybackCache
 
 FrameHashCache::FrameHashCache(QObject *parent) :
-  PlaybackCache(parent)
+  super(parent)
 {
   if (DiskManager::instance()) {
     connect(DiskManager::instance(), &DiskManager::DeletedFrame, this, &FrameHashCache::HashDeleted);
@@ -138,11 +141,6 @@ QList<rational> FrameHashCache::TakeFramesWithHash(const QByteArray &hash)
 QMap<rational, QByteArray> FrameHashCache::time_hash_map()
 {
   return time_hash_map_;
-}
-
-QString FrameHashCache::GetFormatExtension()
-{
-  return QStringLiteral(".exr");
 }
 
 QVector<rational> FrameHashCache::GetFrameListFromTimeRange(TimeRangeList range_list, const rational &timebase)
@@ -419,11 +417,9 @@ QString FrameHashCache::CachePathName(const QByteArray& hash) const
 
 QString FrameHashCache::CachePathName(const QString &cache_path, const QByteArray &hash)
 {
-  QString ext = GetFormatExtension();
-
   QDir cache_dir(QDir(cache_path).filePath(QString(hash.left(1).toHex())));
 
-  QString filename = QStringLiteral("%1%2").arg(QString(hash.mid(1).toHex()), ext);
+  QString filename = QStringLiteral("%1%2").arg(QString(hash.mid(1).toHex()), kCacheFormatExtension);
 
   // Register that in some way this hash has been accessed
   QMetaObject::invokeMethod(DiskManager::instance(),
