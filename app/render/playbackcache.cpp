@@ -27,7 +27,7 @@
 
 namespace olive {
 
-void PlaybackCache::Invalidate(const TimeRange &r, qint64 job_time)
+void PlaybackCache::Invalidate(const TimeRange &r)
 {
   if (r.in() == r.out()) {
     qWarning() << "Tried to invalidate zero-length range";
@@ -37,7 +37,7 @@ void PlaybackCache::Invalidate(const TimeRange &r, qint64 job_time)
   invalidated_.insert(r);
 
   RemoveRangeFromJobs(r);
-  jobs_.append({r, job_time});
+  jobs_.append({r, JobTime()});
 
   InvalidateEvent(r);
 
@@ -50,7 +50,7 @@ void PlaybackCache::InvalidateAll()
     return;
   }
 
-  Invalidate(TimeRange(0, length_), 0);
+  Invalidate(TimeRange(0, length_));
 }
 
 void PlaybackCache::SetLength(const rational &r)
@@ -70,7 +70,7 @@ void PlaybackCache::SetLength(const rational &r)
   } else if (r > length_) {
     // If new length is greater, simply extend the invalidated range for now
     invalidated_.insert(range_diff);
-    jobs_.append({range_diff, 0});
+    jobs_.append({range_diff, JobTime()});
   } else {
     // If new length is smaller, removed hashes
     invalidated_.remove(range_diff);
@@ -105,8 +105,6 @@ void PlaybackCache::Shift(rational from, rational to)
     }
   }
 
-  qDebug() << "FIXME: 0 job time may cause cache desyncs";
-
   // An region between `from` and `to` will be inserted or spliced out
   TimeRangeList ranges_to_shift = invalidated_.Intersects(TimeRange(from, RATIONAL_MAX));
 
@@ -119,7 +117,7 @@ void PlaybackCache::Shift(rational from, rational to)
   // (`diff` is POSITIVE when moving forward -> and NEGATIVE when moving backward <-)
   rational diff = to - from;
   foreach (const TimeRange& r, ranges_to_shift) {
-    Invalidate(r + diff, 0);
+    Invalidate(r + diff);
   }
 
   ShiftEvent(from, to);
@@ -128,7 +126,7 @@ void PlaybackCache::Shift(rational from, rational to)
 
   if (diff > 0) {
     // If shifting forward, add this section to the invalidated region
-    Invalidate(TimeRange(from, to), 0);
+    Invalidate(TimeRange(from, to));
   }
 
   // Emit signals

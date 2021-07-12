@@ -80,7 +80,7 @@ public:
   void ClearVideoDownloadQueue(bool wait = false);
 
 private:
-  static void GenerateHashes(ViewerOutput *viewer, FrameHashCache *cache, TimeRangeListFrameIterator times, qint64 job_time);
+  static void GenerateHashes(ViewerOutput *viewer, FrameHashCache *cache, TimeRangeListFrameIterator times, JobTime job_time);
 
   void TryRender();
 
@@ -161,7 +161,7 @@ private:
   QMap<RenderTicketWatcher*, QByteArray> video_download_tasks_;
   QMap<RenderTicketWatcher*, QVector<RenderTicketPtr> > video_immediate_passthroughs_;
 
-  qint64 last_update_time_;
+  JobTime last_update_time_;
 
   bool ignore_next_mouse_button_;
 
@@ -169,7 +169,7 @@ private:
 
   TimeRangeList audio_needing_conform_;
 
-  qint64 last_conform_task_;
+  JobTime last_conform_task_;
 
 private slots:
   /**

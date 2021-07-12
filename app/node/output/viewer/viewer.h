@@ -66,7 +66,7 @@ public:
   void ShiftAudioCache(const rational& from, const rational& to);
   void ShiftCache(const rational& from, const rational& to);
 
-  virtual void InvalidateCache(const TimeRange& range, const QString& from, int element, qint64 job_time) override;
+  virtual void InvalidateCache(const TimeRange& range, const QString& from, int element) override;
 
   virtual QVector<QString> inputs_for_output(const QString& output) const override;
 

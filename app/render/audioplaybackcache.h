@@ -66,11 +66,11 @@ public:
 
   void SetParameters(const AudioParams& params);
 
-  void WritePCM(const TimeRange &range, SampleBufferPtr samples, const AudioVisualWaveform *waveform, const qint64& job_time);
+  void WritePCM(const TimeRange &range, SampleBufferPtr samples, const AudioVisualWaveform *waveform, const JobTime& job_time);
 
-  void WriteSilence(const TimeRange &range, qint64 job_time);
+  void WriteSilence(const TimeRange &range, JobTime job_time);
 
-  QList<TimeRange> GetValidRanges(const TimeRange &range, const qint64 &job_time);
+  QList<TimeRange> GetValidRanges(const TimeRange &range, const JobTime &job_time);
 
   class Segment
   {

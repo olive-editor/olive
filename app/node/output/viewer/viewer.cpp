@@ -222,7 +222,7 @@ void ViewerOutput::ShiftCache(const rational &from, const rational &to)
   ShiftAudioCache(from, to);
 }
 
-void ViewerOutput::InvalidateCache(const TimeRange& range, const QString& from, int element, qint64 job_time)
+void ViewerOutput::InvalidateCache(const TimeRange& range, const QString& from, int element)
 {
   Q_UNUSED(element)
 
@@ -233,16 +233,16 @@ void ViewerOutput::InvalidateCache(const TimeRange& range, const QString& from, 
 
     if (invalidated_range.in() != invalidated_range.out()) {
       if (from == kTextureInput || from == kVideoParamsInput) {
-        video_frame_cache_.Invalidate(invalidated_range, job_time);
+        video_frame_cache_.Invalidate(invalidated_range);
       } else {
-        audio_playback_cache_.Invalidate(invalidated_range, job_time);
+        audio_playback_cache_.Invalidate(invalidated_range);
       }
     }
   }
 
   VerifyLength();
 
-  super::InvalidateCache(range, from, element, job_time);
+  super::InvalidateCache(range, from, element);
 }
 
 QVector<QString> ViewerOutput::inputs_for_output(const QString &output) const

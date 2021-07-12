@@ -38,14 +38,14 @@ class RenderTicket : public QObject
 public:
   RenderTicket();
 
-  qint64 GetJobTime() const
+  JobTime GetJobTime() const
   {
     return job_time_;
   }
 
   void SetJobTime()
   {
-    job_time_ = QDateTime::currentMSecsSinceEpoch();
+    job_time_.Acquire();
   }
 
   /**
@@ -137,7 +137,7 @@ private:
 
   QWaitCondition wait_;
 
-  qint64 job_time_;
+  JobTime job_time_;
 
 };
 

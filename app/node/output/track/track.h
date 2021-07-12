@@ -286,7 +286,7 @@ public:
     return blocks_;
   }
 
-  virtual void InvalidateCache(const TimeRange& range, const QString& from, int element, qint64 job_time) override;
+  virtual void InvalidateCache(const TimeRange& range, const QString& from, int element) override;
 
   /**
    * @brief Adds Block `block` at the very beginning of the Sequence before all other clips

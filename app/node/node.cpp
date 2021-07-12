@@ -46,7 +46,6 @@ const QString Node::kDefaultOutput = QStringLiteral("output");
 Node::Node(bool create_default_output) :
   can_be_deleted_(true),
   override_color_(-1),
-  last_change_time_(0),
   folder_(nullptr),
   operation_stack_(0),
   cache_result_(false)
@@ -263,9 +262,6 @@ void Node::ConnectEdge(const NodeOutput &output, const NodeInput &input)
   input.node()->input_connections_[input] = output;
   output.node()->output_connections_.push_back(std::pair<NodeOutput, NodeInput>({output, input}));
 
-  // Update change times
-  input.node()->UpdateLastChangedTime();
-
   // Call internal events
   input.node()->InputConnectedEvent(input.input(), input.element(), output);
   output.node()->OutputConnectedEvent(output.output(), input);
@@ -294,9 +290,6 @@ void Node::DisconnectEdge(const NodeOutput &output, const NodeInput &input)
 
   OutputConnections& outputs = output.node()->output_connections_;
   outputs.erase(std::find(outputs.begin(), outputs.end(), std::pair<NodeOutput, NodeInput>({output, input})));
-
-  // Update change times
-  input.node()->UpdateLastChangedTime();
 
   // Call internal events
   input.node()->InputDisconnectedEvent(input.input(), input.element(), output);
@@ -1026,12 +1019,12 @@ NodeValueTable Node::Value(const QString& output, NodeValueDatabase &value) cons
   return value.Merge();
 }
 
-void Node::InvalidateCache(const TimeRange &range, const QString &from, int element, qint64 job_time)
+void Node::InvalidateCache(const TimeRange &range, const QString &from, int element)
 {
   Q_UNUSED(from)
   Q_UNUSED(element)
 
-  SendInvalidateCache(range, job_time);
+  SendInvalidateCache(range);
 }
 
 void Node::BeginOperation()
@@ -1180,14 +1173,14 @@ Node *Node::CopyNodeInGraph(const Node *node, MultiUndoCommand *command)
   return copy;
 }
 
-void Node::SendInvalidateCache(const TimeRange &range, qint64 job_time)
+void Node::SendInvalidateCache(const TimeRange &range)
 {
   if (GetOperationStack() == 0) {
     for (const OutputConnection& conn : output_connections_) {
       // Send clear cache signal to the Node
       const NodeInput& in = conn.second;
 
-      in.node()->InvalidateCache(range, in.input(), in.element(), job_time);
+      in.node()->InvalidateCache(range, in.input(), in.element());
     }
   }
 }
@@ -1826,8 +1819,6 @@ QVariant Node::PtrToValue(void *ptr)
 
 void Node::ParameterValueChanged(const QString& input, int element, const TimeRange& range)
 {
-  UpdateLastChangedTime();
-
   InputValueChangedEvent(input, element);
 
   emit ValueChanged(NodeInput(this, input, element), range);
@@ -2017,11 +2008,6 @@ void Node::SaveImmediate(QXmlStreamWriter *writer, const QString& input, int ele
     writer->writeTextElement(QStringLiteral("csview"), GetInputProperty(input, QStringLiteral("col_view")).toString());
     writer->writeTextElement(QStringLiteral("cslook"), GetInputProperty(input, QStringLiteral("col_look")).toString());
   }
-}
-
-void Node::UpdateLastChangedTime()
-{
-  last_change_time_ = QDateTime::currentMSecsSinceEpoch();
 }
 
 TimeRange Node::GetRangeAffectedByKeyframe(NodeKeyframe *key) const

@@ -15,9 +15,7 @@ PreviewAutoCacher::PreviewAutoCacher() :
   has_changed_(false),
   use_custom_range_(false),
   single_frame_render_(nullptr),
-  last_update_time_(0),
-  ignore_next_mouse_button_(false),
-  last_conform_task_(0)
+  ignore_next_mouse_button_(false)
 {
   paused_ = !Config::Current()[QStringLiteral("AutoCacheEnabled")].toBool(),
 
@@ -63,7 +61,7 @@ void PreviewAutoCacher::SetPaused(bool paused)
   paused_ = paused;
 }
 
-void GenerateHashesInternal(ViewerOutput *viewer, FrameHashCache* cache, const QVector<rational> &times, qint64 job_time)
+void GenerateHashesInternal(ViewerOutput *viewer, FrameHashCache* cache, const QVector<rational> &times, JobTime job_time)
 {
   std::vector<QByteArray> existing_hashes;
 
@@ -86,12 +84,12 @@ void GenerateHashesInternal(ViewerOutput *viewer, FrameHashCache* cache, const Q
     QMetaObject::invokeMethod(cache, "SetHash", Qt::QueuedConnection,
                               OLIVE_NS_ARG(rational, time),
                               Q_ARG(QByteArray, hash),
-                              Q_ARG(qint64, job_time),
+                              OLIVE_NS_ARG(JobTime, job_time),
                               Q_ARG(bool, hash_exists));
   }
 }
 
-void PreviewAutoCacher::GenerateHashes(ViewerOutput *viewer, FrameHashCache* cache, TimeRangeListFrameIterator iterator, qint64 job_time)
+void PreviewAutoCacher::GenerateHashes(ViewerOutput *viewer, FrameHashCache* cache, TimeRangeListFrameIterator iterator, JobTime job_time)
 {
   QVector<rational> times = iterator.ToVector();
 
@@ -185,7 +183,7 @@ void PreviewAutoCacher::AudioRendered()
       if (watcher->GetTicket()->property("incomplete").toBool()) {
         if (last_conform_task_ > watcher->GetTicket()->GetJobTime()) {
           // Requeue now
-          viewer_node_->audio_playback_cache()->Invalidate(range, QDateTime::currentMSecsSinceEpoch());
+          viewer_node_->audio_playback_cache()->Invalidate(range);
           pcm_is_usable = false;
         } else {
           // Wait for conform
@@ -398,7 +396,7 @@ void PreviewAutoCacher::InsertIntoCopyMap(Node *node, Node *copy)
 
 void PreviewAutoCacher::UpdateLastSyncedValue()
 {
-  last_update_time_ = QDateTime::currentMSecsSinceEpoch();
+  last_update_time_.Acquire();
 }
 
 void PreviewAutoCacher::CancelQueuedSingleFrameRender()
@@ -613,11 +611,11 @@ void PreviewAutoCacher::RequeueFrames()
 
 void PreviewAutoCacher::ConformFinished()
 {
-  last_conform_task_ = QDateTime::currentMSecsSinceEpoch();
+  last_conform_task_.Acquire();
 
   if (viewer_node_) {
     foreach (const TimeRange &range, audio_needing_conform_) {
-      viewer_node_->audio_playback_cache()->Invalidate(range, QDateTime::currentMSecsSinceEpoch());
+      viewer_node_->audio_playback_cache()->Invalidate(range);
     }
     audio_needing_conform_.clear();
   }

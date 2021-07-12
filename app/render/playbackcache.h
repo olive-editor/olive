@@ -24,6 +24,7 @@
 #include <QMutex>
 #include <QObject>
 
+#include "common/jobtime.h"
 #include "common/timerange.h"
 
 namespace olive {
@@ -63,7 +64,7 @@ public:
   QString GetCacheDirectory() const;
 
 public slots:
-  void Invalidate(const TimeRange& r, qint64 job_time);
+  void Invalidate(const TimeRange& r);
 
   void InvalidateAll();
 
@@ -93,7 +94,7 @@ protected:
 
   struct JobIdentifier {
     TimeRange range;
-    qint64 job_time;
+    JobTime job_time;
   };
 
   QList<JobIdentifier> jobs_;

@@ -431,7 +431,7 @@ QVector<Block *> Track::BlocksAtTimeRange(const TimeRange &range) const
   return list;
 }
 
-void Track::InvalidateCache(const TimeRange& range, const QString& from, int element, qint64 job_time)
+void Track::InvalidateCache(const TimeRange& range, const QString& from, int element)
 {
   if (GetOperationStack() != 0) {
     return;
@@ -455,7 +455,7 @@ void Track::InvalidateCache(const TimeRange& range, const QString& from, int ele
     preop_track_length_ = track_length_;
   }
 
-  Node::InvalidateCache(limited, from, element, job_time);
+  Node::InvalidateCache(limited, from, element);
 }
 
 void Track::InsertBlockBefore(Block* block, Block* after)

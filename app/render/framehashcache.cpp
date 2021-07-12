@@ -65,7 +65,7 @@ QByteArray FrameHashCache::GetHash(const rational &time)
   return GetHash(ToTimestamp(time));
 }
 
-void FrameHashCache::SetHash(const rational &time, const QByteArray &hash, const qint64& job_time, bool frame_exists)
+void FrameHashCache::SetHash(const rational &time, const QByteArray &hash, const JobTime& job_time, bool frame_exists)
 {
   for (int i=jobs_.size()-1; i>=0; i--) {
     const JobIdentifier& job = jobs_.at(i);
@@ -328,7 +328,7 @@ void FrameHashCache::HashDeleted(const QString& s, const QByteArray &hash)
   foreach (const TimeRange& range, ranges_to_invalidate) {
     // We set job time to 0 because the nodes haven't changed and any render job should be up
     // to date
-    Invalidate(range, 0);
+    Invalidate(range);
   }
 }
 

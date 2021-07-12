@@ -52,7 +52,6 @@ const int kMaxPreQueueSize = 8;
 ViewerWidget::ViewerWidget(QWidget *parent) :
   super(false, true, parent),
   playback_speed_(0),
-  frame_cache_job_time_(0),
   color_menu_enabled_(true),
   time_changed_from_timer_(false),
   prequeuing_(false),

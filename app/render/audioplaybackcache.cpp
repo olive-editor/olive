@@ -56,7 +56,7 @@ void AudioPlaybackCache::SetParameters(const AudioParams &params)
   emit ParametersChanged();
 }
 
-void AudioPlaybackCache::WritePCM(const TimeRange &range, SampleBufferPtr samples, const AudioVisualWaveform *waveform, const qint64 &job_time)
+void AudioPlaybackCache::WritePCM(const TimeRange &range, SampleBufferPtr samples, const AudioVisualWaveform *waveform, const JobTime &job_time)
 {
   QList<TimeRange> valid_ranges = GetValidRanges(range, job_time);
   if (valid_ranges.isEmpty()) {
@@ -154,7 +154,7 @@ void AudioPlaybackCache::WritePCM(const TimeRange &range, SampleBufferPtr sample
   }
 }
 
-void AudioPlaybackCache::WriteSilence(const TimeRange &range, qint64 job_time)
+void AudioPlaybackCache::WriteSilence(const TimeRange &range, JobTime job_time)
 {
   // WritePCM will automatically fill non-existent bytes with silence, so we just have to send
   // it an empty sample buffer
@@ -391,7 +391,7 @@ void AudioPlaybackCache::UpdateOffsetsFrom(int index)
   }
 }
 
-QList<TimeRange> AudioPlaybackCache::GetValidRanges(const TimeRange& range, const qint64& job_time)
+QList<TimeRange> AudioPlaybackCache::GetValidRanges(const TimeRange& range, const JobTime& job_time)
 {
   QList<TimeRange> valid_ranges;
 

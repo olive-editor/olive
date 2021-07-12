@@ -68,7 +68,7 @@ public:
   static FramePtr LoadCacheFrame(const QString& fn);
 
 public slots:
-  void SetHash(const olive::rational &time, const QByteArray& hash, const qint64 &job_time, bool frame_exists);
+  void SetHash(const olive::rational &time, const QByteArray& hash, const olive::JobTime &job_time, bool frame_exists);
 
 protected:
   virtual void LengthChangedEvent(const rational& old, const rational& newlen) override;

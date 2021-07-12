@@ -55,8 +55,6 @@ bool RenderTask::Render(ColorManager* manager,
   double total_length = 0;
 
   // Store real time before any rendering takes place
-  qint64 job_time = QDateTime::currentMSecsSinceEpoch();
-
   // Queue audio jobs
   foreach (const TimeRange& range, audio_range) {
     // Don't count audio progress, since it's generally a lot faster than video and is weighted at
@@ -193,9 +191,7 @@ bool RenderTask::Render(ColorManager* manager,
 
         TimeRange range = watcher->property("range").value<TimeRange>();
 
-        AudioDownloaded(range,
-                        watcher->Get().value<SampleBufferPtr>(),
-                        job_time);
+        AudioDownloaded(range, watcher->Get().value<SampleBufferPtr>());
 
         // Don't count audio progress, since it's generally a lot faster than video and is weighted at
         // 50%, which makes the progress bar look weird to the uninitiated
@@ -217,7 +213,7 @@ bool RenderTask::Render(ColorManager* manager,
 
         // Assume single-step video or video download ticket
         QByteArray rendered_hash = watcher->property("hash").toByteArray();
-        FrameDownloaded(watcher->Get().value<FramePtr>(), rendered_hash, time_map.value(rendered_hash), job_time);
+        FrameDownloaded(watcher->Get().value<FramePtr>(), rendered_hash, time_map.value(rendered_hash));
 
         if (native_progress_signalling_) {
           double progress_to_add = 1.0;

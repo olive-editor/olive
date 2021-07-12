@@ -215,8 +215,6 @@ private:
 
   QAtomicInt playback_speed_;
 
-  qint64 frame_cache_job_time_;
-
   int64_t last_time_;
 
   bool color_menu_enabled_;

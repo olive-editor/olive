@@ -74,7 +74,7 @@ bool PreCacheTask::Run()
   return true;
 }
 
-void PreCacheTask::FrameDownloaded(FramePtr frame, const QByteArray &hash, const QVector<rational> &times, qint64 job_time)
+void PreCacheTask::FrameDownloaded(FramePtr frame, const QByteArray &hash, const QVector<rational> &times)
 {
   // Do nothing. Pre-cache essentially just creates more frames in the cache, it doesn't need to do
   // anything else.
@@ -82,16 +82,14 @@ void PreCacheTask::FrameDownloaded(FramePtr frame, const QByteArray &hash, const
   Q_UNUSED(frame)
   Q_UNUSED(hash)
   Q_UNUSED(times)
-  Q_UNUSED(job_time)
 }
 
-void PreCacheTask::AudioDownloaded(const TimeRange &range, SampleBufferPtr samples, qint64 job_time)
+void PreCacheTask::AudioDownloaded(const TimeRange &range, SampleBufferPtr samples)
 {
   // Pre-cache doesn't cache any audio
 
   Q_UNUSED(range)
   Q_UNUSED(samples)
-  Q_UNUSED(job_time)
 }
 
 }

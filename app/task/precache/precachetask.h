@@ -38,9 +38,9 @@ public:
 protected:
   virtual bool Run() override;
 
-  virtual void FrameDownloaded(FramePtr frame, const QByteArray& hash, const QVector<rational>& times, qint64 job_time) override;
+  virtual void FrameDownloaded(FramePtr frame, const QByteArray& hash, const QVector<rational>& times) override;
 
-  virtual void AudioDownloaded(const TimeRange& range, SampleBufferPtr samples, qint64 job_time) override;
+  virtual void AudioDownloaded(const TimeRange& range, SampleBufferPtr samples) override;
 
 private:
   Project* project_;
