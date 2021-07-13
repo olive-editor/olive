@@ -90,7 +90,7 @@ void ColorProcessor::ConvertFrame(Frame *f)
   OCIO::PackedImageDesc img(f->data(),
                             f->width(),
                             f->height(),
-                            VideoParams::kRGBAChannelCount,
+                            f->channel_count(),
                             ocio_bit_depth,
                             OCIO::AutoStride,
                             OCIO::AutoStride,
