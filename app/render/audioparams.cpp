@@ -54,13 +54,6 @@ const QVector<uint64_t> AudioParams::kSupportedChannelLayouts = {
 
 const AudioParams::Format AudioParams::kInternalFormat = AudioParams::kFormatFloat32;
 
-qint64 AudioParams::time_to_bytes(const double &time) const
-{
-  Q_ASSERT(is_valid());
-
-  return qint64(time_to_samples(time)) * channel_count() * bytes_per_sample_per_channel();
-}
-
 bool AudioParams::operator==(const AudioParams &other) const
 {
   return (format() == other.format()
@@ -94,9 +87,26 @@ QAudioFormat::SampleType AudioParams::GetQtSampleType(AudioParams::Format format
   return QAudioFormat::Unknown;
 }
 
+qint64 AudioParams::time_to_bytes(const double &time) const
+{
+  return time_to_bytes_per_channel(time) * channel_count();
+}
+
 qint64 AudioParams::time_to_bytes(const rational &time) const
 {
   return time_to_bytes(time.toDouble());
+}
+
+qint64 AudioParams::time_to_bytes_per_channel(const double &time) const
+{
+  Q_ASSERT(is_valid());
+
+  return qint64(time_to_samples(time)) * bytes_per_sample_per_channel();
+}
+
+qint64 AudioParams::time_to_bytes_per_channel(const rational &time) const
+{
+  return time_to_bytes_per_channel(time.toDouble());
 }
 
 qint64 AudioParams::time_to_samples(const double &time) const
@@ -137,6 +147,13 @@ rational AudioParams::bytes_to_time(const qint64 &bytes) const
   Q_ASSERT(is_valid());
 
   return samples_to_time(bytes_to_samples(bytes));
+}
+
+rational AudioParams::bytes_per_channel_to_time(const qint64 &bytes) const
+{
+  Q_ASSERT(is_valid());
+
+  return samples_to_time(bytes_to_samples(bytes * channel_count()));
 }
 
 int AudioParams::channel_count() const
