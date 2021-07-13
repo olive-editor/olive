@@ -102,7 +102,7 @@ void AudioManager::StartOutput(AudioPlaybackCache *cache, qint64 offset, int pla
   // Move to output manager's thread
   device->moveToThread(&output_thread_);
 
-  // Queue to output manger in other thread
+  // Queue to output manager in other thread
   QMetaObject::invokeMethod(output_manager_,
                             "PullFromDevice",
                             Qt::QueuedConnection,
