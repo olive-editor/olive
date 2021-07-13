@@ -309,7 +309,7 @@ bool rational::operator<(const rational &rhs) const
 
   if (rhs == RATIONAL_MAX
       || *this == RATIONAL_MIN) {
-    // We will always wither be LESS THAN (true) or EQUAL (false)
+    // We will always either be LESS THAN (true) or EQUAL (false)
     return (*this != rhs);
   }
 
@@ -342,7 +342,7 @@ bool rational::operator<=(const rational &rhs) const
 
   if (rhs == RATIONAL_MAX
       || *this == RATIONAL_MIN) {
-    // We will always wither be LESS THAN (true) or EQUAL (true)
+    // We will always either be LESS THAN (true) or EQUAL (true)
     return true;
   }
 

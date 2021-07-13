@@ -29,7 +29,7 @@
 /**
  * @brief Command-line argument parser
  *
- * You may be wondering why we don't use QCommandLineParser instead of a custom implmentation like
+ * You may be wondering why we don't use QCommandLineParser instead of a custom implementation like
  * this. The reason why is because QCommandLineParser requires a QApplication object of some kind
  * to already have been created before it can parse anything, but we need to be able to control
  * whether a QApplication (GUI-mode) or a QCoreApplication (CLI-mode) is created which is set by

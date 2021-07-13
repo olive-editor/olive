@@ -6,7 +6,7 @@
 #
 # Uses { command } & pattern for parallelism https://gist.github.com/thenadz/6c0584d42fb007582fbc
 #
-# TOOD: Use advanced options such as LTO? e.g. https://code.videolan.org/videolan/x264/-/blob/master/configure
+# TODO: Use advanced options such as LTO? e.g. https://code.videolan.org/videolan/x264/-/blob/master/configure
 # TODO: Enable debug symbols? (Or is it opt-out?)
 # TODO: Add more ffmpeg libraries? See https://raw.githubusercontent.com/jrottenberg/ffmpeg/master/docker-images/4.2/centos7/Dockerfile
 

@@ -80,7 +80,7 @@ add_library(libolive-editor
 # Remove prefix - prevents CMake calling it "liblibolive-editor"
 set_target_properties(libolive-editor PROPERTIES PREFIX "")
 
-# Add applicaton
+# Add application
 add_executable(olive-editor
   main.cpp
   $<TARGET_OBJECTS:libolive-editor>
