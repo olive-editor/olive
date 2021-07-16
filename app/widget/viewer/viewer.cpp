@@ -452,7 +452,7 @@ void ViewerWidget::StartAudioOutput()
   if (audio_cache->GetParameters().is_valid()) {
     AudioManager::instance()->SetOutputParams(audio_cache->GetParameters());
     AudioManager::instance()->StartOutput(audio_cache,
-                                          audio_cache->GetParameters().time_to_bytes(GetTime()),
+                                          audio_cache->GetParameters().time_to_bytes_per_channel(GetTime()),
                                           playback_speed_);
     emit AudioManager::instance()->OutputWaveformStarted(&audio_cache->visual(),
                                                          GetTime(), playback_speed_);
@@ -644,7 +644,7 @@ void ViewerWidget::PushScrubbedAudio()
         int size_of_sample = params.time_to_bytes(rational(20, 1000));
 
         // Push audio
-        audio_src->seek(params.time_to_bytes(GetTime()));
+        audio_src->seek(params.time_to_bytes_per_channel(GetTime()));
         QByteArray frame_audio = audio_src->read(size_of_sample);
         AudioManager::instance()->SetOutputParams(params);
         AudioManager::instance()->PushToOutput(frame_audio);
