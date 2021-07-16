@@ -688,9 +688,9 @@ public:
   static QVector<Node*> CopyDependencyGraph(const QVector<Node*>& nodes, MultiUndoCommand *command);
   static void CopyDependencyGraph(const QVector<Node*>& src, const QVector<Node*>& dst, MultiUndoCommand *command);
 
-  static Node* CopyNodeAndDependencyGraphMinusItems(const Node* node, MultiUndoCommand* command);
+  static Node* CopyNodeAndDependencyGraphMinusItems(Node* node, MultiUndoCommand* command);
 
-  static Node* CopyNodeInGraph(const Node* node, MultiUndoCommand* command);
+  static Node* CopyNodeInGraph(Node *node, MultiUndoCommand* command);
 
   /**
    * @brief Return whether this Node can be deleted or not
@@ -1125,7 +1125,7 @@ private:
 
   void ArrayResizeInternal(const QString& id, int size);
 
-  static Node *CopyNodeAndDependencyGraphMinusItemsInternal(QMap<const Node*, Node*>& created, const Node *node, MultiUndoCommand *command);
+  static Node *CopyNodeAndDependencyGraphMinusItemsInternal(QMap<Node *, Node *> &created, Node *node, MultiUndoCommand *command);
 
   /**
    * @brief Immediates aren't deleted, so the actual array size may be larger than ArraySize()

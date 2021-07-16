@@ -1108,7 +1108,7 @@ void Node::CopyDependencyGraph(const QVector<Node *> &src, const QVector<Node *>
   }
 }
 
-Node *Node::CopyNodeAndDependencyGraphMinusItemsInternal(QMap<const Node*, Node*>& created, const Node *node, MultiUndoCommand *command)
+Node *Node::CopyNodeAndDependencyGraphMinusItemsInternal(QMap<Node*, Node*>& created, Node *node, MultiUndoCommand *command)
 {
   // Make a new node of the same type
   Node* copy = node->copy();
@@ -1148,34 +1148,23 @@ Node *Node::CopyNodeAndDependencyGraphMinusItemsInternal(QMap<const Node*, Node*
   if (node->parent()->GetPositionMap().contains(node)) {
     // This node is a context, copy the context
     const NodeGraph::PositionMap &map = node->parent()->GetPositionMap().value(node);
-
-    command->add_child(new NodeSetPositionCommand(copy, copy, map.value(node), false);
-
     for (auto it=map.cbegin(); it!=map.cend(); it++) {
-      Node *context_child = it.key();
-
-      // See if we created a copy of this
-      Node *context_child_copy = created.value(context_child, nullptr);
-
-      // Add to the context
-      command->add_child(new NodeSetPositionCommand(context_child_copy ? context_child_copy : context_child,
-                                                    copy,
-                                                    it.value(),
-                                                    false));
+      // Add either the copy (if it exists) or the original node to the context
+      command->add_child(new NodeSetPositionCommand(created.value(it.key(), it.key()), copy, it.value(), false));
     }
   }
 
   return copy;
 }
 
-Node *Node::CopyNodeAndDependencyGraphMinusItems(const Node *node, MultiUndoCommand *command)
+Node *Node::CopyNodeAndDependencyGraphMinusItems(Node *node, MultiUndoCommand *command)
 {
-  QMap<const Node*, Node*> created;
+  QMap<Node*, Node*> created;
 
   return CopyNodeAndDependencyGraphMinusItemsInternal(created, node, command);
 }
 
-Node *Node::CopyNodeInGraph(const Node *node, MultiUndoCommand *command)
+Node *Node::CopyNodeInGraph(Node *node, MultiUndoCommand *command)
 {
   Node* copy;
 
@@ -1188,6 +1177,15 @@ Node *Node::CopyNodeInGraph(const Node *node, MultiUndoCommand *command)
                                           copy));
 
     command->add_child(new NodeCopyInputsCommand(node, copy, true));
+
+    if (node->parent()->GetPositionMap().contains(node)) {
+      // This node is a context, copy the context
+      const NodeGraph::PositionMap &map = node->parent()->GetPositionMap().value(node);
+      for (auto it=map.cbegin(); it!=map.cend(); it++) {
+        // Add to the context
+        command->add_child(new NodeSetPositionCommand(it.key(), copy, it.value(), false));
+      }
+    }
   }
 
   return copy;
