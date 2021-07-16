@@ -82,7 +82,8 @@ Core::Core(const CoreParams& params) :
   tool_(Tool::kPointer),
   addable_object_(Tool::kAddableEmpty),
   snapping_(true),
-  core_params_(params)
+  core_params_(params),
+  effects_slider_is_being_dragged_(false)
 {
   // Store reference to this object, making the assumption that Core will only ever be made in
   // main(). This will obviously break if not.

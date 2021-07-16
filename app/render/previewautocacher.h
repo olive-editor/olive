@@ -35,16 +35,6 @@ public:
   void SetViewerNode(ViewerOutput *viewer_node);
 
   /**
-   * @brief If the mouse is held during the next cache invalidation, cache anyway
-   *
-   * By default, PreviewAutoCacher ignores invalidations that occur while the mouse is held down,
-   * assuming that if the mouse is held, the user is dragging something. If you know the mouse will
-   * be held during a certain action and want PreviewAutoCacher to cache anyway, call this before
-   * the cache invalidates.
-   */
-  void IgnoreNextMouseButton();
-
-  /**
    * @brief Returns whether the auto-cache is currently paused or not
    */
   bool IsPaused() const
@@ -174,8 +164,6 @@ private:
 
   JobTime graph_changed_time_;
   JobTime last_update_time_;
-
-  bool ignore_next_mouse_button_;
 
   QTimer delayed_requeue_timer_;
 

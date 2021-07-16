@@ -4,6 +4,7 @@
 #include <QtConcurrent/QtConcurrent>
 
 #include "codec/conformmanager.h"
+#include "core.h"
 #include "node/project/project.h"
 #include "render/rendermanager.h"
 #include "render/renderprocessor.h"
@@ -14,12 +15,11 @@ PreviewAutoCacher::PreviewAutoCacher() :
   viewer_node_(nullptr),
   has_changed_(false),
   use_custom_range_(false),
-  single_frame_render_(nullptr),
-  ignore_next_mouse_button_(false)
+  single_frame_render_(nullptr)
 {
   paused_ = !Config::Current()[QStringLiteral("AutoCacheEnabled")].toBool(),
 
-      SetPlayhead(0);
+  SetPlayhead(0);
 
   delayed_requeue_timer_.setInterval(Config::Current()[QStringLiteral("AutoCacheDelay")].toInt());
   delayed_requeue_timer_.setSingleShot(true);
@@ -96,9 +96,7 @@ void PreviewAutoCacher::VideoInvalidated(const TimeRange &range)
   ClearVideoQueue();
 
   // Hash these frames since that should be relatively quick.
-  if (ignore_next_mouse_button_ || !(qApp->mouseButtons() & Qt::LeftButton)) {
-    ignore_next_mouse_button_ = false;
-
+  if (!Core::instance()->EffectsSliderIsBeingDragged()) {
     invalidated_video_.insert(range);
     video_job_tracker_.insert(range, graph_changed_time_);
 
@@ -563,7 +561,7 @@ void PreviewAutoCacher::RequeueFrames()
   delayed_requeue_timer_.stop();
 
   if (viewer_node_
-      && viewer_node_->video_frame_cache()->HasInvalidatedRanges()
+      && viewer_node_->video_frame_cache()->HasInvalidatedRanges(viewer_node_->GetVideoLength())
       && hash_tasks_.isEmpty()
       && has_changed_
       && VideoParams::FormatIsFloat(viewer_node_->GetVideoParams().format())
@@ -577,7 +575,7 @@ void PreviewAutoCacher::RequeueFrames()
       using_range = cache_range_;
     }
 
-    TimeRangeList invalidated = viewer_node_->video_frame_cache()->GetInvalidatedRanges().Intersects(using_range);
+    TimeRangeList invalidated = viewer_node_->video_frame_cache()->GetInvalidatedRanges(using_range);
     queued_frame_iterator_ = TimeRangeListFrameIterator(invalidated, viewer_node_->video_frame_cache()->GetTimebase());
 
     QueueNextFrameInRange(RenderManager::GetNumberOfIdealConcurrentJobs());
@@ -596,11 +594,6 @@ void PreviewAutoCacher::ConformFinished()
     }
     audio_needing_conform_.clear();
   }
-}
-
-void PreviewAutoCacher::IgnoreNextMouseButton()
-{
-  ignore_next_mouse_button_ = true;
 }
 
 void PreviewAutoCacher::ForceCacheRange(const TimeRange &range)
@@ -690,6 +683,8 @@ void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
 
     // Find copied viewer node
     copied_viewer_node_ = static_cast<ViewerOutput*>(copy_map_.value(viewer_node_));
+    copied_viewer_node_->SetViewerVideoCacheEnabled(false);
+    copied_viewer_node_->SetViewerAudioCacheEnabled(false);
     copied_color_manager_ = static_cast<ColorManager*>(copy_map_.value(viewer_node_->project()->color_manager()));
 
     // Add all connections
@@ -711,9 +706,9 @@ void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
     connect(graph, &NodeGraph::ValueChanged, this, &PreviewAutoCacher::ValueChanged);
 
     // Copy invalidated ranges - used to determine which frames need hashing
-    invalidated_video_ = viewer_node_->video_frame_cache()->GetInvalidatedRanges();
+    invalidated_video_ = viewer_node_->video_frame_cache()->GetInvalidatedRanges(viewer_node_->GetVideoLength());
     video_job_tracker_.insert(invalidated_video_, graph_changed_time_);
-    invalidated_audio_ = viewer_node_->audio_playback_cache()->GetInvalidatedRanges();
+    invalidated_audio_ = viewer_node_->audio_playback_cache()->GetInvalidatedRanges(viewer_node_->GetAudioLength());
     audio_job_tracker_.insert(invalidated_audio_, graph_changed_time_);
 
     connect(viewer_node_->video_frame_cache(),

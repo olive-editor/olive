@@ -304,6 +304,10 @@ public:
 
   void OpenNodeInViewer(ViewerOutput* viewer);
 
+  bool EffectsSliderIsBeingDragged() const {return effects_slider_is_being_dragged_;}
+
+  void SetEffectsSliderIsBeingDragged(bool e) {effects_slider_is_being_dragged_ = e;}
+
   static const uint kProjectVersion;
 
 public slots:
@@ -570,6 +574,11 @@ private:
    * @brief List of projects that are unsaved but have autorecovery projects
    */
   QVector<QUuid> autorecovered_projects_;
+
+  /**
+   * @brief An effects slider somewhere is being dragged
+   */
+  bool effects_slider_is_being_dragged_;
 
 private slots:
   void SaveAutorecovery();
