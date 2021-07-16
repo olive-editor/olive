@@ -57,12 +57,17 @@ PreCacheTask::~PreCacheTask()
 bool PreCacheTask::Run()
 {
   // Get list of invalidated ranges
-  TimeRangeList video_range = viewer()->video_frame_cache()->GetInvalidatedRanges();
+  TimeRange intersection;
 
-  // If we're caching only in-out, limit the range to that
   if (footage_->GetTimelinePoints()->workarea()->enabled()) {
-    video_range = video_range.Intersects(footage_->GetTimelinePoints()->workarea()->range());
+    // If we're caching only in-out, limit the range to that
+    intersection = footage_->GetTimelinePoints()->workarea()->range();
+  } else {
+    // Otherwise use full length
+    intersection = TimeRange(0, footage_->GetVideoLength());
   }
+
+  TimeRangeList video_range = viewer()->video_frame_cache()->GetInvalidatedRanges(intersection);
 
   Render(project_->color_manager(),
          video_range,

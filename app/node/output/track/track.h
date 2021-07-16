@@ -286,7 +286,7 @@ public:
     return blocks_;
   }
 
-  virtual void InvalidateCache(const TimeRange& range, const QString& from, int element) override;
+  virtual void InvalidateCache(const TimeRange& range, const QString& from, int element, InvalidateCacheOptions options) override;
 
   /**
    * @brief Adds Block `block` at the very beginning of the Sequence before all other clips
@@ -344,8 +344,6 @@ public:
   {
     return waveform_;
   }
-
-  virtual void EndOperation() override;
 
   static const double kTrackHeightDefault;
   static const double kTrackHeightMinimum;
@@ -420,7 +418,7 @@ private:
 
   int GetCacheIndexFromArrayIndex(int index) const;
 
-  void SetLengthInternal(const rational& r, bool invalidate = true);
+  void SetLengthInternal(const rational& r);
 
   TimeRangeList block_length_pending_invalidations_;
 
@@ -430,10 +428,6 @@ private:
   Track::Type track_type_;
 
   rational track_length_;
-
-  rational midop_track_length_;
-
-  rational preop_track_length_;
 
   double track_height_;
 

@@ -22,12 +22,15 @@
 
 #include <QDebug>
 
+#include "core.h"
 #include "node/output/track/track.h"
 #include "transition/transition.h"
 #include "widget/slider/floatslider.h"
 #include "widget/slider/rationalslider.h"
 
 namespace olive {
+
+#define super Node
 
 const QString Block::kLengthInput = QStringLiteral("length_in");
 const QString Block::kMediaInInput = QStringLiteral("media_in_in");
@@ -47,7 +50,6 @@ Block::Block() :
   SetInputProperty(kLengthInput, QStringLiteral("min"), QVariant::fromValue(rational(0, 1)));
   SetInputProperty(kLengthInput, QStringLiteral("view"), RationalSlider::kTime);
   SetInputProperty(kLengthInput, QStringLiteral("viewlock"), true);
-  IgnoreInvalidationsFrom(kLengthInput);
   IgnoreHashingFrom(kLengthInput);
 
   AddInput(kMediaInInput, NodeValue::kRational, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
@@ -221,7 +223,7 @@ void Block::set_length_internal(const rational &length)
 
 void Block::Retranslate()
 {
-  Node::Retranslate();
+  super::Retranslate();
 
   SetInputName(kLengthInput, tr("Length"));
   SetInputName(kMediaInInput, tr("Media In"));
@@ -233,6 +235,26 @@ void Block::Retranslate()
 void Block::Hash(const QString &, QCryptographicHash &, const rational &, const VideoParams &) const
 {
   // A block does nothing by default, so we hash nothing
+}
+
+void Block::InvalidateCache(const TimeRange& range, const QString& from, int element, InvalidateCacheOptions options)
+{
+  TimeRange r;
+
+  if (from == kLengthInput) {
+    // We must intercept the signal here
+    r = TimeRange(qMin(length(), last_length_), RATIONAL_MAX);
+
+    if (!Core::instance()->EffectsSliderIsBeingDragged()) {
+      last_length_ = length();
+    }
+
+    options.insert(QStringLiteral("lengthevent"), true);
+  } else {
+    r = range;
+  }
+
+  super::InvalidateCache(r, from, element, options);
 }
 
 }

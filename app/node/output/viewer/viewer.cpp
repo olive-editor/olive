@@ -222,7 +222,7 @@ void ViewerOutput::ShiftCache(const rational &from, const rational &to)
   ShiftAudioCache(from, to);
 }
 
-void ViewerOutput::InvalidateCache(const TimeRange& range, const QString& from, int element)
+void ViewerOutput::InvalidateCache(const TimeRange& range, const QString& from, int element, InvalidateCacheOptions options)
 {
   Q_UNUSED(element)
 
@@ -242,7 +242,7 @@ void ViewerOutput::InvalidateCache(const TimeRange& range, const QString& from, 
 
   VerifyLength();
 
-  super::InvalidateCache(range, from, element);
+  super::InvalidateCache(range, from, element, options);
 }
 
 QVector<QString> ViewerOutput::inputs_for_output(const QString &output) const
@@ -300,14 +300,8 @@ void ViewerOutput::Retranslate()
 void ViewerOutput::VerifyLength()
 {
   video_length_ = VerifyLengthInternal(Track::kVideo);
-  if (video_cache_enabled_) {
-    video_frame_cache_.SetLength(video_length_);
-  }
 
   audio_length_ = VerifyLengthInternal(Track::kAudio);
-  if (audio_cache_enabled_) {
-    audio_playback_cache_.SetLength(audio_length_);
-  }
 
   rational subtitle_length = VerifyLengthInternal(Track::kSubtitle);
 

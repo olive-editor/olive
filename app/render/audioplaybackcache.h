@@ -202,8 +202,6 @@ signals:
 protected:
   virtual void ShiftEvent(const rational& from, const rational& to) override;
 
-  virtual void LengthChangedEvent(const rational& old, const rational& newlen) override;
-
 private:
   static const qint64 kDefaultSegmentSizePerChannel;
 

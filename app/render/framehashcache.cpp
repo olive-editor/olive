@@ -92,7 +92,7 @@ void FrameHashCache::SetTimebase(const rational &tb)
 
 void FrameHashCache::ValidateFramesWithHash(const QByteArray &hash)
 {
-  const TimeRangeList& invalidated_ranges = GetInvalidatedRanges();
+  auto invalidated_ranges = GetInvalidatedRanges(ToTime(GetMapSize()));
 
   for (int64_t i=0; i<GetMapSize(); i++) {
     if (time_hash_map_[i] == hash) {
@@ -239,17 +239,6 @@ FramePtr FrameHashCache::LoadCacheFrame(const QString &fn)
   }
 
   return frame;
-}
-
-void FrameHashCache::LengthChangedEvent(const rational &old, const rational &newlen)
-{
-  if (newlen < old) {
-    // Determine length in frames by ceil-ing the time
-    int64_t new_ts_length = ToTimestamp(newlen, Timecode::kCeil);
-
-    // Resize vector to this length, which will discard all frames after it
-    time_hash_map_.resize(new_ts_length);
-  }
 }
 
 struct HashTimePair {

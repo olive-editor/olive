@@ -271,18 +271,16 @@ void TrackReplaceBlockWithGapCommand::redo()
 
   } else {
     // Block is at the end of the track, simply remove it
-
-    // Determine if it's proceeded by a gap, and remove that gap if so
     Block* preceding = block_->previous();
+    track_->RippleRemoveBlock(block_);
+
+    // Determine if it's preceded by a gap, and remove that gap if so
     if (dynamic_cast<GapBlock*>(preceding)) {
       track_->RippleRemoveBlock(preceding);
       preceding->setParent(&memory_manager_);
 
       existing_merged_gap_ = static_cast<GapBlock*>(preceding);
     }
-
-    // Remove block in question
-    track_->RippleRemoveBlock(block_);
   }
 }
 

@@ -41,8 +41,6 @@ const QString Track::kMutedInput = QStringLiteral("muted_in");
 Track::Track() :
   track_type_(Track::kNone),
   track_length_(0),
-  midop_track_length_(0),
-  preop_track_length_(0),
   index_(-1),
   locked_(false)
 {
@@ -431,7 +429,7 @@ QVector<Block *> Track::BlocksAtTimeRange(const TimeRange &range) const
   return list;
 }
 
-void Track::InvalidateCache(const TimeRange& range, const QString& from, int element)
+void Track::InvalidateCache(const TimeRange& range, const QString& from, int element, InvalidateCacheOptions options)
 {
   if (GetOperationStack() != 0) {
     return;
@@ -443,7 +441,8 @@ void Track::InvalidateCache(const TimeRange& range, const QString& from, int ele
 
   if (from == kBlockInput
       && element >= 0
-      && (b = dynamic_cast<const Block*>(GetConnectedOutput(from, element).node()))) {
+      && (b = dynamic_cast<const Block*>(GetConnectedOutput(from, element).node()))
+      && !options.value(QStringLiteral("lengthevent")).toBool()) {
     // Limit the range signal to the corresponding block
     if (range.out() <= b->in() || range.in() >= b->out()) {
       return;
@@ -451,11 +450,14 @@ void Track::InvalidateCache(const TimeRange& range, const QString& from, int ele
 
     limited = TimeRange(qMax(range.in(), b->in()), qMin(range.out(), b->out()));
   } else {
-    limited = TimeRange(qMax(range.in(), rational(0)), qMin(range.out(), qMax(preop_track_length_, track_length())));
-    preop_track_length_ = track_length_;
+    limited = range;
   }
 
-  Node::InvalidateCache(limited, from, element);
+  // NOTE: For now, I figure we drop this key, but we may find in the future that it's advantageous
+  //       to keep it
+  options.remove(QStringLiteral("lengthevent"));
+
+  Node::InvalidateCache(limited, from, element, options);
 }
 
 void Track::InsertBlockBefore(Block* block, Block* after)
@@ -600,15 +602,6 @@ void Track::Hash(const QString &output, QCryptographicHash &hash, const rational
   }
 }
 
-void Track::EndOperation()
-{
-  super::EndOperation();
-
-  if (track_length_ != midop_track_length_) {
-    SetLengthInternal(midop_track_length_);
-  }
-}
-
 void Track::SetMuted(bool e)
 {
   SetStandardValue(kMutedInput, e);
@@ -658,21 +651,10 @@ int Track::GetCacheIndexFromArrayIndex(int index) const
   return block_array_indexes_.indexOf(index);
 }
 
-void Track::SetLengthInternal(const rational &r, bool invalidate)
+void Track::SetLengthInternal(const rational &r)
 {
-  // Hold track length until operation stack is empty
-  midop_track_length_ = r;
-
-  if (GetOperationStack() == 0 && track_length_ != r) {
-    TimeRange invalidate_range(track_length_, r);
-    track_length_ = r;
-    preop_track_length_ = qMax(preop_track_length_, track_length_);
-    emit TrackLengthChanged();
-
-    if (invalidate) {
-      Node::InvalidateCache(invalidate_range, kBlockInput);
-    }
-  }
+  track_length_ = r;
+  emit TrackLengthChanged();
 }
 
 void Track::BlockLengthChanged()
@@ -680,26 +662,7 @@ void Track::BlockLengthChanged()
   // Assumes sender is a Block
   Block* b = static_cast<Block*>(sender());
 
-  rational old_out = b->out();
-
   UpdateInOutFrom(blocks_.indexOf(b));
-
-  rational new_out = b->out();
-
-  TimeRange invalidate_region(qMin(old_out, new_out), track_length());
-
-  // The cache won't start while dragging, so we store up our invalidations if it's held down
-  // and release them once the mouse is no longer pressed
-  if (qApp->mouseButtons() & Qt::LeftButton) {
-    block_length_pending_invalidations_.insert(invalidate_region);
-  } else if (!block_length_pending_invalidations_.isEmpty()) {
-    foreach (const TimeRange& r, block_length_pending_invalidations_) {
-      Node::InvalidateCache(r, kBlockInput);
-    }
-    block_length_pending_invalidations_.clear();
-  }
-
-  Node::InvalidateCache(invalidate_region, kBlockInput);
 }
 
 uint qHash(const Track::Reference &r, uint seed)

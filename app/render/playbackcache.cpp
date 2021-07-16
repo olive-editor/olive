@@ -27,58 +27,25 @@
 
 namespace olive {
 
-void PlaybackCache::Invalidate(const TimeRange &r)
+void PlaybackCache::Invalidate(const TimeRange &r, bool signal)
 {
   if (r.in() == r.out()) {
     qWarning() << "Tried to invalidate zero-length range";
     return;
   }
 
-  invalidated_.insert(r);
+  validated_.remove(r);
 
   InvalidateEvent(r);
 
-  emit Invalidated(r);
+  if (signal) {
+    emit Invalidated(r);
+  }
 }
 
 void PlaybackCache::InvalidateAll()
 {
-  if (length_.isNull()) {
-    return;
-  }
-
-  Invalidate(TimeRange(0, length_));
-}
-
-void PlaybackCache::SetLength(const rational &r)
-{
-  if (length_ == r) {
-    // Same length - do nothing
-    return;
-  }
-
-  LengthChangedEvent(length_, r);
-
-  TimeRange range_diff(length_, r);
-
-  if (r.isNull()) {
-    invalidated_.clear();
-  } else if (r > length_) {
-    // If new length is greater, simply extend the invalidated range for now
-    invalidated_.insert(range_diff);
-  } else {
-    // If new length is smaller, removed hashes
-    invalidated_.remove(range_diff);
-  }
-
-  rational old_length = length_;
-  length_ = r;
-
-  if (r > old_length) {
-    emit Invalidated(range_diff);
-  } else {
-    emit Validated(range_diff);
-  }
+  Invalidate(TimeRange(0, RATIONAL_MAX));
 }
 
 void PlaybackCache::Shift(rational from, rational to)
@@ -87,54 +54,33 @@ void PlaybackCache::Shift(rational from, rational to)
     return;
   }
 
-  if (from > length_) {
-    if (to > from) {
-      // No-op
-      return;
-    } else if (to >= length_) {
-      // No-op
-      return;
-    } else {
-      from = length_;
-    }
-  }
-
   // An region between `from` and `to` will be inserted or spliced out
-  TimeRangeList ranges_to_shift = invalidated_.Intersects(TimeRange(from, RATIONAL_MAX));
+  TimeRangeList ranges_to_shift = validated_.Intersects(TimeRange(from, RATIONAL_MAX));
 
   // Remove everything from the minimum point
   TimeRange remove_range = TimeRange(qMin(from, to), RATIONAL_MAX);
-  Validate(remove_range);
+  Invalidate(remove_range, false);
 
   // Shift invalidated ranges
   // (`diff` is POSITIVE when moving forward -> and NEGATIVE when moving backward <-)
   rational diff = to - from;
   foreach (const TimeRange& r, ranges_to_shift) {
-    Invalidate(r + diff);
+    Validate(r + diff, false);
   }
 
   ShiftEvent(from, to);
-
-  length_ += diff;
-
-  if (diff > 0) {
-    // If shifting forward, add this section to the invalidated region
-    Invalidate(TimeRange(from, to));
-  }
 
   // Emit signals
   emit Shifted(from, to);
 }
 
-void PlaybackCache::Validate(const TimeRange &r)
+void PlaybackCache::Validate(const TimeRange &r, bool signal)
 {
-  invalidated_.remove(r);
+  validated_.insert(r);
 
-  emit Validated(r);
-}
-
-void PlaybackCache::LengthChangedEvent(const rational &, const rational &)
-{
+  if (signal) {
+    emit Validated(r);
+  }
 }
 
 void PlaybackCache::InvalidateEvent(const TimeRange &)
@@ -156,6 +102,29 @@ Project *PlaybackCache::GetProject() const
   return viewer->project();
 }
 
+TimeRangeList PlaybackCache::GetInvalidatedRanges(TimeRange intersecting)
+{
+  TimeRangeList invalidated;
+
+  // Prevent TimeRange from being below 0, some other behavior in Olive relies on this behavior
+  // and it seemed reasonable to have safety code in here
+  intersecting.set_out(qMax(rational(0), intersecting.out()));
+  intersecting.set_in(qMax(rational(0), intersecting.in()));
+
+  invalidated.insert(intersecting);
+
+  foreach (const TimeRange &range, validated_) {
+    invalidated.remove(range);
+  }
+
+  return invalidated;
+}
+
+bool PlaybackCache::HasInvalidatedRanges(const TimeRange &intersecting)
+{
+  return !validated_.contains(intersecting);
+}
+
 QString PlaybackCache::GetCacheDirectory() const
 {
   Project* project = GetProject();
@@ -165,6 +134,11 @@ QString PlaybackCache::GetCacheDirectory() const
   } else {
     return DiskManager::instance()->GetDefaultCachePath();
   }
+}
+
+ViewerOutput *PlaybackCache::viewer_parent() const
+{
+  return dynamic_cast<ViewerOutput*>(parent());
 }
 
 }

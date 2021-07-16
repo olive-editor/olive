@@ -1368,6 +1368,8 @@ public:
 
   virtual void redo() override
   {
+    TimeRangeList ranges_to_invalidate;
+
     // Determine if we need to add tracks
     if (track_index_ >= timeline_->GetTracks().size()) {
       if (add_track_commands_.isEmpty()) {
@@ -1400,6 +1402,7 @@ public:
         }
         gap_->setParent(track->parent());
         track->AppendBlock(gap_);
+        ranges_to_invalidate.insert(gap_->range());
       }
 
       track->AppendBlock(insert_);
@@ -1429,8 +1432,10 @@ public:
 
     track->EndOperation();
 
-    if (ripple_remove_command_) {
-      track->Node::InvalidateCache(TimeRange(insert_->in(), insert_->out()), Track::kBlockInput);
+    ranges_to_invalidate.insert(insert_->range());
+
+    foreach (const TimeRange &r, ranges_to_invalidate) {
+      track->Node::InvalidateCache(r, Track::kBlockInput);
     }
 
     for (int i=0; i<position_commands_.size(); i++) {

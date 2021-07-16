@@ -1019,12 +1019,12 @@ NodeValueTable Node::Value(const QString& output, NodeValueDatabase &value) cons
   return value.Merge();
 }
 
-void Node::InvalidateCache(const TimeRange &range, const QString &from, int element)
+void Node::InvalidateCache(const TimeRange &range, const QString &from, int element, InvalidateCacheOptions options)
 {
   Q_UNUSED(from)
   Q_UNUSED(element)
 
-  SendInvalidateCache(range);
+  SendInvalidateCache(range, options);
 }
 
 void Node::BeginOperation()
@@ -1173,14 +1173,14 @@ Node *Node::CopyNodeInGraph(const Node *node, MultiUndoCommand *command)
   return copy;
 }
 
-void Node::SendInvalidateCache(const TimeRange &range)
+void Node::SendInvalidateCache(const TimeRange &range, const InvalidateCacheOptions &options)
 {
   if (GetOperationStack() == 0) {
     for (const OutputConnection& conn : output_connections_) {
       // Send clear cache signal to the Node
       const NodeInput& in = conn.second;
 
-      in.node()->InvalidateCache(range, in.input(), in.element());
+      in.node()->InvalidateCache(range, in.input(), in.element(), options);
     }
   }
 }

@@ -50,8 +50,6 @@ public:
 
   void ValidateFramesWithHash(const QByteArray& hash);
 
-  QMap<rational, QByteArray> time_hash_map();
-
   /**
    * @brief Return the path of the cached image at this time
    */
@@ -70,8 +68,6 @@ public:
   void SetHash(const olive::rational &time, const QByteArray& hash, bool frame_exists);
 
 protected:
-  virtual void LengthChangedEvent(const rational& old, const rational& newlen) override;
-
   virtual void ShiftEvent(const rational& from, const rational& to) override;
 
   virtual void InvalidateEvent(const TimeRange& range) override;

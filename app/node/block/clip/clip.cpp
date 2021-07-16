@@ -53,7 +53,7 @@ QString ClipBlock::Description() const
   return tr("A time-based node that represents a media source.");
 }
 
-void ClipBlock::InvalidateCache(const TimeRange& range, const QString& from, int element)
+void ClipBlock::InvalidateCache(const TimeRange& range, const QString& from, int element, InvalidateCacheOptions options)
 {
   Q_UNUSED(element)
 
@@ -63,10 +63,10 @@ void ClipBlock::InvalidateCache(const TimeRange& range, const QString& from, int
     rational start = MediaToSequenceTime(range.in());
     rational end = MediaToSequenceTime(range.out());
 
-    super::InvalidateCache(TimeRange(start, end), from, element);
+    super::InvalidateCache(TimeRange(start, end), from, element, options);
   } else {
     // Otherwise, pass signal along normally
-    super::InvalidateCache(range, from, element);
+    super::InvalidateCache(range, from, element, options);
   }
 }
 

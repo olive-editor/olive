@@ -166,13 +166,12 @@ void AudioPlaybackCache::WriteSilence(const TimeRange &range)
 
 void AudioPlaybackCache::ShiftEvent(const rational &from_in_time, const rational &to_in_time)
 {
-  if (from_in_time == to_in_time || from_in_time >= GetLength()) {
-    // Nothing to be done
-    return;
-  }
-
   qint64 to = params_.time_to_bytes_per_channel(to_in_time);
   qint64 from = params_.time_to_bytes_per_channel(from_in_time);
+
+  if (from >= playlist_.GetLength()) {
+    return;
+  }
 
   int to_seg_index = playlist_.GetIndexOfPosition(to);
   int from_seg_index = playlist_.GetIndexOfPosition(from);
@@ -262,31 +261,6 @@ void AudioPlaybackCache::ShiftEvent(const rational &from_in_time, const rational
     }
 
     UpdateOffsetsFrom(to_seg_index);
-  }
-}
-
-void AudioPlaybackCache::LengthChangedEvent(const rational& old, const rational& newlen)
-{
-  Q_UNUSED(old)
-
-  if (!params_.is_valid()) {
-    return;
-  }
-
-  qint64 new_len_in_bytes = params_.time_to_bytes_per_channel(newlen);
-
-  while (new_len_in_bytes < playlist_.GetLength()) {
-    Segment& last_seg = playlist_.back();
-
-    if (playlist_.GetLength() - last_seg.size() < new_len_in_bytes) {
-      // Truncate this segment rather than removing it
-      qint64 diff = playlist_.GetLength() - new_len_in_bytes;
-
-      TrimSegmentOut(&last_seg, last_seg.size() - diff);
-    } else {
-      // Remove last segment
-      RemoveSegmentFromArray(playlist_.size() - 1);
-    }
   }
 }
 
