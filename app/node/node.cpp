@@ -1145,6 +1145,26 @@ Node *Node::CopyNodeAndDependencyGraphMinusItemsInternal(QMap<const Node*, Node*
                                               NodeInput(copy, input.input(), input.element())));
   }
 
+  if (node->parent()->GetPositionMap().contains(node)) {
+    // This node is a context, copy the context
+    const NodeGraph::PositionMap &map = node->parent()->GetPositionMap().value(node);
+
+    command->add_child(new NodeSetPositionCommand(copy, copy, map.value(node), false);
+
+    for (auto it=map.cbegin(); it!=map.cend(); it++) {
+      Node *context_child = it.key();
+
+      // See if we created a copy of this
+      Node *context_child_copy = created.value(context_child, nullptr);
+
+      // Add to the context
+      command->add_child(new NodeSetPositionCommand(context_child_copy ? context_child_copy : context_child,
+                                                    copy,
+                                                    it.value(),
+                                                    false));
+    }
+  }
+
   return copy;
 }
 
