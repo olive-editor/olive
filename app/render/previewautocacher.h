@@ -107,6 +107,7 @@ private:
 
   void QueueNextFrameInRange(int max);
   void QueueNextHashTask();
+  void QueueNextAudioTask();
 
   struct HashData {
     rational time;
@@ -176,6 +177,7 @@ private:
 
   TimeRangeListFrameIterator queued_frame_iterator_;
   TimeRangeListFrameIterator hash_iterator_;
+  TimeRangeList audio_iterator_;
 
 private slots:
   /**

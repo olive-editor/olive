@@ -132,10 +132,7 @@ void PreviewAutoCacher::HashesProcessed()
       }
     }
 
-    if (hash_iterator_.HasNext()) {
-      // Launch next hashes
-      QueueNextHashTask();
-    } else {
+    if (!hash_iterator_.HasNext()) {
       // Restart delayed requeue timer
       delayed_requeue_timer_.stop();
       delayed_requeue_timer_.start();
@@ -145,6 +142,9 @@ void PreviewAutoCacher::HashesProcessed()
   // The cacher might be waiting for this job to finish
   if (!graph_update_queue_.isEmpty()) {
     TryRender();
+  } else if (hash_iterator_.HasNext()) {
+    // Launch next hashes
+    QueueNextHashTask();
   }
 
   delete watcher;
@@ -213,7 +213,9 @@ void PreviewAutoCacher::AudioRendered()
   }
 
   // The cacher might be waiting for this job to finish
-  if (!graph_update_queue_.isEmpty()) {
+  if (graph_update_queue_.isEmpty()) {
+    QueueNextAudioTask();
+  } else {
     TryRender();
   }
 
@@ -442,6 +444,8 @@ void PreviewAutoCacher::ClearVideoQueue(bool hard)
 void PreviewAutoCacher::ClearAudioQueue(bool hard)
 {
   ClearQueueInternal(audio_tasks_, hard, &PreviewAutoCacher::AudioRendered);
+
+  audio_iterator_.clear();
 }
 
 void PreviewAutoCacher::ClearVideoDownloadQueue(bool hard)
@@ -503,16 +507,10 @@ void PreviewAutoCacher::TryRender()
   }
 
   if (!invalidated_audio_.isEmpty()) {
-    foreach (const TimeRange& range, invalidated_audio_) {
-      std::list<TimeRange> chunks = range.Split(30);
+    audio_iterator_ = invalidated_audio_;
 
-      foreach (const TimeRange& r, chunks) {
-        RenderTicketWatcher* watcher = new RenderTicketWatcher();
-        watcher->setProperty("job", QVariant::fromValue(last_update_time_));
-        connect(watcher, &RenderTicketWatcher::Finished, this, &PreviewAutoCacher::AudioRendered);
-        audio_tasks_.insert(watcher, r);
-        watcher->SetTicket(RenderManager::instance()->RenderAudio(copied_viewer_node_, r, RenderMode::kOffline, true));
-      }
+    for (int i=0; i<QThread::idealThreadCount(); i++) {
+      QueueNextAudioTask();
     }
 
     invalidated_audio_.clear();
@@ -797,6 +795,26 @@ void PreviewAutoCacher::QueueNextHashTask()
                                        copied_viewer_node_,
                                        viewer_node_->video_frame_cache(),
                                        times));
+}
+
+void PreviewAutoCacher::QueueNextAudioTask()
+{
+  if (!audio_iterator_.isEmpty()) {
+    // Copy first range in list
+    TimeRange r = audio_iterator_.first();
+
+    // Limit to 30 seconds (FIXME: Hardcoded)
+    r.set_out(qMin(r.out(), r.in() + 30));
+
+    // Start job
+    RenderTicketWatcher* watcher = new RenderTicketWatcher();
+    watcher->setProperty("job", QVariant::fromValue(last_update_time_));
+    connect(watcher, &RenderTicketWatcher::Finished, this, &PreviewAutoCacher::AudioRendered);
+    audio_tasks_.insert(watcher, r);
+    watcher->SetTicket(RenderManager::instance()->RenderAudio(copied_viewer_node_, r, RenderMode::kOffline, false));
+
+    audio_iterator_.remove(r);
+  }
 }
 
 template<typename T, typename Func>
