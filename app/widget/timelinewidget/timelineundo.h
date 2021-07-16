@@ -2002,15 +2002,13 @@ private:
       we_created_in_adjacent_ = false;
     }
 
-    if (!out_adjacent_) {
-      if (blocks_.last()->next()) {
-        out_adjacent_ = new GapBlock();
-        out_adjacent_->set_length_and_media_out(-movement_);
-        out_adjacent_->setParent(&memory_manager_);
-        we_created_out_adjacent_ = true;
-      } else {
-        we_created_out_adjacent_ = false;
-      }
+    if (!out_adjacent_ && blocks_.last()->next()) {
+      out_adjacent_ = new GapBlock();
+      out_adjacent_->set_length_and_media_out(-movement_);
+      out_adjacent_->setParent(&memory_manager_);
+      we_created_out_adjacent_ = true;
+    } else {
+      we_created_out_adjacent_ = false;
     }
   }
 
