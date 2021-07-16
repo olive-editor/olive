@@ -25,6 +25,7 @@
 #include "node/generator/solid/solid.h"
 #include "node/generator/text/text.h"
 #include "widget/timelinewidget/timelinewidget.h"
+#include "widget/timelinewidget/undo/timelineundopointer.h"
 
 namespace olive {
 

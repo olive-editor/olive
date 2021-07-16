@@ -49,8 +49,18 @@ void MultiUndoCommand::undo()
   }
 }
 
+UndoCommand::UndoCommand()
+{
+  prepared_ = false;
+}
+
 void UndoCommand::redo_and_set_modified()
 {
+  if (!prepared_) {
+    prepare();
+    prepared_ = true;
+  }
+
   redo();
 
   project_ = GetRelevantProject();

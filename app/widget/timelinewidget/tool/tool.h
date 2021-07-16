@@ -25,7 +25,6 @@
 
 #include "common/rational.h"
 #include "widget/nodeview/nodeviewundo.h"
-#include "widget/timelinewidget/timelineundo.h"
 #include "widget/timelinewidget/view/timelineviewghostitem.h"
 #include "widget/timelinewidget/view/timelineviewmouseevent.h"
 

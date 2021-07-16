@@ -35,6 +35,7 @@
 #include "node/math/math/math.h"
 #include "node/project/sequence/sequence.h"
 #include "widget/nodeview/nodeviewundo.h"
+#include "widget/timelinewidget/undo/timelineundopointer.h"
 #include "window/mainwindow/mainwindow.h"
 #include "window/mainwindow/mainwindowundo.h"
 

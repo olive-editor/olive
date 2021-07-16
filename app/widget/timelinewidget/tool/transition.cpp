@@ -25,7 +25,7 @@
 #include "node/factory.h"
 #include "transition.h"
 #include "widget/nodeview/nodeviewundo.h"
-#include "widget/timelinewidget/timelineundo.h"
+#include "widget/timelinewidget/undo/timelineundopointer.h"
 
 namespace olive {
 

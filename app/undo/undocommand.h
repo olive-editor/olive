@@ -34,17 +34,20 @@ class Project;
 class UndoCommand
 {
 public:
-  UndoCommand() = default;
+  UndoCommand();
 
   virtual ~UndoCommand(){}
 
   DISABLE_COPY_MOVE(UndoCommand)
 
+  virtual void prepare(){}
   virtual void redo() = 0;
   virtual void undo() = 0;
 
-  void redo_and_set_modified();
+  bool has_prepared() const {return prepared_;}
+  void set_prepared(bool e) {prepared_ = true;}
 
+  void redo_and_set_modified();
   void undo_and_set_modified();
 
   virtual Project* GetRelevantProject() const = 0;
@@ -65,6 +68,8 @@ private:
   QString name_;
 
   Project* project_;
+
+  bool prepared_;
 
 };
 

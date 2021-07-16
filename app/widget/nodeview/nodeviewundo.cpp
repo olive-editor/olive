@@ -21,7 +21,6 @@
 #include "nodeviewundo.h"
 
 #include "node/project/sequence/sequence.h"
-#include "widget/timelinewidget/timelineundo.h"
 
 namespace olive {
 

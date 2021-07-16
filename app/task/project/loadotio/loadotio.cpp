@@ -28,6 +28,7 @@
 #include <opentimelineio/serializableCollection.h>
 #include <opentimelineio/timeline.h>
 #include <opentimelineio/transition.h>
+#include <QApplication>
 #include <QFileInfo>
 
 #include "node/block/clip/clip.h"
@@ -36,7 +37,7 @@
 #include "node/project/folder/folder.h"
 #include "node/project/footage/footage.h"
 #include "node/project/sequence/sequence.h"
-#include "widget/timelinewidget/timelineundo.h"
+#include "widget/timelinewidget/undo/timelineundogeneral.h"
 
 namespace olive {
 

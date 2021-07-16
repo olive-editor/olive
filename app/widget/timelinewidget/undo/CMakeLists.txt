@@ -14,18 +14,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(trackview)
-add_subdirectory(tool)
-add_subdirectory(undo)
-add_subdirectory(view)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  widget/timelinewidget/timelineandtrackview.cpp
-  widget/timelinewidget/timelineandtrackview.h
-  widget/timelinewidget/timelinewidget.cpp
-  widget/timelinewidget/timelinewidget.h
-  widget/timelinewidget/timelinewidgetselections.cpp
-  widget/timelinewidget/timelinewidgetselections.h
+  widget/timelinewidget/undo/timelineundocommon.h
+  widget/timelinewidget/undo/timelineundogeneral.cpp
+  widget/timelinewidget/undo/timelineundogeneral.h
+  widget/timelinewidget/undo/timelineundopointer.cpp
+  widget/timelinewidget/undo/timelineundopointer.h
+  widget/timelinewidget/undo/timelineundoripple.cpp
+  widget/timelinewidget/undo/timelineundoripple.h
+  widget/timelinewidget/undo/timelineundosplit.cpp
+  widget/timelinewidget/undo/timelineundosplit.h
+  widget/timelinewidget/undo/timelineundotrack.cpp
+  widget/timelinewidget/undo/timelineundotrack.h
+  widget/timelinewidget/undo/timelineundoworkarea.cpp
+  widget/timelinewidget/undo/timelineundoworkarea.h
   PARENT_SCOPE
 )

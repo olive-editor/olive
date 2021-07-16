@@ -24,6 +24,7 @@
 
 #include "panel/timeline/timeline.h"
 #include "ui/icons/icons.h"
+#include "widget/timelinewidget/undo/timelineundogeneral.h"
 
 namespace olive {
 
