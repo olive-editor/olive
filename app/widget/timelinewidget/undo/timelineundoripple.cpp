@@ -447,6 +447,9 @@ void TrackListRippleToolCommand::ripple(bool redo)
     if (!all_tracks_unlocked_) {
       // If we're not shifting, the whole track must get invalidated
       track->Node::InvalidateCache(TimeRange(it.value().earliest_point_of_change, RATIONAL_MAX), Track::kBlockInput);
+    } else if (pre_latest_out < post_latest_out) {
+      // If we're here, then a new section has been rippled in that needs to be rendered
+      track->Node::InvalidateCache(TimeRange(pre_latest_out, post_latest_out), Track::kBlockInput);
     }
   }
 }
