@@ -330,7 +330,7 @@ public:
    */
   void ReplaceBlock(Block* old, Block* replace);
 
-  const rational& track_length() const;
+  rational track_length() const;
 
   static QString GetDefaultTrackName(Track::Type type, int index);
 
@@ -418,16 +418,12 @@ private:
 
   int GetCacheIndexFromArrayIndex(int index) const;
 
-  void SetLengthInternal(const rational& r);
-
   TimeRangeList block_length_pending_invalidations_;
 
   QVector<Block*> blocks_;
   QVector<int> block_array_indexes_;
 
   Track::Type track_type_;
-
-  rational track_length_;
 
   double track_height_;
 

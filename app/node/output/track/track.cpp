@@ -40,7 +40,6 @@ const QString Track::kMutedInput = QStringLiteral("muted_in");
 
 Track::Track() :
   track_type_(Track::kNone),
-  track_length_(0),
   index_(-1),
   locked_(false)
 {
@@ -278,11 +277,8 @@ void Track::InputDisconnectedEvent(const QString &input, int element, const Node
     // Update lengths
     if (next) {
       UpdateInOutFrom(blocks_.indexOf(next));
-    } else if (blocks_.isEmpty()) {
-      SetLengthInternal(0);
-    } else {
-      SetLengthInternal(blocks_.last()->out());
     }
+    emit TrackLengthChanged();
 
     disconnect(b, &Block::LengthChanged, this, &Track::BlockLengthChanged);
 
@@ -522,7 +518,7 @@ void Track::AppendBlock(Block *block)
   EndOperation();
 
   // Invalidate area that block was added to
-  Node::InvalidateCache(TimeRange(block->in(), track_length()), kBlockInput);
+  Node::InvalidateCache(TimeRange(block->in(), block->out()), kBlockInput);
 }
 
 void Track::RippleRemoveBlock(Block *block)
@@ -554,13 +550,17 @@ void Track::ReplaceBlock(Block *old, Block *replace)
   if (old->length() == replace->length()) {
     Node::InvalidateCache(TimeRange(replace->in(), replace->out()), kBlockInput);
   } else {
-    Node::InvalidateCache(TimeRange(replace->in(), RATIONAL_MAX), kBlockInput);
+    Node::InvalidateCache(TimeRange(replace->in(), track_length()), kBlockInput);
   }
 }
 
-const rational &Track::track_length() const
+rational Track::track_length() const
 {
-  return track_length_;
+  if (blocks_.isEmpty()) {
+    return 0;
+  } else {
+    return blocks_.last()->out();
+  }
 }
 
 QString Track::GetDefaultTrackName(Track::Type type, int index)
@@ -633,7 +633,7 @@ void Track::UpdateInOutFrom(int index)
   emit BlocksRefreshed();
 
   // Update track length
-  SetLengthInternal(last_out);
+  emit TrackLengthChanged();
 }
 
 int Track::GetArrayIndexFromBlock(Block *block) const
@@ -649,12 +649,6 @@ int Track::GetArrayIndexFromCacheIndex(int index) const
 int Track::GetCacheIndexFromArrayIndex(int index) const
 {
   return block_array_indexes_.indexOf(index);
-}
-
-void Track::SetLengthInternal(const rational &r)
-{
-  track_length_ = r;
-  emit TrackLengthChanged();
 }
 
 void Track::BlockLengthChanged()
