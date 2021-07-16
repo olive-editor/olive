@@ -124,7 +124,7 @@ void NodeCopyInputsCommand::redo()
   Node::CopyInputs(src_, dest_, include_connections_);
 }
 
-void NodeRemoveAndDisconnectCommand::prep()
+void NodeRemoveAndDisconnectCommand::prepare()
 {
   command_ = new MultiUndoCommand();
 

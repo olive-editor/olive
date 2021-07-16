@@ -95,8 +95,7 @@ public:
   NodeRemoveAndDisconnectCommand(Node* node) :
     node_(node),
     graph_(nullptr),
-    command_(nullptr),
-    prepped_(false)
+    command_(nullptr)
   {
   }
 
@@ -110,13 +109,10 @@ public:
     return dynamic_cast<Project*>(graph_);
   }
 
+  virtual void prepare() override;
+
   virtual void redo() override
   {
-    if (!prepped_) {
-      prep();
-      prepped_ = true;
-    }
-
     command_->redo();
 
     graph_ = node_->parent();
@@ -132,8 +128,6 @@ public:
   }
 
 private:
-  void prep();
-
   QObject memory_manager_;
 
   Node* node_;
@@ -141,16 +135,13 @@ private:
 
   MultiUndoCommand* command_;
 
-  bool prepped_;
-
 };
 
 class NodeRemoveWithExclusiveDependenciesAndDisconnect : public UndoCommand {
 public:
   NodeRemoveWithExclusiveDependenciesAndDisconnect(Node* node) :
     node_(node),
-    command_(nullptr),
-    prepped_(false)
+    command_(nullptr)
   {
   }
 
@@ -168,23 +159,7 @@ public:
     }
   }
 
-  virtual void redo() override
-  {
-    if (!prepped_) {
-      prep();
-      prepped_ = true;
-    }
-
-    command_->redo();
-  }
-
-  virtual void undo() override
-  {
-    command_->undo();
-  }
-
-private:
-  void prep()
+  virtual void prepare() override
   {
     command_ = new MultiUndoCommand();
 
@@ -197,9 +172,19 @@ private:
     }
   }
 
+  virtual void redo() override
+  {
+    command_->redo();
+  }
+
+  virtual void undo() override
+  {
+    command_->undo();
+  }
+
+private:
   Node* node_;
   MultiUndoCommand* command_;
-  bool prepped_;
 
 };
 
