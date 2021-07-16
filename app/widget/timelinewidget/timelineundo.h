@@ -805,8 +805,7 @@ class TrackListRippleRemoveAreaCommand : public UndoCommand {
 public:
   TrackListRippleRemoveAreaCommand(TrackList* list, rational in, rational out) :
     list_(list),
-    in_(in),
-    out_(out)
+    range_(in, out)
   {
   }
 
@@ -832,7 +831,7 @@ public:
           continue;
         }
 
-        TrackRippleRemoveAreaCommand* c = new TrackRippleRemoveAreaCommand(track, TimeRange(in_, out_));
+        TrackRippleRemoveAreaCommand* c = new TrackRippleRemoveAreaCommand(track, range_);
         commands_.append(c);
         working_tracks_.append(track);
       }
@@ -842,9 +841,9 @@ public:
       // We can optimize here by simply shifting the whole cache forward instead of re-caching
       // everything following this time
       if (list_->type() == Track::kVideo) {
-        list_->parent()->ShiftVideoCache(out_, in_);
+        list_->parent()->ShiftVideoCache(range_.out(), range_.in());
       } else if (list_->type() == Track::kAudio) {
-        list_->parent()->ShiftAudioCache(out_, in_);
+        list_->parent()->ShiftAudioCache(range_.out(), range_.in());
       }
 
       foreach (Track* track, working_tracks_) {
@@ -869,9 +868,9 @@ public:
       // We can optimize here by simply shifting the whole cache forward instead of re-caching
       // everything following this time
       if (list_->type() == Track::kVideo) {
-        list_->parent()->ShiftVideoCache(in_, out_);
+        list_->parent()->ShiftVideoCache(range_.in(), range_.out());
       } else if (list_->type() == Track::kAudio) {
-        list_->parent()->ShiftAudioCache(in_, out_);
+        list_->parent()->ShiftAudioCache(range_.in(), range_.out());
       }
 
       foreach (Track* track, working_tracks_) {
@@ -886,6 +885,7 @@ public:
     if (all_tracks_unlocked_) {
       foreach (Track* track, working_tracks_) {
         track->EndOperation();
+        track->Node::InvalidateCache(range_, Track::kBlockInput);
       }
     }
   }
@@ -895,9 +895,7 @@ private:
 
   QList<Track*> working_tracks_;
 
-  rational in_;
-
-  rational out_;
+  TimeRange range_;
 
   bool all_tracks_unlocked_;
 
