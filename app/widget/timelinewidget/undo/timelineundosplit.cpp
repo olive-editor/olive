@@ -60,7 +60,7 @@ void BlockSplitCommand::redo()
   if (!position_command_) {
     position_command_ = new NodeSetPositionAsChildCommand(new_block(), track, track, new_block()->index(), track->Blocks().size(), true);
   }
-  position_command_->redo();
+  position_command_->redo_now();
 
   // If the block had an out transition, we move it to the new block
   moved_transition_ = NodeInput();
@@ -91,7 +91,7 @@ void BlockSplitCommand::undo()
     Node::ConnectEdge(block_, moved_transition_);
   }
 
-  position_command_->undo();
+  position_command_->undo_now();
 
   block_->set_length_and_media_out(old_length_);
   track->RippleRemoveBlock(new_block());
@@ -152,7 +152,7 @@ void BlockSplitPreservingLinksCommand::redo()
 
           foreach (const QVector<Block*>& split_list, split_blocks) {
             NodeLinkCommand* blc = new NodeLinkCommand(split_list.at(i), split_list.at(j), true);
-            blc->redo();
+            blc->redo_now();
             commands_.append(blc);
           }
         }
@@ -160,7 +160,7 @@ void BlockSplitPreservingLinksCommand::redo()
     }
   } else {
     for (int i=0; i<commands_.size(); i++) {
-      commands_.at(i)->redo();
+      commands_.at(i)->redo_now();
     }
   }
 }

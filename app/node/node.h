@@ -1009,6 +1009,7 @@ private:
 
     virtual Project* GetRelevantProject() const override;
 
+  protected:
     virtual void redo() override
     {
       node_->InputArrayInsert(input_, index_, false);
@@ -1035,6 +1036,9 @@ private:
       size_(size)
     {}
 
+    virtual Project* GetRelevantProject() const override;
+
+  protected:
     virtual void redo() override
     {
       old_size_ = node_->InputArraySize(input_);
@@ -1066,8 +1070,6 @@ private:
 
       node_->ArrayResizeInternal(input_, old_size_);
     }
-
-    virtual Project* GetRelevantProject() const override;
 
   private:
     Node* node_;
@@ -1311,6 +1313,7 @@ public:
     return node_->project();
   }
 
+protected:
   virtual void redo() override;
 
   virtual void undo() override;
@@ -1346,12 +1349,13 @@ public:
     return node_->project();
   }
 
+protected:
   virtual void redo() override;
 
   virtual void undo() override
   {
     for (int i=commands_.size()-1; i>=0; i--) {
-      commands_.at(i)->undo();
+      commands_.at(i)->undo_now();
     }
   }
 
@@ -1392,6 +1396,7 @@ public:
     return node_->project();
   }
 
+protected:
   virtual void redo() override;
 
   virtual void undo() override
@@ -1423,6 +1428,7 @@ public:
     return parent_->project();
   }
 
+protected:
   virtual void redo() override;
 
   virtual void undo() override;
@@ -1447,6 +1453,7 @@ public:
     return node_->project();
   }
 
+protected:
   virtual void redo() override;
 
   virtual void undo() override;
@@ -1474,6 +1481,7 @@ public:
     return node_->project();
   }
 
+protected:
   virtual void redo() override;
 
   virtual void undo() override;
@@ -1502,6 +1510,7 @@ public:
     return node_->project();
   }
 
+protected:
   virtual void redo() override;
 
   virtual void undo() override;

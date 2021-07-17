@@ -927,7 +927,7 @@ void Node::InputArrayResize(const QString &id, int size, bool undoable)
   if (undoable) {
     Core::instance()->undo_stack()->push(c);
   } else {
-    c->redo();
+    c->redo_now();
     delete c;
   }
 }
@@ -2277,7 +2277,7 @@ void NodeSetPositionAndShiftSurroundingsCommand::redo()
   if (commands_.isEmpty()) {
     // Move first node
     NodeSetPositionCommand* set_pos_command = new NodeSetPositionCommand(node_, relative_, position_, move_dependencies_);
-    set_pos_command->redo();
+    set_pos_command->redo_now();
     commands_.append(set_pos_command);
 
     // Get bounding rect
@@ -2308,7 +2308,7 @@ void NodeSetPositionAndShiftSurroundingsCommand::redo()
     }
   } else {
     for (int i=0; i<commands_.size(); i++) {
-      commands_.at(i)->redo();
+      commands_.at(i)->redo_now();
     }
   }
 }

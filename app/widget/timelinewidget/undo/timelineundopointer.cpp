@@ -68,7 +68,7 @@ void BlockTrimCommand::redo()
         if (!deleted_adjacent_command_) {
           deleted_adjacent_command_ = CreateAndRunRemoveCommand(adjacent_);
         } else {
-          deleted_adjacent_command_->redo();
+          deleted_adjacent_command_->redo_now();
         }
       }
     } else {
@@ -110,7 +110,7 @@ void BlockTrimCommand::undo()
       if (we_removed_adjacent_) {
         if (deleted_adjacent_command_) {
           // We deleted adjacent, restore it now
-          deleted_adjacent_command_->undo();
+          deleted_adjacent_command_->undo_now();
         }
 
         if (mode_ == Timeline::kTrimIn) {
@@ -216,7 +216,7 @@ void TrackSlideCommand::redo()
         in_adjacent_remove_command_ = CreateRemoveCommand(in_adjacent_);
       }
 
-      in_adjacent_remove_command_->redo();
+      in_adjacent_remove_command_->redo_now();
     }
   } else {
     // Simply resize adjacent
@@ -238,7 +238,7 @@ void TrackSlideCommand::redo()
           out_adjacent_remove_command_ = CreateRemoveCommand(out_adjacent_);
         }
 
-        out_adjacent_remove_command_->redo();
+        out_adjacent_remove_command_->redo_now();
       }
     } else {
       // Simply resize adjacent
@@ -269,7 +269,7 @@ void TrackSlideCommand::undo()
     in_adjacent_->setParent(&memory_manager_);
   } else if (in_adjacent_remove_command_) {
     // We removed this, so we can restore it now
-    in_adjacent_remove_command_->undo();
+    in_adjacent_remove_command_->undo_now();
   } else {
     // Simply resize adjacent
     in_adjacent_->set_length_and_media_out(in_adjacent_->length() - movement_);
@@ -281,7 +281,7 @@ void TrackSlideCommand::undo()
       track_->RippleRemoveBlock(out_adjacent_);
       out_adjacent_->setParent(&memory_manager_);
     } else if (out_adjacent_remove_command_) {
-      out_adjacent_remove_command_->undo();
+      out_adjacent_remove_command_->undo_now();
     } else {
       out_adjacent_->set_length_and_media_in(out_adjacent_->length() + movement_);
     }
@@ -343,7 +343,7 @@ void TrackPlaceBlockCommand::redo()
     }
 
     for (int i=0; i<add_track_commands_.size(); i++) {
-      add_track_commands_.at(i)->redo();
+      add_track_commands_.at(i)->redo_now();
     }
   }
 
@@ -382,7 +382,7 @@ void TrackPlaceBlockCommand::redo()
 
     }
 
-    ripple_remove_command_->redo();
+    ripple_remove_command_->redo_now();
     track->InsertBlockAfter(insert_, ripple_remove_command_->GetInsertionIndex());
 
     if (position_commands_.isEmpty()) {
@@ -399,14 +399,14 @@ void TrackPlaceBlockCommand::redo()
   }
 
   for (int i=0; i<position_commands_.size(); i++) {
-    position_commands_.at(i)->redo();
+    position_commands_.at(i)->redo_now();
   }
 }
 
 void TrackPlaceBlockCommand::undo()
 {
   for (int i=position_commands_.size()-1; i>=0; i--) {
-    position_commands_.at(i)->undo();
+    position_commands_.at(i)->undo_now();
   }
 
   Track* t = timeline_->GetTrackAt(track_index_);
@@ -419,7 +419,7 @@ void TrackPlaceBlockCommand::undo()
 
   if (ripple_remove_command_) {
     // If we ripple removed, just undo that
-    ripple_remove_command_->undo();
+    ripple_remove_command_->undo_now();
   } else if (gap_) {
     t->RippleRemoveBlock(gap_);
     gap_->setParent(&memory_manager_);
@@ -432,7 +432,7 @@ void TrackPlaceBlockCommand::undo()
 
   // Remove tracks if we added them
   for (int i=add_track_commands_.size()-1; i>=0; i--) {
-    add_track_commands_.at(i)->undo();
+    add_track_commands_.at(i)->undo_now();
   }
 }
 

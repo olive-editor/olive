@@ -40,12 +40,11 @@ public:
 
   DISABLE_COPY_MOVE(UndoCommand)
 
-  virtual void prepare(){}
-  virtual void redo() = 0;
-  virtual void undo() = 0;
-
   bool has_prepared() const {return prepared_;}
   void set_prepared(bool e) {prepared_ = true;}
+
+  void redo_now();
+  void undo_now();
 
   void redo_and_set_modified();
   void undo_and_set_modified();
@@ -61,6 +60,11 @@ public:
   {
     name_ = name;
   }
+
+protected:
+  virtual void prepare(){}
+  virtual void redo() = 0;
+  virtual void undo() = 0;
 
 private:
   bool modified_;

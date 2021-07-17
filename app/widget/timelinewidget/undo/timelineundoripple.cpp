@@ -141,7 +141,7 @@ void TrackRippleRemoveAreaCommand::redo()
       }
 
       foreach (UndoCommand* c, remove_block_commands_) {
-        c->redo();
+        c->redo_now();
       }
     }
   }
@@ -169,7 +169,7 @@ void TrackRippleRemoveAreaCommand::undo()
 
     // Un-remove any blocks
     for (int i=remove_block_commands_.size()-1; i>=0; i--) {
-      remove_block_commands_.at(i)->undo();
+      remove_block_commands_.at(i)->undo_now();
     }
 
     foreach (auto op, removals_) {
@@ -219,7 +219,7 @@ void TrackListRippleRemoveAreaCommand::redo()
   }
 
   foreach (TrackRippleRemoveAreaCommand* c, commands_) {
-    c->redo();
+    c->redo_now();
   }
 
   if (all_tracks_unlocked_) {
@@ -246,7 +246,7 @@ void TrackListRippleRemoveAreaCommand::undo()
   }
 
   foreach (TrackRippleRemoveAreaCommand* c, commands_) {
-    c->undo();
+    c->undo_now();
   }
 
   if (all_tracks_unlocked_) {
@@ -496,7 +496,7 @@ void TimelineRippleDeleteGapsAtRegionsCommand::redo()
   }
 
   foreach (UndoCommand* c, commands_) {
-    c->redo();
+    c->redo_now();
   }
 }
 

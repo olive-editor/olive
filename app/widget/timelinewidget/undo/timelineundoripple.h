@@ -66,6 +66,7 @@ public:
     return nullptr;
   }
 
+protected:
   virtual void prepare() override;
 
   virtual void redo() override;
@@ -115,6 +116,7 @@ public:
     return list_->parent()->project();
   }
 
+protected:
   virtual void redo() override;
 
   virtual void undo() override;
@@ -163,6 +165,7 @@ public:
     return track_list_->parent()->project();
   }
 
+protected:
   virtual void redo() override
   {
     ripple(true);
@@ -215,12 +218,13 @@ public:
     return timeline_->project();
   }
 
+protected:
   virtual void redo() override;
 
   virtual void undo() override
   {
     for (int i=commands_.size()-1;i>=0;i--) {
-      commands_.at(i)->undo();
+      commands_.at(i)->undo_now();
     }
   }
 

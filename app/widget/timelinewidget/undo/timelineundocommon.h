@@ -39,7 +39,7 @@ inline UndoCommand* CreateRemoveCommand(Node* n)
 inline UndoCommand* CreateAndRunRemoveCommand(Node* n)
 {
   UndoCommand* command = CreateRemoveCommand(n);
-  command->redo();
+  command->redo_now();
   return command;
 }
 

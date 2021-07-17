@@ -249,14 +249,14 @@ void TransitionRemoveCommand::redo()
       remove_command_ = CreateRemoveCommand(block_);
     }
 
-    remove_command_->redo();
+    remove_command_->redo_now();
   }
 }
 
 void TransitionRemoveCommand::undo()
 {
   if (remove_from_graph_) {
-    remove_command_->undo();
+    remove_command_->undo_now();
   }
 
   track_->BeginOperation();
@@ -446,7 +446,7 @@ void TrackReplaceBlockWithGapCommand::redo()
     CreateRemoveTransitionCommandIfNecessary(true);
   }
   for (auto it=transition_remove_commands_.cbegin(); it!=transition_remove_commands_.cend(); it++) {
-    (*it)->redo();
+    (*it)->redo_now();
   }
 
   if (block_->next()) {
@@ -500,7 +500,7 @@ void TrackReplaceBlockWithGapCommand::redo()
       if (!position_command_) {
         position_command_ = new NodeSetPositionAsChildCommand(our_gap_, track_, track_, our_gap_->index(), track_->Blocks().size(), true);
       }
-      position_command_->redo();
+      position_command_->redo_now();
     }
 
     track_->EndOperation();
@@ -533,7 +533,7 @@ void TrackReplaceBlockWithGapCommand::undo()
       track_->ReplaceBlock(our_gap_, block_);
       our_gap_->setParent(&memory_manager_);
 
-      position_command_->undo();
+      position_command_->undo_now();
 
     } else {
 
@@ -583,7 +583,7 @@ void TrackReplaceBlockWithGapCommand::undo()
   }
 
   for (auto it=transition_remove_commands_.crbegin(); it!=transition_remove_commands_.crend(); it++) {
-    (*it)->undo();
+    (*it)->undo_now();
   }
 }
 

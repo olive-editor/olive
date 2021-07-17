@@ -82,6 +82,7 @@ public:
     remove_block_from_graph_ = e;
   }
 
+protected:
   virtual void prepare() override;
   virtual void redo() override;
   virtual void undo() override;
@@ -134,6 +135,7 @@ public:
     return track_->project();
   }
 
+protected:
   virtual void prepare() override;
 
   virtual void redo() override;
@@ -182,6 +184,7 @@ public:
     return timeline_->parent()->project();
   }
 
+protected:
   virtual void redo() override;
 
   virtual void undo() override;

@@ -141,14 +141,14 @@ void FolderAddChild::redo()
     if (!position_command_) {
       position_command_ = new NodeSetPositionAsChildCommand(child_, folder_, folder_->project()->root(), array_index, array_index+1, true);
     }
-    position_command_->redo();
+    position_command_->redo_now();
   }
 }
 
 void FolderAddChild::undo()
 {
   if (position_command_) {
-    position_command_->undo();
+    position_command_->undo_now();
   }
 
   Node::DisconnectEdge(child_, NodeInput(folder_, Folder::kChildInput, folder_->InputArraySize(Folder::kChildInput)-1));

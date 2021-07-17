@@ -135,6 +135,7 @@ public:
       return folder_->project();
     }
 
+  protected:
     virtual void redo() override;
 
     virtual void undo() override
@@ -209,6 +210,7 @@ public:
 
   virtual Project * GetRelevantProject() const override;
 
+protected:
   virtual void redo() override;
 
   virtual void undo() override;

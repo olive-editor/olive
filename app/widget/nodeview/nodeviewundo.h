@@ -39,6 +39,7 @@ public:
 
   virtual Project* GetRelevantProject() const override;
 
+protected:
   virtual void redo() override;
   virtual void undo() override;
 
@@ -61,6 +62,7 @@ public:
 
   virtual Project* GetRelevantProject() const override;
 
+protected:
   virtual void redo() override;
   virtual void undo() override;
 
@@ -80,6 +82,7 @@ public:
 
   virtual Project* GetRelevantProject() const override;
 
+protected:
   virtual void redo() override;
   virtual void undo() override;
 
@@ -109,6 +112,7 @@ public:
     return dynamic_cast<Project*>(graph_);
   }
 
+protected:
   virtual void prepare() override;
 
   virtual void redo() override
@@ -159,6 +163,7 @@ public:
     }
   }
 
+protected:
   virtual void prepare() override
   {
     command_ = new MultiUndoCommand();
@@ -194,11 +199,12 @@ public:
                         Node* dest,
                         bool include_connections);
 
+  virtual Project* GetRelevantProject() const override {return nullptr;}
+
+protected:
   virtual void redo() override;
 
   virtual void undo() override {}
-
-  virtual Project* GetRelevantProject() const override {return nullptr;}
 
 private:
   const Node* src_;
@@ -223,6 +229,7 @@ public:
     return a_->project();
   }
 
+protected:
   virtual void redo() override
   {
     if (link_) {
@@ -263,6 +270,7 @@ public:
     return node_->project();
   }
 
+protected:
   virtual void redo() override
   {
     unlinked_ = node_->links();
@@ -319,11 +327,12 @@ public:
 
   void AddNode(Node* node, const QString& new_name);
 
+  virtual Project * GetRelevantProject() const override;
+
+protected:
   virtual void redo() override;
 
   virtual void undo() override;
-
-  virtual Project * GetRelevantProject() const override;
 
 private:
   QVector<Node*> nodes_;

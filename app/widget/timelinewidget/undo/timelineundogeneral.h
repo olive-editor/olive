@@ -44,6 +44,7 @@ public:
     return block_->project();
   }
 
+protected:
   virtual void redo() override;
   virtual void undo() override;
 
@@ -67,6 +68,7 @@ public:
     return block_->project();
   }
 
+protected:
   virtual void redo();
   virtual void undo();
 
@@ -90,6 +92,7 @@ public:
     return block_->project();
   }
 
+protected:
   virtual void redo();
   virtual void undo();
 
@@ -138,6 +141,7 @@ public:
     return timeline_->parent()->project();
   }
 
+protected:
   virtual void redo() override;
 
   virtual void undo() override;
@@ -172,6 +176,7 @@ public:
     return track_->project();
   }
 
+protected:
   virtual void redo() override;
 
   virtual void undo() override;
@@ -211,6 +216,7 @@ public:
     return block_->project();
   }
 
+protected:
   virtual void redo() override;
 
   virtual void undo() override;
@@ -248,6 +254,7 @@ public:
     return block_->project();
   }
 
+protected:
   virtual void redo() override
   {
     block_->set_enabled(new_enabled_);
@@ -287,6 +294,7 @@ public:
     return track_list_->parent()->project();
   }
 
+protected:
   virtual void prepare() override;
 
   virtual void redo() override;

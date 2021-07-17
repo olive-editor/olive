@@ -143,11 +143,12 @@ private:
   public:
     NodeViewAttachNodesToCursor(NodeView* view, const QVector<Node*>& nodes);
 
+    virtual Project * GetRelevantProject() const override;
+
+  protected:
     virtual void redo() override;
 
     virtual void undo() override;
-
-    virtual Project * GetRelevantProject() const override;
 
   private:
     NodeView* view_;
@@ -174,14 +175,15 @@ private:
       new_prevent_removing_(prevent_removing)
     {}
 
-    virtual void redo() override;
-
-    virtual void undo() override;
-
     virtual Project * GetRelevantProject() const override
     {
       return node_->project();
     }
+
+  protected:
+    virtual void redo() override;
+
+    virtual void undo() override;
 
   private:
     NodeView *view_;

@@ -87,7 +87,7 @@ bool LoadOTIOTask::Run()
     Sequence* sequence = new Sequence();
     sequence->SetLabel(QString::fromStdString(timeline->name()));
     sequence->setParent(project_);
-    FolderAddChild(project_->root(), sequence).redo();
+    FolderAddChild(project_->root(), sequence).redo_now();
 
     // FIXME: As far as I know, OTIO doesn't store video/audio parameters?
     sequence->set_default_parameters();
@@ -111,7 +111,7 @@ bool LoadOTIOTask::Run()
 
         // Create track
         TimelineAddTrackCommand t(sequence->track_list(type));
-        t.redo();
+        t.redo_now();
         track = t.track();
       } else {
         qWarning() << "Found unknown track type:" << otio_track->kind().c_str();

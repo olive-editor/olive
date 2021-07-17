@@ -214,6 +214,9 @@ public:
     {
     }
 
+    virtual Project* GetRelevantProject() const override {return nullptr;}
+
+  protected:
     virtual void redo() override
     {
       timeline_->SetSelections(now_);
@@ -223,8 +226,6 @@ public:
     {
       timeline_->SetSelections(old_);
     }
-
-    virtual Project* GetRelevantProject() const override {return nullptr;}
 
   private:
     TimelineWidget* timeline_;

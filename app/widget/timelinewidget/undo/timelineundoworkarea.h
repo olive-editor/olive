@@ -41,6 +41,7 @@ public:
     return project_;
   }
 
+protected:
   virtual void redo() override
   {
     points_->workarea()->set_enabled(new_enabled_);
@@ -77,6 +78,7 @@ public:
     return project_;
   }
 
+protected:
   virtual void redo() override
   {
     points_->workarea()->set_range(new_range_);

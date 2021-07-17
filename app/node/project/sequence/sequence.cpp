@@ -64,8 +64,8 @@ void Sequence::add_default_nodes(MultiUndoCommand* command)
     command->add_child(video_track_command);
     command->add_child(audio_track_command);
   } else {
-    video_track_command->redo();
-    audio_track_command->redo();
+    video_track_command->redo_now();
+    audio_track_command->redo_now();
     delete video_track_command;
     delete audio_track_command;
   }

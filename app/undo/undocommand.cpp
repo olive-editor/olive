@@ -56,12 +56,7 @@ UndoCommand::UndoCommand()
 
 void UndoCommand::redo_and_set_modified()
 {
-  if (!prepared_) {
-    prepare();
-    prepared_ = true;
-  }
-
-  redo();
+  redo_now();
 
   project_ = GetRelevantProject();
   if (project_) {
@@ -72,11 +67,26 @@ void UndoCommand::redo_and_set_modified()
 
 void UndoCommand::undo_and_set_modified()
 {
-  undo();
+  undo_now();
 
   if (project_) {
     project_->set_modified(modified_);
   }
+}
+
+void UndoCommand::redo_now()
+{
+  if (!prepared_) {
+    prepare();
+    prepared_ = true;
+  }
+
+  redo();
+}
+
+void UndoCommand::undo_now()
+{
+  undo();
 }
 
 }

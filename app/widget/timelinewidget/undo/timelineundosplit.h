@@ -97,7 +97,7 @@ public:
   virtual void undo() override
   {
     for (int i=commands_.size()-1; i>=0; i--) {
-      commands_.at(i)->undo();
+      commands_.at(i)->undo_now();
     }
   }
 
@@ -134,14 +134,14 @@ public:
   virtual void redo() override
   {
     if (command_) {
-      command_->redo();
+      command_->redo_now();
     }
   }
 
   virtual void undo() override
   {
     if (command_) {
-      command_->undo();
+      command_->undo_now();
     }
   }
 

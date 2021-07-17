@@ -43,7 +43,7 @@ void NodeEdgeAddCommand::redo()
       remove_command_ = new NodeEdgeRemoveCommand(input_.GetConnectedOutput(), input_);
     }
 
-    remove_command_->redo();
+    remove_command_->redo_now();
   }
 
   Node::ConnectEdge(output_, input_);
@@ -54,7 +54,7 @@ void NodeEdgeAddCommand::undo()
   Node::DisconnectEdge(output_, input_);
 
   if (remove_command_) {
-    remove_command_->undo();
+    remove_command_->undo_now();
   }
 }
 

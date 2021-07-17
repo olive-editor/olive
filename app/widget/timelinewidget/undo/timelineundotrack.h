@@ -39,6 +39,7 @@ public:
     return track_->project();
   }
 
+protected:
   virtual void redo() override
   {
     before_ = block_->previous();
@@ -73,6 +74,7 @@ public:
     return track_->project();
   }
 
+protected:
   virtual void redo() override
   {
     track_->PrependBlock(block_);
@@ -103,6 +105,7 @@ public:
     return block_->project();
   }
 
+protected:
   virtual void redo() override
   {
     track_->InsertBlockAfter(block_, before_);
@@ -141,6 +144,7 @@ public:
     return track_->project();
   }
 
+protected:
   virtual void redo() override
   {
     track_->ReplaceBlock(old_, replace_);
