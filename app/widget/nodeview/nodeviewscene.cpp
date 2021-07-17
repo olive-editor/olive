@@ -65,7 +65,10 @@ void NodeViewScene::clear()
   //       deleted. Calling this function appears to update the internal cache and prevent this.
   selectedItems();
 
-  qDeleteAll(item_map_);
+  for (auto it=item_map_.cbegin(); it!=item_map_.cend(); it++) {
+    DisconnectNode(it.key());
+    delete it.value();
+  }
   item_map_.clear();
 
   qDeleteAll(edges_);
@@ -157,16 +160,14 @@ NodeViewItem* NodeViewScene::AddNode(Node* node)
   addItem(item);
   item_map_.insert(node, item);
 
-  connect(node, &Node::LabelChanged, this, &NodeViewScene::NodeAppearanceChanged);
-  connect(node, &Node::ColorChanged, this, &NodeViewScene::NodeAppearanceChanged);
+  ConnectNode(node);
 
   return item;
 }
 
 void NodeViewScene::RemoveNode(Node *node)
 {
-  disconnect(node, &Node::ColorChanged, this, &NodeViewScene::NodeAppearanceChanged);
-  disconnect(node, &Node::LabelChanged, this, &NodeViewScene::NodeAppearanceChanged);
+  DisconnectNode(node);
 
   delete item_map_.take(node);
 }
@@ -222,6 +223,18 @@ NodeViewEdge* NodeViewScene::AddEdgeInternal(const NodeOutput& output, const Nod
   edges_.append(edge_ui);
 
   return edge_ui;
+}
+
+void NodeViewScene::ConnectNode(Node *n)
+{
+  connect(n, &Node::LabelChanged, this, &NodeViewScene::NodeAppearanceChanged);
+  connect(n, &Node::ColorChanged, this, &NodeViewScene::NodeAppearanceChanged);
+}
+
+void NodeViewScene::DisconnectNode(Node *n)
+{
+  disconnect(n, &Node::ColorChanged, this, &NodeViewScene::NodeAppearanceChanged);
+  disconnect(n, &Node::LabelChanged, this, &NodeViewScene::NodeAppearanceChanged);
 }
 
 Qt::Orientation NodeViewScene::GetFlowOrientation() const

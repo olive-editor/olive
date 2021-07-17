@@ -111,6 +111,10 @@ private:
 
   NodeViewEdge* AddEdgeInternal(const NodeOutput &output, const NodeInput &input, NodeViewItem* from, NodeViewItem* to);
 
+  void ConnectNode(Node *n);
+
+  void DisconnectNode(Node *n);
+
   QHash<Node*, NodeViewItem*> item_map_;
 
   QVector<NodeViewEdge*> edges_;
