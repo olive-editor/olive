@@ -811,7 +811,7 @@ void PreviewAutoCacher::QueueNextAudioTask()
     watcher->setProperty("job", QVariant::fromValue(last_update_time_));
     connect(watcher, &RenderTicketWatcher::Finished, this, &PreviewAutoCacher::AudioRendered);
     audio_tasks_.insert(watcher, r);
-    watcher->SetTicket(RenderManager::instance()->RenderAudio(copied_viewer_node_, r, RenderMode::kOffline, false));
+    watcher->SetTicket(RenderManager::instance()->RenderAudio(copied_viewer_node_, r, RenderMode::kOffline, true));
 
     audio_iterator_.remove(r);
   }
