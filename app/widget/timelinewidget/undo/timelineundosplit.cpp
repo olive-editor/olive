@@ -58,7 +58,7 @@ void BlockSplitCommand::redo()
 
   // Position the block
   if (!position_command_) {
-    position_command_ = new NodeSetPositionAsChildCommand(new_block(), track, nullptr, new_block()->index(), track->Blocks().size(), true);
+    position_command_ = new NodeSetPositionAsChildCommand(new_block(), track, track, new_block()->index(), track->Blocks().size(), true);
   }
   position_command_->redo();
 
