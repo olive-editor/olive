@@ -101,7 +101,7 @@ void NodeView::SetGraph(NodeGraph *graph, const QVector<Node*> &nodes)
     if (graph_changed) {
       if (graph_) {
         // Disconnect from current graph
-        disconnect(graph_, &NodeGraph::NodeAdded, this, &NodeView::AddNode);
+        //disconnect(graph_, &NodeGraph::NodeAdded, this, &NodeView::AddNode);
         disconnect(graph_, &NodeGraph::NodeRemoved, this, &NodeView::RemoveNode);
         disconnect(graph_, &NodeGraph::InputConnected, this, &NodeView::AddEdge);
         disconnect(graph_, &NodeGraph::InputDisconnected, this, &NodeView::RemoveEdge);
@@ -113,7 +113,7 @@ void NodeView::SetGraph(NodeGraph *graph, const QVector<Node*> &nodes)
 
       if (graph_) {
         // Connect to new graph
-        connect(graph_, &NodeGraph::NodeAdded, this, &NodeView::AddNode);
+        //connect(graph_, &NodeGraph::NodeAdded, this, &NodeView::AddNode);
         connect(graph_, &NodeGraph::NodeRemoved, this, &NodeView::RemoveNode);
         connect(graph_, &NodeGraph::InputConnected, this, &NodeView::AddEdge);
         connect(graph_, &NodeGraph::InputDisconnected, this, &NodeView::RemoveEdge);
@@ -122,47 +122,50 @@ void NodeView::SetGraph(NodeGraph *graph, const QVector<Node*> &nodes)
       }
     }
 
-    if (context_changed) {
+    if (context_changed && filter_mode_ == kFilterShowSelective) {
       filter_nodes_ = nodes;
     }
 
     if (refresh_required && nodes_visible) {
 
       if (filter_mode_ == kFilterShowAll) {
-        /* = WIP =
-        for (auto it=graph_->GetPositionMap().cbegin(); it!=graph_->GetPositionMap().cend(); it++) {
+        // Determine which contexts in the graph have no outputs, these are considered "root-level"
+        filter_nodes_.clear();
+        for (auto it=graph->GetPositionMap().cbegin(); it!=graph->GetPositionMap().cend(); it++) {
           Node *context = it.key();
-          const NodeGraph::PositionMap &map = it.value();
-
-          for (auto jt=map.cbegin(); jt!=map.cend(); jt++) {
-
+          if (context->output_connections().empty()) {
+            filter_nodes_.append(context);
           }
-        }*/
-      } else {
-        // Reserve an arbitrary number to reduce the amount of reallocations
-        qreal last_offset = 0;
-        int additional_spacing = 0;
+        }
+      }
 
-        foreach (Node *n, filter_nodes_) {
-          const NodeGraph::PositionMap &map = graph_->GetNodesForContext(n);
+      // Standard root-level positioning code
+      qreal last_offset = 0;
+      int additional_spacing = 0;
 
-          // First determine the total "height" of this graph and how much we need to offset it
-          qreal top = 0;
-          qreal bottom = 0;
-          for (auto it=map.cbegin(); it!=map.cend(); it++) {
-            const QPointF &node_pos_in_context = it.value();
-            top = qMin(node_pos_in_context.y(), top);
-            bottom = qMax(node_pos_in_context.y(), bottom);
-          }
+      // Contexts may be added to this later, so to ensure we only process the root-level nodes we
+      // found above, we'll store the current size and stop iterating after that
+      int sz = filter_nodes_.size();
+      for (int i=0; i<sz; i++) {
+        Node *n = filter_nodes_.at(i);
+        const NodeGraph::PositionMap &map = graph_->GetNodesForContext(n);
 
-          last_offset += (additional_spacing + (bottom - top));
-          additional_spacing = 1;
-          context_offsets_.insert(n, QPointF(0, last_offset));
+        // First determine the total "height" of this graph and how much we need to offset it
+        qreal top = 0;
+        qreal bottom = 0;
+        for (auto it=map.cbegin(); it!=map.cend(); it++) {
+          const QPointF &node_pos_in_context = it.value();
+          top = qMin(node_pos_in_context.y(), top);
+          bottom = qMax(node_pos_in_context.y(), bottom);
+        }
 
-          // Finally add all nodes
-          for (auto it=map.cbegin(); it!=map.cend(); it++) {
-            AddNodePosition(it.key(), n);
-          }
+        last_offset += (additional_spacing + (bottom - top));
+        additional_spacing = 1;
+        context_offsets_.insert(n, QPointF(0, last_offset));
+
+        // Finally add all nodes
+        for (auto it=map.cbegin(); it!=map.cend(); it++) {
+          AddNodePosition(it.key(), n);
         }
       }
 
@@ -994,13 +997,9 @@ void NodeView::ShowContextMenu(const QPoint &pos)
     Menu* filter_menu = new Menu(tr("Filter"), &m);
     m.addMenu(filter_menu);
 
-    filter_menu->AddActionWithData(tr("Show All Nodes"),
-                                   kFilterShowAll,
-                                   filter_mode_);
+    filter_menu->AddActionWithData(tr("Show All Nodes"), kFilterShowAll, filter_mode_);
 
-    filter_menu->AddActionWithData(tr("Show Selected"),
-                                   kFilterShowSelective,
-                                   filter_mode_);
+    filter_menu->AddActionWithData(tr("Show Selected"), kFilterShowSelective, filter_mode_);
 
     connect(filter_menu, &Menu::triggered, this, &NodeView::ContextMenuFilterChanged);
 
@@ -1098,12 +1097,15 @@ void NodeView::OpenSelectedNodeInViewer()
   }
 }
 
-void NodeView::AddNode(Node *node)
-{
-  if (filter_mode_ == kFilterShowAll) {
-    scene_.AddNode(node);
-  }
-}
+// Commenting out because there shouldn't be any situations where a node would be added without
+// being in a context. We're keeping RemoveNode as a fail-safe because it could provide crash
+// resistance where RemoveNodePosition might be missed.
+//void NodeView::AddNode(Node *node)
+//{
+//  if (filter_mode_ == kFilterShowAll) {
+//    scene_.AddNode(node);
+//  }
+//}
 
 void NodeView::RemoveNode(Node *node)
 {
@@ -1112,15 +1114,11 @@ void NodeView::RemoveNode(Node *node)
 
 void NodeView::AddEdge(const NodeOutput &output, const NodeInput &input)
 {
-  if (filter_mode_ == kFilterShowAll) {
-    scene_.AddEdge(output, input);
-  } else if (filter_mode_ == kFilterShowSelective) {
-    Node *output_node = output.node();
-    Node *input_node = input.node();
+  Node *output_node = output.node();
+  Node *input_node = input.node();
 
-    if (scene_.item_map().contains(output_node) && scene_.item_map().contains(input_node)) {
-      scene_.AddEdge(output, input);
-    }
+  if (scene_.item_map().contains(output_node) && scene_.item_map().contains(input_node)) {
+    scene_.AddEdge(output, input);
   }
 }
 
@@ -1131,74 +1129,80 @@ void NodeView::RemoveEdge(const NodeOutput &output, const NodeInput &input)
 
 void NodeView::AddNodePosition(Node *node, Node *relative)
 {
-  if (filter_mode_ == kFilterShowSelective) {
-    if (filter_nodes_.contains(relative)) {
-      // Get UI item or create if it doesn't exist
-      NodeViewItem *item = scene_.item_map().value(node);
-      if (!item) {
-        item = scene_.AddNode(node);
+  if (filter_nodes_.contains(relative)) {
+    // Get UI item or create if it doesn't exist
+    NodeViewItem *item = scene_.item_map().value(node);
+    if (!item) {
+      item = scene_.AddNode(node);
 
-        for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
-          if (scene_.item_map().contains(it->second.node())) {
-            scene_.AddEdge(it->second, it->first);
-          }
-        }
-
-        for (auto it=node->output_connections().cbegin(); it!=node->output_connections().cend(); it++) {
-          if (scene_.item_map().contains(it->second.node())) {
-            scene_.AddEdge(it->first, it->second);
-          }
+      for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
+        if (scene_.item_map().contains(it->second.node())) {
+          scene_.AddEdge(it->second, it->first);
         }
       }
 
-      // Determine "view" position by averaging the Y value and "min"ing the X value of all contexts
-      QPointF item_pos(DBL_MAX, 0.0);
-      int average_count = 0;
-      foreach (Node *context, filter_nodes_) {
-        if (graph_->GetNodesForContext(context).contains(node)) {
-          QPointF this_context_pos = graph_->GetNodePosition(node, context);
-          this_context_pos += context_offsets_.value(context);
-          item_pos.setX(qMin(item_pos.x(), this_context_pos.x()));
-          item_pos.setY(item_pos.y() + this_context_pos.y());
-          average_count++;
+      for (auto it=node->output_connections().cbegin(); it!=node->output_connections().cend(); it++) {
+        if (scene_.item_map().contains(it->second.node())) {
+          scene_.AddEdge(it->first, it->second);
         }
       }
-      item_pos.setY(item_pos.y() / average_count);
+    }
 
-      // Set position
-      item->SetNodePosition(item_pos);
-      positions_.insert(item, {node, item_pos});
+    // Determine "view" position by averaging the Y value and "min"ing the X value of all contexts
+    QPointF item_pos(DBL_MAX, 0.0);
+    int average_count = 0;
+    foreach (Node *context, filter_nodes_) {
+      if (graph_->GetNodesForContext(context).contains(node)) {
+        QPointF this_context_pos = graph_->GetNodePosition(node, context);
+        this_context_pos += context_offsets_.value(context);
+        item_pos.setX(qMin(item_pos.x(), this_context_pos.x()));
+        item_pos.setY(item_pos.y() + this_context_pos.y());
+        average_count++;
+      }
+    }
+    item_pos.setY(item_pos.y() / average_count);
+
+    // Set position
+    item->SetNodePosition(item_pos);
+    positions_.insert(item, {node, item_pos});
+
+    // For "show all" mode, we recursively add more nodes to the graph
+    if (filter_mode_ == kFilterShowAll && !filter_nodes_.contains(node) && graph_->GetPositionMap().contains(node)) {
+      filter_nodes_.append(node);
+      context_offsets_.insert(node, item_pos);
+      const NodeGraph::PositionMap &map = graph_->GetNodesForContext(node);
+      for (auto it=map.cbegin(); it!=map.cend(); it++) {
+        AddNodePosition(it.key(), node);
+      }
     }
   }
 }
 
 void NodeView::RemoveNodePosition(Node *node, Node *relative)
 {
-  if (filter_mode_ == kFilterShowSelective) {
-    if (filter_nodes_.contains(relative)) {
-      NodeViewItem *item = scene_.item_map().value(node);
+  if (filter_nodes_.contains(relative)) {
+    NodeViewItem *item = scene_.item_map().value(node);
 
-      if (item && !item->GetPreventRemoving()) {
-        // Determine if any other contexts have this node
-        bool found = false;
+    if (item && !item->GetPreventRemoving()) {
+      // Determine if any other contexts have this node
+      bool found = false;
 
-        foreach (Node *context, filter_nodes_) {
-          if (graph_->ContextContainsNode(node, context)) {
-            found = true;
-            break;
-          }
+      foreach (Node *context, filter_nodes_) {
+        if (graph_->ContextContainsNode(node, context)) {
+          found = true;
+          break;
         }
+      }
 
-        if (!found) {
-          foreach (const Node::OutputConnection &oc, node->output_connections()) {
-            scene_.RemoveEdge(oc.first, oc.second);
-          }
-          for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
-            scene_.RemoveEdge(it->second, it->first);
-          }
-          positions_.remove(item);
-          scene_.RemoveNode(node);
+      if (!found) {
+        foreach (const Node::OutputConnection &oc, node->output_connections()) {
+          scene_.RemoveEdge(oc.first, oc.second);
         }
+        for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
+          scene_.RemoveEdge(it->second, it->first);
+        }
+        positions_.remove(item);
+        scene_.RemoveNode(node);
       }
     }
   }

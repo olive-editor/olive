@@ -44,6 +44,7 @@ private:
   class TimeRangeWithJob : public TimeRange
   {
   public:
+    TimeRangeWithJob() = default;
     TimeRangeWithJob(const TimeRange &range, const JobTime &job_time)
     {
       set_range(range.in(), range.out());
