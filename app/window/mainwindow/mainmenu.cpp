@@ -28,6 +28,7 @@
 #include "config/config.h"
 #include "core.h"
 #include "dialog/actionsearch/actionsearch.h"
+#include "dialog/diskcache/diskcachedialog.h"
 #include "dialog/task/task.h"
 #include "panel/panelmanager.h"
 #include "tool/tool.h"
@@ -170,6 +171,10 @@ MainMenu::MainMenu(MainWindow *parent) :
   sequence_menu_ = new Menu(this, this, &MainMenu::SequenceMenuAboutToShow);
   sequence_cache_item_ = sequence_menu_->AddItem("seqcache", this, &MainMenu::SequenceCacheTriggered);
   sequence_cache_in_to_out_item_ = sequence_menu_->AddItem("seqcacheinout", this, &MainMenu::SequenceCacheInOutTriggered);
+
+  sequence_menu_->addSeparator();
+
+  sequence_disk_cache_clear_item_ = sequence_menu_->AddItem("seqcacheclear", this, &MainMenu::SequenceCacheClearTriggered);
 
   //
   // WINDOW MENU
@@ -614,6 +619,14 @@ void MainMenu::SequenceCacheInOutTriggered()
   Core::instance()->CacheActiveSequence(true);
 }
 
+void MainMenu::SequenceCacheClearTriggered()
+{
+  DiskCacheDialog::ClearDiskCache(
+        Core::instance()->GetActiveProject()->cache_path(),
+        Core::instance()->main_window()
+        );
+}
+
 void MainMenu::HelpFeedbackTriggered()
 {
   QDesktopServices::openUrl(QStringLiteral("https://github.com/olive-editor/olive/issues"));
@@ -686,6 +699,7 @@ void MainMenu::Retranslate()
   sequence_menu_->setTitle(tr("&Sequence"));
   sequence_cache_item_->setText(tr("Cache Entire Sequence"));
   sequence_cache_in_to_out_item_->setText(tr("Cache Sequence In/Out"));
+  sequence_disk_cache_clear_item_->setText(tr("Clear Disk Cache"));
 
   // Window menu
   window_menu_->setTitle(tr("&Window"));

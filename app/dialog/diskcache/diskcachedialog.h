@@ -36,6 +36,8 @@ class DiskCacheDialog : public QDialog
 public:
   DiskCacheDialog(DiskCacheFolder* folder, QWidget* parent = nullptr);
 
+  static void ClearDiskCache(const QString &path, QWidget *parent, QPushButton *clear_btn = nullptr);
+
 public slots:
   virtual void accept() override;
 
