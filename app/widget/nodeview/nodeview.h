@@ -268,7 +268,7 @@ private slots:
    */
   void OpenSelectedNodeInViewer();
 
-  void AddNode(Node *node);
+  //void AddNode(Node *node);
   void RemoveNode(Node *node);
   void AddEdge(const NodeOutput& output, const NodeInput& input);
   void RemoveEdge(const NodeOutput& output, const NodeInput& input);
