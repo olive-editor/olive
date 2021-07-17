@@ -31,5 +31,6 @@ set(OLIVE_TS_FILES
   ts/uk_UK.ts
   ts/zh_CN.ts
   ts/zh_TW.ts
+  ts/ja_JP.ts
   PARENT_SCOPE
 )
