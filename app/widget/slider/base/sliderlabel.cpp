@@ -48,7 +48,7 @@ SliderLabel::SliderLabel(QWidget *parent) :
   // Allow users to tab to this widget
   setFocusPolicy(Qt::TabFocus);
 
-  // Add ccustom context menu
+  // Add custom context menu
   setContextMenuPolicy(Qt::CustomContextMenu);
 }
 

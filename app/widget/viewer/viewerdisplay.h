@@ -263,7 +263,7 @@ private:
   QMatrix4x4 translate_matrix_;
 
   /**
-   * @breif Scale only matrix.
+   * @brief Scale only matrix.
    */
   QMatrix4x4 scale_matrix_;
 

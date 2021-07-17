@@ -26,6 +26,7 @@
 #include <QMessageBox>
 
 #include "config/config.h"
+#include "core.h"
 
 namespace olive {
 
@@ -53,7 +54,7 @@ DiskCacheDialog::DiskCacheDialog(DiskCacheFolder *folder, QWidget* parent) :
   row++;
 
   clear_cache_btn_ = new QPushButton(tr("Clear Disk Cache"));
-  connect(clear_cache_btn_, &QPushButton::clicked, this, &DiskCacheDialog::ClearDiskCache);
+  connect(clear_cache_btn_, &QPushButton::clicked, this, static_cast<void(DiskCacheDialog::*)()>(&DiskCacheDialog::ClearDiskCache));
   layout->addWidget(clear_cache_btn_, row, 1);
 
   row++;
@@ -86,20 +87,25 @@ void DiskCacheDialog::accept()
 
 void DiskCacheDialog::ClearDiskCache()
 {
-  if (QMessageBox::question(this,
-                            tr("Clear Disk Cache"),
-                            tr("Are you sure you want to clear the disk cache in '%1'?").arg(Config::Current()["DiskCachePath"].toString()),
-                            QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
-    clear_cache_btn_->setEnabled(false);
+  ClearDiskCache(folder_->GetPath(), this, clear_cache_btn_);
+}
 
-    if (DiskManager::instance()->ClearDiskCache(folder_->GetPath())) {
-      clear_cache_btn_->setText(tr("Disk Cache Cleared"));
+void DiskCacheDialog::ClearDiskCache(const QString &path, QWidget *parent, QPushButton *clear_btn)
+{
+  if (QMessageBox::question(parent,
+                            tr("Clear Disk Cache"),
+                            tr("Are you sure you want to clear the disk cache in '%1'?").arg(path),
+                            QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+    if (clear_btn) clear_btn->setEnabled(false);
+
+    if (DiskManager::instance()->ClearDiskCache(path)) {
+      if (clear_btn) clear_btn->setText(tr("Disk Cache Cleared"));
     } else {
-      QMessageBox::information(this,
+      QMessageBox::information(parent,
                                tr("Clear Disk Cache"),
                                tr("Disk cache failed to fully clear. You may have to delete the cache files manually."),
                                QMessageBox::Ok);
-      clear_cache_btn_->setText(tr("Disk Cache Partially Cleared"));
+      if (clear_btn) clear_btn->setText(tr("Disk Cache Partially Cleared"));
     }
   }
 }

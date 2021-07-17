@@ -235,7 +235,7 @@ void AudioVisualWaveform::Shift(const rational &from, const rational &to)
 
 AudioVisualWaveform::Sample AudioVisualWaveform::GetSummaryFromTime(const rational &start, const rational &length) const
 {
-  // Find mipmap that requries
+  // Find mipmap that requires
   auto using_mipmap = GetMipmapForScale(length.flipped().toDouble());
 
   double rate_dbl = using_mipmap->first.toDouble();
