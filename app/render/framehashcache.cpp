@@ -256,6 +256,10 @@ void FrameHashCache::ShiftEvent(const rational &from, const rational &to)
   int64_t to_ts = ToTimestamp(to);
   int64_t from_ts = ToTimestamp(from);
 
+  if (from_ts >= GetMapSize()) {
+    return;
+  }
+
   if (diff_is_negative) {
     // We're moving the frames starting at `from` backwards to where `to` is
     if (to_ts < GetMapSize()) {
