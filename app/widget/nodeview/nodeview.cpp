@@ -27,6 +27,8 @@
 
 #include "core.h"
 #include "nodeviewundo.h"
+#include "node/audio/volume/volume.h"
+#include "node/distort/transform/transformdistortnode.h"
 #include "node/factory.h"
 #include "node/traverser.h"
 #include "widget/menu/menushared.h"
@@ -71,6 +73,10 @@ NodeView::NodeView(QWidget *parent) :
   connect(minimap_, &NodeViewMiniMap::MoveToScenePoint, this, &NodeView::MoveToScenePoint);
   connect(horizontalScrollBar(), &QScrollBar::valueChanged, this, &NodeView::UpdateViewportOnMiniMap);
   connect(verticalScrollBar(), &QScrollBar::valueChanged, this, &NodeView::UpdateViewportOnMiniMap);
+
+  reposition_contexts_timer_.setInterval(1);
+  reposition_contexts_timer_.setSingleShot(true);
+  connect(&reposition_contexts_timer_, &QTimer::timeout, this, &NodeView::RepositionContexts);
 }
 
 NodeView::~NodeView()
@@ -95,6 +101,7 @@ void NodeView::SetGraph(NodeGraph *graph, const QVector<Node*> &nodes)
       DeselectAll();
       positions_.clear();
       scene_.clear();
+      context_offsets_.clear();
     }
 
     // Handle graph change
@@ -127,47 +134,12 @@ void NodeView::SetGraph(NodeGraph *graph, const QVector<Node*> &nodes)
     }
 
     if (refresh_required && nodes_visible) {
-
       if (filter_mode_ == kFilterShowAll) {
-        // Determine which contexts in the graph have no outputs, these are considered "root-level"
-        filter_nodes_.clear();
-        for (auto it=graph->GetPositionMap().cbegin(); it!=graph->GetPositionMap().cend(); it++) {
-          Node *context = it.key();
-          if (context->output_connections().empty()) {
-            filter_nodes_.append(context);
-          }
-        }
+        // Just make the filter nodes all of the graph's contexts
+        filter_nodes_ = graph->GetPositionMap().keys().toVector();
       }
 
-      // Standard root-level positioning code
-      qreal last_offset = 0;
-      int additional_spacing = 0;
-
-      // Contexts may be added to this later, so to ensure we only process the root-level nodes we
-      // found above, we'll store the current size and stop iterating after that
-      int sz = filter_nodes_.size();
-      for (int i=0; i<sz; i++) {
-        Node *n = filter_nodes_.at(i);
-        const NodeGraph::PositionMap &map = graph_->GetNodesForContext(n);
-
-        // First determine the total "height" of this graph and how much we need to offset it
-        qreal top = 0;
-        qreal bottom = 0;
-        for (auto it=map.cbegin(); it!=map.cend(); it++) {
-          const QPointF &node_pos_in_context = it.value();
-          top = qMin(node_pos_in_context.y(), top);
-          bottom = qMax(node_pos_in_context.y(), bottom);
-        }
-
-        last_offset += (additional_spacing + (bottom - top));
-        additional_spacing = 1;
-        context_offsets_.insert(n, QPointF(0, last_offset));
-
-        // Finally add all nodes
-        for (auto it=map.cbegin(); it!=map.cend(); it++) {
-          AddNodePosition(it.key(), n);
-        }
-      }
+      RepositionContexts();
 
       // Center on something
       QMetaObject::invokeMethod(this, &NodeView::CenterOnItemsBoundingRect, Qt::QueuedConnection);
@@ -219,7 +191,7 @@ void NodeView::DeleteSelected()
     }
 
     if (!selected_nodes.isEmpty()) {
-      foreach (Node* node, selected_nodes) {
+      for (Node* node : selected_nodes) {
         command->add_child(new NodeRemoveAndDisconnectCommand(node));
       }
     }
@@ -248,7 +220,7 @@ void NodeView::SelectAll()
   } else {
     // We have to determine the difference
     QVector<Node*> new_selection;
-    foreach (Node* n, graph_->nodes()) {
+    for (Node* n : graph_->nodes()) {
       if (!selected_nodes_.contains(n)) {
         new_selection.append(n);
       }
@@ -300,7 +272,7 @@ void NodeView::Select(QVector<Node *> nodes, bool center_view_on_item)
 
   NodeViewItem *first_item = nullptr;
 
-  foreach (Node* n, nodes) {
+  for (Node* n : nodes) {
     if (processed.contains(n)) {
       continue;
     }
@@ -420,7 +392,7 @@ void NodeView::Duplicate()
 
 void NodeView::SetColorLabel(int index)
 {
-  foreach (Node* node, selected_nodes_) {
+  for (Node* node : selected_nodes_) {
     node->SetOverrideColor(index);
   }
 }
@@ -445,8 +417,8 @@ void NodeView::keyPressEvent(QKeyEvent *event)
   {
     if (graph_) {
       MultiUndoCommand *pos_command = new MultiUndoCommand();
-      foreach (Node *n, selected_nodes_) {
-        foreach (Node *context, filter_nodes_) {
+      for (Node *n : selected_nodes_) {
+        for (Node *context : filter_nodes_) {
           if (graph_->GetNodesForContext(context).contains(n)) {
             QPointF old_pos = graph_->GetNodePosition(n, context);
 
@@ -511,7 +483,7 @@ void NodeView::mousePressEvent(QMouseEvent *event)
     // See if we're dragging the arrow of an edge
     QPointF scene_pt = mapToScene(event->pos());
 
-    foreach (NodeViewEdge *edge_item, scene_.edges()) {
+    for (NodeViewEdge *edge_item : scene_.edges()) {
       if (edge_item->arrow_bounding_rect().contains(scene_pt)) {
         create_edge_src_ = scene_.NodeToUIObject(edge_item->output().node());
         create_edge_src_output_ = edge_item->output().output();
@@ -522,7 +494,7 @@ void NodeView::mousePressEvent(QMouseEvent *event)
     }
 
     // See if we're dragging the arrow of a node
-    foreach (NodeViewItem *node_item, scene_.item_map()) {
+    for (NodeViewItem *node_item : scene_.item_map()) {
       if (node_item->GetOutputTriangle().boundingRect().translated(node_item->pos()).contains(scene_pt)) {
         CreateNewEdge(node_item);
         return;
@@ -648,7 +620,7 @@ void NodeView::mouseMoveEvent(QMouseEvent *event)
       NodeViewEdge* new_drop_edge = nullptr;
 
       // See if there is an edge here
-      foreach (QGraphicsItem* item, items) {
+      for (QGraphicsItem* item : items) {
         new_drop_edge = dynamic_cast<NodeViewEdge*>(item);
 
         if (new_drop_edge) {
@@ -665,7 +637,7 @@ void NodeView::mouseMoveEvent(QMouseEvent *event)
 
           // Iterate through the inputs of our dragging node and see if our node has any acceptable
           // inputs to connect to for this type
-          foreach (const QString& input, attached_node->inputs()) {
+          for (const QString& input : attached_node->inputs()) {
             NodeInput i(attached_node, input);
 
             if (attached_node->IsInputConnectable(input)) {
@@ -802,7 +774,7 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
       if (pos_data.original_item_pos != current_item_pos) {
         QPointF diff = current_item_pos - pos_data.original_item_pos;
 
-        foreach (Node *context, filter_nodes_) {
+        for (Node *context : filter_nodes_) {
           if (graph_->ContextContainsNode(node, context)) {
             QPointF current_node_pos_in_context = graph_->GetNodePosition(node, context);
             current_node_pos_in_context += diff;
@@ -852,13 +824,13 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
       // Remove from context any nodes that don't specifically output to said context
       MultiUndoCommand *remove_pos_command = new MultiUndoCommand();
 
-      foreach (const AttachedItem &attached, attached_items_) {
+      for (const AttachedItem &attached : attached_items_) {
         MultiUndoCommand *remove_pos_subcommand = new MultiUndoCommand();
         Node *attached_node = scene_.item_map().key(attached.item);
 
         bool removed = false;
         QVector<Node*> relevant_contexts;
-        foreach (Node *context, filter_nodes_) {
+        for (Node *context : filter_nodes_) {
           if (attached_node->OutputsTo(context, true)) {
             relevant_contexts.append(context);
           } else {
@@ -868,7 +840,7 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
         }
 
         if (removed && !relevant_contexts.isEmpty()) {
-          foreach (Node *relevant, relevant_contexts) {
+          for (Node *relevant : relevant_contexts) {
             remove_pos_subcommand->add_child(new NodeSetPositionCommand(attached_node, relevant, GetEstimatedPositionForContext(attached.item, relevant), false));
           }
 
@@ -913,7 +885,7 @@ void NodeView::UpdateSelectionCache()
     // All nodes in the current selection have just been selected
     selected = current_selection;
   } else {
-    foreach (Node* n, current_selection) {
+    for (Node* n : current_selection) {
       if (!selected_nodes_.contains(n)) {
         selected.append(n);
       }
@@ -925,7 +897,7 @@ void NodeView::UpdateSelectionCache()
     // All nodes that were selected have been deselected
     deselected = selected_nodes_;
   } else {
-    foreach (Node* n, selected_nodes_) {
+    for (Node* n : selected_nodes_) {
       if (!current_selection.contains(n)) {
         deselected.append(n);
       }
@@ -1043,7 +1015,7 @@ void NodeView::CreateNodeSlot(QAction *action)
   if (new_node) {
     paste_command_ = new MultiUndoCommand();
     paste_command_->add_child(new NodeAddCommand(graph_, new_node));
-    foreach (Node *context, filter_nodes_) {
+    for (Node *context : filter_nodes_) {
       paste_command_->add_child(new NodeSetPositionCommand(new_node, context, QPointF(0, 0), false));
     }
     paste_command_->add_child(new NodeViewAttachNodesToCursor(this, {new_node}));
@@ -1062,7 +1034,7 @@ void NodeView::AutoPositionDescendents()
 {
   QVector<Node*> selected = scene_.GetSelectedNodes();
 
-  foreach (Node* n, selected) {
+  for (Node* n : selected) {
     scene_.ReorganizeFrom(n);
   }
 }
@@ -1129,52 +1101,25 @@ void NodeView::RemoveEdge(const NodeOutput &output, const NodeInput &input)
 
 void NodeView::AddNodePosition(Node *node, Node *relative)
 {
-  if (filter_nodes_.contains(relative)) {
-    // Get UI item or create if it doesn't exist
-    NodeViewItem *item = scene_.item_map().value(node);
-    if (!item) {
-      item = scene_.AddNode(node);
+  bool listening_to_node = filter_nodes_.contains(relative);
 
-      for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
-        if (scene_.item_map().contains(it->second.node())) {
-          scene_.AddEdge(it->second, it->first);
-        }
-      }
-
-      for (auto it=node->output_connections().cbegin(); it!=node->output_connections().cend(); it++) {
-        if (scene_.item_map().contains(it->second.node())) {
-          scene_.AddEdge(it->first, it->second);
-        }
-      }
+  if (!listening_to_node) {
+    if (filter_mode_ == kFilterShowAll) {
+      // We're not listening to this context, but because we're showing all, add it
+      filter_nodes_.append(relative);
+    } else {
+      // Ignore signal
+      return;
     }
+  }
 
-    // Determine "view" position by averaging the Y value and "min"ing the X value of all contexts
-    QPointF item_pos(DBL_MAX, 0.0);
-    int average_count = 0;
-    foreach (Node *context, filter_nodes_) {
-      if (graph_->GetNodesForContext(context).contains(node)) {
-        QPointF this_context_pos = graph_->GetNodePosition(node, context);
-        this_context_pos += context_offsets_.value(context);
-        item_pos.setX(qMin(item_pos.x(), this_context_pos.x()));
-        item_pos.setY(item_pos.y() + this_context_pos.y());
-        average_count++;
-      }
-    }
-    item_pos.setY(item_pos.y() / average_count);
+  // Reposition contexts because one of their heights may have changed or a new one may have been
+  // added
+  UpdateNodeItem(node);
 
-    // Set position
-    item->SetNodePosition(item_pos);
-    positions_.insert(item, {node, item_pos});
-
-    // For "show all" mode, we recursively add more nodes to the graph
-    if (filter_mode_ == kFilterShowAll && !filter_nodes_.contains(node) && graph_->GetPositionMap().contains(node)) {
-      filter_nodes_.append(node);
-      context_offsets_.insert(node, item_pos);
-      const NodeGraph::PositionMap &map = graph_->GetNodesForContext(node);
-      for (auto it=map.cbegin(); it!=map.cend(); it++) {
-        AddNodePosition(it.key(), node);
-      }
-    }
+  if (filter_mode_ == kFilterShowAll) {
+    reposition_contexts_timer_.stop();
+    reposition_contexts_timer_.start();
   }
 }
 
@@ -1187,7 +1132,7 @@ void NodeView::RemoveNodePosition(Node *node, Node *relative)
       // Determine if any other contexts have this node
       bool found = false;
 
-      foreach (Node *context, filter_nodes_) {
+      for (Node *context : filter_nodes_) {
         if (graph_->ContextContainsNode(node, context)) {
           found = true;
           break;
@@ -1195,7 +1140,7 @@ void NodeView::RemoveNodePosition(Node *node, Node *relative)
       }
 
       if (!found) {
-        foreach (const Node::OutputConnection &oc, node->output_connections()) {
+        for (const Node::OutputConnection &oc : node->output_connections()) {
           scene_.RemoveEdge(oc.first, oc.second);
         }
         for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
@@ -1204,6 +1149,10 @@ void NodeView::RemoveNodePosition(Node *node, Node *relative)
         positions_.remove(item);
         scene_.RemoveNode(node);
       }
+    }
+
+    if (filter_mode_ == kFilterShowAll) {
+      RepositionContexts();
     }
   }
 }
@@ -1275,7 +1224,7 @@ void NodeView::AttachItemsToCursor(const QVector<NodeViewItem*>& items)
   DetachItemsFromCursor();
 
   if (!items.isEmpty()) {
-    foreach (NodeViewItem* i, items) {
+    for (NodeViewItem* i : items) {
       attached_items_.append({i, i->pos() - items.first()->pos()});
     }
 
@@ -1297,7 +1246,7 @@ void NodeView::MoveAttachedNodesToCursor(const QPoint& p)
 {
   QPointF item_pos = mapToScene(p);
 
-  foreach (const AttachedItem& i, attached_items_) {
+  for (const AttachedItem& i : attached_items_) {
     i.item->setPos(item_pos + i.original_pos);
   }
 }
@@ -1362,7 +1311,7 @@ void NodeView::ZoomFromKeyboard(double multiplier)
 bool NodeView::DetermineIfNodeIsFloatingInContext(Node *node, Node *context, Node *source, const Node::OutputConnections &removed_edges, const Node::OutputConnection &added_edge)
 {
   // Determines whether `node` outputs to another node in `context` besides `source`
-  foreach (const Node::OutputConnection &conn, node->output_connections()) {
+  for (const Node::OutputConnection &conn : node->output_connections()) {
     Node *output_candidate = conn.second.node();
 
     if (output_candidate == source) {
@@ -1382,7 +1331,7 @@ bool NodeView::DetermineIfNodeIsFloatingInContext(Node *node, Node *context, Nod
 void NodeView::UpdateContextsFromEdgeRemove(MultiUndoCommand *command, const Node::OutputConnections &remove_edges)
 {
   // For each edge we remove, determine if we should remove the node from a context as well
-  foreach (const Node::OutputConnection &edge, remove_edges) {
+  for (const Node::OutputConnection &edge : remove_edges) {
     Node *output_node = edge.first.node();
     QVector<Node *> contexts_to_remove_from;
     int contexts_containing = 0;
@@ -1408,7 +1357,7 @@ void NodeView::UpdateContextsFromEdgeRemove(MultiUndoCommand *command, const Nod
       // Not removing from all contexts, can remove
       bool removing_from_all_current_contexts = true;
 
-      foreach (Node *context, filter_nodes_) {
+      for (Node *context : filter_nodes_) {
         if (graph_->ContextContainsNode(output_node, context)) {
           if (!contexts_to_remove_from.contains(context)) {
             removing_from_all_current_contexts = false;
@@ -1417,7 +1366,7 @@ void NodeView::UpdateContextsFromEdgeRemove(MultiUndoCommand *command, const Nod
         }
       }
 
-      foreach (Node *context, contexts_to_remove_from) {
+      for (Node *context : contexts_to_remove_from) {
         RecursivelyRemoveFloatingNodeFromContext(command, output_node, context, output_node, remove_edges, Node::OutputConnection(), removing_from_all_current_contexts);
       }
     }
@@ -1485,13 +1434,13 @@ void NodeView::UpdateContextsFromEdgeAdd(MultiUndoCommand *command, const Node::
 
     if (node_is_floating) {
       // This action will unfloat this node, so remove it from all current contexts
-      foreach (Node *context, current_contexts) {
+      for (Node *context : current_contexts) {
         RecursivelyRemoveFloatingNodeFromContext(command, connecting_node, context, connecting_node, removed_edges, added_edge, false);
       }
     }
 
     // Add nodes to contexts
-    foreach (Node *context, contexts_to_add_to) {
+    for (Node *context : contexts_to_add_to) {
       RecursivelyAddNodeToContext(command, connecting_node, context);
     }
   }
@@ -1521,6 +1470,176 @@ void NodeView::CreateNewEdge(NodeViewItem *output_item)
   create_edge_->SetFlowDirection(scene_.GetFlowDirection());
 
   scene_.addItem(create_edge_);
+}
+
+void NodeView::RepositionContexts()
+{
+  // Determine which contexts are root-level
+  QVector<Node*> root_level_nodes;
+  QVector<Node*> non_root_level_nodes;
+
+  for (Node *context : filter_nodes_) {
+    bool is_root_level = true;
+
+    for (Node *context2 : filter_nodes_) {
+      if (context != context2 && graph_->ContextContainsNode(context, context2)) {
+        is_root_level = false;
+        break;
+      }
+    }
+
+    if (is_root_level) {
+      root_level_nodes.append(context);
+    } else {
+      non_root_level_nodes.append(context);
+    }
+  }
+
+  {
+    // Position root-level nodes
+    qreal last_offset = 0;
+    int additional_spacing = 0;
+
+    for (Node *n : root_level_nodes) {
+      const NodeGraph::PositionMap &map = graph_->GetNodesForContext(n);
+
+      // First determine the total "height" of this graph and how much we need to offset it
+      qreal top = 0;
+      qreal bottom = 0;
+      for (auto it=map.cbegin(); it!=map.cend(); it++) {
+        const QPointF &node_pos_in_context = it.value();
+        top = qMin(node_pos_in_context.y(), top);
+        bottom = qMax(node_pos_in_context.y(), bottom);
+      }
+
+      last_offset += (additional_spacing + (bottom - top));
+      additional_spacing = 1;
+      context_offsets_.insert(n, QPointF(0, last_offset));
+    }
+  }
+
+  {
+    // Position non-root-level nodes
+    const bool optimized = true;
+
+    qint64 t = QDateTime::currentMSecsSinceEpoch();
+
+    if (optimized) {
+
+      while (!non_root_level_nodes.isEmpty()) {
+        QVector<Node*> next_level_nodes;
+
+        for (int i=0; i<non_root_level_nodes.size(); i++) {
+          Node *context = non_root_level_nodes.at(i);
+
+          bool next_level = true;
+
+          for (Node *context2 : non_root_level_nodes) {
+            if (context != context2 && graph_->ContextContainsNode(context, context2)) {
+              next_level = false;
+              break;
+            }
+          }
+
+          if (next_level) {
+            next_level_nodes.append(context);
+            non_root_level_nodes.removeAt(i);
+            i--;
+          }
+        }
+
+        for (Node *n : next_level_nodes) {
+          NodeViewItem *item = UpdateNodeItem(n);
+
+          QPointF pos_in_context = graph_->GetNodesForContext(n).value(n);
+
+          QPointF context_pos = item->GetNodePosition() - pos_in_context;
+
+          context_offsets_.insert(n, context_pos);
+        }
+      }
+
+    } else {
+      int iter = 0;
+
+      while (true) {
+        bool changed = false;
+
+        for (Node *n : non_root_level_nodes) {
+          NodeViewItem *item = UpdateNodeItem(n);
+
+          QPointF pos_in_context = graph_->GetNodesForContext(n).value(n);
+
+          QPointF context_pos = item->GetNodePosition() - pos_in_context;
+
+          if (!context_offsets_.contains(n) || context_offsets_.value(n) != context_pos) {
+            context_offsets_.insert(n, context_pos);
+            changed = true;
+          }
+        }
+
+        iter++;
+
+        if (!changed) {
+          break;
+        }
+      }
+    }
+
+    qDebug() << "Workflow took:" << (QDateTime::currentMSecsSinceEpoch() - t);
+  }
+
+  {
+    // Position all other nodes
+    for (Node *context : filter_nodes_) {
+      const NodeGraph::PositionMap &map = graph_->GetNodesForContext(context);
+      for (auto it=map.cbegin(); it!=map.cend(); it++) {
+        UpdateNodeItem(it.key());
+      }
+    }
+  }
+}
+
+NodeViewItem *NodeView::UpdateNodeItem(Node *node)
+{
+  // Get UI item or create if it doesn't exist
+  NodeViewItem *item = scene_.item_map().value(node);
+  if (!item) {
+    item = scene_.AddNode(node);
+
+    for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
+      if (scene_.item_map().contains(it->second.node())) {
+        scene_.AddEdge(it->second, it->first);
+      }
+    }
+
+    for (auto it=node->output_connections().cbegin(); it!=node->output_connections().cend(); it++) {
+      if (scene_.item_map().contains(it->second.node())) {
+        scene_.AddEdge(it->first, it->second);
+      }
+    }
+  }
+
+  // Determine "view" position by averaging the Y value and "min"ing the X value of all contexts
+  QPointF item_pos(DBL_MAX, 0.0);
+  int average_count = 0;
+  for (Node *context : filter_nodes_) {
+    if (graph_->GetNodesForContext(context).contains(node)) {
+      QPointF this_context_pos = graph_->GetNodePosition(node, context);
+      this_context_pos += context_offsets_.value(context);
+
+      item_pos.setX(qMin(item_pos.x(), this_context_pos.x()));
+      item_pos.setY(item_pos.y() + this_context_pos.y());
+      average_count++;
+    }
+  }
+  item_pos.setY(item_pos.y() / average_count);
+
+  // Set position
+  item->SetNodePosition(item_pos);
+  positions_.insert(item, {node, item_pos});
+
+  return item;
 }
 
 NodeView::NodeViewAttachNodesToCursor::NodeViewAttachNodesToCursor(NodeView *view, const QVector<Node *> &nodes) :

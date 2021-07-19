@@ -138,6 +138,8 @@ private:
 
   void CreateNewEdge(NodeViewItem *output_item);
 
+  NodeViewItem *UpdateNodeItem(Node *node);
+
   class NodeViewAttachNodesToCursor : public UndoCommand
   {
   public:
@@ -232,6 +234,8 @@ private:
 
   bool create_edge_already_exists_;
 
+  QTimer reposition_contexts_timer_;
+
   static const double kMinimumScale;
 
 private slots:
@@ -287,6 +291,8 @@ private slots:
   void UpdateViewportOnMiniMap();
 
   void MoveToScenePoint(const QPointF &pos);
+
+  void RepositionContexts();
 
 };
 
