@@ -92,6 +92,9 @@ void ProxyGenerator::transcode(const ProxyInfo& info) {
 
     // find decoder for this codec
     AVCodec* dec_codec = avcodec_find_decoder(in_stream->codecpar->codec_id);
+    if(in_stream->codecpar->codec_id==167) {
+    	dec_codec = avcodec_find_decoder_by_name("libvpx-vp9");
+    }
 
     // find encoder for chosen proxy type
     AVCodec* enc_codec = avcodec_find_encoder(temp_enc_codec);

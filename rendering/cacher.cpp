@@ -936,6 +936,10 @@ void Cacher::OpenWorker() {
 
     stream = formatCtx->streams[ms->file_index];
     codec = avcodec_find_decoder(stream->codecpar->codec_id);
+    if(stream->codecpar->codec_id==167) {
+	    codec = avcodec_find_decoder_by_name("libvpx-vp9");
+    }
+
     codecCtx = avcodec_alloc_context3(codec);
     avcodec_parameters_to_context(codecCtx, stream->codecpar);
 

@@ -68,6 +68,9 @@ void PreviewGenerator::parse_media() {
   // detect video/audio streams in file
   for (int i=0;i<int(fmt_ctx_->nb_streams);i++) {
     // Find the decoder for the video stream
+    if (fmt_ctx_->streams[i]->codecpar->codec_id==167) {
+	qInfo() << "Codec webm 9 needed " ;
+    }
     if (avcodec_find_decoder(fmt_ctx_->streams[i]->codecpar->codec_id) == nullptr) {
       qCritical() << "Unsupported codec in stream" << i << "of file" << footage_->name;
     } else {
@@ -260,7 +263,13 @@ void PreviewGenerator::generate_waveform() {
     // and only if the thumbnail and waveform sizes are > 0
     if ((fmt_ctx_->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO && olive::CurrentConfig.thumbnail_resolution > 0)
         || (fmt_ctx_->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO && olive::CurrentConfig.waveform_resolution > 0)) {
+
       AVCodec* codec = avcodec_find_decoder(fmt_ctx_->streams[i]->codecpar->codec_id);
+      if (fmt_ctx_->streams[i]->codecpar->codec_id==167) {
+      	codec = avcodec_find_decoder_by_name("libvpx-vp9");
+	qInfo() << "Overriding with libvpx-9";
+      }
+
       if (codec != nullptr) {
 
         // alloc the context and load the params into it
