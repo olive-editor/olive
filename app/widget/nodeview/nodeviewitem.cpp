@@ -347,7 +347,7 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
   // Draw output triangle
   painter->setPen(Qt::NoPen);
   painter->setBrush(app_pal.color(QPalette::Text));
-  int triangle_sz = qMin(rect().width(), rect().height()) / 2;
+  int triangle_sz = title_bar_rect_.height() / 2;
   int triangle_sz_half = triangle_sz / 2;
 
   switch (flow_dir_) {
