@@ -1,0 +1,12 @@
+---
+# Use all checks except for conflicts with project style.
+Checks: "*,\
+-darwin-*,\
+-fuchsia-*,\
+-llvmlibc-*,\
+-modernize-use-trailing-return-type,\
+fuchsia-trailing-return,\
+-llvm-qualified-auto,\
+-readability-qualified-auto,\
+-readability-implicit-bool-conversion"
+...
