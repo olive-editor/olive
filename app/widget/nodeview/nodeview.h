@@ -110,6 +110,8 @@ protected:
 
   virtual bool event(QEvent *event) override;
 
+  virtual bool eventFilter(QObject *object, QEvent *event) override;
+
 private:
   void AttachNodesToCursor(const QVector<Node *> &nodes);
 
@@ -138,7 +140,7 @@ private:
 
   void CreateNewEdge(NodeViewItem *output_item);
 
-  NodeViewItem *UpdateNodeItem(Node *node);
+  NodeViewItem *UpdateNodeItem(Node *node, bool ignore_own_context = false);
 
   class NodeViewAttachNodesToCursor : public UndoCommand
   {
@@ -228,13 +230,14 @@ private:
   FilterMode filter_mode_;
 
   QVector<Node*> filter_nodes_;
+  QVector<Node*> last_set_filter_nodes_;
   QMap<Node*, QPointF> context_offsets_;
 
   double scale_;
 
   bool create_edge_already_exists_;
 
-  QTimer reposition_contexts_timer_;
+  bool queue_reposition_contexts_;
 
   static const double kMinimumScale;
 
