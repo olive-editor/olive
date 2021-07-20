@@ -82,6 +82,9 @@ public:
 
   void RegenerateUuid();
 
+  static bool LoadPosition(QXmlStreamReader *reader, quintptr *node_ptr, QPointF *pos);
+  static void SavePosition(QXmlStreamWriter *writer, Node *node, const QPointF &pos);
+
 signals:
   void NameChanged();
 

@@ -158,35 +158,18 @@ void Project::Load(QXmlStreamReader *reader, MainWindowLayoutInfo* layout, uint 
           } else {
             while (XMLReadNextStartElement(reader)) {
               if (reader->name() == QStringLiteral("node")) {
-                quintptr node_ptr = 0;
-                XMLAttributeLoop(reader, attr) {
-                  if (attr.name() == QStringLiteral("ptr")) {
-                    node_ptr = attr.value().toULongLong();
-                    break;
+                quintptr node_ptr;
+                QPointF node_pos;
+
+                if (LoadPosition(reader, &node_ptr, &node_pos)) {
+                  Node *node = xml_node_data.node_ptrs.value(node_ptr);
+
+                  if (node) {
+                    SetNodePosition(node, context, node_pos);
+                  } else {
+                    qWarning() << "Failed to find pointer for node position";
                   }
                 }
-
-                Node *node = xml_node_data.node_ptrs.value(node_ptr);
-
-                if (!node) {
-                  qWarning() << "Failed to find pointer for node position";
-                  reader->skipCurrentElement();
-                } else {
-                  QPointF pos;
-
-                  while (XMLReadNextStartElement(reader)) {
-                    if (reader->name() == QStringLiteral("x")) {
-                      pos.setX(reader->readElementText().toDouble());
-                    } else if (reader->name() == QStringLiteral("y")) {
-                      pos.setY(reader->readElementText().toDouble());
-                    } else {
-                      reader->skipCurrentElement();
-                    }
-                  }
-
-                  SetNodePosition(node, context, pos);
-                }
-
               } else {
                 reader->skipCurrentElement();
               }
@@ -253,13 +236,7 @@ void Project::Save(QXmlStreamWriter *writer) const
 
     for (auto jt=map.cbegin(); jt!=map.cend(); jt++) {
       writer->writeStartElement(QStringLiteral("node"));
-
-      writer->writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(jt.key())));
-
-      const QPointF &pos = jt.value();
-      writer->writeTextElement(QStringLiteral("x"), QString::number(pos.x()));
-      writer->writeTextElement(QStringLiteral("y"), QString::number(pos.y()));
-
+      SavePosition(writer, jt.key(), jt.value());
       writer->writeEndElement(); // node
     }
 
@@ -369,6 +346,43 @@ QString Project::cache_path() const
 void Project::RegenerateUuid()
 {
   uuid_ = QUuid::createUuid();
+}
+
+bool Project::LoadPosition(QXmlStreamReader *reader, quintptr *node_ptr, QPointF *pos)
+{
+  bool got_node_ptr = false;
+  bool got_pos_x = false;
+  bool got_pos_y = false;
+
+  XMLAttributeLoop(reader, attr) {
+    if (attr.name() == QStringLiteral("ptr")) {
+      *node_ptr = attr.value().toULongLong();
+      got_node_ptr = true;
+      break;
+    }
+  }
+
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("x")) {
+      pos->setX(reader->readElementText().toDouble());
+      got_pos_x = true;
+    } else if (reader->name() == QStringLiteral("y")) {
+      pos->setY(reader->readElementText().toDouble());
+      got_pos_y = true;
+    } else {
+      reader->skipCurrentElement();
+    }
+  }
+
+  return got_node_ptr && got_pos_x && got_pos_y;
+}
+
+void Project::SavePosition(QXmlStreamWriter *writer, Node *node, const QPointF &pos)
+{
+  writer->writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(node)));
+
+  writer->writeTextElement(QStringLiteral("x"), QString::number(pos.x()));
+  writer->writeTextElement(QStringLiteral("y"), QString::number(pos.y()));
 }
 
 void Project::ColorManagerValueChanged(const NodeInput &input, const TimeRange &range)

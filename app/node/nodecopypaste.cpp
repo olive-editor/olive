@@ -41,12 +41,33 @@ void NodeCopyPasteService::CopyNodesToClipboard(const QVector<Node *> &nodes, vo
 
   writer.writeTextElement(QStringLiteral("version"), QString::number(Core::kProjectVersion));
 
+  writer.writeStartElement(QStringLiteral("nodes"));
   foreach (Node* n, nodes) {
     writer.writeStartElement(QStringLiteral("node"));
     writer.writeAttribute(QStringLiteral("id"), n->id());
     n->Save(&writer);
     writer.writeEndElement(); // node
   }
+  writer.writeEndElement(); // nodes
+
+  writer.writeStartElement(QStringLiteral("contexts"));
+  foreach (Node* n, nodes) {
+    // Determine if this node is a context
+    if (n->parent()->GetPositionMap().contains(n)) {
+      writer.writeStartElement(QStringLiteral("context"));
+      writer.writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(n)));
+
+      const NodeGraph::PositionMap &map = n->parent()->GetNodesForContext(n);
+      for (auto it=map.cbegin(); it!=map.cend(); it++) {
+        writer.writeStartElement(QStringLiteral("node"));
+        Project::SavePosition(&writer, it.key(), it.value());
+        writer.writeEndElement(); // node
+      }
+
+      writer.writeEndElement(); // context
+    }
+  }
+  writer.writeEndElement(); // contexts
 
   writer.writeStartElement(QStringLiteral("custom"));
   CopyNodesToClipboardInternal(&writer, userdata);
@@ -71,6 +92,7 @@ QVector<Node *> NodeCopyPasteService::PasteNodesFromClipboard(NodeGraph *graph, 
 
   QVector<Node*> pasted_nodes;
   XMLNodeData xml_node_data;
+  QMap<quintptr, QMap<quintptr, QPointF> > pasted_contexts;
 
   while (XMLReadNextStartElement(&reader)) {
     if (reader.name() == QStringLiteral("olive")) {
@@ -79,25 +101,66 @@ QVector<Node *> NodeCopyPasteService::PasteNodesFromClipboard(NodeGraph *graph, 
       while (XMLReadNextStartElement(&reader)) {
         if (reader.name() == QStringLiteral("version")) {
           data_version = reader.readElementText().toUInt();
-        } else if (reader.name() == QStringLiteral("node")) {
-          if (data_version == 0) {
-            // Refuse to create any nodes if we didn't get a version string
-            return QVector<Node*>();
-          }
+        } else if (reader.name() == QStringLiteral("nodes")) {
+          while (XMLReadNextStartElement(&reader)) {
+            if (reader.name() == QStringLiteral("node")) {
+              if (data_version == 0) {
+                // Refuse to create any nodes if we didn't get a version string
+                return QVector<Node*>();
+              }
 
-          Node* node = nullptr;
+              Node* node = nullptr;
 
-          XMLAttributeLoop((&reader), attr) {
-            if (attr.name() == QStringLiteral("id")) {
-              node = NodeFactory::CreateFromID(attr.value().toString());
-              break;
+              XMLAttributeLoop((&reader), attr) {
+                if (attr.name() == QStringLiteral("id")) {
+                  node = NodeFactory::CreateFromID(attr.value().toString());
+                  break;
+                }
+              }
+
+              if (node) {
+                node->Load(&reader, xml_node_data, data_version, nullptr);
+
+                pasted_nodes.append(node);
+              }
+            } else {
+              reader.skipCurrentElement();
             }
           }
+        } else if (reader.name() == QStringLiteral("contexts")) {
+          while (XMLReadNextStartElement(&reader)) {
+            if (reader.name() == QStringLiteral("context")) {
+              // Get context ptr
+              QMap<quintptr, QPointF> map;
+              quintptr context_ptr = 0;
+              XMLAttributeLoop((&reader), attr) {
+                if (attr.name() == QStringLiteral("ptr")) {
+                  context_ptr = attr.value().toULongLong();
+                  break;
+                }
+              }
 
-          if (node) {
-            node->Load(&reader, xml_node_data, data_version, nullptr);
+              // Find nodes section
+              while (XMLReadNextStartElement(&reader)) {
+                if (reader.name() == QStringLiteral("node")) {
+                  quintptr node_ptr;
+                  QPointF node_pos;
 
-            pasted_nodes.append(node);
+                  if (Project::LoadPosition(&reader, &node_ptr, &node_pos)) {
+                    map.insert(node_ptr, node_pos);
+                  }
+                } else {
+                  reader.skipCurrentElement();
+                }
+              }
+
+              // Insert
+              if (!map.isEmpty()) {
+                pasted_contexts.insert(context_ptr, map);
+              }
+            } else {
+              reader.skipCurrentElement();
+            }
           }
         } else if (reader.name() == QStringLiteral("custom")) {
           if (data_version == 0) {
@@ -148,6 +211,20 @@ QVector<Node *> NodeCopyPasteService::PasteNodesFromClipboard(NodeGraph *graph, 
 
   // Link blocks
   XMLLinkBlocks(xml_node_data);
+
+  // Process contexts
+  for (auto it=pasted_contexts.cbegin(); it!=pasted_contexts.cend(); it++) {
+    Node *context = xml_node_data.node_ptrs.value(it.key());
+    if (context) {
+      const QMap<quintptr, QPointF> &map = it.value();
+      for (auto jt=map.cbegin(); jt!=map.cend(); jt++) {
+        Node *subnode = xml_node_data.node_ptrs.value(jt.key());
+        if (subnode) {
+          command->add_child(new NodeSetPositionCommand(subnode, context, jt.value(), false));
+        }
+      }
+    }
+  }
 
   return pasted_nodes;
 }
