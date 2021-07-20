@@ -23,6 +23,7 @@
 #include "node/block/gap/gap.h"
 #include "ripple.h"
 #include "widget/nodeview/nodeviewundo.h"
+#include "widget/timelinewidget/undo/timelineundoripple.h"
 
 namespace olive {
 

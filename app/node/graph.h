@@ -63,6 +63,55 @@ public:
     return default_nodes_;
   }
 
+  bool NodeMapContainsNode(Node* node, Node* context) const
+  {
+    return position_map_.value(context).contains(node);
+  }
+
+  QPointF GetNodePosition(Node* node, Node* context)
+  {
+    return position_map_.value(context).value(node);
+  }
+
+  void SetNodePosition(Node* node, Node* context, const QPointF& pos)
+  {
+    position_map_[context].insert(node, pos);
+    emit NodePositionAdded(node, context, pos);
+  }
+
+  void RemoveNodePosition(Node* node, Node* context)
+  {
+    PositionMap& map = position_map_[context];
+    map.remove(node);
+    if (map.isEmpty()) {
+      position_map_.remove(context);
+    }
+    emit NodePositionRemoved(node, context);
+  }
+
+  bool ContextContainsNode(Node *node, Node *context)
+  {
+    return position_map_[context].contains(node);
+  }
+
+  qreal GetNodeContextHeight(Node *context);
+
+  using PositionMap = QMap<Node*, QPointF>;
+
+  const PositionMap &GetNodesForContext(Node *context)
+  {
+    return position_map_[context];
+  }
+
+  const QMap<Node *, PositionMap> &GetPositionMap() const
+  {
+    return position_map_;
+  }
+
+  int GetNumberOfContextsNodeIsIn(Node *node) const;
+
+  bool NodeOutputsToContext(Node *node) const;
+
 signals:
   /**
    * @brief Signal emitted when a Node is added to the graph
@@ -80,6 +129,10 @@ signals:
 
   void ValueChanged(const NodeInput& input);
 
+  void NodePositionAdded(Node *node, Node *relative, const QPointF &position);
+
+  void NodePositionRemoved(Node *node, Node *relative);
+
 protected:
   void AddDefaultNode(Node* n)
   {
@@ -92,6 +145,10 @@ private:
   QVector<Node*> node_children_;
 
   QVector<Node*> default_nodes_;
+
+  QMap<Node *, PositionMap> position_map_;
+
+  PositionMap root_position_map_;
 
 };
 

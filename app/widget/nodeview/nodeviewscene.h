@@ -79,8 +79,6 @@ public:
     return curved_edges_;
   }
 
-  void ReorganizeFrom(Node* n);
-
 public slots:
   /**
    * @brief Slot when a Node is added to a graph (SetGraph() connects this)
@@ -88,7 +86,7 @@ public slots:
    * This should NEVER be called directly, only connected to a NodeGraph. To add a Node to the NodeGraph
    * use NodeGraph::AddNode().
    */
-  void AddNode(Node* node);
+  NodeViewItem *AddNode(Node* node);
 
   /**
    * @brief Slot when a Node is removed from a graph (SetGraph() connects this)
@@ -98,7 +96,7 @@ public slots:
    */
   void RemoveNode(Node* node);
 
-  void AddEdge(const NodeOutput& output, const NodeInput& input);
+  NodeViewEdge *AddEdge(const NodeOutput& output, const NodeInput& input);
   void RemoveEdge(const NodeOutput& output, const NodeInput& input);
 
   /**
@@ -109,7 +107,11 @@ public slots:
 private:
   static int DetermineWeight(Node* n);
 
-  void AddEdgeInternal(const NodeOutput &output, const NodeInput &input, NodeViewItem* from, NodeViewItem* to);
+  NodeViewEdge* AddEdgeInternal(const NodeOutput &output, const NodeInput &input, NodeViewItem* from, NodeViewItem* to);
+
+  void ConnectNode(Node *n);
+
+  void DisconnectNode(Node *n);
 
   QHash<Node*, NodeViewItem*> item_map_;
 
@@ -122,11 +124,6 @@ private:
   bool curved_edges_;
 
 private slots:
-  /**
-   * @brief Receiver for whenever a node position changes
-   */
-  void NodePositionChanged(const QPointF& pos);
-
   /**
    * @brief Receiver for when a node's label has changed
    */

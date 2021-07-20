@@ -66,17 +66,14 @@ public:
 
   void SetParameters(const AudioParams& params);
 
-  void WritePCM(const TimeRange &range, SampleBufferPtr samples, const AudioVisualWaveform *waveform, const qint64& job_time);
+  void WritePCM(const TimeRange &range, const TimeRangeList &valid_ranges, SampleBufferPtr samples, const AudioVisualWaveform *waveform);
 
-  void WriteSilence(const TimeRange &range, qint64 job_time);
-
-  QList<TimeRange> GetValidRanges(const TimeRange &range, const qint64 &job_time);
+  void WriteSilence(const TimeRange &range);
 
   class Segment
   {
   public:
-    Segment() = default;
-    Segment(qint64 size, const QString& filename);
+    Segment(qint64 size = 0);
 
     qint64 size() const
     {
@@ -98,14 +95,24 @@ public:
       offset_ = o;
     }
 
-    const QString& filename() const
+    int channels() const
     {
-      return filename_;
+      return filenames_.size();
     }
 
-    void set_filename(const QString& filename)
+    void set_channels(int index)
     {
-      filename_ = filename;
+      filenames_.resize(index);
+    }
+
+    const QString& filename(int index) const
+    {
+      return filenames_.at(index);
+    }
+
+    void set_filename(int index, const QString& filename)
+    {
+      filenames_[index] = filename;
     }
 
     qint64 end() const
@@ -114,7 +121,7 @@ public:
     }
 
   private:
-    QString filename_;
+    QVector<QString> filenames_;
 
     qint64 size_;
 
@@ -136,7 +143,7 @@ public:
   class PlaybackDevice : public QIODevice
   {
   public:
-    PlaybackDevice(const Playlist& playlist, QObject* parent = nullptr);
+    PlaybackDevice(const Playlist& playlist, int sample_sz, QObject* parent = nullptr);
 
     virtual ~PlaybackDevice() override;
 
@@ -169,6 +176,8 @@ public:
 
     qint64 segment_read_index_;
 
+    int sample_size_;
+
   };
 
   /**
@@ -193,10 +202,8 @@ signals:
 protected:
   virtual void ShiftEvent(const rational& from, const rational& to) override;
 
-  virtual void LengthChangedEvent(const rational& old, const rational& newlen) override;
-
 private:
-  static const qint64 kDefaultSegmentSize;
+  static const qint64 kDefaultSegmentSizePerChannel;
 
   Segment CloneSegment(const Segment& s) const;
 

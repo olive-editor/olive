@@ -134,6 +134,7 @@ void ProjectExplorer::AddView(QAbstractItemView *view)
   view->setEditTriggers(QAbstractItemView::NoEditTriggers);
   connect(view, &QAbstractItemView::clicked, this, &ProjectExplorer::ItemClickedSlot);
   connect(view, &QAbstractItemView::doubleClicked, this, &ProjectExplorer::ItemDoubleClickedSlot);
+  connect(view->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ProjectExplorer::ViewSelectionChanged);
   connect(view, SIGNAL(DoubleClickedEmptyArea()), this, SLOT(ViewEmptyAreaDoubleClickedSlot()));
   stacked_widget_->addWidget(view);
 }
@@ -507,6 +508,28 @@ void ProjectExplorer::ContextMenuStartProxy(QAction *a)
       }
     }
   }
+}
+
+void ProjectExplorer::ViewSelectionChanged()
+{
+  QItemSelectionModel *model = static_cast<QItemSelectionModel *>(sender());
+
+  QModelIndexList selection = model->selectedIndexes();
+
+  QVector<Node *> nodes;
+
+  foreach (const QModelIndex &index, selection) {
+    Node *sel = static_cast<Node*>(sort_model_.mapToSource(index).internalPointer());
+    if (!nodes.contains(sel)) {
+      nodes.append(sel);
+    }
+  }
+
+  if (nodes.isEmpty()) {
+    nodes.append(get_root());
+  }
+
+  emit SelectionChanged(nodes);
 }
 
 Project *ProjectExplorer::project() const

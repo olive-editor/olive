@@ -222,7 +222,7 @@ void ViewerOutput::ShiftCache(const rational &from, const rational &to)
   ShiftAudioCache(from, to);
 }
 
-void ViewerOutput::InvalidateCache(const TimeRange& range, const QString& from, int element, qint64 job_time)
+void ViewerOutput::InvalidateCache(const TimeRange& range, const QString& from, int element, InvalidateCacheOptions options)
 {
   Q_UNUSED(element)
 
@@ -233,16 +233,16 @@ void ViewerOutput::InvalidateCache(const TimeRange& range, const QString& from, 
 
     if (invalidated_range.in() != invalidated_range.out()) {
       if (from == kTextureInput || from == kVideoParamsInput) {
-        video_frame_cache_.Invalidate(invalidated_range, job_time);
+        video_frame_cache_.Invalidate(invalidated_range);
       } else {
-        audio_playback_cache_.Invalidate(invalidated_range, job_time);
+        audio_playback_cache_.Invalidate(invalidated_range);
       }
     }
   }
 
   VerifyLength();
 
-  super::InvalidateCache(range, from, element, job_time);
+  super::InvalidateCache(range, from, element, options);
 }
 
 QVector<QString> ViewerOutput::inputs_for_output(const QString &output) const
@@ -300,14 +300,8 @@ void ViewerOutput::Retranslate()
 void ViewerOutput::VerifyLength()
 {
   video_length_ = VerifyLengthInternal(Track::kVideo);
-  if (video_cache_enabled_) {
-    video_frame_cache_.SetLength(video_length_);
-  }
 
   audio_length_ = VerifyLengthInternal(Track::kAudio);
-  if (audio_cache_enabled_) {
-    audio_playback_cache_.SetLength(audio_length_);
-  }
 
   rational subtitle_length = VerifyLengthInternal(Track::kSubtitle);
 

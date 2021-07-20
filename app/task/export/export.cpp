@@ -147,9 +147,8 @@ bool ExportTask::Run()
   return success;
 }
 
-void ExportTask::FrameDownloaded(FramePtr f, const QByteArray &hash, const QVector<rational> &times, qint64 job_time)
+void ExportTask::FrameDownloaded(FramePtr f, const QByteArray &hash, const QVector<rational> &times)
 {
-  Q_UNUSED(job_time)
   Q_UNUSED(hash)
 
   foreach (const rational& t, times) {
@@ -179,10 +178,8 @@ void ExportTask::FrameDownloaded(FramePtr f, const QByteArray &hash, const QVect
   }
 }
 
-void ExportTask::AudioDownloaded(const TimeRange &range, SampleBufferPtr samples, qint64 job_time)
+void ExportTask::AudioDownloaded(const TimeRange &range, SampleBufferPtr samples)
 {
-  Q_UNUSED(job_time)
-
   TimeRange adjusted_range = range;
 
   if (params_.has_custom_range()) {

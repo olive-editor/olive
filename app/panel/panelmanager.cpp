@@ -28,8 +28,7 @@ PanelManager* PanelManager::instance_ = nullptr;
 
 PanelManager::PanelManager(QObject *parent) :
   QObject(parent),
-  locked_(false),
-  last_focused_panel_(nullptr)
+  locked_(false)
 {
 }
 
@@ -46,11 +45,11 @@ const QList<PanelWidget *> &PanelManager::panels()
   return focus_history_;
 }
 
-PanelWidget *PanelManager::CurrentlyFocused() const
+PanelWidget *PanelManager::CurrentlyFocused(bool enable_hover) const
 {
   // If hover focus is enabled, find the currently hovered panel and return it (if no panel is hovered, resort to
   // default behavior)
-  if (Config::Current()["HoverFocus"].toBool()) {
+  if (enable_hover && Config::Current()[QStringLiteral("HoverFocus")].toBool()) {
     PanelWidget* hovered = CurrentlyHovered();
 
     if (hovered != nullptr) {
@@ -111,7 +110,7 @@ void PanelManager::FocusChanged(QWidget *old, QWidget *now)
 
     if (panel_cast_test) {
 
-      if (last_focused_panel_ != panel_cast_test) {
+      if (focus_history_.first() != panel_cast_test) {
         // If so, bump this to the top of the focus history
         int panel_index = focus_history_.indexOf(panel_cast_test);
 
@@ -130,7 +129,6 @@ void PanelManager::FocusChanged(QWidget *old, QWidget *now)
           focus_history_.move(panel_index, 0);
         }
 
-        last_focused_panel_ = panel_cast_test;
         emit FocusedPanelChanged(panel_cast_test);
       }
 
@@ -158,10 +156,6 @@ void PanelManager::PanelDestroyed()
   PanelWidget* panel = static_cast<PanelWidget*>(sender());
 
   focus_history_.removeOne(panel);
-
-  if (last_focused_panel_ == panel) {
-    last_focused_panel_ = focus_history_.isEmpty() ? nullptr : focus_history_.first();
-  }
 }
 
 }

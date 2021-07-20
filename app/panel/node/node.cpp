@@ -20,20 +20,39 @@
 
 #include "node.h"
 
+#include <QVBoxLayout>
+
 namespace olive {
 
 NodePanel::NodePanel(QWidget *parent) :
   PanelWidget(QStringLiteral("NodePanel"), parent)
 {
+  QWidget *outer_widget = new QWidget(this);
+
+  QVBoxLayout *outer_layout = new QVBoxLayout(outer_widget);
+  outer_layout->setMargin(0);
+
+  NodeViewToolBar *toolbar = new NodeViewToolBar();
+  outer_layout->addWidget(toolbar);
+
   // Create NodeView widget
   node_view_ = new NodeView(this);
+  outer_layout->addWidget(node_view_);
+
+  // Connect toolbar to NodeView
+  connect(toolbar, &NodeViewToolBar::MiniMapEnabledToggled, node_view_, &NodeView::SetMiniMapEnabled);
+  connect(toolbar, &NodeViewToolBar::AddNodeClicked, node_view_, &NodeView::ShowAddMenu);
+
+  // Set defaults
+  toolbar->SetMiniMapEnabled(true);
+  node_view_->SetMiniMapEnabled(true);
 
   // Connect node view signals to this panel
   connect(node_view_, &NodeView::NodesSelected, this, &NodePanel::NodesSelected);
   connect(node_view_, &NodeView::NodesDeselected, this, &NodePanel::NodesDeselected);
 
   // Set it as the main widget of this panel
-  SetWidgetWithPadding(node_view_);
+  SetWidgetWithPadding(outer_widget);
 
   // Set strings
   Retranslate();

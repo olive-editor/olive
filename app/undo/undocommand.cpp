@@ -24,23 +24,39 @@
 
 namespace olive {
 
+MultiUndoCommand::MultiUndoCommand() :
+  done_(false)
+{
+}
+
 void MultiUndoCommand::redo()
 {
-  for (auto it=children_.cbegin(); it!=children_.cend(); it++) {
-    (*it)->redo_and_set_modified();
+  if (!done_) {
+    for (auto it=children_.cbegin(); it!=children_.cend(); it++) {
+      (*it)->redo_and_set_modified();
+    }
+    done_ = true;
   }
 }
 
 void MultiUndoCommand::undo()
 {
-  for (auto it=children_.crbegin(); it!=children_.crend(); it++) {
-    (*it)->undo_and_set_modified();
+  if (done_) {
+    for (auto it=children_.crbegin(); it!=children_.crend(); it++) {
+      (*it)->undo_and_set_modified();
+    }
+    done_ = false;
   }
+}
+
+UndoCommand::UndoCommand()
+{
+  prepared_ = false;
 }
 
 void UndoCommand::redo_and_set_modified()
 {
-  redo();
+  redo_now();
 
   project_ = GetRelevantProject();
   if (project_) {
@@ -51,11 +67,26 @@ void UndoCommand::redo_and_set_modified()
 
 void UndoCommand::undo_and_set_modified()
 {
-  undo();
+  undo_now();
 
   if (project_) {
     project_->set_modified(modified_);
   }
+}
+
+void UndoCommand::redo_now()
+{
+  if (!prepared_) {
+    prepare();
+    prepared_ = true;
+  }
+
+  redo();
+}
+
+void UndoCommand::undo_now()
+{
+  undo();
 }
 
 }

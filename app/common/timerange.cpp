@@ -199,30 +199,7 @@ void TimeRangeList::insert(TimeRange range_to_add)
 
 void TimeRangeList::remove(const TimeRange &remove)
 {
-  int sz = this->size();
-
-  for (int i=0;i<sz;i++) {
-    TimeRange& compare = array_[i];
-
-    if (remove.Contains(compare)) {
-      // This element is entirely encompassed in this range, remove it
-      array_.removeAt(i);
-      i--;
-      sz--;
-    } else if (compare.Contains(remove, false, false)) {
-      // The remove range is within this element, only choice is to split the element into two
-      TimeRange new_range(remove.out(), compare.out());
-      compare.set_out(remove.in());
-      insert(new_range);
-      break;
-    } else if (compare.in() < remove.in() && compare.out() > remove.in()) {
-      // This element's out point overlaps the range's in, we'll trim it
-      compare.set_out(remove.in());
-    } else if (compare.in() < remove.out() && compare.out() > remove.out()) {
-      // This element's in point overlaps the range's out, we'll trim it
-      compare.set_in(remove.out());
-    }
-  }
+  util_remove(&array_, remove);
 }
 
 bool TimeRangeList::contains(const TimeRange &range, bool in_inclusive, bool out_inclusive) const
@@ -294,6 +271,78 @@ TimeRangeList TimeRangeList::Intersects(const TimeRange &range) const
 uint qHash(const TimeRange &r, uint seed)
 {
   return qHash(r.in(), seed) ^ qHash(r.out(), seed);
+}
+
+TimeRangeListFrameIterator::TimeRangeListFrameIterator() :
+  TimeRangeListFrameIterator(TimeRangeList(), rational::NaN)
+{
+}
+
+TimeRangeListFrameIterator::TimeRangeListFrameIterator(const TimeRangeList &list, const rational &timebase) :
+  list_(list),
+  timebase_(timebase),
+  index_(-1),
+  size_(-1)
+{
+  UpdateIndexIfNecessary();
+}
+
+bool TimeRangeListFrameIterator::GetNext(rational *out)
+{
+  if (!HasNext()) {
+    return false;
+  }
+
+  // Output current value
+  *out = current_;
+
+  // Determine next value by adding timebase
+  current_ += timebase_;
+
+  // If this time is outside the current range, jump to the next one
+  UpdateIndexIfNecessary();
+
+  return true;
+}
+
+bool TimeRangeListFrameIterator::HasNext() const
+{
+  return index_ < list_.size();
+}
+
+int TimeRangeListFrameIterator::size()
+{
+  if (size_ == -1) {
+    // Size isn't calculated automatically for optimization, so we'll calculate it now
+    size_ = 0;
+
+    foreach (const TimeRange &range, list_) {
+      rational start = Timecode::snap_time_to_timebase(range.in(), timebase_, Timecode::kCeil);
+      rational end = Timecode::snap_time_to_timebase(range.out(), timebase_, Timecode::kFloor);
+
+      if (end == range.out()) {
+        end -= timebase_;
+      }
+
+      int64_t start_ts = Timecode::time_to_timestamp(start, timebase_);
+      int64_t end_ts = Timecode::time_to_timestamp(end, timebase_);
+
+      size_ += 1 + (end_ts - start_ts);
+    }
+  }
+
+  return size_;
+}
+
+void TimeRangeListFrameIterator::UpdateIndexIfNecessary()
+{
+  while (index_ < list_.size() && (index_ == -1 || current_ >= list_.at(index_).out())) {
+    index_++;
+
+    if (index_ < list_.size()) {
+      current_ = Timecode::snap_time_to_timebase(list_.at(index_).in(), timebase_, Timecode::kCeil);
+    }
+  }
 }
 
 }

@@ -95,8 +95,12 @@ public:
 
   static int DefaultItemBorder();
 
-  qreal DefaultItemHorizontalPadding() const;
+  static QPointF NodeToScreenPoint(QPointF p, NodeViewCommon::FlowDirection direction);
+  static QPointF ScreenToNodePoint(QPointF p, NodeViewCommon::FlowDirection direction);
 
+  static qreal DefaultItemHorizontalPadding(NodeViewCommon::FlowDirection dir);
+  static qreal DefaultItemVerticalPadding(NodeViewCommon::FlowDirection dir);
+  qreal DefaultItemHorizontalPadding() const;
   qreal DefaultItemVerticalPadding() const;
 
   void AddEdge(NodeViewEdge* edge);
@@ -110,6 +114,21 @@ public:
   }
 
   void SetHighlightedIndex(int index);
+
+  void SetPreventRemoving(bool e)
+  {
+    prevent_removing_ = e;
+  }
+
+  bool GetPreventRemoving() const
+  {
+    return prevent_removing_;
+  }
+
+  const QPolygonF &GetOutputTriangle() const
+  {
+    return output_triangle_;
+  }
 
 protected:
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
@@ -135,6 +154,11 @@ private:
    * @brief Returns local point that edges should connect to for a NodeInput in array node_inputs_[index]
    */
   QPointF GetInputPointInternal(int index, const QPointF &source_pos) const;
+
+  /**
+   * @brief Internal update function when logical position changes
+   */
+  void UpdateNodePosition();
 
   /**
    * @brief Reference to attached Node
@@ -166,6 +190,12 @@ private:
   NodeViewCommon::FlowDirection flow_dir_;
 
   QVector<NodeViewEdge*> edges_;
+
+  QPointF cached_node_pos_;
+
+  bool prevent_removing_;
+
+  QPolygonF output_triangle_;
 
 };
 

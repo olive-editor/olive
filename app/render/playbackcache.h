@@ -24,50 +24,43 @@
 #include <QMutex>
 #include <QObject>
 
+#include "common/jobtime.h"
 #include "common/timerange.h"
 
 namespace olive {
 
 class Project;
+class ViewerOutput;
 
 class PlaybackCache : public QObject
 {
   Q_OBJECT
 public:
   PlaybackCache(QObject* parent = nullptr) :
-    QObject(parent),
-    length_(0)
+    QObject(parent)
   {
   }
 
-  const rational& GetLength()
+  TimeRangeList GetInvalidatedRanges(TimeRange intersecting);
+  TimeRangeList GetInvalidatedRanges(const rational &length)
   {
-    return length_;
+    return GetInvalidatedRanges(TimeRange(0, length));
   }
 
-  bool IsFullyValidated()
+  bool HasInvalidatedRanges(const TimeRange &intersecting);
+  bool HasInvalidatedRanges(const rational &length)
   {
-    return invalidated_.isEmpty();
-  }
-
-  const TimeRangeList& GetInvalidatedRanges()
-  {
-    return invalidated_;
-  }
-
-  bool HasInvalidatedRanges()
-  {
-    return !invalidated_.isEmpty();
+    return HasInvalidatedRanges(TimeRange(0, length));
   }
 
   QString GetCacheDirectory() const;
 
+  ViewerOutput *viewer_parent() const;
+
+  void Invalidate(const TimeRange& r, bool signal = true);
+
 public slots:
-  void Invalidate(const TimeRange& r, qint64 job_time);
-
   void InvalidateAll();
-
-  void SetLength(const rational& r);
 
   void Shift(rational from, rational to);
 
@@ -78,12 +71,8 @@ signals:
 
   void Shifted(const olive::rational& from, const olive::rational& to);
 
-  void LengthChanged(const olive::rational& r);
-
 protected:
-  void Validate(const TimeRange& r);
-
-  virtual void LengthChangedEvent(const rational& old, const rational& newlen);
+  void Validate(const TimeRange& r, bool signal = true);
 
   virtual void InvalidateEvent(const TimeRange& range);
 
@@ -91,19 +80,8 @@ protected:
 
   Project* GetProject() const;
 
-  struct JobIdentifier {
-    TimeRange range;
-    qint64 job_time;
-  };
-
-  QList<JobIdentifier> jobs_;
-
 private:
-  void RemoveRangeFromJobs(const TimeRange& remove);
-
-  TimeRangeList invalidated_;
-
-  rational length_;
+  TimeRangeList validated_;
 
 };
 

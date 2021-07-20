@@ -22,6 +22,7 @@
 #define NODEPANEL_H
 
 #include "widget/nodeview/nodeview.h"
+#include "widget/nodeview/nodeviewtoolbar.h"
 #include "widget/panel/panel.h"
 
 namespace olive {
@@ -40,9 +41,14 @@ public:
     return node_view_->GetGraph();
   }
 
-  void SetGraph(NodeGraph *graph)
+  void SetGraph(NodeGraph *graph, const QVector<Node*> &nodes)
   {
-    node_view_->SetGraph(graph);
+    node_view_->SetGraph(graph, nodes);
+  }
+
+  void ClearGraph()
+  {
+    node_view_->ClearGraph();
   }
 
   virtual void SelectAll() override
@@ -96,28 +102,14 @@ public:
   }
 
 public slots:
-  void Select(const QVector<Node*>& nodes)
+  void Select(const QVector<Node*>& nodes, bool center_view_on_item)
   {
-    node_view_->Select(nodes);
+    node_view_->Select(nodes, center_view_on_item);
   }
 
-  void SelectWithDependencies(const QVector<Node*>& nodes)
+  void SelectWithDependencies(const QVector<Node*>& nodes, bool center_view_on_item)
   {
-    node_view_->SelectWithDependencies(nodes);
-  }
-
-  void SelectBlocks(const QVector<Block*>& blocks)
-  {
-    QVector<Node*> nodes(blocks.size());
-    memcpy(nodes.data(), blocks.constData(), blocks.size() * sizeof(Block*));
-    node_view_->SelectWithDependencies(nodes);
-  }
-
-  void DeselectBlocks(const QVector<Block*>& nodes)
-  {
-    Q_UNUSED(nodes)
-    qDebug() << "Stub";
-    //node_view_->DeselectBlocks(nodes);
+    node_view_->SelectWithDependencies(nodes, center_view_on_item);
   }
 
 signals:

@@ -135,6 +135,7 @@ public:
       return folder_->project();
     }
 
+  protected:
     virtual void redo() override;
 
     virtual void undo() override
@@ -209,6 +210,7 @@ public:
 
   virtual Project * GetRelevantProject() const override;
 
+protected:
   virtual void redo() override;
 
   virtual void undo() override;
@@ -219,8 +221,6 @@ private:
   Node* child_;
 
   bool autoposition_;
-
-  QPointF old_position_;
 
   NodeSetPositionAsChildCommand* position_command_;
 

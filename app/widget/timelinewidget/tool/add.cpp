@@ -25,6 +25,7 @@
 #include "node/generator/solid/solid.h"
 #include "node/generator/text/text.h"
 #include "widget/timelinewidget/timelinewidget.h"
+#include "widget/timelinewidget/undo/timelineundopointer.h"
 
 namespace olive {
 
@@ -108,15 +109,14 @@ void AddTool::MouseRelease(TimelineViewMouseEvent *event)
 
       NodeGraph* graph = static_cast<NodeGraph*>(parent()->GetConnectedNode()->parent());
 
-      command->add_child(new NodeAddCommand(graph,
-                                            clip));
-
+      command->add_child(new NodeAddCommand(graph, clip));
+      command->add_child(new NodeSetPositionCommand(clip, clip, QPointF(0, 0), false));
       command->add_child(new TrackPlaceBlockCommand(sequence()->track_list(track.type()),
                                                     track.index(),
                                                     clip,
                                                     ghost_->GetAdjustedIn()));
 
-      QPointF extra_node_offset(-1, 0);
+      Node *node_to_add = nullptr;
 
       switch (Core::instance()->GetSelectedAddableObject()) {
       case olive::Tool::kAddableEmpty:
@@ -124,24 +124,12 @@ void AddTool::MouseRelease(TimelineViewMouseEvent *event)
         break;
       case olive::Tool::kAddableSolid:
       {
-        Node* solid = new SolidGenerator();
-
-        command->add_child(new NodeAddCommand(graph,
-                                              solid));
-
-        command->add_child(new NodeEdgeAddCommand(solid, NodeInput(clip, ClipBlock::kBufferIn)));
-        command->add_child(new NodeSetPositionToOffsetOfAnotherNodeCommand(solid, clip, extra_node_offset));
+        node_to_add = new SolidGenerator();
         break;
       }
       case olive::Tool::kAddableTitle:
       {
-        Node* text = new TextGenerator();
-
-        command->add_child(new NodeAddCommand(graph,
-                                              text));
-
-        command->add_child(new NodeEdgeAddCommand(text, NodeInput(clip, ClipBlock::kBufferIn)));
-        command->add_child(new NodeSetPositionToOffsetOfAnotherNodeCommand(text, clip, extra_node_offset));
+        node_to_add = new TextGenerator();
         break;
       }
       case olive::Tool::kAddableBars:
@@ -155,6 +143,13 @@ void AddTool::MouseRelease(TimelineViewMouseEvent *event)
       case olive::Tool::kAddableCount:
         // Invalid value, do nothing
         break;
+      }
+
+      if (node_to_add) {
+        QPointF extra_node_offset(-1, 0);
+        command->add_child(new NodeAddCommand(graph, node_to_add));
+        command->add_child(new NodeEdgeAddCommand(node_to_add, NodeInput(clip, ClipBlock::kBufferIn)));
+        command->add_child(new NodeSetPositionCommand(node_to_add, clip, extra_node_offset, false));
       }
 
       Core::instance()->undo_stack()->push(command);

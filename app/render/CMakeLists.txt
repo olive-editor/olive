@@ -46,6 +46,8 @@ set(OLIVE_SOURCES
   render/rendercache.h
   render/rendererthreadwrapper.cpp
   render/rendererthreadwrapper.h
+  render/renderjobtracker.cpp
+  render/renderjobtracker.h
   render/rendermanager.cpp
   render/rendermanager.h
   render/rendermodes.h

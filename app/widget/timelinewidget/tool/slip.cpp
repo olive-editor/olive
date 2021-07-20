@@ -25,6 +25,7 @@
 #include "common/timecodefunctions.h"
 #include "config/config.h"
 #include "slip.h"
+#include "widget/timelinewidget/undo/timelineundogeneral.h"
 
 namespace olive {
 

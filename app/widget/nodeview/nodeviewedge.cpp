@@ -80,80 +80,11 @@ void NodeViewEdge::SetHighlighted(bool e)
 
 void NodeViewEdge::SetPoints(const QPointF &start, const QPointF &end, bool input_is_expanded)
 {
-  QPainterPath path;
-  path.moveTo(start);
+  cached_start_ = start;
+  cached_end_ = end;
+  cached_input_is_expanded_ = input_is_expanded;
 
-  double angle = qAtan2(end.y() - start.y(), end.x() - start.x());
-
-  if (curved_) {
-
-    double half_x = lerp(start.x(), end.x(), 0.5);
-    double half_y = lerp(start.y(), end.y(), 0.5);
-
-    QPointF cp1, cp2;
-
-    if (NodeViewCommon::GetFlowOrientation(flow_dir_) == Qt::Horizontal) {
-      cp1 = QPointF(half_x, start.y());
-    } else {
-      cp1 = QPointF(start.x(), half_y);
-    }
-
-    if (NodeViewCommon::GetFlowOrientation(flow_dir_) == Qt::Horizontal || input_is_expanded) {
-      cp2 = QPointF(half_x, end.y());
-    } else {
-      cp2 = QPointF(end.x(), half_y);
-    }
-
-    path.cubicTo(cp1, cp2, end);
-
-    if (!qFuzzyCompare(start.x(), end.x())) {
-      double continue_x = end.x() - qCos(angle)*arrow_size_;
-
-      double x1, x2, x3, x4, y1, y2, y3, y4;
-      if (start.x() < end.x()) {
-        x1 = start.x();
-        x2 = cp1.x();
-        x3 = cp2.x();
-        x4 = end.x();
-        y1 = start.y();
-        y2 = cp1.y();
-        y3 = cp2.y();
-        y4 = end.y();
-      } else {
-        x1 = end.x();
-        x2 = cp2.x();
-        x3 = cp1.x();
-        x4 = start.x();
-        y1 = end.y();
-        y2 = cp2.y();
-        y3 = cp1.y();
-        y4 = start.y();
-      }
-
-      double t = Bezier::CubicXtoT(continue_x, x1, x2, x3, x4);
-      double y = Bezier::CubicTtoY(y1, y2, y3, y4, t);
-
-      angle = qAtan2(end.y() - y, end.x() - continue_x);
-    }
-
-  } else {
-
-    path.lineTo(end);
-
-  }
-
-  setPath(path);
-
-  const double arrow_angle = 150.0 * 3.141592 / 180.0;
-  QVector<QPointF> arrow_points(4);
-  arrow_points[0] = end;
-  arrow_points[1] = end + QPointF(qCos(angle + arrow_angle) * arrow_size_, qSin(angle + arrow_angle) * arrow_size_);
-  arrow_points[2] = end + QPointF(qCos(angle - arrow_angle) * arrow_size_, qSin(angle - arrow_angle) * arrow_size_);
-  arrow_points[3] = end;
-
-  arrow_ = QPolygonF(arrow_points);
-  arrow_bounding_rect_ = arrow_.boundingRect();
-  arrow_bounding_rect_.adjust(-arrow_size_, -arrow_size_, arrow_size_, arrow_size_);
+  UpdateCurve();
 }
 
 void NodeViewEdge::SetFlowDirection(NodeViewCommon::FlowDirection dir)
@@ -169,7 +100,7 @@ void NodeViewEdge::SetCurved(bool e)
 {
   curved_ = e;
 
-  update();
+  UpdateCurve();
 }
 
 void NodeViewEdge::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *)
@@ -217,6 +148,83 @@ void NodeViewEdge::Init()
   // Use font metrics to set edge width for basic high DPI support
   edge_width_ = QFontMetrics(QFont()).height() / 12;
   arrow_size_ = QFontMetrics(QFont()).height() / 2;
+}
+
+void NodeViewEdge::UpdateCurve()
+{
+  const QPointF &start = cached_start_;
+  const QPointF &end = cached_end_;
+  const bool input_is_expanded = cached_input_is_expanded_;
+
+  QPainterPath path;
+  path.moveTo(start);
+
+  double angle = qAtan2(end.y() - start.y(), end.x() - start.x());
+
+  if (curved_) {
+
+    double half_x = lerp(start.x(), end.x(), 0.5);
+    double half_y = lerp(start.y(), end.y(), 0.5);
+
+    QPointF cp1, cp2;
+
+    if (NodeViewCommon::GetFlowOrientation(flow_dir_) == Qt::Horizontal) {
+      cp1 = QPointF(half_x, start.y());
+    } else {
+      cp1 = QPointF(start.x(), half_y);
+    }
+
+    if (NodeViewCommon::GetFlowOrientation(flow_dir_) == Qt::Horizontal || input_is_expanded) {
+      cp2 = QPointF(half_x, end.y());
+    } else {
+      cp2 = QPointF(end.x(), half_y);
+    }
+
+    path.cubicTo(cp1, cp2, end);
+
+    if (!qFuzzyCompare(start.x(), end.x())) {
+      double continue_x = end.x() - qCos(angle)*arrow_size_;
+
+      double x1 = start.x();
+      double x2 = cp1.x();
+      double x3 = cp2.x();
+      double x4 = end.x();
+      double y1 = start.y();
+      double y2 = cp1.y();
+      double y3 = cp2.y();
+      double y4 = end.y();
+
+      if (start.x() >= end.x()) {
+        std::swap(x1, x4);
+        std::swap(x2, x3);
+        std::swap(y1, y4);
+        std::swap(y2, y3);
+      }
+
+      double t = Bezier::CubicXtoT(continue_x, x1, x2, x3, x4);
+      double y = Bezier::CubicTtoY(y1, y2, y3, y4, t);
+
+      angle = qAtan2(end.y() - y, end.x() - continue_x);
+    }
+
+  } else {
+
+    path.lineTo(end);
+
+  }
+
+  setPath(path);
+
+  const double arrow_angle = 150.0 * M_PI / 180.0;
+  QVector<QPointF> arrow_points(4);
+  arrow_points[0] = end;
+  arrow_points[1] = end + QPointF(qCos(angle + arrow_angle) * arrow_size_, qSin(angle + arrow_angle) * arrow_size_);
+  arrow_points[2] = end + QPointF(qCos(angle - arrow_angle) * arrow_size_, qSin(angle - arrow_angle) * arrow_size_);
+  arrow_points[3] = end;
+
+  arrow_ = QPolygonF(arrow_points);
+  arrow_bounding_rect_ = arrow_.boundingRect();
+  arrow_bounding_rect_.adjust(-arrow_size_, -arrow_size_, arrow_size_, arrow_size_);
 }
 
 }

@@ -26,7 +26,8 @@
 #include "node/project/project.h"
 #include "node/project/sequence/sequence.h"
 #include "undo/undocommand.h"
-#include "widget/timelinewidget/timelineundo.h"
+#include "widget/timelinewidget/undo/timelineundogeneral.h"
+#include "widget/timelinewidget/undo/timelineundopointer.h"
 #include "testutil.h"
 
 namespace olive {
@@ -134,14 +135,14 @@ OLIVE_ADD_TEST(Trim)
   {
     // Trim out point of second block
     BlockTrimCommand command(track, block2, 1, Timeline::kTrimOut);
-    command.redo();
+    command.redo_now();
 
     // No block should have been added
     OLIVE_ASSERT(track->Blocks().size() == 2);
     OLIVE_ASSERT(block2->length() == 1);
     OLIVE_ASSERT(block1->length() == 2);
 
-    command.undo();
+    command.undo_now();
 
     OLIVE_ASSERT(track->Blocks().size() == 2);
     OLIVE_ASSERT(block2->length() == 2);
@@ -151,7 +152,7 @@ OLIVE_ADD_TEST(Trim)
   {
     // Trim in point of second block
     BlockTrimCommand command(track, block2, 1, Timeline::kTrimIn);
-    command.redo();
+    command.redo_now();
 
     // Gap should be inserted in between
     OLIVE_ASSERT(track->Blocks().size() == 3);
@@ -163,7 +164,7 @@ OLIVE_ADD_TEST(Trim)
     OLIVE_ASSERT(block1->next() == gap);
     OLIVE_ASSERT(block2->previous() == gap);
 
-    command.undo();
+    command.undo_now();
 
     OLIVE_ASSERT(track->Blocks().size() == 2);
     OLIVE_ASSERT(block2->length() == 2);
@@ -173,7 +174,7 @@ OLIVE_ADD_TEST(Trim)
   {
     // Trim out point of first block
     BlockTrimCommand command(track, block1, 1, Timeline::kTrimOut);
-    command.redo();
+    command.redo_now();
 
     // Gap should be inserted in between
     OLIVE_ASSERT(track->Blocks().size() == 3);
@@ -185,7 +186,7 @@ OLIVE_ADD_TEST(Trim)
     OLIVE_ASSERT(block1->next() == gap);
     OLIVE_ASSERT(block2->previous() == gap);
 
-    command.undo();
+    command.undo_now();
 
     OLIVE_ASSERT(track->Blocks().size() == 2);
     OLIVE_ASSERT(block2->length() == 2);
@@ -195,7 +196,7 @@ OLIVE_ADD_TEST(Trim)
   {
     // Trim in point of first block
     BlockTrimCommand command(track, block1, 1, Timeline::kTrimIn);
-    command.redo();
+    command.redo_now();
 
     // Gap should be prepended to the start
     OLIVE_ASSERT(track->Blocks().size() == 3);
@@ -207,7 +208,7 @@ OLIVE_ADD_TEST(Trim)
     OLIVE_ASSERT(block1->next() == block2);
     OLIVE_ASSERT(block1->previous() == gap);
 
-    command.undo();
+    command.undo_now();
 
     OLIVE_ASSERT(track->Blocks().size() == 2);
     OLIVE_ASSERT(block2->length() == 2);
@@ -240,7 +241,7 @@ OLIVE_ADD_TEST(ReplaceBlockWithGap_ClipsOnly)
   {
     // Replace clip C with a gap
     TrackReplaceBlockWithGapCommand command(track, c);
-    command.redo();
+    command.redo_now();
 
     // Clip should be removed without any gap actually taking its place, since the clip is at the
     // end of the track
@@ -248,7 +249,7 @@ OLIVE_ADD_TEST(ReplaceBlockWithGap_ClipsOnly)
     OLIVE_ASSERT(track->Blocks().at(0) == a);
     OLIVE_ASSERT(track->Blocks().at(1) == b);
 
-    command.undo();
+    command.undo_now();
 
     OLIVE_ASSERT(track->Blocks().size() == 3);
     OLIVE_ASSERT(track->Blocks().at(0) == a);
@@ -259,7 +260,7 @@ OLIVE_ADD_TEST(ReplaceBlockWithGap_ClipsOnly)
   {
     // Replace clip B with a gap
     TrackReplaceBlockWithGapCommand command(track, b);
-    command.redo();
+    command.redo_now();
 
     // B should be replaced with a gap
     OLIVE_ASSERT(track->Blocks().size() == 3);
@@ -269,7 +270,7 @@ OLIVE_ADD_TEST(ReplaceBlockWithGap_ClipsOnly)
     OLIVE_ASSERT(track->Blocks().at(1)->length() == b->length());
     OLIVE_ASSERT(track->Blocks().at(2) == c);
 
-    command.undo();
+    command.undo_now();
 
     OLIVE_ASSERT(track->Blocks().size() == 3);
     OLIVE_ASSERT(track->Blocks().at(0) == a);
@@ -311,7 +312,7 @@ OLIVE_ADD_TEST(ReplaceBlockWithGap_ClipsAndGaps)
   {
     // Replace clip E with a gap
     TrackReplaceBlockWithGapCommand command(track, e);
-    command.redo();
+    command.redo_now();
 
     // Both clips D and E should be removed because this command should remove any trailing gaps
     OLIVE_ASSERT(track->Blocks().size() == 3);
@@ -320,7 +321,7 @@ OLIVE_ADD_TEST(ReplaceBlockWithGap_ClipsAndGaps)
     OLIVE_ASSERT(track->Blocks().at(2) == c);
 
     // Test undo
-    command.undo();
+    command.undo_now();
 
     OLIVE_ASSERT(track->Blocks().size() == 5);
     OLIVE_ASSERT(track->Blocks().at(0) == a);
@@ -336,7 +337,7 @@ OLIVE_ADD_TEST(ReplaceBlockWithGap_ClipsAndGaps)
     rational original_length_of_b = b->length();
 
     TrackReplaceBlockWithGapCommand command(track, a);
-    command.redo();
+    command.redo_now();
 
     // A should be removed and B should take its place
     OLIVE_ASSERT(track->Blocks().size() == 4);
@@ -348,7 +349,7 @@ OLIVE_ADD_TEST(ReplaceBlockWithGap_ClipsAndGaps)
     OLIVE_ASSERT(b->length() == original_length_of_a + original_length_of_b);
 
     // Test undo
-    command.undo();
+    command.undo_now();
 
     OLIVE_ASSERT(track->Blocks().size() == 5);
     OLIVE_ASSERT(track->Blocks().at(0) == a);
@@ -367,7 +368,7 @@ OLIVE_ADD_TEST(ReplaceBlockWithGap_ClipsAndGaps)
     rational original_length_of_d = d->length();
 
     TrackReplaceBlockWithGapCommand command(track, c);
-    command.redo();
+    command.redo_now();
 
     // C and D should be removed, and B should take both of their places
     OLIVE_ASSERT(track->Blocks().size() == 3);
@@ -377,7 +378,7 @@ OLIVE_ADD_TEST(ReplaceBlockWithGap_ClipsAndGaps)
     OLIVE_ASSERT(b->length() == original_length_of_b + original_length_of_c + original_length_of_d);
 
     // Test undo
-    command.undo();
+    command.undo_now();
 
     OLIVE_ASSERT(track->Blocks().size() == 5);
     OLIVE_ASSERT(track->Blocks().at(0) == a);
@@ -400,7 +401,7 @@ OLIVE_ADD_TEST(ReplaceBlockWithGap_ClipsAndGaps)
     TrackReplaceBlockWithGapCommand command(track, e);
     rational original_length_of_d = d->length();
     rational original_length_of_e = e->length();
-    command.redo();
+    command.redo_now();
 
     // E should be removed and D should have taken its place
     OLIVE_ASSERT(track->Blocks().size() == 5);
@@ -411,7 +412,7 @@ OLIVE_ADD_TEST(ReplaceBlockWithGap_ClipsAndGaps)
     OLIVE_ASSERT(track->Blocks().at(4) == f);
     OLIVE_ASSERT(d->length() == original_length_of_d + original_length_of_e);
 
-    command.undo();
+    command.undo_now();
 
     OLIVE_ASSERT(track->Blocks().size() == 6);
     OLIVE_ASSERT(track->Blocks().at(0) == a);
@@ -465,7 +466,7 @@ OLIVE_ADD_TEST(ReplaceBlockWithGap_ClipsAndTransitions)
   {
     // Replace A with gap
     TrackReplaceBlockWithGapCommand command(track, a);
-    command.redo();
+    command.redo_now();
 
     // A should be replaced with a gap and so should A_IN since A was the only clip connected to it.
     // Also A_TO_B should only be connected to B now
@@ -475,7 +476,7 @@ OLIVE_ADD_TEST(ReplaceBlockWithGap_ClipsAndTransitions)
     OLIVE_ASSERT(track->Blocks().at(2) == b);
     OLIVE_ASSERT(track->Blocks().at(3) == b_out);
 
-    command.undo();
+    command.undo_now();
 
     OLIVE_ASSERT(track->Blocks().size() == 5);
     OLIVE_ASSERT(track->Blocks().at(0) == a_in);
@@ -517,7 +518,7 @@ OLIVE_ADD_TEST(InsertGaps_SingleTrack)
   {
     // Insert gap at the start of the track, all blocks should be unsplit and shifted to the right
     TrackListInsertGaps command(list, 0, 2);
-    command.redo();
+    command.redo_now();
 
     OLIVE_ASSERT(track->Blocks().size() == 4);
     OLIVE_ASSERT(dynamic_cast<GapBlock *>(track->Blocks().at(0)));
@@ -526,7 +527,7 @@ OLIVE_ADD_TEST(InsertGaps_SingleTrack)
     OLIVE_ASSERT(track->Blocks().at(2) == b);
     OLIVE_ASSERT(track->Blocks().at(3) == c);
 
-    command.undo();
+    command.undo_now();
 
     OLIVE_ASSERT(track->Blocks().size() == 3);
     OLIVE_ASSERT(track->Blocks().at(0) == a);
@@ -537,7 +538,7 @@ OLIVE_ADD_TEST(InsertGaps_SingleTrack)
   {
     // Insert gap in the middle of block A, block A should be halved with a copy at 2 and the gap at 1
     TrackListInsertGaps command(list, rational(1, 2), 2);
-    command.redo();
+    command.redo_now();
 
     OLIVE_ASSERT(track->Blocks().size() == 5);
     OLIVE_ASSERT(track->Blocks().at(0) == a);
@@ -547,7 +548,7 @@ OLIVE_ADD_TEST(InsertGaps_SingleTrack)
     OLIVE_ASSERT(track->Blocks().at(3) == b);
     OLIVE_ASSERT(track->Blocks().at(4) == c);
 
-    command.undo();
+    command.undo_now();
 
     OLIVE_ASSERT(track->Blocks().size() == 3);
     OLIVE_ASSERT(track->Blocks().at(0) == a);
@@ -559,7 +560,7 @@ OLIVE_ADD_TEST(InsertGaps_SingleTrack)
   {
     // Insert gap between block A and B, blocks should be unsplit with a gap at 1
     TrackListInsertGaps command(list, 1, 2);
-    command.redo();
+    command.redo_now();
 
     OLIVE_ASSERT(track->Blocks().size() == 4);
     OLIVE_ASSERT(track->Blocks().at(0) == a);
@@ -567,7 +568,7 @@ OLIVE_ADD_TEST(InsertGaps_SingleTrack)
     OLIVE_ASSERT(track->Blocks().at(2) == b);
     OLIVE_ASSERT(track->Blocks().at(3) == c);
 
-    command.undo();
+    command.undo_now();
 
     OLIVE_ASSERT(track->Blocks().size() == 3);
     OLIVE_ASSERT(track->Blocks().at(0) == a);
@@ -578,14 +579,14 @@ OLIVE_ADD_TEST(InsertGaps_SingleTrack)
   {
     // Insert gap at end, nothing should be added
     TrackListInsertGaps command(list, 3, 2);
-    command.redo();
+    command.redo_now();
 
     OLIVE_ASSERT(track->Blocks().size() == 3);
     OLIVE_ASSERT(track->Blocks().at(0) == a);
     OLIVE_ASSERT(track->Blocks().at(1) == b);
     OLIVE_ASSERT(track->Blocks().at(2) == c);
 
-    command.undo();
+    command.undo_now();
 
     OLIVE_ASSERT(track->Blocks().size() == 3);
     OLIVE_ASSERT(track->Blocks().at(0) == a);

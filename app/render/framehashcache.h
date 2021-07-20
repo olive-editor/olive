@@ -24,6 +24,7 @@
 #include <QMutex>
 
 #include "common/rational.h"
+#include "common/timecodefunctions.h"
 #include "common/timerange.h"
 #include "codec/frame.h"
 #include "render/playbackcache.h"
@@ -37,23 +38,17 @@ class FrameHashCache : public PlaybackCache
 public:
   FrameHashCache(QObject* parent = nullptr);
 
+  QByteArray GetHash(const int64_t& time);
   QByteArray GetHash(const rational& time);
+
+  const rational &GetTimebase() const
+  {
+    return timebase_;
+  }
 
   void SetTimebase(const rational& tb);
 
   void ValidateFramesWithHash(const QByteArray& hash);
-
-  /**
-   * @brief Returns a list of frames that use a particular hash
-   */
-  QList<rational> GetFramesWithHash(const QByteArray& hash);
-
-  /**
-   * @brief Same as FramesWithHash() but also removes these frames from the map
-   */
-  QList<rational> TakeFramesWithHash(const QByteArray& hash);
-
-  QMap<rational, QByteArray> time_hash_map();
 
   /**
    * @brief Return the path of the cached image at this time
@@ -70,23 +65,23 @@ public:
   FramePtr LoadCacheFrame(const QByteArray& hash) const;
   static FramePtr LoadCacheFrame(const QString& fn);
 
-  static QVector<rational> GetFrameListFromTimeRange(TimeRangeList range_list, const rational& timebase);
-  QVector<rational> GetFrameListFromTimeRange(const TimeRangeList &range);
-  QVector<rational> GetInvalidatedFrames();
-  QVector<rational> GetInvalidatedFrames(const TimeRange& intersecting);
-
-public slots:
-  void SetHash(const olive::rational& time, const QByteArray& hash, const qint64 &job_time, bool frame_exists);
+  void SetHash(const olive::rational &time, const QByteArray& hash, bool frame_exists);
 
 protected:
-  virtual void LengthChangedEvent(const rational& old, const rational& newlen) override;
-
   virtual void ShiftEvent(const rational& from, const rational& to) override;
 
   virtual void InvalidateEvent(const TimeRange& range) override;
 
 private:
-  QMap<rational, QByteArray> time_hash_map_;
+  rational ToTime(const int64_t &ts) const;
+  int64_t ToTimestamp(const rational &ts, Timecode::Rounding rounding = Timecode::kRound) const;
+
+  int64_t GetMapSize() const
+  {
+    return int64_t(time_hash_map_.size());
+  }
+
+  std::vector<QByteArray> time_hash_map_;
 
   rational timebase_;
 

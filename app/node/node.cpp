@@ -46,7 +46,6 @@ const QString Node::kDefaultOutput = QStringLiteral("output");
 Node::Node(bool create_default_output) :
   can_be_deleted_(true),
   override_color_(-1),
-  last_change_time_(0),
   folder_(nullptr),
   operation_stack_(0),
   cache_result_(false)
@@ -91,20 +90,6 @@ void Node::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, uint versi
       LoadInput(reader, xml_node_data, cancelled);
     } else if (reader->name() == QStringLiteral("ptr")) {
       xml_node_data.node_ptrs.insert(reader->readElementText().toULongLong(), this);
-    } else if (reader->name() == QStringLiteral("pos")) {
-      QPointF p;
-
-      while (XMLReadNextStartElement(reader)) {
-        if (reader->name() == QStringLiteral("x")) {
-          p.setX(reader->readElementText().toDouble());
-        } else if (reader->name() == QStringLiteral("y")) {
-          p.setY(reader->readElementText().toDouble());
-        } else {
-          reader->skipCurrentElement();
-        }
-      }
-
-      SetPosition(p);
     } else if (reader->name() == QStringLiteral("label")) {
       SetLabel(reader->readElementText());
     } else if (reader->name() == QStringLiteral("color")) {
@@ -165,11 +150,6 @@ void Node::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, uint versi
 void Node::Save(QXmlStreamWriter *writer) const
 {
   writer->writeTextElement(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(this)));
-
-  writer->writeStartElement(QStringLiteral("pos"));
-  writer->writeTextElement(QStringLiteral("x"), QString::number(GetPosition().x()));
-  writer->writeTextElement(QStringLiteral("y"), QString::number(GetPosition().y()));
-  writer->writeEndElement(); // pos
 
   writer->writeTextElement(QStringLiteral("label"), GetLabel());
   writer->writeTextElement(QStringLiteral("color"), QString::number(override_color_));
@@ -282,9 +262,6 @@ void Node::ConnectEdge(const NodeOutput &output, const NodeInput &input)
   input.node()->input_connections_[input] = output;
   output.node()->output_connections_.push_back(std::pair<NodeOutput, NodeInput>({output, input}));
 
-  // Update change times
-  input.node()->UpdateLastChangedTime();
-
   // Call internal events
   input.node()->InputConnectedEvent(input.input(), input.element(), output);
   output.node()->OutputConnectedEvent(output.output(), input);
@@ -313,9 +290,6 @@ void Node::DisconnectEdge(const NodeOutput &output, const NodeInput &input)
 
   OutputConnections& outputs = output.node()->output_connections_;
   outputs.erase(std::find(outputs.begin(), outputs.end(), std::pair<NodeOutput, NodeInput>({output, input})));
-
-  // Update change times
-  input.node()->UpdateLastChangedTime();
 
   // Call internal events
   input.node()->InputDisconnectedEvent(input.input(), input.element(), output);
@@ -953,7 +927,7 @@ void Node::InputArrayResize(const QString &id, int size, bool undoable)
   if (undoable) {
     Core::instance()->undo_stack()->push(c);
   } else {
-    c->redo();
+    c->redo_now();
     delete c;
   }
 }
@@ -1045,12 +1019,12 @@ NodeValueTable Node::Value(const QString& output, NodeValueDatabase &value) cons
   return value.Merge();
 }
 
-void Node::InvalidateCache(const TimeRange &range, const QString &from, int element, qint64 job_time)
+void Node::InvalidateCache(const TimeRange &range, const QString &from, int element, InvalidateCacheOptions options)
 {
   Q_UNUSED(from)
   Q_UNUSED(element)
 
-  SendInvalidateCache(range, job_time);
+  SendInvalidateCache(range, options);
 }
 
 void Node::BeginOperation()
@@ -1134,7 +1108,7 @@ void Node::CopyDependencyGraph(const QVector<Node *> &src, const QVector<Node *>
   }
 }
 
-Node *Node::CopyNodeAndDependencyGraphMinusItemsInternal(QMap<const Node*, Node*>& created, const Node *node, MultiUndoCommand *command)
+Node *Node::CopyNodeAndDependencyGraphMinusItemsInternal(QMap<Node*, Node*>& created, Node *node, MultiUndoCommand *command)
 {
   // Make a new node of the same type
   Node* copy = node->copy();
@@ -1171,17 +1145,26 @@ Node *Node::CopyNodeAndDependencyGraphMinusItemsInternal(QMap<const Node*, Node*
                                               NodeInput(copy, input.input(), input.element())));
   }
 
+  if (node->parent()->GetPositionMap().contains(node)) {
+    // This node is a context, copy the context
+    const NodeGraph::PositionMap &map = node->parent()->GetPositionMap().value(node);
+    for (auto it=map.cbegin(); it!=map.cend(); it++) {
+      // Add either the copy (if it exists) or the original node to the context
+      command->add_child(new NodeSetPositionCommand(created.value(it.key(), it.key()), copy, it.value(), false));
+    }
+  }
+
   return copy;
 }
 
-Node *Node::CopyNodeAndDependencyGraphMinusItems(const Node *node, MultiUndoCommand *command)
+Node *Node::CopyNodeAndDependencyGraphMinusItems(Node *node, MultiUndoCommand *command)
 {
-  QMap<const Node*, Node*> created;
+  QMap<Node*, Node*> created;
 
   return CopyNodeAndDependencyGraphMinusItemsInternal(created, node, command);
 }
 
-Node *Node::CopyNodeInGraph(const Node *node, MultiUndoCommand *command)
+Node *Node::CopyNodeInGraph(Node *node, MultiUndoCommand *command)
 {
   Node* copy;
 
@@ -1194,19 +1177,28 @@ Node *Node::CopyNodeInGraph(const Node *node, MultiUndoCommand *command)
                                           copy));
 
     command->add_child(new NodeCopyInputsCommand(node, copy, true));
+
+    if (node->parent()->GetPositionMap().contains(node)) {
+      // This node is a context, copy the context
+      const NodeGraph::PositionMap &map = node->parent()->GetPositionMap().value(node);
+      for (auto it=map.cbegin(); it!=map.cend(); it++) {
+        // Add to the context
+        command->add_child(new NodeSetPositionCommand(it.key(), copy, it.value(), false));
+      }
+    }
   }
 
   return copy;
 }
 
-void Node::SendInvalidateCache(const TimeRange &range, qint64 job_time)
+void Node::SendInvalidateCache(const TimeRange &range, const InvalidateCacheOptions &options)
 {
   if (GetOperationStack() == 0) {
     for (const OutputConnection& conn : output_connections_) {
       // Send clear cache signal to the Node
       const NodeInput& in = conn.second;
 
-      in.node()->InvalidateCache(range, in.input(), in.element(), job_time);
+      in.node()->InvalidateCache(range, in.input(), in.element(), options);
     }
   }
 }
@@ -1482,7 +1474,6 @@ void Node::CopyInputs(const Node *source, Node *destination, bool include_connec
     CopyInput(source, destination, input, include_connections, true);
   }
 
-  destination->SetPosition(source->GetPosition());
   destination->SetLabel(source->GetLabel());
   destination->SetOverrideColor(source->GetOverrideColor());
 }
@@ -1642,15 +1633,28 @@ void Node::GenerateFrame(FramePtr frame, const GenerateJob &job) const
   Q_UNUSED(job)
 }
 
-bool Node::OutputsTo(Node *n, bool recursively) const
+bool Node::OutputsTo(Node *n, bool recursively, const OutputConnections &ignore_edges, const OutputConnection &added_edge) const
 {
   for (const OutputConnection& conn : output_connections_) {
+    if (std::find(ignore_edges.cbegin(), ignore_edges.cend(), conn) != ignore_edges.cend()) {
+      // If this edge is in the "ignore edges" list, skip it
+      continue;
+    }
+
     Node* connected = conn.second.node();
 
     if (connected == n) {
       return true;
-    } else if (recursively && connected->OutputsTo(n, recursively)) {
+    } else if (recursively && connected->OutputsTo(n, recursively, ignore_edges, added_edge)) {
       return true;
+    } else if (added_edge.first.node() == this) {
+      Node *proposed_connected = added_edge.second.node();
+
+      if (proposed_connected == n) {
+        return true;
+      } else if (recursively && proposed_connected->OutputsTo(n, recursively, ignore_edges, added_edge)) {
+        return true;
+      }
     }
   }
 
@@ -1717,7 +1721,7 @@ bool Node::InputsFrom(const QString &id, bool recursively) const
   return false;
 }
 
-int Node::GetRoutesTo(Node *n) const
+int Node::GetNumberOfRoutesTo(Node *n) const
 {
   bool outputs_directly = false;
   int routes = 0;
@@ -1728,7 +1732,7 @@ int Node::GetRoutesTo(Node *n) const
     if (connected_node == n) {
       outputs_directly = true;
     } else {
-      routes += connected_node->GetRoutesTo(n);
+      routes += connected_node->GetNumberOfRoutesTo(n);
     }
   }
 
@@ -1831,33 +1835,8 @@ QVariant Node::PtrToValue(void *ptr)
   return reinterpret_cast<quintptr>(ptr);
 }
 
-const QPointF &Node::GetPosition() const
-{
-  return position_;
-}
-
-void Node::SetPosition(const QPointF &pos, bool move_dependencies_relatively_too)
-{
-  QPointF old_pos = position_;
-
-  position_ = pos;
-
-  emit PositionChanged(position_);
-
-  if (move_dependencies_relatively_too) {
-    QPointF difference = pos - old_pos;
-
-    for (auto it=input_connections_.cbegin(); it!=input_connections_.cend(); it++) {
-      Node* c = it->second.node();
-      c->SetPosition(c->GetPosition() + difference, true);
-    }
-  }
-}
-
 void Node::ParameterValueChanged(const QString& input, int element, const TimeRange& range)
 {
-  UpdateLastChangedTime();
-
   InputValueChangedEvent(input, element);
 
   emit ValueChanged(NodeInput(this, input, element), range);
@@ -2047,11 +2026,6 @@ void Node::SaveImmediate(QXmlStreamWriter *writer, const QString& input, int ele
     writer->writeTextElement(QStringLiteral("csview"), GetInputProperty(input, QStringLiteral("col_view")).toString());
     writer->writeTextElement(QStringLiteral("cslook"), GetInputProperty(input, QStringLiteral("col_look")).toString());
   }
-}
-
-void Node::UpdateLastChangedTime()
-{
-  last_change_time_ = QDateTime::currentMSecsSinceEpoch();
 }
 
 TimeRange Node::GetRangeAffectedByKeyframe(NodeKeyframe *key) const
@@ -2302,35 +2276,143 @@ void NodeSetPositionAndShiftSurroundingsCommand::redo()
 {
   if (commands_.isEmpty()) {
     // Move first node
-    NodeSetPositionCommand* set_pos_command = new NodeSetPositionCommand(node_, position_, move_dependencies_);
-    set_pos_command->redo();
+    NodeSetPositionCommand* set_pos_command = new NodeSetPositionCommand(node_, relative_, position_, move_dependencies_);
+    set_pos_command->redo_now();
     commands_.append(set_pos_command);
 
     // Get bounding rect
-    QRectF bounding_rect(position_.x() - 0.5, position_.y() - 0.5, 1, 1);
+    qreal bounding_rect_sz = 1.0;
+    qreal bounding_rect_half_sz = bounding_rect_sz * 0.5;
+    QRectF bounding_rect(position_.x() - bounding_rect_half_sz, position_.y() - bounding_rect_half_sz, bounding_rect_sz, bounding_rect_sz);
 
     // Start moving other nodes
     foreach (Node* surrounding, node_->parent()->nodes()) {
-      if (bounding_rect.contains(surrounding->GetPosition()) && surrounding != node_) {
-        QPointF new_pos = surrounding->GetPosition();
+      if (surrounding != node_) {
+        QPointF surrounding_position = node_->parent()->GetNodePosition(surrounding, relative_);
+        if (bounding_rect.contains(surrounding_position)) {
+          QPointF new_pos = surrounding_position;
 
-        qreal move_rate = 0.50;
+          qreal move_rate = 0.50;
 
-        if (surrounding->GetPosition().y() < position_.y()) {
-          move_rate = -move_rate;
+          if (surrounding_position.y() < position_.y()) {
+            move_rate = -move_rate;
+          }
+
+          new_pos.setY(new_pos.y() + move_rate);
+
+          auto sur_command = new NodeSetPositionAndShiftSurroundingsCommand(surrounding, relative_, new_pos, true);
+          sur_command->redo();
+          commands_.append(sur_command);
         }
-
-        new_pos.setY(new_pos.y() + move_rate);
-
-        auto sur_command = new NodeSetPositionAndShiftSurroundingsCommand(surrounding, new_pos, true);
-        sur_command->redo();
-        commands_.append(sur_command);
       }
     }
   } else {
     for (int i=0; i<commands_.size(); i++) {
-      commands_.at(i)->redo();
+      commands_.at(i)->redo_now();
     }
+  }
+}
+
+void NodeSetPositionCommand::redo()
+{
+  graph_ = node_->parent();
+  if (!(added_ = !graph_->NodeMapContainsNode(node_, relevant_))) {
+    old_pos_ = graph_->GetNodePosition(node_, relevant_);
+  }
+  graph_->SetNodePosition(node_, relevant_, pos_);
+}
+
+void NodeSetPositionCommand::undo()
+{
+  if (added_) {
+    graph_->RemoveNodePosition(node_, relevant_);
+  } else {
+    graph_->SetNodePosition(node_, relevant_, old_pos_);
+  }
+}
+
+void NodeSetPositionAsChildCommand::redo()
+{
+  if (!sub_command_) {
+    // Calculate position of node
+    NodeGraph *graph = parent_->parent();
+    QPointF pos = graph->GetNodePosition(parent_, relative_);
+
+    // This is a dependency, so we'll place it one X before
+    pos.setX(pos.x() - 1);
+
+    // The Y will be calculated using the index and child count
+    pos.setY(pos.y() - (double(child_count_)*0.5) + this_index_ + 0.5);
+
+    sub_command_ = new MultiUndoCommand();
+    if (shift_surroundings_) {
+      sub_command_->add_child(new NodeSetPositionAndShiftSurroundingsCommand(node_, relative_, pos, true));
+    } else {
+      sub_command_->add_child(new NodeSetPositionCommand(node_, relative_, pos, true));
+    }
+  }
+
+  sub_command_->redo();
+}
+
+void NodeSetPositionToOffsetOfAnotherNodeCommand::redo()
+{
+  NodeGraph *graph = node_->parent();
+  old_pos_ = graph->GetNodePosition(node_, relative_);
+  graph->SetNodePosition(node_, relative_, graph->GetNodePosition(other_node_, relative_) + offset_);
+}
+
+void NodeSetPositionToOffsetOfAnotherNodeCommand::undo()
+{
+  NodeGraph *graph = node_->parent();
+  graph->SetNodePosition(node_, relative_, old_pos_);
+}
+
+void NodeRemovePositionFromContextCommand::redo()
+{
+  NodeGraph *graph = node_->parent();
+
+  contained_ = graph->ContextContainsNode(node_, context_);
+
+  if (contained_) {
+    old_pos_ = graph->GetNodePosition(node_, context_);
+    graph->RemoveNodePosition(node_, context_);
+  }
+}
+
+void NodeRemovePositionFromContextCommand::undo()
+{
+  if (contained_) {
+    NodeGraph *graph = node_->parent();
+    graph->SetNodePosition(node_, context_, old_pos_);
+  }
+}
+
+void NodeRemovePositionFromAllContextsCommand::redo()
+{
+  NodeGraph *graph = node_->parent();
+
+  if (points_.empty()) {
+    // No points yet, let's see what points we should remove
+    auto map = graph->GetPositionMap();
+    for (auto it=map.cbegin(); it!=map.cend(); it++) {
+      if (it.value().contains(node_)) {
+        points_.insert({it.key(), it.value().value(node_)});
+      }
+    }
+  }
+
+  for (auto it=points_.cbegin(); it!=points_.cend(); it++) {
+    graph->RemoveNodePosition(node_, it->first);
+  }
+}
+
+void NodeRemovePositionFromAllContextsCommand::undo()
+{
+  NodeGraph *graph = node_->parent();
+
+  for (auto it=points_.crbegin(); it!=points_.crend(); it++) {
+    graph->SetNodePosition(node_, it->first, it->second);
   }
 }
 

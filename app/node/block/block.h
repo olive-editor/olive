@@ -155,6 +155,8 @@ public:
 
   virtual void Hash(const QString& output, QCryptographicHash &hash, const rational &time, const VideoParams& video_params) const override;
 
+  virtual void InvalidateCache(const TimeRange& range, const QString& from, int element = -1, InvalidateCacheOptions options = InvalidateCacheOptions()) override;
+
   static const QString kLengthInput;
   static const QString kMediaInInput;
   static const QString kEnabledInput;
@@ -192,6 +194,8 @@ private:
   TransitionBlock* out_transition_;
 
   QVector<Block*> block_links_;
+
+  rational last_length_;
 
 };
 

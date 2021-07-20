@@ -142,6 +142,8 @@ private:
 
   void UpdateAudioMonitorParams(ViewerOutput* viewer);
 
+  void UpdateNodePanelContextFromTimelinePanel(TimelinePanel *panel);
+
   QByteArray premaximized_state_;
 
   // Standard panels
@@ -189,6 +191,10 @@ private slots:
 #ifdef Q_OS_LINUX
   void ShowNouveauWarning();
 #endif
+
+  void TimelinePanelSelectionChanged(const QVector<Block*> &blocks);
+
+  void ProjectPanelSelectionChanged(const QVector<Node*> &nodes);
 
 };
 

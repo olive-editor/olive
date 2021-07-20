@@ -51,9 +51,9 @@ protected:
 
   virtual void DownloadFrame(QThread* thread, FramePtr frame, const QByteArray &hash);
 
-  virtual void FrameDownloaded(FramePtr frame, const QByteArray& hash, const QVector<rational>& times, qint64 job_time) = 0;
+  virtual void FrameDownloaded(FramePtr frame, const QByteArray& hash, const QVector<rational>& times) = 0;
 
-  virtual void AudioDownloaded(const TimeRange& range, SampleBufferPtr samples, qint64 job_time) = 0;
+  virtual void AudioDownloaded(const TimeRange& range, SampleBufferPtr samples) = 0;
 
   virtual void EncodeSubtitle(const SubtitleBlock *subtitle);
 

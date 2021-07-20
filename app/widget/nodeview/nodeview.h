@@ -27,8 +27,10 @@
 #include "node/graph.h"
 #include "node/nodecopypaste.h"
 #include "nodeviewedge.h"
+#include "nodeviewminimap.h"
 #include "nodeviewscene.h"
 #include "widget/handmovableview/handmovableview.h"
+#include "widget/menu/menu.h"
 
 namespace olive {
 
@@ -51,10 +53,9 @@ public:
     return graph_;
   }
 
-  /**
-   * @brief Sets the graph to view
-   */
-  void SetGraph(NodeGraph* graph);
+  void SetGraph(NodeGraph *graph, const QVector<Node *> &nodes);
+
+  void ClearGraph();
 
   /**
    * @brief Delete selected nodes from graph (user-friendly/undoable)
@@ -64,8 +65,8 @@ public:
   void SelectAll();
   void DeselectAll();
 
-  void Select(QVector<Node *> nodes);
-  void SelectWithDependencies(QVector<Node *> nodes);
+  void Select(QVector<Node *> nodes, bool center_view_on_item);
+  void SelectWithDependencies(QVector<Node *> nodes, bool center_view_on_item);
 
   void CopySelected(bool cut);
   void Paste();
@@ -77,6 +78,19 @@ public:
   void ZoomIn();
 
   void ZoomOut();
+
+public slots:
+  void SetMiniMapEnabled(bool e)
+  {
+    minimap_->setVisible(e);
+  }
+
+  void ShowAddMenu()
+  {
+    Menu *m = CreateAddMenu(nullptr);
+    m->exec(QCursor::pos());
+    delete m;
+  }
 
 signals:
   void NodesSelected(const QVector<Node*>& nodes);
@@ -90,7 +104,13 @@ protected:
   virtual void mouseMoveEvent(QMouseEvent *event) override;
   virtual void mouseReleaseEvent(QMouseEvent* event) override;
 
+  virtual void resizeEvent(QResizeEvent *event) override;
+
   virtual void ZoomIntoCursorPosition(QWheelEvent *event, double multiplier, const QPointF &cursor_pos) override;
+
+  virtual bool event(QEvent *event) override;
+
+  virtual bool eventFilter(QObject *object, QEvent *event) override;
 
 private:
   void AttachNodesToCursor(const QVector<Node *> &nodes);
@@ -108,16 +128,31 @@ private:
 
   void ZoomFromKeyboard(double multiplier);
 
+  bool DetermineIfNodeIsFloatingInContext(Node *node, Node *context, Node *source, const Node::OutputConnections &removed_edges, const Node::OutputConnection &added_edge);
+  void UpdateContextsFromEdgeRemove(MultiUndoCommand *command, const Node::OutputConnections &remove_edges);
+  void UpdateContextsFromEdgeAdd(MultiUndoCommand *command, const Node::OutputConnection &added_edge, const Node::OutputConnections &removed_edges = Node::OutputConnections());
+  void RecursivelyAddNodeToContext(MultiUndoCommand *command, Node *node, Node *context);
+  void RecursivelyRemoveFloatingNodeFromContext(MultiUndoCommand *command, Node *node, Node *context, Node *source, const Node::OutputConnections &removed_edges, const Node::OutputConnection &added_edge, bool prevent_removing);
+
+  QPointF GetEstimatedPositionForContext(NodeViewItem *item, Node *context) const;
+
+  Menu *CreateAddMenu(Menu *parent);
+
+  void CreateNewEdge(NodeViewItem *output_item);
+
+  NodeViewItem *UpdateNodeItem(Node *node, bool ignore_own_context = false);
+
   class NodeViewAttachNodesToCursor : public UndoCommand
   {
   public:
     NodeViewAttachNodesToCursor(NodeView* view, const QVector<Node*>& nodes);
 
+    virtual Project * GetRelevantProject() const override;
+
+  protected:
     virtual void redo() override;
 
     virtual void undo() override;
-
-    virtual Project * GetRelevantProject() const override;
 
   private:
     NodeView* view_;
@@ -126,11 +161,40 @@ private:
 
   };
 
+  NodeViewMiniMap *minimap_;
+
   NodeGraph* graph_;
 
   struct AttachedItem {
     NodeViewItem* item;
     QPointF original_pos;
+  };
+
+  class NodeViewItemPreventRemovingCommand : public UndoCommand
+  {
+  public:
+    NodeViewItemPreventRemovingCommand(NodeView *view, Node *node, bool prevent_removing) :
+      view_(view),
+      node_(node),
+      new_prevent_removing_(prevent_removing)
+    {}
+
+    virtual Project * GetRelevantProject() const override
+    {
+      return node_->project();
+    }
+
+  protected:
+    virtual void redo() override;
+
+    virtual void undo() override;
+
+  private:
+    NodeView *view_;
+    Node *node_;
+    bool new_prevent_removing_;
+    bool old_prevent_removing_;
+
   };
 
   QList<AttachedItem> attached_items_;
@@ -147,20 +211,33 @@ private:
 
   NodeViewScene scene_;
 
-  QVector<Node*> selected_nodes_;
+  MultiUndoCommand* paste_command_;
 
-  QVector<Block*> selected_blocks_;
+  QVector<Node*> selected_nodes_;
 
   enum FilterMode {
     kFilterShowAll,
-    kFilterShowSelectedBlocks
+    kFilterShowSelective
   };
 
+  struct Position {
+    Node *node;
+    QPointF original_item_pos;
+  };
+
+  QMap<NodeViewItem *, Position> positions_;
+
   FilterMode filter_mode_;
+
+  QVector<Node*> filter_nodes_;
+  QVector<Node*> last_set_filter_nodes_;
+  QMap<Node*, QPointF> context_offsets_;
 
   double scale_;
 
   bool create_edge_already_exists_;
+
+  bool queue_reposition_contexts_;
 
   static const double kMinimumScale;
 
@@ -186,11 +263,6 @@ private slots:
   void ContextMenuSetDirection(QAction* action);
 
   /**
-   * @brief Receiver for auto-position descendents menu action
-   */
-  void AutoPositionDescendents();
-
-  /**
    * @brief Receiver for the user changing the filter
    */
   void ContextMenuFilterChanged(QAction* action);
@@ -199,6 +271,26 @@ private slots:
    * @brief Opens the selected node in a Viewer
    */
   void OpenSelectedNodeInViewer();
+
+  //void AddNode(Node *node);
+  void RemoveNode(Node *node);
+  void AddEdge(const NodeOutput& output, const NodeInput& input);
+  void RemoveEdge(const NodeOutput& output, const NodeInput& input);
+
+  void AddNodePosition(Node *node, Node *relative);
+  void RemoveNodePosition(Node *node, Node *relative);
+
+  void UpdateSceneBoundingRect();
+
+  void CenterOnItemsBoundingRect();
+
+  void RepositionMiniMap();
+
+  void UpdateViewportOnMiniMap();
+
+  void MoveToScenePoint(const QPointF &pos);
+
+  void RepositionContexts();
 
 };
 

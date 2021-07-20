@@ -43,9 +43,6 @@ void NodeViewScene::SetFlowDirection(NodeViewCommon::FlowDirection direction)
     QHash<Node*, NodeViewItem*>::const_iterator i;
     for (i=item_map_.constBegin(); i!=item_map_.constEnd(); i++) {
       i.value()->SetFlowDirection(direction_);
-
-      // Update position too
-      i.value()->SetNodePosition(i.key()->GetPosition());
     }
   }
 
@@ -68,7 +65,10 @@ void NodeViewScene::clear()
   //       deleted. Calling this function appears to update the internal cache and prevent this.
   selectedItems();
 
-  qDeleteAll(item_map_);
+  for (auto it=item_map_.cbegin(); it!=item_map_.cend(); it++) {
+    DisconnectNode(it.key());
+    delete it.value();
+  }
   item_map_.clear();
 
   qDeleteAll(edges_);
@@ -150,7 +150,7 @@ QVector<NodeViewEdge *> NodeViewScene::GetSelectedEdges() const
   return edges;
 }
 
-void NodeViewScene::AddNode(Node* node)
+NodeViewItem* NodeViewScene::AddNode(Node* node)
 {
   NodeViewItem* item = new NodeViewItem();
 
@@ -160,32 +160,38 @@ void NodeViewScene::AddNode(Node* node)
   addItem(item);
   item_map_.insert(node, item);
 
-  connect(node, &Node::PositionChanged, this, &NodeViewScene::NodePositionChanged);
-  connect(node, &Node::LabelChanged, this, &NodeViewScene::NodeAppearanceChanged);
-  connect(node, &Node::ColorChanged, this, &NodeViewScene::NodeAppearanceChanged);
+  ConnectNode(node);
+
+  return item;
 }
 
 void NodeViewScene::RemoveNode(Node *node)
 {
-  disconnect(node, &Node::ColorChanged, this, &NodeViewScene::NodeAppearanceChanged);
-  disconnect(node, &Node::LabelChanged, this, &NodeViewScene::NodeAppearanceChanged);
-  disconnect(node, &Node::PositionChanged, this, &NodeViewScene::NodePositionChanged);
+  DisconnectNode(node);
 
   delete item_map_.take(node);
 }
 
-void NodeViewScene::AddEdge(const NodeOutput &output, const NodeInput &input)
+NodeViewEdge* NodeViewScene::AddEdge(const NodeOutput &output, const NodeInput &input)
 {
-  AddEdgeInternal(output, input, NodeToUIObject(output.node()), NodeToUIObject(input.node()));
+  NodeViewEdge *edge = EdgeToUIObject(output, input);
+
+  if (!edge) {
+    edge = AddEdgeInternal(output, input, NodeToUIObject(output.node()), NodeToUIObject(input.node()));
+  }
+
+  return edge;
 }
 
 void NodeViewScene::RemoveEdge(const NodeOutput &output, const NodeInput &input)
 {
   NodeViewEdge* edge = EdgeToUIObject(output, input);
-  edge->from_item()->RemoveEdge(edge);
-  edge->to_item()->RemoveEdge(edge);
-  edges_.removeOne(edge);
-  delete edge;
+  if (edge) {
+    edge->from_item()->RemoveEdge(edge);
+    edge->to_item()->RemoveEdge(edge);
+    edges_.removeOne(edge);
+    delete edge;
+  }
 }
 
 int NodeViewScene::DetermineWeight(Node *n)
@@ -195,7 +201,7 @@ int NodeViewScene::DetermineWeight(Node *n)
   int weight = 0;
 
   foreach (Node* i, inputs) {
-    if (i->GetRoutesTo(n) == 1) {
+    if (i->GetNumberOfRoutesTo(n) == 1) {
       weight += DetermineWeight(i);
     }
   }
@@ -203,7 +209,7 @@ int NodeViewScene::DetermineWeight(Node *n)
   return qMax(1, weight);
 }
 
-void NodeViewScene::AddEdgeInternal(const NodeOutput& output, const NodeInput& input, NodeViewItem *from, NodeViewItem *to)
+NodeViewEdge* NodeViewScene::AddEdgeInternal(const NodeOutput& output, const NodeInput& input, NodeViewItem *from, NodeViewItem *to)
 {
   NodeViewEdge* edge_ui = new NodeViewEdge(output, input, from, to);
 
@@ -215,6 +221,20 @@ void NodeViewScene::AddEdgeInternal(const NodeOutput& output, const NodeInput& i
 
   addItem(edge_ui);
   edges_.append(edge_ui);
+
+  return edge_ui;
+}
+
+void NodeViewScene::ConnectNode(Node *n)
+{
+  connect(n, &Node::LabelChanged, this, &NodeViewScene::NodeAppearanceChanged);
+  connect(n, &Node::ColorChanged, this, &NodeViewScene::NodeAppearanceChanged);
+}
+
+void NodeViewScene::DisconnectNode(Node *n)
+{
+  disconnect(n, &Node::ColorChanged, this, &NodeViewScene::NodeAppearanceChanged);
+  disconnect(n, &Node::LabelChanged, this, &NodeViewScene::NodeAppearanceChanged);
 }
 
 Qt::Orientation NodeViewScene::GetFlowOrientation() const
@@ -227,39 +247,6 @@ NodeViewCommon::FlowDirection NodeViewScene::GetFlowDirection() const
   return direction_;
 }
 
-void NodeViewScene::ReorganizeFrom(Node* n)
-{
-  QVector<Node*> immediates = n->GetImmediateDependencies();
-
-  if (immediates.isEmpty()) {
-    // Nothing to do
-    return;
-  }
-
-  QPointF parent_pos = n->GetPosition();
-
-  int weight_count = DetermineWeight(n);
-
-  qreal child_x = parent_pos.x() - 1.0;
-  qreal children_height = weight_count-1;
-  qreal children_y = parent_pos.y() - children_height * 0.5;
-
-  int weight_counter = 0;
-
-  foreach (Node* i, immediates) {
-    if (i->GetRoutesTo(n) == 1) {
-      int weight = DetermineWeight(i);
-
-      i->SetPosition(QPointF(child_x,
-                             children_y + weight_counter + (weight - 1) * 0.5));
-
-      weight_counter += weight;
-
-      ReorganizeFrom(i);
-    }
-  }
-}
-
 void NodeViewScene::SetEdgesAreCurved(bool curved)
 {
   if (curved_edges_ != curved) {
@@ -269,12 +256,6 @@ void NodeViewScene::SetEdgesAreCurved(bool curved)
       e->SetCurved(curved_edges_);
     }
   }
-}
-
-void NodeViewScene::NodePositionChanged(const QPointF &pos)
-{
-  // Update node's internal position
-  item_map_.value(static_cast<Node*>(sender()))->SetNodePosition(pos);
 }
 
 void NodeViewScene::NodeAppearanceChanged()

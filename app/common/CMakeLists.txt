@@ -36,6 +36,8 @@ set(OLIVE_SOURCES
   common/flipmodifiers.cpp
   common/flipmodifiers.h
   common/functiontimer.h
+  common/jobtime.cpp
+  common/jobtime.h
   common/lerp.h
   common/memorypool.h
   common/ocioutils.cpp

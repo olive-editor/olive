@@ -20,6 +20,7 @@
 
 #include "razor.h"
 #include "widget/timelinewidget/timelinewidget.h"
+#include "widget/timelinewidget/undo/timelineundosplit.h"
 
 namespace olive {
 

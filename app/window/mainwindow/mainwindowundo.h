@@ -32,11 +32,12 @@ public:
     sequence_(sequence)
   {}
 
+  virtual Project* GetRelevantProject() const override {return nullptr;}
+
+protected:
   virtual void redo() override;
 
   virtual void undo() override;
-
-  virtual Project* GetRelevantProject() const override {return nullptr;}
 
 private:
   Sequence* sequence_;
@@ -50,11 +51,12 @@ public:
     sequence_(sequence)
   {}
 
+  virtual Project* GetRelevantProject() const override {return nullptr;}
+
+protected:
   virtual void redo() override;
 
   virtual void undo() override;
-
-  virtual Project* GetRelevantProject() const override {return nullptr;}
 
 private:
   Sequence* sequence_;

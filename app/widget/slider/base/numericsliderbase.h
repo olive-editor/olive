@@ -42,6 +42,8 @@ public:
 
   bool IsDragging() const;
 
+  void SetIsEffectsSlider(bool e) {is_effects_slider_ = e;}
+
 protected:
   const QVariant& GetOffset() const
   {
@@ -86,6 +88,8 @@ private:
   double drag_multiplier_;
 
   bool setting_drag_value_;
+
+  bool is_effects_slider_;
 
 private slots:
   void LabelPressed();

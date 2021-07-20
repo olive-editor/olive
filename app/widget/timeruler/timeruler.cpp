@@ -69,7 +69,7 @@ void TimeRuler::SetPlaybackCache(PlaybackCache *cache)
   if (playback_cache_) {
     disconnect(playback_cache_, &PlaybackCache::Invalidated, this, static_cast<void(TimeRuler::*)()>(&TimeRuler::update));
     disconnect(playback_cache_, &PlaybackCache::Validated, this, static_cast<void(TimeRuler::*)()>(&TimeRuler::update));
-    disconnect(playback_cache_, &PlaybackCache::LengthChanged, this, static_cast<void(TimeRuler::*)()>(&TimeRuler::update));
+    disconnect(playback_cache_, &PlaybackCache::Shifted, this, static_cast<void(TimeRuler::*)()>(&TimeRuler::update));
   }
 
   playback_cache_ = cache;
@@ -77,7 +77,7 @@ void TimeRuler::SetPlaybackCache(PlaybackCache *cache)
   if (playback_cache_) {
     connect(playback_cache_, &PlaybackCache::Invalidated, this, static_cast<void(TimeRuler::*)()>(&TimeRuler::update));
     connect(playback_cache_, &PlaybackCache::Validated, this, static_cast<void(TimeRuler::*)()>(&TimeRuler::update));
-    connect(playback_cache_, &PlaybackCache::LengthChanged, this, static_cast<void(TimeRuler::*)()>(&TimeRuler::update));
+    connect(playback_cache_, &PlaybackCache::Shifted, this, static_cast<void(TimeRuler::*)()>(&TimeRuler::update));
   }
 
   update();
@@ -254,14 +254,17 @@ void TimeRuler::paintEvent(QPaintEvent *)
 
   // If cache status is enabled
   if (show_cache_status_ && playback_cache_) {
-    int cache_screen_length = qMin(TimeToScreen(playback_cache_->GetLength()), width());
+    // FIXME: Hardcoded to get video length, if we ever need audio length, this will have to change
+    rational len = playback_cache_->viewer_parent()->GetVideoLength();
+
+    int cache_screen_length = qMin(TimeToScreen(len), width());
 
     if (cache_screen_length > 0) {
       int cache_y = height() - cache_status_height_;
 
       p.fillRect(0, cache_y, cache_screen_length , cache_status_height_, Qt::green);
 
-      foreach (const TimeRange& range, playback_cache_->GetInvalidatedRanges()) {
+      foreach (const TimeRange& range, playback_cache_->GetInvalidatedRanges(len)) {
         int range_left = TimeToScreen(range.in());
         if (range_left >= width()) {
           continue;

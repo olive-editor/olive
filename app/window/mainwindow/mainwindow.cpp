@@ -95,7 +95,9 @@ MainWindow::MainWindow(QWidget *parent) :
   connect(node_panel_, &NodePanel::NodesDeselected, param_panel_, &ParamPanel::DeselectNodes);
   connect(node_panel_, &NodePanel::NodesSelected, table_panel_, &NodeTablePanel::SelectNodes);
   connect(node_panel_, &NodePanel::NodesDeselected, table_panel_, &NodeTablePanel::DeselectNodes);
-  connect(param_panel_, &ParamPanel::RequestSelectNode, node_panel_, &NodePanel::Select);
+  connect(param_panel_, &ParamPanel::RequestSelectNode, this, [this](const QVector<Node*>& target){
+    node_panel_->Select(target, true);
+  });
   connect(param_panel_, &ParamPanel::FocusedNodeChanged, sequence_viewer_panel_, &ViewerPanel::SetGizmos);
 
   // Connect time signals together
@@ -385,7 +387,7 @@ void MainWindow::ProjectClose(Project *p)
 
   // Close project from NodeView
   if (node_panel_->GetGraph() == p) {
-    node_panel_->SetGraph(nullptr);
+    node_panel_->ClearGraph();
   }
 }
 
@@ -466,6 +468,24 @@ void MainWindow::StatusBarDoubleClicked()
   task_man_panel_->raise();
 }
 
+void MainWindow::TimelinePanelSelectionChanged(const QVector<Block *> &blocks)
+{
+  TimelinePanel *panel = static_cast<TimelinePanel *>(sender());
+
+  if (PanelManager::instance()->CurrentlyFocused(false) == panel) {
+    UpdateNodePanelContextFromTimelinePanel(panel);
+  }
+}
+
+void MainWindow::ProjectPanelSelectionChanged(const QVector<Node *> &nodes)
+{
+  ProjectPanel *panel = static_cast<ProjectPanel *>(sender());
+
+  if (PanelManager::instance()->CurrentlyFocused(false) == panel) {
+    node_panel_->Select(nodes, true);
+  }
+}
+
 #ifdef Q_OS_LINUX
 void MainWindow::ShowNouveauWarning()
 {
@@ -539,8 +559,7 @@ TimelinePanel* MainWindow::AppendTimelinePanel()
   connect(panel, &TimelinePanel::TimeChanged, param_panel_, &ParamPanel::SetTimestamp);
   connect(panel, &TimelinePanel::TimeChanged, table_panel_, &NodeTablePanel::SetTimestamp);
   connect(panel, &TimelinePanel::TimeChanged, sequence_viewer_panel_, &SequenceViewerPanel::SetTimestamp);
-  connect(panel, &TimelinePanel::BlocksSelected, node_panel_, &NodePanel::SelectBlocks);
-  connect(panel, &TimelinePanel::BlocksDeselected, node_panel_, &NodePanel::DeselectBlocks);
+  connect(panel, &TimelinePanel::BlockSelectionChanged, this, &MainWindow::TimelinePanelSelectionChanged);
   connect(param_panel_, &ParamPanel::TimeChanged, panel, &TimelinePanel::SetTimestamp);
   connect(curve_panel_, &ParamPanel::TimeChanged, panel, &TimelinePanel::SetTimestamp);
   connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, panel, &TimelinePanel::SetTimestamp);
@@ -556,6 +575,7 @@ ProjectPanel *MainWindow::AppendProjectPanel()
 
   connect(panel, &PanelWidget::CloseRequested, this, &MainWindow::ProjectCloseRequested);
   connect(panel, &ProjectPanel::ProjectNameChanged, this, &MainWindow::UpdateTitle);
+  connect(panel, &ProjectPanel::SelectionChanged, this, &MainWindow::ProjectPanelSelectionChanged);
 
   return panel;
 }
@@ -697,27 +717,53 @@ void MainWindow::UpdateAudioMonitorParams(ViewerOutput *viewer)
   }
 }
 
+void MainWindow::UpdateNodePanelContextFromTimelinePanel(TimelinePanel *panel)
+{
+  // Add selected blocks (if any)
+  const QVector<Block*> &blocks = panel->GetSelectedBlocks();
+  QVector<Node *> context(blocks.size());
+  for (int i=0; i<blocks.size(); i++) {
+    context[i] = blocks.at(i);
+  }
+
+  // If no selected blocks, set the context to the sequence
+  ViewerOutput *viewer = panel->GetConnectedViewer();
+  if (viewer && context.isEmpty()) {
+    context.append(viewer);
+  }
+
+  node_panel_->SetGraph(viewer ? viewer->parent() : nullptr, context);
+  if (viewer) {
+    node_panel_->SelectWithDependencies(context, false);
+  }
+}
+
 void MainWindow::FocusedPanelChanged(PanelWidget *panel)
 {
   // Update audio monitor panel
-  TimeBasedPanel* tbp = dynamic_cast<TimeBasedPanel*>(panel);
-  if (tbp) {
+  if (TimeBasedPanel* tbp = dynamic_cast<TimeBasedPanel*>(panel)) {
     UpdateAudioMonitorParams(tbp->GetConnectedViewer());
   }
 
-  // Signal timeline focus
-  TimelinePanel* timeline = dynamic_cast<TimelinePanel*>(panel);
-  if (timeline) {
+  if (TimelinePanel* timeline = dynamic_cast<TimelinePanel*>(panel)) {
+    // Signal timeline focus
     TimelineFocused(timeline->GetConnectedViewer());
-    return;
-  }
 
-  // Signal project panel focus
-  ProjectPanel* project = dynamic_cast<ProjectPanel*>(panel);
-  if (project) {
+    UpdateNodePanelContextFromTimelinePanel(timeline);
+  } else if (ProjectPanel* project = dynamic_cast<ProjectPanel*>(panel)) {
+    // Signal project panel focus
     UpdateTitle();
-    node_panel_->SetGraph(project->project());
-    return;
+    if (project->project()) {
+      node_panel_->SetGraph(project->project(), {project->project()->root()});
+
+      bool center = true;
+      auto selected = project->SelectedItems();
+      if (selected.isEmpty()) {
+        selected.append(project->project()->root());
+        center = false;
+      }
+      node_panel_->Select(selected, center);
+    }
   }
 }
 

@@ -214,6 +214,9 @@ public:
     {
     }
 
+    virtual Project* GetRelevantProject() const override {return nullptr;}
+
+  protected:
     virtual void redo() override
     {
       timeline_->SetSelections(now_);
@@ -224,8 +227,6 @@ public:
       timeline_->SetSelections(old_);
     }
 
-    virtual Project* GetRelevantProject() const override {return nullptr;}
-
   private:
     TimelineWidget* timeline_;
     TimelineWidgetSelections old_;
@@ -234,9 +235,7 @@ public:
   };
 
 signals:
-  void BlocksSelected(const QVector<Block*>& selected_blocks);
-
-  void BlocksDeselected(const QVector<Block*>& deselected_blocks);
+  void BlockSelectionChanged(const QVector<Block*>& selected_blocks);
 
 protected:
   virtual void resizeEvent(QResizeEvent *event) override;
@@ -354,6 +353,8 @@ private slots:
   void TrackIndexChanged(int old, int now);
 
   void SetScrollZoomsByDefaultOnAllViews(bool e);
+
+  void SignalBlockSelectionChange();
 
 };
 

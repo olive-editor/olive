@@ -35,8 +35,6 @@ class TimelinePanel : public TimeBasedPanel
 public:
   TimelinePanel(QWidget* parent);
 
-  void Clear();
-
   void SplitAtPlayhead();
 
   QByteArray SaveSplitterState() const;
@@ -89,13 +87,16 @@ public:
 
   void OverwriteFootageAtPlayhead(const QVector<ViewerOutput *> &footage);
 
+  const QVector<Block*>& GetSelectedBlocks() const
+  {
+    return static_cast<TimelineWidget*>(GetTimeBasedWidget())->GetSelectedBlocks();
+  }
+
 protected:
   virtual void Retranslate() override;
 
 signals:
-  void BlocksSelected(const QVector<Block*>& selected_blocks);
-
-  void BlocksDeselected(const QVector<Block*>& deselected_blocks);
+  void BlockSelectionChanged(const QVector<Block*>& selected_blocks);
 
 };
 

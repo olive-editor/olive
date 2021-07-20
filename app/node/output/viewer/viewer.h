@@ -66,7 +66,7 @@ public:
   void ShiftAudioCache(const rational& from, const rational& to);
   void ShiftCache(const rational& from, const rational& to);
 
-  virtual void InvalidateCache(const TimeRange& range, const QString& from, int element, qint64 job_time) override;
+  virtual void InvalidateCache(const TimeRange& range, const QString& from, int element, InvalidateCacheOptions options) override;
 
   virtual QVector<QString> inputs_for_output(const QString& output) const override;
 
@@ -154,6 +154,9 @@ public:
 
   virtual NodeOutput GetConnectedSampleOutput();
 
+  void SetViewerVideoCacheEnabled(bool e) { video_cache_enabled_ = e; }
+  void SetViewerAudioCacheEnabled(bool e) { audio_cache_enabled_ = e; }
+
   static const QString kVideoParamsInput;
   static const QString kAudioParamsInput;
 
@@ -201,9 +204,6 @@ protected:
   virtual void SaveCustom(QXmlStreamWriter *writer) const override;
 
   int AddStream(Track::Type type, const QVariant &value);
-
-  void SetViewerVideoCacheEnabled(bool e) { video_cache_enabled_ = e; }
-  void SetViewerAudioCacheEnabled(bool e) { audio_cache_enabled_ = e; }
 
 private:
   rational last_length_;

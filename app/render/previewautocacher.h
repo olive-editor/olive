@@ -9,6 +9,7 @@
 #include "node/node.h"
 #include "node/output/viewer/viewer.h"
 #include "node/project/project.h"
+#include "render/renderjobtracker.h"
 #include "threading/threadticketwatcher.h"
 
 namespace olive {
@@ -32,16 +33,6 @@ public:
    * @brief Set the viewer node to auto-cache
    */
   void SetViewerNode(ViewerOutput *viewer_node);
-
-  /**
-   * @brief If the mouse is held during the next cache invalidation, cache anyway
-   *
-   * By default, PreviewAutoCacher ignores invalidations that occur while the mouse is held down,
-   * assuming that if the mouse is held, the user is dragging something. If you know the mouse will
-   * be held during a certain action and want PreviewAutoCacher to cache anyway, call this before
-   * the cache invalidates.
-   */
-  void IgnoreNextMouseButton();
 
   /**
    * @brief Returns whether the auto-cache is currently paused or not
@@ -80,8 +71,6 @@ public:
   void ClearVideoDownloadQueue(bool wait = false);
 
 private:
-  static void GenerateHashes(ViewerOutput *viewer, FrameHashCache *cache, const QVector<rational>& times, qint64 job_time);
-
   void TryRender();
 
   RenderTicketWatcher *RenderFrame(const QByteArray& hash, const rational &time, bool prioritize, bool texture_only);
@@ -104,6 +93,7 @@ private:
 
   void InsertIntoCopyMap(Node* node, Node* copy);
 
+  void UpdateGraphChangeValue();
   void UpdateLastSyncedValue();
 
   void CancelQueuedSingleFrameRender();
@@ -114,6 +104,18 @@ private:
   void ClearQueueRemoveEventInternal(QMap<RenderTicketWatcher*, QByteArray>::iterator it);
   void ClearQueueRemoveEventInternal(QMap<RenderTicketWatcher*, TimeRange>::iterator it);
   void ClearQueueRemoveEventInternal(QVector<RenderTicketWatcher*>::iterator it);
+
+  void QueueNextFrameInRange(int max);
+  void QueueNextHashTask();
+  void QueueNextAudioTask();
+
+  struct HashData {
+    rational time;
+    QByteArray hash;
+    bool exists;
+  };
+
+  static QVector<HashData> GenerateHashes(ViewerOutput *viewer, FrameHashCache* cache, const QVector<rational> &times);
 
   class QueuedJob {
   public:
@@ -155,21 +157,27 @@ private:
 
   RenderTicketPtr single_frame_render_;
 
-  QList<QFutureWatcher<void>*> hash_tasks_;
+  QList<QFutureWatcher< QVector<HashData> >*> hash_tasks_;
   QMap<RenderTicketWatcher*, TimeRange> audio_tasks_;
   QMap<RenderTicketWatcher*, QByteArray> video_tasks_;
   QMap<RenderTicketWatcher*, QByteArray> video_download_tasks_;
   QMap<RenderTicketWatcher*, QVector<RenderTicketPtr> > video_immediate_passthroughs_;
 
-  qint64 last_update_time_;
-
-  bool ignore_next_mouse_button_;
+  JobTime graph_changed_time_;
+  JobTime last_update_time_;
 
   QTimer delayed_requeue_timer_;
 
   TimeRangeList audio_needing_conform_;
 
-  qint64 last_conform_task_;
+  JobTime last_conform_task_;
+
+  RenderJobTracker video_job_tracker_;
+  RenderJobTracker audio_job_tracker_;
+
+  TimeRangeListFrameIterator queued_frame_iterator_;
+  TimeRangeListFrameIterator hash_iterator_;
+  TimeRangeList audio_iterator_;
 
 private slots:
   /**

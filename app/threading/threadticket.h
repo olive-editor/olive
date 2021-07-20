@@ -38,16 +38,6 @@ class RenderTicket : public QObject
 public:
   RenderTicket();
 
-  qint64 GetJobTime() const
-  {
-    return job_time_;
-  }
-
-  void SetJobTime()
-  {
-    job_time_ = QDateTime::currentMSecsSinceEpoch();
-  }
-
   /**
    * @brief Get the ticket's current state
    *
@@ -136,8 +126,6 @@ private:
   QMutex lock_;
 
   QWaitCondition wait_;
-
-  qint64 job_time_;
 
 };
 

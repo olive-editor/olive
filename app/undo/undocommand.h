@@ -34,17 +34,19 @@ class Project;
 class UndoCommand
 {
 public:
-  UndoCommand() = default;
+  UndoCommand();
 
   virtual ~UndoCommand(){}
 
   DISABLE_COPY_MOVE(UndoCommand)
 
-  virtual void redo() = 0;
-  virtual void undo() = 0;
+  bool has_prepared() const {return prepared_;}
+  void set_prepared(bool e) {prepared_ = true;}
+
+  void redo_now();
+  void undo_now();
 
   void redo_and_set_modified();
-
   void undo_and_set_modified();
 
   virtual Project* GetRelevantProject() const = 0;
@@ -59,6 +61,11 @@ public:
     name_ = name;
   }
 
+protected:
+  virtual void prepare(){}
+  virtual void redo() = 0;
+  virtual void undo() = 0;
+
 private:
   bool modified_;
 
@@ -66,12 +73,14 @@ private:
 
   Project* project_;
 
+  bool prepared_;
+
 };
 
 class MultiUndoCommand : public UndoCommand
 {
 public:
-  MultiUndoCommand() = default;
+  MultiUndoCommand();
 
   virtual void redo() override;
   virtual void undo() override;
@@ -98,6 +107,8 @@ public:
 
 private:
   std::vector<UndoCommand*> children_;
+
+  bool done_;
 
 };
 

@@ -21,7 +21,6 @@
 #include "nodeviewundo.h"
 
 #include "node/project/sequence/sequence.h"
-#include "widget/timelinewidget/timelineundo.h"
 
 namespace olive {
 
@@ -44,7 +43,7 @@ void NodeEdgeAddCommand::redo()
       remove_command_ = new NodeEdgeRemoveCommand(input_.GetConnectedOutput(), input_);
     }
 
-    remove_command_->redo();
+    remove_command_->redo_now();
   }
 
   Node::ConnectEdge(output_, input_);
@@ -55,7 +54,7 @@ void NodeEdgeAddCommand::undo()
   Node::DisconnectEdge(output_, input_);
 
   if (remove_command_) {
-    remove_command_->undo();
+    remove_command_->undo_now();
   }
 }
 
@@ -125,7 +124,7 @@ void NodeCopyInputsCommand::redo()
   Node::CopyInputs(src_, dest_, include_connections_);
 }
 
-void NodeRemoveAndDisconnectCommand::prep()
+void NodeRemoveAndDisconnectCommand::prepare()
 {
   command_ = new MultiUndoCommand();
 
@@ -142,6 +141,8 @@ void NodeRemoveAndDisconnectCommand::prep()
   for (const Node::OutputConnection& conn : node_->output_connections()) {
     command_->add_child(new NodeEdgeRemoveCommand(conn.first, conn.second));
   }
+
+  command_->add_child(new NodeRemovePositionFromAllContextsCommand(node_));
 }
 
 void NodeRenameCommand::AddNode(Node *node, const QString &new_name)

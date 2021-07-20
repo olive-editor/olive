@@ -44,6 +44,10 @@
 #include "tool/zoom.h"
 #include "tool/tool.h"
 #include "trackview/trackview.h"
+#include "undo/timelineundogeneral.h"
+#include "undo/timelineundopointer.h"
+#include "undo/timelineundoripple.h"
+#include "undo/timelineundoworkarea.h"
 #include "widget/menu/menu.h"
 #include "widget/menu/menushared.h"
 #include "widget/nodeview/nodeviewundo.h"
@@ -895,7 +899,7 @@ void TimelineWidget::RemoveBlock(Block *block)
     selected_blocks_.removeAt(select_index);
     RemoveSelection(block);
 
-    emit BlocksDeselected({block});
+    SignalBlockSelectionChange();
   }
 }
 
@@ -1111,6 +1115,11 @@ void TimelineWidget::SetScrollZoomsByDefaultOnAllViews(bool e)
   }
 }
 
+void TimelineWidget::SignalBlockSelectionChange()
+{
+  emit BlockSelectionChanged(selected_blocks_);
+}
+
 void TimelineWidget::AddGhost(TimelineViewGhostItem *ghost)
 {
   ghost_items_.append(ghost);
@@ -1192,7 +1201,7 @@ void TimelineWidget::SignalSelectedBlocks(QVector<Block *> input, bool filter)
 
   selected_blocks_.append(input);
 
-  emit BlocksSelected(input);
+  emit SignalBlockSelectionChange();
 }
 
 void TimelineWidget::SignalDeselectedBlocks(const QVector<Block *> &deselected_blocks)
@@ -1205,14 +1214,14 @@ void TimelineWidget::SignalDeselectedBlocks(const QVector<Block *> &deselected_b
     selected_blocks_.removeOne(b);
   }
 
-  emit BlocksDeselected(deselected_blocks);
+  emit SignalBlockSelectionChange();
 }
 
 void TimelineWidget::SignalDeselectedAllBlocks()
 {
   if (!selected_blocks_.isEmpty()) {
-    emit BlocksDeselected(selected_blocks_);
     selected_blocks_.clear();
+    SignalBlockSelectionChange();
   }
 }
 

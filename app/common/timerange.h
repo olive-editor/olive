@@ -22,6 +22,7 @@
 #define TIMERANGE_H
 
 #include "rational.h"
+#include "timecodefunctions.h"
 
 namespace olive {
 
@@ -80,6 +81,36 @@ public:
 
   void remove(const TimeRange& remove);
 
+  template <typename T>
+  static void util_remove(QVector<T> *list, const TimeRange &remove)
+  {
+    int sz = list->size();
+
+    for (int i=0;i<sz;i++) {
+      T& compare = (*list)[i];
+
+      if (remove.Contains(compare)) {
+        // This element is entirely encompassed in this range, remove it
+        list->removeAt(i);
+        i--;
+        sz--;
+      } else if (compare.Contains(remove, false, false)) {
+        // The remove range is within this element, only choice is to split the element into two
+        T new_range = compare;
+        new_range.set_in(remove.out());
+        compare.set_out(remove.in());
+        list->append(new_range);
+        break;
+      } else if (compare.in() < remove.in() && compare.out() > remove.in()) {
+        // This element's out point overlaps the range's in, we'll trim it
+        compare.set_out(remove.in());
+      } else if (compare.in() < remove.out() && compare.out() > remove.out()) {
+        // This element's in point overlaps the range's out, we'll trim it
+        compare.set_in(remove.out());
+      }
+    }
+  }
+
   bool contains(const TimeRange& range, bool in_inclusive = true, bool out_inclusive = true) const;
 
   bool isEmpty() const
@@ -127,13 +158,66 @@ public:
     return array_.last();
   }
 
+  const TimeRange& at(int index) const
+  {
+    return array_.at(index);
+  }
+
   const QVector<TimeRange>& internal_array() const
   {
     return array_;
   }
 
+  bool operator==(const TimeRangeList &rhs) const
+  {
+    return array_ == rhs.array_;
+  }
+
 private:
   QVector<TimeRange> array_;
+
+};
+
+class TimeRangeListFrameIterator
+{
+public:
+  TimeRangeListFrameIterator();
+  TimeRangeListFrameIterator(const TimeRangeList &list, const rational &timebase);
+
+  bool GetNext(rational *out);
+
+  bool HasNext() const;
+
+  QVector<rational> ToVector() const
+  {
+    TimeRangeListFrameIterator copy(list_, timebase_);
+    QVector<rational> times;
+    rational r;
+    while (copy.GetNext(&r)) {
+      times.append(r);
+    }
+    return times;
+  }
+
+  int size();
+
+  void reset()
+  {
+    *this = TimeRangeListFrameIterator();
+  }
+
+private:
+  void UpdateIndexIfNecessary();
+
+  TimeRangeList list_;
+
+  rational timebase_;
+
+  rational current_;
+
+  int index_;
+
+  int size_;
 
 };
 

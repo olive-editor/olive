@@ -27,7 +27,7 @@
 #include "config/config.h"
 #include "core.h"
 #include "node/project/sequence/sequence.h"
-#include "widget/timelinewidget/timelineundo.h"
+#include "widget/timelinewidget/undo/timelineundoworkarea.h"
 
 namespace olive {
 

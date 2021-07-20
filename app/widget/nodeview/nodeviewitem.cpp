@@ -45,7 +45,8 @@ NodeViewItem::NodeViewItem(QGraphicsItem *parent) :
   expanded_(false),
   hide_titlebar_(false),
   highlighted_index_(-1),
-  flow_dir_(NodeViewCommon::kLeftToRight)
+  flow_dir_(NodeViewCommon::kLeftToRight),
+  prevent_removing_(false)
 {
   // Set flags for this widget
   setFlag(QGraphicsItem::ItemIsMovable);
@@ -64,57 +65,20 @@ NodeViewItem::NodeViewItem(QGraphicsItem *parent) :
 
   title_bar_rect_ = QRectF(-widget_width/2, -widget_height/2, widget_width, widget_height);
   setRect(title_bar_rect_);
+
+  output_triangle_.resize(3);
 }
 
 QPointF NodeViewItem::GetNodePosition() const
 {
-  QPointF node_pos;
-
-  qreal adjusted_x = pos().x() / DefaultItemHorizontalPadding();
-  qreal adjusted_y = pos().y() / DefaultItemVerticalPadding();
-
-  switch (flow_dir_) {
-  case NodeViewCommon::kLeftToRight:
-    node_pos.setX(adjusted_x);
-    node_pos.setY(adjusted_y);
-    break;
-  case NodeViewCommon::kRightToLeft:
-    node_pos.setX(-adjusted_x);
-    node_pos.setY(adjusted_y);
-    break;
-  case NodeViewCommon::kTopToBottom:
-    node_pos.setX(adjusted_y);
-    node_pos.setY(adjusted_x);
-    break;
-  case NodeViewCommon::kBottomToTop:
-    node_pos.setX(-adjusted_y);
-    node_pos.setY(adjusted_x);
-    break;
-  }
-
-  return node_pos;
+  return ScreenToNodePoint(pos(), flow_dir_);
 }
 
 void NodeViewItem::SetNodePosition(const QPointF &pos)
 {
-  switch (flow_dir_) {
-  case NodeViewCommon::kLeftToRight:
-    setPos(pos.x() * DefaultItemHorizontalPadding(),
-           pos.y() * DefaultItemVerticalPadding());
-    break;
-  case NodeViewCommon::kRightToLeft:
-    setPos(-pos.x() * DefaultItemHorizontalPadding(),
-           pos.y() * DefaultItemVerticalPadding());
-    break;
-  case NodeViewCommon::kTopToBottom:
-    setPos(pos.y() * DefaultItemHorizontalPadding(),
-           pos.x() * DefaultItemVerticalPadding());
-    break;
-  case NodeViewCommon::kBottomToTop:
-    setPos(pos.y() * DefaultItemHorizontalPadding(),
-           -pos.x() * DefaultItemVerticalPadding());
-    break;
-  }
+  cached_node_pos_ = pos;
+
+  UpdateNodePosition();
 }
 
 int NodeViewItem::DefaultTextPadding()
@@ -129,7 +93,7 @@ int NodeViewItem::DefaultItemHeight()
 
 int NodeViewItem::DefaultItemWidth()
 {
-  return QtUtils::QFontMetricsWidth(QFontMetrics(QFont()), "HHHHHHHHHHHH");;
+  return QtUtils::QFontMetricsWidth(QFontMetrics(QFont()), "HHHHHHHHHHHHHHHH");;
 }
 
 int NodeViewItem::DefaultItemBorder()
@@ -137,22 +101,86 @@ int NodeViewItem::DefaultItemBorder()
   return QFontMetrics(QFont()).height() / 12;
 }
 
-qreal NodeViewItem::DefaultItemHorizontalPadding() const
+QPointF NodeViewItem::NodeToScreenPoint(QPointF p, NodeViewCommon::FlowDirection direction)
 {
-  if (NodeViewCommon::GetFlowOrientation(flow_dir_) == Qt::Horizontal) {
+  switch (direction) {
+  case NodeViewCommon::kLeftToRight:
+    // NodeGraphs are always left-to-right internally, no need to translate
+    break;
+  case NodeViewCommon::kRightToLeft:
+    // Invert X value
+    p.setX(-p.x());
+    break;
+  case NodeViewCommon::kTopToBottom:
+    // Swap X/Y
+    p = QPointF(p.y(), p.x());
+    break;
+  case NodeViewCommon::kBottomToTop:
+    // Swap X/Y and invert Y
+    p = QPointF(p.y(), -p.x());
+    break;
+  }
+
+  // Multiply by item sizes for this direction
+  p.setX(p.x() * DefaultItemHorizontalPadding(direction));
+  p.setY(p.y() * DefaultItemVerticalPadding(direction));
+
+  return p;
+}
+
+QPointF NodeViewItem::ScreenToNodePoint(QPointF p, NodeViewCommon::FlowDirection direction)
+{
+  // Divide by item sizes for this direction
+  p.setX(p.x() / DefaultItemHorizontalPadding(direction));
+  p.setY(p.y() / DefaultItemVerticalPadding(direction));
+
+  switch (direction) {
+  case NodeViewCommon::kLeftToRight:
+    // NodeGraphs are always left-to-right internally, no need to translate
+    break;
+  case NodeViewCommon::kRightToLeft:
+    // Invert X value
+    p.setX(-p.x());
+    break;
+  case NodeViewCommon::kTopToBottom:
+    // Swap X/Y
+      p = QPointF(p.y(), p.x());
+    break;
+  case NodeViewCommon::kBottomToTop:
+    // Swap X/Y and invert Y
+    p = QPointF(-p.y(), p.x());
+    break;
+  }
+
+  return p;
+}
+
+qreal NodeViewItem::DefaultItemHorizontalPadding(NodeViewCommon::FlowDirection dir)
+{
+  if (NodeViewCommon::GetFlowOrientation(dir) == Qt::Horizontal) {
     return DefaultItemWidth() * 1.5;
   } else {
     return DefaultItemWidth() * 1.25;
   }
 }
 
-qreal NodeViewItem::DefaultItemVerticalPadding() const
+qreal NodeViewItem::DefaultItemVerticalPadding(NodeViewCommon::FlowDirection dir)
 {
-  if (NodeViewCommon::GetFlowOrientation(flow_dir_) == Qt::Horizontal) {
+  if (NodeViewCommon::GetFlowOrientation(dir) == Qt::Horizontal) {
     return DefaultItemHeight() * 1.5;
   } else {
     return DefaultItemHeight() * 2.0;
   }
+}
+
+qreal NodeViewItem::DefaultItemHorizontalPadding() const
+{
+  return DefaultItemHorizontalPadding(flow_dir_);
+}
+
+qreal NodeViewItem::DefaultItemVerticalPadding() const
+{
+  return DefaultItemVerticalPadding(flow_dir_);
 }
 
 void NodeViewItem::AddEdge(NodeViewEdge *edge)
@@ -192,8 +220,6 @@ void NodeViewItem::SetNode(Node *n)
         node_inputs_.append(input);
       }
     }
-
-    SetNodePosition(node_->GetPosition());
   }
 
   update();
@@ -317,6 +343,41 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
   painter->setBrush(Qt::NoBrush);
 
   painter->drawRect(rect());
+
+  // Draw output triangle
+  painter->setPen(Qt::NoPen);
+  painter->setBrush(app_pal.color(QPalette::Text));
+  int triangle_sz = title_bar_rect_.height() / 2;
+  int triangle_sz_half = triangle_sz / 2;
+
+  switch (flow_dir_) {
+  case NodeViewCommon::kLeftToRight:
+    // Triangle pointing right
+    output_triangle_[0] = QPointF(rect().right(), rect().center().y() - triangle_sz_half);
+    output_triangle_[1] = QPointF(rect().right() + triangle_sz_half, rect().center().y());
+    output_triangle_[2] = QPointF(rect().right(), rect().center().y() + triangle_sz_half);
+    break;
+  case NodeViewCommon::kTopToBottom:
+    // Triangle pointing down
+    output_triangle_[0] = QPointF(rect().center().x() - triangle_sz_half, rect().bottom());
+    output_triangle_[1] = QPointF(rect().center().x(), rect().bottom() + triangle_sz_half);
+    output_triangle_[2] = QPointF(rect().center().x() + triangle_sz_half, rect().bottom());
+    break;
+  case NodeViewCommon::kBottomToTop:
+    // Triangle pointing up
+    output_triangle_[0] = QPointF(rect().center().x() - triangle_sz_half, rect().top());
+    output_triangle_[1] = QPointF(rect().center().x(), rect().top() - triangle_sz_half);
+    output_triangle_[2] = QPointF(rect().center().x() + triangle_sz_half, rect().top());
+    break;
+  case NodeViewCommon::kRightToLeft:
+    // Triangle pointing left
+    output_triangle_[0] = QPointF(rect().left(), rect().center().y() - triangle_sz_half);
+    output_triangle_[1] = QPointF(rect().left() - triangle_sz_half, rect().center().y());
+    output_triangle_[2] = QPointF(rect().left(), rect().center().y() + triangle_sz_half);
+    break;
+  }
+
+  painter->drawPolygon(output_triangle_);
 }
 
 void NodeViewItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
@@ -352,10 +413,6 @@ void NodeViewItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 QVariant NodeViewItem::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
 {
   if (change == ItemPositionHasChanged && node_) {
-    node_->blockSignals(true);
-    node_->SetPosition(GetNodePosition());
-    node_->blockSignals(false);
-
     ReadjustAllEdges();
   }
 
@@ -472,6 +529,8 @@ QPointF NodeViewItem::GetOutputPoint(const QString& output) const
 void NodeViewItem::SetFlowDirection(NodeViewCommon::FlowDirection dir)
 {
   flow_dir_ = dir;
+
+  UpdateNodePosition();
 }
 
 QPointF NodeViewItem::GetInputPointInternal(int index, const QPointF& source_pos) const
@@ -494,6 +553,11 @@ QPointF NodeViewItem::GetInputPointInternal(int index, const QPointF& source_pos
       return QPointF(input_rect.center().x(), input_rect.bottom());
     }
   }
+}
+
+void NodeViewItem::UpdateNodePosition()
+{
+  setPos(NodeToScreenPoint(cached_node_pos_, flow_dir_));
 }
 
 }

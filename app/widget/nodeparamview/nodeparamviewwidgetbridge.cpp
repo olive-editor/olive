@@ -62,6 +62,11 @@ void NodeParamViewWidgetBridge::SetTime(const rational &time)
   }
 }
 
+int GetSliderCount(NodeValue::Type type)
+{
+  return NodeValue::get_number_of_keyframe_tracks(type);
+}
+
 void NodeParamViewWidgetBridge::CreateWidgets()
 {
   if (input_.IsArray() && input_.element() == -1) {
@@ -73,7 +78,8 @@ void NodeParamViewWidgetBridge::CreateWidgets()
   } else {
 
     // We assume the first data type is the "primary" type
-    switch (input_.GetDataType()) {
+    NodeValue::Type t = input_.GetDataType();
+    switch (t) {
     // None of these inputs have applicable UI widgets
     case NodeValue::kNone:
     case NodeValue::kTexture:
@@ -89,29 +95,17 @@ void NodeParamViewWidgetBridge::CreateWidgets()
       CreateSliders<IntegerSlider>(1);
       break;
     }
-    case NodeValue::kFloat:
-    {
-      CreateSliders<FloatSlider>(1);
-      break;
-    }
     case NodeValue::kRational:
     {
       CreateSliders<RationalSlider>(1);
       break;
     }
+    case NodeValue::kFloat:
     case NodeValue::kVec2:
-    {
-      CreateSliders<FloatSlider>(2);
-      break;
-    }
     case NodeValue::kVec3:
-    {
-      CreateSliders<FloatSlider>(3);
-      break;
-    }
     case NodeValue::kVec4:
     {
-      CreateSliders<FloatSlider>(4);
+      CreateSliders<FloatSlider>(GetSliderCount(t));
       break;
     }
     case NodeValue::kCombo:
@@ -410,6 +404,7 @@ void NodeParamViewWidgetBridge::CreateSliders(int count)
     T* fs = new T();
     fs->SliderBase::SetDefaultValue(input_.GetSplitDefaultValueForTrack(i));
     fs->SetLadderElementCount(2);
+    fs->SetIsEffectsSlider(true);
     widgets_.append(fs);
     connect(fs, &T::ValueChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
   }

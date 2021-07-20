@@ -75,14 +75,15 @@
 namespace olive {
 
 Core* Core::instance_ = nullptr;
-const uint Core::kProjectVersion = 210122;
+const uint Core::kProjectVersion = 210528;
 
 Core::Core(const CoreParams& params) :
   main_window_(nullptr),
   tool_(Tool::kPointer),
   addable_object_(Tool::kAddableEmpty),
   snapping_(true),
-  core_params_(params)
+  core_params_(params),
+  effects_slider_is_being_dragged_(false)
 {
   // Store reference to this object, making the assumption that Core will only ever be made in
   // main(). This will obviously break if not.
@@ -421,6 +422,7 @@ void Core::CreateNewSequence()
 
     command->add_child(new NodeAddCommand(active_project, new_sequence));
     command->add_child(new FolderAddChild(GetSelectedFolderInActiveProject(), new_sequence));
+    command->add_child(new NodeSetPositionCommand(new_sequence, new_sequence, QPointF(0, 0), false));
 
     // Create and connect default nodes to new sequence
     new_sequence->add_default_nodes(command);
