@@ -26,6 +26,8 @@
 
 namespace olive {
 
+bool NumericSliderBase::effects_slider_is_being_dragged_ = false;
+
 NumericSliderBase::NumericSliderBase(QWidget *parent) :
   SliderBase(parent),
   drag_ladder_(nullptr),
@@ -64,7 +66,7 @@ void NumericSliderBase::LabelPressed()
   connect(drag_ladder_, &SliderLadder::Released, this, &NumericSliderBase::LadderReleased);
 
   if (is_effects_slider_) {
-    Core::instance()->SetEffectsSliderIsBeingDragged(true);
+    SetEffectsSliderIsBeingDragged(true);
   }
 }
 
@@ -97,7 +99,7 @@ void NumericSliderBase::LadderDragged(int value, double multiplier)
 void NumericSliderBase::LadderReleased()
 {
   if (is_effects_slider_) {
-    Core::instance()->SetEffectsSliderIsBeingDragged(false);
+    SetEffectsSliderIsBeingDragged(false);
   }
 
   drag_ladder_->deleteLater();

@@ -4,10 +4,10 @@
 #include <QtConcurrent/QtConcurrent>
 
 #include "codec/conformmanager.h"
-#include "core.h"
 #include "node/project/project.h"
 #include "render/rendermanager.h"
 #include "render/renderprocessor.h"
+#include "widget/slider/base/numericsliderbase.h"
 
 namespace olive {
 
@@ -96,7 +96,7 @@ void PreviewAutoCacher::VideoInvalidated(const TimeRange &range)
   ClearVideoQueue();
 
   // Hash these frames since that should be relatively quick.
-  if (!Core::instance()->EffectsSliderIsBeingDragged()) {
+  if (!NumericSliderBase::IsEffectsSliderBeingDragged()) {
     invalidated_video_.insert(range);
     video_job_tracker_.insert(range, graph_changed_time_);
 

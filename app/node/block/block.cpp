@@ -22,7 +22,6 @@
 
 #include <QDebug>
 
-#include "core.h"
 #include "node/output/track/track.h"
 #include "transition/transition.h"
 #include "widget/slider/floatslider.h"
@@ -245,7 +244,7 @@ void Block::InvalidateCache(const TimeRange& range, const QString& from, int ele
     // We must intercept the signal here
     r = TimeRange(qMin(length(), last_length_), RATIONAL_MAX);
 
-    if (!Core::instance()->EffectsSliderIsBeingDragged()) {
+    if (!NumericSliderBase::IsEffectsSliderBeingDragged()) {
       last_length_ = length();
     }
 
