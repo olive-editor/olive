@@ -108,7 +108,6 @@ void NodeView::SetGraph(NodeGraph *graph, const QVector<Node*> &nodes)
     if (graph_changed) {
       if (graph_) {
         // Disconnect from current graph
-        //disconnect(graph_, &NodeGraph::NodeAdded, this, &NodeView::AddNode);
         disconnect(graph_, &NodeGraph::NodeRemoved, this, &NodeView::RemoveNode);
         disconnect(graph_, &NodeGraph::InputConnected, this, &NodeView::AddEdge);
         disconnect(graph_, &NodeGraph::InputDisconnected, this, &NodeView::RemoveEdge);
@@ -120,7 +119,6 @@ void NodeView::SetGraph(NodeGraph *graph, const QVector<Node*> &nodes)
 
       if (graph_) {
         // Connect to new graph
-        //connect(graph_, &NodeGraph::NodeAdded, this, &NodeView::AddNode);
         connect(graph_, &NodeGraph::NodeRemoved, this, &NodeView::RemoveNode);
         connect(graph_, &NodeGraph::InputConnected, this, &NodeView::AddEdge);
         connect(graph_, &NodeGraph::InputDisconnected, this, &NodeView::RemoveEdge);
@@ -940,12 +938,6 @@ void NodeView::ShowContextMenu(const QPoint &pos)
     // Color menu
     MenuShared::instance()->AddColorCodingMenu(&m);
 
-    m.addSeparator();
-
-    // Auto-position action
-    QAction* autopos = m.addAction(tr("Auto-Position"));
-    connect(autopos, &QAction::triggered, this, &NodeView::AutoPositionDescendents);
-
     ViewerOutput* viewer = dynamic_cast<ViewerOutput*>(selected.first()->GetNode());
     if (viewer) {
       m.addSeparator();
@@ -1028,15 +1020,6 @@ void NodeView::CreateNodeSlot(QAction *action)
 void NodeView::ContextMenuSetDirection(QAction *action)
 {
   SetFlowDirection(static_cast<NodeViewCommon::FlowDirection>(action->data().toInt()));
-}
-
-void NodeView::AutoPositionDescendents()
-{
-  QVector<Node*> selected = scene_.GetSelectedNodes();
-
-  for (Node* n : selected) {
-    scene_.ReorganizeFrom(n);
-  }
 }
 
 void NodeView::ContextMenuFilterChanged(QAction *action)

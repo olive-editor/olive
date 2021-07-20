@@ -247,41 +247,6 @@ NodeViewCommon::FlowDirection NodeViewScene::GetFlowDirection() const
   return direction_;
 }
 
-void NodeViewScene::ReorganizeFrom(Node* n)
-{
-  /*
-  QVector<Node*> immediates = n->GetImmediateDependencies();
-
-  if (immediates.isEmpty()) {
-    // Nothing to do
-    return;
-  }
-
-  QPointF parent_pos = n->GetPosition();
-
-  int weight_count = DetermineWeight(n);
-
-  qreal child_x = parent_pos.x() - 1.0;
-  qreal children_height = weight_count-1;
-  qreal children_y = parent_pos.y() - children_height * 0.5;
-
-  int weight_counter = 0;
-
-  foreach (Node* i, immediates) {
-    if (i->GetRoutesTo(n) == 1) {
-      int weight = DetermineWeight(i);
-
-      i->SetPosition(QPointF(child_x,
-                             children_y + weight_counter + (weight - 1) * 0.5));
-
-      weight_counter += weight;
-
-      ReorganizeFrom(i);
-    }
-  }
-  */
-}
-
 void NodeViewScene::SetEdgesAreCurved(bool curved)
 {
   if (curved_edges_ != curved) {

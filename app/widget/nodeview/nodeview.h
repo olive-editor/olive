@@ -260,11 +260,6 @@ private slots:
   void ContextMenuSetDirection(QAction* action);
 
   /**
-   * @brief Receiver for auto-position descendents menu action
-   */
-  void AutoPositionDescendents();
-
-  /**
    * @brief Receiver for the user changing the filter
    */
   void ContextMenuFilterChanged(QAction* action);

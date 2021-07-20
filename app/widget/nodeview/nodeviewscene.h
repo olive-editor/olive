@@ -79,8 +79,6 @@ public:
     return curved_edges_;
   }
 
-  void ReorganizeFrom(Node* n);
-
 public slots:
   /**
    * @brief Slot when a Node is added to a graph (SetGraph() connects this)
