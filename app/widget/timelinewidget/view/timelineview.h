@@ -55,6 +55,7 @@ public:
   void ConnectTrackList(TrackList* list);
 
   void SetBeamCursor(const TimelineCoordinate& coord);
+  void SetTransitionOverlay(ClipBlock *out, ClipBlock *in);
 
   void SetSelectionList(QHash<Track::Reference, TimeRangeList>* s)
   {
@@ -140,6 +141,9 @@ private:
   TrackList* connected_track_list_;
 
   bool show_waveforms_;
+
+  ClipBlock *transition_overlay_out_;
+  ClipBlock *transition_overlay_in_;
 
 private slots:
   void TrackListChanged();

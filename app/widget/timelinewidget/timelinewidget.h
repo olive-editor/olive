@@ -138,6 +138,7 @@ public:
   Track* GetTrackFromReference(const Track::Reference& ref) const;
 
   void SetViewBeamCursor(const TimelineCoordinate& coord);
+  void SetViewTransitionOverlay(ClipBlock *out, ClipBlock *in);
 
   const QVector<TimelineViewGhostItem*>& GetGhostItems() const
   {

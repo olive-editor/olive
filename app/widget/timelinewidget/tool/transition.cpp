@@ -34,64 +34,49 @@ TransitionTool::TransitionTool(TimelineWidget *parent) :
 {
 }
 
+void TransitionTool::HoverMove(TimelineViewMouseEvent *event)
+{
+  ClipBlock *primary = nullptr;
+  ClipBlock *secondary = nullptr;
+  Timeline::MovementMode trim_mode;
+  rational transition_start_point;
+
+  GetBlocksAtCoord(event->GetCoordinates(), &primary, &secondary, &trim_mode, &transition_start_point);
+
+  if (trim_mode == Timeline::kTrimIn) {
+    std::swap(primary, secondary);
+  }
+
+  parent()->SetViewTransitionOverlay(primary, secondary);
+}
+
 void TransitionTool::MousePress(TimelineViewMouseEvent *event)
 {
-  const Track::Reference& track = event->GetTrack();
-  Track* t = parent()->GetTrackFromReference(track);
-  rational cursor_frame = event->GetFrame();
-
-  if (!t || t->IsLocked()) {
-    return;
-  }
-
-  Block* block_at_time = t->BlockAtTime(event->GetFrame());
-  if (!dynamic_cast<ClipBlock*>(block_at_time)) {
-    return;
-  }
-
-  // Determine which side of the clip the transition belongs to
-  rational transition_start_point;
+  ClipBlock *primary, *secondary;
   Timeline::MovementMode trim_mode;
-  rational halfway_point = block_at_time->in() + block_at_time->length() / 2;
-  rational tenth_point = block_at_time->in() + block_at_time->length() / 10;
-  Block* other_block = nullptr;
-  if (cursor_frame < halfway_point) {
-    transition_start_point = block_at_time->in();
-    trim_mode = Timeline::kTrimIn;
-
-    if (cursor_frame < tenth_point
-        && dynamic_cast<ClipBlock*>(block_at_time->previous())) {
-      other_block = block_at_time->previous();
-    }
-  } else {
-    transition_start_point = block_at_time->out();
-    trim_mode = Timeline::kTrimOut;
-    dual_transition_ = (cursor_frame > block_at_time->length() - tenth_point);
-
-    if (cursor_frame > block_at_time->length() - tenth_point
-        && dynamic_cast<ClipBlock*>(block_at_time->next())) {
-      other_block = block_at_time->next();
-    }
+  rational transition_start_point;
+  if (!GetBlocksAtCoord(event->GetCoordinates(), &primary, &secondary, &trim_mode, &transition_start_point)) {
+    return;
   }
 
   // Create ghost
   ghost_ = new TimelineViewGhostItem();
-  ghost_->SetTrack(track);
+  ghost_->SetTrack(event->GetTrack());
   ghost_->SetIn(transition_start_point);
   ghost_->SetOut(transition_start_point);
   ghost_->SetMode(trim_mode);
-  ghost_->SetData(TimelineViewGhostItem::kAttachedBlock, Node::PtrToValue(block_at_time));
+  ghost_->SetData(TimelineViewGhostItem::kAttachedBlock, Node::PtrToValue(primary));
 
-  dual_transition_ = (other_block);
-  if (other_block)
-    ghost_->SetData(TimelineViewGhostItem::kReferenceBlock, Node::PtrToValue(other_block));
+  dual_transition_ = (secondary);
+  if (secondary)
+    ghost_->SetData(TimelineViewGhostItem::kReferenceBlock, Node::PtrToValue(secondary));
 
   parent()->AddGhost(ghost_);
 
   snap_points_.append(transition_start_point);
 
   // Set the drag start point
-  drag_start_point_ = cursor_frame;
+  drag_start_point_ = event->GetFrame();
 }
 
 void TransitionTool::MouseMove(TimelineViewMouseEvent *event)
@@ -173,6 +158,54 @@ void TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
     snap_points_.clear();
     ghost_ = nullptr;
   }
+}
+
+bool TransitionTool::GetBlocksAtCoord(const TimelineCoordinate &coord, ClipBlock **primary, ClipBlock **secondary, Timeline::MovementMode *ptrim_mode, rational *start_point)
+{
+  const Track::Reference& track = coord.GetTrack();
+  Track* t = parent()->GetTrackFromReference(track);
+  rational cursor_frame = coord.GetFrame();
+
+  if (!t || t->IsLocked()) {
+    return false;
+  }
+
+  Block* block_at_time = t->BlockAtTime(coord.GetFrame());
+  if (!dynamic_cast<ClipBlock*>(block_at_time)) {
+    return false;
+  }
+
+  // Determine which side of the clip the transition belongs to
+  rational transition_start_point;
+  Timeline::MovementMode trim_mode;
+  rational halfway_point = block_at_time->in() + block_at_time->length() / 2;
+  rational tenth_point = block_at_time->in() + block_at_time->length() / 10;
+  Block* other_block = nullptr;
+  if (cursor_frame < halfway_point) {
+    transition_start_point = block_at_time->in();
+    trim_mode = Timeline::kTrimIn;
+
+    if (cursor_frame < tenth_point
+        && dynamic_cast<ClipBlock*>(block_at_time->previous())) {
+      other_block = block_at_time->previous();
+    }
+  } else {
+    transition_start_point = block_at_time->out();
+    trim_mode = Timeline::kTrimOut;
+    dual_transition_ = (cursor_frame > block_at_time->length() - tenth_point);
+
+    if (cursor_frame > block_at_time->length() - tenth_point
+        && dynamic_cast<ClipBlock*>(block_at_time->next())) {
+      other_block = block_at_time->next();
+    }
+  }
+
+  *primary = static_cast<ClipBlock*>(block_at_time);
+  *secondary = static_cast<ClipBlock*>(other_block);
+  *ptrim_mode = trim_mode;
+  *start_point = transition_start_point;
+
+  return true;
 }
 
 }

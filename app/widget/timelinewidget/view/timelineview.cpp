@@ -44,7 +44,9 @@ TimelineView::TimelineView(Qt::Alignment vertical_alignment, QWidget *parent) :
   ghosts_(nullptr),
   show_beam_cursor_(false),
   connected_track_list_(nullptr),
-  show_waveforms_(true)
+  show_waveforms_(true),
+  transition_overlay_out_(nullptr),
+  transition_overlay_in_(nullptr)
 {
   Q_ASSERT(vertical_alignment == Qt::AlignTop || vertical_alignment == Qt::AlignBottom);
   setAlignment(Qt::AlignLeft | vertical_alignment);
@@ -474,6 +476,31 @@ void TimelineView::DrawBlocks(QPainter *painter, bool foreground)
             painter->setPen(shadow_color);
             painter->drawLines(lines);
           }
+
+          if (transition_overlay_out_ == block || transition_overlay_in_ == block) {
+            QRectF transition_overlay_rect = r;
+
+            qreal transition_overlay_width = TimeToScene(block->length()) * 0.5;
+            if (transition_overlay_out_ && transition_overlay_in_) {
+              // This is a dual transition, use the smallest width
+              Block *other_block = (transition_overlay_out_ == block) ? transition_overlay_in_ : transition_overlay_out_;
+
+              qreal other_width = TimeToScene(other_block->length()) * 0.5;
+
+              transition_overlay_width = qMin(transition_overlay_width, other_width);
+            }
+
+            if (transition_overlay_out_ == block) {
+              transition_overlay_rect.setLeft(transition_overlay_rect.right() - transition_overlay_width);
+            } else {
+              transition_overlay_rect.setRight(transition_overlay_rect.left() + transition_overlay_width);
+            }
+
+            painter->setPen(Qt::NoPen);
+            painter->setBrush(QColor(0, 0, 0, 64));
+
+            painter->drawRect(transition_overlay_rect);
+          }
         }
 
       }
@@ -569,6 +596,29 @@ void TimelineView::SetBeamCursor(const TimelineCoordinate &coord)
   cursor_coord_ = coord;
 
   if (update_required) {
+    viewport()->update();
+  }
+}
+
+void TimelineView::SetTransitionOverlay(ClipBlock *out, ClipBlock *in)
+{
+  if (transition_overlay_out_ != out || transition_overlay_in_ != in) {
+    Track::Type type = Track::kNone;
+
+    if (out) {
+      type = out->track()->type();
+    } else if (in) {
+      type = in->track()->type();
+    }
+
+    if (type == this->connected_track_list_->type()) {
+      transition_overlay_out_ = out;
+      transition_overlay_in_ = in;
+    } else {
+      transition_overlay_out_ = nullptr;
+      transition_overlay_in_ = nullptr;
+    }
+
     viewport()->update();
   }
 }

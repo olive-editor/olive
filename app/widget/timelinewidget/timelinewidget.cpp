@@ -1076,6 +1076,8 @@ void TimelineWidget::ViewTimestampChanged(int64_t ts)
 void TimelineWidget::ToolChanged()
 {
   HideSnaps();
+  SetViewBeamCursor(TimelineCoordinate(0, Track::kNone, -1));
+  SetViewTransitionOverlay(nullptr, nullptr);
 }
 
 void TimelineWidget::SetViewWaveformsEnabled(bool e)
@@ -1144,6 +1146,13 @@ void TimelineWidget::SetViewBeamCursor(const TimelineCoordinate &coord)
 {
   foreach (TimelineAndTrackView* tview, views_) {
     tview->view()->SetBeamCursor(coord);
+  }
+}
+
+void TimelineWidget::SetViewTransitionOverlay(ClipBlock *out, ClipBlock *in)
+{
+  foreach (TimelineAndTrackView* tview, views_) {
+    tview->view()->SetTransitionOverlay(out, in);
   }
 }
 
