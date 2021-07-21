@@ -178,23 +178,21 @@ bool TransitionTool::GetBlocksAtCoord(const TimelineCoordinate &coord, ClipBlock
   // Determine which side of the clip the transition belongs to
   rational transition_start_point;
   Timeline::MovementMode trim_mode;
-  rational halfway_point = block_at_time->in() + block_at_time->length() / 2;
-  rational tenth_point = block_at_time->in() + block_at_time->length() / 10;
+  rational tenth_point = block_at_time->length() / 10;
   Block* other_block = nullptr;
-  if (cursor_frame < halfway_point) {
+  if (cursor_frame < (block_at_time->in() + block_at_time->length() / 2)) {
     transition_start_point = block_at_time->in();
     trim_mode = Timeline::kTrimIn;
 
-    if (cursor_frame < tenth_point
+    if (cursor_frame < (block_at_time->in() + tenth_point)
         && dynamic_cast<ClipBlock*>(block_at_time->previous())) {
       other_block = block_at_time->previous();
     }
   } else {
     transition_start_point = block_at_time->out();
     trim_mode = Timeline::kTrimOut;
-    dual_transition_ = (cursor_frame > block_at_time->length() - tenth_point);
 
-    if (cursor_frame > block_at_time->length() - tenth_point
+    if (cursor_frame > block_at_time->out() - tenth_point
         && dynamic_cast<ClipBlock*>(block_at_time->next())) {
       other_block = block_at_time->next();
     }
