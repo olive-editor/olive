@@ -152,6 +152,8 @@ void TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
       }
 
       Core::instance()->undo_stack()->push(command);
+
+      parent()->SetViewTransitionOverlay(nullptr, nullptr);
     }
 
     parent()->ClearGhosts();
@@ -181,6 +183,11 @@ bool TransitionTool::GetBlocksAtCoord(const TimelineCoordinate &coord, ClipBlock
   rational tenth_point = block_at_time->length() / 10;
   Block* other_block = nullptr;
   if (cursor_frame < (block_at_time->in() + block_at_time->length() / 2)) {
+    if (static_cast<ClipBlock*>(block_at_time)->in_transition()) {
+      // This clip already has a transition here
+      return false;
+    }
+
     transition_start_point = block_at_time->in();
     trim_mode = Timeline::kTrimIn;
 
@@ -189,6 +196,11 @@ bool TransitionTool::GetBlocksAtCoord(const TimelineCoordinate &coord, ClipBlock
       other_block = block_at_time->previous();
     }
   } else {
+    if (static_cast<ClipBlock*>(block_at_time)->out_transition()) {
+      // This clip already has a transition here
+      return false;
+    }
+
     transition_start_point = block_at_time->out();
     trim_mode = Timeline::kTrimOut;
 
