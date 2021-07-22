@@ -447,7 +447,8 @@ void TimelineWidget::SplitAtPlayhead()
 
 void TimelineWidget::ReplaceBlocksWithGaps(const QVector<Block *> &blocks,
                                            bool remove_from_graph,
-                                           MultiUndoCommand *command)
+                                           MultiUndoCommand *command,
+                                           bool handle_transitions)
 {
   foreach (Block* b, blocks) {
     if (dynamic_cast<GapBlock*>(b)) {
@@ -458,7 +459,7 @@ void TimelineWidget::ReplaceBlocksWithGaps(const QVector<Block *> &blocks,
 
     Track* original_track = b->track();
 
-    command->add_child(new TrackReplaceBlockWithGapCommand(original_track, b));
+    command->add_child(new TrackReplaceBlockWithGapCommand(original_track, b, handle_transitions));
 
     if (remove_from_graph) {
       command->add_child(new NodeRemoveWithExclusiveDependenciesAndDisconnect(b));
