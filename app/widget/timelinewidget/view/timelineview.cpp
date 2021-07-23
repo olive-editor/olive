@@ -589,6 +589,10 @@ void TimelineView::ConnectTrackList(TrackList *list)
 
 void TimelineView::SetBeamCursor(const TimelineCoordinate &coord)
 {
+  if (!connected_track_list_) {
+    return;
+  }
+
   bool update_required = coord.GetTrack().type() == connected_track_list_->type()
       || cursor_coord_.GetTrack().type() == connected_track_list_->type();
 
