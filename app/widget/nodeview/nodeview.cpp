@@ -45,8 +45,6 @@ NodeView::NodeView(QWidget *parent) :
   graph_(nullptr),
   drop_edge_(nullptr),
   create_edge_(nullptr),
-  create_edge_dst_(nullptr),
-  create_edge_dst_temp_expanded_(false),
   paste_command_(nullptr),
   filter_mode_(kFilterShowSelective),
   scale_(1.0),
@@ -480,30 +478,39 @@ void NodeView::mousePressEvent(QMouseEvent *event)
 {
   if (HandPress(event)) return;
 
+  QGraphicsItem* item = itemAt(event->pos());
+
   if (event->button() == Qt::LeftButton) {
-    // See if we're dragging the arrow of an edge
-    QPointF scene_pt = mapToScene(event->pos());
-
-    for (NodeViewEdge *edge_item : scene_.edges()) {
-      if (edge_item->arrow_bounding_rect().contains(scene_pt)) {
-        create_edge_src_ = scene_.NodeToUIObject(edge_item->output().node());
-        create_edge_src_output_ = edge_item->output().output();
-        create_edge_ = edge_item;
-        create_edge_already_exists_ = true;
-        return;
-      }
-    }
-
     // See if we're dragging the arrow of a node
-    for (NodeViewItem *node_item : scene_.item_map()) {
-      if (node_item->GetOutputTriangle().boundingRect().translated(node_item->pos()).contains(scene_pt)) {
-        CreateNewEdge(node_item);
-        return;
+    NodeViewConnector *connector = dynamic_cast<NodeViewConnector *>(item);
+    if (connector) {
+      if (connector->IsInput()) {
+        NodeInput input(connector->GetNode(), connector->GetParam());
+
+        if (input.IsConnected()) {
+          NodeViewEdge *edge_item = nullptr;
+
+          for (NodeViewEdge *edge : scene_.edges()) {
+            if (edge->input() == input) {
+              edge_item = edge;
+              break;
+            }
+          }
+
+          if (edge_item) {
+            create_edge_src_output_ = edge_item->output();
+            create_edge_ = edge_item;
+            create_edge_already_exists_ = true;
+          }
+        }
+      } else {
+        CreateNewEdge(NodeOutput(connector->GetNode(), connector->GetParam()));
       }
+
+      // No more processing required
+      return;
     }
   }
-
-  QGraphicsItem* item = itemAt(event->pos());
 
   if (event->button() == Qt::RightButton) {
     if (!item || !item->isSelected()) {
@@ -522,7 +529,7 @@ void NodeView::mousePressEvent(QMouseEvent *event)
   if (event->modifiers() & Qt::ControlModifier) {
     NodeViewItem* node_item = dynamic_cast<NodeViewItem*>(item);
     if (node_item) {
-      CreateNewEdge(node_item);
+      CreateNewEdge(NodeOutput(node_item->GetNode(), Node::kDefaultOutput));
       return;
     }
   }
@@ -538,62 +545,25 @@ void NodeView::mouseMoveEvent(QMouseEvent *event)
     // Determine scene coordinate
     QPointF scene_pt = mapToScene(event->pos());
 
-    // Find if the cursor is currently inside an item
-    NodeViewItem* item_at_cursor = dynamic_cast<NodeViewItem*>(itemAt(event->pos()));
+    // Find if the cursor is currently inside a connector
+    NodeViewConnector *connector_at_cursor = dynamic_cast<NodeViewConnector*>(itemAt(event->pos()));
 
     // Filter out connecting to self
-    if (item_at_cursor == create_edge_src_) {
-      item_at_cursor = nullptr;
-    }
+    QPointF output_pt = scene_.item_map().value(create_edge_src_output_.node())->GetOutputPoint(create_edge_src_output_.output());
+    QPointF input_pt;
 
-    // Filter out connecting to a node that connects to us
-    if (item_at_cursor && item_at_cursor->GetNode()->OutputsTo(create_edge_src_->GetNode(), true)) {
-      item_at_cursor = nullptr;
-    }
-
-    // If the item has changed
-    if (item_at_cursor != create_edge_dst_) {
-      // If we had a destination active, disconnect from it since the item has changed
-      if (create_edge_dst_) {
-        create_edge_dst_->SetHighlightedIndex(-1);
-
-        if (create_edge_dst_temp_expanded_) {
-          // We expanded this item, so we can un-expand it
-          create_edge_dst_->SetExpanded(false);
-          create_edge_dst_->setZValue(0);
-        }
-      }
-
+    if (connector_at_cursor && connector_at_cursor->IsInput()
+        && connector_at_cursor->GetNode() != create_edge_src_output_.node()
+        && !connector_at_cursor->GetNode()->OutputsTo(create_edge_src_output_.node(), true)) {
       // Set destination
-      create_edge_dst_ = item_at_cursor;
-
-      // If our destination is an item, ensure it's expanded
-      if (create_edge_dst_) {
-        if ((create_edge_dst_temp_expanded_ = (!create_edge_dst_->IsExpanded()))) {
-          create_edge_dst_->SetExpanded(true, true);
-          create_edge_dst_->setZValue(100); // Ensure item is in front
-        }
-      }
-    }
-
-    // If we have a destination, highlight the appropriate input
-    int highlight_index = -1;
-    if (create_edge_dst_) {
-      highlight_index = create_edge_dst_->GetIndexAt(scene_pt);
-      create_edge_dst_->SetHighlightedIndex(highlight_index);
-    }
-
-    if (highlight_index >= 0) {
-      create_edge_dst_input_ = create_edge_dst_->GetInputAtIndex(highlight_index);
-      create_edge_->SetPoints(create_edge_src_->GetOutputPoint(Node::kDefaultOutput),
-                              create_edge_dst_->GetInputPoint(create_edge_dst_input_.input(), create_edge_dst_input_.element(), create_edge_src_->pos()),
-                              true);
+      create_edge_dst_input_ = NodeInput(connector_at_cursor->GetNode(), connector_at_cursor->GetParam());
+      input_pt = scene_.item_map().value(connector_at_cursor->GetNode())->GetInputPoint(create_edge_dst_input_.input(), create_edge_dst_input_.element());
     } else {
       create_edge_dst_input_.Reset();
-      create_edge_->SetPoints(create_edge_src_->GetOutputPoint(Node::kDefaultOutput),
-                              scene_pt,
-                              false);
+      input_pt = scene_pt;
     }
+
+    create_edge_->SetPoints(output_pt, input_pt);
 
     // Set connected to whether we have a valid input destination
     create_edge_->SetConnected(create_edge_dst_input_.IsValid());
@@ -706,36 +676,21 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
 
     create_edge_ = nullptr;
 
-    if (create_edge_dst_) {
-      // Clear highlight
-      create_edge_dst_->SetHighlightedIndex(-1);
-
-      // Collapse if we expanded it
-      if (create_edge_dst_temp_expanded_) {
-        create_edge_dst_->SetExpanded(false);
-        create_edge_dst_->setZValue(0);
-      }
-
-      NodeInput &creating_input = create_edge_dst_input_;
-      if (creating_input.IsValid()) {
-        // Make connection
-        if (!reconnected_to_itself) {
-          NodeOutput creating_output(create_edge_src_->GetNode(), create_edge_src_output_);
-
-          if (creating_input.IsConnected()) {
-            Node::OutputConnection existing_edge_to_remove = {creating_input.GetConnectedOutput(), creating_input};
-            command->add_child(new NodeEdgeRemoveCommand(existing_edge_to_remove.first, existing_edge_to_remove.second));
-            removed_edges.push_back(existing_edge_to_remove);
-          }
-
-          command->add_child(new NodeEdgeAddCommand(creating_output, creating_input));
-          added_edge = {creating_output, creating_input};
+    NodeInput &creating_input = create_edge_dst_input_;
+    if (creating_input.IsValid()) {
+      // Make connection
+      if (!reconnected_to_itself) {
+        if (creating_input.IsConnected()) {
+          Node::OutputConnection existing_edge_to_remove = {creating_input.GetConnectedOutput(), creating_input};
+          command->add_child(new NodeEdgeRemoveCommand(existing_edge_to_remove.first, existing_edge_to_remove.second));
+          removed_edges.push_back(existing_edge_to_remove);
         }
 
-        creating_input.Reset();
+        command->add_child(new NodeEdgeAddCommand(create_edge_src_output_, creating_input));
+        added_edge = {create_edge_src_output_, creating_input};
       }
 
-      create_edge_dst_ = nullptr;
+      creating_input.Reset();
     }
 
     // Update contexts
@@ -1457,11 +1412,10 @@ Menu *NodeView::CreateAddMenu(Menu *parent)
   return add_menu;
 }
 
-void NodeView::CreateNewEdge(NodeViewItem *output_item)
+void NodeView::CreateNewEdge(const NodeOutput &output)
 {
   create_edge_ = new NodeViewEdge();
-  create_edge_src_ = output_item;
-  create_edge_src_output_ = Node::kDefaultOutput;
+  create_edge_src_output_ = output;
   create_edge_already_exists_ = false;
 
   create_edge_->SetCurved(scene_.GetEdgesAreCurved());

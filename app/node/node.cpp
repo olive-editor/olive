@@ -51,7 +51,7 @@ Node::Node(bool create_default_output) :
   cache_result_(false)
 {
   if (create_default_output) {
-    AddOutput();
+    AddOutput(kDefaultOutput);
   }
 }
 
@@ -1279,7 +1279,7 @@ void Node::InsertInput(const QString &id, NodeValue::Type type, const QVariant &
     standard_immediates_.insert(id, CreateImmediate(id));
   }
 
-  emit InputAdded(id);
+  emit InputAdded(id, index);
 }
 
 void Node::RemoveInput(const QString &id)
@@ -1299,6 +1299,11 @@ void Node::RemoveInput(const QString &id)
 
 void Node::AddOutput(const QString &id)
 {
+  InsertOutput(id, outputs_.size());
+}
+
+void Node::InsertOutput(const QString &id, int index)
+{
   if (id.isEmpty()) {
     qWarning() << "Rejected adding output with an empty ID on node" << this->id();
     return;
@@ -1309,9 +1314,9 @@ void Node::AddOutput(const QString &id)
     return;
   }
 
-  outputs_.append(id);
+  outputs_.insert(index, id);
 
-  emit OutputAdded(id);
+  emit OutputAdded(id, index);
 }
 
 void Node::RemoveOutput(const QString &id)

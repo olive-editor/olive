@@ -70,11 +70,6 @@ public:
     return to_item_;
   }
 
-  const QRectF arrow_bounding_rect() const
-  {
-    return arrow_bounding_rect_;
-  }
-
   void Adjust();
 
   /**
@@ -104,7 +99,7 @@ public:
   /**
    * @brief Set points to create curve from
    */
-  void SetPoints(const QPointF& start, const QPointF& end, bool input_is_expanded);
+  void SetPoints(const QPointF& start, const QPointF& end);
 
   /**
    * @brief Sets the direction nodes are flowing
@@ -144,15 +139,8 @@ private:
 
   bool curved_;
 
-  QPolygonF arrow_;
-
-  int arrow_size_;
-
-  QRectF arrow_bounding_rect_;
-
   QPointF cached_start_;
   QPointF cached_end_;
-  bool cached_input_is_expanded_;
 
 };
 

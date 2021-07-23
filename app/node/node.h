@@ -873,7 +873,9 @@ protected:
 
   void RemoveInput(const QString& id);
 
-  void AddOutput(const QString& id = kDefaultOutput);
+  void AddOutput(const QString& id);
+
+  void InsertOutput(const QString &id, int index);
 
   void RemoveOutput(const QString& id);
 
@@ -980,11 +982,11 @@ signals:
 
   void KeyframeEnableChanged(const NodeInput& input, bool enabled);
 
-  void InputAdded(const QString& id);
+  void InputAdded(const QString& id, int index);
 
   void InputRemoved(const QString& id);
 
-  void OutputAdded(const QString& id);
+  void OutputAdded(const QString& id, int index);
 
   void OutputRemoved(const QString& id);
 

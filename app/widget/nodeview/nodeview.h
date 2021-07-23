@@ -138,7 +138,7 @@ private:
 
   Menu *CreateAddMenu(Menu *parent);
 
-  void CreateNewEdge(NodeViewItem *output_item);
+  void CreateNewEdge(const NodeOutput &output);
 
   NodeViewItem *UpdateNodeItem(Node *node, bool ignore_own_context = false);
 
@@ -203,11 +203,8 @@ private:
   NodeInput drop_input_;
 
   NodeViewEdge* create_edge_;
-  NodeViewItem* create_edge_src_;
-  QString create_edge_src_output_;
-  NodeViewItem* create_edge_dst_;
+  NodeOutput create_edge_src_output_;
   NodeInput create_edge_dst_input_;
-  bool create_edge_dst_temp_expanded_;
 
   NodeViewScene scene_;
 

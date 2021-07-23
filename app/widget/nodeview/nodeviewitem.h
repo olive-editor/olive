@@ -28,6 +28,7 @@
 
 #include "node/node.h"
 #include "nodeviewcommon.h"
+#include "nodeviewconnector.h"
 
 namespace olive {
 
@@ -40,8 +41,9 @@ class NodeViewEdge;
  *
  * To retrieve the NodeViewItem for a certain Node, use NodeView::NodeToUIObject().
  */
-class NodeViewItem : public QGraphicsRectItem
+class NodeViewItem : public QObject, public QGraphicsRectItem
 {
+  Q_OBJECT
 public:
   NodeViewItem(QGraphicsItem* parent = nullptr);
 
@@ -62,23 +64,9 @@ public:
   }
 
   /**
-   * @brief Get expanded state
-   */
-  bool IsExpanded() const
-  {
-    return expanded_;
-  }
-
-  /**
-   * @brief Set expanded state
-   */
-  void SetExpanded(bool e, bool hide_titlebar = false);
-  void ToggleExpanded();
-
-  /**
    * @brief Returns GLOBAL point that edges should connect to for any NodeParam member of this object
    */
-  QPointF GetInputPoint(const QString& input, int element, const QPointF &source_pos) const;
+  QPointF GetInputPoint(const QString& input, int element) const;
 
   QPointF GetOutputPoint(const QString &output) const;
 
@@ -106,15 +94,6 @@ public:
   void AddEdge(NodeViewEdge* edge);
   void RemoveEdge(NodeViewEdge* edge);
 
-  int GetIndexAt(QPointF pt) const;
-
-  NodeInput GetInputAtIndex(int index) const
-  {
-    return NodeInput(node_, node_inputs_.at(index));
-  }
-
-  void SetHighlightedIndex(int index);
-
   void SetPreventRemoving(bool e)
   {
     prevent_removing_ = e;
@@ -123,11 +102,6 @@ public:
   bool GetPreventRemoving() const
   {
     return prevent_removing_;
-  }
-
-  const QPolygonF &GetOutputTriangle() const
-  {
-    return output_triangle_;
   }
 
 protected:
@@ -146,46 +120,25 @@ private:
   void DrawNodeTitle(QPainter *painter, QString text, const QRectF &rect, Qt::Alignment vertical_align, int icon_size, bool draw_arrow);
 
   /**
-   * @brief Returns local rect of a NodeInput in array node_inputs_[index]
-   */
-  QRectF GetInputRect(int index) const;
-
-  /**
-   * @brief Returns local point that edges should connect to for a NodeInput in array node_inputs_[index]
-   */
-  QPointF GetInputPointInternal(int index, const QPointF &source_pos) const;
-
-  /**
    * @brief Internal update function when logical position changes
    */
   void UpdateNodePosition();
+
+  void UpdateInputPositions();
+
+  void UpdateOutputPositions();
+
+  void AddConnector(QVector<NodeViewConnector*> *connectors, const QString &id, int index, bool is_input);
+  void RemoveConnector(QVector<NodeViewConnector*> *connectors, const QString &id);
+  void UpdateConnectorPositions(QVector<NodeViewConnector*> *connectors, bool top);
 
   /**
    * @brief Reference to attached Node
    */
   Node* node_;
 
-  /**
-   * @brief Cached list of node inputs
-   */
-  QVector<QString> node_inputs_;
-
-  /**
-   * @brief Rectangle of the Node's title bar (equal to rect() when collapsed)
-   */
-  QRectF title_bar_rect_;
-
   /// Sizing variables to use when drawing
   int node_border_width_;
-
-  /**
-   * @brief Expanded state
-   */
-  bool expanded_;
-
-  bool hide_titlebar_;
-
-  int highlighted_index_;
 
   NodeViewCommon::FlowDirection flow_dir_;
 
@@ -195,7 +148,18 @@ private:
 
   bool prevent_removing_;
 
-  QPolygonF output_triangle_;
+  QVector<NodeViewConnector*> input_connectors_;
+
+  QVector<NodeViewConnector*> output_connectors_;
+
+private slots:
+  void InputAdded(const QString &id, int index = -1);
+
+  void InputRemoved(const QString &id);
+
+  void OutputAdded(const QString &id, int index = -1);
+
+  void OutputRemoved(const QString &id);
 
 };
 
