@@ -42,7 +42,7 @@ const QString Footage::kLoopModeInput = QStringLiteral("loop_in");
 #define super ViewerOutput
 
 Footage::Footage(const QString &filename) :
-  ViewerOutput(false),
+  ViewerOutput(false, false),
   cancelled_(nullptr)
 {
   SetCacheTextures(true);

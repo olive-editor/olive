@@ -36,7 +36,7 @@ const uint64_t ViewerOutput::kVideoParamEditMask = VideoParamEdit::kWidthHeight 
 
 #define super Node
 
-ViewerOutput::ViewerOutput(bool create_default_streams) :
+ViewerOutput::ViewerOutput(bool create_buffer_inputs, bool create_default_streams) :
   last_length_(0),
   video_length_(0),
   audio_length_(0),
@@ -52,8 +52,10 @@ ViewerOutput::ViewerOutput(bool create_default_streams) :
 
   connect(this, &Node::InputArraySizeChanged, this, &ViewerOutput::InputResized);
 
-  AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
-  AddInput(kSamplesInput, NodeValue::kSamples, InputFlags(kInputFlagNotKeyframable));
+  if (create_buffer_inputs) {
+    AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+    AddInput(kSamplesInput, NodeValue::kSamples, InputFlags(kInputFlagNotKeyframable));
+  }
 
   if (create_default_streams) {
     AddStream(Track::kVideo, QVariant());
@@ -293,8 +295,13 @@ void ViewerOutput::Retranslate()
   SetInputName(kVideoParamsInput, tr("Video Parameters"));
   SetInputName(kAudioParamsInput, tr("Audio Parameters"));
 
-  SetInputName(kTextureInput, tr("Texture"));
-  SetInputName(kSamplesInput, tr("Samples"));
+  if (HasInputWithID(kTextureInput)) {
+    SetInputName(kTextureInput, tr("Texture"));
+  }
+
+  if (HasInputWithID(kSamplesInput)) {
+    SetInputName(kSamplesInput, tr("Samples"));
+  }
 }
 
 void ViewerOutput::VerifyLength()

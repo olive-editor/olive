@@ -44,7 +44,7 @@ class ViewerOutput : public Node
 {
   Q_OBJECT
 public:
-  ViewerOutput(bool create_default_streams = true);
+  ViewerOutput(bool create_buffer_inputs = true, bool create_default_streams = true);
 
   NODE_DEFAULT_DESTRUCTOR(ViewerOutput)
 
