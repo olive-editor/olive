@@ -64,6 +64,11 @@ public:
     return preview_format_field_->GetPixelFormat();
   }
 
+  bool GetSelectedPreviewAutoCache() const
+  {
+    return preview_autocache_field_->isChecked();
+  }
+
 public slots:
   void PresetChanged(const SequencePreset& preset);
 
@@ -82,6 +87,8 @@ private:
   QLabel* preview_resolution_label_;
 
   PixelFormatComboBox* preview_format_field_;
+
+  QCheckBox *preview_autocache_field_;
 
 private slots:
   void SavePresetClicked();

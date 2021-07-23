@@ -31,6 +31,7 @@ const QString ViewerOutput::kVideoParamsInput = QStringLiteral("video_param_in")
 const QString ViewerOutput::kAudioParamsInput = QStringLiteral("audio_param_in");
 const QString ViewerOutput::kTextureInput = QStringLiteral("tex_in");
 const QString ViewerOutput::kSamplesInput = QStringLiteral("samples_in");
+const QString ViewerOutput::kAutoCacheInput = QStringLiteral("autocache_in");
 
 const uint64_t ViewerOutput::kVideoParamEditMask = VideoParamEdit::kWidthHeight | VideoParamEdit::kInterlacing | VideoParamEdit::kFrameRate | VideoParamEdit::kPixelAspect;
 
@@ -55,6 +56,10 @@ ViewerOutput::ViewerOutput(bool create_buffer_inputs, bool create_default_stream
   if (create_buffer_inputs) {
     AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
     AddInput(kSamplesInput, NodeValue::kSamples, InputFlags(kInputFlagNotKeyframable));
+
+    AddInput(kAutoCacheInput, NodeValue::kBoolean, true, InputFlags(kInputFlagNotKeyframable | kInputFlagNotConnectable));
+    IgnoreHashingFrom(kAutoCacheInput);
+    IgnoreInvalidationsFrom(kAutoCacheInput);
   }
 
   if (create_default_streams) {
@@ -198,6 +203,8 @@ void ViewerOutput::set_default_parameters()
                  Config::Current()["DefaultSequenceAudioLayout"].toULongLong(),
       AudioParams::kInternalFormat
       ));
+
+  SetAutoCacheEnabled(Config::Current()["DefaultSequenceAutoCache"].toBool());
 }
 
 void ViewerOutput::ShiftVideoCache(const rational &from, const rational &to)
@@ -382,7 +389,9 @@ NodeOutput ViewerOutput::GetConnectedSampleOutput()
 
 void ViewerOutput::InputValueChangedEvent(const QString &input, int element)
 {
-  if (element == 0) {
+  if (input == kAutoCacheInput) {
+    emit AutoCacheChanged(GetAutoCacheEnabled());
+  } else if (element == 0) {
     if (input == kVideoParamsInput) {
 
       VideoParams new_video_params = GetVideoParams();

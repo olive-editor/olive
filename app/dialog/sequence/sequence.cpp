@@ -126,7 +126,8 @@ void SequenceDialog::accept()
     SequenceParamCommand* param_command = new SequenceParamCommand(sequence_,
                                                                    video_params,
                                                                    audio_params,
-                                                                   name_field_->text());
+                                                                   name_field_->text(),
+                                                                   parameter_tab_->GetSelectedPreviewAutoCache());
 
     Core::instance()->undo_stack()->push(param_command);
 
@@ -153,20 +154,23 @@ void SequenceDialog::SetAsDefaultClicked()
     Config::Current()[QStringLiteral("DefaultSequenceInterlacing")] = parameter_tab_->GetSelectedVideoInterlacingMode();
     Config::Current()[QStringLiteral("DefaultSequenceAudioFrequency")] = parameter_tab_->GetSelectedAudioSampleRate();
     Config::Current()[QStringLiteral("DefaultSequenceAudioLayout")] = QVariant::fromValue(parameter_tab_->GetSelectedAudioChannelLayout());
+    Config::Current()[QStringLiteral("DefaultSequenceAutoCache")] = QVariant::fromValue(parameter_tab_->GetSelectedPreviewAutoCache());
   }
 }
 
 SequenceDialog::SequenceParamCommand::SequenceParamCommand(Sequence* s,
                                                            const VideoParams& video_params,
                                                            const AudioParams &audio_params,
-                                                           const QString& name) :
+                                                           const QString& name, bool autocache) :
   sequence_(s),
   new_video_params_(video_params),
   new_audio_params_(audio_params),
   new_name_(name),
+  new_autocache_(autocache),
   old_video_params_(s->GetVideoParams()),
   old_audio_params_(s->GetAudioParams()),
-  old_name_(s->GetLabel())
+  old_name_(s->GetLabel()),
+  old_autocache_(s->GetAutoCacheEnabled())
 {
 }
 
@@ -177,16 +181,26 @@ Project *SequenceDialog::SequenceParamCommand::GetRelevantProject() const
 
 void SequenceDialog::SequenceParamCommand::redo()
 {
-  sequence_->SetVideoParams(new_video_params_);
-  sequence_->SetAudioParams(new_audio_params_);
+  if (sequence_->GetVideoParams() != new_video_params_) {
+    sequence_->SetVideoParams(new_video_params_);
+  }
+  if (sequence_->GetAudioParams() != new_audio_params_) {
+    sequence_->SetAudioParams(new_audio_params_);
+  }
   sequence_->SetLabel(new_name_);
+  sequence_->SetAutoCacheEnabled(new_autocache_);
 }
 
 void SequenceDialog::SequenceParamCommand::undo()
 {
-  sequence_->SetVideoParams(old_video_params_);
-  sequence_->SetAudioParams(old_audio_params_);
+  if (sequence_->GetVideoParams() != old_video_params_) {
+    sequence_->SetVideoParams(old_video_params_);
+  }
+  if (sequence_->GetAudioParams() != old_audio_params_) {
+    sequence_->SetAudioParams(old_audio_params_);
+  }
   sequence_->SetLabel(old_name_);
+  sequence_->SetAutoCacheEnabled(old_autocache_);
 }
 
 }

@@ -43,7 +43,8 @@ public:
                  int sample_rate,
                  uint64_t channel_layout,
                  int preview_divider,
-                 VideoParams::Format preview_format) :
+                 VideoParams::Format preview_format,
+                 bool preview_autocache) :
     width_(width),
     height_(height),
     frame_rate_(frame_rate),
@@ -52,25 +53,10 @@ public:
     sample_rate_(sample_rate),
     channel_layout_(channel_layout),
     preview_divider_(preview_divider),
-    preview_format_(preview_format)
+    preview_format_(preview_format),
+    preview_autocache_(preview_autocache)
   {
     SetName(name);
-  }
-
-  static Preset* Create(const QString& name,
-                        int width,
-                        int height,
-                        const rational& frame_rate,
-                        const rational& pixel_aspect,
-                        VideoParams::Interlacing interlacing,
-                        int sample_rate,
-                        uint64_t channel_layout,
-                        int preview_divider,
-                        VideoParams::Format preview_format)
-  {
-    return new SequencePreset(name, width, height, frame_rate, pixel_aspect,
-                              interlacing, sample_rate, channel_layout,
-                              preview_divider, preview_format);
   }
 
   virtual void Load(QXmlStreamReader* reader) override
@@ -96,6 +82,8 @@ public:
         preview_divider_ = reader->readElementText().toInt();
       } else if (reader->name() == QStringLiteral("format")) {
         preview_format_ = static_cast<VideoParams::Format>(reader->readElementText().toInt());
+      } else if (reader->name() == QStringLiteral("autocache")) {
+        preview_autocache_ = reader->readElementText().toInt();
       } else {
         reader->skipCurrentElement();
       }
@@ -114,6 +102,7 @@ public:
     writer->writeTextElement(QStringLiteral("chlayout"), QString::number(channel_layout_));
     writer->writeTextElement(QStringLiteral("divider"), QString::number(preview_divider_));
     writer->writeTextElement(QStringLiteral("format"), QString::number(preview_format_));
+    writer->writeTextElement(QStringLiteral("autocache"), QString::number(preview_autocache_));
   }
 
   int width() const
@@ -161,6 +150,11 @@ public:
     return preview_format_;
   }
 
+  bool preview_autocache() const
+  {
+    return preview_autocache_;
+  }
+
 private:
   int width_;
   int height_;
@@ -171,6 +165,7 @@ private:
   uint64_t channel_layout_;
   int preview_divider_;
   VideoParams::Format preview_format_;
+  bool preview_autocache_;
 
 };
 

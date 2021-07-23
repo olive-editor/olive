@@ -193,6 +193,7 @@ void ViewerWidget::ConnectNodeEvent(ViewerOutput *n)
   connect(n, &ViewerOutput::PixelAspectChanged, this, &ViewerWidget::SetViewerPixelAspect);
   connect(n, &ViewerOutput::LengthChanged, this, &ViewerWidget::LengthChangedSlot);
   connect(n, &ViewerOutput::InterlacingChanged, this, &ViewerWidget::InterlacingChangedSlot);
+  connect(n, &ViewerOutput::AutoCacheChanged, this, &ViewerWidget::SetAutoCacheEnabled);
   connect(n, &ViewerOutput::VideoParamsChanged, this, &ViewerWidget::UpdateRendererVideoParameters);
   connect(n, &ViewerOutput::AudioParamsChanged, this, &ViewerWidget::UpdateRendererAudioParameters);
   connect(n->video_frame_cache(), &FrameHashCache::Invalidated, this, &ViewerWidget::ViewerInvalidatedVideoRange);
@@ -202,6 +203,8 @@ void ViewerWidget::ConnectNodeEvent(ViewerOutput *n)
   connect(n, &ViewerOutput::TextureInputChanged, this, &ViewerWidget::UpdateStack);
 
   VideoParams vp = n->GetVideoParams();
+
+  SetAutoCacheEnabled(n->GetAutoCacheEnabled());
 
   InterlacingChangedSlot(vp.interlacing());
 
@@ -239,6 +242,7 @@ void ViewerWidget::DisconnectNodeEvent(ViewerOutput *n)
   disconnect(n, &ViewerOutput::PixelAspectChanged, this, &ViewerWidget::SetViewerPixelAspect);
   disconnect(n, &ViewerOutput::LengthChanged, this, &ViewerWidget::LengthChangedSlot);
   disconnect(n, &ViewerOutput::InterlacingChanged, this, &ViewerWidget::InterlacingChangedSlot);
+  disconnect(n, &ViewerOutput::AutoCacheChanged, this, &ViewerWidget::SetAutoCacheEnabled);
   disconnect(n, &ViewerOutput::VideoParamsChanged, this, &ViewerWidget::UpdateRendererVideoParameters);
   disconnect(n, &ViewerOutput::AudioParamsChanged, this, &ViewerWidget::UpdateRendererAudioParameters);
   disconnect(n->video_frame_cache(), &FrameHashCache::Invalidated, this, &ViewerWidget::ViewerInvalidatedVideoRange);
@@ -998,14 +1002,6 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
     {
       Menu* cache_menu = new Menu(tr("Cache"), &menu);
       menu.addMenu(cache_menu);
-
-      // Auto-cache
-      QAction* autocache_action = cache_menu->addAction(tr("Auto-Cache"));
-      autocache_action->setCheckable(true);
-      autocache_action->setChecked(!auto_cacher_.IsPaused());
-      connect(autocache_action, &QAction::triggered, this, &ViewerWidget::SetAutoCacheEnabled);
-
-      cache_menu->addSeparator();
 
       // Cache Entire Sequence
       QAction* cache_entire_sequence = cache_menu->addAction(tr("Cache Entire Sequence"));
