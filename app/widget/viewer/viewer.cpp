@@ -1156,21 +1156,18 @@ void ViewerWidget::PlaybackTimerUpdate()
 
   int64_t min_time, max_time;
 
-  {
-    if ((play_in_to_out_only_ || Config::Current()["Loop"].toBool())
-        && GetConnectedNode()->GetTimelinePoints()->workarea()->enabled()) {
+  if (play_in_to_out_only_ && GetConnectedNode()->GetTimelinePoints()->workarea()->enabled()) {
 
-      // If "play in to out" is enabled or we're looping AND we have a workarea, only play the workarea
-      min_time = Timecode::time_to_timestamp(GetConnectedNode()->GetTimelinePoints()->workarea()->in(), timebase());
-      max_time = Timecode::time_to_timestamp(GetConnectedNode()->GetTimelinePoints()->workarea()->out(), timebase());
+    // If "play in to out" is enabled or we're looping AND we have a workarea, only play the workarea
+    min_time = Timecode::time_to_timestamp(GetConnectedNode()->GetTimelinePoints()->workarea()->in(), timebase());
+    max_time = Timecode::time_to_timestamp(GetConnectedNode()->GetTimelinePoints()->workarea()->out(), timebase());
 
-    } else {
+  } else {
 
-      // Otherwise set the bounds to the range of the sequence
-      min_time = 0;
-      max_time = Timecode::time_to_timestamp(GetConnectedNode()->GetLength(), timebase());
+    // Otherwise set the bounds to the range of the sequence
+    min_time = 0;
+    max_time = Timecode::time_to_timestamp(GetConnectedNode()->GetLength(), timebase());
 
-    }
   }
 
   if ((playback_speed_ < 0 && current_time <= min_time)
