@@ -975,6 +975,10 @@ void NodeView::ShowContextMenu(const QPoint &pos)
 
 void NodeView::CreateNodeSlot(QAction *action)
 {
+  if (!graph_) {
+    return;
+  }
+
   Node* new_node = NodeFactory::CreateFromMenuAction(action);
 
   if (new_node) {

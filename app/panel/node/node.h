@@ -44,6 +44,7 @@ public:
   void SetGraph(NodeGraph *graph, const QVector<Node*> &nodes)
   {
     node_view_->SetGraph(graph, nodes);
+    toolbar_->setEnabled(graph);
   }
 
   void ClearGraph()
@@ -124,6 +125,8 @@ private:
   }
 
   NodeView* node_view_;
+
+  NodeViewToolBar *toolbar_;
 
 };
 
