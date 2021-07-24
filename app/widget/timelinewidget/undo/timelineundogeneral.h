@@ -196,12 +196,13 @@ private:
 
 class TrackReplaceBlockWithGapCommand : public UndoCommand {
 public:
-  TrackReplaceBlockWithGapCommand(Track* track, Block* block) :
+  TrackReplaceBlockWithGapCommand(Track* track, Block* block, bool handle_transitions = true) :
     track_(track),
     block_(block),
     existing_gap_(nullptr),
     existing_merged_gap_(nullptr),
     our_gap_(nullptr),
+    handle_transitions_(handle_transitions),
     position_command_(nullptr)
   {
   }
@@ -231,6 +232,8 @@ private:
   GapBlock* existing_merged_gap_;
   bool existing_gap_precedes_;
   GapBlock* our_gap_;
+
+  bool handle_transitions_;
 
   NodeSetPositionAsChildCommand* position_command_;
 

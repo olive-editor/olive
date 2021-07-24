@@ -441,7 +441,7 @@ void TrackListInsertGaps::undo()
 void TrackReplaceBlockWithGapCommand::redo()
 {
   // Determine if this block is connected to any transitions that should also be removed by this operation
-  if (transition_remove_commands_.isEmpty()) {
+  if (handle_transitions_ && transition_remove_commands_.isEmpty()) {
     CreateRemoveTransitionCommandIfNecessary(false);
     CreateRemoveTransitionCommandIfNecessary(true);
   }
