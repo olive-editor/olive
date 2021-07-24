@@ -1041,6 +1041,13 @@ void NodeView::OpenSelectedNodeInViewer()
 
 void NodeView::RemoveNode(Node *node)
 {
+  for (const Node::OutputConnection &oc : node->output_connections()) {
+    scene_.RemoveEdge(oc.first, oc.second);
+  }
+  for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
+    scene_.RemoveEdge(it->second, it->first);
+  }
+  positions_.remove(scene_.item_map().value(node));
   scene_.RemoveNode(node);
 }
 
@@ -1100,14 +1107,7 @@ void NodeView::RemoveNodePosition(Node *node, Node *relative)
       }
 
       if (!found) {
-        for (const Node::OutputConnection &oc : node->output_connections()) {
-          scene_.RemoveEdge(oc.first, oc.second);
-        }
-        for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
-          scene_.RemoveEdge(it->second, it->first);
-        }
-        positions_.remove(item);
-        scene_.RemoveNode(node);
+        RemoveNode(node);
       }
     }
 
