@@ -76,30 +76,28 @@ AboutDialog::AboutDialog(bool welcome_dialog, QWidget *parent) :
 
   layout->addLayout(horiz_layout);
 
-  // Patrons where necessary
-  if (!patrons.isEmpty()) {
-    layout->addWidget(new QLabel());
-    layout->addWidget(QtUtils::CreateHorizontalLine());
-    layout->addWidget(new QLabel());
+  // Patrons where possible
+  layout->addWidget(new QLabel());
 
-    QString opening_statement;
+  QString opening_statement;
 
-    if (welcome_dialog) {
-      opening_statement = tr("<b>Olive relies on support from the community to continue its development.</b>");
-    } else {
-      opening_statement = tr("Olive wouldn't be possible without the support of gracious donations from the following people.");
-    }
+  if (welcome_dialog || patrons.isEmpty()) {
+    opening_statement = tr("<b>Olive relies on support from the community to continue its development.</b>");
+  } else {
+    opening_statement = tr("Olive wouldn't be possible without the support of gracious donations from the following people.");
+  }
 
-    QLabel* support_lbl = new QLabel(tr("<html>%1 "
-                                        "If you like this project, please consider "
-                                        "<a href='https://olivevideoeditor.org/donate.php'>donating</a> or "
-                                        "<a href='https://www.patreon.com/olivevideoeditor'>pledging</a> to "
+  QLabel* support_lbl = new QLabel(tr("<html>%1 "
+                                        "If you like this project, please consider making a "
+                                        "<a href='https://olivevideoeditor.org/donate.php'>one-time donation</a> or "
+                                        "<a href='https://www.patreon.com/olivevideoeditor'>pledging monthly</a> to "
                                         "support its development.</html>").arg(opening_statement));
-    support_lbl->setWordWrap(true);
-    support_lbl->setAlignment(Qt::AlignCenter);
-    support_lbl->setOpenExternalLinks(true);
-    layout->addWidget(support_lbl);
+  support_lbl->setWordWrap(true);
+  support_lbl->setAlignment(Qt::AlignCenter);
+  support_lbl->setOpenExternalLinks(true);
+  layout->addWidget(support_lbl);
 
+  if (!patrons.isEmpty()) {
     ScrollingLabel* scroll = new ScrollingLabel(patrons);
     scroll->StartAnimating();
     layout->addWidget(scroll);
