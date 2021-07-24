@@ -21,6 +21,7 @@
 #include "transition.h"
 
 #include "common/clamp.h"
+#include "node/output/track/track.h"
 
 namespace olive {
 
@@ -212,6 +213,20 @@ NodeValueTable TransitionBlock::Value(const QString &output, NodeValueDatabase &
   }
 
   return table;
+}
+
+void TransitionBlock::InvalidateCache(const TimeRange &range, const QString &from, int element, InvalidateCacheOptions options)
+{
+  TimeRange r;
+
+  if (from == kOutBlockInput || from == kInBlockInput) {
+    Block *n = dynamic_cast<Block*>(GetConnectedNode(from));
+    if (n) {
+      r = Track::TransformRangeFromBlock(n, r);
+    }
+  }
+
+  super::InvalidateCache(r, from, element, options);
 }
 
 void TransitionBlock::ShaderJobEvent(NodeValueDatabase &value, ShaderJob &job) const

@@ -110,23 +110,11 @@ TimeRange Track::OutputTimeAdjustment(const QString& input, int element, const T
     int cache_index = GetCacheIndexFromArrayIndex(element);
 
     if (cache_index > -1) {
-      const rational& block_in = blocks_.at(cache_index)->in();
-
-      return input_time + block_in;
+      return TransformRangeFromBlock(blocks_.at(cache_index), input_time);
     }
   }
 
   return Node::OutputTimeAdjustment(input, element, input_time);
-}
-
-rational Track::TransformTimeForBlock(Block *block, const rational &time)
-{
-  return time - block->in();
-}
-
-TimeRange Track::TransformRangeForBlock(Block *block, const TimeRange &range)
-{
-  return range - block->in();
 }
 
 const double &Track::GetTrackHeight() const
@@ -440,11 +428,13 @@ void Track::InvalidateCache(const TimeRange& range, const QString& from, int ele
       && (b = dynamic_cast<const Block*>(GetConnectedOutput(from, element).node()))
       && !options.value(QStringLiteral("lengthevent")).toBool()) {
     // Limit the range signal to the corresponding block
-    if (range.out() <= b->in() || range.in() >= b->out()) {
+    TimeRange transformed = TransformRangeFromBlock(b, range);
+
+    if (transformed.out() <= b->in() || transformed.in() >= b->out()) {
       return;
     }
 
-    limited = TimeRange(qMax(range.in(), b->in()), qMin(range.out(), b->out()));
+    limited = TimeRange(qMax(transformed.in(), b->in()), qMin(transformed.out(), b->out()));
   } else {
     limited = range;
   }

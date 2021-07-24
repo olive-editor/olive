@@ -49,6 +49,8 @@ public:
 
   virtual NodeValueTable Value(const QString& output, NodeValueDatabase &value) const override;
 
+  virtual void InvalidateCache(const TimeRange& range, const QString& from, int element = -1, InvalidateCacheOptions options = InvalidateCacheOptions()) override;
+
   static const QString kOutBlockInput;
   static const QString kInBlockInput;
   static const QString kCurveInput;

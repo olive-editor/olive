@@ -60,9 +60,25 @@ public:
 
   virtual TimeRange OutputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const override;
 
-  static rational TransformTimeForBlock(Block* block, const rational& time);
+  static rational TransformTimeForBlock(const Block* block, const rational& time)
+  {
+    return time - block->in();
+  }
 
-  static TimeRange TransformRangeForBlock(Block* block, const TimeRange& range);
+  static TimeRange TransformRangeForBlock(const Block* block, const TimeRange& range)
+  {
+    return range - block->in();
+  }
+
+  static rational TransformTimeFromBlock(const Block* block, const rational& time)
+  {
+    return time + block->in();
+  }
+
+  static TimeRange TransformRangeFromBlock(const Block* block, const TimeRange& range)
+  {
+    return range + block->in();
+  }
 
   const double& GetTrackHeight() const;
   void SetTrackHeight(const double& height);
