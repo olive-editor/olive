@@ -30,6 +30,7 @@
 
 #include "common/define.h"
 #include "core.h"
+#include "dialog/nodeproperties/nodepropertiesdialog.h"
 #include "dialog/sequence/sequence.h"
 #include "projectexplorerundo.h"
 #include "task/precache/precachetask.h"
@@ -439,11 +440,12 @@ void ProjectExplorer::ShowItemPropertiesDialog()
   // FIXME: Support for multiple items
   if (dynamic_cast<Footage*>(sel)) {
 
-    Core::instance()->LabelNodes({static_cast<Footage*>(sel)});
+    NodePropertiesDialog npd(sel, static_cast<Footage*>(sel)->GetVideoParams().time_base(), this);
+    npd.exec();
 
   } else if (dynamic_cast<Folder*>(sel)) {
 
-    Core::instance()->LabelNodes({static_cast<Folder*>(sel)});
+    Core::instance()->LabelNodes(context_menu_items_);
 
   } else if (dynamic_cast<Sequence*>(sel)) {
 

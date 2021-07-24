@@ -112,6 +112,9 @@ protected:
 
   virtual bool eventFilter(QObject *object, QEvent *event) override;
 
+  virtual void CopyNodesToClipboardInternal(QXmlStreamWriter *writer, const QVector<Node*> &nodes, void* userdata) override;
+  virtual void PasteNodesFromClipboardInternal(QXmlStreamReader *reader, XMLNodeData &xml_node_data, void* userdata) override;
+
 private:
   void AttachNodesToCursor(const QVector<Node *> &nodes);
 
@@ -141,6 +144,8 @@ private:
   void CreateNewEdge(NodeViewItem *output_item);
 
   NodeViewItem *UpdateNodeItem(Node *node, bool ignore_own_context = false);
+
+  void PasteNodesInternal(const QVector<Node*> &duplicate_nodes = QVector<Node *>());
 
   class NodeViewAttachNodesToCursor : public UndoCommand
   {

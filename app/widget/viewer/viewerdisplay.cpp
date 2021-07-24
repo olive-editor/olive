@@ -390,7 +390,7 @@ void ViewerDisplayWidget::OnPaint()
         texture_to_draw = deinterlace_texture_;
       }
 
-      renderer()->BlitColorManaged(color_service(), texture_to_draw, true, device_params, false,
+      renderer()->BlitColorManaged(color_service(), texture_to_draw, Renderer::kAlphaNone, device_params, false,
                                    combined_matrix_flipped_, crop_matrix_);
     }
   }

@@ -316,7 +316,7 @@ void Core::SetSnapping(const bool &b)
 
 void Core::DialogAboutShow()
 {
-  AboutDialog a(main_window_);
+  AboutDialog a(false, main_window_);
   a.exec();
 }
 

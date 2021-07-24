@@ -18,33 +18,35 @@
 
 ***/
 
-#ifndef NODECOPYPASTEWIDGET_H
-#define NODECOPYPASTEWIDGET_H
+#ifndef NODEPROPERTIESDIALOG_H
+#define NODEPROPERTIESDIALOG_H
 
-#include <QWidget>
-#include <QUndoCommand>
+#include <QDialog>
 
-#include "node/node.h"
-#include "node/project/sequence/sequence.h"
+#include "widget/nodeparamview/nodeparamviewitem.h"
 
 namespace olive {
 
-class NodeCopyPasteService
+class NodePropertiesDialog : public QDialog
 {
+  Q_OBJECT
 public:
-  NodeCopyPasteService() = default;
+  NodePropertiesDialog(Node *node, const rational &timebase, QWidget *parent = nullptr);
+  NodePropertiesDialog(const QVector<Node *> &node, const rational &timebase, QWidget *parent = nullptr) :
+    NodePropertiesDialog(node.first(), timebase, parent)
+  {
+  }
 
-protected:
-  void CopyNodesToClipboard(const QVector<Node *> &nodes, void* userdata = nullptr);
+public slots:
+  virtual void accept() override;
 
-  QVector<Node*> PasteNodesFromClipboard(NodeGraph *graph, MultiUndoCommand *command, void* userdata = nullptr);
+private:
+  Node *node_;
 
-  virtual void CopyNodesToClipboardInternal(QXmlStreamWriter *writer, const QVector<Node*> &nodes, void* userdata);
-
-  virtual void PasteNodesFromClipboardInternal(QXmlStreamReader *reader, XMLNodeData &xml_node_data, void* userdata);
+  QLineEdit *label_edit_;
 
 };
 
 }
 
-#endif // NODECOPYPASTEWIDGET_H
+#endif // NODEPROPERTIESDIALOG_H

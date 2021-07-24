@@ -63,8 +63,14 @@ public:
     Blit(shader, job, nullptr, params, clear_destination);
   }
 
-  void BlitColorManaged(ColorProcessorPtr color_processor, TexturePtr source, bool source_is_premultiplied, Texture* destination, bool clear_destination = true, const QMatrix4x4& matrix = QMatrix4x4(), const QMatrix4x4 &crop_matrix = QMatrix4x4());
-  void BlitColorManaged(ColorProcessorPtr color_processor, TexturePtr source, bool source_is_premultiplied, VideoParams params, bool clear_destination = true, const QMatrix4x4& matrix = QMatrix4x4(), const QMatrix4x4 &crop_matrix = QMatrix4x4());
+  enum AlphaAssociated {
+    kAlphaNone,
+    kAlphaUnassociated,
+    kAlphaAssociated
+  };
+
+  void BlitColorManaged(ColorProcessorPtr color_processor, TexturePtr source, AlphaAssociated source_alpha_association, Texture* destination, bool clear_destination = true, const QMatrix4x4& matrix = QMatrix4x4(), const QMatrix4x4 &crop_matrix = QMatrix4x4());
+  void BlitColorManaged(ColorProcessorPtr color_processor, TexturePtr source, AlphaAssociated source_alpha_association, VideoParams params, bool clear_destination = true, const QMatrix4x4& matrix = QMatrix4x4(), const QMatrix4x4 &crop_matrix = QMatrix4x4());
 
   TexturePtr InterlaceTexture(TexturePtr top, TexturePtr bottom, const VideoParams &params);
 
@@ -120,16 +126,10 @@ private:
 
   };
 
-  enum AlphaAssociated {
-    kAlphaNone,
-    kAlphaUnassociated,
-    kAlphaAssociated
-  };
-
   bool GetColorContext(ColorProcessorPtr color_processor, ColorContext* ctx);
 
   void BlitColorManagedInternal(ColorProcessorPtr color_processor, TexturePtr source,
-                                bool source_is_premultiplied,
+                                AlphaAssociated source_alpha_association,
                                 Texture* destination, VideoParams params, bool clear_destination,
                                 const QMatrix4x4 &matrix, const QMatrix4x4 &crop_matrix);
 

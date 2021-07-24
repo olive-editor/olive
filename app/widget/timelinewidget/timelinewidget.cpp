@@ -28,6 +28,7 @@
 #include "core.h"
 #include "common/range.h"
 #include "common/timecodefunctions.h"
+#include "dialog/nodeproperties/nodepropertiesdialog.h"
 #include "dialog/sequence/sequence.h"
 #include "node/block/transition/transition.h"
 #include "tool/add.h"
@@ -295,7 +296,7 @@ void TimelineWidget::DisconnectNodeEvent(ViewerOutput *n)
   }
 }
 
-void TimelineWidget::CopyNodesToClipboardInternal(QXmlStreamWriter *writer, void* userdata)
+void TimelineWidget::CopyNodesToClipboardInternal(QXmlStreamWriter *writer, const QVector<Node *> &nodes, void* userdata)
 {
   // Cache the earliest in point so all copied clips have a "relative" in point that can be pasted anywhere
   QVector<Block*>& selected = *static_cast<QVector<Block*>*>(userdata);
@@ -992,7 +993,8 @@ void TimelineWidget::ShowContextMenu()
         nodes.append(i);
       }
 
-      Core::instance()->LabelNodes(nodes);
+      NodePropertiesDialog npd(nodes, timebase(), this);
+      npd.exec();
     });
   }
 

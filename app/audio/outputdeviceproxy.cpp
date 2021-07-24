@@ -114,10 +114,12 @@ qint64 AudioOutputDeviceProxy::ReverseAwareRead(char *data, qint64 maxlen)
 
   if (playback_speed_ < 0) {
     // If we're reversing, we'll seek back by maxlen bytes before we read
-    new_pos = device_->pos() - maxlen;
+    qint64 len_adjusted_by_channels = maxlen / params_.channel_count();
+
+    new_pos = device_->pos() - len_adjusted_by_channels;
 
     if (new_pos < 0) {
-      maxlen = device_->pos();
+      maxlen = device_->pos() * params_.channel_count();
 
       new_pos = 0;
     }

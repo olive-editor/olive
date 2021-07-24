@@ -353,42 +353,12 @@ void NodeView::CopySelected(bool cut)
 
 void NodeView::Paste()
 {
-  if (!graph_) {
-    return;
-  }
-
-  paste_command_ = new MultiUndoCommand();
-
-  QVector<Node*> pasted_nodes = PasteNodesFromClipboard(graph_, paste_command_);
-
-  if (!pasted_nodes.isEmpty()) {
-    paste_command_->add_child(new NodeViewAttachNodesToCursor(this, pasted_nodes));
-  }
-
-  paste_command_->redo();
+  PasteNodesInternal();
 }
 
 void NodeView::Duplicate()
 {
-  if (!graph_) {
-    return;
-  }
-
-  QVector<Node*> selected = scene_.GetSelectedNodes();
-
-  if (selected.isEmpty()) {
-    return;
-  }
-
-  paste_command_ = new MultiUndoCommand();
-
-  QVector<Node*> duplicated_nodes = Node::CopyDependencyGraph(selected, paste_command_);
-
-  if (!duplicated_nodes.isEmpty()) {
-    paste_command_->add_child(new NodeViewAttachNodesToCursor(this, duplicated_nodes));
-  }
-
-  paste_command_->redo();
+  PasteNodesInternal(scene_.GetSelectedNodes());
 }
 
 void NodeView::SetColorLabel(int index)
@@ -1005,6 +975,10 @@ void NodeView::ShowContextMenu(const QPoint &pos)
 
 void NodeView::CreateNodeSlot(QAction *action)
 {
+  if (!graph_) {
+    return;
+  }
+
   Node* new_node = NodeFactory::CreateFromMenuAction(action);
 
   if (new_node) {
@@ -1067,6 +1041,13 @@ void NodeView::OpenSelectedNodeInViewer()
 
 void NodeView::RemoveNode(Node *node)
 {
+  for (const Node::OutputConnection &oc : node->output_connections()) {
+    scene_.RemoveEdge(oc.first, oc.second);
+  }
+  for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
+    scene_.RemoveEdge(it->second, it->first);
+  }
+  positions_.remove(scene_.item_map().value(node));
   scene_.RemoveNode(node);
 }
 
@@ -1126,14 +1107,7 @@ void NodeView::RemoveNodePosition(Node *node, Node *relative)
       }
 
       if (!found) {
-        for (const Node::OutputConnection &oc : node->output_connections()) {
-          scene_.RemoveEdge(oc.first, oc.second);
-        }
-        for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
-          scene_.RemoveEdge(it->second, it->first);
-        }
-        positions_.remove(item);
-        scene_.RemoveNode(node);
+        RemoveNode(node);
       }
     }
 
@@ -1292,6 +1266,65 @@ bool NodeView::eventFilter(QObject *object, QEvent *event)
   }
 
   return super::eventFilter(object, event);
+}
+
+void NodeView::CopyNodesToClipboardInternal(QXmlStreamWriter *writer, const QVector<Node *> &nodes, void *userdata)
+{
+  writer->writeStartElement(QStringLiteral("pos"));
+
+  for (Node *n : nodes) {
+    NodeViewItem *item = scene_.item_map().value(n);
+    QPointF pos = item->GetNodePosition();
+
+    writer->writeStartElement(QStringLiteral("node"));
+    writer->writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(n)));
+    writer->writeTextElement(QStringLiteral("x"), QString::number(pos.x()));
+    writer->writeTextElement(QStringLiteral("y"), QString::number(pos.y()));
+    writer->writeEndElement(); // node
+  }
+
+  writer->writeEndElement(); // pos
+}
+
+void NodeView::PasteNodesFromClipboardInternal(QXmlStreamReader *reader, XMLNodeData &xml_node_data, void *userdata)
+{
+  NodeGraph::PositionMap *map = static_cast<NodeGraph::PositionMap *>(userdata);
+
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("pos")) {
+      while (XMLReadNextStartElement(reader)) {
+        if (reader->name() == QStringLiteral("node")) {
+          Node *n = nullptr;
+          QPointF pos;
+
+          XMLAttributeLoop(reader, attr) {
+            if (attr.name() == QStringLiteral("ptr")) {
+              n = xml_node_data.node_ptrs.value(attr.value().toULongLong());
+              break;
+            }
+          }
+
+          while (XMLReadNextStartElement(reader)) {
+            if (reader->name() == QStringLiteral("x")) {
+              pos.setX(reader->readElementText().toDouble());
+            } else if (reader->name() == QStringLiteral("y")) {
+              pos.setY(reader->readElementText().toDouble());
+            } else {
+              reader->skipCurrentElement();
+            }
+          }
+
+          if (n) {
+            map->insert(n, pos);
+          }
+        } else {
+          reader->skipCurrentElement();
+        }
+      }
+    } else {
+      reader->skipCurrentElement();
+    }
+  }
 }
 
 void NodeView::ZoomFromKeyboard(double multiplier)
@@ -1594,6 +1627,53 @@ NodeViewItem *NodeView::UpdateNodeItem(Node *node, bool ignore_own_context)
   positions_.insert(item, {node, item_pos});
 
   return item;
+}
+
+void NodeView::PasteNodesInternal(const QVector<Node *> &duplicate_nodes)
+{
+  // If no graph, do nothing
+  if (!graph_) {
+    return;
+  }
+
+  paste_command_ = new MultiUndoCommand();
+
+  // If duplicating nodes, duplicate, otherwise paste
+  QVector<Node*> new_nodes;
+  NodeGraph::PositionMap map;
+  if (duplicate_nodes.isEmpty()) {
+    new_nodes = PasteNodesFromClipboard(graph_, paste_command_, &map);
+
+    for (auto it=new_nodes.cbegin(); it!=new_nodes.cend(); it++) {
+      for (Node *context : qAsConst(filter_nodes_)) {
+        paste_command_->add_child(new NodeSetPositionCommand(*it, context, map.value(*it), false));
+      }
+    }
+  } else {
+    new_nodes = Node::CopyDependencyGraph(duplicate_nodes, paste_command_);
+
+    for (int i=0; i<duplicate_nodes.size(); i++) {
+      Node *src = duplicate_nodes.at(i);
+      Node *copy = new_nodes.at(i);
+
+      for (Node *context : qAsConst(filter_nodes_)) {
+        QPointF p = scene_.item_map().value(src)->GetNodePosition();
+        paste_command_->add_child(new NodeSetPositionCommand(copy, context, p, false));
+      }
+    }
+  }
+
+  // If no nodes were retrieved, do nothing
+  if (new_nodes.isEmpty()) {
+    delete paste_command_;
+    paste_command_ = nullptr;
+    return;
+  }
+
+  // Attach nodes to cursor
+  paste_command_->add_child(new NodeViewAttachNodesToCursor(this, new_nodes));
+
+  paste_command_->redo();
 }
 
 NodeView::NodeViewAttachNodesToCursor::NodeViewAttachNodesToCursor(NodeView *view, const QVector<Node *> &nodes) :

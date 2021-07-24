@@ -70,7 +70,7 @@ void NodeCopyPasteService::CopyNodesToClipboard(const QVector<Node *> &nodes, vo
   writer.writeEndElement(); // contexts
 
   writer.writeStartElement(QStringLiteral("custom"));
-  CopyNodesToClipboardInternal(&writer, userdata);
+  CopyNodesToClipboardInternal(&writer, nodes, userdata);
   writer.writeEndElement(); // custom
 
   writer.writeEndElement(); // olive
@@ -229,7 +229,7 @@ QVector<Node *> NodeCopyPasteService::PasteNodesFromClipboard(NodeGraph *graph, 
   return pasted_nodes;
 }
 
-void NodeCopyPasteService::CopyNodesToClipboardInternal(QXmlStreamWriter*, void*)
+void NodeCopyPasteService::CopyNodesToClipboardInternal(QXmlStreamWriter*, const QVector<Node *> &, void*)
 {
 }
 

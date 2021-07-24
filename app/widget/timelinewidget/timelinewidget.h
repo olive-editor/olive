@@ -248,7 +248,7 @@ protected:
   virtual void ConnectNodeEvent(ViewerOutput* n) override;
   virtual void DisconnectNodeEvent(ViewerOutput* n) override;
 
-  virtual void CopyNodesToClipboardInternal(QXmlStreamWriter *writer, void* userdata) override;
+  virtual void CopyNodesToClipboardInternal(QXmlStreamWriter *writer, const QVector<Node*> &nodes, void* userdata) override;
   virtual void PasteNodesFromClipboardInternal(QXmlStreamReader *reader, XMLNodeData &xml_node_data, void* userdata) override;
 
   struct BlockPasteData {
