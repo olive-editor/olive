@@ -52,14 +52,14 @@ TexturePtr Renderer::CreateTexture(const VideoParams &params, const void *data, 
   return CreateTexture(params, Texture::k2D, data, linesize);
 }
 
-void Renderer::BlitColorManaged(ColorProcessorPtr color_processor, TexturePtr source, bool source_is_premultiplied, Texture *destination, bool clear_destination, const QMatrix4x4 &matrix, const QMatrix4x4 &crop_matrix)
+void Renderer::BlitColorManaged(ColorProcessorPtr color_processor, TexturePtr source, AlphaAssociated source_alpha_association, Texture *destination, bool clear_destination, const QMatrix4x4 &matrix, const QMatrix4x4 &crop_matrix)
 {
-  BlitColorManagedInternal(color_processor, source, source_is_premultiplied, destination, destination->params(), clear_destination, matrix, crop_matrix);
+  BlitColorManagedInternal(color_processor, source, source_alpha_association, destination, destination->params(), clear_destination, matrix, crop_matrix);
 }
 
-void Renderer::BlitColorManaged(ColorProcessorPtr color_processor, TexturePtr source, bool source_is_premultiplied, VideoParams params, bool clear_destination, const QMatrix4x4& matrix, const QMatrix4x4 &crop_matrix)
+void Renderer::BlitColorManaged(ColorProcessorPtr color_processor, TexturePtr source, AlphaAssociated source_alpha_association, VideoParams params, bool clear_destination, const QMatrix4x4& matrix, const QMatrix4x4 &crop_matrix)
 {
-  BlitColorManagedInternal(color_processor, source, source_is_premultiplied, nullptr, params, clear_destination, matrix, crop_matrix);
+  BlitColorManagedInternal(color_processor, source, source_alpha_association, nullptr, params, clear_destination, matrix, crop_matrix);
 }
 
 TexturePtr Renderer::InterlaceTexture(TexturePtr top, TexturePtr bottom, const VideoParams &params)
@@ -257,7 +257,7 @@ bool Renderer::GetColorContext(ColorProcessorPtr color_processor, Renderer::Colo
 }
 
 void Renderer::BlitColorManagedInternal(ColorProcessorPtr color_processor, TexturePtr source,
-                                        bool source_is_premultiplied, Texture *destination,
+                                        AlphaAssociated source_alpha_association, Texture *destination,
                                         VideoParams params, bool clear_destination, const QMatrix4x4& matrix,
                                         const QMatrix4x4& crop_matrix)
 {
@@ -271,21 +271,7 @@ void Renderer::BlitColorManagedInternal(ColorProcessorPtr color_processor, Textu
   job.InsertValue(QStringLiteral("ove_maintex"), NodeValue(NodeValue::kTexture, QVariant::fromValue(source)));
   job.InsertValue(QStringLiteral("ove_mvpmat"), NodeValue(NodeValue::kMatrix, matrix));
   job.InsertValue(QStringLiteral("ove_cropmatrix"), NodeValue(NodeValue::kMatrix, crop_matrix.inverted()));
-
-  AlphaAssociated associated;
-  if (source->channel_count() == VideoParams::kRGBAChannelCount) {
-    if (source_is_premultiplied) {
-      // De-assoc/re-assoc required for color management
-      associated = kAlphaAssociated;
-    } else {
-      // Just assoc at the end
-      associated = kAlphaUnassociated;
-    }
-  } else {
-    // No assoc/deassoc required
-    associated = kAlphaNone;
-  }
-  job.InsertValue(QStringLiteral("ove_maintex_alpha"), NodeValue(NodeValue::kInt, associated));
+  job.InsertValue(QStringLiteral("ove_maintex_alpha"), NodeValue(NodeValue::kInt, source_alpha_association));
 
   foreach (const ColorContext::LUT& l, color_ctx.lut3d_textures) {
     job.InsertValue(l.name, NodeValue(NodeValue::kTexture, QVariant::fromValue(l.texture)));
