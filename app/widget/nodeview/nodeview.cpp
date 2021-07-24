@@ -1264,6 +1264,65 @@ bool NodeView::eventFilter(QObject *object, QEvent *event)
   return super::eventFilter(object, event);
 }
 
+void NodeView::CopyNodesToClipboardInternal(QXmlStreamWriter *writer, const QVector<Node *> &nodes, void *userdata)
+{
+  writer->writeStartElement(QStringLiteral("pos"));
+
+  for (Node *n : nodes) {
+    NodeViewItem *item = scene_.item_map().value(n);
+    QPointF pos = item->GetNodePosition();
+
+    writer->writeStartElement(QStringLiteral("node"));
+    writer->writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(n)));
+    writer->writeTextElement(QStringLiteral("x"), QString::number(pos.x()));
+    writer->writeTextElement(QStringLiteral("y"), QString::number(pos.y()));
+    writer->writeEndElement(); // node
+  }
+
+  writer->writeEndElement(); // pos
+}
+
+void NodeView::PasteNodesFromClipboardInternal(QXmlStreamReader *reader, XMLNodeData &xml_node_data, void *userdata)
+{
+  NodeGraph::PositionMap *map = static_cast<NodeGraph::PositionMap *>(userdata);
+
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("pos")) {
+      while (XMLReadNextStartElement(reader)) {
+        if (reader->name() == QStringLiteral("node")) {
+          Node *n = nullptr;
+          QPointF pos;
+
+          XMLAttributeLoop(reader, attr) {
+            if (attr.name() == QStringLiteral("ptr")) {
+              n = xml_node_data.node_ptrs.value(attr.value().toULongLong());
+              break;
+            }
+          }
+
+          while (XMLReadNextStartElement(reader)) {
+            if (reader->name() == QStringLiteral("x")) {
+              pos.setX(reader->readElementText().toDouble());
+            } else if (reader->name() == QStringLiteral("y")) {
+              pos.setY(reader->readElementText().toDouble());
+            } else {
+              reader->skipCurrentElement();
+            }
+          }
+
+          if (n) {
+            map->insert(n, pos);
+          }
+        } else {
+          reader->skipCurrentElement();
+        }
+      }
+    } else {
+      reader->skipCurrentElement();
+    }
+  }
+}
+
 void NodeView::ZoomFromKeyboard(double multiplier)
 {
   QPoint cursor_pos = mapFromGlobal(QCursor::pos());
@@ -1577,14 +1636,33 @@ void NodeView::PasteNodesInternal(const QVector<Node *> &duplicate_nodes)
 
   // If duplicating nodes, duplicate, otherwise paste
   QVector<Node*> new_nodes;
+  NodeGraph::PositionMap map;
   if (duplicate_nodes.isEmpty()) {
-    new_nodes = PasteNodesFromClipboard(graph_, paste_command_);
+    new_nodes = PasteNodesFromClipboard(graph_, paste_command_, &map);
+
+    for (auto it=new_nodes.cbegin(); it!=new_nodes.cend(); it++) {
+      for (Node *context : qAsConst(filter_nodes_)) {
+        paste_command_->add_child(new NodeSetPositionCommand(*it, context, map.value(*it), false));
+      }
+    }
   } else {
     new_nodes = Node::CopyDependencyGraph(duplicate_nodes, paste_command_);
+
+    for (int i=0; i<duplicate_nodes.size(); i++) {
+      Node *src = duplicate_nodes.at(i);
+      Node *copy = new_nodes.at(i);
+
+      for (Node *context : qAsConst(filter_nodes_)) {
+        QPointF p = scene_.item_map().value(src)->GetNodePosition();
+        paste_command_->add_child(new NodeSetPositionCommand(copy, context, p, false));
+      }
+    }
   }
 
   // If no nodes were retrieved, do nothing
   if (new_nodes.isEmpty()) {
+    delete paste_command_;
+    paste_command_ = nullptr;
     return;
   }
 

@@ -296,7 +296,7 @@ void TimelineWidget::DisconnectNodeEvent(ViewerOutput *n)
   }
 }
 
-void TimelineWidget::CopyNodesToClipboardInternal(QXmlStreamWriter *writer, void* userdata)
+void TimelineWidget::CopyNodesToClipboardInternal(QXmlStreamWriter *writer, const QVector<Node *> &nodes, void* userdata)
 {
   // Cache the earliest in point so all copied clips have a "relative" in point that can be pasted anywhere
   QVector<Block*>& selected = *static_cast<QVector<Block*>*>(userdata);
