@@ -309,6 +309,10 @@ void ViewerOutput::Retranslate()
   if (HasInputWithID(kSamplesInput)) {
     SetInputName(kSamplesInput, tr("Samples"));
   }
+
+  if (HasInputWithID(kAutoCacheInput)) {
+    SetInputName(kAutoCacheInput, tr("Auto-Cache"));
+  }
 }
 
 void ViewerOutput::VerifyLength()
