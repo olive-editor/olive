@@ -196,6 +196,8 @@ private slots:
 
   void ProjectPanelSelectionChanged(const QVector<Node*> &nodes);
 
+  void ShowWelcomeDialog();
+
 };
 
 }

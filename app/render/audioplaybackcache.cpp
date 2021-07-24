@@ -71,7 +71,7 @@ void AudioPlaybackCache::WritePCM(const TimeRange &range, const TimeRangeList &v
   TimeRangeList ranges_we_validated;
 
   // Calculate buffer size per channel
-  qint64 buffer_size_per_channel = samples->sample_count() * params_.bytes_per_sample_per_channel();
+  qint64 buffer_size_per_channel = samples ? samples->sample_count() * params_.bytes_per_sample_per_channel() : 0;
 
   // Write each valid range to the segments
   foreach (const TimeRange& r, valid_ranges) {
@@ -103,9 +103,6 @@ void AudioPlaybackCache::WritePCM(const TimeRange &range, const TimeRangeList &v
             // Determine how many bytes need to be written
             qint64 total_write_length = params_.time_to_bytes_per_channel(this_write_out_point - this_write_in_point);
 
-            // Retrieve data buffer
-            const char *a = reinterpret_cast<const char*>(samples->data(i));
-
             // Determine how many bytes we actually have in the source buffer
             qint64 possible_write_length = qMin(qMax(qint64(0), buffer_size_per_channel - src_offset), total_write_length);
 
@@ -114,7 +111,9 @@ void AudioPlaybackCache::WritePCM(const TimeRange &range, const TimeRangeList &v
 
             // If we have source bytes to write, write them here
             if (possible_write_length > 0) {
-              seg_file.write(a + src_offset, possible_write_length);
+              // Assume `samples` is valid if we're here, or else `buffer_size_per_channel` and
+              // therefore `possible_write_length` will be 0.
+              seg_file.write(reinterpret_cast<const char*>(samples->data(i)) + src_offset, possible_write_length);
             }
 
             if (possible_write_length < total_write_length) {

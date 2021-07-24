@@ -351,42 +351,12 @@ void NodeView::CopySelected(bool cut)
 
 void NodeView::Paste()
 {
-  if (!graph_) {
-    return;
-  }
-
-  paste_command_ = new MultiUndoCommand();
-
-  QVector<Node*> pasted_nodes = PasteNodesFromClipboard(graph_, paste_command_);
-
-  if (!pasted_nodes.isEmpty()) {
-    paste_command_->add_child(new NodeViewAttachNodesToCursor(this, pasted_nodes));
-  }
-
-  paste_command_->redo();
+  PasteNodesInternal();
 }
 
 void NodeView::Duplicate()
 {
-  if (!graph_) {
-    return;
-  }
-
-  QVector<Node*> selected = scene_.GetSelectedNodes();
-
-  if (selected.isEmpty()) {
-    return;
-  }
-
-  paste_command_ = new MultiUndoCommand();
-
-  QVector<Node*> duplicated_nodes = Node::CopyDependencyGraph(selected, paste_command_);
-
-  if (!duplicated_nodes.isEmpty()) {
-    paste_command_->add_child(new NodeViewAttachNodesToCursor(this, duplicated_nodes));
-  }
-
-  paste_command_->redo();
+  PasteNodesInternal(scene_.GetSelectedNodes());
 }
 
 void NodeView::SetColorLabel(int index)
@@ -1548,6 +1518,34 @@ NodeViewItem *NodeView::UpdateNodeItem(Node *node, bool ignore_own_context)
   positions_.insert(item, {node, item_pos});
 
   return item;
+}
+
+void NodeView::PasteNodesInternal(const QVector<Node *> &duplicate_nodes)
+{
+  // If no graph, do nothing
+  if (!graph_) {
+    return;
+  }
+
+  paste_command_ = new MultiUndoCommand();
+
+  // If duplicating nodes, duplicate, otherwise paste
+  QVector<Node*> new_nodes;
+  if (duplicate_nodes.isEmpty()) {
+    new_nodes = PasteNodesFromClipboard(graph_, paste_command_);
+  } else {
+    new_nodes = Node::CopyDependencyGraph(duplicate_nodes, paste_command_);
+  }
+
+  // If no nodes were retrieved, do nothing
+  if (new_nodes.isEmpty()) {
+    return;
+  }
+
+  // Attach nodes to cursor
+  paste_command_->add_child(new NodeViewAttachNodesToCursor(this, new_nodes));
+
+  paste_command_->redo();
 }
 
 NodeView::NodeViewAttachNodesToCursor::NodeViewAttachNodesToCursor(NodeView *view, const QVector<Node *> &nodes) :

@@ -18,45 +18,35 @@
 
 ***/
 
-#ifndef ABOUTDIALOG_H
-#define ABOUTDIALOG_H
+#ifndef NODEPROPERTIESDIALOG_H
+#define NODEPROPERTIESDIALOG_H
 
-#include <QCheckBox>
 #include <QDialog>
 
-#include "common/define.h"
+#include "widget/nodeparamview/nodeparamviewitem.h"
 
 namespace olive {
 
-/**
- * @brief The AboutDialog class
- *
- * The About dialog (accessible through Help > About). Contains license and version information. This can be run from
- * anywhere
- */
-class AboutDialog : public QDialog
+class NodePropertiesDialog : public QDialog
 {
   Q_OBJECT
 public:
-  /**
-   * @brief AboutDialog Constructor
-   *
-   * Creates About dialog.
-   *
-   * @param parent
-   *
-   * QWidget parent object. Usually this will be MainWindow.
-   */
-  explicit AboutDialog(bool welcome_dialog, QWidget *parent = nullptr);
+  NodePropertiesDialog(Node *node, const rational &timebase, QWidget *parent = nullptr);
+  NodePropertiesDialog(const QVector<Node *> &node, const rational &timebase, QWidget *parent = nullptr) :
+    NodePropertiesDialog(node.first(), timebase, parent)
+  {
+  }
 
 public slots:
   virtual void accept() override;
 
 private:
-  QCheckBox *dont_show_again_checkbox_;
+  Node *node_;
+
+  QLineEdit *label_edit_;
 
 };
 
 }
 
-#endif // ABOUTDIALOG_H
+#endif // NODEPROPERTIESDIALOG_H
