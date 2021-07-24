@@ -26,23 +26,33 @@
 #include <QVBoxLayout>
 
 #include "common/qtutils.h"
+#include "config/config.h"
 #include "patreon.h"
 #include "scrollinglabel.h"
 
 namespace olive {
 
-AboutDialog::AboutDialog(QWidget *parent) :
+AboutDialog::AboutDialog(bool welcome_dialog, QWidget *parent) :
   QDialog(parent)
 {
-  setWindowTitle(tr("About %1").arg(QApplication::applicationName()));
+  if (welcome_dialog) {
+    setWindowTitle(tr("Welcome to %1").arg(QApplication::applicationName()));
+  } else {
+    setWindowTitle(tr("About %1").arg(QApplication::applicationName()));
+  }
+
+  QFontMetrics fm = fontMetrics();
 
   QVBoxLayout* layout = new QVBoxLayout(this);
+  layout->setMargin(fm.height());
 
-  layout->addWidget(new QLabel());
+  QHBoxLayout *horiz_layout = new QHBoxLayout();
+  horiz_layout->setMargin(fm.height());
+  horiz_layout->setSpacing(fm.height()*2);
 
   QLabel* icon = new QLabel(QStringLiteral("<html><img src=':/graphics/olive-splash.png'></html>"));
   icon->setAlignment(Qt::AlignCenter);
-  layout->addWidget(icon);
+  horiz_layout->addWidget(icon);
 
   // Construct About text
   QLabel* label =
@@ -58,18 +68,33 @@ AboutDialog::AboutDialog(QWidget *parent) :
                                                          "This software is licensed under the GNU GPL Version 3.")));
 
   // Set text formatting
-  label->setAlignment(Qt::AlignCenter);
+  label->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
   label->setWordWrap(true);
   label->setOpenExternalLinks(true);
   label->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-  layout->addWidget(label);
+  horiz_layout->addWidget(label);
+
+  layout->addLayout(horiz_layout);
 
   // Patrons where necessary
   if (!patrons.isEmpty()) {
     layout->addWidget(new QLabel());
+    layout->addWidget(QtUtils::CreateHorizontalLine());
+    layout->addWidget(new QLabel());
 
-    QLabel* support_lbl = new QLabel(tr("<html>Olive wouldn't be possible without the support of gracious "
-                                        "donations from <a href='https://www.patreon.com/olivevideoeditor'>Patreon</a></html>:"));
+    QString opening_statement;
+
+    if (welcome_dialog) {
+      opening_statement = tr("<b>Olive relies on support from the community to continue its development.</b>");
+    } else {
+      opening_statement = tr("Olive wouldn't be possible without the support of gracious donations from the following people.");
+    }
+
+    QLabel* support_lbl = new QLabel(tr("<html>%1 "
+                                        "If you like this project, please consider "
+                                        "<a href='https://olivevideoeditor.org/donate.php'>donating</a> or "
+                                        "<a href='https://www.patreon.com/olivevideoeditor'>pledging</a> to "
+                                        "support its development.</html>").arg(opening_statement));
     support_lbl->setWordWrap(true);
     support_lbl->setAlignment(Qt::AlignCenter);
     support_lbl->setOpenExternalLinks(true);
@@ -82,13 +107,37 @@ AboutDialog::AboutDialog(QWidget *parent) :
 
   layout->addWidget(new QLabel());
 
+  QHBoxLayout *btn_layout = new QHBoxLayout();
+  btn_layout->setMargin(0);
+  btn_layout->setSpacing(0);
+
+  if (welcome_dialog) {
+    dont_show_again_checkbox_ = new QCheckBox(tr("Don't show this message again"));
+    btn_layout->addWidget(dont_show_again_checkbox_);
+  } else {
+    dont_show_again_checkbox_ = nullptr;
+  }
+
   QDialogButtonBox* buttons = new QDialogButtonBox(QDialogButtonBox::Ok, this);
-  buttons->setCenterButtons(true);
-  layout->addWidget(buttons);
+  if (!welcome_dialog) {
+    buttons->setCenterButtons(true);
+  }
+  btn_layout->addWidget(buttons);
+
+  layout->addLayout(btn_layout);
 
   connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
 
   setFixedSize(sizeHint());
+}
+
+void AboutDialog::accept()
+{
+  if (dont_show_again_checkbox_ && dont_show_again_checkbox_->isChecked()) {
+    Config::Current()[QStringLiteral("ShowWelcomeDialog")] = false;
+  }
+
+  QDialog::accept();
 }
 
 }

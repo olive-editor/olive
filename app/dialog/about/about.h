@@ -21,6 +21,7 @@
 #ifndef ABOUTDIALOG_H
 #define ABOUTDIALOG_H
 
+#include <QCheckBox>
 #include <QDialog>
 
 #include "common/define.h"
@@ -46,7 +47,14 @@ public:
    *
    * QWidget parent object. Usually this will be MainWindow.
    */
-  explicit AboutDialog(QWidget *parent = nullptr);
+  explicit AboutDialog(bool welcome_dialog, QWidget *parent = nullptr);
+
+public slots:
+  virtual void accept() override;
+
+private:
+  QCheckBox *dont_show_again_checkbox_;
+
 };
 
 }

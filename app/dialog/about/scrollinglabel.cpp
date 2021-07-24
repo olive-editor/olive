@@ -26,7 +26,7 @@
 
 namespace olive {
 
-const int ScrollingLabel::kMinLineHeight = 5;
+const int ScrollingLabel::kMinLineHeight = 10;
 
 ScrollingLabel::ScrollingLabel(QWidget *parent) :
   QWidget(parent),

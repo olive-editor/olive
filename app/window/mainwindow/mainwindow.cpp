@@ -29,6 +29,7 @@
 #include <QOffscreenSurface>
 #endif
 
+#include "dialog/about/about.h"
 #include "mainmenu.h"
 #include "mainstatusbar.h"
 
@@ -486,6 +487,14 @@ void MainWindow::ProjectPanelSelectionChanged(const QVector<Node *> &nodes)
   }
 }
 
+void MainWindow::ShowWelcomeDialog()
+{
+  if (Config::Current()[QStringLiteral("ShowWelcomeDialog")].toBool()) {
+    AboutDialog ad(true, this);
+    ad.exec();
+  }
+}
+
 #ifdef Q_OS_LINUX
 void MainWindow::ShowNouveauWarning()
 {
@@ -843,6 +852,8 @@ void MainWindow::showEvent(QShowEvent *e)
       QMetaObject::invokeMethod(this, "ShowNouveauWarning", Qt::QueuedConnection);
     }
 #endif
+
+    QMetaObject::invokeMethod(this, "ShowWelcomeDialog", Qt::QueuedConnection);
 
     first_show_ = false;
   }
