@@ -95,7 +95,7 @@ FramePtr RenderProcessor::GenerateFrame(TexturePtr texture, const rational& time
 
       if (output_color_transform) {
         // Yes color transform, blit color managed
-        render_ctx_->BlitColorManaged(output_color_transform, texture, true, blit_tex.get(), true, matrix);
+        render_ctx_->BlitColorManaged(output_color_transform, texture, Renderer::kAlphaAssociated, blit_tex.get(), true, matrix);
       } else {
         // No color transform, just blit
         ShaderJob job;
@@ -439,8 +439,18 @@ QVariant RenderProcessor::ProcessVideoFootage(const FootageJob &stream, const ra
                                                              using_colorspace,
                                                              color_manager->GetReferenceColorSpace());
 
+        Renderer::AlphaAssociated alpha_assoc;
+        if (stream_data.channel_count() != VideoParams::kRGBAChannelCount
+            || stream_data.colorspace() == color_manager->GetReferenceColorSpace()) {
+          alpha_assoc = Renderer::kAlphaNone;
+        } else if (stream_data.premultiplied_alpha()) {
+          alpha_assoc = Renderer::kAlphaAssociated;
+        } else {
+          alpha_assoc = Renderer::kAlphaUnassociated;
+        }
+
         render_ctx_->BlitColorManaged(processor, unmanaged_texture,
-                                      stream_data.premultiplied_alpha(),
+                                      alpha_assoc,
                                       value.get());
 
         still_image_cache_->mutex()->lock();
