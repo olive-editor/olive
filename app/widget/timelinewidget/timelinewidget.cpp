@@ -28,6 +28,7 @@
 #include "core.h"
 #include "common/range.h"
 #include "common/timecodefunctions.h"
+#include "dialog/nodeproperties/nodepropertiesdialog.h"
 #include "dialog/sequence/sequence.h"
 #include "node/block/transition/transition.h"
 #include "tool/add.h"
@@ -992,7 +993,8 @@ void TimelineWidget::ShowContextMenu()
         nodes.append(i);
       }
 
-      Core::instance()->LabelNodes(nodes);
+      NodePropertiesDialog npd(nodes, timebase(), this);
+      npd.exec();
     });
   }
 
