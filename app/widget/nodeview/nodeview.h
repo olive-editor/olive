@@ -142,6 +142,8 @@ private:
 
   NodeViewItem *UpdateNodeItem(Node *node, bool ignore_own_context = false);
 
+  void PasteNodesInternal(const QVector<Node*> &duplicate_nodes = QVector<Node *>());
+
   class NodeViewAttachNodesToCursor : public UndoCommand
   {
   public:
