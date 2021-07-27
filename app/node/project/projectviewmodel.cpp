@@ -24,6 +24,7 @@
 #include <QMimeData>
 #include <QUrl>
 
+#include "common/qtutils.h"
 #include "core.h"
 #include "widget/nodeview/nodeviewundo.h"
 #include "widget/nodeparamview/nodeparamviewundo.h"
@@ -34,10 +35,6 @@ ProjectViewModel::ProjectViewModel(QObject *parent) :
   QAbstractItemModel(parent),
   project_(nullptr)
 {
-  // FIXME: make this configurable
-  columns_.append(kName);
-  columns_.append(kDuration);
-  columns_.append(kRate);
 }
 
 Project *ProjectViewModel::project() const
@@ -124,17 +121,18 @@ int ProjectViewModel::columnCount(const QModelIndex &parent) const
     return 0;
   }
 
-  return columns_.size();
+  return kColumnCount;
 }
 
 QVariant ProjectViewModel::data(const QModelIndex &index, int role) const
 {
   Node* internal_item = GetItemObjectFromIndex(index);
 
-  ColumnType column_type = columns_.at(index.column());
+  ColumnType column_type = static_cast<ColumnType>(index.column());
 
   switch (role) {
   case Qt::DisplayRole:
+  case kInnerTextRole:
   {
     // Standard text role
 
@@ -145,6 +143,30 @@ QVariant ProjectViewModel::data(const QModelIndex &index, int role) const
       return internal_item->duration();
     case kRate:
       return internal_item->rate();
+    case kLastModified:
+    case kCreatedTime:
+    {
+      qint64 using_time = (column_type == kLastModified) ? internal_item->mod_time() : internal_item->creation_time();
+
+      if (using_time == 0) {
+        // 0 is the null value, return nothing
+        break;
+      }
+
+      QVariant ret;
+
+      if (role == kInnerTextRole) {
+        // Use time value directly for correct sorting
+        ret = using_time;
+      } else {
+        // Display role, format to a human readable string
+        ret = QtUtils::GetFormattedDateTime(QDateTime::fromSecsSinceEpoch(using_time));
+      }
+
+      return ret;
+    }
+    case kColumnCount:
+      break;
     }
   }
     break;
@@ -166,7 +188,7 @@ QVariant ProjectViewModel::headerData(int section, Qt::Orientation orientation, 
   // Check if we need text data (DisplayRole) and orientation is horizontal
   // FIXME I'm not 100% sure what happens if the orientation is vertical/if that check is necessary
   if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
-    ColumnType column_type = columns_.at(section);
+    ColumnType column_type = static_cast<ColumnType>(section);
 
     // Return the name based on the column's current type
     switch (column_type) {
@@ -176,6 +198,12 @@ QVariant ProjectViewModel::headerData(int section, Qt::Orientation orientation, 
       return tr("Duration");
     case kRate:
       return tr("Rate");
+    case kLastModified:
+      return tr("Modified");
+    case kCreatedTime:
+      return tr("Created");
+    case kColumnCount:
+      break;
     }
   }
 
@@ -194,7 +222,7 @@ bool ProjectViewModel::hasChildren(const QModelIndex &parent) const
 bool ProjectViewModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
   // The name is editable
-  if (index.isValid() && columns_.at(index.column()) == kName && role == Qt::EditRole) {
+  if (index.isValid() && index.column() == kName && role == Qt::EditRole) {
     Node* item = GetItemObjectFromIndex(index);
 
     QString new_name = value.toString();
@@ -233,7 +261,7 @@ Qt::ItemFlags ProjectViewModel::flags(const QModelIndex &index) const
   }
 
   // If the column is the kName column, that means it's editable
-  if (columns_.at(index.column()) == kName) {
+  if (index.column() == kName) {
     f |= Qt::ItemIsEditable;
   }
 

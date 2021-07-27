@@ -183,6 +183,9 @@ public:
 
   virtual QString duration() const {return QString();}
 
+  virtual qint64 creation_time() const {return 0;}
+  virtual qint64 mod_time() const {return 0;}
+
   virtual QString rate() const {return QString();}
 
   const QVector<QString>& inputs() const
