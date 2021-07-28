@@ -93,7 +93,7 @@ bool LoadOTIOTask::Run()
     Folder* sequence_footage = new Folder();
     sequence_footage->SetLabel(QString::fromStdString(timeline->name()));
     sequence_footage->setParent(project_);
-    FolderAddChild(project_->root(), sequence_footage).redo();
+    FolderAddChild(project_->root(), sequence_footage).redo_now();
 
     // FIXME: As far as I know, OTIO doesn't store video/audio parameters?
     sequence->set_default_parameters();
@@ -226,7 +226,7 @@ bool LoadOTIOTask::Run()
               probed_item->SetLabel(info.fileName());
 
               FolderAddChild add(sequence_footage, probed_item, false);
-              add.redo();
+              add.redo_now();
             }
 
             Track::Reference reference;
