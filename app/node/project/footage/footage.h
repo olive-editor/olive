@@ -193,8 +193,8 @@ public:
 
   static rational AdjustTimeByLoopMode(rational time, LoopMode loop_mode, const rational& length, VideoParams::Type type, const rational &timebase);
 
-  virtual qint64 creation_time() const;
-  virtual qint64 mod_time() const;
+  virtual qint64 creation_time() const override;
+  virtual qint64 mod_time() const override;
 
   static const QString kFilenameInput;
   static const QString kLoopModeInput;
