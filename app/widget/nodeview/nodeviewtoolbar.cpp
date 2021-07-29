@@ -43,13 +43,13 @@ void NodeViewToolBar::changeEvent(QEvent *e)
 void NodeViewToolBar::Retranslate()
 {
   add_node_btn_->setToolTip(tr("Add Node"));
-  minimap_btn_->setText(tr("Mini-Map"));
   minimap_btn_->setToolTip(tr("Toggle Mini-Map"));
 }
 
 void NodeViewToolBar::UpdateIcons()
 {
   add_node_btn_->setIcon(icon::Add);
+  minimap_btn_->setIcon(icon::MiniMap);
 }
 
 }
