@@ -1253,6 +1253,12 @@ bool Node::AreLinked(Node *a, Node *b)
   return a->links_.contains(b);
 }
 
+void Node::HashAddNodeSignature(QCryptographicHash &hash, const QString &output) const
+{
+  hash.addData(id().toUtf8());
+  hash.addData(output.toUtf8());
+}
+
 void Node::InsertInput(const QString &id, NodeValue::Type type, const QVariant &default_value, Node::InputFlags flags, int index)
 {
   if (id.isEmpty()) {
@@ -1446,11 +1452,8 @@ void Node::SetLabel(const QString &s)
 
 void Node::Hash(const QString &output, QCryptographicHash &hash, const rational& time, const VideoParams &video_params) const
 {
-  Q_UNUSED(output)
-
   // Add this Node's ID and output being used
-  hash.addData(id().toUtf8());
-  hash.addData(output.toUtf8());
+  HashAddNodeSignature(hash, output);
 
   auto inputs = inputs_for_output(output);
   foreach (const QString& input, inputs) {

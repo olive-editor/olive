@@ -852,6 +852,8 @@ protected:
 
   };
 
+  void HashAddNodeSignature(QCryptographicHash &hash, const QString &output) const;
+
   void InsertInput(const QString& id, NodeValue::Type type, const QVariant& default_value, InputFlags flags, int index);
 
   void PrependInput(const QString& id, NodeValue::Type type, const QVariant& default_value, InputFlags flags = InputFlags(kInputFlagNormal))
