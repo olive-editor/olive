@@ -179,6 +179,8 @@ protected:
 
   virtual void LinkChangeEvent() override;
 
+  bool HashPassthrough(const QString &input, const QString& output, QCryptographicHash &hash, const rational &time, const VideoParams& video_params) const;
+
   Block* previous_;
   Block* next_;
 

@@ -215,6 +215,20 @@ void Block::LinkChangeEvent()
   }
 }
 
+bool Block::HashPassthrough(const QString &input, const QString &output, QCryptographicHash &hash, const rational &time, const VideoParams &video_params) const
+{
+  if (IsInputConnected(input)) {
+    rational t = InputTimeAdjustment(input, -1, TimeRange(time, time)).in();
+
+    NodeOutput output = GetConnectedOutput(input);
+    output.node()->Hash(output.output(), hash, t, video_params);
+
+    return true;
+  }
+
+  return false;
+}
+
 void Block::set_length_internal(const rational &length)
 {
   SetStandardValue(kLengthInput, QVariant::fromValue(length));
