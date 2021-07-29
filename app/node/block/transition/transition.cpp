@@ -283,7 +283,7 @@ void TransitionBlock::InputDisconnectedEvent(const QString &input, int element, 
 
   if (input == kOutBlockInput) {
     if (connected_out_block_) {
-      connected_out_block_->set_in_transition(nullptr);
+      connected_out_block_->set_out_transition(nullptr);
       connected_out_block_ = nullptr;
     }
   } else if (input == kInBlockInput) {
