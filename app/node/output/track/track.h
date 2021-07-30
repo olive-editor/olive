@@ -62,22 +62,31 @@ public:
 
   static rational TransformTimeForBlock(const Block* block, const rational& time)
   {
+    if (time == RATIONAL_MAX || time == RATIONAL_MIN) {
+      return time;
+    }
+
     return time - block->in();
   }
 
   static TimeRange TransformRangeForBlock(const Block* block, const TimeRange& range)
   {
-    return range - block->in();
+    return TimeRange(TransformTimeForBlock(block, range.in()), TransformTimeForBlock(block, range.out()));
   }
 
   static rational TransformTimeFromBlock(const Block* block, const rational& time)
   {
+    if (time == RATIONAL_MAX || time == RATIONAL_MIN) {
+      return time;
+    }
+
     return time + block->in();
   }
 
   static TimeRange TransformRangeFromBlock(const Block* block, const TimeRange& range)
   {
     return range + block->in();
+    return TimeRange(TransformTimeFromBlock(block, range.in()), TransformTimeFromBlock(block, range.out()));
   }
 
   const double& GetTrackHeight() const;

@@ -219,7 +219,7 @@ NodeValueTable TransitionBlock::Value(const QString &output, NodeValueDatabase &
 
 void TransitionBlock::InvalidateCache(const TimeRange &range, const QString &from, int element, InvalidateCacheOptions options)
 {
-  TimeRange r;
+  TimeRange r = range;
 
   if (from == kOutBlockInput || from == kInBlockInput) {
     Block *n = dynamic_cast<Block*>(GetConnectedNode(from));
