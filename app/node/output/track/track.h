@@ -85,7 +85,6 @@ public:
 
   static TimeRange TransformRangeFromBlock(const Block* block, const TimeRange& range)
   {
-    return range + block->in();
     return TimeRange(TransformTimeFromBlock(block, range.in()), TransformTimeFromBlock(block, range.out()));
   }
 
