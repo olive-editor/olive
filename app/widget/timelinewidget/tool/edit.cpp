@@ -48,7 +48,7 @@ void EditTool::MouseMove(TimelineViewMouseEvent *event)
       }
     }
 
-    parent()->SetSelections(start_selections_);
+    parent()->SetSelections(start_selections_, false);
     parent()->AddSelection(TimeRange(start_coord_.GetFrame(), end_frame),
                            start_coord_.GetTrack());
   } else {
@@ -73,6 +73,10 @@ void EditTool::MouseMove(TimelineViewMouseEvent *event)
 
 void EditTool::MouseRelease(TimelineViewMouseEvent *event)
 {
+  auto current_sel = parent()->GetSelections();
+  parent()->SetSelections(start_selections_, false);
+  parent()->SetSelections(current_sel, true);
+
   dragging_ = false;
 }
 

@@ -154,6 +154,9 @@ private slots:
   void EditToInTriggered();
   void EditToOutTriggered();
 
+  void NudgeLeftTriggered();
+  void NudgeRightTriggered();
+
   void ActionSearchTriggered();
 
   void ShuttleLeftTriggered();
@@ -218,6 +221,8 @@ private:
   QAction* edit_ripple_to_out_item_;
   QAction* edit_edit_to_in_item_;
   QAction* edit_edit_to_out_item_;
+  QAction* edit_nudge_left_item_;
+  QAction* edit_nudge_right_item_;
   QAction* edit_delete_inout_item_;
   QAction* edit_ripple_delete_inout_item_;
   QAction* edit_set_marker_item_;

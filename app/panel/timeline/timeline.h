@@ -35,6 +35,11 @@ class TimelinePanel : public TimeBasedPanel
 public:
   TimelinePanel(QWidget* parent);
 
+  inline TimelineWidget *timeline_widget() const
+  {
+    return static_cast<TimelineWidget*>(GetTimeBasedWidget());
+  }
+
   void SplitAtPlayhead();
 
   QByteArray SaveSplitterState() const;
@@ -82,6 +87,10 @@ public:
   virtual void ToggleSelectedEnabled() override;
 
   virtual void SetColorLabel(int index) override;
+
+  virtual void NudgeLeft() override;
+
+  virtual void NudgeRight() override;
 
   void InsertFootageAtPlayhead(const QVector<ViewerOutput *> &footage);
 

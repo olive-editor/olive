@@ -504,7 +504,7 @@ void TimelineWidget::DeleteSelected(bool ripple)
   ReplaceBlocksWithGaps(clips_to_delete, true, command);
 
   // Remove all selections
-  command->add_child(new SetSelectionsCommand(this, TimelineWidgetSelections(), GetSelections()));
+  command->add_child(new SetSelectionsCommand(this, TimelineWidgetSelections(), GetSelections(), false));
 
   // Insert ripple command now that it's all cleaned up gaps
   if (ripple) {
@@ -721,6 +721,20 @@ void TimelineWidget::SetColorLabel(int index)
 {
   foreach (Block* b, selected_blocks_) {
     b->SetOverrideColor(index);
+  }
+}
+
+void TimelineWidget::NudgeLeft()
+{
+  if (GetConnectedNode()) {
+    NudgeInternal(-timebase());
+  }
+}
+
+void TimelineWidget::NudgeRight()
+{
+  if (GetConnectedNode()) {
+    NudgeInternal(timebase());
   }
 }
 
@@ -1145,6 +1159,23 @@ void TimelineWidget::UpdateViewTimebases()
   }
 }
 
+void TimelineWidget::NudgeInternal(const rational &amount)
+{
+  MultiUndoCommand *command = new MultiUndoCommand();
+
+  foreach (Block* b, selected_blocks_) {
+    command->add_child(new TrackReplaceBlockWithGapCommand(b->track(), b, false));
+    command->add_child(new TrackPlaceBlockCommand(sequence()->track_list(b->track()->type()), b->track()->Index(), b, b->in() + amount));
+  }
+
+  // Nudge selections
+  TimelineWidgetSelections new_sel = GetSelections();
+  new_sel.ShiftTime(amount);
+  command->add_child(new TimelineWidget::SetSelectionsCommand(this, new_sel, GetSelections(), true));
+
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
+}
+
 void TimelineWidget::SetViewBeamCursor(const TimelineCoordinate &coord)
 {
   foreach (TimelineAndTrackView* tview, views_) {
@@ -1428,6 +1459,31 @@ QVector<Block *> TimelineWidget::GetBlocksInGlobalRect(const QPoint &p1, const Q
   return blocks_in_rect;
 }
 
+QVector<Block *> TimelineWidget::GetBlocksInSelection(const TimelineWidgetSelections &sel)
+{
+  QVector<Block *> blocks;
+
+  for (auto it=sel.cbegin(); it!=sel.cend(); it++) {
+    const Track::Reference &ref = it.key();
+    const TimeRangeList &list = it.value();
+
+    for (const TimeRange &r : list) {
+      Track *track = GetTrackFromReference(ref);
+      if (track) {
+        for (Block *b : track->Blocks()) {
+          if (r.Contains(b->range())) {
+            blocks.append(b);
+          } else if (b->in() >= r.out()) {
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  return blocks;
+}
+
 void TimelineWidget::HideSnaps()
 {
   foreach (TimelineAndTrackView* tview, views_) {
@@ -1474,7 +1530,7 @@ void TimelineWidget::MoveRubberBandSelect(bool enable_selecting, bool select_lin
   QVector<Block*> items_in_rubberband = GetBlocksInGlobalRect(drag_origin_, rubberband_now);
 
   // Reset selection to whatever it was before
-  SetSelections(rubberband_old_selections_);
+  SetSelections(rubberband_old_selections_, false);
 
   // Add any blocks in rubberband
   rubberband_now_selected_.clear();
@@ -1544,8 +1600,13 @@ void TimelineWidget::RemoveSelection(Block *item)
   }
 }
 
-void TimelineWidget::SetSelections(const TimelineWidgetSelections &s)
+void TimelineWidget::SetSelections(const TimelineWidgetSelections &s, bool process_block_changes)
 {
+  if (process_block_changes) {
+    SignalDeselectedBlocks(GetBlocksInSelection(selections_.Subtracted(s)));
+    SignalSelectedBlocks(GetBlocksInSelection(s.Subtracted(selections_)));
+  }
+
   selections_ = s;
 
   UpdateViewports();

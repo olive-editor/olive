@@ -170,6 +170,10 @@ public:
 
   virtual void SetColorLabel(int){}
 
+  virtual void NudgeLeft(){}
+
+  virtual void NudgeRight(){}
+
 signals:
   void CloseRequested();
 
