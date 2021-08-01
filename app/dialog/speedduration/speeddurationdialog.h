@@ -25,6 +25,7 @@
 #include <QDialog>
 
 #include "node/block/clip/clip.h"
+#include "node/block/gap/gap.h"
 #include "undo/undocommand.h"
 #include "widget/slider/floatslider.h"
 #include "widget/slider/rationalslider.h"
@@ -36,30 +37,6 @@ class SpeedDurationDialog : public QDialog
   Q_OBJECT
 public:
   explicit SpeedDurationDialog(const QVector<ClipBlock*> &clips, const rational &timebase, QWidget *parent = nullptr);
-
-  class SetSpeedCommand : public UndoCommand
-  {
-  public:
-    SetSpeedCommand(ClipBlock *clip, double new_speed) :
-      clip_(clip),
-      new_speed_(new_speed)
-    {}
-
-    virtual void redo() override;
-
-    virtual void undo() override;
-
-    virtual Project *GetRelevantProject() const override
-    {
-      return clip_->project();
-    }
-
-  private:
-    ClipBlock *clip_;
-    double new_speed_;
-    double old_speed_;
-
-  };
 
 public slots:
   virtual void accept() override;

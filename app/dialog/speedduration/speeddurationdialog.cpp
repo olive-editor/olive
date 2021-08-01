@@ -22,8 +22,11 @@
 
 #include <QDialogButtonBox>
 #include <QGridLayout>
+#include <QMessageBox>
 
 #include "core.h"
+#include "widget/nodeparamview/nodeparamviewundo.h"
+#include "widget/timelinewidget/undo/timelineundopointer.h"
 
 namespace olive {
 
@@ -105,7 +108,13 @@ SpeedDurationDialog::SpeedDurationDialog(const QVector<ClipBlock *> &clips, cons
 
 void SpeedDurationDialog::accept()
 {
-  super::accept();
+  // We haven't implemented rippling yet, so warn the user
+  if (ripple_box_->isChecked()) {
+    // FIXME: Stub
+    if (QMessageBox::information(this, QString(), tr("Rippling is a stub and will not do anything. Do you wish to continue?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No) {
+      return;
+    }
+  }
 
   MultiUndoCommand *command = new MultiUndoCommand();
 
@@ -114,33 +123,47 @@ void SpeedDurationDialog::accept()
     if (link_box_->isChecked() && !dur_slider_->IsTristate()) {
       // Automatically determine speed from duration
       foreach (ClipBlock *c, clips_) {
-        command->add_child(new SetSpeedCommand(c, GetSpeedAdjustment(c->speed(), c->length(), dur_slider_->GetValue())));
+        command->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(NodeInput(c, ClipBlock::kSpeedInput)), GetSpeedAdjustment(c->speed(), c->length(), dur_slider_->GetValue())));
       }
     }
   } else {
     // Set speeds to value of slider
     foreach (ClipBlock *c, clips_) {
-      command->add_child(new SetSpeedCommand(c, speed_slider_->GetValue()));
+      command->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(NodeInput(c, ClipBlock::kSpeedInput)), speed_slider_->GetValue()));
     }
   }
 
   // Set duration values
-  if (ripple_box_->isChecked()) {
-    // Determine where and how much we need to ripple
-    foreach (ClipBlock *c, clips_) {
-      rational new_len = c->length();
-      if (dur_slider_->IsTristate()) {
-        if (link_box_->isChecked() && !speed_slider_->IsTristate()) {
-          new_len = GetLengthAdjustment(c->length(), c->speed(), speed_slider_->GetValue(), timebase_);
+  foreach (ClipBlock *c, clips_) {
+    rational proposed_length = c->length();
+
+    if (dur_slider_->IsTristate()) {
+      if (link_box_->isChecked() && !speed_slider_->IsTristate()) {
+        proposed_length = GetLengthAdjustment(c->length(), c->speed(), speed_slider_->GetValue(), timebase_);
+      }
+    } else {
+      proposed_length = dur_slider_->GetValue();
+    }
+
+    if (proposed_length != c->length()) {
+      // Clip length should ideally change, but check if there's "room" to do so
+      if (proposed_length > c->length() && c->next()) {
+        if (GapBlock *gap = dynamic_cast<GapBlock*>(c->next())) {
+          proposed_length = qMin(proposed_length, gap->out() - c->in());
+        } else {
+          proposed_length = c->length();
         }
-      } else {
-        new_len = dur_slider_->GetValue();
+      }
+
+      if (proposed_length != c->length()) {
+        command->add_child(new BlockTrimCommand(c->track(), c, proposed_length, Timeline::kTrimOut));
       }
     }
   }
 
-
   Core::instance()->undo_stack()->push(command);
+
+  super::accept();
 }
 
 rational SpeedDurationDialog::GetLengthAdjustment(const rational &original_length, double original_speed, double new_speed, const rational &timebase)
@@ -177,17 +200,6 @@ void SpeedDurationDialog::DurationChanged(const rational &r)
   } else {
     speed_slider_->SetValue(GetSpeedAdjustment(start_speed_, start_duration_, r));
   }
-}
-
-void SpeedDurationDialog::SetSpeedCommand::redo()
-{
-  old_speed_ = clip_->speed();
-  clip_->set_speed(new_speed_);
-}
-
-void SpeedDurationDialog::SetSpeedCommand::undo()
-{
-  clip_->set_speed(old_speed_);
 }
 
 }

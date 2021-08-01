@@ -111,6 +111,7 @@ private:
     NodeParamViewKeyframeControl* key_control;
     QGridLayout* layout;
     int row;
+    QPushButton *extra_btn;
 
     NodeParamViewArrayButton* array_insert_btn;
     NodeParamViewArrayButton* array_remove_btn;
@@ -124,9 +125,13 @@ private:
     NodeParamViewArrayButton* append_btn;
   };
 
+  Node *node_;
+
   QHash<NodeInputPair, ArrayUI> array_ui_;
 
   QHash<NodeInputPair, CollapseButton*> array_collapse_buttons_;
+
+  rational timebase_;
 
   /**
    * @brief The column to place the keyframe controls in
@@ -138,6 +143,7 @@ private:
 
   static const int kArrayInsertColumn;
   static const int kArrayRemoveColumn;
+  static const int kExtraButtonColumn;
 
   static const int kWidgetStartColumn;
 
@@ -157,6 +163,8 @@ private slots:
   void ToggleArrayExpanded();
 
   void ReplaceWidgets(const NodeInput& input);
+
+  void ShowSpeedDurationDialogForNode();
 
 };
 
