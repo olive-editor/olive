@@ -98,7 +98,7 @@ public:
 
   const QVector<Block*>& GetSelectedBlocks() const
   {
-    return static_cast<TimelineWidget*>(GetTimeBasedWidget())->GetSelectedBlocks();
+    return timeline_widget()->GetSelectedBlocks();
   }
 
 protected:
