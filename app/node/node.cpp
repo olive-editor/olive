@@ -607,46 +607,34 @@ QVariant Node::GetSplitValueAtTimeOnTrack(const QString &input, const rational &
         }
 
         if (before->type() == NodeKeyframe::kBezier && after->type() == NodeKeyframe::kBezier) {
+
           // Perform a cubic bezier with two control points
-
-          double t = Bezier::CubicXtoT(time.toDouble(),
-                                       before->time().toDouble(),
-                                       before->time().toDouble() + before->valid_bezier_control_out().x(),
-                                       after->time().toDouble() + after->valid_bezier_control_in().x(),
-                                       after->time().toDouble());
-
-          double y = Bezier::CubicTtoY(before_val,
-                                       before_val + before->valid_bezier_control_out().y(),
-                                       after_val + after->valid_bezier_control_in().y(),
-                                       after_val,
-                                       t);
-
-          interpolated = y;
+          interpolated = Bezier::CubicXtoY(time.toDouble(),
+                                           QPointF(before->time().toDouble(), before_val),
+                                           QPointF(before->time().toDouble() + before->valid_bezier_control_out().x(), before_val + before->valid_bezier_control_out().y()),
+                                           QPointF(after->time().toDouble() + after->valid_bezier_control_in().x(), after_val + after->valid_bezier_control_in().y()),
+                                           QPointF(after->time().toDouble(), after_val));
 
         } else if (before->type() == NodeKeyframe::kBezier || after->type() == NodeKeyframe::kBezier) {
           // Perform a quadratic bezier with only one control point
 
           QPointF control_point;
-          double control_point_time;
-          double control_point_value;
 
           if (before->type() == NodeKeyframe::kBezier) {
             control_point = before->valid_bezier_control_out();
-            control_point_time = before->time().toDouble() + control_point.x();
-            control_point_value = before_val + control_point.y();
+            control_point.setX(control_point.x() + before->time().toDouble());
+            control_point.setY(control_point.y() + before_val);
           } else {
             control_point = after->valid_bezier_control_in();
-            control_point_time = after->time().toDouble() + control_point.x();
-            control_point_value = after_val + control_point.y();
+            control_point.setX(control_point.x() + after->time().toDouble());
+            control_point.setY(control_point.y() + after_val);
           }
 
-          // Generate T from time values - used to determine bezier progress
-          double t = Bezier::QuadraticXtoT(time.toDouble(), before->time().toDouble(), control_point_time, after->time().toDouble());
-
-          // Generate value using T
-          double y = Bezier::QuadraticTtoY(before_val, control_point_value, after_val, t);
-
-          interpolated = y;
+          // Interpolate value using quadratic beziers
+          interpolated = Bezier::QuadraticXtoY(time.toDouble(),
+                                               QPointF(before->time().toDouble(), before_val),
+                                               control_point,
+                                               QPointF(after->time().toDouble(), after_val));
 
         } else {
           // To have arrived here, the keyframes must both be linear
