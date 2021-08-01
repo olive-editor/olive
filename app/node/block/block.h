@@ -62,8 +62,8 @@ public:
   }
 
   rational length() const;
-  void set_length_and_media_out(const rational &length);
-  void set_length_and_media_in(const rational &length);
+  virtual void set_length_and_media_out(const rational &length);
+  virtual void set_length_and_media_in(const rational &length);
 
   TimeRange range() const
   {
@@ -90,9 +90,6 @@ public:
     next_ = next;
   }
 
-  rational media_in() const;
-  void set_media_in(const rational& media_in);
-
   Track* track() const
   {
     return track_;
@@ -108,26 +105,6 @@ public:
 
   virtual void Retranslate() override;
 
-  TransitionBlock* in_transition()
-  {
-    return in_transition_;
-  }
-
-  void set_in_transition(TransitionBlock* t)
-  {
-    in_transition_ = t;
-  }
-
-  TransitionBlock* out_transition()
-  {
-    return out_transition_;
-  }
-
-  void set_out_transition(TransitionBlock* t)
-  {
-    out_transition_ = t;
-  }
-
   int index() const
   {
     return index_;
@@ -138,30 +115,12 @@ public:
     index_ = i;
   }
 
-  const QVector<Block*>& block_links() const
-  {
-    return block_links_;
-  }
-
-  double speed() const
-  {
-    return GetStandardValue(kSpeedInput).toDouble();
-  }
-
-  bool reverse() const
-  {
-    return GetStandardValue(kReverseInput).toBool();
-  }
-
   virtual void Hash(const QString& output, QCryptographicHash &hash, const rational &time, const VideoParams& video_params) const override;
 
   virtual void InvalidateCache(const TimeRange& range, const QString& from, int element = -1, InvalidateCacheOptions options = InvalidateCacheOptions()) override;
 
   static const QString kLengthInput;
-  static const QString kMediaInInput;
   static const QString kEnabledInput;
-  static const QString kSpeedInput;
-  static const QString kReverseInput;
 
 public slots:
 
@@ -171,13 +130,7 @@ signals:
   void LengthChanged();
 
 protected:
-  rational SequenceToMediaTime(const rational& sequence_time, bool ignore_reverse = false) const;
-
-  rational MediaToSequenceTime(const rational& media_time) const;
-
   virtual void InputValueChangedEvent(const QString& input, int element) override;
-
-  virtual void LinkChangeEvent() override;
 
   bool HashPassthrough(const QString &input, const QString& output, QCryptographicHash &hash, const rational &time, const VideoParams& video_params) const;
 
@@ -191,11 +144,6 @@ private:
   rational out_point_;
   Track* track_;
   int index_;
-
-  TransitionBlock* in_transition_;
-  TransitionBlock* out_transition_;
-
-  QVector<Block*> block_links_;
 
   rational last_length_;
 

@@ -172,7 +172,7 @@ public:
     return selected_blocks_.contains(b);
   }
 
-  void SetBlockLinksSelected(Block *block, bool selected);
+  void SetBlockLinksSelected(ClipBlock *block, bool selected);
 
   void QueueScroll(int value);
 

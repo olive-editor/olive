@@ -75,7 +75,10 @@ void SlipTool::FinishDrag(TimelineViewMouseEvent *event)
   foreach (TimelineViewGhostItem* ghost, parent()->GetGhostItems()) {
     Block* b = Node::ValueToPtr<Block>(ghost->GetData(TimelineViewGhostItem::kAttachedBlock));
 
-    command->add_child(new BlockSetMediaInCommand(b, ghost->GetAdjustedMediaIn()));
+    ClipBlock *cb = dynamic_cast<ClipBlock*>(b);
+    if (cb) {
+      command->add_child(new BlockSetMediaInCommand(cb, ghost->GetAdjustedMediaIn()));
+    }
   }
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);

@@ -25,6 +25,8 @@
 #include <QVector3D>
 #include <QVector4D>
 
+#include "node/block/clip/clip.h"
+#include "node/block/transition/transition.h"
 #include "node/project/project.h"
 #include "rendermanager.h"
 
@@ -253,43 +255,50 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const Track *track, const Tim
 
     // Loop through active blocks retrieving their audio
     foreach (Block* b, active_blocks) {
-      TimeRange range_for_block(qMax(b->in(), range.in()),
-                                qMin(b->out(), range.out()));
+      if (dynamic_cast<ClipBlock*>(b) || dynamic_cast<TransitionBlock*>(b)) {
+        TimeRange range_for_block(qMax(b->in(), range.in()),
+                                  qMin(b->out(), range.out()));
 
-      int destination_offset = audio_params.time_to_samples(range_for_block.in() - range.in());
-      int max_dest_sz = audio_params.time_to_samples(range_for_block.length());
+        int destination_offset = audio_params.time_to_samples(range_for_block.in() - range.in());
+        int max_dest_sz = audio_params.time_to_samples(range_for_block.length());
 
-      // Destination buffer
-      NodeValueTable table = GenerateTable(b, Track::TransformRangeForBlock(b, range_for_block));
-      SampleBufferPtr samples_from_this_block = table.Take(NodeValue::kSamples).value<SampleBufferPtr>();
+        // Destination buffer
+        NodeValueTable table = GenerateTable(b, Track::TransformRangeForBlock(b, range_for_block));
+        SampleBufferPtr samples_from_this_block = table.Take(NodeValue::kSamples).value<SampleBufferPtr>();
 
-      if (!samples_from_this_block) {
-        // If we retrieved no samples from this block, do nothing
-        continue;
+        if (!samples_from_this_block) {
+          // If we retrieved no samples from this block, do nothing
+          continue;
+        }
+
+        // If this is a clip, we might have extra speed/reverse information
+        ClipBlock *clip_cast = dynamic_cast<ClipBlock*>(b);
+        if (clip_cast) {
+          double speed_value = clip_cast->speed();
+          bool reversed = clip_cast->reverse();
+
+          if (qIsNull(speed_value)) {
+            // Just silence, don't think there's any other practical application of 0 speed audio
+            samples_from_this_block->fill(0);
+          } else if (!qFuzzyCompare(speed_value, 1.0)) {
+            // Multiply time
+            samples_from_this_block->speed(speed_value);
+          }
+
+          if (reversed) {
+            samples_from_this_block->reverse();
+          }
+        }
+
+        int copy_length = qMin(max_dest_sz, samples_from_this_block->sample_count());
+
+        // Copy samples into destination buffer
+        for (int i=0; i<samples_from_this_block->audio_params().channel_count(); i++) {
+          block_range_buffer->set(i, samples_from_this_block->data(i), destination_offset, copy_length);
+        }
+
+        NodeValueTable::Merge({merged_table, table});
       }
-
-      double speed_value = b->GetStandardValue(Block::kSpeedInput).toDouble();
-
-      if (qIsNull(speed_value)) {
-        // Just silence, don't think there's any other practical application of 0 speed audio
-        samples_from_this_block->fill(0);
-      } else if (!qFuzzyCompare(speed_value, 1.0)) {
-        // Multiply time
-        samples_from_this_block->speed(speed_value);
-      }
-
-      if (b->GetStandardValue(Block::kReverseInput).toBool()) {
-        samples_from_this_block->reverse();
-      }
-
-      int copy_length = qMin(max_dest_sz, samples_from_this_block->sample_count());
-
-      // Copy samples into destination buffer
-      for (int i=0; i<samples_from_this_block->audio_params().channel_count(); i++) {
-        block_range_buffer->set(i, samples_from_this_block->data(i), destination_offset, copy_length);
-      }
-
-      NodeValueTable::Merge({merged_table, table});
     }
 
     if (ticket_->property("enablewaveforms").toBool()) {

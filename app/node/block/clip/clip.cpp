@@ -20,17 +20,36 @@
 
 #include "clip.h"
 
+#include "widget/slider/floatslider.h"
+#include "widget/slider/rationalslider.h"
+
 namespace olive {
 
 #define super Block
 
 const QString ClipBlock::kBufferIn = QStringLiteral("buffer_in");
+const QString ClipBlock::kMediaInInput = QStringLiteral("media_in_in");
+const QString ClipBlock::kSpeedInput = QStringLiteral("speed_in");
+const QString ClipBlock::kReverseInput = QStringLiteral("reverse_in");
 
-ClipBlock::ClipBlock(bool create_buffer_in)
+ClipBlock::ClipBlock() :
+  in_transition_(nullptr),
+  out_transition_(nullptr)
 {
-  if (create_buffer_in) {
-    AddInput(kBufferIn, NodeValue::kNone, InputFlags(kInputFlagNotKeyframable));
-  }
+  AddInput(kMediaInInput, NodeValue::kRational, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+  SetInputProperty(kMediaInInput, QStringLiteral("view"), RationalSlider::kTime);
+  SetInputProperty(kMediaInInput, QStringLiteral("viewlock"), true);
+  IgnoreHashingFrom(kMediaInInput);
+
+  AddInput(kSpeedInput, NodeValue::kFloat, 1.0, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+  SetInputProperty(kSpeedInput, QStringLiteral("view"), FloatSlider::kPercentage);
+  SetInputProperty(kSpeedInput, QStringLiteral("min"), 0.0);
+  IgnoreHashingFrom(kSpeedInput);
+
+  AddInput(kReverseInput, NodeValue::kBoolean, false, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+  IgnoreHashingFrom(kReverseInput);
+
+  AddInput(kBufferIn, NodeValue::kNone, InputFlags(kInputFlagNotKeyframable));
 }
 
 Node *ClipBlock::copy() const
@@ -53,6 +72,100 @@ QString ClipBlock::Description() const
   return tr("A time-based node that represents a media source.");
 }
 
+void ClipBlock::set_length_and_media_out(const rational &length)
+{
+  if (length == this->length()) {
+    return;
+  }
+
+  if (reverse()) {
+    // Calculate media_in adjustment
+    set_media_in(SequenceToMediaTime(length - this->length(), true));
+  }
+
+  super::set_length_and_media_out(length);
+}
+
+void ClipBlock::set_length_and_media_in(const rational &length)
+{
+  if (length == this->length()) {
+    return;
+  }
+
+  if (!reverse()) {
+    // Calculate media_in adjustment
+    set_media_in(SequenceToMediaTime(this->length() - length));
+  }
+
+  super::set_length_and_media_in(length);
+}
+
+rational ClipBlock::media_in() const
+{
+  return GetStandardValue(kMediaInInput).value<rational>();
+}
+
+void ClipBlock::set_media_in(const rational &media_in)
+{
+  SetStandardValue(kMediaInInput, QVariant::fromValue(media_in));
+}
+
+rational ClipBlock::SequenceToMediaTime(const rational &sequence_time, bool ignore_reverse) const
+{
+  // These constants are not considered "values" per se, so we don't modify them
+  if (sequence_time == RATIONAL_MIN || sequence_time == RATIONAL_MAX) {
+    return sequence_time;
+  }
+
+  rational local_time = sequence_time;
+
+  double speed_value = speed();
+
+  if (qIsNull(speed_value)) {
+    // Effectively holds the frame at the in point
+    local_time = 0;
+  } else if (!qFuzzyCompare(speed_value, 1.0)) {
+    // Multiply time
+    local_time = rational::fromDouble(local_time.toDouble() * speed_value);
+  }
+
+  rational media_time = local_time + media_in();
+
+  if (reverse() && !ignore_reverse) {
+    media_time = length() - media_time;
+  }
+
+  return media_time;
+}
+
+rational ClipBlock::MediaToSequenceTime(const rational &media_time) const
+{
+  // These constants are not considered "values" per se, so we don't modify them
+  if (media_time == RATIONAL_MIN || media_time == RATIONAL_MAX) {
+    return media_time;
+  }
+
+  rational sequence_time = media_time;
+
+  if (reverse()) {
+    sequence_time = length() - sequence_time;
+  }
+
+  sequence_time -= media_in();
+
+  double speed_value = speed();
+
+  if (qIsNull(speed_value)) {
+    // Effectively holds the frame at the in point, also prevents divide by zero
+    sequence_time = 0;
+  } else if (!qFuzzyCompare(speed_value, 1.0)) {
+    // Multiply time
+    sequence_time = rational::fromDouble(sequence_time.toDouble() / speed_value);
+  }
+
+  return sequence_time;
+}
+
 void ClipBlock::InvalidateCache(const TimeRange& range, const QString& from, int element, InvalidateCacheOptions options)
 {
   Q_UNUSED(element)
@@ -67,6 +180,19 @@ void ClipBlock::InvalidateCache(const TimeRange& range, const QString& from, int
   } else {
     // Otherwise, pass signal along normally
     super::InvalidateCache(range, from, element, options);
+  }
+}
+
+void ClipBlock::LinkChangeEvent()
+{
+  block_links_.clear();
+
+  foreach (Node* n, links()) {
+    ClipBlock* b = dynamic_cast<ClipBlock*>(n);
+
+    if (b) {
+      block_links_.append(b);
+    }
   }
 }
 
@@ -110,9 +236,10 @@ void ClipBlock::Retranslate()
 {
   super::Retranslate();
 
-  if (HasInputWithID(kBufferIn)) {
-    SetInputName(kBufferIn, tr("Buffer"));
-  }
+  SetInputName(kBufferIn, tr("Buffer"));
+  SetInputName(kMediaInInput, tr("Media In"));
+  SetInputName(kSpeedInput, tr("Speed"));
+  SetInputName(kReverseInput, tr("Reverse"));
 }
 
 void ClipBlock::Hash(const QString &out, QCryptographicHash &hash, const rational &time, const VideoParams &video_params) const

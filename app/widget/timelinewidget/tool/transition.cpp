@@ -115,8 +115,9 @@ void TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
                                                     ghost_->GetAdjustedIn()));
 
       if (dual_transition_) {
-        transition->set_length_and_media_out(ghost_->GetAdjustedLength());
-        transition->set_media_in(-ghost_->GetAdjustedLength()/2);
+        rational half_len = ghost_->GetAdjustedLength()/2;
+        transition->set_in_offset(half_len);
+        transition->set_out_offset(half_len);
 
         // Block mouse is hovering over
         Block* active_block = Node::ValueToPtr<Block>(ghost_->GetData(TimelineViewGhostItem::kAttachedBlock));

@@ -1190,7 +1190,7 @@ void TimelineWidget::SetViewTransitionOverlay(ClipBlock *out, ClipBlock *in)
   }
 }
 
-void TimelineWidget::SetBlockLinksSelected(Block* block, bool selected)
+void TimelineWidget::SetBlockLinksSelected(ClipBlock* block, bool selected)
 {
   foreach (Block* link, block->block_links()) {
     if (selected) {
@@ -1550,8 +1550,9 @@ void TimelineWidget::MoveRubberBandSelect(bool enable_selecting, bool select_lin
       rubberband_now_selected_.append(b);
     }
 
-    if (select_links) {
-      foreach (Block* link, b->block_links()) {
+    ClipBlock *c = dynamic_cast<ClipBlock*>(b);
+    if (c && select_links) {
+      foreach (Block* link, c->block_links()) {
         if (!rubberband_now_selected_.contains(link)) {
           AddSelection(link);
           rubberband_now_selected_.append(link);

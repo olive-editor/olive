@@ -94,6 +94,12 @@ public:
   AVRational toAVRational() const;
 
 #ifdef USE_OTIO
+  static rational fromRationalTime(const opentime::RationalTime &t)
+  {
+    // Is this the best way to do this?
+    return fromDouble(t.to_seconds());
+  }
+
   // Convert Olive ratioanls to opentime rationals with the given framerate (defaults to 24)
   opentime::RationalTime toRationalTime(double framerate = 24) const;
 #endif

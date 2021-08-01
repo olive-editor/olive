@@ -168,7 +168,9 @@ bool LoadOTIOTask::Run()
           duration =
               rational::fromDouble(static_cast<OTIO::Item*>(otio_block)->source_range()->duration().to_seconds());
 
-          block->set_media_in(start_time);
+          if (otio_block->schema_name() == "Clip") {
+            static_cast<ClipBlock*>(block)->set_media_in(start_time);
+          }
           block->set_length_and_media_out(duration);
         }
 
@@ -183,14 +185,12 @@ bool LoadOTIOTask::Run()
           TransitionBlock* transition_block = static_cast<TransitionBlock*>(block);
           OTIO::Transition* otio_block_transition = static_cast<OTIO::Transition*>(otio_block);
 
-          duration = rational::fromDouble((otio_block_transition->in_offset() + otio_block_transition->out_offset()).to_seconds());
-          transition_block->set_length_and_media_out(duration);
+          // Set how far the transition eats into the previous clip
+          transition_block->set_in_offset(rational::fromRationalTime(otio_block_transition->in_offset()));
+          transition_block->set_out_offset(rational::fromRationalTime(otio_block_transition->out_offset()));
 
           if (previous_block) {
             Node::ConnectEdge(previous_block, NodeInput(transition_block, TransitionBlock::kOutBlockInput));
-
-            // Set how far the transition eats into the previous clip
-            transition_block->set_media_in(rational::fromDouble(-otio_block_transition->out_offset().to_seconds()));
           }
           prev_block_transition = true;
         }

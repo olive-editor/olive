@@ -25,6 +25,8 @@
 
 namespace olive {
 
+class ClipBlock;
+
 class TransitionBlock : public Block
 {
   Q_OBJECT
@@ -36,7 +38,9 @@ public:
   virtual void Retranslate() override;
 
   rational in_offset() const;
+  void set_in_offset(const rational &os);
   rational out_offset() const;
+  void set_out_offset(const rational &os);
 
   Block* connected_out_block() const;
   Block* connected_in_block() const;
@@ -54,6 +58,8 @@ public:
   static const QString kOutBlockInput;
   static const QString kInBlockInput;
   static const QString kCurveInput;
+  static const QString kInOffsetInput;
+  static const QString kOutOffsetInput;
 
 protected:
   virtual void ShaderJobEvent(NodeValueDatabase &value, ShaderJob& job) const;
@@ -81,9 +87,9 @@ private:
 
   void InsertTransitionTimes(AcceleratedJob* job, const double& time) const;
 
-  Block* connected_out_block_;
+  ClipBlock* connected_out_block_;
 
-  Block* connected_in_block_;
+  ClipBlock* connected_in_block_;
 
 };
 
