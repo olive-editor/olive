@@ -30,6 +30,7 @@
 #include "common/timecodefunctions.h"
 #include "dialog/nodeproperties/nodepropertiesdialog.h"
 #include "dialog/sequence/sequence.h"
+#include "dialog/speedduration/speeddurationdialog.h"
 #include "node/block/transition/transition.h"
 #include "tool/add.h"
 #include "tool/beam.h"
@@ -735,6 +736,23 @@ void TimelineWidget::NudgeRight()
 {
   if (GetConnectedNode()) {
     NudgeInternal(timebase());
+  }
+}
+
+void TimelineWidget::ShowSpeedDurationDialogForSelectedClips()
+{
+  QVector<ClipBlock*> clips;
+
+  foreach (Block *b, selected_blocks_) {
+    ClipBlock *c = dynamic_cast<ClipBlock*>(b);
+    if (c) {
+      clips.append(c);
+    }
+  }
+
+  if (!clips.isEmpty()) {
+    SpeedDurationDialog sdd(clips, timebase(), this);
+    sdd.exec();
   }
 }
 

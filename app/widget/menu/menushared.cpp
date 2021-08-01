@@ -22,7 +22,6 @@
 
 #include "core.h"
 #include "common/timecodefunctions.h"
-#include "dialog/speedduration/speeddurationdialog.h"
 #include "panel/panelmanager.h"
 #include "panel/timeline/timeline.h"
 #include "window/mainwindow/mainwindow.h"
@@ -47,7 +46,7 @@ MenuShared::MenuShared()
   edit_delete_item_ = Menu::CreateItem(this, "delete", this, &MenuShared::DeleteSelectedTriggered, "Del");
   edit_ripple_delete_item_ = Menu::CreateItem(this, "rippledelete", this, &MenuShared::RippleDeleteTriggered, "Shift+Del");
   edit_split_item_ = Menu::CreateItem(this, "split", this, &MenuShared::SplitAtPlayheadTriggered, "Ctrl+K");
-  edit_speedduration_item_ = Menu::CreateItem(this, "speeddur", this, &MenuShared::SpeedDurationTriggered);
+  edit_speedduration_item_ = Menu::CreateItem(this, "speeddur", this, &MenuShared::SpeedDurationTriggered, "Ctrl+R");
 
   // "In/Out" menu shared items
   inout_set_in_item_ = Menu::CreateItem(this, "setinpoint", this, &MenuShared::SetInTriggered, "I");
@@ -310,18 +309,7 @@ void MenuShared::SpeedDurationTriggered()
   TimelinePanel* timeline = PanelManager::instance()->MostRecentlyFocused<TimelinePanel>();
 
   if (timeline) {
-    QVector<Block*> sel = timeline->GetSelectedBlocks();
-    QVector<ClipBlock*> clips;
-
-    foreach (Block *b, sel) {
-      ClipBlock *c = dynamic_cast<ClipBlock*>(b);
-      if (c) {
-        clips.append(c);
-      }
-    }
-
-    SpeedDurationDialog sdd(clips, Core::instance()->main_window());
-    sdd.exec();
+    timeline->ShowSpeedDurationDialogForSelectedClips();
   }
 }
 

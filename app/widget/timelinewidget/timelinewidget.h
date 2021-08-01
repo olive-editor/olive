@@ -95,6 +95,8 @@ public:
 
   void NudgeRight();
 
+  void ShowSpeedDurationDialogForSelectedClips();
+
   /**
    * @brief Timelines should always be connected to sequences
    */

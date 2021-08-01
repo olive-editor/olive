@@ -92,6 +92,11 @@ public:
 
   virtual void NudgeRight() override;
 
+  void ShowSpeedDurationDialogForSelectedClips()
+  {
+    timeline_widget()->ShowSpeedDurationDialogForSelectedClips();
+  }
+
   void InsertFootageAtPlayhead(const QVector<ViewerOutput *> &footage);
 
   void OverwriteFootageAtPlayhead(const QVector<ViewerOutput *> &footage);
