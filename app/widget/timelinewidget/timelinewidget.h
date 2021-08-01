@@ -91,6 +91,10 @@ public:
 
   void SetColorLabel(int index);
 
+  void NudgeLeft();
+
+  void NudgeRight();
+
   /**
    * @brief Timelines should always be connected to sequences
    */
@@ -133,7 +137,7 @@ public:
     return selections_;
   }
 
-  void SetSelections(const TimelineWidgetSelections &s);
+  void SetSelections(const TimelineWidgetSelections &s, bool process_block_changes);
 
   Track* GetTrackFromReference(const Track::Reference& ref) const;
 
@@ -208,10 +212,11 @@ public:
 
   class SetSelectionsCommand : public UndoCommand {
   public:
-    SetSelectionsCommand(TimelineWidget* timeline, const TimelineWidgetSelections& now, const TimelineWidgetSelections& old) :
+    SetSelectionsCommand(TimelineWidget* timeline, const TimelineWidgetSelections& now, const TimelineWidgetSelections& old, bool process_block_changes) :
       timeline_(timeline),
       old_(old),
-      now_(now)
+      now_(now),
+      process_block_changes_(process_block_changes)
     {
     }
 
@@ -220,18 +225,19 @@ public:
   protected:
     virtual void redo() override
     {
-      timeline_->SetSelections(now_);
+      timeline_->SetSelections(now_, process_block_changes_);
     }
 
     virtual void undo() override
     {
-      timeline_->SetSelections(old_);
+      timeline_->SetSelections(old_, process_block_changes_);
     }
 
   private:
     TimelineWidget* timeline_;
     TimelineWidgetSelections old_;
     TimelineWidgetSelections now_;
+    bool process_block_changes_;
 
   };
 
@@ -271,6 +277,8 @@ private:
 
   QVector<Block*> GetBlocksInGlobalRect(const QPoint &p1, const QPoint &p2);
 
+  QVector<Block*> GetBlocksInSelection(const TimelineWidgetSelections &sel);
+
   QPoint drag_origin_;
 
   QRubberBand rubberband_;
@@ -306,6 +314,8 @@ private:
   void CenterOn(qreal scene_pos);
 
   void UpdateViewTimebases();
+
+  void NudgeInternal(const rational &amount);
 
 private slots:
   void ViewMousePressed(TimelineViewMouseEvent* event);

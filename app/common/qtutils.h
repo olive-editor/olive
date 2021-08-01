@@ -27,6 +27,8 @@
  *
  */
 
+#include <QDateTime>
+#include <QFileInfo>
 #include <QFontMetrics>
 #include <QFrame>
 #include <QMessageBox>
@@ -53,6 +55,10 @@ public:
   static QFrame* CreateHorizontalLine();
 
   static int MessageBox(QWidget *parent, QMessageBox::Icon icon, const QString& title, const QString& message, QMessageBox::StandardButtons buttons = QMessageBox::Ok);
+
+  static QDateTime GetCreationDate(const QFileInfo &info);
+
+  static QString GetFormattedDateTime(const QDateTime &dt);
 
 };
 

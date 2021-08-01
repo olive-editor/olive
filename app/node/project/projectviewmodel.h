@@ -49,8 +49,19 @@ public:
     kDuration,
 
     /// Media rate (frame rate for video, sample rate for audio)
-    kRate
+    kRate,
+
+    /// Last modified time (for footage/files)
+    kLastModified,
+
+    /// Creation time (for footage/files)
+    kCreatedTime,
+
+    /// Count
+    kColumnCount
   };
+
+  static const int kInnerTextRole = Qt::UserRole + 1;
 
   /**
    * @brief ProjectViewModel Constructor
@@ -136,8 +147,6 @@ private:
   void DisconnectItem(Node *n);
 
   Project* project_;
-
-  QVector<ColumnType> columns_;
 
 private slots:
   void FolderBeginInsertItem(Node *n, int insert_index);

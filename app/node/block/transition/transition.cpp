@@ -121,16 +121,18 @@ double TransitionBlock::GetInProgress(const double &time) const
 
 void TransitionBlock::Hash(const QString &output, QCryptographicHash &hash, const rational &time, const VideoParams &video_params) const
 {
-  Node::Hash(output, hash, time, video_params);
+  if (HashPassthrough(kInBlockInput, output, hash, time, video_params) || HashPassthrough(kOutBlockInput, output, hash, time, video_params)) {
+    HashAddNodeSignature(hash, output);
 
-  double time_dbl = time.toDouble();
-  double all_prog = GetTotalProgress(time_dbl);
-  double in_prog = GetInProgress(time_dbl);
-  double out_prog = GetOutProgress(time_dbl);
+    double time_dbl = time.toDouble();
+    double all_prog = GetTotalProgress(time_dbl);
+    double in_prog = GetInProgress(time_dbl);
+    double out_prog = GetOutProgress(time_dbl);
 
-  hash.addData(reinterpret_cast<const char*>(&all_prog), sizeof(double));
-  hash.addData(reinterpret_cast<const char*>(&in_prog), sizeof(double));
-  hash.addData(reinterpret_cast<const char*>(&out_prog), sizeof(double));
+    hash.addData(reinterpret_cast<const char*>(&all_prog), sizeof(all_prog));
+    hash.addData(reinterpret_cast<const char*>(&in_prog), sizeof(in_prog));
+    hash.addData(reinterpret_cast<const char*>(&out_prog), sizeof(out_prog));
+  }
 }
 
 double TransitionBlock::GetInternalTransitionTime(const double &time) const
@@ -217,7 +219,7 @@ NodeValueTable TransitionBlock::Value(const QString &output, NodeValueDatabase &
 
 void TransitionBlock::InvalidateCache(const TimeRange &range, const QString &from, int element, InvalidateCacheOptions options)
 {
-  TimeRange r;
+  TimeRange r = range;
 
   if (from == kOutBlockInput || from == kInBlockInput) {
     Block *n = dynamic_cast<Block*>(GetConnectedNode(from));
@@ -283,7 +285,7 @@ void TransitionBlock::InputDisconnectedEvent(const QString &input, int element, 
 
   if (input == kOutBlockInput) {
     if (connected_out_block_) {
-      connected_out_block_->set_in_transition(nullptr);
+      connected_out_block_->set_out_transition(nullptr);
       connected_out_block_ = nullptr;
     }
   } else if (input == kInBlockInput) {

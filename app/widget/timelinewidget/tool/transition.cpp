@@ -38,7 +38,7 @@ void TransitionTool::HoverMove(TimelineViewMouseEvent *event)
 {
   ClipBlock *primary = nullptr;
   ClipBlock *secondary = nullptr;
-  Timeline::MovementMode trim_mode;
+  Timeline::MovementMode trim_mode = Timeline::kNone;
   rational transition_start_point;
 
   GetBlocksAtCoord(event->GetCoordinates(), &primary, &secondary, &trim_mode, &transition_start_point);

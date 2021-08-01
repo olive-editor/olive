@@ -335,7 +335,7 @@ void TransformDistortNode::Hash(const QString &output, QCryptographicHash &hash,
 
     if (!matrix.isIdentity()) {
       // Add fingerprint
-      hash.addData(id().toUtf8());
+      HashAddNodeSignature(hash, output);
       hash.addData(reinterpret_cast<const char*>(&matrix), sizeof(matrix));
     }
   }

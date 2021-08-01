@@ -108,6 +108,9 @@ MainMenu::MainMenu(MainWindow *parent) :
   edit_edit_to_in_item_ = edit_menu_->AddItem("edittoin", this, &MainMenu::EditToInTriggered, "Ctrl+Alt+Q");
   edit_edit_to_out_item_ = edit_menu_->AddItem("edittoout", this, &MainMenu::EditToOutTriggered, "Ctrl+Alt+W");
   edit_menu_->addSeparator();
+  edit_nudge_left_item_ = edit_menu_->AddItem("nudgeleft", this, &MainMenu::NudgeLeftTriggered, "Alt+Left");
+  edit_nudge_right_item_ = edit_menu_->AddItem("nudgeright", this, &MainMenu::NudgeRightTriggered, "Alt+Right");
+  edit_menu_->addSeparator();
   MenuShared::instance()->AddItemsForInOutMenu(edit_menu_);
   edit_delete_inout_item_ = edit_menu_->AddItem("deleteinout", this, &MainMenu::DeleteInOutTriggered, ";");
   edit_ripple_delete_inout_item_ = edit_menu_->AddItem("rippledeleteinout", this, &MainMenu::RippleDeleteInOutTriggered, "'");
@@ -537,6 +540,16 @@ void MainMenu::EditToOutTriggered()
   PanelManager::instance()->CurrentlyFocused()->EditToOut();
 }
 
+void MainMenu::NudgeLeftTriggered()
+{
+  PanelManager::instance()->CurrentlyFocused()->NudgeLeft();
+}
+
+void MainMenu::NudgeRightTriggered()
+{
+  PanelManager::instance()->CurrentlyFocused()->NudgeRight();
+}
+
 void MainMenu::ActionSearchTriggered()
 {
   ActionSearch as(parentWidget());
@@ -662,6 +675,8 @@ void MainMenu::Retranslate()
   edit_ripple_to_out_item_->setText(tr("Ripple to Out Point"));
   edit_edit_to_in_item_->setText(tr("Edit to In Point"));
   edit_edit_to_out_item_->setText(tr("Edit to Out Point"));
+  edit_nudge_left_item_->setText(tr("Nudge Left"));
+  edit_nudge_right_item_->setText(tr("Nudge Right"));
   edit_delete_inout_item_->setText(tr("Delete In/Out Point"));
   edit_ripple_delete_inout_item_->setText(tr("Ripple Delete In/Out Point"));
   edit_set_marker_item_->setText(tr("Set/Edit Marker"));

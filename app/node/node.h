@@ -183,6 +183,9 @@ public:
 
   virtual QString duration() const {return QString();}
 
+  virtual qint64 creation_time() const {return 0;}
+  virtual qint64 mod_time() const {return 0;}
+
   virtual QString rate() const {return QString();}
 
   const QVector<QString>& inputs() const
@@ -848,6 +851,8 @@ protected:
     uint64_t f_;
 
   };
+
+  void HashAddNodeSignature(QCryptographicHash &hash, const QString &output) const;
 
   void InsertInput(const QString& id, NodeValue::Type type, const QVariant& default_value, InputFlags flags, int index);
 
