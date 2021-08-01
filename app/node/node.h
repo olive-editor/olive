@@ -1406,7 +1406,7 @@ protected:
 
   virtual void undo() override
   {
-    sub_command_->undo();
+    sub_command_->undo_now();
   }
 
 private:

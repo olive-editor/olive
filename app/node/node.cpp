@@ -2343,7 +2343,7 @@ void NodeSetPositionAsChildCommand::redo()
     }
   }
 
-  sub_command_->redo();
+  sub_command_->redo_now();
 }
 
 void NodeSetPositionToOffsetOfAnotherNodeCommand::redo()

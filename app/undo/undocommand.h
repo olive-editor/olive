@@ -82,9 +82,6 @@ class MultiUndoCommand : public UndoCommand
 public:
   MultiUndoCommand();
 
-  virtual void redo() override;
-  virtual void undo() override;
-
   virtual Project* GetRelevantProject() const override
   {
     return nullptr;
@@ -104,6 +101,10 @@ public:
   {
     return children_[i];
   }
+
+protected:
+  virtual void redo() override;
+  virtual void undo() override;
 
 private:
   std::vector<UndoCommand*> children_;

@@ -431,7 +431,7 @@ void NodeView::keyPressEvent(QKeyEvent *event)
 
       // We undo the last action which SHOULD be adding the node
       if (paste_command_) {
-        paste_command_->undo();
+        paste_command_->undo_now();
         delete paste_command_;
         paste_command_ = nullptr;
       }
@@ -757,7 +757,7 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
       }
     }
     if (set_pos_command->child_count()) {
-      set_pos_command->redo();
+      set_pos_command->redo_now();
       command->add_child(set_pos_command);
     } else {
       delete set_pos_command;
@@ -784,7 +784,7 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
         drop_edge_ = nullptr;
       }
       if (drop_edge_command->child_count()) {
-        drop_edge_command->redo();
+        drop_edge_command->redo_now();
         command->add_child(drop_edge_command);
       } else {
         delete drop_edge_command;
@@ -822,7 +822,7 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
       }
 
       if (remove_pos_command->child_count()) {
-        remove_pos_command->redo();
+        remove_pos_command->redo_now();
         command->add_child(remove_pos_command);
       } else {
         delete remove_pos_command;
@@ -988,7 +988,7 @@ void NodeView::CreateNodeSlot(QAction *action)
       paste_command_->add_child(new NodeSetPositionCommand(new_node, context, QPointF(0, 0), false));
     }
     paste_command_->add_child(new NodeViewAttachNodesToCursor(this, {new_node}));
-    paste_command_->redo();
+    paste_command_->redo_now();
 
     this->setFocus();
   }
@@ -1673,7 +1673,7 @@ void NodeView::PasteNodesInternal(const QVector<Node *> &duplicate_nodes)
   // Attach nodes to cursor
   paste_command_->add_child(new NodeViewAttachNodesToCursor(this, new_nodes));
 
-  paste_command_->redo();
+  paste_command_->redo_now();
 }
 
 NodeView::NodeViewAttachNodesToCursor::NodeViewAttachNodesToCursor(NodeView *view, const QVector<Node *> &nodes) :

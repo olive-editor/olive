@@ -148,6 +148,11 @@ public:
     return GetStandardValue(kSpeedInput).toDouble();
   }
 
+  void set_speed(double s)
+  {
+    SetStandardValue(kSpeedInput, s);
+  }
+
   bool reverse() const
   {
     return GetStandardValue(kReverseInput).toBool();
