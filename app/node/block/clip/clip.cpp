@@ -196,6 +196,19 @@ void ClipBlock::LinkChangeEvent()
   }
 }
 
+void ClipBlock::InputValueChangedEvent(const QString &input, int element)
+{
+  super::InputValueChangedEvent(input, element);
+
+  if (input == kMediaInInput) {
+    // Shift waveform in the inverse that the media in moved
+    rational diff = media_in() - last_media_in_;
+    waveform_.TrimIn(diff);
+
+    last_media_in_ = media_in();
+  }
+}
+
 TimeRange ClipBlock::InputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const
 {
   Q_UNUSED(element)

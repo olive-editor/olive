@@ -21,6 +21,7 @@
 #ifndef RENDERPROCESSOR_H
 #define RENDERPROCESSOR_H
 
+#include "node/block/clip/clip.h"
 #include "node/traverser.h"
 #include "render/renderer.h"
 #include "rendercache.h"
@@ -35,7 +36,7 @@ public:
   static void Process(RenderTicketPtr ticket, Renderer* render_ctx, StillImageCache* still_image_cache, DecoderCache* decoder_cache, ShaderCache* shader_cache, QVariant default_shader);
 
   struct RenderedWaveform {
-    const Track* track;
+    const ClipBlock* block;
     AudioVisualWaveform waveform;
     TimeRange range;
   };

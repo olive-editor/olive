@@ -129,6 +129,8 @@ signals:
 
   void LengthChanged();
 
+  void PreviewChanged();
+
 protected:
   virtual void InputValueChangedEvent(const QString& input, int element) override;
 

@@ -893,6 +893,7 @@ void TimelineWidget::AddBlock(Block *block)
     connect(block, &Block::LabelChanged, this, &TimelineWidget::BlockUpdated);
     connect(block, &Block::ColorChanged, this, &TimelineWidget::BlockUpdated);
     connect(block, &Block::EnabledChanged, this, &TimelineWidget::BlockUpdated);
+    connect(block, &Block::PreviewChanged, this, &TimelineWidget::BlockUpdated);
 
     added_blocks_.append(block);
   }
@@ -905,6 +906,7 @@ void TimelineWidget::RemoveBlock(Block *block)
   disconnect(block, &Block::LabelChanged, this, &TimelineWidget::BlockUpdated);
   disconnect(block, &Block::ColorChanged, this, &TimelineWidget::BlockUpdated);
   disconnect(block, &Block::EnabledChanged, this, &TimelineWidget::BlockUpdated);
+  disconnect(block, &Block::PreviewChanged, this, &TimelineWidget::BlockUpdated);
 
   // Take item from map
   added_blocks_.removeOne(block);
@@ -927,7 +929,6 @@ void TimelineWidget::AddTrack(Track *track)
 
   connect(track, &Track::IndexChanged, this, &TimelineWidget::TrackUpdated);
   connect(track, &Track::IndexChanged, this, &TimelineWidget::TrackIndexChanged);
-  connect(track, &Track::PreviewChanged, this, &TimelineWidget::TrackUpdated);
   connect(track, &Track::BlocksRefreshed, this, &TimelineWidget::TrackUpdated);
   connect(track, &Track::TrackHeightChangedInPixels, this, &TimelineWidget::TrackUpdated);
   connect(track, &Track::BlockAdded, this, &TimelineWidget::AddBlock);
@@ -938,7 +939,6 @@ void TimelineWidget::RemoveTrack(Track *track)
 {
   disconnect(track, &Track::IndexChanged, this, &TimelineWidget::TrackUpdated);
   disconnect(track, &Track::IndexChanged, this, &TimelineWidget::TrackIndexChanged);
-  disconnect(track, &Track::PreviewChanged, this, &TimelineWidget::TrackUpdated);
   disconnect(track, &Track::BlocksRefreshed, this, &TimelineWidget::TrackUpdated);
   disconnect(track, &Track::TrackHeightChangedInPixels, this, &TimelineWidget::TrackUpdated);
   disconnect(track, &Track::BlockAdded, this, &TimelineWidget::AddBlock);

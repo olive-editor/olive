@@ -21,6 +21,7 @@
 #ifndef CLIPBLOCK_H
 #define CLIPBLOCK_H
 
+#include "audio/audiovisualwaveform.h"
 #include "node/block/block.h"
 
 namespace olive {
@@ -95,6 +96,11 @@ public:
     return block_links_;
   }
 
+  AudioVisualWaveform& waveform()
+  {
+    return waveform_;
+  }
+
   static const QString kBufferIn;
   static const QString kMediaInInput;
   static const QString kSpeedInput;
@@ -102,6 +108,8 @@ public:
 
 protected:
   virtual void LinkChangeEvent() override;
+
+  virtual void InputValueChangedEvent(const QString &input, int element) override;
 
 private:
   rational SequenceToMediaTime(const rational& sequence_time, bool ignore_reverse = false) const;
@@ -112,6 +120,12 @@ private:
 
   TransitionBlock* in_transition_;
   TransitionBlock* out_transition_;
+
+private:
+  AudioVisualWaveform waveform_;
+
+  rational last_media_in_;
+
 
 };
 

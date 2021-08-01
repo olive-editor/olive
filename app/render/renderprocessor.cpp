@@ -272,8 +272,7 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const Track *track, const Tim
         }
 
         // If this is a clip, we might have extra speed/reverse information
-        ClipBlock *clip_cast = dynamic_cast<ClipBlock*>(b);
-        if (clip_cast) {
+        if (ClipBlock *clip_cast = dynamic_cast<ClipBlock*>(b)) {
           double speed_value = clip_cast->speed();
           bool reversed = clip_cast->reverse();
 
@@ -288,6 +287,20 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const Track *track, const Tim
           if (reversed) {
             samples_from_this_block->reverse();
           }
+
+          // Create block waveforms if requested
+          if (ticket_->property("enablewaveforms").toBool()) {
+            // Generate a visual waveform from the samples acquired from this block
+            AudioVisualWaveform visual_waveform;
+            visual_waveform.set_channel_count(audio_params.channel_count());
+            visual_waveform.OverwriteSamples(samples_from_this_block, audio_params.sample_rate());
+
+            // Format it for use back int eh maint hread
+            RenderedWaveform waveform_info = {clip_cast, visual_waveform, range_for_block - b->in()};
+            QVector<RenderedWaveform> waveform_list = ticket_->property("waveforms").value< QVector<RenderedWaveform> >();
+            waveform_list.append(waveform_info);
+            ticket_->setProperty("waveforms", QVariant::fromValue(waveform_list));
+          }
         }
 
         int copy_length = qMin(max_dest_sz, samples_from_this_block->sample_count());
@@ -299,18 +312,6 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const Track *track, const Tim
 
         NodeValueTable::Merge({merged_table, table});
       }
-    }
-
-    if (ticket_->property("enablewaveforms").toBool()) {
-      // Generate a visual waveform and send it back to the main thread
-      AudioVisualWaveform visual_waveform;
-      visual_waveform.set_channel_count(audio_params.channel_count());
-      visual_waveform.OverwriteSamples(block_range_buffer, audio_params.sample_rate());
-
-      RenderedWaveform waveform_info = {track, visual_waveform, range};
-      QVector<RenderedWaveform> waveform_list = ticket_->property("waveforms").value< QVector<RenderedWaveform> >();
-      waveform_list.append(waveform_info);
-      ticket_->setProperty("waveforms", QVariant::fromValue(waveform_list));
     }
 
     merged_table.Push(NodeValue::kSamples, QVariant::fromValue(block_range_buffer), track);

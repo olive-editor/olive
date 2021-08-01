@@ -97,8 +97,6 @@ public:
   }
 
 protected:
-  virtual void ShiftAudioEvent(const rational &from, const rational &to) override;
-
   virtual void InputConnectedEvent(const QString &input, int element, const NodeOutput &output) override;
 
   virtual void InputDisconnectedEvent(const QString &input, int element, const NodeOutput &output) override;
