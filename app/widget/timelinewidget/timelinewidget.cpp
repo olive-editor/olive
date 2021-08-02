@@ -1195,7 +1195,7 @@ void TimelineWidget::MoveToPlayheadInternal(bool out)
 
       rational r = earliest_pts.value(b->track(), out ? RATIONAL_MIN : RATIONAL_MAX);
       rational compare = out ? b->out() : b->in();
-      if (compare < r == !out) {
+      if ((compare < r) == !out) {
         earliest_pts.insert(b->track(), compare);
       }
     }
