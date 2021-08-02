@@ -739,6 +739,16 @@ void TimelineWidget::NudgeRight()
   }
 }
 
+void TimelineWidget::MoveInToPlayhead()
+{
+  MoveToPlayheadInternal(false);
+}
+
+void TimelineWidget::MoveOutToPlayhead()
+{
+  MoveToPlayheadInternal(true);
+}
+
 void TimelineWidget::ShowSpeedDurationDialogForSelectedClips()
 {
   QVector<ClipBlock*> clips;
@@ -1179,19 +1189,73 @@ void TimelineWidget::UpdateViewTimebases()
 
 void TimelineWidget::NudgeInternal(const rational &amount)
 {
-  MultiUndoCommand *command = new MultiUndoCommand();
+  if (!selected_blocks_.isEmpty()) {
+    MultiUndoCommand *command = new MultiUndoCommand();
 
-  foreach (Block* b, selected_blocks_) {
-    command->add_child(new TrackReplaceBlockWithGapCommand(b->track(), b, false));
-    command->add_child(new TrackPlaceBlockCommand(sequence()->track_list(b->track()->type()), b->track()->Index(), b, b->in() + amount));
+    foreach (Block* b, selected_blocks_) {
+      command->add_child(new TrackReplaceBlockWithGapCommand(b->track(), b, false));
+      command->add_child(new TrackPlaceBlockCommand(sequence()->track_list(b->track()->type()), b->track()->Index(), b, b->in() + amount));
+    }
+
+    // Nudge selections
+    TimelineWidgetSelections new_sel = GetSelections();
+    new_sel.ShiftTime(amount);
+    command->add_child(new TimelineWidget::SetSelectionsCommand(this, new_sel, GetSelections(), true));
+
+    Core::instance()->undo_stack()->push(command);
   }
+}
 
-  // Nudge selections
-  TimelineWidgetSelections new_sel = GetSelections();
-  new_sel.ShiftTime(amount);
-  command->add_child(new TimelineWidget::SetSelectionsCommand(this, new_sel, GetSelections(), true));
+void TimelineWidget::MoveToPlayheadInternal(bool out)
+{
+  if (GetConnectedNode() && !selected_blocks_.isEmpty()) {
+    MultiUndoCommand *command = new MultiUndoCommand();
 
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
+    // Remove each block from the graph
+    QHash<Track*, rational> earliest_pts;
+    foreach (Block *b, selected_blocks_) {
+      command->add_child(new TrackReplaceBlockWithGapCommand(b->track(), b, false));
+
+      rational r = earliest_pts.value(b->track(), out ? RATIONAL_MIN : RATIONAL_MAX);
+      rational compare = out ? b->out() : b->in();
+      if (compare < r == !out) {
+        earliest_pts.insert(b->track(), compare);
+      }
+    }
+
+    foreach (Block *b, selected_blocks_) {
+      rational shift_amt = GetTime() - earliest_pts.value(b->track());
+      rational new_in = b->in() + shift_amt;
+      bool can_shift = true;
+
+      if (new_in < 0) {
+        // Handle clips threatening to go below 0
+        rational new_out = new_in + b->length();
+        if (new_out <= 0) {
+          can_shift = false;
+        } else {
+          command->add_child(new BlockResizeWithMediaInCommand(b, new_out));
+          new_in = 0;
+        }
+      }
+
+      if (can_shift) {
+        command->add_child(new TrackPlaceBlockCommand(sequence()->track_list(b->track()->type()), b->track()->Index(), b, new_in));
+      }
+    }
+
+    // Shift selections
+    TimelineWidgetSelections new_sel = GetSelections();
+    for (auto it=new_sel.begin(); it!=new_sel.end(); it++) {
+      rational track_adj = GetTime() - earliest_pts.value(GetTrackFromReference(it.key()), GetTime());
+      if (!track_adj.isNull()) {
+        it.value().shift(track_adj);
+      }
+    }
+    command->add_child(new SetSelectionsCommand(this, new_sel, GetSelections(), true));
+
+    Core::instance()->undo_stack()->push(command);
+  }
 }
 
 void TimelineWidget::SetViewBeamCursor(const TimelineCoordinate &coord)
@@ -1620,6 +1684,10 @@ void TimelineWidget::RemoveSelection(Block *item)
 
 void TimelineWidget::SetSelections(const TimelineWidgetSelections &s, bool process_block_changes)
 {
+  if (selections_ == s) {
+    return;
+  }
+
   if (process_block_changes) {
     SignalDeselectedBlocks(GetBlocksInSelection(selections_.Subtracted(s)));
     SignalSelectedBlocks(GetBlocksInSelection(s.Subtracted(selections_)));

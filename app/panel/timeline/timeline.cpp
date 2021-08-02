@@ -174,6 +174,16 @@ void TimelinePanel::NudgeRight()
   timeline_widget()->NudgeRight();
 }
 
+void TimelinePanel::MoveInToPlayhead()
+{
+  timeline_widget()->MoveInToPlayhead();
+}
+
+void TimelinePanel::MoveOutToPlayhead()
+{
+  timeline_widget()->MoveOutToPlayhead();
+}
+
 void TimelinePanel::InsertFootageAtPlayhead(const QVector<ViewerOutput *> &footage)
 {
   timeline_widget()->InsertFootageAtPlayhead(footage);

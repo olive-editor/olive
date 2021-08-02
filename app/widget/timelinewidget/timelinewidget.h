@@ -95,6 +95,10 @@ public:
 
   void NudgeRight();
 
+  void MoveInToPlayhead();
+
+  void MoveOutToPlayhead();
+
   void ShowSpeedDurationDialogForSelectedClips();
 
   /**
@@ -318,6 +322,8 @@ private:
   void UpdateViewTimebases();
 
   void NudgeInternal(const rational &amount);
+
+  void MoveToPlayheadInternal(bool out);
 
 private slots:
   void ViewMousePressed(TimelineViewMouseEvent* event);
