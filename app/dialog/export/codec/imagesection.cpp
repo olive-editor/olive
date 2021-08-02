@@ -43,9 +43,10 @@ ImageSection::ImageSection(QWidget* parent) :
 
   layout->addWidget(new QLabel(tr("Frame to Export:")), row, 0);
 
-  frame_slider_ = new TimeSlider();
+  frame_slider_ = new RationalSlider();
   frame_slider_->SetMinimum(0);
   frame_slider_->SetValue(0);
+  frame_slider_->SetDisplayType(RationalSlider::kTime);
   layout->addWidget(frame_slider_, row, 1);
 }
 

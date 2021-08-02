@@ -92,7 +92,7 @@ NodeParamView::NodeParamView(QWidget *parent) :
   // Connect ruler and keyframe view together
   connect(ruler(), &TimeRuler::TimeChanged, keyframe_view_, &KeyframeView::SetTime);
   connect(keyframe_view_, &KeyframeView::TimeChanged, ruler(), &TimeRuler::SetTime);
-  connect(keyframe_view_, &KeyframeView::TimeChanged, this, &NodeParamView::SetTimestamp);
+  connect(keyframe_view_, &KeyframeView::TimeChanged, this, &NodeParamView::SetTime);
   connect(keyframe_view_, &KeyframeView::Dragged, this, &NodeParamView::KeyframeViewDragged);
 
   // Connect keyframe view scaling to this
@@ -155,7 +155,7 @@ void NodeParamView::SelectNodes(const QVector<Node *> &nodes)
   }
 
   if (items_.size() > original_node_count ) {
-    UpdateItemTime(GetTimestamp());
+    UpdateItemTime(GetTime());
 
     // Re-arrange keyframes
     QueueKeyframePositionUpdate();
@@ -220,16 +220,16 @@ void NodeParamView::TimebaseChangedEvent(const rational &timebase)
       item->SetTimebase(timebase);
   }
 
-  UpdateItemTime(GetTimestamp());
+  UpdateItemTime(GetTime());
 }
 
-void NodeParamView::TimeChangedEvent(const int64_t &timestamp)
+void NodeParamView::TimeChangedEvent(const rational &time)
 {
-  super::TimeChangedEvent(timestamp);
+  super::TimeChangedEvent(time);
 
-  keyframe_view_->SetTime(timestamp);
+  keyframe_view_->SetTime(time);
 
-  UpdateItemTime(timestamp);
+  UpdateItemTime(time);
 }
 
 void NodeParamView::ConnectedNodeChangeEvent(ViewerOutput *n)
@@ -252,10 +252,8 @@ void NodeParamView::DeleteSelected()
   keyframe_view_->DeleteSelected();
 }
 
-void NodeParamView::UpdateItemTime(const int64_t &timestamp)
+void NodeParamView::UpdateItemTime(const rational &time)
 {
-  rational time = Timecode::timestamp_to_time(timestamp, timebase());
-
   foreach (NodeParamViewItem* item, items_) {
     item->SetTime(time);
   }
@@ -306,7 +304,7 @@ void NodeParamView::AddNode(Node *n)
   connect(n, &Node::KeyframeAdded, keyframe_view_, &KeyframeView::AddKeyframe);
   connect(n, &Node::KeyframeRemoved, keyframe_view_, &KeyframeView::RemoveKeyframe);
 
-  connect(item, &NodeParamViewItem::RequestSetTime, this, &NodeParamView::ItemRequestedTimeChanged);
+  connect(item, &NodeParamViewItem::RequestSetTime, this, &NodeParamView::SetTimeAndSignal);
   connect(item, &NodeParamViewItem::RequestSelectNode, this, &NodeParamView::RequestSelectNode);
   connect(item, &NodeParamViewItem::dockLocationChanged, this, &NodeParamView::QueueKeyframePositionUpdate);
   connect(item, &NodeParamViewItem::dockLocationChanged, this, &NodeParamView::SignalNodeOrder);
@@ -356,11 +354,6 @@ void NodeParamView::RemoveNode(Node *n)
 
     emit FocusedNodeChanged(focused_node_);
   }
-}
-
-void NodeParamView::ItemRequestedTimeChanged(const rational &time)
-{
-  SetTimeAndSignal(Timecode::time_to_timestamp(time, keyframe_view_->timebase()));
 }
 
 void NodeParamView::UpdateGlobalScrollBar()

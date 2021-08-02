@@ -167,7 +167,7 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   preview_layout->addWidget(new QLabel(tr("Preview")));
   preview_viewer_ = new ViewerWidget();
   preview_viewer_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-  connect(preview_viewer_, &ViewerWidget::TimeChanged, video_tab_, &ExportVideoTab::SetTimestamp);
+  connect(preview_viewer_, &ViewerWidget::TimeChanged, video_tab_, &ExportVideoTab::SetTime);
   preview_layout->addWidget(preview_viewer_);
   splitter->addWidget(preview_area);
 
@@ -527,7 +527,7 @@ ExportParams ExportDialog::GenerateParams() const
 
   if (ExportCodec::IsCodecAStillImage(video_tab_->GetSelectedCodec()) && !video_tab_->IsImageSequenceSet()) {
     // Exporting as image without exporting image sequence, only export one frame
-    rational export_time = Timecode::timestamp_to_time(video_tab_->GetStillImageTime(), GetSelectedTimebase());
+    rational export_time = video_tab_->GetStillImageTime();
     params.set_custom_range(TimeRange(export_time, export_time));
   } else if (range_combobox_->currentIndex() == kRangeInToOut) {
     // Assume if this combobox is enabled, workarea is enabled - a check that we make in this dialog's constructor

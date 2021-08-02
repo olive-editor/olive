@@ -61,7 +61,7 @@ public slots:
   void SetNodes(const QVector<Node *> &nodes);
 
 protected:
-  virtual void TimeChangedEvent(const int64_t &) override;
+  virtual void TimeChangedEvent(const rational &) override;
   virtual void TimebaseChangedEvent(const rational &) override;
   virtual void ScaleChangedEvent(const double &) override;
 
@@ -76,7 +76,7 @@ private:
 
   void SetKeyframeButtonCheckedFromType(NodeKeyframe::Type type);
 
-  void UpdateBridgeTime(const int64_t& timestamp);
+  void UpdateBridgeTime(const rational &time);
 
   void ConnectNode(Node* node, bool connect);
 
@@ -102,8 +102,6 @@ private slots:
   void SelectionChanged();
 
   void KeyframeTypeButtonTriggered(bool checked);
-
-  void KeyControlRequestedTimeChanged(const rational& time);
 
   void NodeEnabledChanged(Node* n, bool e);
 

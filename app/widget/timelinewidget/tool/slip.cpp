@@ -58,10 +58,10 @@ void SlipTool::ProcessDrag(const TimelineCoordinate &mouse_pos)
   rational tooltip_timebase = parent()->GetTimebaseForTrackType(drag_start_.GetTrack().type());
   QToolTip::hideText();
   QToolTip::showText(QCursor::pos(),
-                     Timecode::timestamp_to_timecode(Timecode::time_to_timestamp(time_movement, tooltip_timebase),
-                                                                              tooltip_timebase,
-                                                                              Core::instance()->GetTimecodeDisplay(),
-                                                                              true),
+                     Timecode::time_to_timecode(time_movement,
+                                                tooltip_timebase,
+                                                Core::instance()->GetTimecodeDisplay(),
+                                                true),
                      parent());
 }
 

@@ -149,7 +149,7 @@ signals:
 
 protected:
   virtual void TimebaseChangedEvent(const rational &) override;
-  virtual void TimeChangedEvent(const int64_t &) override;
+  virtual void TimeChangedEvent(const rational &time) override;
 
   virtual void ConnectNodeEvent(ViewerOutput *) override;
   virtual void DisconnectNodeEvent(ViewerOutput *) override;
@@ -167,6 +167,11 @@ protected:
   }
 
 private:
+  int64_t GetTimestamp() const
+  {
+    return Timecode::time_to_timestamp(GetTime(), timebase(), Timecode::kFloor);
+  }
+
   void UpdateTimeInternal(int64_t i);
 
   void PlayInternal(int speed, bool in_to_out_only);
@@ -215,7 +220,7 @@ private:
 
   QAtomicInt playback_speed_;
 
-  int64_t last_time_;
+  rational last_time_;
 
   bool color_menu_enabled_;
 
@@ -293,8 +298,6 @@ private slots:
   void ViewerInvalidatedVideoRange(const olive::TimeRange &range);
 
   void ManualSwitchToWaveform(bool e);
-
-  void TimeChangedFromWaveform(qint64 t);
 
   void DragEntered(QDragEnterEvent* event);
 

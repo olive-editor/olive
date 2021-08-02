@@ -44,14 +44,14 @@ void FootageViewerWidget::ConnectNodeEvent(ViewerOutput *n)
 {
   super::ConnectNodeEvent(n);
 
-  SetTimestamp(cached_timestamps_.value(n, 0));
+  SetTime(cached_timestamps_.value(n, 0));
 }
 
 void FootageViewerWidget::DisconnectNodeEvent(ViewerOutput *n)
 {
   // Cache timestamp in case this footage is opened again later
-  cached_timestamps_.insert(n, GetTimestamp());
-  SetTimestamp(0);
+  cached_timestamps_.insert(n, GetTime());
+  SetTime(0);
 
   super::DisconnectNodeEvent(n);
 }

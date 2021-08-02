@@ -24,6 +24,7 @@
 #include "common/timecodefunctions.h"
 #include "panel/panelmanager.h"
 #include "panel/timeline/timeline.h"
+#include "window/mainwindow/mainwindow.h"
 
 namespace olive {
 
@@ -45,6 +46,7 @@ MenuShared::MenuShared()
   edit_delete_item_ = Menu::CreateItem(this, "delete", this, &MenuShared::DeleteSelectedTriggered, "Del");
   edit_ripple_delete_item_ = Menu::CreateItem(this, "rippledelete", this, &MenuShared::RippleDeleteTriggered, "Shift+Del");
   edit_split_item_ = Menu::CreateItem(this, "split", this, &MenuShared::SplitAtPlayheadTriggered, "Ctrl+K");
+  edit_speedduration_item_ = Menu::CreateItem(this, "speeddur", this, &MenuShared::SpeedDurationTriggered, "Ctrl+R");
 
   // "In/Out" menu shared items
   inout_set_in_item_ = Menu::CreateItem(this, "setinpoint", this, &MenuShared::SetInTriggered, "I");
@@ -134,6 +136,7 @@ void MenuShared::AddItemsForEditMenu(Menu *m, bool for_clips)
   if (for_clips) {
     m->addAction(edit_ripple_delete_item_);
     m->addAction(edit_split_item_);
+    m->addAction(edit_speedduration_item_);
   }
 }
 
@@ -301,6 +304,15 @@ void MenuShared::ColorLabelTriggered(int color_index)
   PanelManager::instance()->CurrentlyFocused()->SetColorLabel(color_index);
 }
 
+void MenuShared::SpeedDurationTriggered()
+{
+  TimelinePanel* timeline = PanelManager::instance()->MostRecentlyFocused<TimelinePanel>();
+
+  if (timeline) {
+    timeline->ShowSpeedDurationDialogForSelectedClips();
+  }
+}
+
 void MenuShared::Retranslate()
 {
   // "New" menu shared items
@@ -317,6 +329,7 @@ void MenuShared::Retranslate()
   edit_delete_item_->setText(tr("Delete"));
   edit_ripple_delete_item_->setText(tr("Ripple Delete"));
   edit_split_item_->setText(tr("Split"));
+  edit_speedduration_item_->setText(tr("Speed/Duration"));
 
   // "In/Out" menu shared items
   inout_set_in_item_->setText(tr("Set In Point"));

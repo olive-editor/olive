@@ -18,54 +18,59 @@
 
 ***/
 
-#ifndef KEYFRAMEPROPERTIESDIALOG_H
-#define KEYFRAMEPROPERTIESDIALOG_H
+#ifndef SPEEDDURATIONDIALOG_H
+#define SPEEDDURATIONDIALOG_H
 
-#include <QComboBox>
+#include <QCheckBox>
 #include <QDialog>
-#include <QGroupBox>
 
-#include "node/keyframe.h"
+#include "node/block/clip/clip.h"
+#include "node/block/gap/gap.h"
+#include "undo/undocommand.h"
 #include "widget/slider/floatslider.h"
 #include "widget/slider/rationalslider.h"
 
 namespace olive {
 
-class KeyframePropertiesDialog : public QDialog
+class SpeedDurationDialog : public QDialog
 {
   Q_OBJECT
 public:
-  KeyframePropertiesDialog(const QVector<NodeKeyframe*>& keys, const rational& timebase, QWidget* parent = nullptr);
+  explicit SpeedDurationDialog(const QVector<ClipBlock*> &clips, const rational &timebase, QWidget *parent = nullptr);
 
 public slots:
   virtual void accept() override;
 
-private:
-  void SetUpBezierSlider(FloatSlider *slider, bool all_same, double value);
+signals:
 
-  const QVector<NodeKeyframe*>& keys_;
+private:
+  static rational GetLengthAdjustment(const rational &original_length, double original_speed, double new_speed, const rational &timebase);
+
+  static double GetSpeedAdjustment(double original_speed, const rational &original_length, const rational &new_length);
+
+  QVector<ClipBlock*> clips_;
+
+  FloatSlider *speed_slider_;
+
+  RationalSlider *dur_slider_;
+
+  QCheckBox *link_box_;
+
+  QCheckBox *ripple_box_;
+
+  double start_speed_;
+
+  rational start_duration_;
 
   rational timebase_;
 
-  RationalSlider* time_slider_;
-
-  QComboBox* type_select_;
-
-  QGroupBox* bezier_group_;
-
-  FloatSlider* bezier_in_x_slider_;
-
-  FloatSlider* bezier_in_y_slider_;
-
-  FloatSlider* bezier_out_x_slider_;
-
-  FloatSlider* bezier_out_y_slider_;
-
 private slots:
-  void KeyTypeChanged(int index);
+  void SpeedChanged(double s);
+
+  void DurationChanged(const rational &r);
 
 };
 
 }
 
-#endif // KEYFRAMEPROPERTIESDIALOG_H
+#endif // SPEEDDURATIONDIALOG_H

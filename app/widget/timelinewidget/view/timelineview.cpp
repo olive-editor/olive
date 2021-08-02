@@ -664,12 +664,6 @@ Block *TimelineView::GetItemAtScenePos(const rational &time, int track_index) co
   return nullptr;
 }
 
-void TimelineView::UserSetTime(const int64_t &time)
-{
-  SetTime(time);
-  emit TimeChanged(time);
-}
-
 void TimelineView::TrackListChanged()
 {
   UpdateSceneRect();

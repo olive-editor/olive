@@ -110,6 +110,8 @@ MainMenu::MainMenu(MainWindow *parent) :
   edit_menu_->addSeparator();
   edit_nudge_left_item_ = edit_menu_->AddItem("nudgeleft", this, &MainMenu::NudgeLeftTriggered, "Alt+Left");
   edit_nudge_right_item_ = edit_menu_->AddItem("nudgeright", this, &MainMenu::NudgeRightTriggered, "Alt+Right");
+  edit_move_in_to_playhead_item_ = edit_menu_->AddItem("moveintoplayhead", this, &MainMenu::MoveInToPlayheadTriggered, "[");
+  edit_move_out_to_playhead_item_ = edit_menu_->AddItem("moveouttoplayhead", this, &MainMenu::MoveOutToPlayheadTriggered, "]");
   edit_menu_->addSeparator();
   MenuShared::instance()->AddItemsForInOutMenu(edit_menu_);
   edit_delete_inout_item_ = edit_menu_->AddItem("deleteinout", this, &MainMenu::DeleteInOutTriggered, ";");
@@ -550,6 +552,16 @@ void MainMenu::NudgeRightTriggered()
   PanelManager::instance()->CurrentlyFocused()->NudgeRight();
 }
 
+void MainMenu::MoveInToPlayheadTriggered()
+{
+  PanelManager::instance()->CurrentlyFocused()->MoveInToPlayhead();
+}
+
+void MainMenu::MoveOutToPlayheadTriggered()
+{
+  PanelManager::instance()->CurrentlyFocused()->MoveOutToPlayhead();
+}
+
 void MainMenu::ActionSearchTriggered()
 {
   ActionSearch as(parentWidget());
@@ -677,6 +689,8 @@ void MainMenu::Retranslate()
   edit_edit_to_out_item_->setText(tr("Edit to Out Point"));
   edit_nudge_left_item_->setText(tr("Nudge Left"));
   edit_nudge_right_item_->setText(tr("Nudge Right"));
+  edit_move_in_to_playhead_item_->setText(tr("Move In Point to Playhead"));
+  edit_move_out_to_playhead_item_->setText(tr("Move Out Point to Playhead"));
   edit_delete_inout_item_->setText(tr("Delete In/Out Point"));
   edit_ripple_delete_inout_item_->setText(tr("Ripple Delete In/Out Point"));
   edit_set_marker_item_->setText(tr("Set/Edit Marker"));

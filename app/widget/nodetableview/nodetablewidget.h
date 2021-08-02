@@ -42,17 +42,12 @@ public:
   }
 
 protected:
-  virtual void TimeChangedEvent(const int64_t&) override
+  virtual void TimeChangedEvent(const rational &time) override
   {
-    UpdateView();
+    view_->SetTime(time);
   }
 
 private:
-  void UpdateView()
-  {
-    view_->SetTime(GetTime());
-  }
-
   NodeTableView* view_;
 
 };

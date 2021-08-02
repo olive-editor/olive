@@ -117,7 +117,7 @@ protected:
 
   virtual void redo() override
   {
-    command_->redo();
+    command_->redo_now();
 
     graph_ = node_->parent();
     node_->setParent(&memory_manager_);
@@ -128,7 +128,7 @@ protected:
     node_->setParent(graph_);
     graph_ = nullptr;
 
-    command_->undo();
+    command_->undo_now();
   }
 
 private:
@@ -179,12 +179,12 @@ protected:
 
   virtual void redo() override
   {
-    command_->redo();
+    command_->redo_now();
   }
 
   virtual void undo() override
   {
-    command_->undo();
+    command_->undo_now();
   }
 
 private:

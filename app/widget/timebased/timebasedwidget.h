@@ -38,9 +38,7 @@ class TimeBasedWidget : public TimelineScaledWidget
 public:
   TimeBasedWidget(bool ruler_text_visible = true, bool ruler_cache_status_visible = false, QWidget* parent = nullptr);
 
-  rational GetTime() const;
-
-  const int64_t& GetTimestamp() const;
+  const rational &GetTime() const;
 
   void ZoomIn();
 
@@ -57,7 +55,7 @@ public:
   virtual bool eventFilter(QObject* object, QEvent* event) override;
 
 public slots:
-  void SetTimestamp(int64_t timestamp);
+  void SetTime(const rational &time);
 
   void SetTimebase(const rational& timebase);
 
@@ -94,14 +92,14 @@ public slots:
   void GoToOut();
 
 protected slots:
-  void SetTimeAndSignal(const int64_t& t);
+  void SetTimeAndSignal(const rational& t);
 
 protected:
   ResizableTimelineScrollBar* scrollbar() const;
 
   virtual void TimebaseChangedEvent(const rational&) override;
 
-  virtual void TimeChangedEvent(const int64_t&){}
+  virtual void TimeChangedEvent(const rational&){}
 
   virtual void ScaleChangedEvent(const double &) override;
 
@@ -134,7 +132,7 @@ protected slots:
   static void PageScrollInternal(QScrollBar* bar, int maximum, int screen_position, bool whole_page_scroll);
 
 signals:
-  void TimeChanged(const int64_t&);
+  void TimeChanged(const rational&);
 
   void TimebaseChanged(const rational&);
 

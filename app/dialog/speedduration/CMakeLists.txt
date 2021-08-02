@@ -14,25 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(about)
-add_subdirectory(actionsearch)
-add_subdirectory(autorecovery)
-add_subdirectory(color)
-add_subdirectory(configbase)
-add_subdirectory(diskcache)
-add_subdirectory(export)
-add_subdirectory(footagerelink)
-add_subdirectory(keyframeproperties)
-add_subdirectory(nodeproperties)
-add_subdirectory(preferences)
-add_subdirectory(progress)
-add_subdirectory(rendercancel)
-add_subdirectory(sequence)
-add_subdirectory(speedduration)
-add_subdirectory(task)
-add_subdirectory(text)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  dialog/speedduration/speeddurationdialog.cpp
+  dialog/speedduration/speeddurationdialog.h
   PARENT_SCOPE
 )

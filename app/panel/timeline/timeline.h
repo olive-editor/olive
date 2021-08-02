@@ -92,13 +92,22 @@ public:
 
   virtual void NudgeRight() override;
 
+  virtual void MoveInToPlayhead() override;
+
+  virtual void MoveOutToPlayhead() override;
+
+  void ShowSpeedDurationDialogForSelectedClips()
+  {
+    timeline_widget()->ShowSpeedDurationDialogForSelectedClips();
+  }
+
   void InsertFootageAtPlayhead(const QVector<ViewerOutput *> &footage);
 
   void OverwriteFootageAtPlayhead(const QVector<ViewerOutput *> &footage);
 
   const QVector<Block*>& GetSelectedBlocks() const
   {
-    return static_cast<TimelineWidget*>(GetTimeBasedWidget())->GetSelectedBlocks();
+    return timeline_widget()->GetSelectedBlocks();
   }
 
 protected:

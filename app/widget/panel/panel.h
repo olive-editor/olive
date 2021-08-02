@@ -174,6 +174,10 @@ public:
 
   virtual void NudgeRight(){}
 
+  virtual void MoveInToPlayhead(){}
+
+  virtual void MoveOutToPlayhead(){}
+
 signals:
   void CloseRequested();
 

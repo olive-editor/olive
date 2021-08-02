@@ -57,12 +57,7 @@ void TimeBasedWidget::SetScaleAndCenterOnPlayhead(const double &scale)
   QTimer::singleShot(0, this, &TimeBasedWidget::CenterScrollOnPlayhead);
 }
 
-rational TimeBasedWidget::GetTime() const
-{
-  return Timecode::timestamp_to_time(ruler()->GetTime(), timebase());
-}
-
-const int64_t &TimeBasedWidget::GetTimestamp() const
+const rational &TimeBasedWidget::GetTime() const
 {
   return ruler_->GetTime();
 }
@@ -273,8 +268,7 @@ void TimeBasedWidget::resizeEvent(QResizeEvent *event)
 void TimeBasedWidget::ConnectTimelineView(TimeBasedView *base, bool connect_time_change_event)
 {
   if (connect_time_change_event) {
-    connect(base, &TimeBasedView::TimeChanged, this, &TimeBasedWidget::SetTimestamp);
-    connect(base, &TimeBasedView::TimeChanged, this, &TimeBasedWidget::TimeChanged);
+    connect(base, &TimeBasedView::TimeChanged, this, &TimeBasedWidget::SetTimeAndSignal);
   }
 
   timeline_views_.append(base);
@@ -286,7 +280,7 @@ void TimeBasedWidget::PassWheelEventsToScrollBar(QObject *object)
   object->installEventFilter(this);
 }
 
-void TimeBasedWidget::SetTimestamp(int64_t timestamp)
+void TimeBasedWidget::SetTime(const rational &time)
 {
   if (UserIsDraggingPlayhead()) {
     // If the user is dragging the playhead, we will simply nudge over and not use autoscroll rules.
@@ -306,9 +300,9 @@ void TimeBasedWidget::SetTimestamp(int64_t timestamp)
     }
   }
 
-  ruler_->SetTime(timestamp);
+  ruler_->SetTime(time);
 
-  TimeChangedEvent(timestamp);
+  TimeChangedEvent(time);
 }
 
 void TimeBasedWidget::SetTimebase(const rational &timebase)
@@ -341,20 +335,18 @@ void TimeBasedWidget::GoToPrevCut()
     return;
   }
 
-  if (GetTimestamp() == 0) {
+  if (GetTime().isNull()) {
     return;
   }
 
-  int64_t closest_cut = 0;
+  rational closest_cut = 0;
 
   foreach (Track* track, sequence->GetTracks()) {
-    int64_t this_track_closest_cut = 0;
+    rational this_track_closest_cut = 0;
 
     foreach (Block* block, track->Blocks()) {
-      int64_t block_out_ts = Timecode::time_to_timestamp(block->out(), timebase());
-
-      if (block_out_ts < GetTimestamp()) {
-        this_track_closest_cut = block_out_ts;
+      if (block->out() < GetTime()) {
+        this_track_closest_cut = block->out();
       } else {
         break;
       }
@@ -375,20 +367,18 @@ void TimeBasedWidget::GoToNextCut()
     return;
   }
 
-  int64_t closest_cut = INT64_MAX;
+  rational closest_cut = RATIONAL_MAX;
 
   foreach (Track* track, sequence->GetTracks()) {
-    int64_t this_track_closest_cut = Timecode::time_to_timestamp(track->track_length(), timebase());
+    rational this_track_closest_cut = track->track_length();
 
-    if (this_track_closest_cut <= GetTimestamp()) {
-      this_track_closest_cut = INT64_MAX;
+    if (this_track_closest_cut <= GetTime()) {
+      this_track_closest_cut = RATIONAL_MAX;
     }
 
     foreach (Block* block, track->Blocks()) {
-      int64_t block_in_ts = Timecode::time_to_timestamp(block->in(), timebase());
-
-      if (block_in_ts > GetTimestamp()) {
-        this_track_closest_cut = block_in_ts;
+      if (block->in() > GetTime()) {
+        this_track_closest_cut = block->in();
         break;
       }
     }
@@ -396,7 +386,7 @@ void TimeBasedWidget::GoToNextCut()
     closest_cut = qMin(closest_cut, this_track_closest_cut);
   }
 
-  if (closest_cut < INT64_MAX) {
+  if (closest_cut < RATIONAL_MAX) {
     SetTimeAndSignal(closest_cut);
   }
 }
@@ -411,33 +401,43 @@ void TimeBasedWidget::GoToStart()
 void TimeBasedWidget::PrevFrame()
 {
   if (viewer_node_) {
-    SetTimeAndSignal(qMax(static_cast<int64_t>(0), ruler()->GetTime() - 1));
+    rational proposed_time = Timecode::snap_time_to_timebase(GetTime() - timebase(), timebase(), Timecode::kCeil);
+    if (proposed_time == GetTime()) {
+      // Catch rounding error, assume this time is snapped and just subtract a timebase
+      proposed_time -= timebase();
+    }
+    SetTimeAndSignal(qMax(rational(0), proposed_time));
   }
 }
 
 void TimeBasedWidget::NextFrame()
 {
   if (viewer_node_) {
-    SetTimeAndSignal(ruler()->GetTime() + 1);
+    rational proposed_time = Timecode::snap_time_to_timebase(GetTime() + timebase(), timebase(), Timecode::kFloor);
+    if (proposed_time == GetTime()) {
+      // Catch rounding error, assume this time is snapped and just add a timebase
+      proposed_time += timebase();
+    }
+    SetTimeAndSignal(proposed_time);
   }
 }
 
 void TimeBasedWidget::GoToEnd()
 {
   if (viewer_node_) {
-    SetTimeAndSignal(Timecode::time_to_timestamp(viewer_node_->GetLength(), timebase()));
+    SetTimeAndSignal(viewer_node_->GetLength());
   }
 }
 
-void TimeBasedWidget::SetTimeAndSignal(const int64_t &t)
+void TimeBasedWidget::SetTimeAndSignal(const rational &t)
 {
-  SetTimestamp(t);
+  SetTime(t);
   emit TimeChanged(t);
 }
 
 void TimeBasedWidget::CenterScrollOnPlayhead()
 {
-  scrollbar_->setValue(qRound(TimeToScene(Timecode::timestamp_to_time(ruler_->GetTime(), timebase()))) - scrollbar_->width()/2);
+  scrollbar_->setValue(qRound(TimeToScene(ruler_->GetTime())) - scrollbar_->width()/2);
 }
 
 void TimeBasedWidget::SetAutoSetTimebase(bool e)
@@ -639,7 +639,7 @@ void TimeBasedWidget::GoToIn()
 {
   if (GetConnectedNode()) {
     if (GetConnectedNode()->GetTimelinePoints()->workarea()->enabled()) {
-      SetTimeAndSignal(Timecode::time_to_timestamp(GetConnectedNode()->GetTimelinePoints()->workarea()->in(), timebase()));
+      SetTimeAndSignal(GetConnectedNode()->GetTimelinePoints()->workarea()->in());
     } else {
       GoToStart();
     }
@@ -650,7 +650,7 @@ void TimeBasedWidget::GoToOut()
 {
   if (GetConnectedNode()) {
     if (GetConnectedNode()->GetTimelinePoints()->workarea()->enabled()) {
-      SetTimeAndSignal(Timecode::time_to_timestamp(GetConnectedNode()->GetTimelinePoints()->workarea()->out(), timebase()));
+      SetTimeAndSignal(GetConnectedNode()->GetTimelinePoints()->workarea()->out());
     } else {
       GoToEnd();
     }

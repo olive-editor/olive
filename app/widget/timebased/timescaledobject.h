@@ -51,8 +51,8 @@ public:
   static double CalculateScaleFromDimensions(double viewport_sz, double content_sz);
   static double CalculatePaddingFromDimensionScale(double viewport_sz);
 
-  double TimeToScene(const rational& time);
-  rational SceneToTime(const double &x, bool round = false);
+  double TimeToScene(const rational& time) const;
+  rational SceneToTime(const double &x, bool round = false) const;
 
 protected:
   virtual void TimebaseChangedEvent(const rational&){}
