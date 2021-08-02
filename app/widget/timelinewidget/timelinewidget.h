@@ -31,7 +31,7 @@
 #include "node/output/viewer/viewer.h"
 #include "timeline/timelinecommon.h"
 #include "timelineandtrackview.h"
-#include "widget/slider/timeslider.h"
+#include "widget/slider/rationalslider.h"
 #include "widget/snapservice/snapservice.h"
 #include "widget/timebased/timebasedwidget.h"
 #include "widget/timelinewidget/timelinewidgetselections.h"
@@ -254,7 +254,7 @@ protected:
   virtual void resizeEvent(QResizeEvent *event) override;
 
   virtual void TimebaseChangedEvent(const rational &) override;
-  virtual void TimeChangedEvent(const int64_t &) override;
+  virtual void TimeChangedEvent(const rational &time) override;
   virtual void ScaleChangedEvent(const double &) override;
 
   virtual void ConnectNodeEvent(ViewerOutput* n) override;
@@ -305,7 +305,7 @@ private:
 
   QVector<TimelineAndTrackView*> views_;
 
-  TimeSlider* timecode_label_;
+  RationalSlider* timecode_label_;
 
   QVector<Block*> selected_blocks_;
 
@@ -357,9 +357,7 @@ private slots:
 
   void SetUseAudioTimeUnits(bool use);
 
-  void SetViewTimestamp(const int64_t& ts);
-
-  void ViewTimestampChanged(int64_t ts);
+  void SetViewTime(const rational &time);
 
   void ToolChanged();
 

@@ -27,7 +27,7 @@
 
 #include "node/keyframe.h"
 #include "widget/slider/floatslider.h"
-#include "widget/slider/timeslider.h"
+#include "widget/slider/rationalslider.h"
 
 namespace olive {
 
@@ -47,7 +47,7 @@ private:
 
   rational timebase_;
 
-  TimeSlider* time_slider_;
+  RationalSlider* time_slider_;
 
   QComboBox* type_select_;
 

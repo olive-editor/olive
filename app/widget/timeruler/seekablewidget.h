@@ -34,7 +34,10 @@ class SeekableWidget : public TimelineScaledWidget
 public:
   SeekableWidget(QWidget *parent = nullptr);
 
-  const int64_t& GetTime() const;
+  const rational& GetTime() const
+  {
+    return time_;
+  }
 
   const int& GetScroll() const;
 
@@ -48,7 +51,7 @@ public:
   }
 
 public slots:
-  void SetTime(const int64_t &r);
+  void SetTime(const rational &r);
 
   void SetScroll(int s);
 
@@ -65,14 +68,8 @@ protected:
 
   TimelinePoints* timeline_points() const;
 
-  double ScreenToUnitFloat(int screen) const;
-
-  int64_t ScreenToUnit(int screen) const;
-  int64_t ScreenToUnitRounded(int screen) const;
-
-  int UnitToScreen(int64_t unit) const;
-
   int TimeToScreen(const rational& time) const;
+  rational ScreenToTime(int x) const;
 
   void DrawPlayhead(QPainter* p, int x, int y);
 
@@ -88,10 +85,10 @@ signals:
   /**
    * @brief Signal emitted whenever the time changes on this ruler, either by user or programmatically
    */
-  void TimeChanged(int64_t);
+  void TimeChanged(const rational &time);
 
 private:
-  int64_t time_;
+  rational time_;
 
   TimelinePoints* timeline_points_;
 

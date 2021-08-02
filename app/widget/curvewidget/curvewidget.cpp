@@ -59,7 +59,7 @@ CurveWidget::CurveWidget(QWidget *parent) :
   QHBoxLayout* top_controls = new QHBoxLayout();
 
   key_control_ = new NodeParamViewKeyframeControl(false);
-  connect(key_control_, &NodeParamViewKeyframeControl::RequestSetTime, this, &CurveWidget::KeyControlRequestedTimeChanged);
+  connect(key_control_, &NodeParamViewKeyframeControl::RequestSetTime, this, &CurveWidget::SetTimeAndSignal);
   top_controls->addWidget(key_control_);
 
   top_controls->addStretch();
@@ -156,12 +156,12 @@ void CurveWidget::SetNodes(const QVector<Node *> &nodes)
   nodes_ = nodes;
 }
 
-void CurveWidget::TimeChangedEvent(const int64_t &timestamp)
+void CurveWidget::TimeChangedEvent(const rational &time)
 {
-  TimeBasedWidget::TimeChangedEvent(timestamp);
+  TimeBasedWidget::TimeChangedEvent(time);
 
-  view_->SetTime(timestamp);
-  UpdateBridgeTime(timestamp);
+  view_->SetTime(time);
+  UpdateBridgeTime(time);
 }
 
 void CurveWidget::TimebaseChangedEvent(const rational &timebase)
@@ -211,9 +211,8 @@ void CurveWidget::SetKeyframeButtonCheckedFromType(NodeKeyframe::Type type)
   hold_button_->setChecked(type == NodeKeyframe::kHold);
 }
 
-void CurveWidget::UpdateBridgeTime(const int64_t &timestamp)
+void CurveWidget::UpdateBridgeTime(const rational &time)
 {
-  rational time = Timecode::timestamp_to_time(timestamp, view_->timebase());
   key_control_->SetTime(time);
 }
 
@@ -353,11 +352,6 @@ void CurveWidget::KeyframeTypeButtonTriggered(bool checked)
   }
 
   Core::instance()->undo_stack()->push(command);
-}
-
-void CurveWidget::KeyControlRequestedTimeChanged(const rational &time)
-{
-  SetTimeAndSignal(Timecode::time_to_timestamp(time, view_->timebase()));
 }
 
 void CurveWidget::NodeEnabledChanged(Node* n, bool e)

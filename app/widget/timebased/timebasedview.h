@@ -56,12 +56,12 @@ public:
   }
 
 public slots:
-  void SetTime(const int64_t time);
+  void SetTime(const rational &time);
 
   void SetEndTime(const rational& length);
 
 signals:
-  void TimeChanged(const int64_t& time);
+  void TimeChanged(const rational& time);
 
   void ScaleChanged(double scale);
 
@@ -78,7 +78,10 @@ protected:
 
   virtual void ZoomIntoCursorPosition(QWheelEvent *event, double multiplier, const QPointF &cursor_pos) override;
 
-  rational GetPlayheadTime() const;
+  const rational &GetPlayheadTime() const
+  {
+    return playhead_;
+  }
 
   bool PlayheadPress(QMouseEvent* event);
   bool PlayheadMove(QMouseEvent* event);
@@ -105,7 +108,7 @@ protected slots:
 private:
   qreal GetPlayheadX();
 
-  int64_t playhead_;
+  rational playhead_;
 
   double playhead_scene_left_;
   double playhead_scene_right_;

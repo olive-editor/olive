@@ -94,12 +94,12 @@ protected:
 
   virtual void ScaleChangedEvent(const double &) override;
   virtual void TimebaseChangedEvent(const rational&) override;
-  virtual void TimeChangedEvent(const int64_t &) override;
+  virtual void TimeChangedEvent(const rational &time) override;
 
   virtual void ConnectedNodeChangeEvent(ViewerOutput* n) override;
 
 private:
-  void UpdateItemTime(const int64_t &timestamp);
+  void UpdateItemTime(const rational &time);
 
   void QueueKeyframePositionUpdate();
 
@@ -132,8 +132,6 @@ private:
   Node* focused_node_;
 
 private slots:
-  void ItemRequestedTimeChanged(const rational& time);
-
   void UpdateGlobalScrollBar();
 
   void PinNode(bool pin);

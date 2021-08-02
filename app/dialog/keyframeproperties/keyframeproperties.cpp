@@ -43,7 +43,8 @@ KeyframePropertiesDialog::KeyframePropertiesDialog(const QVector<NodeKeyframe*> 
 
   layout->addWidget(new QLabel("Time:"), row, 0);
 
-  time_slider_ = new TimeSlider();
+  time_slider_ = new RationalSlider();
+  time_slider_->SetDisplayType(RationalSlider::kTime);
   time_slider_->SetTimebase(timebase_);
   layout->addWidget(time_slider_, row, 1);
 
@@ -146,7 +147,7 @@ KeyframePropertiesDialog::KeyframePropertiesDialog(const QVector<NodeKeyframe*> 
   }
 
   if (all_same_time) {
-    time_slider_->SetValue(Timecode::time_to_timestamp(keys_.first()->time(), timebase_));
+    time_slider_->SetValue(keys_.first()->time());
   } else {
     time_slider_->SetTristate();
   }
@@ -196,7 +197,7 @@ void KeyframePropertiesDialog::accept()
 {
   MultiUndoCommand* command = new MultiUndoCommand();
 
-  rational new_time = Timecode::timestamp_to_time(time_slider_->GetValue(), timebase_);
+  rational new_time = time_slider_->GetValue();
   int new_type = type_select_->currentData().toInt();
 
   foreach (NodeKeyframe* key, keys_) {

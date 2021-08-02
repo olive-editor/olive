@@ -71,10 +71,11 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   QHBoxLayout* ruler_and_time_layout = new QHBoxLayout();
   vert_layout->addLayout(ruler_and_time_layout);
 
-  timecode_label_ = new TimeSlider();
+  timecode_label_ = new RationalSlider();
   timecode_label_->SetAlignment(Qt::AlignCenter);
+  timecode_label_->SetDisplayType(RationalSlider::kTime);
   timecode_label_->setVisible(false);
-  connect(timecode_label_, &TimeSlider::ValueChanged, this, &TimelineWidget::SetTimeAndSignal);
+  connect(timecode_label_, &RationalSlider::ValueChanged, this, &TimelineWidget::SetTimeAndSignal);
   ruler_and_time_layout->addWidget(timecode_label_);
 
   ruler_and_time_layout->addWidget(ruler());
@@ -136,7 +137,7 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
 
     connect(view->horizontalScrollBar(), &QScrollBar::valueChanged, ruler(), &TimeRuler::SetScroll);
     connect(view, &TimelineView::ScaleChanged, this, &TimelineWidget::SetScale);
-    connect(view, &TimelineView::TimeChanged, this, &TimelineWidget::ViewTimestampChanged);
+    connect(view, &TimelineView::TimeChanged, this, &TimelineWidget::SetTimeAndSignal);
     connect(view, &TimelineView::customContextMenuRequested, this, &TimelineWidget::ShowContextMenu);
     connect(scrollbar(), &QScrollBar::valueChanged, view->horizontalScrollBar(), &QScrollBar::setValue);
     connect(view->horizontalScrollBar(), &QScrollBar::valueChanged, scrollbar(), &QScrollBar::setValue);
@@ -222,13 +223,13 @@ void TimelineWidget::resizeEvent(QResizeEvent *event)
   UpdateTimecodeWidthFromSplitters(views_.first()->splitter());
 }
 
-void TimelineWidget::TimeChangedEvent(const int64_t& timestamp)
+void TimelineWidget::TimeChangedEvent(const rational &time)
 {
-  super::TimeChangedEvent(timestamp);
+  super::TimeChangedEvent(time);
 
-  SetViewTimestamp(timestamp);
+  SetViewTime(time);
 
-  timecode_label_->SetValue(timestamp);
+  timecode_label_->SetValue(time);
 }
 
 void TimelineWidget::ScaleChangedEvent(const double &scale)
@@ -400,7 +401,7 @@ void TimelineWidget::SplitAtPlayhead()
     return;
   }
 
-  rational playhead_time = Timecode::timestamp_to_time(GetTimestamp(), timebase());
+  const rational &playhead_time = GetTime();
 
   QVector<Block*> selected_blocks = GetSelectedBlocks();
 
@@ -693,8 +694,7 @@ void TimelineWidget::DeleteInToOut(bool ripple)
                                                    false));
 
   if (ripple) {
-    SetTimeAndSignal(Timecode::time_to_timestamp(GetConnectedNode()->GetTimelinePoints()->workarea()->in(),
-                                                 timebase()));
+    SetTimeAndSignal(GetConnectedNode()->GetTimelinePoints()->workarea()->in());
   }
 
   Core::instance()->undo_stack()->push(command);
@@ -1085,37 +1085,14 @@ void TimelineWidget::SetUseAudioTimeUnits(bool use)
 
   // Update timebases
   UpdateViewTimebases();
-
-  // Force update of the viewer timestamps
-  SetViewTimestamp(GetTimestamp());
 }
 
-void TimelineWidget::SetViewTimestamp(const int64_t &ts)
+void TimelineWidget::SetViewTime(const rational &time)
 {
   for (int i=0;i<views_.size();i++) {
     TimelineAndTrackView* view = views_.at(i);
-
-    if (GetConnectedNode() && use_audio_time_units_ && i == Track::kAudio) {
-      view->view()->SetTime(Timecode::rescale_timestamp(ts,
-                                                        timebase(),
-                                                        GetConnectedNode()->GetAudioParams().sample_rate_as_time_base()));
-    } else {
-      view->view()->SetTime(ts);
-    }
+    view->view()->SetTime(time);
   }
-}
-
-void TimelineWidget::ViewTimestampChanged(int64_t ts)
-{
-  if (GetConnectedNode() && use_audio_time_units_ && sender() == views_.at(Track::kAudio)) {
-    ts = Timecode::rescale_timestamp(ts,
-                                     GetConnectedNode()->GetAudioParams().sample_rate_as_time_base(),
-                                     timebase());
-  }
-
-  // Update all other views
-  SetTimestamp(ts);
-  emit TimeChanged(ts);
 }
 
 void TimelineWidget::ToolChanged()
@@ -1441,9 +1418,9 @@ void TimelineWidget::RippleTo(Timeline::MovementMode mode)
 
   // If we rippled, ump to where new cut is if applicable
   if (mode == Timeline::kTrimIn) {
-    SetTimeAndSignal(Timecode::time_to_timestamp(closest_point_to_playhead, timebase()));
+    SetTimeAndSignal(closest_point_to_playhead);
   } else if (mode == Timeline::kTrimOut && closest_point_to_playhead == GetTime()) {
-    SetTimeAndSignal(Timecode::time_to_timestamp(playhead_time, timebase()));
+    SetTimeAndSignal(playhead_time);
   }
 }
 

@@ -121,7 +121,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   SetScale(48.0);
 
   // Ensures that seeking on the waveform view updates the time as expected
-  connect(waveform_view_, &AudioWaveformView::TimeChanged, this, &ViewerWidget::TimeChangedFromWaveform);
+  connect(waveform_view_, &AudioWaveformView::TimeChanged, this, &ViewerWidget::SetTimeAndSignal);
   connect(waveform_view_, &AudioWaveformView::customContextMenuRequested, this, &ViewerWidget::ShowContextMenu);
 
   connect(&playback_backup_timer_, &QTimer::timeout, this, &ViewerWidget::PlaybackTimerUpdate);
@@ -144,30 +144,16 @@ ViewerWidget::~ViewerWidget()
   }
 }
 
-void ViewerWidget::TimeChangedEvent(const int64_t &i)
+void ViewerWidget::TimeChangedEvent(const rational &time)
 {
   if (!time_changed_from_timer_) {
     PauseInternal();
   }
 
-  controls_->SetTime(i);
+  controls_->SetTime(time);
+  waveform_view_->SetTime(time);
 
-  {
-    // Update waveform time
-    qint64 waveform_time;
-
-    if (waveform_view_->timebase() != this->timebase()) {
-      waveform_time = Timecode::rescale_timestamp(i, this->timebase(), waveform_view_->timebase());
-    } else {
-      waveform_time = i;
-    }
-
-    waveform_view_->SetTime(waveform_time);
-  }
-
-  if (GetConnectedNode() && last_time_ != i) {
-    rational time_set = Timecode::timestamp_to_time(i, timebase());
-
+  if (GetConnectedNode() && last_time_ != time) {
     if (!IsPlaying()) {
       UpdateTextureFromNode();
 
@@ -178,13 +164,13 @@ void ViewerWidget::TimeChangedEvent(const int64_t &i)
       display_widget_->ResetFPSTimer();
     }
 
-    display_widget_->SetTime(time_set);
+    display_widget_->SetTime(time);
   }
 
   // Send time to auto-cacher
   UpdateAutoCacher();
 
-  last_time_ = i;
+  last_time_ = time;
 }
 
 void ViewerWidget::ConnectNodeEvent(ViewerOutput *n)
@@ -573,14 +559,14 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
     if (speed > 0) {
       SetTimeAndSignal(0);
     } else {
-      SetTimeAndSignal(Timecode::time_to_timestamp(GetConnectedNode()->GetLength(), timebase()));
+      SetTimeAndSignal(GetConnectedNode()->GetLength());
     }
   }
 
   playback_speed_ = speed;
   play_in_to_out_only_ = in_to_out_only;
 
-  playback_queue_next_frame_ = ruler()->GetTime();
+  playback_queue_next_frame_ = GetTimestamp();
 
   controls_->ShowPauseButton();
 
@@ -752,7 +738,7 @@ RenderTicketPtr ViewerWidget::GetFrame(const rational &t, bool prioritize)
 
 void ViewerWidget::FinishPlayPreprocess()
 {
-  int64_t playback_start_time = ruler()->GetTime();
+  int64_t playback_start_time = GetTimestamp();
 
   StartAudioOutput();
 
@@ -1062,7 +1048,7 @@ void ViewerWidget::Play(bool in_to_out_only)
     if (GetConnectedNode()
         && GetConnectedNode()->GetTimelinePoints()->workarea()->enabled()) {
       // Jump to in point
-      SetTimeAndSignal(Timecode::time_to_timestamp(GetConnectedNode()->GetTimelinePoints()->workarea()->in(), timebase()));
+      SetTimeAndSignal(GetConnectedNode()->GetTimelinePoints()->workarea()->in());
     } else {
       in_to_out_only = false;
     }
@@ -1148,21 +1134,21 @@ void ViewerWidget::TimebaseChangedEvent(const rational &timebase)
 
 void ViewerWidget::PlaybackTimerUpdate()
 {
-  int64_t current_time = playback_timer_.GetTimestampNow();
+  rational current_time = Timecode::timestamp_to_time(playback_timer_.GetTimestampNow(), timebase());
 
-  int64_t min_time, max_time;
+  rational min_time, max_time;
 
   if (play_in_to_out_only_ && GetConnectedNode()->GetTimelinePoints()->workarea()->enabled()) {
 
     // If "play in to out" is enabled or we're looping AND we have a workarea, only play the workarea
-    min_time = Timecode::time_to_timestamp(GetConnectedNode()->GetTimelinePoints()->workarea()->in(), timebase());
-    max_time = Timecode::time_to_timestamp(GetConnectedNode()->GetTimelinePoints()->workarea()->out(), timebase());
+    min_time = GetConnectedNode()->GetTimelinePoints()->workarea()->in();
+    max_time = GetConnectedNode()->GetTimelinePoints()->workarea()->out();
 
   } else {
 
     // Otherwise set the bounds to the range of the sequence
     min_time = 0;
-    max_time = Timecode::time_to_timestamp(GetConnectedNode()->GetLength(), timebase());
+    max_time = GetConnectedNode()->GetLength();
 
   }
 
@@ -1170,7 +1156,7 @@ void ViewerWidget::PlaybackTimerUpdate()
       || (playback_speed_ > 0 && current_time >= max_time)) {
 
     // Determine which timestamp we tripped
-    int64_t tripped_time;
+    rational tripped_time;
 
     if (current_time <= min_time) {
       tripped_time = min_time;
@@ -1181,7 +1167,7 @@ void ViewerWidget::PlaybackTimerUpdate()
     if (Config::Current()[QStringLiteral("Loop")].toBool()) {
 
       // If we're looping, jump to the other side of the workarea and continue
-      int64_t opposing_time = (tripped_time == min_time) ? max_time : min_time;
+      rational opposing_time = (tripped_time == min_time) ? max_time : min_time;
 
       // Cache the current speed
       int current_speed = playback_speed_;
@@ -1211,8 +1197,7 @@ void ViewerWidget::PlaybackTimerUpdate()
     UpdateTextureFromNode();
   } else if (!windows_.empty()) {
     // We still run the queue if windows are visible even if our own display widget isn't visible
-    rational t = GetTime();
-    while (!playback_queue_.empty() && playback_queue_.front().timestamp != t) {
+    while (!playback_queue_.empty() && playback_queue_.front().timestamp != GetTime()) {
       PopOldestFrameFromPlaybackQueue();
     }
   }
@@ -1239,7 +1224,7 @@ void ViewerWidget::SetViewerPixelAspect(const rational &ratio)
 void ViewerWidget::LengthChangedSlot(const rational &length)
 {
   if (last_length_ != length) {
-    controls_->SetEndTime(Timecode::time_to_timestamp(length, timebase()));
+    controls_->SetEndTime(length);
     UpdateMinimumScale();
 
     if (length < last_length_ && GetTime() >= length) {
@@ -1294,16 +1279,6 @@ void ViewerWidget::ManualSwitchToWaveform(bool e)
   } else {
     stack_->setCurrentWidget(sizer_);
   }
-}
-
-void ViewerWidget::TimeChangedFromWaveform(qint64 t)
-{
-  if (waveform_view_->timebase() != this->timebase()) {
-    // Transform time to our timebase
-    t = Timecode::rescale_timestamp(t, waveform_view_->timebase(), this->timebase());
-  }
-
-  SetTimeAndSignal(t);
 }
 
 void ViewerWidget::ViewerShiftedRange(const rational &from, const rational &to)
