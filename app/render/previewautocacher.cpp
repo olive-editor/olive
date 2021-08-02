@@ -203,7 +203,7 @@ void PreviewAutoCacher::AudioRendered()
             foreach (TimeRange r, intersections) {
               // For each range, adjust it relative to the block and write it
               r -= block->in();
-              block->waveform().OverwriteSums(waveform_info.waveform, r.in(), r.in(), r.length());
+              block->waveform().OverwriteSums(waveform_info.waveform, r.in(), r.in() - waveform_info.range.in(), r.length());
             }
 
             emit block->PreviewChanged();

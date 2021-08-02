@@ -143,6 +143,9 @@ void AudioVisualWaveform::OverwriteSums(const AudioVisualWaveform &sums, const r
 
     // Get our source sample
     int their_start_index = time_to_samples(offset, rate_dbl);
+    if (their_start_index >= their_arr.size()) {
+      continue;
+    }
 
     // Determine how much we're copying
     int copy_len = their_arr.size() - their_start_index;
