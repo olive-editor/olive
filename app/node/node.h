@@ -46,7 +46,11 @@
 
 namespace olive {
 
-#define NODE_DEFAULT_DESTRUCTOR(x) virtual ~x() override {DisconnectAll();}
+#define NODE_DEFAULT_DESTRUCTOR(x) \
+  virtual ~x() override {DisconnectAll();}
+
+#define NODE_COPY_FUNCTION(x) \
+  virtual Node *copy() const override {return new x();}
 
 class NodeGraph;
 class Folder;

@@ -14,13 +14,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(matrix)
-add_subdirectory(polygon)
-add_subdirectory(shape)
-add_subdirectory(solid)
-add_subdirectory(text)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  node/generator/shape/shapenode.cpp
+  node/generator/shape/shapenode.h
+  node/generator/shape/shapenodebase.cpp
+  node/generator/shape/shapenodebase.h
   PARENT_SCOPE
 )
