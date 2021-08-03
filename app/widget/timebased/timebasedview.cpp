@@ -217,6 +217,8 @@ bool TimeBasedView::PlayheadMove(QMouseEvent *event)
     rational movement;
 
     snap_service_->SnapPoint({mouse_time}, &movement, SnapService::kSnapAll & ~SnapService::kSnapToPlayhead);
+
+    mouse_time += movement;
   }
 
   SetTime(mouse_time);

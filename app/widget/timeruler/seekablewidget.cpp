@@ -151,6 +151,8 @@ void SeekableWidget::SeekToScreenPoint(int screen)
     snap_service_->SnapPoint({playhead_time},
                              &movement,
                              SnapService::kSnapAll & ~SnapService::kSnapToPlayhead);
+
+    playhead_time += movement;
   }
 
   if (playhead_time != GetTime()) {
