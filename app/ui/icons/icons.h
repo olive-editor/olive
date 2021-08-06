@@ -65,6 +65,9 @@ extern QIcon Video;
 extern QIcon Audio;
 extern QIcon Image;
 
+// Node Icons
+extern QIcon MiniMap;
+
 // Triangle Arrows
 extern QIcon TriUp;
 extern QIcon TriLeft;
