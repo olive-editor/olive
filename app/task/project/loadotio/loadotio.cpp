@@ -206,6 +206,28 @@ bool LoadOTIOTask::Run()
             transition_block->set_media_in(rational::fromDouble(-otio_block_transition->out_offset().to_seconds()));
           }
           prev_block_transition = true;
+
+          // Add nodes to the graph and set up contexts
+          MultiUndoCommand* command = new MultiUndoCommand();
+
+          command->add_child(new NodeAddCommand(sequence->parent(), block));
+
+          // Position transition in its own context
+          command->add_child(new NodeSetPositionCommand(block, block, QPointF(0, 0), false));
+
+          Core::instance()->undo_stack()->pushIfHasChildren(command);
+        }
+
+        if (otio_block->schema_name() == "Gap") {
+          // Add nodes to the graph and set up contexts
+          MultiUndoCommand* command = new MultiUndoCommand();
+
+          command->add_child(new NodeAddCommand(sequence->parent(), block));
+
+          // Position transition in its own context
+          command->add_child(new NodeSetPositionCommand(block, block, QPointF(0, 0), false));
+
+          Core::instance()->undo_stack()->pushIfHasChildren(command);
         }
 
         // Update this after it's used but before any continue statements
