@@ -31,12 +31,19 @@
 #include <QApplication>
 #include <QFileInfo>
 
+#include "core.h"
+#include "node/audio/volume/volume.h"
 #include "node/block/clip/clip.h"
 #include "node/block/gap/gap.h"
 #include "node/block/transition/crossdissolve/crossdissolvetransition.h"
+#include "node/distort/transform/transformdistortnode.h"
+#include "node/generator/matrix/matrix.h"
+#include "node/math/math/math.h"
 #include "node/project/folder/folder.h"
 #include "node/project/footage/footage.h"
 #include "node/project/sequence/sequence.h"
+#include "window/mainwindow/mainwindowundo.h"
+#include "widget/nodeview/nodeviewundo.h"
 #include "widget/timelinewidget/undo/timelineundogeneral.h"
 
 namespace olive {
@@ -222,27 +229,54 @@ bool LoadOTIOTask::Run()
               imported_footage.insert(footage_url, probed_item);
               probed_item->setParent(project_);
 
+
               QFileInfo info(probed_item->filename());
               probed_item->SetLabel(info.fileName());
 
-              FolderAddChild add(sequence_footage, probed_item, false);
+              FolderAddChild add(sequence_footage, probed_item, true);
               add.redo_now();
             }
 
-            Track::Reference reference;
+            // Add nodes to the graph and set up contexts
+            MultiUndoCommand* command = new MultiUndoCommand();
 
+            command->add_child(new NodeAddCommand(sequence->parent(), block));
+
+            // Position clip in its own context
+            command->add_child(new NodeSetPositionCommand(block, block, QPointF(0, 0), false));
+
+            // Position footage in its context
+            command->add_child(new NodeSetPositionCommand(probed_item, block, QPointF(-2, 0), false));
+
+
+            Track::Reference reference;
             if (track->type() == Track::kVideo) {
               reference = Track::Reference(Track::kVideo, 0);
+              QString output_id = reference.ToString();
+
+              TransformDistortNode* transform = new TransformDistortNode();
+              command->add_child(new NodeAddCommand(sequence->parent(), transform));
+
+              command->add_child(new NodeEdgeAddCommand(NodeOutput(probed_item, output_id),
+                                                        NodeInput(transform, TransformDistortNode::kTextureInput)));
+              command->add_child(new NodeEdgeAddCommand(transform, NodeInput(block, ClipBlock::kBufferIn)));
+              command->add_child(new NodeSetPositionCommand(transform, block, QPointF(-1, 0), false));
             } else {
               reference = Track::Reference(Track::kAudio, 0);
+              QString output_id = reference.ToString();
+
+              VolumeNode* volume_node = new VolumeNode();
+              command->add_child(new NodeAddCommand(sequence->parent(), volume_node));
+
+              command->add_child(new NodeEdgeAddCommand(NodeOutput(probed_item, output_id),
+                                                        NodeInput(volume_node, VolumeNode::kSamplesInput)));
+              command->add_child(new NodeEdgeAddCommand(volume_node, NodeInput(block, ClipBlock::kBufferIn)));
+              command->add_child(new NodeSetPositionCommand(volume_node, block, QPointF(-1, 0), false));
             }
 
-            QString output_id = reference.ToString();
-
-            Node::ConnectEdge(NodeOutput(probed_item, output_id), NodeInput(block, ClipBlock::kBufferIn));
+            Core::instance()->undo_stack()->pushIfHasChildren(command);
           }
         }
-
       }
     }
   }
