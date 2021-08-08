@@ -396,7 +396,7 @@ bool FFmpegEncoder::WriteSubtitle(const SubtitleBlock *sub_block)
   subtitle.num_rects = 1;
   subtitle.rects = &rect_array;
 
-  subtitle.pts = Timecode::time_to_timestamp(sub_block->in(), av_get_time_base_q(), Timecode::kFloor);
+  subtitle.pts = Timecode::time_to_timestamp(sub_block->in(), subtitle_codec_ctx_->time_base, Timecode::kFloor);
   subtitle.end_display_time = qRound64(sub_block->length().toDouble() * 1000);
 
   QVector<uint8_t> out_buf(1024 * 1024);
@@ -412,9 +412,9 @@ bool FFmpegEncoder::WriteSubtitle(const SubtitleBlock *sub_block)
   pkt->data = out_buf.data();
   pkt->size = sub_sz;
   pkt->pts = subtitle.pts;
-  pkt->duration = subtitle.end_display_time;
+  pkt->duration = av_rescale_q(subtitle.end_display_time, {1, 1000}, subtitle_codec_ctx_->time_base);
   pkt->dts = pkt->pts;
-  av_packet_rescale_ts(pkt, av_get_time_base_q(), subtitle_stream_->time_base);
+  av_packet_rescale_ts(pkt, subtitle_codec_ctx_->time_base, subtitle_stream_->time_base);
 
   int err = av_interleaved_write_frame(fmt_ctx_, pkt);
   bool ret = true;
@@ -694,6 +694,7 @@ bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AV
     codec_ctx->height = params().video_params().height();
     codec_ctx->sample_aspect_ratio = params().video_params().pixel_aspect_ratio().toAVRational();
     codec_ctx->time_base = params().video_params().frame_rate_as_time_base().toAVRational();
+    codec_ctx->framerate = params().video_params().frame_rate().toAVRational();
     codec_ctx->pix_fmt = av_get_pix_fmt(params().video_pix_fmt().toUtf8());
 
     if (params().video_params().interlacing() != VideoParams::kInterlaceNone) {
