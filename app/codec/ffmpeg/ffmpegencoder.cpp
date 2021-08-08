@@ -322,7 +322,7 @@ bool FFmpegEncoder::WriteAudio(SampleBufferPtr audio)
 
       if (audio_frame_offset_ == audio_max_samples_ || (i == converted && !input_data)) {
         // Got all the samples we needed, write the frame
-        audio_frame_->pts = audio_write_count_;
+        audio_frame_->pts = av_rescale_q(audio_write_count_, {1, audio_codec_ctx_->sample_rate}, audio_codec_ctx_->time_base);
 
         WriteAVFrame(audio_frame_, audio_codec_ctx_, audio_stream_);
         audio_write_count_ += audio_frame_offset_;
@@ -336,7 +336,7 @@ bool FFmpegEncoder::WriteAudio(SampleBufferPtr audio)
 
   if (!input_data && audio_frame_offset_ > 0) {
     audio_frame_->nb_samples = audio_frame_offset_;
-    audio_frame_->pts = audio_write_count_;
+    audio_frame_->pts = av_rescale_q(audio_write_count_, {1, audio_codec_ctx_->sample_rate}, audio_codec_ctx_->time_base);
     WriteAVFrame(audio_frame_, audio_codec_ctx_, audio_stream_);
   }
 
