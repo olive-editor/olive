@@ -696,6 +696,7 @@ bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AV
     codec_ctx->time_base = params().video_params().frame_rate_as_time_base().toAVRational();
     codec_ctx->framerate = params().video_params().frame_rate().toAVRational();
     codec_ctx->pix_fmt = av_get_pix_fmt(params().video_pix_fmt().toUtf8());
+    codec_ctx->gop_size = 12;
 
     if (params().video_params().interlacing() != VideoParams::kInterlaceNone) {
       // FIXME: I actually don't know what these flags do, the documentation helpfully doesn't
