@@ -342,6 +342,27 @@ private:
 
 };
 
+class NodeOverrideColorCommand : public UndoCommand
+{
+public:
+  NodeOverrideColorCommand(Node *node, int index);
+
+  virtual Project * GetRelevantProject() const override;
+
+protected:
+  virtual void redo() override;
+
+  virtual void undo() override;
+
+private:
+  Node *node_;
+
+  int old_index_;
+
+  int new_index_;
+
+};
+
 }
 
 #endif // NODEVIEWUNDO_H

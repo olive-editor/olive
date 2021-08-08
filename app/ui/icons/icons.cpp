@@ -60,6 +60,7 @@ QIcon icon::Sequence;
 QIcon icon::Video;
 QIcon icon::Audio;
 QIcon icon::Image;
+QIcon icon::MiniMap;
 QIcon icon::TriUp;
 QIcon icon::TriLeft;
 QIcon icon::TriDown;
@@ -109,6 +110,8 @@ void icon::LoadAll(const QString& theme)
   Video = Create(theme, "videosource");
   Audio = Create(theme, "audiosource");
   Image = Create(theme, "imagesource");
+
+  MiniMap = Create(theme, "map");
 
   TriUp = Create(theme, "tri-up");
   TriLeft = Create(theme, "tri-left");
