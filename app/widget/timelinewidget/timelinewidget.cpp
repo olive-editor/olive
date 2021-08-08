@@ -720,9 +720,13 @@ void TimelineWidget::ToggleSelectedEnabled()
 
 void TimelineWidget::SetColorLabel(int index)
 {
+  MultiUndoCommand *command = new MultiUndoCommand();
+
   foreach (Block* b, selected_blocks_) {
-    b->SetOverrideColor(index);
+    command->add_child(new NodeOverrideColorCommand(b, index));
   }
+
+  Core::instance()->undo_stack()->push(command);
 }
 
 void TimelineWidget::NudgeLeft()
