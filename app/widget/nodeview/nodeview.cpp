@@ -563,6 +563,7 @@ void NodeView::mouseMoveEvent(QMouseEvent *event)
       create_edge_->SetPoints(create_edge_src_->GetOutputPoint(Node::kDefaultOutput),
                               scene_pt,
                               false);
+      create_edge_->SetDrawArrow(true);
     }
 
     // Set connected to whether we have a valid input destination

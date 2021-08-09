@@ -42,7 +42,8 @@ NodeViewEdge::NodeViewEdge(const NodeOutput &output, const NodeInput &input,
   output_(output),
   input_(input),
   from_item_(from_item),
-  to_item_(to_item)
+  to_item_(to_item),
+  draw_arrow_(true)
 {
   Init();
   SetConnected(true);
@@ -51,7 +52,8 @@ NodeViewEdge::NodeViewEdge(const NodeOutput &output, const NodeInput &input,
 NodeViewEdge::NodeViewEdge(QGraphicsItem *parent) :
   QGraphicsPathItem(parent),
   from_item_(nullptr),
-  to_item_(nullptr)
+  to_item_(nullptr),
+  draw_arrow_(false)
 {
   Init();
 }
@@ -128,9 +130,11 @@ void NodeViewEdge::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
   painter->drawPath(path());
 
   // Draw arrow
-  painter->setPen(Qt::NoPen);
-  painter->setBrush(edge_color);
-  painter->drawPolygon(arrow_);
+  if (DrawArrow()) {
+    painter->setPen(Qt::NoPen);
+    painter->setBrush(edge_color);
+    painter->drawPolygon(arrow_);
+  }
 }
 
 void NodeViewEdge::Init()

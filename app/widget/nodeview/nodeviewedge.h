@@ -75,6 +75,17 @@ public:
     return arrow_bounding_rect_;
   }
 
+  /**
+   * @brief Set whether or not to draw the arrow at the endof the curve
+   */
+  void SetDrawArrow(bool draw_arrow) {
+      draw_arrow_ = draw_arrow;
+  }
+
+  bool DrawArrow() {
+      return draw_arrow_;
+  }
+
   void Adjust();
 
   /**
@@ -153,6 +164,8 @@ private:
   QPointF cached_start_;
   QPointF cached_end_;
   bool cached_input_is_expanded_;
+
+  bool draw_arrow_;
 
 };
 
