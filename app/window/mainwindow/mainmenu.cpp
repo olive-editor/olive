@@ -58,7 +58,7 @@ MainMenu::MainMenu(MainWindow *parent) :
   file_save_as_item_ = file_menu_->AddItem("saveprojas", Core::instance(), &Core::SaveActiveProjectAs, "Ctrl+Shift+S");
   file_save_all_item_ = file_menu_->AddItem("saveallproj", Core::instance(), &Core::SaveAllProjects);
   file_menu_->addSeparator();
-  file_revert_item_ = file_menu_->AddItem("revert", Core::instance(), &Core::RevertActiveProject, "Ctrl+F12");
+  file_revert_item_ = file_menu_->AddItem("revert", Core::instance(), &Core::RevertActiveProject, "F12");
   file_menu_->addSeparator();
   file_import_item_ = file_menu_->AddItem("import", Core::instance(), &Core::DialogImportShow, "Ctrl+I");
   file_menu_->addSeparator();
