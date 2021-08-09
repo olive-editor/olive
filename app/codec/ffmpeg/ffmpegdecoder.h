@@ -37,7 +37,6 @@ extern "C" {
 #include <QWaitCondition>
 
 #include "codec/decoder.h"
-#include "codec/waveoutput.h"
 #include "ffmpegframepool.h"
 
 namespace olive {

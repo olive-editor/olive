@@ -25,8 +25,6 @@
 
 #include "codec/ffmpeg/ffmpegdecoder.h"
 #include "codec/oiio/oiiodecoder.h"
-#include "codec/waveinput.h"
-#include "codec/waveoutput.h"
 #include "common/ffmpegutils.h"
 #include "common/filefunctions.h"
 #include "common/timecodefunctions.h"
@@ -129,7 +127,7 @@ Decoder::RetrieveAudioData Decoder::RetrieveAudio(const TimeRange &range, const 
   }
 
   // See if we got the conform
-  SampleBufferPtr out_buffer = RetrieveAudioFromConform(conform.filename, range, loop_mode);
+  SampleBufferPtr out_buffer = RetrieveAudioFromConform(conform.filename, range, loop_mode, params);
 
   return {kOK, out_buffer, nullptr};
 }
@@ -265,13 +263,11 @@ bool Decoder::ConformAudioInternal(const QString& filename, const AudioParams &p
   return false;
 }
 
-SampleBufferPtr Decoder::RetrieveAudioFromConform(const QString &conform_filename, const TimeRange& range, Footage::LoopMode loop_mode)
+SampleBufferPtr Decoder::RetrieveAudioFromConform(const QString &conform_filename, const TimeRange& range, Footage::LoopMode loop_mode, const AudioParams &input_params)
 {
-  WaveInput input(conform_filename);
+  QFile input(conform_filename);
 
-  if (input.open()) {
-    const AudioParams& input_params = input.params();
-
+  if (input.open(QFile::ReadOnly)) {
     QByteArray packed_data(input_params.time_to_bytes(range.length()), Qt::Uninitialized);
 
     qint64 read_index = input_params.time_to_bytes(range.in());
@@ -279,12 +275,12 @@ SampleBufferPtr Decoder::RetrieveAudioFromConform(const QString &conform_filenam
 
     while (write_index < packed_data.size()) {
       if (loop_mode == Footage::kLoopModeLoop) {
-        while (read_index >= input.data_length()) {
-          read_index -= input.data_length();
+        while (read_index >= input.size()) {
+          read_index -= input.size();
         }
 
         while (read_index < 0) {
-          read_index += input.data_length();
+          read_index += input.size();
         }
       }
 
@@ -294,13 +290,14 @@ SampleBufferPtr Decoder::RetrieveAudioFromConform(const QString &conform_filenam
         // Reading before 0, write silence here until audio data would actually start
         write_count = qMin(-read_index, qint64(packed_data.size()));
         memset(packed_data.data() + write_index, 0, write_count);
-      } else if (read_index >= input.data_length()) {
+      } else if (read_index >= input.size()) {
         // Reading after data length, write silence until the end of the buffer
         write_count = packed_data.size() - write_index;
         memset(packed_data.data() + write_index, 0, write_count);
       } else {
-        write_count = qMin(input.data_length() - read_index, packed_data.size() - write_index);
-        input.read(read_index, packed_data.data() + write_index, write_count);
+        write_count = qMin(input.size() - read_index, packed_data.size() - write_index);
+        input.seek(read_index);
+        input.read(packed_data.data() + write_index, write_count);
       }
 
       read_index += write_count;

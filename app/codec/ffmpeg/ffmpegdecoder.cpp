@@ -38,7 +38,6 @@ extern "C" {
 #include <QThread>
 #include <QtConcurrent/QtConcurrent>
 
-#include "codec/waveinput.h"
 #include "common/define.h"
 #include "common/ffmpegutils.h"
 #include "common/filefunctions.h"
@@ -465,7 +464,7 @@ bool FFmpegDecoder::ConformAudioInternal(const QString &filename, const AudioPar
 
   swr_init(resampler);
 
-  WaveOutput wave_out(filename, params);
+  QFile wave_out(filename);
 
   AVPacket* pkt = av_packet_alloc();
   AVFrame* frame = av_frame_alloc();
@@ -473,7 +472,7 @@ bool FFmpegDecoder::ConformAudioInternal(const QString &filename, const AudioPar
 
   bool success = false;
 
-  if (wave_out.open()) {
+  if (wave_out.open(QFile::WriteOnly)) {
     while (true) {
       // Check if we have a `cancelled` ptr and its value
       if (cancelled && *cancelled) {

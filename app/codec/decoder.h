@@ -33,7 +33,6 @@ extern "C" {
 
 #include "codec/frame.h"
 #include "codec/samplebuffer.h"
-#include "codec/waveoutput.h"
 #include "common/rational.h"
 #include "node/project/footage/footage.h"
 #include "node/project/footage/footagedescription.h"
@@ -313,7 +312,7 @@ signals:
 private:
   void UpdateLastAccessed();
 
-  SampleBufferPtr RetrieveAudioFromConform(const QString& conform_filename, const TimeRange &range, Footage::LoopMode loop_mode);
+  SampleBufferPtr RetrieveAudioFromConform(const QString& conform_filename, const TimeRange &range, Footage::LoopMode loop_mode, const AudioParams &params);
 
   CodecStream stream_;
 
