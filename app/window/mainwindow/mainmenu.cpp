@@ -250,6 +250,16 @@ MainMenu::MainMenu(MainWindow *parent) :
   tools_transition_item_->setData(Tool::kTransition);
   tools_group_->addAction(tools_transition_item_);
 
+  tools_add_item_ = tools_menu_->AddItem("addtool", this, &MainMenu::ToolItemTriggered, "A");
+  tools_add_item_->setCheckable(true);
+  tools_add_item_->setData(Tool::kAdd);
+  tools_group_->addAction(tools_add_item_);
+
+  tools_record_item_ = tools_menu_->AddItem("recordtool", this, &MainMenu::ToolItemTriggered, "R");
+  tools_record_item_->setCheckable(true);
+  tools_record_item_->setData(Tool::kRecord);
+  tools_group_->addAction(tools_record_item_);
+
   tools_menu_->addSeparator();
 
   tools_snapping_item_ = tools_menu_->AddItem("snapping", Core::instance(), &Core::SetSnapping, "S");
@@ -748,6 +758,8 @@ void MainMenu::Retranslate()
   tools_hand_item_->setText(tr("Hand Tool"));
   tools_zoom_item_->setText(tr("Zoom Tool"));
   tools_transition_item_->setText(tr("Transition Tool"));
+  tools_add_item_->setText(tr("Add Tool"));
+  tools_record_item_->setText(tr("Record Tool"));
   tools_snapping_item_->setText(tr("Enable Snapping"));
   tools_preferences_item_->setText(tr("Preferences"));
 

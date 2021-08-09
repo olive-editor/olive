@@ -279,6 +279,8 @@ private:
   QAction* tools_hand_item_;
   QAction* tools_zoom_item_;
   QAction* tools_transition_item_;
+  QAction* tools_add_item_;
+  QAction* tools_record_item_;
   QAction* tools_snapping_item_;
   QAction* tools_preferences_item_;
 
