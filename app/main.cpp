@@ -52,31 +52,6 @@ extern "C" {
 
 int main(int argc, char *argv[])
 {
-  
-#ifdef _WIN32
-  bool console = false;
-  FILE *stream_stdout;
-  FILE *stream_stderr;
-
-  AttachConsole(ATTACH_PARENT_PROCESS);
-  DWORD procIDs[2];
-  DWORD maxIds = 2;
-  DWORD count = GetConsoleProcessList((LPDWORD)procIDs, maxIds);
-
-  if (count == 2) {
-    /* this is a terminal */
-    FreeConsole();
-
-    // Create own console
-    if (AllocConsole()) {
-      freopen_s(&stream_stdout, "CONOUT$", "w", stdout);
-      freopen_s(&stream_stderr, "CONOUT$", "w", stderr);
-      console = true;
-    }
-    
-  }
-#endif
-
   // Set up debug handler
   qInstallMessageHandler(olive::DebugHandler);
 
@@ -129,9 +104,14 @@ int main(int argc, char *argv[])
                        true,
                        QCoreApplication::translate("main", "qm-file"));
 
+  auto console_option =
+      parser.AddOption({QStringLiteral("c"), QStringLiteral("-console")},
+                       QCoreApplication::translate("main", "Launch console (Windows only)"));
+
   auto project_argument =
       parser.AddPositionalArgument(QStringLiteral("project"),
                                    QCoreApplication::translate("main", "Project to open on startup"));
+
 
   // Qt options re-implemented (add to this as necessary)
   //
@@ -152,6 +132,12 @@ int main(int argc, char *argv[])
   parser.AddOption({QStringLiteral("widgetcount")}, QString(), false, QString(), true);
 
   parser.Process(argc, argv);
+
+  if (!console_option->IsSet()) {
+#ifdef _WIN32
+    FreeConsole();
+#endif  // _WIN32
+  }
 
   if (help_option->IsSet()) {
     // Show help
@@ -236,12 +222,6 @@ int main(int argc, char *argv[])
 
   // Clear core memory
   c.Stop();
-
-  #ifdef _WIN32
-  if (console) {
-    system("pause");
-  }
-  #endif
 
   return ret;
 }
