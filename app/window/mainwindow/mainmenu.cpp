@@ -58,6 +58,8 @@ MainMenu::MainMenu(MainWindow *parent) :
   file_save_as_item_ = file_menu_->AddItem("saveprojas", Core::instance(), &Core::SaveActiveProjectAs, "Ctrl+Shift+S");
   file_save_all_item_ = file_menu_->AddItem("saveallproj", Core::instance(), &Core::SaveAllProjects);
   file_menu_->addSeparator();
+  file_revert_item_ = file_menu_->AddItem("revert", Core::instance(), &Core::RevertActiveProject, "Ctrl+F12");
+  file_menu_->addSeparator();
   file_import_item_ = file_menu_->AddItem("import", Core::instance(), &Core::DialogImportShow, "Ctrl+I");
   file_menu_->addSeparator();
   file_export_menu_ = new Menu(file_menu_);
@@ -679,6 +681,7 @@ void MainMenu::Retranslate()
   file_open_recent_menu_->setTitle(tr("Open &Recent"));
   file_open_recent_clear_item_->setText(tr("&Clear Recent List"));
   file_save_all_item_->setText(tr("Sa&ve All Projects"));
+  file_revert_item_->setText(tr("Revert"));
   file_import_item_->setText(tr("&Import..."));
   file_export_menu_->setTitle(tr("&Export"));
   file_export_media_item_->setText(tr("&Media..."));
