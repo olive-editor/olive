@@ -30,8 +30,6 @@
 #include "patreon.h"
 #include "scrollinglabel.h"
 
-#include "widget/marker/marker.h"
-
 namespace olive {
 
 AboutDialog::AboutDialog(bool welcome_dialog, QWidget *parent) :
@@ -75,9 +73,6 @@ AboutDialog::AboutDialog(bool welcome_dialog, QWidget *parent) :
   label->setOpenExternalLinks(true);
   label->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
   horiz_layout->addWidget(label);
-
-  Marker* marker = new Marker();
-  horiz_layout->addWidget(marker);
 
   layout->addLayout(horiz_layout);
 
