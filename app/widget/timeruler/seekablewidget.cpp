@@ -44,6 +44,10 @@ SeekableWidget::SeekableWidget(QWidget* parent) :
   playhead_width_ = QtUtils::QFontMetricsWidth(fm, "H");
 
   setContextMenuPolicy(Qt::CustomContextMenu);
+
+  marker_layout_ = new QHBoxLayout(this);
+
+  UpdateMarkers();
 }
 
 void SeekableWidget::ConnectTimelinePoints(TimelinePoints *points)
@@ -62,6 +66,8 @@ void SeekableWidget::ConnectTimelinePoints(TimelinePoints *points)
     connect(timeline_points_->workarea(), &TimelineWorkArea::EnabledChanged, this, static_cast<void (SeekableWidget::*)()>(&SeekableWidget::update));
     connect(timeline_points_->markers(), &TimelineMarkerList::MarkerAdded, this, static_cast<void (SeekableWidget::*)()>(&SeekableWidget::update));
     connect(timeline_points_->markers(), &TimelineMarkerList::MarkerRemoved, this, static_cast<void (SeekableWidget::*)()>(&SeekableWidget::update));
+
+    connect(timeline_points_->markers(), &TimelineMarkerList::MarkerAdded, this, static_cast<void (SeekableWidget::*)()>(&SeekableWidget::UpdateMarkers));
   }
 
   update();
@@ -125,6 +131,23 @@ void SeekableWidget::SetScroll(int s)
   scroll_ = s;
 
   update();
+}
+
+void SeekableWidget::UpdateMarkers()
+{
+  printf("Test");
+  if (timeline_points()) {
+    foreach(Marker * marker, marker_widgets) {
+      marker->deleteLater();
+    }
+    marker_widgets.clear();
+   
+    foreach(TimelineMarker * marker, timeline_points()->markers()->list()) {
+      Marker* marker_widget = new Marker();
+      marker_widgets.append(marker_widget);
+      marker_layout_->addWidget(marker_widget);
+    }
+  }
 }
 
 int SeekableWidget::TimeToScreen(const rational &time) const

@@ -21,10 +21,13 @@
 #ifndef SEEKABLEWIDGET_H
 #define SEEKABLEWIDGET_H
 
+#include <QHBoxLayout>
+
 #include "common/rational.h"
 #include "timeline/timelinepoints.h"
 #include "widget/snapservice/snapservice.h"
 #include "widget/timebased/timescaledobject.h"
+#include "widget/marker/marker.h"
 
 namespace olive {
 
@@ -54,6 +57,8 @@ public slots:
   void SetTime(const rational &r);
 
   void SetScroll(int s);
+
+  void UpdateMarkers();
 
 protected:
   void SeekToScreenPoint(int screen);
@@ -101,6 +106,10 @@ private:
   SnapService* snap_service_;
 
   bool dragging_;
+
+  QHBoxLayout* marker_layout_;
+
+  QVector<Marker*> marker_widgets;
 
 };
 
