@@ -122,7 +122,7 @@ public:
   QAction* AddItem(const QString& id,
                    const typename QtPrivate::FunctionPointer<Func>::Object *receiver,
                    Func member,
-                   const QString &key = QString())
+                   const QKeySequence &key = QKeySequence())
   {
     QAction* a = CreateItem(this, id, receiver, member, key);
 
@@ -171,7 +171,7 @@ public:
                              const QString& id,
                              const typename QtPrivate::FunctionPointer<Func>::Object *receiver,
                              Func member,
-                             const QString& key = QString())
+                             const QKeySequence &key = QKeySequence())
   {
     QAction* a = new QAction(parent);
 
@@ -215,7 +215,7 @@ public:
                           const QString& id,
                           const typename QtPrivate::FunctionPointer<Func>::Object *receiver,
                           Func member,
-                          const QString& key = QString())
+                          const QKeySequence &key = QKeySequence())
   {
     ConformItem(a, id, key);
 
@@ -224,7 +224,7 @@ public:
 
   static void ConformItem(QAction *a,
                           const QString& id,
-                          const QString& key = QString());
+                          const QKeySequence &key = QKeySequence());
 
 private:
   void Init();

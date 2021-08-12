@@ -33,32 +33,32 @@ MenuShared* MenuShared::instance_ = nullptr;
 MenuShared::MenuShared()
 {
   // "New" menu shared items
-  new_project_item_ = Menu::CreateItem(this, "newproj", Core::instance(), &Core::CreateNewProject, "Ctrl+N");
-  new_sequence_item_ = Menu::CreateItem(this, "newseq", Core::instance(), &Core::CreateNewSequence, "Ctrl+Shift+N");
+  new_project_item_ = Menu::CreateItem(this, "newproj", Core::instance(), &Core::CreateNewProject, tr("Ctrl+N"));
+  new_sequence_item_ = Menu::CreateItem(this, "newseq", Core::instance(), &Core::CreateNewSequence, tr("Ctrl+Shift+N"));
   new_folder_item_ = Menu::CreateItem(this, "newfolder", Core::instance(), &Core::CreateNewFolder);
 
   // "Edit" menu shared items
-  edit_cut_item_ = Menu::CreateItem(this, "cut", this, &MenuShared::CutTriggered, "Ctrl+X");
-  edit_copy_item_ = Menu::CreateItem(this, "copy", this, &MenuShared::CopyTriggered, "Ctrl+C");
-  edit_paste_item_ = Menu::CreateItem(this, "paste", this, &MenuShared::PasteTriggered, "Ctrl+V");
-  edit_paste_insert_item_ = Menu::CreateItem(this, "pasteinsert", this, &MenuShared::PasteInsertTriggered, "Ctrl+Shift+V");
-  edit_duplicate_item_ = Menu::CreateItem(this, "duplicate", this, &MenuShared::DuplicateTriggered, "Ctrl+D");
-  edit_delete_item_ = Menu::CreateItem(this, "delete", this, &MenuShared::DeleteSelectedTriggered, "Del");
-  edit_ripple_delete_item_ = Menu::CreateItem(this, "rippledelete", this, &MenuShared::RippleDeleteTriggered, "Shift+Del");
-  edit_split_item_ = Menu::CreateItem(this, "split", this, &MenuShared::SplitAtPlayheadTriggered, "Ctrl+K");
-  edit_speedduration_item_ = Menu::CreateItem(this, "speeddur", this, &MenuShared::SpeedDurationTriggered, "Ctrl+R");
+  edit_cut_item_ = Menu::CreateItem(this, "cut", this, &MenuShared::CutTriggered, tr("Ctrl+X"));
+  edit_copy_item_ = Menu::CreateItem(this, "copy", this, &MenuShared::CopyTriggered, tr("Ctrl+C"));
+  edit_paste_item_ = Menu::CreateItem(this, "paste", this, &MenuShared::PasteTriggered, tr("Ctrl+V"));
+  edit_paste_insert_item_ = Menu::CreateItem(this, "pasteinsert", this, &MenuShared::PasteInsertTriggered, tr("Ctrl+Shift+V"));
+  edit_duplicate_item_ = Menu::CreateItem(this, "duplicate", this, &MenuShared::DuplicateTriggered, tr("Ctrl+D"));
+  edit_delete_item_ = Menu::CreateItem(this, "delete", this, &MenuShared::DeleteSelectedTriggered, tr("Del"));
+  edit_ripple_delete_item_ = Menu::CreateItem(this, "rippledelete", this, &MenuShared::RippleDeleteTriggered, tr("Shift+Del"));
+  edit_split_item_ = Menu::CreateItem(this, "split", this, &MenuShared::SplitAtPlayheadTriggered, tr("Ctrl+K"));
+  edit_speedduration_item_ = Menu::CreateItem(this, "speeddur", this, &MenuShared::SpeedDurationTriggered, tr("Ctrl+R"));
 
   // "In/Out" menu shared items
-  inout_set_in_item_ = Menu::CreateItem(this, "setinpoint", this, &MenuShared::SetInTriggered, "I");
-  inout_set_out_item_ = Menu::CreateItem(this, "setoutpoint", this, &MenuShared::SetOutTriggered, "O");
+  inout_set_in_item_ = Menu::CreateItem(this, "setinpoint", this, &MenuShared::SetInTriggered, tr("I"));
+  inout_set_out_item_ = Menu::CreateItem(this, "setoutpoint", this, &MenuShared::SetOutTriggered, tr("O"));
   inout_reset_in_item_ = Menu::CreateItem(this, "resetin", this, &MenuShared::ResetInTriggered);
   inout_reset_out_item_ = Menu::CreateItem(this, "resetout", this, &MenuShared::ResetOutTriggered);
-  inout_clear_inout_item_ = Menu::CreateItem(this, "clearinout", this, &MenuShared::ClearInOutTriggered, "G");
+  inout_clear_inout_item_ = Menu::CreateItem(this, "clearinout", this, &MenuShared::ClearInOutTriggered, tr("G"));
 
   // "Clip Edit" menu shared items
-  clip_add_default_transition_item_ = Menu::CreateItem(this, "deftransition", this, &MenuShared::DefaultTransitionTriggered, "Ctrl+Shift+D");
-  clip_link_unlink_item_ = Menu::CreateItem(this, "linkunlink", this, &MenuShared::ToggleLinksTriggered, "Ctrl+L");
-  clip_enable_disable_item_ = Menu::CreateItem(this, "enabledisable", this, &MenuShared::EnableDisableTriggered, "Shift+E");
+  clip_add_default_transition_item_ = Menu::CreateItem(this, "deftransition", this, &MenuShared::DefaultTransitionTriggered, tr("Ctrl+Shift+D"));
+  clip_link_unlink_item_ = Menu::CreateItem(this, "linkunlink", this, &MenuShared::ToggleLinksTriggered, tr("Ctrl+L"));
+  clip_enable_disable_item_ = Menu::CreateItem(this, "enabledisable", this, &MenuShared::EnableDisableTriggered, tr("Shift+E"));
   clip_nest_item_ = Menu::CreateItem(this, "nest", this, &MenuShared::NestTriggered);
 
   // TimeRuler menu shared items

@@ -677,7 +677,7 @@ void SaveCustomShortcutsInternal(QMenu* menu, QMap<QString, QString>* shortcuts)
     if (a->menu()) {
       SaveCustomShortcutsInternal(a->menu(), shortcuts);
     } else if (!a->isSeparator()) {
-      QString default_shortcut = a->property("keydefault").toString();
+      QString default_shortcut = a->property("keydefault").value<QKeySequence>().toString();
       QString current_shortcut = a->shortcut().toString();
       if (current_shortcut != default_shortcut) {
         QString action_id = a->property("id").toString();
