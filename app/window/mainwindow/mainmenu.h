@@ -203,6 +203,7 @@ private:
   QAction* file_save_item_;
   QAction* file_save_as_item_;
   QAction* file_save_all_item_;
+  QAction* file_revert_item_;
   QAction* file_import_item_;
   Menu* file_export_menu_;
   QAction* file_export_media_item_;
@@ -279,6 +280,8 @@ private:
   QAction* tools_hand_item_;
   QAction* tools_zoom_item_;
   QAction* tools_transition_item_;
+  QAction* tools_add_item_;
+  QAction* tools_record_item_;
   QAction* tools_snapping_item_;
   QAction* tools_preferences_item_;
 

@@ -45,9 +45,9 @@ QString KeySequenceEditor::action_name() {
 }
 
 QString KeySequenceEditor::export_shortcut() {
-  QString ks = keySequence().toString();
-  if (ks != action->property("keydefault")) {
-    return action->property("id").toString() + "\t" + ks;
+  QKeySequence ks = keySequence();
+  if (ks != action->property("keydefault").value<QKeySequence>()) {
+    return action->property("id").toString() + "\t" + ks.toString();
   }
   return nullptr;
 }

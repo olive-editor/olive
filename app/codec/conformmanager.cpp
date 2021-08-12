@@ -57,19 +57,13 @@ ConformManager::Conform ConformManager::GetConformState(const QString &decoder_i
 
 QString ConformManager::GetConformedFilename(const QString &cache_path, const Decoder::CodecStream &stream, const AudioParams &params)
 {
-  QString index_fn = QStringLiteral("%1.%2:%3").arg(FileFunctions::GetUniqueFileIdentifier(stream.filename()),
-                                                    QString::number(stream.stream()));
+  QString index_fn = QStringLiteral("%1-%2.%3.%4.%5.pcm").arg(FileFunctions::GetUniqueFileIdentifier(stream.filename()),
+                                                              QString::number(stream.stream()),
+                                                              QString::number(params.sample_rate()),
+                                                              QString::number(params.format()),
+                                                              QString::number(params.channel_layout()));
 
-  index_fn = QDir(cache_path).filePath(index_fn);
-
-  index_fn.append('.');
-  index_fn.append(QString::number(params.sample_rate()));
-  index_fn.append('.');
-  index_fn.append(QString::number(params.format()));
-  index_fn.append('.');
-  index_fn.append(QString::number(params.channel_layout()));
-
-  return index_fn;
+  return QDir(cache_path).filePath(index_fn);
 }
 
 void ConformManager::ConformTaskFinished(Task *task, bool succeeded)

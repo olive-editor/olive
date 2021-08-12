@@ -14,24 +14,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(ffmpeg)
-add_subdirectory(oiio)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  codec/conformmanager.cpp
-  codec/conformmanager.h
-  codec/decoder.cpp
-  codec/decoder.h
-  codec/encoder.cpp
-  codec/encoder.h
-  codec/exportcodec.cpp
-  codec/exportcodec.h
-  codec/exportformat.cpp
-  codec/exportformat.h
-  codec/frame.cpp
-  codec/frame.h
-  codec/samplebuffer.cpp
-  codec/samplebuffer.h
+  node/generator/shape/shapenode.cpp
+  node/generator/shape/shapenode.h
+  node/generator/shape/shapenodebase.cpp
+  node/generator/shape/shapenodebase.h
   PARENT_SCOPE
 )

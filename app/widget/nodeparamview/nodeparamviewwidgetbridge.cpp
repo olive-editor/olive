@@ -514,7 +514,17 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
   {
     QComboBox* cb = static_cast<QComboBox*>(widgets_.first());
     cb->blockSignals(true);
-    cb->setCurrentIndex(input_.GetValueAtTime(node_time).toInt());
+    int index = input_.GetValueAtTime(node_time).toInt();
+    int real_row = -1;
+    for (int i=0; i<cb->count(); i++) {
+      if (!cb->itemText(i).isEmpty()) {
+        real_row++;
+      }
+
+      if (real_row == index) {
+        cb->setCurrentIndex(i);
+      }
+    }
     cb->blockSignals(false);
     break;
   }

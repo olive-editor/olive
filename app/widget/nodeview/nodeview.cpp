@@ -363,9 +363,13 @@ void NodeView::Duplicate()
 
 void NodeView::SetColorLabel(int index)
 {
+  MultiUndoCommand *command = new MultiUndoCommand();
+
   for (Node* node : qAsConst(selected_nodes_)) {
-    node->SetOverrideColor(index);
+    command->add_child(new NodeOverrideColorCommand(node, index));
   }
+
+  Core::instance()->undo_stack()->push(command);
 }
 
 void NodeView::ZoomIn()
