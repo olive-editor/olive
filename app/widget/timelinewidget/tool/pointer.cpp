@@ -506,10 +506,10 @@ void PointerTool::ProcessDrag(const TimelineCoordinate &mouse_pos)
   rational tooltip_timebase = parent()->GetTimebaseForTrackType(drag_start_.GetTrack().type());
   QToolTip::hideText();
   QToolTip::showText(QCursor::pos(),
-                     Timecode::timestamp_to_timecode(Timecode::time_to_timestamp(time_movement, tooltip_timebase),
-                                                     tooltip_timebase,
-                                                     Core::instance()->GetTimecodeDisplay(),
-                                                     true),
+                     Timecode::time_to_timecode(time_movement,
+                                                tooltip_timebase,
+                                                Core::instance()->GetTimecodeDisplay(),
+                                                true),
                      parent());
 }
 
@@ -574,7 +574,7 @@ void PointerTool::FinishDrag(TimelineViewMouseEvent *event)
       } else {
         new_sel.TrimOut(reference_ghost->GetOutAdjustment());
       }
-      command->add_child(new TimelineWidget::SetSelectionsCommand(parent(), new_sel, parent()->GetSelections()));
+      command->add_child(new TimelineWidget::SetSelectionsCommand(parent(), new_sel, parent()->GetSelections(), false));
     }
   }
 
@@ -620,7 +620,7 @@ void PointerTool::FinishDrag(TimelineViewMouseEvent *event)
     TimelineWidgetSelections new_sel = parent()->GetSelections();
     new_sel.ShiftTime(blocks_moving.first().ghost->GetInAdjustment());
     new_sel.ShiftTracks(drag_track_type_, blocks_moving.first().ghost->GetTrackAdjustment());
-    command->add_child(new TimelineWidget::SetSelectionsCommand(parent(), new_sel, parent()->GetSelections()));
+    command->add_child(new TimelineWidget::SetSelectionsCommand(parent(), new_sel, parent()->GetSelections(), false));
   }
 
   if (!blocks_sliding.isEmpty()) {
@@ -672,16 +672,16 @@ void PointerTool::FinishDrag(TimelineViewMouseEvent *event)
       QHash<Track::Reference, QList<Block*> >::const_iterator i;
       for (i=slide_info.constBegin(); i!=slide_info.constEnd(); i++) {
         command->add_child(new TrackSlideCommand(parent()->GetTrackFromReference(i.key()),
-                              i.value(),
-                              in_adjacents.value(i.key()),
-                              out_adjacents.value(i.key()),
-                              movement));
+                                                 i.value(),
+                                                 in_adjacents.value(i.key()),
+                                                 out_adjacents.value(i.key()),
+                                                 movement));
       }
 
       // Adjust selections
       TimelineWidgetSelections new_sel = parent()->GetSelections();
       new_sel.ShiftTime(movement);
-      command->add_child(new TimelineWidget::SetSelectionsCommand(parent(), new_sel, parent()->GetSelections()));
+      command->add_child(new TimelineWidget::SetSelectionsCommand(parent(), new_sel, parent()->GetSelections(), false));
     }
   }
 

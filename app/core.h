@@ -330,6 +330,11 @@ public slots:
   bool SaveAllProjects();
 
   /**
+   * @brief Revert project to last saved state (basically close and open it)
+   */
+  void RevertActiveProject();
+
+  /**
    * @brief Closes the active project
    *
    * If no other projects are open, a new one is created automatically.
@@ -505,6 +510,8 @@ private:
   static QString GetAutoRecoveryIndexFilename();
 
   void SaveUnrecoveredList();
+
+  bool RevertProjectInternal(Project *p, bool by_opening_existing);
 
   /**
    * @brief Internal main window object

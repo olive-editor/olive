@@ -18,58 +18,29 @@
 
 ***/
 
-#ifndef WAVEINPUT_H
-#define WAVEINPUT_H
+#ifndef SHAPENODEBASE_H
+#define SHAPENODEBASE_H
 
-#include <QFile>
-
-#include "render/audioparams.h"
+#include "node/node.h"
 
 namespace olive {
 
-class WaveInput
+class ShapeNodeBase : public Node
 {
+  Q_OBJECT
 public:
-  WaveInput(const QString& f);
+  ShapeNodeBase();
 
-  ~WaveInput();
+  NODE_DEFAULT_DESTRUCTOR(ShapeNodeBase)
 
-  DISABLE_COPY_MOVE(WaveInput)
+  virtual void Retranslate() override;
 
-  bool open();
+  static QString kPositionInput;
+  static QString kSizeInput;
+  static QString kColorInput;
 
-  bool is_open() const;
-
-  QByteArray read(qint64 length);
-  QByteArray read(qint64 offset, qint64 length);
-  qint64 read(qint64 offset, char *buffer, qint64 length);
-
-  bool seek(qint64 pos);
-
-  bool at_end() const;
-
-  const AudioParams& params() const;
-
-  void close();
-
-  const quint32& data_length() const;
-
-  int sample_count() const;
-
-private:
-  bool find_str(QFile* f, const char* str);
-
-  qint64 calculate_max_read() const;
-
-  AudioParams params_;
-
-  QFile file_;
-
-  qint64 data_position_;
-
-  quint32 data_size_;
 };
 
 }
 
-#endif // WAVEINPUT_H
+#endif // SHAPENODEBASE_H

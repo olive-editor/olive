@@ -28,7 +28,7 @@
 
 #include "common/rational.h"
 #include "dragbutton.h"
-#include "widget/slider/timeslider.h"
+#include "widget/slider/rationalslider.h"
 
 namespace olive {
 
@@ -53,9 +53,9 @@ public:
   void SetAudioVideoDragButtonsVisible(bool e);
 
 public slots:
-  void SetTime(const int64_t &r);
+  void SetTime(const rational &r);
 
-  void SetEndTime(const int64_t &r);
+  void SetEndTime(const rational &r);
 
   void ShowPauseButton();
 
@@ -100,7 +100,7 @@ signals:
 
   void VideoPressed();
 
-  void TimeChanged(const int64_t& t);
+  void TimeChanged(const rational& t);
 
 protected:
   virtual void changeEvent(QEvent *) override;
@@ -111,10 +111,10 @@ private:
   QWidget* lower_left_container_;
   QWidget* lower_right_container_;
 
-  TimeSlider* cur_tc_lbl_;
+  RationalSlider* cur_tc_lbl_;
   QLabel* end_tc_lbl_;
 
-  int64_t end_time_;
+  rational end_time_;
 
   rational time_base_;
 

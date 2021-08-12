@@ -18,51 +18,44 @@
 
 ***/
 
-#ifndef WAVEAUDIO_H
-#define WAVEAUDIO_H
+#ifndef SHAPENODE_H
+#define SHAPENODE_H
 
-#include <QByteArray>
-#include <QFile>
-
-#include "render/audioparams.h"
+#include "shapenodebase.h"
 
 namespace olive {
 
-class WaveOutput
+class ShapeNode : public ShapeNodeBase
 {
+  Q_OBJECT
 public:
-  WaveOutput(const QString& f,
-             const AudioParams& params);
+  ShapeNode();
 
-  ~WaveOutput();
+  enum Type {
+    kRectangle,
+    kEllipse
+  };
 
-  DISABLE_COPY_MOVE(WaveOutput)
+  NODE_DEFAULT_DESTRUCTOR(ShapeNode)
+  NODE_COPY_FUNCTION(ShapeNode)
 
-  bool open();
+  virtual QString Name() const override;
+  virtual QString id() const override;
+  virtual QVector<CategoryID> Category() const override;
+  virtual QString Description() const override;
 
-  void write(const QByteArray& bytes);
-  void write(const char* bytes, int length);
+  virtual void Retranslate() override;
 
-  void close();
+  virtual ShaderCode GetShaderCode(const QString& shader_id) const override;
+  virtual NodeValueTable Value(const QString& output, NodeValueDatabase& value) const override;
 
-  const int& data_length() const;
-
-  const AudioParams& params() const;
+  static QString kTypeInput;
 
 private:
-  template<typename T>
-  void write_int(QFile* file, T integer);
 
-  void switch_endianness(QByteArray &array);
-
-  QFile file_;
-
-  AudioParams params_;
-
-  int data_length_;
 
 };
 
 }
 
-#endif // WAVEAUDIO_H
+#endif // SHAPENODE_H

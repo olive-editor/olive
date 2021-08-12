@@ -56,6 +56,10 @@ SequenceDialogParameterTab::SequenceDialogParameterTab(Sequence* sequence, QWidg
   preview_layout->addWidget(new QLabel(tr("Quality:")), row, 0);
   preview_format_field_ = new PixelFormatComboBox(false);
   preview_layout->addWidget(preview_format_field_, row, 1, 1, 2);
+  row++;
+  preview_layout->addWidget(new QLabel(tr("Auto-Cache:")), row, 0);
+  preview_autocache_field_ = new QCheckBox();
+  preview_layout->addWidget(preview_autocache_field_, row, 1);
   layout->addWidget(preview_group);
 
   // Set values based on input sequence
@@ -64,6 +68,7 @@ SequenceDialogParameterTab::SequenceDialogParameterTab(Sequence* sequence, QWidg
   video_section_->SetVideoParams(vp);
   preview_resolution_field_->SetDivider(vp.divider());
   preview_format_field_->SetPixelFormat(vp.format());
+  preview_autocache_field_->setChecked(sequence->GetAutoCacheEnabled());
   audio_sample_rate_field_->SetSampleRate(ap.sample_rate());
   audio_channels_field_->SetChannelLayout(ap.channel_layout());
 
@@ -90,6 +95,7 @@ void SequenceDialogParameterTab::PresetChanged(const SequencePreset &preset)
   audio_channels_field_->SetChannelLayout(preset.channel_layout());
   preview_resolution_field_->SetDivider(preset.preview_divider());
   preview_format_field_->SetPixelFormat(preset.preview_format());
+  preview_autocache_field_->setChecked(preset.preview_autocache());
 }
 
 void SequenceDialogParameterTab::SavePresetClicked()
@@ -103,7 +109,8 @@ void SequenceDialogParameterTab::SavePresetClicked()
                                GetSelectedAudioSampleRate(),
                                GetSelectedAudioChannelLayout(),
                                GetSelectedPreviewResolution(),
-                               GetSelectedPreviewFormat()});
+                               GetSelectedPreviewFormat(),
+                               GetSelectedPreviewAutoCache()});
 }
 
 void SequenceDialogParameterTab::UpdatePreviewResolutionLabel()

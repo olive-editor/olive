@@ -27,6 +27,7 @@
 #include "codec/decoder.h"
 #include "common/clamp.h"
 #include "common/filefunctions.h"
+#include "common/qtutils.h"
 #include "common/xmlutils.h"
 #include "config/config.h"
 #include "core.h"
@@ -481,6 +482,28 @@ rational Footage::AdjustTimeByLoopMode(rational time, Footage::LoopMode loop_mod
   }
 
   return time;
+}
+
+qint64 Footage::creation_time() const
+{
+  QFileInfo info(filename());
+
+  if (info.exists()) {
+    return QtUtils::GetCreationDate(info).toSecsSinceEpoch();
+  }
+
+  return 0;
+}
+
+qint64 Footage::mod_time() const
+{
+  QFileInfo info(filename());
+
+  if (info.exists()) {
+    return info.lastModified().toSecsSinceEpoch();
+  }
+
+  return 0;
 }
 
 void Footage::UpdateTooltip()

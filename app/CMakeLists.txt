@@ -100,6 +100,10 @@ endif()
 if (WIN32)
   # Set Windows application icon
   target_sources(olive-editor PRIVATE packaging/windows/resources.rc)
+
+  set_target_properties(olive-editor PROPERTIES
+    WIN32_EXECUTABLE TRUE
+  )
 elseif(APPLE)
   # Set Mac application icon
   set(OLIVE_ICON packaging/macos/olive.icns)

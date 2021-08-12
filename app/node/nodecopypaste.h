@@ -39,7 +39,7 @@ protected:
 
   QVector<Node*> PasteNodesFromClipboard(NodeGraph *graph, MultiUndoCommand *command, void* userdata = nullptr);
 
-  virtual void CopyNodesToClipboardInternal(QXmlStreamWriter *writer, void* userdata);
+  virtual void CopyNodesToClipboardInternal(QXmlStreamWriter *writer, const QVector<Node*> &nodes, void* userdata);
 
   virtual void PasteNodesFromClipboardInternal(QXmlStreamReader *reader, XMLNodeData &xml_node_data, void* userdata);
 

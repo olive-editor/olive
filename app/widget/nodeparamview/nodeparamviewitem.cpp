@@ -27,6 +27,7 @@
 
 #include "common/qtutils.h"
 #include "core.h"
+#include "dialog/speedduration/speeddurationdialog.h"
 #include "node/project/sequence/sequence.h"
 #include "nodeparamviewundo.h"
 
@@ -35,6 +36,7 @@ namespace olive {
 const int NodeParamViewItemBody::kKeyControlColumn = 10;
 const int NodeParamViewItemBody::kArrayInsertColumn = kKeyControlColumn-1;
 const int NodeParamViewItemBody::kArrayRemoveColumn = kArrayInsertColumn-1;
+const int NodeParamViewItemBody::kExtraButtonColumn = kKeyControlColumn-1;
 
 // 0 is for the array collapse button, 1 is for the main label, widgets start at 2
 const int NodeParamViewItemBody::kWidgetStartColumn = 2;
@@ -221,7 +223,8 @@ void NodeParamViewItemTitleBar::mouseDoubleClickEvent(QMouseEvent *event)
 }
 
 NodeParamViewItemBody::NodeParamViewItemBody(Node* node, QWidget *parent) :
-  QWidget(parent)
+  QWidget(parent),
+  node_(node)
 {
   QGridLayout* root_layout = new QGridLayout(this);
 
@@ -313,6 +316,14 @@ void NodeParamViewItemBody::CreateWidgets(QGridLayout* layout, Node *node, const
       connect(remove_element_btn, &NodeParamViewArrayButton::clicked, this, &NodeParamViewItemBody::ArrayRemoveClicked);
 
     }
+  } else if (dynamic_cast<ClipBlock*>(node) && input == ClipBlock::kSpeedInput) {
+    // Special behavior - this was the most preferable way to do this so we could support multiple
+    // nodes per item one day
+    QPushButton *btn = new QPushButton(tr("..."));
+    btn->setFixedWidth(btn->sizeHint().height());
+    connect(btn, &QPushButton::clicked, this, &NodeParamViewItemBody::ShowSpeedDurationDialogForNode);
+    layout->addWidget(btn, row, kExtraButtonColumn);
+    ui_objects.extra_btn = btn;
   }
 
   // Create a widget/input bridge for this input
@@ -541,6 +552,8 @@ void NodeParamViewItemBody::ToggleArrayExpanded()
 
 void NodeParamViewItemBody::SetTimebase(const rational& timebase)
 {
+  timebase_ = timebase;
+
   foreach (const InputUI& ui_obj, input_ui_map_) {
     ui_obj.widget_bridge->SetTimebase(timebase);
   }
@@ -552,11 +565,19 @@ void NodeParamViewItemBody::ReplaceWidgets(const NodeInput &input)
   PlaceWidgetsFromBridge(ui.layout, ui.widget_bridge, ui.row);
 }
 
+void NodeParamViewItemBody::ShowSpeedDurationDialogForNode()
+{
+  // We should only get there if the node is a clip, determined by the dynamic_cast in CreateWidgets
+  SpeedDurationDialog sdd({static_cast<ClipBlock*>(node_)}, timebase_, this);
+  sdd.exec();
+}
+
 NodeParamViewItemBody::InputUI::InputUI() :
   main_label(nullptr),
   widget_bridge(nullptr),
   connected_label(nullptr),
   key_control(nullptr),
+  extra_btn(nullptr),
   array_insert_btn(nullptr),
   array_remove_btn(nullptr)
 {

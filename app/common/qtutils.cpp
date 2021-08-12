@@ -58,4 +58,18 @@ int QtUtils::MessageBox(QWidget *parent, QMessageBox::Icon icon, const QString &
   return b.exec();
 }
 
+QDateTime QtUtils::GetCreationDate(const QFileInfo &info)
+{
+#if QT_VERSION < QT_VERSION_CHECK(5, 10, 0)
+  return info.created();
+#else
+  return info.birthTime();
+#endif
+}
+
+QString QtUtils::GetFormattedDateTime(const QDateTime &dt)
+{
+  return dt.toString(Qt::TextDate);
+}
+
 }

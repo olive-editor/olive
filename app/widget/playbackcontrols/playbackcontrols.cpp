@@ -53,8 +53,9 @@ PlaybackControls::PlaybackControls(QWidget *parent) :
   lower_left_layout->setSpacing(0);
   lower_left_layout->setMargin(0);
 
-  cur_tc_lbl_ = new TimeSlider();
-  connect(cur_tc_lbl_, &TimeSlider::ValueChanged, this, &PlaybackControls::TimeChanged);
+  cur_tc_lbl_ = new RationalSlider();
+  cur_tc_lbl_->SetDisplayType(RationalSlider::kTime);
+  connect(cur_tc_lbl_, &RationalSlider::ValueChanged, this, &PlaybackControls::TimeChanged);
   lower_left_layout->addWidget(cur_tc_lbl_);
   lower_left_layout->addStretch();
 
@@ -179,12 +180,12 @@ void PlaybackControls::SetAudioVideoDragButtonsVisible(bool e)
   audio_drag_btn_->setVisible(e);
 }
 
-void PlaybackControls::SetTime(const int64_t &r)
+void PlaybackControls::SetTime(const rational &r)
 {
   cur_tc_lbl_->SetValue(r);
 }
 
-void PlaybackControls::SetEndTime(const int64_t &r)
+void PlaybackControls::SetEndTime(const rational &r)
 {
   if (time_base_.isNull()) {
     return;
@@ -192,9 +193,9 @@ void PlaybackControls::SetEndTime(const int64_t &r)
 
   end_time_ = r;
 
-  end_tc_lbl_->setText(Timecode::timestamp_to_timecode(end_time_,
-                                                       time_base_,
-                                                       Core::instance()->GetTimecodeDisplay()));
+  end_tc_lbl_->setText(Timecode::time_to_timecode(end_time_,
+                                                  time_base_,
+                                                  Core::instance()->GetTimecodeDisplay()));
 }
 
 void PlaybackControls::ShowPauseButton()

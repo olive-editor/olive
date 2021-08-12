@@ -117,14 +117,7 @@ void ClipBlock::Retranslate()
 
 void ClipBlock::Hash(const QString &out, QCryptographicHash &hash, const rational &time, const VideoParams &video_params) const
 {
-  Q_UNUSED(out)
-
-  if (IsInputConnected(kBufferIn)) {
-    rational t = InputTimeAdjustment(kBufferIn, -1, TimeRange(time, time)).in();
-
-    NodeOutput output = GetConnectedOutput(kBufferIn);
-    output.node()->Hash(output.output(), hash, t, video_params);
-  }
+  HashPassthrough(kBufferIn, out, hash, time, video_params);
 }
 
 }

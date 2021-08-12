@@ -96,7 +96,7 @@ public:
 
   qreal GetNodeContextHeight(Node *context);
 
-  using PositionMap = QMap<Node*, QPointF>;
+  using PositionMap = QHash<Node*, QPointF>;
 
   const PositionMap &GetNodesForContext(Node *context)
   {

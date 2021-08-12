@@ -65,6 +65,7 @@ ProjectExplorer::ProjectExplorer(QWidget *parent) :
 
   // Set up sort filter proxy model
   sort_model_.setSourceModel(&model_);
+  sort_model_.setSortRole(ProjectViewModel::kInnerTextRole);
 
   // Add tree view to stacked widget
   tree_view_ = new ProjectExplorerTreeView(stacked_widget_);

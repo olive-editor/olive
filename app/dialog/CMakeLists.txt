@@ -28,6 +28,7 @@ add_subdirectory(preferences)
 add_subdirectory(progress)
 add_subdirectory(rendercancel)
 add_subdirectory(sequence)
+add_subdirectory(speedduration)
 add_subdirectory(task)
 add_subdirectory(text)
 

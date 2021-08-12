@@ -68,4 +68,17 @@ void TimelineWidgetSelections::TrimOut(const rational &diff)
   }
 }
 
+void TimelineWidgetSelections::Subtract(const TimelineWidgetSelections &selections)
+{
+  for (auto it=selections.cbegin(); it!=selections.cend(); it++) {
+    const Track::Reference &track = it.key();
+    const TimeRangeList &their_list = it.value();
+
+    if (this->contains(track)) {
+      TimeRangeList &our_list = (*this)[it.key()];
+      our_list.remove(their_list);
+    }
+  }
+}
+
 }

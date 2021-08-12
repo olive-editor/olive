@@ -145,6 +145,11 @@ public:
   public:
     PlaybackDevice(const Playlist& playlist, int sample_sz, QObject* parent = nullptr);
 
+    void SetDataLimit(qint64 limit)
+    {
+      limit_ = limit;
+    }
+
     virtual ~PlaybackDevice() override;
 
     virtual bool isSequential() const override
@@ -177,6 +182,8 @@ public:
     qint64 segment_read_index_;
 
     int sample_size_;
+
+    qint64 limit_;
 
   };
 

@@ -110,6 +110,10 @@
     <file>png/magnet.32.png</file>
     <file>png/magnet.64.png</file>
     <file>png/magnet.128.png</file>
+    <file>png/map.16.png</file>
+    <file>png/map.32.png</file>
+    <file>png/map.64.png</file>
+    <file>png/map.128.png</file>
     <file>png/minus.16.png</file>
     <file>png/minus.32.png</file>
     <file>png/minus.64.png</file>

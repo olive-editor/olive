@@ -24,7 +24,7 @@
 #include <QCheckBox>
 
 #include "codecsection.h"
-#include "widget/slider/timeslider.h"
+#include "widget/slider/rationalslider.h"
 
 namespace olive {
 
@@ -44,12 +44,12 @@ public:
     frame_slider_->SetTimebase(r);
   }
 
-  int64_t GetTimestamp() const
+  rational GetTime() const
   {
     return frame_slider_->GetValue();
   }
 
-  void SetTimestamp(int64_t t)
+  void SetTime(const rational &t)
   {
     frame_slider_->SetValue(t);
   }
@@ -57,7 +57,7 @@ public:
 private:
   QCheckBox* image_sequence_checkbox_;
 
-  TimeSlider* frame_slider_;
+  RationalSlider* frame_slider_;
 
 private slots:
   void ImageSequenceCheckBoxToggled(bool e);

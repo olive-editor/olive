@@ -252,12 +252,12 @@ void ExportVideoTab::VideoCodecChanged()
   qDebug() << "Set default pix fmt" << pix_fmt_;
 }
 
-void ExportVideoTab::SetTimestamp(int64_t timestamp)
+void ExportVideoTab::SetTime(const rational &time)
 {
   for (int i=0; i<codec_stack_->count(); i++) {
     ImageSection* img = dynamic_cast<ImageSection*>(codec_stack_->widget(i));
     if (img) {
-      img->SetTimestamp(timestamp);
+      img->SetTime(time);
     }
   }
 }

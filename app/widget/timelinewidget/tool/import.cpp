@@ -131,10 +131,9 @@ void ImportTool::DragMove(TimelineViewMouseEvent *event)
 
       // Generate tooltip (showing earliest in point of imported clip)
       rational tooltip_timebase = parent()->GetTimebaseForTrackType(event->GetTrack().type());
-      int64_t earliest_timestamp = Timecode::time_to_timestamp(earliest_ghost, tooltip_timebase);
-      QString tooltip_text = Timecode::timestamp_to_timecode(earliest_timestamp,
-                                                             tooltip_timebase,
-                                                             Core::instance()->GetTimecodeDisplay());
+      QString tooltip_text = Timecode::time_to_timecode(earliest_ghost,
+                                                        tooltip_timebase,
+                                                        Core::instance()->GetTimecodeDisplay());
 
       // Force tooltip to update (otherwise the tooltip won't move as written in the documentation, and could get in the way
       // of the cursor)

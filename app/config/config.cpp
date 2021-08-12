@@ -97,7 +97,6 @@ void Config::SetDefaults()
   SetEntryInternal(QStringLiteral("UseSliderLadders"), NodeValue::kBoolean, true);
   SetEntryInternal(QStringLiteral("ShowWelcomeDialog"), NodeValue::kBoolean, true);
 
-  SetEntryInternal(QStringLiteral("AutoCacheEnabled"), NodeValue::kBoolean, true);
   SetEntryInternal(QStringLiteral("AutoCacheDelay"), NodeValue::kInt, 1000);
 
   SetEntryInternal(QStringLiteral("CatColor0"), NodeValue::kInt, 0);
@@ -124,6 +123,7 @@ void Config::SetDefaults()
   SetEntryInternal(QStringLiteral("DefaultSequencePixelAspect"), NodeValue::kRational, QVariant::fromValue(rational(1)));
   SetEntryInternal(QStringLiteral("DefaultSequenceFrameRate"), NodeValue::kRational, QVariant::fromValue(rational(1001, 30000)));
   SetEntryInternal(QStringLiteral("DefaultSequenceInterlacing"), NodeValue::kInt, VideoParams::kInterlaceNone);
+  SetEntryInternal(QStringLiteral("DefaultSequenceAutoCache"), NodeValue::kBoolean, true);
   SetEntryInternal(QStringLiteral("DefaultSequenceAudioFrequency"), NodeValue::kInt, 48000);
   SetEntryInternal(QStringLiteral("DefaultSequenceAudioLayout"), NodeValue::kInt, QVariant::fromValue(static_cast<int64_t>(AV_CH_LAYOUT_STEREO)));
 

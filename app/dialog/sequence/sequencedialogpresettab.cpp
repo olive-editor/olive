@@ -105,86 +105,95 @@ QTreeWidgetItem* SequenceDialogPresetTab::CreateFolder(const QString &name)
 
 QTreeWidgetItem *SequenceDialogPresetTab::CreateHDPresetFolder(const QString &name, int width, int height, int divider)
 {
-  VideoParams::Format default_format = static_cast<VideoParams::Format>(Config::Current()["OfflinePixelFormat"].toInt());
+  const VideoParams::Format default_format = static_cast<VideoParams::Format>(Config::Current()["OfflinePixelFormat"].toInt());
+  const bool default_autocache = true;
   QTreeWidgetItem* parent = CreateFolder(name);
-  AddStandardItem(parent, SequencePreset::Create(tr("%1 23.976 FPS").arg(name),
-                                                 width,
-                                                 height,
-                                                 rational(24000, 1001),
-                                                 VideoParams::kPixelAspectSquare,
-                                                 VideoParams::kInterlaceNone,
-                                                 48000,
-                                                 AV_CH_LAYOUT_STEREO,
-                                                 divider,
-                                                 default_format));
-  AddStandardItem(parent, SequencePreset::Create(tr("%1 25 FPS").arg(name),
-                                                 width,
-                                                 height,
-                                                 rational(25, 1),
-                                                 VideoParams::kPixelAspectSquare,
-                                                 VideoParams::kInterlaceNone,
-                                                 48000,
-                                                 AV_CH_LAYOUT_STEREO,
-                                                 divider,
-                                                 default_format));
-  AddStandardItem(parent, SequencePreset::Create(tr("%1 29.97 FPS").arg(name),
-                                                 width,
-                                                 height,
-                                                 rational(30000, 1001),
-                                                 VideoParams::kPixelAspectSquare,
-                                                 VideoParams::kInterlaceNone,
-                                                 48000,
-                                                 AV_CH_LAYOUT_STEREO,
-                                                 divider,
-                                                 default_format));
-  AddStandardItem(parent, SequencePreset::Create(tr("%1 50 FPS").arg(name),
-                                                 width,
-                                                 height,
-                                                 rational(50, 1),
-                                                 VideoParams::kPixelAspectSquare,
-                                                 VideoParams::kInterlaceNone,
-                                                 48000,
-                                                 AV_CH_LAYOUT_STEREO,
-                                                 divider,
-                                                 default_format));
-  AddStandardItem(parent, SequencePreset::Create(tr("%1 59.94 FPS").arg(name),
-                                                 width,
-                                                 height,
-                                                 rational(60000, 1001),
-                                                 VideoParams::kPixelAspectSquare,
-                                                 VideoParams::kInterlaceNone,
-                                                 48000,
-                                                 AV_CH_LAYOUT_STEREO,
-                                                 divider,
-                                                 default_format));
+  AddStandardItem(parent, new SequencePreset(tr("%1 23.976 FPS").arg(name),
+                                             width,
+                                             height,
+                                             rational(24000, 1001),
+                                             VideoParams::kPixelAspectSquare,
+                                             VideoParams::kInterlaceNone,
+                                             48000,
+                                             AV_CH_LAYOUT_STEREO,
+                                             divider,
+                                             default_format,
+                                             default_autocache));
+  AddStandardItem(parent, new SequencePreset(tr("%1 25 FPS").arg(name),
+                                             width,
+                                             height,
+                                             rational(25, 1),
+                                             VideoParams::kPixelAspectSquare,
+                                             VideoParams::kInterlaceNone,
+                                             48000,
+                                             AV_CH_LAYOUT_STEREO,
+                                             divider,
+                                             default_format,
+                                             default_autocache));
+  AddStandardItem(parent, new SequencePreset(tr("%1 29.97 FPS").arg(name),
+                                             width,
+                                             height,
+                                             rational(30000, 1001),
+                                             VideoParams::kPixelAspectSquare,
+                                             VideoParams::kInterlaceNone,
+                                             48000,
+                                             AV_CH_LAYOUT_STEREO,
+                                             divider,
+                                             default_format,
+                                             default_autocache));
+  AddStandardItem(parent, new SequencePreset(tr("%1 50 FPS").arg(name),
+                                             width,
+                                             height,
+                                             rational(50, 1),
+                                             VideoParams::kPixelAspectSquare,
+                                             VideoParams::kInterlaceNone,
+                                             48000,
+                                             AV_CH_LAYOUT_STEREO,
+                                             divider,
+                                             default_format,
+                                             default_autocache));
+  AddStandardItem(parent, new SequencePreset(tr("%1 59.94 FPS").arg(name),
+                                             width,
+                                             height,
+                                             rational(60000, 1001),
+                                             VideoParams::kPixelAspectSquare,
+                                             VideoParams::kInterlaceNone,
+                                             48000,
+                                             AV_CH_LAYOUT_STEREO,
+                                             divider,
+                                             default_format,
+                                             default_autocache));
   return parent;
 }
 
 QTreeWidgetItem *SequenceDialogPresetTab::CreateSDPresetFolder(const QString &name, int width, int height, const rational& frame_rate, const rational &standard_par, const rational &wide_par, int divider)
 {
-  VideoParams::Format default_format = static_cast<VideoParams::Format>(Config::Current()["OfflinePixelFormat"].toInt());
+  const VideoParams::Format default_format = static_cast<VideoParams::Format>(Config::Current()["OfflinePixelFormat"].toInt());
+  const bool default_autocache = true;
   QTreeWidgetItem* parent = CreateFolder(name);
   preset_tree_->addTopLevelItem(parent);
-  AddStandardItem(parent, SequencePreset::Create(tr("%1 Standard").arg(name),
-                                                 width,
-                                                 height,
-                                                 frame_rate,
-                                                 standard_par,
-                                                 VideoParams::kInterlacedBottomFirst,
-                                                 48000,
-                                                 AV_CH_LAYOUT_STEREO,
-                                                 divider,
-                                                 default_format));
-  AddStandardItem(parent, SequencePreset::Create(tr("%1 Widescreen").arg(name),
-                                                 width,
-                                                 height,
-                                                 frame_rate,
-                                                 wide_par,
-                                                 VideoParams::kInterlacedBottomFirst,
-                                                 48000,
-                                                 AV_CH_LAYOUT_STEREO,
-                                                 divider,
-                                                 default_format));
+  AddStandardItem(parent, new SequencePreset(tr("%1 Standard").arg(name),
+                                             width,
+                                             height,
+                                             frame_rate,
+                                             standard_par,
+                                             VideoParams::kInterlacedBottomFirst,
+                                             48000,
+                                             AV_CH_LAYOUT_STEREO,
+                                             divider,
+                                             default_format,
+                                             default_autocache));
+  AddStandardItem(parent, new SequencePreset(tr("%1 Widescreen").arg(name),
+                                             width,
+                                             height,
+                                             frame_rate,
+                                             wide_par,
+                                             VideoParams::kInterlacedBottomFirst,
+                                             48000,
+                                             AV_CH_LAYOUT_STEREO,
+                                             divider,
+                                             default_format,
+                                             default_autocache));
   return parent;
 }
 

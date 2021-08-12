@@ -111,7 +111,8 @@ private:
     SequenceParamCommand(Sequence* s,
                          const VideoParams& video_params,
                          const AudioParams& audio_params,
-                         const QString& name);
+                         const QString& name,
+                         bool autocache);
 
     virtual Project* GetRelevantProject() const override;
 
@@ -125,10 +126,12 @@ private:
     VideoParams new_video_params_;
     AudioParams new_audio_params_;
     QString new_name_;
+    bool new_autocache_;
 
     VideoParams old_video_params_;
     AudioParams old_audio_params_;
     QString old_name_;
+    bool old_autocache_;
   };
 
 private slots:

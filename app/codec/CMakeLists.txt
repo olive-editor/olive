@@ -33,9 +33,5 @@ set(OLIVE_SOURCES
   codec/frame.h
   codec/samplebuffer.cpp
   codec/samplebuffer.h
-  codec/waveinput.cpp
-  codec/waveinput.h
-  codec/waveoutput.cpp
-  codec/waveoutput.h
   PARENT_SCOPE
 )

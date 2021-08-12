@@ -168,7 +168,7 @@ void Folder::RemoveElementCommand::redo()
   }
 
   if (subcommand_) {
-    subcommand_->redo();
+    subcommand_->redo_now();
   }
 }
 

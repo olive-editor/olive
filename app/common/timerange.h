@@ -80,6 +80,7 @@ public:
   void insert(TimeRange range_to_add);
 
   void remove(const TimeRange& remove);
+  void remove(const TimeRangeList &list);
 
   template <typename T>
   static void util_remove(QVector<T> *list, const TimeRange &remove)
@@ -146,6 +147,16 @@ public:
   const_iterator end() const
   {
     return array_.constEnd();
+  }
+
+  const_iterator cbegin() const
+  {
+    return begin();
+  }
+
+  const_iterator cend() const
+  {
+    return end();
   }
 
   const TimeRange& first() const

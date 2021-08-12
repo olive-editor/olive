@@ -126,8 +126,6 @@ private:
 
   int GetHeightOfAllTracks() const;
 
-  void UserSetTime(const int64_t& time);
-
   void UpdatePlayheadRect();
 
   QHash<Track::Reference, TimeRangeList>* selections_;

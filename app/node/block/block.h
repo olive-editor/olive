@@ -148,6 +148,11 @@ public:
     return GetStandardValue(kSpeedInput).toDouble();
   }
 
+  void set_speed(double s)
+  {
+    SetStandardValue(kSpeedInput, s);
+  }
+
   bool reverse() const
   {
     return GetStandardValue(kReverseInput).toBool();
@@ -178,6 +183,8 @@ protected:
   virtual void InputValueChangedEvent(const QString& input, int element) override;
 
   virtual void LinkChangeEvent() override;
+
+  bool HashPassthrough(const QString &input, const QString& output, QCryptographicHash &hash, const rational &time, const VideoParams& video_params) const;
 
   Block* previous_;
   Block* next_;

@@ -32,19 +32,19 @@ NodePanel::NodePanel(QWidget *parent) :
   QVBoxLayout *outer_layout = new QVBoxLayout(outer_widget);
   outer_layout->setMargin(0);
 
-  NodeViewToolBar *toolbar = new NodeViewToolBar();
-  outer_layout->addWidget(toolbar);
+  toolbar_ = new NodeViewToolBar();
+  outer_layout->addWidget(toolbar_);
 
   // Create NodeView widget
   node_view_ = new NodeView(this);
   outer_layout->addWidget(node_view_);
 
   // Connect toolbar to NodeView
-  connect(toolbar, &NodeViewToolBar::MiniMapEnabledToggled, node_view_, &NodeView::SetMiniMapEnabled);
-  connect(toolbar, &NodeViewToolBar::AddNodeClicked, node_view_, &NodeView::ShowAddMenu);
+  connect(toolbar_, &NodeViewToolBar::MiniMapEnabledToggled, node_view_, &NodeView::SetMiniMapEnabled);
+  connect(toolbar_, &NodeViewToolBar::AddNodeClicked, node_view_, &NodeView::ShowAddMenu);
 
   // Set defaults
-  toolbar->SetMiniMapEnabled(true);
+  toolbar_->SetMiniMapEnabled(true);
   node_view_->SetMiniMapEnabled(true);
 
   // Connect node view signals to this panel

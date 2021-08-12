@@ -31,7 +31,7 @@
 #include "node/output/viewer/viewer.h"
 #include "timeline/timelinecommon.h"
 #include "timelineandtrackview.h"
-#include "widget/slider/timeslider.h"
+#include "widget/slider/rationalslider.h"
 #include "widget/snapservice/snapservice.h"
 #include "widget/timebased/timebasedwidget.h"
 #include "widget/timelinewidget/timelinewidgetselections.h"
@@ -91,6 +91,16 @@ public:
 
   void SetColorLabel(int index);
 
+  void NudgeLeft();
+
+  void NudgeRight();
+
+  void MoveInToPlayhead();
+
+  void MoveOutToPlayhead();
+
+  void ShowSpeedDurationDialogForSelectedClips();
+
   /**
    * @brief Timelines should always be connected to sequences
    */
@@ -133,7 +143,7 @@ public:
     return selections_;
   }
 
-  void SetSelections(const TimelineWidgetSelections &s);
+  void SetSelections(const TimelineWidgetSelections &s, bool process_block_changes);
 
   Track* GetTrackFromReference(const Track::Reference& ref) const;
 
@@ -208,10 +218,11 @@ public:
 
   class SetSelectionsCommand : public UndoCommand {
   public:
-    SetSelectionsCommand(TimelineWidget* timeline, const TimelineWidgetSelections& now, const TimelineWidgetSelections& old) :
+    SetSelectionsCommand(TimelineWidget* timeline, const TimelineWidgetSelections& now, const TimelineWidgetSelections& old, bool process_block_changes) :
       timeline_(timeline),
       old_(old),
-      now_(now)
+      now_(now),
+      process_block_changes_(process_block_changes)
     {
     }
 
@@ -220,18 +231,19 @@ public:
   protected:
     virtual void redo() override
     {
-      timeline_->SetSelections(now_);
+      timeline_->SetSelections(now_, process_block_changes_);
     }
 
     virtual void undo() override
     {
-      timeline_->SetSelections(old_);
+      timeline_->SetSelections(old_, process_block_changes_);
     }
 
   private:
     TimelineWidget* timeline_;
     TimelineWidgetSelections old_;
     TimelineWidgetSelections now_;
+    bool process_block_changes_;
 
   };
 
@@ -242,13 +254,13 @@ protected:
   virtual void resizeEvent(QResizeEvent *event) override;
 
   virtual void TimebaseChangedEvent(const rational &) override;
-  virtual void TimeChangedEvent(const int64_t &) override;
+  virtual void TimeChangedEvent(const rational &time) override;
   virtual void ScaleChangedEvent(const double &) override;
 
   virtual void ConnectNodeEvent(ViewerOutput* n) override;
   virtual void DisconnectNodeEvent(ViewerOutput* n) override;
 
-  virtual void CopyNodesToClipboardInternal(QXmlStreamWriter *writer, void* userdata) override;
+  virtual void CopyNodesToClipboardInternal(QXmlStreamWriter *writer, const QVector<Node*> &nodes, void* userdata) override;
   virtual void PasteNodesFromClipboardInternal(QXmlStreamReader *reader, XMLNodeData &xml_node_data, void* userdata) override;
 
   struct BlockPasteData {
@@ -271,6 +283,8 @@ private:
 
   QVector<Block*> GetBlocksInGlobalRect(const QPoint &p1, const QPoint &p2);
 
+  QVector<Block*> GetBlocksInSelection(const TimelineWidgetSelections &sel);
+
   QPoint drag_origin_;
 
   QRubberBand rubberband_;
@@ -291,7 +305,7 @@ private:
 
   QVector<TimelineAndTrackView*> views_;
 
-  TimeSlider* timecode_label_;
+  RationalSlider* timecode_label_;
 
   QVector<Block*> selected_blocks_;
 
@@ -306,6 +320,10 @@ private:
   void CenterOn(qreal scene_pos);
 
   void UpdateViewTimebases();
+
+  void NudgeInternal(const rational &amount);
+
+  void MoveToPlayheadInternal(bool out);
 
 private slots:
   void ViewMousePressed(TimelineViewMouseEvent* event);
@@ -339,9 +357,7 @@ private slots:
 
   void SetUseAudioTimeUnits(bool use);
 
-  void SetViewTimestamp(const int64_t& ts);
-
-  void ViewTimestampChanged(int64_t ts);
+  void SetViewTime(const rational &time);
 
   void ToolChanged();
 

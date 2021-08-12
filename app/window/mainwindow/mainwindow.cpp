@@ -102,15 +102,15 @@ MainWindow::MainWindow(QWidget *parent) :
   connect(param_panel_, &ParamPanel::FocusedNodeChanged, sequence_viewer_panel_, &ViewerPanel::SetGizmos);
 
   // Connect time signals together
-  connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, param_panel_, &ParamPanel::SetTimestamp);
-  connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, table_panel_, &NodeTablePanel::SetTimestamp);
-  connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, curve_panel_, &NodeTablePanel::SetTimestamp);
-  connect(param_panel_, &ParamPanel::TimeChanged, sequence_viewer_panel_, &SequenceViewerPanel::SetTimestamp);
-  connect(param_panel_, &ParamPanel::TimeChanged, table_panel_, &NodeTablePanel::SetTimestamp);
-  connect(param_panel_, &ParamPanel::TimeChanged, curve_panel_, &NodeTablePanel::SetTimestamp);
-  connect(curve_panel_, &ParamPanel::TimeChanged, sequence_viewer_panel_, &SequenceViewerPanel::SetTimestamp);
-  connect(curve_panel_, &ParamPanel::TimeChanged, table_panel_, &NodeTablePanel::SetTimestamp);
-  connect(curve_panel_, &ParamPanel::TimeChanged, param_panel_, &NodeTablePanel::SetTimestamp);
+  connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, param_panel_, &ParamPanel::SetTime);
+  connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, table_panel_, &NodeTablePanel::SetTime);
+  connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, curve_panel_, &NodeTablePanel::SetTime);
+  connect(param_panel_, &ParamPanel::TimeChanged, sequence_viewer_panel_, &SequenceViewerPanel::SetTime);
+  connect(param_panel_, &ParamPanel::TimeChanged, table_panel_, &NodeTablePanel::SetTime);
+  connect(param_panel_, &ParamPanel::TimeChanged, curve_panel_, &NodeTablePanel::SetTime);
+  connect(curve_panel_, &ParamPanel::TimeChanged, sequence_viewer_panel_, &SequenceViewerPanel::SetTime);
+  connect(curve_panel_, &ParamPanel::TimeChanged, table_panel_, &NodeTablePanel::SetTime);
+  connect(curve_panel_, &ParamPanel::TimeChanged, param_panel_, &NodeTablePanel::SetTime);
 
   // Connect node order signals
   connect(param_panel_, &ParamPanel::NodeOrderChanged, curve_panel_, &CurvePanel::SetNodes);
@@ -564,14 +564,14 @@ TimelinePanel* MainWindow::AppendTimelinePanel()
   TimelinePanel* panel = AppendPanelInternal<TimelinePanel>(timeline_panels_);
 
   connect(panel, &PanelWidget::CloseRequested, this, &MainWindow::TimelineCloseRequested);
-  connect(panel, &TimelinePanel::TimeChanged, curve_panel_, &ParamPanel::SetTimestamp);
-  connect(panel, &TimelinePanel::TimeChanged, param_panel_, &ParamPanel::SetTimestamp);
-  connect(panel, &TimelinePanel::TimeChanged, table_panel_, &NodeTablePanel::SetTimestamp);
-  connect(panel, &TimelinePanel::TimeChanged, sequence_viewer_panel_, &SequenceViewerPanel::SetTimestamp);
+  connect(panel, &TimelinePanel::TimeChanged, curve_panel_, &ParamPanel::SetTime);
+  connect(panel, &TimelinePanel::TimeChanged, param_panel_, &ParamPanel::SetTime);
+  connect(panel, &TimelinePanel::TimeChanged, table_panel_, &NodeTablePanel::SetTime);
+  connect(panel, &TimelinePanel::TimeChanged, sequence_viewer_panel_, &SequenceViewerPanel::SetTime);
   connect(panel, &TimelinePanel::BlockSelectionChanged, this, &MainWindow::TimelinePanelSelectionChanged);
-  connect(param_panel_, &ParamPanel::TimeChanged, panel, &TimelinePanel::SetTimestamp);
-  connect(curve_panel_, &ParamPanel::TimeChanged, panel, &TimelinePanel::SetTimestamp);
-  connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, panel, &TimelinePanel::SetTimestamp);
+  connect(param_panel_, &ParamPanel::TimeChanged, panel, &TimelinePanel::SetTime);
+  connect(curve_panel_, &ParamPanel::TimeChanged, panel, &TimelinePanel::SetTime);
+  connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, panel, &TimelinePanel::SetTime);
 
   sequence_viewer_panel_->ConnectTimeBasedPanel(panel);
 
@@ -677,7 +677,7 @@ void SaveCustomShortcutsInternal(QMenu* menu, QMap<QString, QString>* shortcuts)
     if (a->menu()) {
       SaveCustomShortcutsInternal(a->menu(), shortcuts);
     } else if (!a->isSeparator()) {
-      QString default_shortcut = a->property("keydefault").toString();
+      QString default_shortcut = a->property("keydefault").value<QKeySequence>().toString();
       QString current_shortcut = a->shortcut().toString();
       if (current_shortcut != default_shortcut) {
         QString action_id = a->property("id").toString();

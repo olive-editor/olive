@@ -26,6 +26,7 @@
 #include <QUuid>
 
 #include "common/filefunctions.h"
+#include "node/output/viewer/viewer.h"
 
 namespace olive {
 
@@ -390,7 +391,14 @@ void AudioPlaybackCache::UpdateOffsetsFrom(int index)
 
 AudioPlaybackCache::PlaybackDevice *AudioPlaybackCache::CreatePlaybackDevice(QObject* parent) const
 {
-  return new PlaybackDevice(playlist_, params_.bytes_per_sample_per_channel(), parent);
+  PlaybackDevice *d = new PlaybackDevice(playlist_, params_.bytes_per_sample_per_channel(), parent);
+
+  // If we're child of a viewer, set the data limit so audio doesn't play beyond the length
+  if (ViewerOutput *viewer = viewer_parent()) {
+    d->SetDataLimit(params_.time_to_bytes_per_channel(viewer->GetAudioLength()));
+  }
+
+  return d;
 }
 
 AudioPlaybackCache::Segment::Segment(qint64 size)
@@ -403,7 +411,8 @@ AudioPlaybackCache::PlaybackDevice::PlaybackDevice(const AudioPlaybackCache::Pla
   playlist_(playlist),
   current_segment_(0),
   segment_read_index_(0),
-  sample_size_(sample_sz)
+  sample_size_(sample_sz),
+  limit_(INT64_MAX)
 {
 }
 
@@ -437,9 +446,14 @@ qint64 AudioPlaybackCache::PlaybackDevice::readData(char *data, qint64 maxSize)
 
   while (read_size < maxSize
          && current_segment_ >= 0
-         && current_segment_ < playlist_.size()) {
+         && current_segment_ < playlist_.size()
+         && playlist_.at(current_segment_).offset() + segment_read_index_ < limit_) {
     const Segment& cs = playlist_.at(current_segment_);
     qint64 current_segment_sz = cs.size();
+
+    if (cs.offset() + current_segment_sz > limit_) {
+      current_segment_sz = limit_ - cs.offset();
+    }
 
     QVector<QFile*> segment_files(cs.channels());
     segment_files.fill(nullptr);
@@ -480,13 +494,13 @@ qint64 AudioPlaybackCache::PlaybackDevice::readData(char *data, qint64 maxSize)
 
         // Add to the read index
         segment_read_index_ += sample_size_;
+      }
 
-        // If we've reached the end of this segment, tick the counter over to the next segment
-        if (segment_read_index_ == current_segment_sz) {
-          // Jump to the next file
-          segment_read_index_ = 0;
-          current_segment_++;
-        }
+      // If we've reached the end of this segment, tick the counter over to the next segment
+      if (segment_read_index_ == current_segment_sz) {
+        // Jump to the next file
+        segment_read_index_ = 0;
+        current_segment_++;
       }
     }
 

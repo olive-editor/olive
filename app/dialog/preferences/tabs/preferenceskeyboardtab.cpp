@@ -150,6 +150,9 @@ bool PreferencesKeyboardTab::refine_shortcut_list(const QString &s, QTreeWidgetI
     for (int i=0;i<keyboard_tree_->topLevelItemCount();i++) {
       refine_shortcut_list(s, keyboard_tree_->topLevelItem(i));
     }
+
+    // Return value is `all_children_are_hidden` which doesn't matter at the top level
+    return false;
   } else {
     parent->setExpanded(!s.isEmpty());
 
@@ -158,7 +161,9 @@ bool PreferencesKeyboardTab::refine_shortcut_list(const QString &s, QTreeWidgetI
     for (int i=0;i<parent->childCount();i++) {
       QTreeWidgetItem* item = parent->child(i);
       if (item->childCount() > 0) {
-        all_children_are_hidden = refine_shortcut_list(s, item);
+        if (!refine_shortcut_list(s, item)) {
+          all_children_are_hidden = false;
+        }
       } else {
         item->setHidden(false);
         if (s.isEmpty()) {
@@ -183,7 +188,6 @@ bool PreferencesKeyboardTab::refine_shortcut_list(const QString &s, QTreeWidgetI
 
     return all_children_are_hidden;
   }
-  return true;
 }
 
 void PreferencesKeyboardTab::load_shortcut_file() {
