@@ -58,8 +58,6 @@ public slots:
 
   void SetScroll(int s);
 
-  void UpdateMarkers();
-
   void addMarker(TimelineMarker* marker);
 
   void updateMarkerPositions();
@@ -110,10 +108,6 @@ private:
   SnapService* snap_service_;
 
   bool dragging_;
-
-  QHBoxLayout* marker_layout_;
-
-  QVector<Marker*> marker_widgets;
 
   QMap<TimelineMarker*, Marker*> marker_map_;
 

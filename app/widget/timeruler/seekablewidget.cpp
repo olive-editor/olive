@@ -44,10 +44,6 @@ SeekableWidget::SeekableWidget(QWidget* parent) :
   playhead_width_ = QtUtils::QFontMetricsWidth(fm, "H");
 
   setContextMenuPolicy(Qt::CustomContextMenu);
-
-  marker_layout_ = new QHBoxLayout(this);
-
-  UpdateMarkers();
 }
 
 void SeekableWidget::ConnectTimelinePoints(TimelinePoints *points)
@@ -133,23 +129,6 @@ void SeekableWidget::SetScroll(int s)
   update();
 
   updateMarkerPositions();
-}
-
-void SeekableWidget::UpdateMarkers()
-{
-  printf("Test");
-  if (timeline_points()) {
-    foreach(Marker * marker, marker_widgets) {
-      marker->deleteLater();
-    }
-    marker_widgets.clear();
-   
-    foreach(TimelineMarker * marker, timeline_points()->markers()->list()) {
-      Marker* marker_widget = new Marker();
-      marker_widgets.append(marker_widget);
-      marker_layout_->addWidget(marker_widget);
-    }
-  }
 }
 
 void SeekableWidget::addMarker(TimelineMarker* marker)

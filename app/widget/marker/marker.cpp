@@ -53,10 +53,6 @@ void Marker::paintEvent(QPaintEvent *event)
 
   int x = half_width; //3
 
-  if (x + half_width < 0 || x - half_width > width()) {
-    return;
-  }
-
   QPainter p(this);
   p.setPen(Qt::black);
   p.setBrush(ColorCoding::GetColor(marker_color_).toQColor());
@@ -75,8 +71,6 @@ void Marker::paintEvent(QPaintEvent *event)
   };
 
   p.drawPolygon(points, 6);
-
-  p.setRenderHint(QPainter::Antialiasing, false);
 }
 
 void Marker::ShowContextMenu() {
