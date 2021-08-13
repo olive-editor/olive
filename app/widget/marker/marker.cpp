@@ -38,9 +38,6 @@ Marker::Marker(QWidget *parent) :
   setContextMenuPolicy(Qt::CustomContextMenu);
 
   connect(this, &Marker::customContextMenuRequested, this, &Marker::ShowContextMenu);
-
-  color_coding_menu_ = new ColorLabelMenu();
-  connect(color_coding_menu_, &ColorLabelMenu::ColorSelected, this, &Marker::SetColor);
 }
 
 void Marker::paintEvent(QPaintEvent *event)
@@ -85,7 +82,10 @@ void Marker::paintEvent(QPaintEvent *event)
 void Marker::ShowContextMenu() {
   Menu m(this);
 
-  m.addMenu(color_coding_menu_);
+  // Color menu
+  ColorLabelMenu color_coding_menu;
+  connect(&color_coding_menu, &ColorLabelMenu::ColorSelected, this, &Marker::SetColor);
+  m.addMenu(&color_coding_menu);
 
   m.exec(QCursor::pos());
 }

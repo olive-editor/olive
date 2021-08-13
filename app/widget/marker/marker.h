@@ -44,7 +44,6 @@ class Marker : public QWidget {
   //void MouseDoubleClicked();
 
  private:
-  ColorLabelMenu* color_coding_menu_;
 
   int marker_color_;
 
