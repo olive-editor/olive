@@ -67,7 +67,7 @@ void SeekableWidget::ConnectTimelinePoints(TimelinePoints *points)
     connect(timeline_points_->markers(), &TimelineMarkerList::MarkerAdded, this, static_cast<void (SeekableWidget::*)()>(&SeekableWidget::update));
     connect(timeline_points_->markers(), &TimelineMarkerList::MarkerRemoved, this, static_cast<void (SeekableWidget::*)()>(&SeekableWidget::update));
 
-    connect(timeline_points_->markers(), &TimelineMarkerList::MarkerAdded, this, static_cast<void (SeekableWidget::*)()>(&SeekableWidget::UpdateMarkers));
+    connect(timeline_points_->markers(), &TimelineMarkerList::MarkerAdded, this, &SeekableWidget::addMarker);
   }
 
   update();
@@ -131,6 +131,8 @@ void SeekableWidget::SetScroll(int s)
   scroll_ = s;
 
   update();
+
+  updateMarkerPositions();
 }
 
 void SeekableWidget::UpdateMarkers()
@@ -147,6 +149,26 @@ void SeekableWidget::UpdateMarkers()
       marker_widgets.append(marker_widget);
       marker_layout_->addWidget(marker_widget);
     }
+  }
+}
+
+void SeekableWidget::addMarker(TimelineMarker* marker)
+{
+  if (!marker_map_.contains(marker)) {
+    Marker *marker_widget = new Marker(this);
+    marker_map_.insert(marker, marker_widget);
+
+    //marker_widget->setGeometry(TimeToScreen(marker->time().in()), 20, 20, 20);
+    marker_widget->move(TimeToScreen(marker->time().in()), 20);
+    marker_widget->show();
+  }
+}
+
+void SeekableWidget::updateMarkerPositions()
+{
+  foreach (TimelineMarker *marker, marker_map_.keys()) { 
+    Marker *m = marker_map_.value(marker);
+    m->move(TimeToScreen(marker->time().in()), 20);
   }
 }
 
@@ -224,7 +246,7 @@ void SeekableWidget::DrawTimelinePoints(QPainter* p, int marker_bottom)
 
       if (marker->time().length() == 0) {
         // Single point in time marker
-        DrawPlayhead(p, marker_left, marker_bottom);
+        //DrawPlayhead(p, marker_left, marker_bottom);
       } else {
         // Marker range
         int rect_left = qMax(0, marker_left);

@@ -60,6 +60,10 @@ public slots:
 
   void UpdateMarkers();
 
+  void addMarker(TimelineMarker* marker);
+
+  void updateMarkerPositions();
+
 protected:
   void SeekToScreenPoint(int screen);
 
@@ -110,6 +114,8 @@ private:
   QHBoxLayout* marker_layout_;
 
   QVector<Marker*> marker_widgets;
+
+  QMap<TimelineMarker*, Marker*> marker_map_;
 
 };
 
