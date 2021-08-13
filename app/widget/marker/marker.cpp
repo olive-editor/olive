@@ -31,7 +31,7 @@ namespace olive {
 
 Marker::Marker(QWidget *parent) :
 	QWidget(parent),
-    marker_color_(Qt::green)
+    marker_color_(7) //green FIXME: add default color to config
 {
   setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
   setMinimumSize(20, 20);
@@ -62,7 +62,7 @@ void Marker::paintEvent(QPaintEvent *event)
 
   QPainter p(this);
   p.setPen(Qt::black);
-  p.setBrush(marker_color_);
+  p.setBrush(ColorCoding::GetColor(marker_color_).toQColor());
 
   p.setRenderHint(QPainter::Antialiasing);
 
@@ -92,7 +92,7 @@ void Marker::ShowContextMenu() {
 
 void Marker::SetColor(int c)
 {
-  marker_color_ = ColorCoding::GetColor(c).toQColor();
+  marker_color_ = c;
 
   update();
 }

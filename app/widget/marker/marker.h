@@ -46,7 +46,7 @@ class Marker : public QWidget {
  private:
   ColorLabelMenu* color_coding_menu_;
 
-  QColor marker_color_;
+  int marker_color_;
 
  private slots:
   void ShowContextMenu();
