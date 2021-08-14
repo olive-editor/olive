@@ -279,7 +279,10 @@ void KeyframeViewBase::mouseMoveEvent(QMouseEvent *event)
         dragging_bezier_point_->key()->set_bezier_control(opposing_type,
                                                           new_opposing_pos);
 
-        emit Dragged(qRound(dragging_bezier_point_->x()), qRound(dragging_bezier_point_->y()));
+        // Bezier control points are parented to keyframe items making their positions relative
+        // to those items. We need to map them to the scene coordinates for this to work properly.
+        QPointF bezier_pos = dragging_bezier_point_->pos() + dragging_bezier_point_->parentItem()->pos();
+        emit Dragged(qRound(bezier_pos.x()), qRound(bezier_pos.y()));
 
       } else if (!selected_keys_.isEmpty()) {
 
