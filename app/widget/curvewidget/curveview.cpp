@@ -318,6 +318,12 @@ void CurveView::ContextMenuEvent(Menu &m)
   connect(reset_zoom_action, &QAction::triggered, this, &CurveView::ResetZoom);
 }
 
+void CurveView::SceneRectUpdateEvent(QRectF &r)
+{
+  r.setTop(r.top() - this->height());
+  r.setBottom(r.bottom() + this->height());
+}
+
 void CurveView::ZoomToFitInternal(const QList<NodeKeyframe *> &keys)
 {
   if (keys.isEmpty()) {
