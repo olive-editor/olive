@@ -61,7 +61,7 @@ double Bezier::CalculateTFromX(bool cubic, double x, double a, double b, double 
     double mid = (bottom + top) * 0.5;
     double test = cubic ? CubicTtoY(a, b, c, d, mid) : QuadraticTtoY(a, b, c, mid);
 
-    if (qFuzzyCompare(test, x)) {
+    if (qAbs(test - x) < 0.000001) {
       return mid;
     } else if (x > test) {
       bottom = mid;
