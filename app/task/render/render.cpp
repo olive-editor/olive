@@ -26,10 +26,7 @@
 
 namespace olive {
 
-RenderTask::RenderTask(ViewerOutput *viewer, const VideoParams &vparams, const AudioParams &aparams) :
-  viewer_(viewer),
-  video_params_(vparams),
-  audio_params_(aparams),
+RenderTask::RenderTask() :
   running_tickets_(0),
   native_progress_signalling_(true)
 {
