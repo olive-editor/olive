@@ -104,9 +104,11 @@ int main(int argc, char *argv[])
                        true,
                        QCoreApplication::translate("main", "qm-file"));
 
+#ifdef _WIN32
   auto console_option =
       parser.AddOption({QStringLiteral("c"), QStringLiteral("-console")},
-                       QCoreApplication::translate("main", "Launch console (Windows only)"));
+                       QCoreApplication::translate("main", "Launch with debug console"));
+#endif // _WIN32
 
   auto project_argument =
       parser.AddPositionalArgument(QStringLiteral("project"),
@@ -132,12 +134,6 @@ int main(int argc, char *argv[])
   parser.AddOption({QStringLiteral("widgetcount")}, QString(), false, QString(), true);
 
   parser.Process(argc, argv);
-
-  if (!console_option->IsSet()) {
-#ifdef _WIN32
-    FreeConsole();
-#endif  // _WIN32
-  }
 
   if (help_option->IsSet()) {
     // Show help
@@ -193,6 +189,14 @@ int main(int argc, char *argv[])
   std::unique_ptr<QCoreApplication> a;
 
   if (startup_params.run_mode() == olive::Core::CoreParams::kRunNormal) {
+#ifdef _WIN32
+    // Since Olive is linked with the console subsystem (for better POSIX compatibility), a console
+    // is created by default. If the user didn't request one, we free it here.
+    if (!console_option->IsSet()) {
+      FreeConsole();
+    }
+#endif // _WIN32
+
     a.reset(new QApplication(argc, argv));
   } else {
     a.reset(new QCoreApplication(argc, argv));
