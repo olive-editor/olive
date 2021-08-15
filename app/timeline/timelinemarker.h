@@ -68,7 +68,7 @@ public:
 
   virtual ~TimelineMarkerList() override;
 
-  TimelineMarker *AddMarker(const TimeRange& time = TimeRange(), const QString& name = QString());
+  TimelineMarker *AddMarker(const TimeRange& time = TimeRange(), const QString& name = QString(), int color = -1);
 
   void RemoveMarker(TimelineMarker* marker);
 

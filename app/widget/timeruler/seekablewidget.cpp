@@ -44,6 +44,7 @@ SeekableWidget::SeekableWidget(QWidget* parent) :
   playhead_width_ = QtUtils::QFontMetricsWidth(fm, "H");
 
   setContextMenuPolicy(Qt::CustomContextMenu);
+
 }
 
 void SeekableWidget::ConnectTimelinePoints(TimelinePoints *points)
@@ -53,6 +54,10 @@ void SeekableWidget::ConnectTimelinePoints(TimelinePoints *points)
     disconnect(timeline_points_->workarea(), &TimelineWorkArea::EnabledChanged, this, static_cast<void (SeekableWidget::*)()>(&SeekableWidget::update));
     disconnect(timeline_points_->markers(), &TimelineMarkerList::MarkerAdded, this, static_cast<void (SeekableWidget::*)()>(&SeekableWidget::update));
     disconnect(timeline_points_->markers(), &TimelineMarkerList::MarkerRemoved, this, static_cast<void (SeekableWidget::*)()>(&SeekableWidget::update));
+
+    foreach(Marker* marker_widget, marker_map_.values()) {
+      marker_widget->deleteLater();
+    }
   }
 
   timeline_points_ = points;
@@ -64,6 +69,14 @@ void SeekableWidget::ConnectTimelinePoints(TimelinePoints *points)
     connect(timeline_points_->markers(), &TimelineMarkerList::MarkerRemoved, this, static_cast<void (SeekableWidget::*)()>(&SeekableWidget::update));
 
     connect(timeline_points_->markers(), &TimelineMarkerList::MarkerAdded, this, &SeekableWidget::addMarker);
+  }
+
+  if (timeline_points() && !timeline_points()->markers()->list().isEmpty()) {
+    foreach (TimelineMarker *marker, timeline_points()->markers()->list()) {
+      if (!marker_map_.keys().contains(marker)) {
+        addMarker(marker);
+      }
+    }
   }
 
   updateMarkerPositions();
@@ -147,6 +160,7 @@ void SeekableWidget::addMarker(TimelineMarker* marker)
     connect(marker, &TimelineMarker::ColorChanged, marker_widget, &Marker::SetColor);
 
     marker_widget->move(TimeToScreen(marker->time().in()), 20);
+    marker_widget->SetColor(marker->color());
     marker_widget->show();
   }
 }
