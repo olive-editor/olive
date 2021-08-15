@@ -66,6 +66,8 @@ void SeekableWidget::ConnectTimelinePoints(TimelinePoints *points)
     connect(timeline_points_->markers(), &TimelineMarkerList::MarkerAdded, this, &SeekableWidget::addMarker);
   }
 
+  updateMarkerPositions();
+
   update();
 }
 
@@ -107,6 +109,8 @@ void SeekableWidget::mouseReleaseEvent(QMouseEvent *event)
 
 void SeekableWidget::ScaleChangedEvent(const double &)
 {
+  updateMarkerPositions();
+
   update();
 }
 
@@ -119,6 +123,8 @@ void SeekableWidget::SetTime(const rational &r)
 {
   time_ = r;
 
+  updateMarkerPositions();
+
   update();
 }
 
@@ -126,9 +132,9 @@ void SeekableWidget::SetScroll(int s)
 {
   scroll_ = s;
 
-  update();
-
   updateMarkerPositions();
+
+  update();
 }
 
 void SeekableWidget::addMarker(TimelineMarker* marker)
@@ -137,7 +143,6 @@ void SeekableWidget::addMarker(TimelineMarker* marker)
     Marker *marker_widget = new Marker(this);
     marker_map_.insert(marker, marker_widget);
 
-    //marker_widget->setGeometry(TimeToScreen(marker->time().in()), 20, 20, 20);
     marker_widget->move(TimeToScreen(marker->time().in()), 20);
     marker_widget->show();
   }
@@ -145,7 +150,7 @@ void SeekableWidget::addMarker(TimelineMarker* marker)
 
 void SeekableWidget::updateMarkerPositions()
 {
-  foreach (TimelineMarker *marker, marker_map_.keys()) { 
+  foreach (TimelineMarker* marker, marker_map_.keys()) {
     Marker *m = marker_map_.value(marker);
     m->move(TimeToScreen(marker->time().in()), 20);
   }
