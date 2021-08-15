@@ -27,7 +27,8 @@ namespace olive {
 TimelineMarker::TimelineMarker(const TimeRange &time, const QString &name, QObject *parent) :
   QObject(parent),
   time_(time),
-  name_(name)
+  name_(name),
+  color_(7) // FIXME: set via config
 {
 }
 
@@ -51,6 +52,18 @@ void TimelineMarker::set_name(const QString &name)
 {
   name_ = name;
   emit NameChanged(name_);
+}
+
+int TimelineMarker::color()
+{
+  return color_;
+}
+
+void TimelineMarker::set_color(int c)
+{
+  color_ = c;
+
+  emit ColorChanged(color_);
 }
 
 void TimelineMarkerList::Save(QXmlStreamWriter *writer) const

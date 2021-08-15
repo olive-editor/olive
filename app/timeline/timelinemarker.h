@@ -41,15 +41,22 @@ public:
   const QString& name() const;
   void set_name(const QString& name);
 
+  int color();
+  void set_color(int c);
+
 signals:
   void TimeChanged(const TimeRange& time);
 
   void NameChanged(const QString& name);
 
+  void ColorChanged(int c);
+
 private:
   TimeRange time_;
 
   QString name_;
+
+  int color_;
 
 };
 

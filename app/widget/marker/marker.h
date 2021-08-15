@@ -34,6 +34,9 @@ class Marker : public QWidget {
  public:
   Marker(QWidget* parent = nullptr);
 
+ public slots:
+  void SetColor(int c);
+
  protected:
   void paintEvent(QPaintEvent* event) override;
   //virtual void mouseReleaseEvent(QMouseEvent* event) override;
@@ -42,6 +45,7 @@ class Marker : public QWidget {
  signals:
   //void MouseClicked();
   //void MouseDoubleClicked();
+  void ColorChanged(int c);
 
  private:
 
@@ -49,7 +53,6 @@ class Marker : public QWidget {
 
  private slots:
   void ShowContextMenu();
-  void SetColor(int c);
 };
 
 }  // namespace olive

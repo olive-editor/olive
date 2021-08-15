@@ -143,6 +143,9 @@ void SeekableWidget::addMarker(TimelineMarker* marker)
     Marker *marker_widget = new Marker(this);
     marker_map_.insert(marker, marker_widget);
 
+    connect(marker_widget, &Marker::ColorChanged, marker, &TimelineMarker::set_color);
+    connect(marker, &TimelineMarker::ColorChanged, marker_widget, &Marker::SetColor);
+
     marker_widget->move(TimeToScreen(marker->time().in()), 20);
     marker_widget->show();
   }

@@ -78,7 +78,7 @@ void Marker::ShowContextMenu() {
 
   // Color menu
   ColorLabelMenu color_coding_menu;
-  connect(&color_coding_menu, &ColorLabelMenu::ColorSelected, this, &Marker::SetColor);
+  connect(&color_coding_menu, &ColorLabelMenu::ColorSelected, this, &Marker::ColorChanged);
   m.addMenu(&color_coding_menu);
 
   m.exec(QCursor::pos());
