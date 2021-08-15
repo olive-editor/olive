@@ -91,6 +91,8 @@ public slots:
 
   void GoToOut();
 
+  void DeleteSelected();
+
 protected slots:
   void SetTimeAndSignal(const rational& t);
 

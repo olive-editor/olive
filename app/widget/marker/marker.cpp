@@ -31,13 +31,24 @@ namespace olive {
 
 Marker::Marker(QWidget *parent) :
 	QWidget(parent),
-    marker_color_(7) //green FIXME: add default color to config
+    marker_color_(7), //green FIXME: add default color to config
+    active_(false)
 {
   setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
   setMinimumSize(20, 20);
   setContextMenuPolicy(Qt::CustomContextMenu);
 
   connect(this, &Marker::customContextMenuRequested, this, &Marker::ShowContextMenu);
+}
+
+void Marker::set_active(bool active)
+{
+  active_ = active;
+}
+
+bool Marker::active()
+{
+  return active_;
 }
 
 void Marker::paintEvent(QPaintEvent *event)
@@ -54,7 +65,11 @@ void Marker::paintEvent(QPaintEvent *event)
   int x = half_width; //3
 
   QPainter p(this);
-  p.setPen(Qt::black);
+  if (active_) {
+    p.setPen(Qt::white);
+  } else {
+    p.setPen(Qt::black);
+  }
   p.setBrush(ColorCoding::GetColor(marker_color_).toQColor());
 
   p.setRenderHint(QPainter::Antialiasing);
@@ -73,6 +88,15 @@ void Marker::paintEvent(QPaintEvent *event)
   p.drawPolygon(points, 6);
 }
 
+void Marker::mousePressEvent(QMouseEvent* e)
+{
+  if (e->button() == Qt::LeftButton) {
+    active_ = !active_;
+    update();
+    emit markerSelected(this);
+  }
+}
+
 void Marker::ShowContextMenu() {
   Menu m(this);
 
@@ -80,6 +104,9 @@ void Marker::ShowContextMenu() {
   ColorLabelMenu color_coding_menu;
   connect(&color_coding_menu, &ColorLabelMenu::ColorSelected, this, &Marker::ColorChanged);
   m.addMenu(&color_coding_menu);
+
+  m.addSeparator();
+  MenuShared::instance()->AddItemsForEditMenu(&m, false);
 
   m.exec(QCursor::pos());
 }

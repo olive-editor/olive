@@ -22,6 +22,7 @@
 #define MARKER_H
 
 #include <QWidget>
+#include <QMouseEvent>
 #include <QPushButton>
 
 #include "common/define.h"
@@ -34,11 +35,15 @@ class Marker : public QWidget {
  public:
   Marker(QWidget* parent = nullptr);
 
+  void set_active(bool active);
+  bool active();
+
  public slots:
   void SetColor(int c);
 
  protected:
   void paintEvent(QPaintEvent* event) override;
+  virtual void mousePressEvent(QMouseEvent* event) override;
   //virtual void mouseReleaseEvent(QMouseEvent* event) override;
   //virtual void mouseDoubleClickEvent(QMouseEvent* event) override;
 
@@ -46,10 +51,13 @@ class Marker : public QWidget {
   //void MouseClicked();
   //void MouseDoubleClicked();
   void ColorChanged(int c);
+  void markerSelected(Marker* marker);
 
  private:
 
   int marker_color_;
+
+  bool active_;
 
  private slots:
   void ShowContextMenu();

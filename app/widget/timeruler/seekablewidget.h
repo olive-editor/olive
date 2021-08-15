@@ -53,6 +53,10 @@ public:
     return dragging_;
   }
 
+  virtual void DeleteSelected(){};
+
+  QMap<TimelineMarker*, Marker*> GetActiveMarkers();
+
 public slots:
   void SetTime(const rational &r);
 
@@ -61,6 +65,8 @@ public slots:
   void addMarker(TimelineMarker* marker);
 
   void updateMarkerPositions();
+
+  void markerSelected(Marker* marker);
 
 protected:
   void SeekToScreenPoint(int screen);

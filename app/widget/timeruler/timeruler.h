@@ -41,6 +41,8 @@ public:
 
   void SetPlaybackCache(PlaybackCache* cache);
 
+  virtual void DeleteSelected() override;
+
 protected:
   virtual void paintEvent(QPaintEvent* e) override;
 

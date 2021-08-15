@@ -150,6 +150,18 @@ void SeekableWidget::SetScroll(int s)
   update();
 }
 
+QMap<TimelineMarker *, Marker *> SeekableWidget::GetActiveMarkers() {
+  QMap<TimelineMarker *, Marker *> active_markers;
+
+  foreach(TimelineMarker* marker, marker_map_.keys()) {
+    if (marker_map_.value(marker)->active()) {
+      active_markers.insert(marker, marker_map_.value(marker));
+    }
+  }
+
+  return active_markers;
+}
+
 void SeekableWidget::addMarker(TimelineMarker* marker)
 {
   if (!marker_map_.contains(marker)) {
@@ -158,6 +170,7 @@ void SeekableWidget::addMarker(TimelineMarker* marker)
 
     connect(marker_widget, &Marker::ColorChanged, marker, &TimelineMarker::set_color);
     connect(marker, &TimelineMarker::ColorChanged, marker_widget, &Marker::SetColor);
+    connect(marker_widget, &Marker::markerSelected, this, &SeekableWidget::markerSelected);
 
     marker_widget->move(TimeToScreen(marker->time().in()), 20);
     marker_widget->SetColor(marker->color());
@@ -170,6 +183,16 @@ void SeekableWidget::updateMarkerPositions()
   foreach (TimelineMarker* marker, marker_map_.keys()) {
     Marker *m = marker_map_.value(marker);
     m->move(TimeToScreen(marker->time().in()), 20);
+  }
+}
+
+void SeekableWidget::markerSelected(Marker* marker)
+{
+  foreach(Marker * marker_widget, marker_map_.values()) {
+    if (marker_widget != marker) {
+      marker_widget->set_active(false);
+      marker_widget->update();
+    }
   }
 }
 

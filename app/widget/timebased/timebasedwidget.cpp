@@ -658,6 +658,13 @@ void TimeBasedWidget::GoToOut()
   }
 }
 
+void TimeBasedWidget::DeleteSelected()
+{
+  if (ruler_->underMouse()) {
+    ruler_->DeleteSelected();
+  }
+}
+
 TimeBasedWidget::MarkerAddCommand::MarkerAddCommand(Project *project, TimelineMarkerList *marker_list, const TimeRange &range, const QString &name) :
   project_(project),
   marker_list_(marker_list),
