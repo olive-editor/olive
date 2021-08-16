@@ -89,7 +89,7 @@ Color ColorCoding::GetColor(int c)
 
 Qt::GlobalColor ColorCoding::GetUISelectorColor(const Color &c)
 {
-  if (c.GetRoughLuminance() > 0.66) {
+  if (c.GetRoughLuminance() > 0.40) {
     return Qt::black;
   } else {
     return Qt::white;
