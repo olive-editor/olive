@@ -26,6 +26,7 @@
 #include "ui/colorcoding.h"
 #include "widget/menu/menu.h"
 #include "widget/menu/menushared.h"
+#include "widget/timeruler/seekablewidget.h"
 
 namespace olive {
 
@@ -34,16 +35,18 @@ Marker::Marker(QWidget *parent) :
     marker_color_(7), //green FIXME: add default color to config
     active_(false)
 {
-  setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-  setMinimumSize(20, 20);
+  //setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+  setMaximumSize(8, 20);
   setContextMenuPolicy(Qt::CustomContextMenu);
 
   connect(this, &Marker::customContextMenuRequested, this, &Marker::ShowContextMenu);
 }
 
-void Marker::set_active(bool active)
+void Marker::SetActive(bool active)
 {
   active_ = active;
+
+  update();
 }
 
 bool Marker::active()
@@ -91,9 +94,19 @@ void Marker::paintEvent(QPaintEvent *event)
 void Marker::mousePressEvent(QMouseEvent* e)
 {
   if (e->button() == Qt::LeftButton) {
-    active_ = !active_;
+    static_cast<SeekableWidget*>(parent())->SeekToScreenPoint(e->pos().x() + this->x());
+    if (!active_) {
+      if (e->modifiers() != Qt::ShiftModifier) {
+        static_cast<SeekableWidget *>(parent())->DeselectAllMarkers();
+      }
+      emit ActiveChanged(true);
+    } else {
+      if (e->modifiers() == Qt::ShiftModifier) {
+        emit ActiveChanged(false);
+      }
+    }
+
     update();
-    emit markerSelected(this);
   }
 }
 

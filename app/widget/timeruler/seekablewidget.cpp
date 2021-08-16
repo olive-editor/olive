@@ -99,6 +99,8 @@ void SeekableWidget::mousePressEvent(QMouseEvent *event)
   if (event->button() == Qt::LeftButton) {
     SeekToScreenPoint(event->pos().x());
     dragging_ = true;
+
+    DeselectAllMarkers();
   }
 }
 
@@ -150,16 +152,23 @@ void SeekableWidget::SetScroll(int s)
   update();
 }
 
-QMap<TimelineMarker *, Marker *> SeekableWidget::GetActiveMarkers() {
-  QMap<TimelineMarker *, Marker *> active_markers;
-
-  foreach(TimelineMarker* marker, marker_map_.keys()) {
-    if (marker_map_.value(marker)->active()) {
-      active_markers.insert(marker, marker_map_.value(marker));
+QVector<TimelineMarker *> SeekableWidget::GetActiveTimelineMarkers() {
+  QVector<TimelineMarker*> active_timelineMarkers;
+  foreach (TimelineMarker *marker, timeline_points()->markers()->list()) {
+    if (marker->active()) {
+      active_timelineMarkers.append(marker);
     }
   }
 
-  return active_markers;
+  return active_timelineMarkers;
+}
+
+
+void SeekableWidget::DeselectAllMarkers()
+{
+  foreach(TimelineMarker* marker, timeline_points()->markers()->list()) {
+      marker->set_active(false);
+  }
 }
 
 void SeekableWidget::addMarker(TimelineMarker* marker)
@@ -168,13 +177,22 @@ void SeekableWidget::addMarker(TimelineMarker* marker)
     Marker *marker_widget = new Marker(this);
     marker_map_.insert(marker, marker_widget);
 
-    connect(marker_widget, &Marker::ColorChanged, marker, &TimelineMarker::set_color);
+    connect(marker_widget, &Marker::ColorChanged, this, &SeekableWidget::SetMarkerColor);
     connect(marker, &TimelineMarker::ColorChanged, marker_widget, &Marker::SetColor);
-    connect(marker_widget, &Marker::markerSelected, this, &SeekableWidget::markerSelected);
+
+    connect(marker_widget, &Marker::ActiveChanged, marker, &TimelineMarker::set_active);
+    connect(marker, &TimelineMarker::ActiveChanged, marker_widget, &Marker::SetActive);
 
     marker_widget->move(TimeToScreen(marker->time().in()), 20);
     marker_widget->SetColor(marker->color());
     marker_widget->show();
+  }
+}
+
+void SeekableWidget::SetMarkerColor(int c)
+{
+  foreach(TimelineMarker* marker, GetActiveTimelineMarkers()) {
+    marker->set_color(c);
   }
 }
 
@@ -183,16 +201,6 @@ void SeekableWidget::updateMarkerPositions()
   foreach (TimelineMarker* marker, marker_map_.keys()) {
     Marker *m = marker_map_.value(marker);
     m->move(TimeToScreen(marker->time().in()), 20);
-  }
-}
-
-void SeekableWidget::markerSelected(Marker* marker)
-{
-  foreach(Marker * marker_widget, marker_map_.values()) {
-    if (marker_widget != marker) {
-      marker_widget->set_active(false);
-      marker_widget->update();
-    }
   }
 }
 

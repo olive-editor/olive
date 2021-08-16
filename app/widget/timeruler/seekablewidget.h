@@ -55,7 +55,11 @@ public:
 
   virtual void DeleteSelected(){};
 
-  QMap<TimelineMarker*, Marker*> GetActiveMarkers();
+  QVector<TimelineMarker*> SeekableWidget::GetActiveTimelineMarkers();
+
+  void DeselectAllMarkers();
+
+  void SeekToScreenPoint(int screen);
 
 public slots:
   void SetTime(const rational &r);
@@ -66,10 +70,9 @@ public slots:
 
   void updateMarkerPositions();
 
-  void markerSelected(Marker* marker);
+  void SetMarkerColor(int c);
 
 protected:
-  void SeekToScreenPoint(int screen);
 
   virtual void mousePressEvent(QMouseEvent *event) override;
   virtual void mouseMoveEvent(QMouseEvent *event) override;
@@ -116,6 +119,8 @@ private:
   bool dragging_;
 
   QMap<TimelineMarker*, Marker*> marker_map_;
+
+  QMap<TimelineMarker*, Marker*> active_markers_map_;
 
 };
 

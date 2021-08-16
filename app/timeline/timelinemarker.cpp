@@ -66,6 +66,18 @@ void TimelineMarker::set_color(int c)
   emit ColorChanged(color_);
 }
 
+bool TimelineMarker::active()
+{
+  return active_;
+}
+
+void TimelineMarker::set_active(bool active)
+{
+    active_ = active;
+
+    emit ActiveChanged(active_);
+}
+
 void TimelineMarkerList::Save(QXmlStreamWriter *writer) const
 {
   foreach (TimelineMarker* marker, markers_) {

@@ -35,11 +35,11 @@ class Marker : public QWidget {
  public:
   Marker(QWidget* parent = nullptr);
 
-  void set_active(bool active);
   bool active();
 
  public slots:
   void SetColor(int c);
+  void SetActive(bool active);
 
  protected:
   void paintEvent(QPaintEvent* event) override;
@@ -52,6 +52,7 @@ class Marker : public QWidget {
   //void MouseDoubleClicked();
   void ColorChanged(int c);
   void markerSelected(Marker* marker);
+  void ActiveChanged(bool active);
 
  private:
 

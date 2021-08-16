@@ -44,6 +44,9 @@ public:
   int color();
   void set_color(int c);
 
+  bool active();
+  void set_active(bool active);
+
 signals:
   void TimeChanged(const TimeRange& time);
 
@@ -51,12 +54,16 @@ signals:
 
   void ColorChanged(int c);
 
+  void ActiveChanged(bool active);
+
 private:
   TimeRange time_;
 
   QString name_;
 
   int color_;
+
+  bool active_;
 
 };
 

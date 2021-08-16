@@ -85,9 +85,9 @@ void TimeRuler::SetPlaybackCache(PlaybackCache *cache)
 
 void TimeRuler::DeleteSelected()
 {
-  foreach(TimelineMarker* marker, GetActiveMarkers().keys()) {
+  foreach(TimelineMarker* marker, GetActiveTimelineMarkers()) {
     timeline_points()->markers()->RemoveMarker(marker);
-    GetActiveMarkers().value(marker)->deleteLater();
+    //GetActiveMarkers().value(marker)->deleteLater();
   }
 }
 
