@@ -212,9 +212,9 @@ void AudioMonitor::paintGL()
       // Draw bars
       QLinearGradient g(full_meter_rect.topLeft(), full_meter_rect.bottomLeft());
       g.setStops({
-                   QGradientStop(0.0, Qt::red),
-                   QGradientStop(0.25, Qt::yellow),
-                   QGradientStop(1.0, Qt::green)
+                   QGradientStop(0.0, QColor(204,31,0)),
+                   QGradientStop(0.25, QColor(234,210,0)),
+                   QGradientStop(1.0, QColor(88,160,0))
                  });
 
       cached_painter.setPen(Qt::black);
