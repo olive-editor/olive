@@ -27,6 +27,7 @@
 #include "widget/menu/menu.h"
 #include "widget/menu/menushared.h"
 #include "widget/timeruler/seekablewidget.h"
+#include "widget/timelinewidget/timelinewidget.h"
 
 namespace olive {
 
@@ -108,6 +109,9 @@ void Marker::mousePressEvent(QMouseEvent* e)
 
     update();
   }
+
+  // Feels very hacky, might it be better to write some access methods?
+  static_cast<TimelineWidget *>(parent()->parent())->DeselectAll();
 }
 
 void Marker::ShowContextMenu() {

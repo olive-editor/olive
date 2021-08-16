@@ -135,6 +135,8 @@ void PointerTool::MousePress(TimelineViewMouseEvent *event)
   if (can_rubberband_select_) {
     drag_global_start_ = QCursor::pos();
   }
+
+  parent()->ruler()->DeselectAllMarkers();
 }
 
 void PointerTool::MouseMove(TimelineViewMouseEvent *event)
