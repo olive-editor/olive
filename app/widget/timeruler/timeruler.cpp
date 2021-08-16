@@ -262,7 +262,7 @@ void TimeRuler::paintEvent(QPaintEvent *)
     if (cache_screen_length > 0) {
       int cache_y = height() - cache_status_height_;
 
-      p.fillRect(0, cache_y, cache_screen_length , cache_status_height_, Qt::green);
+      p.fillRect(0, cache_y, cache_screen_length , cache_status_height_, QColor(91,152,23));
 
       foreach (const TimeRange& range, playback_cache_->GetInvalidatedRanges(len)) {
         int range_left = TimeToScreen(range.in());
@@ -281,7 +281,7 @@ void TimeRuler::paintEvent(QPaintEvent *)
                    cache_y,
                    qMin(width(), range_right) - adjusted_left,
                    cache_status_height_,
-                   Qt::red);
+                   QColor(193,59,35));
       }
     }
   }
