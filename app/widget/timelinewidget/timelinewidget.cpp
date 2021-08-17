@@ -475,6 +475,10 @@ void TimelineWidget::ReplaceBlocksWithGaps(const QVector<Block *> &blocks,
 
 void TimelineWidget::DeleteSelected(bool ripple)
 {
+  if (ruler()->GetActiveTimelineMarkers().size() > 0) {
+    ruler()->DeleteSelected();
+    return;
+  }
   QVector<Block*> selected_list = GetSelectedBlocks();
   QVector<Block*> blocks_to_delete;
 

@@ -69,6 +69,7 @@ void SeekableWidget::ConnectTimelinePoints(TimelinePoints *points)
     connect(timeline_points_->markers(), &TimelineMarkerList::MarkerRemoved, this, static_cast<void (SeekableWidget::*)()>(&SeekableWidget::update));
 
     connect(timeline_points_->markers(), &TimelineMarkerList::MarkerAdded, this, &SeekableWidget::addMarker);
+    connect(timeline_points_->markers(), &TimelineMarkerList::MarkerRemoved, this, &SeekableWidget::removeMarker);
   }
 
   if (timeline_points() && !timeline_points()->markers()->list().isEmpty()) {
@@ -87,6 +88,15 @@ void SeekableWidget::ConnectTimelinePoints(TimelinePoints *points)
 void SeekableWidget::SetSnapService(SnapService *service)
 {
   snap_service_ = service;
+}
+
+void SeekableWidget::DeleteSelected() {
+  foreach (TimelineMarker *marker, GetActiveTimelineMarkers()) {
+    //marker_map_.value(marker)->deleteLater();
+    //marker_map_.take(marker);
+    timeline_points()->markers()->RemoveMarker(marker);
+    // GetActiveMarkers().value(marker)->deleteLater();
+  }
 }
 
 const int &SeekableWidget::GetScroll() const
@@ -187,6 +197,12 @@ void SeekableWidget::addMarker(TimelineMarker* marker)
     marker_widget->SetColor(marker->color());
     marker_widget->show();
   }
+}
+
+void SeekableWidget::removeMarker(TimelineMarker *marker)
+{
+  marker_map_.value(marker)->deleteLater();
+  marker_map_.take(marker);
 }
 
 void SeekableWidget::SetMarkerColor(int c)

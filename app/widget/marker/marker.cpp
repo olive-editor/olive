@@ -47,6 +47,14 @@ void Marker::SetActive(bool active)
 {
   active_ = active;
 
+  // Feels very hacky, might it be better to write some access methods?
+  if (active) {
+    TimelineWidget *timeline = dynamic_cast<TimelineWidget *>(parent()->parent());
+    if (timeline) {
+      static_cast<TimelineWidget *>(parent()->parent())->DeselectAll();
+    }
+  }
+
   update();
 }
 
@@ -109,9 +117,6 @@ void Marker::mousePressEvent(QMouseEvent* e)
 
     update();
   }
-
-  // Feels very hacky, might it be better to write some access methods?
-  static_cast<TimelineWidget *>(parent()->parent())->DeselectAll();
 }
 
 void Marker::ShowContextMenu() {

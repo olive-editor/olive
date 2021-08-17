@@ -83,14 +83,6 @@ void TimeRuler::SetPlaybackCache(PlaybackCache *cache)
   update();
 }
 
-void TimeRuler::DeleteSelected()
-{
-  foreach(TimelineMarker* marker, GetActiveTimelineMarkers()) {
-    timeline_points()->markers()->RemoveMarker(marker);
-    //GetActiveMarkers().value(marker)->deleteLater();
-  }
-}
-
 void TimeRuler::paintEvent(QPaintEvent *)
 {
   // Nothing to paint if the timebase is invalid

@@ -53,7 +53,7 @@ public:
     return dragging_;
   }
 
-  virtual void DeleteSelected(){};
+  void DeleteSelected();
 
   QVector<TimelineMarker*> GetActiveTimelineMarkers();
 
@@ -67,6 +67,8 @@ public slots:
   void SetScroll(int s);
 
   void addMarker(TimelineMarker* marker);
+
+  void removeMarker(TimelineMarker* marker);
 
   void updateMarkerPositions();
 
