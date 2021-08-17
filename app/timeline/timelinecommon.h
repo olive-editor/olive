@@ -48,8 +48,7 @@ public:
 
 };
 
-// FIXME: attempt to make it stylable, Link color looks better to me but Highlight might work as well
-#define PLAYHEAD_COLOR palette().link().color()
+#define PLAYHEAD_COLOR palette().highlight().color()
 
 }
 
