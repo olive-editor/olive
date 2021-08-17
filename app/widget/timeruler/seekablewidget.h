@@ -55,7 +55,7 @@ public:
 
   virtual void DeleteSelected(){};
 
-  QVector<TimelineMarker*> SeekableWidget::GetActiveTimelineMarkers();
+  QVector<TimelineMarker*> GetActiveTimelineMarkers();
 
   void DeselectAllMarkers();
 
