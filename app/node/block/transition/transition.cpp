@@ -23,6 +23,7 @@
 #include "common/clamp.h"
 #include "node/block/clip/clip.h"
 #include "node/output/track/track.h"
+#include "widget/slider/rationalslider.h"
 
 namespace olive {
 
@@ -31,8 +32,7 @@ namespace olive {
 const QString TransitionBlock::kOutBlockInput = QStringLiteral("out_block_in");
 const QString TransitionBlock::kInBlockInput = QStringLiteral("in_block_in");
 const QString TransitionBlock::kCurveInput = QStringLiteral("curve_in");
-const QString TransitionBlock::kInOffsetInput = QStringLiteral("in_offset_in");
-const QString TransitionBlock::kOutOffsetInput = QStringLiteral("out_offset_in");
+const QString TransitionBlock::kCenterInput = QStringLiteral("center_in");
 
 TransitionBlock::TransitionBlock() :
   connected_out_block_(nullptr),
@@ -44,11 +44,10 @@ TransitionBlock::TransitionBlock() :
 
   AddInput(kCurveInput, NodeValue::kCombo, InputFlags(kInputFlagNotKeyframable | kInputFlagNotConnectable));
 
-  AddInput(kInOffsetInput, NodeValue::kRational, InputFlags(kInputFlagNotKeyframable | kInputFlagNotConnectable));
-
-  AddInput(kOutOffsetInput, NodeValue::kRational, InputFlags(kInputFlagNotKeyframable | kInputFlagNotConnectable));
-
-  set_length_and_media_out(0);
+  AddInput(kCenterInput, NodeValue::kRational, InputFlags(kInputFlagNotKeyframable | kInputFlagNotConnectable));
+  SetInputProperty(kCenterInput, QStringLiteral("view"), RationalSlider::kTime);
+  SetInputProperty(kCenterInput, QStringLiteral("viewlock"), true);
+  IgnoreHashingFrom(kCenterInput);
 }
 
 void TransitionBlock::Retranslate()
@@ -58,8 +57,7 @@ void TransitionBlock::Retranslate()
   SetInputName(kOutBlockInput, tr("From"));
   SetInputName(kInBlockInput, tr("To"));
   SetInputName(kCurveInput, tr("Curve"));
-  SetInputName(kInOffsetInput, tr("In Offset"));
-  SetInputName(kOutOffsetInput, tr("Out Offset"));
+  SetInputName(kCenterInput, tr("Center Offset"));
 
   // These must correspond to the CurveType enum
   SetComboBoxStrings(kCurveInput, { tr("Linear"), tr("Exponential"), tr("Logarithmic") });
@@ -67,22 +65,43 @@ void TransitionBlock::Retranslate()
 
 rational TransitionBlock::in_offset() const
 {
-  return GetStandardValue(kInOffsetInput).value<rational>();
-}
-
-void TransitionBlock::set_in_offset(const rational &os)
-{
-  SetStandardValue(kInOffsetInput, QVariant::fromValue(os));
+  if (is_dual_transition()) {
+    return length()/2 + offset_center();
+  } else if (connected_in_block()) {
+    return length();
+  } else {
+    return 0;
+  }
 }
 
 rational TransitionBlock::out_offset() const
 {
-  return GetStandardValue(kOutOffsetInput).value<rational>();
+  if (is_dual_transition()) {
+    return length()/2 - offset_center();
+  } else if (connected_out_block()) {
+    return length();
+  } else {
+    return 0;
+  }
 }
 
-void TransitionBlock::set_out_offset(const rational &os)
+rational TransitionBlock::offset_center() const
 {
-  SetStandardValue(kOutOffsetInput, QVariant::fromValue(os));
+  return GetStandardValue(kCenterInput).value<rational>();
+}
+
+void TransitionBlock::set_offset_center(const rational &r)
+{
+  SetStandardValue(kCenterInput, QVariant::fromValue(r));
+}
+
+void TransitionBlock::set_offsets_and_length(const rational &in_offset, const rational &out_offset)
+{
+  rational len = in_offset + out_offset;
+  rational center = len / 2 - in_offset;
+
+  set_length_and_media_out(len);
+  set_offset_center(center);
 }
 
 Block *TransitionBlock::connected_out_block() const

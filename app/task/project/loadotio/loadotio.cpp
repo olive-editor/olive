@@ -186,8 +186,7 @@ bool LoadOTIOTask::Run()
           OTIO::Transition* otio_block_transition = static_cast<OTIO::Transition*>(otio_block);
 
           // Set how far the transition eats into the previous clip
-          transition_block->set_in_offset(rational::fromRationalTime(otio_block_transition->in_offset()));
-          transition_block->set_out_offset(rational::fromRationalTime(otio_block_transition->out_offset()));
+          transition_block->set_offsets_and_length(rational::fromRationalTime(otio_block_transition->in_offset()), rational::fromRationalTime(otio_block_transition->out_offset()));
 
           if (previous_block) {
             Node::ConnectEdge(previous_block, NodeInput(transition_block, TransitionBlock::kOutBlockInput));

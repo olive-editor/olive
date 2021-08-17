@@ -38,9 +38,25 @@ public:
   virtual void Retranslate() override;
 
   rational in_offset() const;
-  void set_in_offset(const rational &os);
   rational out_offset() const;
-  void set_out_offset(const rational &os);
+
+  /**
+   * @brief Return the "middle point" of the transition, relative to the transition
+   *
+   * Used to calculate in/out offsets.
+   *
+   * 0 means the center of the transition is right in the middle and the in and out offsets will
+   * be equal.
+   */
+  rational offset_center() const;
+  void set_offset_center(const rational &r);
+
+  void set_offsets_and_length(const rational &in_offset, const rational &out_offset);
+
+  bool is_dual_transition() const
+  {
+    return connected_out_block() && connected_in_block();
+  }
 
   Block* connected_out_block() const;
   Block* connected_in_block() const;
@@ -58,8 +74,7 @@ public:
   static const QString kOutBlockInput;
   static const QString kInBlockInput;
   static const QString kCurveInput;
-  static const QString kInOffsetInput;
-  static const QString kOutOffsetInput;
+  static const QString kCenterInput;
 
 protected:
   virtual void ShaderJobEvent(NodeValueDatabase &value, ShaderJob& job) const;
