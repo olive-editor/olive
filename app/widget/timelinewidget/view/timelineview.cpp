@@ -403,7 +403,9 @@ void TimelineView::DrawBlocks(QPainter *painter, bool foreground)
     while (block) {
       if (dynamic_cast<ClipBlock*>(block) || dynamic_cast<TransitionBlock*>(block)) {
 
-        qreal block_left = qMax(left_bound, TimeToScene(block->in()));
+        qreal block_in = TimeToScene(block->in());
+
+        qreal block_left = qMax(left_bound, block_in);
         qreal block_right = qMin(right_bound, TimeToScene(block->out())) - 1;
         qreal block_top = GetTrackY(track->Index());
         qreal block_height = GetTrackHeight(track->Index());
@@ -454,15 +456,16 @@ void TimelineView::DrawBlocks(QPainter *painter, bool foreground)
 
           // Draw waveform
           if (show_waveforms_) {
-            QRect waveform_rect = r.adjusted(0, text_total_height, 0, 0).toRect();
-            painter->setPen(shadow_color);
-            AudioVisualWaveform::DrawWaveform(painter, waveform_rect, this->GetScale(), track->waveform(),
-                                              SceneToTime(block_left, GetScale(), connected_track_list_->parent()->GetAudioParams().sample_rate_as_time_base()));
+            if (ClipBlock *clip = dynamic_cast<ClipBlock*>(block)) {
+              QRect waveform_rect = r.adjusted(0, text_total_height, 0, 0).toRect();
+              painter->setPen(shadow_color);
+              AudioVisualWaveform::DrawWaveform(painter, waveform_rect, this->GetScale(), clip->waveform(),
+                                                SceneToTime(block_left - block_in, GetScale(), connected_track_list_->parent()->GetAudioParams().sample_rate_as_time_base()));
+            }
           }
 
           // For transitions, show lines representing a transition
-          TransitionBlock* transition = dynamic_cast<TransitionBlock*>(block);
-          if (transition) {
+          if (TransitionBlock* transition = dynamic_cast<TransitionBlock*>(block)) {
             QVector<QLineF> lines;
 
             if (transition->connected_in_block()) {

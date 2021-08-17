@@ -21,7 +21,6 @@
 #ifndef TRACK_H
 #define TRACK_H
 
-#include "audio/audiovisualwaveform.h"
 #include "node/block/block.h"
 #include "timeline/timelinecommon.h"
 
@@ -364,11 +363,6 @@ public:
 
   virtual void Hash(const QString& output, QCryptographicHash& hash, const rational &time, const VideoParams& video_params) const override;
 
-  AudioVisualWaveform& waveform()
-  {
-    return waveform_;
-  }
-
   static const double kTrackHeightDefault;
   static const double kTrackHeightMinimum;
   static const double kTrackHeightInterval;
@@ -413,11 +407,6 @@ signals:
   void IndexChanged(int old, int now);
 
   /**
-   * @brief Signal emitted when preview (waveform) has changed and UI should be updated
-   */
-  void PreviewChanged();
-
-  /**
    * @brief Emitted when a block changes length and all the subsequent blocks had to update
    */
   void BlocksRefreshed();
@@ -454,8 +443,6 @@ private:
   int index_;
 
   bool locked_;
-
-  AudioVisualWaveform waveform_;
 
 private slots:
   void BlockLengthChanged();
