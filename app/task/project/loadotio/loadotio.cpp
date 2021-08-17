@@ -208,26 +208,18 @@ bool LoadOTIOTask::Run()
           prev_block_transition = true;
 
           // Add nodes to the graph and set up contexts
-          MultiUndoCommand* command = new MultiUndoCommand();
-
-          command->add_child(new NodeAddCommand(sequence->parent(), block));
+          block->setParent(sequence->parent());
 
           // Position transition in its own context
-          command->add_child(new NodeSetPositionCommand(block, block, QPointF(0, 0), false));
-
-          Core::instance()->undo_stack()->pushIfHasChildren(command);
+          sequence->parent()->SetNodePosition(block, block, QPointF(0, 0));
         }
 
         if (otio_block->schema_name() == "Gap") {
           // Add nodes to the graph and set up contexts
-          MultiUndoCommand* command = new MultiUndoCommand();
-
-          command->add_child(new NodeAddCommand(sequence->parent(), block));
+          block->setParent(sequence->parent());
 
           // Position transition in its own context
-          command->add_child(new NodeSetPositionCommand(block, block, QPointF(0, 0), false));
-
-          Core::instance()->undo_stack()->pushIfHasChildren(command);
+          sequence->parent()->SetNodePosition(block, block, QPointF(0, 0));
         }
 
         // Update this after it's used but before any continue statements
@@ -260,15 +252,13 @@ bool LoadOTIOTask::Run()
             }
 
             // Add nodes to the graph and set up contexts
-            MultiUndoCommand* command = new MultiUndoCommand();
-
-            command->add_child(new NodeAddCommand(sequence->parent(), block));
+            block->setParent(sequence->parent());
 
             // Position clip in its own context
-            command->add_child(new NodeSetPositionCommand(block, block, QPointF(0, 0), false));
+            sequence->parent()->SetNodePosition(block, block, QPointF(0, 0));
 
             // Position footage in its context
-            command->add_child(new NodeSetPositionCommand(probed_item, block, QPointF(-2, 0), false));
+            sequence->parent()->SetNodePosition(probed_item, block, QPointF(-2, 0));
 
 
             Track::Reference reference;
@@ -277,26 +267,23 @@ bool LoadOTIOTask::Run()
               QString output_id = reference.ToString();
 
               TransformDistortNode* transform = new TransformDistortNode();
-              command->add_child(new NodeAddCommand(sequence->parent(), transform));
+              transform->setParent(sequence->parent());
 
-              command->add_child(new NodeEdgeAddCommand(NodeOutput(probed_item, output_id),
-                                                        NodeInput(transform, TransformDistortNode::kTextureInput)));
-              command->add_child(new NodeEdgeAddCommand(transform, NodeInput(block, ClipBlock::kBufferIn)));
-              command->add_child(new NodeSetPositionCommand(transform, block, QPointF(-1, 0), false));
+              Node::ConnectEdge(NodeOutput(probed_item, output_id),
+                                                        NodeInput(transform, TransformDistortNode::kTextureInput));
+              Node::ConnectEdge(transform, NodeInput(block, ClipBlock::kBufferIn));
+              sequence->parent()->SetNodePosition(transform, block, QPointF(-1, 0));
             } else {
               reference = Track::Reference(Track::kAudio, 0);
               QString output_id = reference.ToString();
 
               VolumeNode* volume_node = new VolumeNode();
-              command->add_child(new NodeAddCommand(sequence->parent(), volume_node));
+              volume_node->setParent(sequence->parent());
 
-              command->add_child(new NodeEdgeAddCommand(NodeOutput(probed_item, output_id),
-                                                        NodeInput(volume_node, VolumeNode::kSamplesInput)));
-              command->add_child(new NodeEdgeAddCommand(volume_node, NodeInput(block, ClipBlock::kBufferIn)));
-              command->add_child(new NodeSetPositionCommand(volume_node, block, QPointF(-1, 0), false));
+              Node::ConnectEdge(NodeOutput(probed_item, output_id), NodeInput(volume_node, VolumeNode::kSamplesInput));
+              Node::ConnectEdge(volume_node, NodeInput(block, ClipBlock::kBufferIn));
+              sequence->parent()->SetNodePosition(volume_node, block, QPointF(-1, 0));
             }
-
-            Core::instance()->undo_stack()->pushIfHasChildren(command);
           }
         }
       }
