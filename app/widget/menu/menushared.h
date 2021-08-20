@@ -75,6 +75,7 @@ private:
   QAction* edit_delete_item_;
   QAction* edit_ripple_delete_item_;
   QAction* edit_split_item_;
+  QAction* edit_speedduration_item_;
 
   // "In/Out" menu shared items
   QAction* inout_set_in_item_;
@@ -144,6 +145,8 @@ private slots:
   void TimecodeDisplayTriggered();
 
   void ColorLabelTriggered(int color_index);
+
+  void SpeedDurationTriggered();
 
 };
 

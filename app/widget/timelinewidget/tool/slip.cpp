@@ -58,10 +58,10 @@ void SlipTool::ProcessDrag(const TimelineCoordinate &mouse_pos)
   rational tooltip_timebase = parent()->GetTimebaseForTrackType(drag_start_.GetTrack().type());
   QToolTip::hideText();
   QToolTip::showText(QCursor::pos(),
-                     Timecode::timestamp_to_timecode(Timecode::time_to_timestamp(time_movement, tooltip_timebase),
-                                                                              tooltip_timebase,
-                                                                              Core::instance()->GetTimecodeDisplay(),
-                                                                              true),
+                     Timecode::time_to_timecode(time_movement,
+                                                tooltip_timebase,
+                                                Core::instance()->GetTimecodeDisplay(),
+                                                true),
                      parent());
 }
 
@@ -75,7 +75,10 @@ void SlipTool::FinishDrag(TimelineViewMouseEvent *event)
   foreach (TimelineViewGhostItem* ghost, parent()->GetGhostItems()) {
     Block* b = Node::ValueToPtr<Block>(ghost->GetData(TimelineViewGhostItem::kAttachedBlock));
 
-    command->add_child(new BlockSetMediaInCommand(b, ghost->GetAdjustedMediaIn()));
+    ClipBlock *cb = dynamic_cast<ClipBlock*>(b);
+    if (cb) {
+      command->add_child(new BlockSetMediaInCommand(cb, ghost->GetAdjustedMediaIn()));
+    }
   }
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);

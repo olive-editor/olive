@@ -154,6 +154,11 @@ private slots:
   void EditToInTriggered();
   void EditToOutTriggered();
 
+  void NudgeLeftTriggered();
+  void NudgeRightTriggered();
+  void MoveInToPlayheadTriggered();
+  void MoveOutToPlayheadTriggered();
+
   void ActionSearchTriggered();
 
   void ShuttleLeftTriggered();
@@ -198,6 +203,7 @@ private:
   QAction* file_save_item_;
   QAction* file_save_as_item_;
   QAction* file_save_all_item_;
+  QAction* file_revert_item_;
   QAction* file_import_item_;
   Menu* file_export_menu_;
   QAction* file_export_media_item_;
@@ -218,6 +224,10 @@ private:
   QAction* edit_ripple_to_out_item_;
   QAction* edit_edit_to_in_item_;
   QAction* edit_edit_to_out_item_;
+  QAction* edit_nudge_left_item_;
+  QAction* edit_nudge_right_item_;
+  QAction* edit_move_in_to_playhead_item_;
+  QAction* edit_move_out_to_playhead_item_;
   QAction* edit_delete_inout_item_;
   QAction* edit_ripple_delete_inout_item_;
   QAction* edit_set_marker_item_;
@@ -270,6 +280,8 @@ private:
   QAction* tools_hand_item_;
   QAction* tools_zoom_item_;
   QAction* tools_transition_item_;
+  QAction* tools_add_item_;
+  QAction* tools_record_item_;
   QAction* tools_snapping_item_;
   QAction* tools_preferences_item_;
 

@@ -92,6 +92,8 @@ public:
 
   void Shift(const rational& from, const rational& to);
 
+  void TrimIn(const rational &length);
+
   Sample GetSummaryFromTime(const rational& start, const rational& length) const;
 
   static Sample SumSamples(const float* samples, int nb_samples, int nb_channels);

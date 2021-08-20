@@ -40,7 +40,7 @@ protected:
 private:
   void StartFootageDragInternal(bool enable_video, bool enable_audio);
 
-  QHash<ViewerOutput*, int64_t> cached_timestamps_;
+  QHash<ViewerOutput*, rational> cached_timestamps_;
 
 private slots:
   void StartFootageDrag();

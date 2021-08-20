@@ -28,10 +28,18 @@ namespace olive {
 ExportTask::ExportTask(ViewerOutput *viewer_node,
                        ColorManager* color_manager,
                        const ExportParams& params) :
-  RenderTask(viewer_node, params.video_params(), params.audio_params()),
   color_manager_(color_manager),
   params_(params)
 {
+  set_viewer(viewer_node);
+
+  // Adjust video params to have no divider
+  VideoParams vp = viewer_node->GetVideoParams();
+  vp.set_divider(1);
+  set_video_params(vp);
+
+  set_audio_params(viewer_node->GetAudioParams());
+
   SetTitle(tr("Exporting \"%1\"").arg(viewer_node->GetLabel()));
   SetNativeProgressSignallingEnabled(false);
 }

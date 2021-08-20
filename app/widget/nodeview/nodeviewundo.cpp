@@ -171,4 +171,26 @@ Project *NodeRenameCommand::GetRelevantProject() const
   return nodes_.isEmpty() ? nullptr : nodes_.first()->project();
 }
 
+NodeOverrideColorCommand::NodeOverrideColorCommand(Node *node, int index) :
+  node_(node),
+  new_index_(index)
+{
+}
+
+Project *NodeOverrideColorCommand::GetRelevantProject() const
+{
+  return node_->project();
+}
+
+void NodeOverrideColorCommand::redo()
+{
+  old_index_ = node_->GetOverrideColor();
+  node_->SetOverrideColor(new_index_);
+}
+
+void NodeOverrideColorCommand::undo()
+{
+  node_->SetOverrideColor(old_index_);
+}
+
 }

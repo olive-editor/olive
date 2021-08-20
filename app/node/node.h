@@ -46,7 +46,11 @@
 
 namespace olive {
 
-#define NODE_DEFAULT_DESTRUCTOR(x) virtual ~x() override {DisconnectAll();}
+#define NODE_DEFAULT_DESTRUCTOR(x) \
+  virtual ~x() override {DisconnectAll();}
+
+#define NODE_COPY_FUNCTION(x) \
+  virtual Node *copy() const override {return new x();}
 
 class NodeGraph;
 class Folder;
@@ -852,6 +856,8 @@ protected:
 
   };
 
+  void HashAddNodeSignature(QCryptographicHash &hash, const QString &output) const;
+
   void InsertInput(const QString& id, NodeValue::Type type, const QVariant& default_value, InputFlags flags, int index);
 
   void PrependInput(const QString& id, NodeValue::Type type, const QVariant& default_value, InputFlags flags = InputFlags(kInputFlagNormal))
@@ -1404,7 +1410,7 @@ protected:
 
   virtual void undo() override
   {
-    sub_command_->undo();
+    sub_command_->undo_now();
   }
 
 private:

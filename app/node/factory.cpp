@@ -33,6 +33,7 @@
 #include "distort/transform/transformdistortnode.h"
 #include "generator/matrix/matrix.h"
 #include "generator/polygon/polygon.h"
+#include "generator/shape/shapenode.h"
 #include "generator/solid/solid.h"
 #include "generator/text/text.h"
 #include "filter/blur/blur.h"
@@ -239,13 +240,14 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new TimeRemapNode();
   case kSubtitleBlock:
     return new SubtitleBlock();
+  case kShapeGenerator:
+    return new ShapeNode();
 
   case kInternalNodeCount:
     break;
   }
 
-  // We should never get here
-  abort();
+  return nullptr;
 }
 
 }

@@ -136,6 +136,7 @@ void SequenceDialog::accept()
     sequence_->SetVideoParams(video_params);
     sequence_->SetAudioParams(audio_params);
     sequence_->SetLabel(name_field_->text());
+    sequence_->SetAutoCacheEnabled(parameter_tab_->GetSelectedPreviewAutoCache());
   }
 
   QDialog::accept();

@@ -42,6 +42,10 @@ extern "C" {
 #include "common/debug.h"
 #include "version.h"
 
+#ifdef _WIN32
+#include <Windows.h>
+#endif
+
 #ifdef USE_CRASHPAD
 #include "common/crashpadinterface.h"
 #endif // USE_CRASHPAD
@@ -100,9 +104,16 @@ int main(int argc, char *argv[])
                        true,
                        QCoreApplication::translate("main", "qm-file"));
 
+#ifdef _WIN32
+  auto console_option =
+      parser.AddOption({QStringLiteral("c"), QStringLiteral("-console")},
+                       QCoreApplication::translate("main", "Launch with debug console"));
+#endif // _WIN32
+
   auto project_argument =
       parser.AddPositionalArgument(QStringLiteral("project"),
                                    QCoreApplication::translate("main", "Project to open on startup"));
+
 
   // Qt options re-implemented (add to this as necessary)
   //
@@ -178,6 +189,14 @@ int main(int argc, char *argv[])
   std::unique_ptr<QCoreApplication> a;
 
   if (startup_params.run_mode() == olive::Core::CoreParams::kRunNormal) {
+#ifdef _WIN32
+    // Since Olive is linked with the console subsystem (for better POSIX compatibility), a console
+    // is created by default. If the user didn't request one, we free it here.
+    if (!console_option->IsSet()) {
+      FreeConsole();
+    }
+#endif // _WIN32
+
     a.reset(new QApplication(argc, argv));
   } else {
     a.reset(new QCoreApplication(argc, argv));

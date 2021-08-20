@@ -170,6 +170,14 @@ public:
 
   virtual void SetColorLabel(int){}
 
+  virtual void NudgeLeft(){}
+
+  virtual void NudgeRight(){}
+
+  virtual void MoveInToPlayhead(){}
+
+  virtual void MoveOutToPlayhead(){}
+
 signals:
   void CloseRequested();
 

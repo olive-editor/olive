@@ -16,6 +16,7 @@
 
 add_subdirectory(matrix)
 add_subdirectory(polygon)
+add_subdirectory(shape)
 add_subdirectory(solid)
 add_subdirectory(text)
 

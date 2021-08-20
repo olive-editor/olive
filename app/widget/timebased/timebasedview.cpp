@@ -33,7 +33,6 @@ const double TimeBasedView::kMaximumScale = 8192;
 
 TimeBasedView::TimeBasedView(QWidget *parent) :
   HandMovableView(parent),
-  playhead_(0),
   playhead_scene_left_(-1),
   playhead_scene_right_(-1),
   dragging_playhead_(false),
@@ -150,7 +149,7 @@ void TimeBasedView::SetYScale(const double &y_scale)
   }
 }
 
-void TimeBasedView::SetTime(const int64_t time)
+void TimeBasedView::SetTime(const rational &time)
 {
   playhead_ = time;
 
@@ -194,11 +193,6 @@ void TimeBasedView::drawForeground(QPainter *painter, const QRectF &rect)
   }
 }
 
-rational TimeBasedView::GetPlayheadTime() const
-{
-  return Timecode::timestamp_to_time(playhead_, timebase());
-}
-
 bool TimeBasedView::PlayheadPress(QMouseEvent *event)
 {
   QPointF scene_pos = mapToScene(event->pos());
@@ -217,23 +211,18 @@ bool TimeBasedView::PlayheadMove(QMouseEvent *event)
   }
 
   QPointF scene_pos = mapToScene(event->pos());
-  rational mouse_time = SceneToTime(scene_pos.x());
-
-  int64_t target_ts = qMax(static_cast<int64_t>(0), Timecode::time_to_timestamp(mouse_time, timebase()));
+  rational mouse_time = qMax(rational(0), SceneToTime(scene_pos.x()));
 
   if (Core::instance()->snapping() && snap_service_) {
-    rational target_time = Timecode::timestamp_to_time(target_ts, timebase());
     rational movement;
 
-    snap_service_->SnapPoint({target_time}, &movement, SnapService::kSnapAll & ~SnapService::kSnapToPlayhead);
+    snap_service_->SnapPoint({mouse_time}, &movement, SnapService::kSnapAll & ~SnapService::kSnapToPlayhead);
 
-    if (!movement.isNull()) {
-      target_ts = Timecode::time_to_timestamp(target_time + movement, timebase());
-    }
+    mouse_time += movement;
   }
 
-  SetTime(target_ts);
-  emit TimeChanged(target_ts);
+  SetTime(mouse_time);
+  emit TimeChanged(mouse_time);
 
   return true;
 }
@@ -255,7 +244,7 @@ bool TimeBasedView::PlayheadRelease(QMouseEvent*)
 
 qreal TimeBasedView::GetPlayheadX()
 {
-  return TimeToScene(Timecode::timestamp_to_time(playhead_, timebase()));
+  return TimeToScene(playhead_);
 }
 
 void TimeBasedView::SetEndTime(const rational &length)

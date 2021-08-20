@@ -26,8 +26,7 @@ namespace olive {
 
 const QString SubtitleBlock::kTextIn = QStringLiteral("text_in");
 
-SubtitleBlock::SubtitleBlock() :
-  super(false)
+SubtitleBlock::SubtitleBlock()
 {
   AddInput(kTextIn, NodeValue::kText, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 }

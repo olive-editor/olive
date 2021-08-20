@@ -59,6 +59,7 @@ public:
     kValueNode,
     kTimeRemapNode,
     kSubtitleBlock,
+    kShapeGenerator,
 
     // Count value
     kInternalNodeCount

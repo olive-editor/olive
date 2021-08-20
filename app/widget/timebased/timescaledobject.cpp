@@ -72,12 +72,12 @@ rational TimeScaledObject::SceneToTime(const double &x, const double &x_scale, c
   return rational(rounded_x_mvmt * timebase.numerator(), timebase.denominator());
 }
 
-double TimeScaledObject::TimeToScene(const rational &time)
+double TimeScaledObject::TimeToScene(const rational &time) const
 {
   return time.toDouble() * scale_;
 }
 
-rational TimeScaledObject::SceneToTime(const double &x, bool round)
+rational TimeScaledObject::SceneToTime(const double &x, bool round) const
 {
   return SceneToTime(x, scale_, timebase_, round);
 }

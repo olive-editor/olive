@@ -141,7 +141,9 @@ private:
 
   Menu *CreateAddMenu(Menu *parent);
 
-  void CreateNewEdge(NodeViewItem *output_item);
+  void CreateNewEdge(NodeViewItem *output_item, const QPoint &mouse_pos);
+
+  void PositionNewEdge(const QPoint &pos);
 
   NodeViewItem *UpdateNodeItem(Node *node, bool ignore_own_context = false);
 

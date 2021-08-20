@@ -363,9 +363,13 @@ void NodeView::Duplicate()
 
 void NodeView::SetColorLabel(int index)
 {
+  MultiUndoCommand *command = new MultiUndoCommand();
+
   for (Node* node : qAsConst(selected_nodes_)) {
-    node->SetOverrideColor(index);
+    command->add_child(new NodeOverrideColorCommand(node, index));
   }
+
+  Core::instance()->undo_stack()->push(command);
 }
 
 void NodeView::ZoomIn()
@@ -431,7 +435,7 @@ void NodeView::keyPressEvent(QKeyEvent *event)
 
       // We undo the last action which SHOULD be adding the node
       if (paste_command_) {
-        paste_command_->undo();
+        paste_command_->undo_now();
         delete paste_command_;
         paste_command_ = nullptr;
       }
@@ -467,7 +471,7 @@ void NodeView::mousePressEvent(QMouseEvent *event)
     // See if we're dragging the arrow of a node
     for (NodeViewItem *node_item : scene_.item_map()) {
       if (node_item->GetOutputTriangle().boundingRect().translated(node_item->pos()).contains(scene_pt)) {
-        CreateNewEdge(node_item);
+        CreateNewEdge(node_item, event->pos());
         return;
       }
     }
@@ -492,7 +496,7 @@ void NodeView::mousePressEvent(QMouseEvent *event)
   if (event->modifiers() & Qt::ControlModifier) {
     NodeViewItem* node_item = dynamic_cast<NodeViewItem*>(item);
     if (node_item) {
-      CreateNewEdge(node_item);
+      CreateNewEdge(node_item, event->pos());
       return;
     }
   }
@@ -505,68 +509,7 @@ void NodeView::mouseMoveEvent(QMouseEvent *event)
   if (HandMove(event)) return;
 
   if (create_edge_) {
-    // Determine scene coordinate
-    QPointF scene_pt = mapToScene(event->pos());
-
-    // Find if the cursor is currently inside an item
-    NodeViewItem* item_at_cursor = dynamic_cast<NodeViewItem*>(itemAt(event->pos()));
-
-    // Filter out connecting to self
-    if (item_at_cursor == create_edge_src_) {
-      item_at_cursor = nullptr;
-    }
-
-    // Filter out connecting to a node that connects to us
-    if (item_at_cursor && item_at_cursor->GetNode()->OutputsTo(create_edge_src_->GetNode(), true)) {
-      item_at_cursor = nullptr;
-    }
-
-    // If the item has changed
-    if (item_at_cursor != create_edge_dst_) {
-      // If we had a destination active, disconnect from it since the item has changed
-      if (create_edge_dst_) {
-        create_edge_dst_->SetHighlightedIndex(-1);
-
-        if (create_edge_dst_temp_expanded_) {
-          // We expanded this item, so we can un-expand it
-          create_edge_dst_->SetExpanded(false);
-          create_edge_dst_->setZValue(0);
-        }
-      }
-
-      // Set destination
-      create_edge_dst_ = item_at_cursor;
-
-      // If our destination is an item, ensure it's expanded
-      if (create_edge_dst_) {
-        if ((create_edge_dst_temp_expanded_ = (!create_edge_dst_->IsExpanded()))) {
-          create_edge_dst_->SetExpanded(true, true);
-          create_edge_dst_->setZValue(100); // Ensure item is in front
-        }
-      }
-    }
-
-    // If we have a destination, highlight the appropriate input
-    int highlight_index = -1;
-    if (create_edge_dst_) {
-      highlight_index = create_edge_dst_->GetIndexAt(scene_pt);
-      create_edge_dst_->SetHighlightedIndex(highlight_index);
-    }
-
-    if (highlight_index >= 0) {
-      create_edge_dst_input_ = create_edge_dst_->GetInputAtIndex(highlight_index);
-      create_edge_->SetPoints(create_edge_src_->GetOutputPoint(Node::kDefaultOutput),
-                              create_edge_dst_->GetInputPoint(create_edge_dst_input_.input(), create_edge_dst_input_.element(), create_edge_src_->pos()),
-                              true);
-    } else {
-      create_edge_dst_input_.Reset();
-      create_edge_->SetPoints(create_edge_src_->GetOutputPoint(Node::kDefaultOutput),
-                              scene_pt,
-                              false);
-    }
-
-    // Set connected to whether we have a valid input destination
-    create_edge_->SetConnected(create_edge_dst_input_.IsValid());
+    PositionNewEdge(event->pos());
     return;
   }
 
@@ -757,7 +700,7 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
       }
     }
     if (set_pos_command->child_count()) {
-      set_pos_command->redo();
+      set_pos_command->redo_now();
       command->add_child(set_pos_command);
     } else {
       delete set_pos_command;
@@ -784,7 +727,7 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
         drop_edge_ = nullptr;
       }
       if (drop_edge_command->child_count()) {
-        drop_edge_command->redo();
+        drop_edge_command->redo_now();
         command->add_child(drop_edge_command);
       } else {
         delete drop_edge_command;
@@ -822,7 +765,7 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
       }
 
       if (remove_pos_command->child_count()) {
-        remove_pos_command->redo();
+        remove_pos_command->redo_now();
         command->add_child(remove_pos_command);
       } else {
         delete remove_pos_command;
@@ -988,7 +931,7 @@ void NodeView::CreateNodeSlot(QAction *action)
       paste_command_->add_child(new NodeSetPositionCommand(new_node, context, QPointF(0, 0), false));
     }
     paste_command_->add_child(new NodeViewAttachNodesToCursor(this, {new_node}));
-    paste_command_->redo();
+    paste_command_->redo_now();
 
     this->setFocus();
   }
@@ -1490,7 +1433,7 @@ Menu *NodeView::CreateAddMenu(Menu *parent)
   return add_menu;
 }
 
-void NodeView::CreateNewEdge(NodeViewItem *output_item)
+void NodeView::CreateNewEdge(NodeViewItem *output_item, const QPoint &mouse_pos)
 {
   create_edge_ = new NodeViewEdge();
   create_edge_src_ = output_item;
@@ -1501,6 +1444,74 @@ void NodeView::CreateNewEdge(NodeViewItem *output_item)
   create_edge_->SetFlowDirection(scene_.GetFlowDirection());
 
   scene_.addItem(create_edge_);
+
+  PositionNewEdge(mouse_pos);
+}
+
+void NodeView::PositionNewEdge(const QPoint &pos)
+{
+  // Determine scene coordinate
+  QPointF scene_pt = mapToScene(pos);
+
+  // Find if the cursor is currently inside an item
+  NodeViewItem* item_at_cursor = dynamic_cast<NodeViewItem*>(itemAt(pos));
+
+  // Filter out connecting to self
+  if (item_at_cursor == create_edge_src_) {
+    item_at_cursor = nullptr;
+  }
+
+  // Filter out connecting to a node that connects to us
+  if (item_at_cursor && item_at_cursor->GetNode()->OutputsTo(create_edge_src_->GetNode(), true)) {
+    item_at_cursor = nullptr;
+  }
+
+  // If the item has changed
+  if (item_at_cursor != create_edge_dst_) {
+    // If we had a destination active, disconnect from it since the item has changed
+    if (create_edge_dst_) {
+      create_edge_dst_->SetHighlightedIndex(-1);
+
+      if (create_edge_dst_temp_expanded_) {
+        // We expanded this item, so we can un-expand it
+        create_edge_dst_->SetExpanded(false);
+        create_edge_dst_->setZValue(0);
+      }
+    }
+
+    // Set destination
+    create_edge_dst_ = item_at_cursor;
+
+    // If our destination is an item, ensure it's expanded
+    if (create_edge_dst_) {
+      if ((create_edge_dst_temp_expanded_ = (!create_edge_dst_->IsExpanded()))) {
+        create_edge_dst_->SetExpanded(true, true);
+        create_edge_dst_->setZValue(100); // Ensure item is in front
+      }
+    }
+  }
+
+  // If we have a destination, highlight the appropriate input
+  int highlight_index = -1;
+  if (create_edge_dst_) {
+    highlight_index = create_edge_dst_->GetIndexAt(scene_pt);
+    create_edge_dst_->SetHighlightedIndex(highlight_index);
+  }
+
+  if (highlight_index >= 0) {
+    create_edge_dst_input_ = create_edge_dst_->GetInputAtIndex(highlight_index);
+    create_edge_->SetPoints(create_edge_src_->GetOutputPoint(Node::kDefaultOutput),
+                            create_edge_dst_->GetInputPoint(create_edge_dst_input_.input(), create_edge_dst_input_.element(), create_edge_src_->pos()),
+                            true);
+  } else {
+    create_edge_dst_input_.Reset();
+    create_edge_->SetPoints(create_edge_src_->GetOutputPoint(Node::kDefaultOutput),
+                            scene_pt,
+                            false);
+  }
+
+  // Set connected to whether we have a valid input destination
+  create_edge_->SetConnected(create_edge_dst_input_.IsValid());
 }
 
 void NodeView::RepositionContexts()
@@ -1673,7 +1684,7 @@ void NodeView::PasteNodesInternal(const QVector<Node *> &duplicate_nodes)
   // Attach nodes to cursor
   paste_command_->add_child(new NodeViewAttachNodesToCursor(this, new_nodes));
 
-  paste_command_->redo();
+  paste_command_->redo_now();
 }
 
 NodeView::NodeViewAttachNodesToCursor::NodeViewAttachNodesToCursor(NodeView *view, const QVector<Node *> &nodes) :

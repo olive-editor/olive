@@ -172,12 +172,12 @@ void TimelineAddTrackCommand::redo()
       position_command_->add_child(new NodeSetPositionAsChildCommand(track_, merge_, timeline_->parent(), 1, 2, true));
     }
   }
-  position_command_->redo();
+  position_command_->redo_now();
 }
 
 void TimelineAddTrackCommand::undo()
 {
-  position_command_->undo();
+  position_command_->undo_now();
 
   // Remove merge if applicable
   if (merge_) {

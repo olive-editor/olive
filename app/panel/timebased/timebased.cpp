@@ -74,9 +74,9 @@ void TimeBasedPanel::SetTimebase(const rational &timebase)
   widget_->SetTimebase(timebase);
 }
 
-void TimeBasedPanel::SetTimestamp(const int64_t &timestamp)
+void TimeBasedPanel::SetTime(const rational &time)
 {
-  widget_->SetTimestamp(timestamp);
+  widget_->SetTime(time);
 }
 
 void TimeBasedPanel::GoToPrevCut()

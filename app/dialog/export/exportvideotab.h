@@ -45,9 +45,9 @@ public:
 
   bool IsImageSequenceSet() const;
 
-  int64_t GetStillImageTime() const
+  rational GetStillImageTime() const
   {
-    return image_section_->GetTimestamp();
+    return image_section_->GetTime();
   }
 
   ExportCodec::Codec GetSelectedCodec() const
@@ -138,7 +138,7 @@ public:
 public slots:
   void VideoCodecChanged();
 
-  void SetTimestamp(int64_t timestamp);
+  void SetTime(const rational &time);
 
 signals:
   void ColorSpaceChanged(const QString& colorspace);

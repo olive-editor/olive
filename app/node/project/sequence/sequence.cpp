@@ -163,13 +163,6 @@ void Sequence::InputDisconnectedEvent(const QString &input, int element, const N
   super::InputDisconnectedEvent(input, element, output);
 }
 
-void Sequence::ShiftAudioEvent(const rational &from, const rational &to)
-{
-  foreach (Track* track, track_lists_.at(Track::kAudio)->GetTracks()) {
-    track->waveform().Shift(from, to);
-  }
-}
-
 void Sequence::UpdateTrackCache()
 {
   track_cache_.clear();

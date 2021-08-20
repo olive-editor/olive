@@ -499,14 +499,17 @@ OLIVE_ADD_TEST(InsertGaps_SingleTrack)
   Track *track = list->GetTracks().first();
 
   ClipBlock *a = new ClipBlock();
+  a->set_length_and_media_out(1);
   a->setParent(&project);
   track->AppendBlock(a);
 
   ClipBlock *b = new ClipBlock();
+  b->set_length_and_media_out(1);
   b->setParent(&project);
   track->AppendBlock(b);
 
   ClipBlock *c = new ClipBlock();
+  c->set_length_and_media_out(1);
   c->setParent(&project);
   track->AppendBlock(c);
 

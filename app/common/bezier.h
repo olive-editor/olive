@@ -21,6 +21,8 @@
 #ifndef BEZIER_H
 #define BEZIER_H
 
+#include <QPointF>
+
 #include "common/define.h"
 
 namespace olive {
@@ -32,9 +34,23 @@ public:
 
   static double QuadraticTtoY(double a, double b, double c, double t);
 
-  static double CubicXtoT(double x_target, double a, double b, double c, double d);
+  static double QuadraticXtoY(double x, const QPointF &a, const QPointF &b, const QPointF &c)
+  {
+    return QuadraticTtoY(a.y(), b.y(), c.y(), QuadraticXtoT(x, a.x(), b.x(), c.x()));
+  }
+
+  static double CubicXtoT(double x, double a, double b, double c, double d);
 
   static double CubicTtoY(double a, double b, double c, double d, double t);
+
+  static double CubicXtoY(double x, const QPointF &a, const QPointF &b, const QPointF &c, const QPointF &d)
+  {
+    return CubicTtoY(a.y(), b.y(), c.y(), d.y(), CubicXtoT(x, a.x(), b.x(), c.x(), d.x()));
+  }
+
+private:
+  static double CalculateTFromX(bool cubic, double x, double a, double b, double c, double d);
+
 };
 
 }

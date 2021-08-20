@@ -145,7 +145,7 @@ public:
     virtual void undo() override
     {
       if (subcommand_) {
-        subcommand_->undo();
+        subcommand_->undo_now();
       }
     }
 

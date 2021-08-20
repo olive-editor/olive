@@ -426,9 +426,7 @@ void TrackPlaceBlockCommand::undo()
   }
   t->EndOperation();
 
-  if (ripple_remove_command_) {
-    t->Node::InvalidateCache(insert_range, Track::kBlockInput);
-  }
+  t->Node::InvalidateCache(insert_range, Track::kBlockInput);
 
   // Remove tracks if we added them
   for (int i=add_track_commands_.size()-1; i>=0; i--) {

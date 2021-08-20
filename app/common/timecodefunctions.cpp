@@ -259,7 +259,7 @@ QString Timecode::time_to_timecode(const rational &time, const rational &timebas
 
 bool Timecode::TimebaseIsDropFrame(const rational &timebase)
 {
-  return (timebase.numerator() == 1001);
+  return (timebase.numerator() != 1);
 }
 
 QString Timecode::TimeToString(int64_t ms)

@@ -100,7 +100,7 @@ void AudioWaveformView::paintEvent(QPaintEvent *event)
   // Draw playhead
   p.setPen(PLAYHEAD_COLOR);
 
-  int playhead_x = UnitToScreen(GetTime());
+  int playhead_x = TimeToScreen(GetTime());
   p.drawLine(playhead_x, 0, playhead_x, height());
 }
 

@@ -70,15 +70,16 @@ void RazorTool::MouseRelease(TimelineViewMouseEvent *event)
     Block* block_at_time = track->NearestBlockBefore(split_time);
 
     // Ensure there's a valid block here
+    ClipBlock *clip_at_time;
     if (block_at_time
         && block_at_time->out() != split_time
-        && dynamic_cast<ClipBlock*>(block_at_time)
+        && (clip_at_time = dynamic_cast<ClipBlock*>(block_at_time))
         && !blocks_to_split.contains(block_at_time)) {
       blocks_to_split.append(block_at_time);
 
       // Add links if no alt is held
       if (!(event->GetModifiers() & Qt::AltModifier)) {
-        foreach (Block* link, block_at_time->block_links()) {
+        foreach (Block* link, clip_at_time->block_links()) {
           if (!blocks_to_split.contains(link)) {
             blocks_to_split.append(link);
           }

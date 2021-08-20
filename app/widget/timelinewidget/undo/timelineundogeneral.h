@@ -22,6 +22,7 @@
 #define TIMELINEUNDOGENERAL_H
 
 #include "config/config.h"
+#include "node/block/clip/clip.h"
 #include "node/block/gap/gap.h"
 #include "node/output/track/track.h"
 #include "node/output/track/tracklist.h"
@@ -81,7 +82,7 @@ private:
 
 class BlockSetMediaInCommand : public UndoCommand {
 public:
-  BlockSetMediaInCommand(Block* block, rational new_media_in) :
+  BlockSetMediaInCommand(ClipBlock* block, rational new_media_in) :
     block_(block),
     new_media_in_(new_media_in)
   {
@@ -97,7 +98,7 @@ protected:
   virtual void undo();
 
 private:
-  Block* block_;
+  ClipBlock* block_;
   rational old_media_in_;
   rational new_media_in_;
 

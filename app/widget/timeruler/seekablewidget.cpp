@@ -31,7 +31,6 @@ namespace olive {
 
 SeekableWidget::SeekableWidget(QWidget* parent) :
   TimelineScaledWidget(parent),
-  time_(0),
   timeline_points_(nullptr),
   scroll_(0),
   snap_service_(nullptr),
@@ -71,11 +70,6 @@ void SeekableWidget::ConnectTimelinePoints(TimelinePoints *points)
 void SeekableWidget::SetSnapService(SnapService *service)
 {
   snap_service_ = service;
-}
-
-const int64_t &SeekableWidget::GetTime() const
-{
-  return time_;
 }
 
 const int &SeekableWidget::GetScroll() const
@@ -119,7 +113,7 @@ TimelinePoints *SeekableWidget::timeline_points() const
   return timeline_points_;
 }
 
-void SeekableWidget::SetTime(const int64_t &r)
+void SeekableWidget::SetTime(const rational &r)
 {
   time_ = r;
 
@@ -133,29 +127,14 @@ void SeekableWidget::SetScroll(int s)
   update();
 }
 
-double SeekableWidget::ScreenToUnitFloat(int screen) const
-{
-  return (screen + scroll_) / GetScale() / timebase_dbl();
-}
-
-int64_t SeekableWidget::ScreenToUnit(int screen) const
-{
-  return qFloor(ScreenToUnitFloat(screen));
-}
-
-int64_t SeekableWidget::ScreenToUnitRounded(int screen) const
-{
-  return qRound64(ScreenToUnitFloat(screen));
-}
-
-int SeekableWidget::UnitToScreen(int64_t unit) const
-{
-  return qFloor(static_cast<double>(unit) * GetScale() * timebase_dbl()) - scroll_;
-}
-
 int SeekableWidget::TimeToScreen(const rational &time) const
 {
-  return qFloor(time.toDouble() * GetScale()) - scroll_;
+  return qFloor(TimeToScene(time)) - scroll_;
+}
+
+rational SeekableWidget::ScreenToTime(int x) const
+{
+  return qMax(rational(0), SceneToTime(x + scroll_));
 }
 
 void SeekableWidget::SeekToScreenPoint(int screen)
@@ -164,26 +143,22 @@ void SeekableWidget::SeekToScreenPoint(int screen)
     return;
   }
 
-  int64_t timestamp = qMax(static_cast<int64_t>(0), ScreenToUnitRounded(screen));
+  rational playhead_time = ScreenToTime(screen);
 
   if (Core::instance()->snapping() && snap_service_) {
-    rational playhead_time = Timecode::timestamp_to_time(timestamp, timebase());
     rational movement;
 
     snap_service_->SnapPoint({playhead_time},
                              &movement,
                              SnapService::kSnapAll & ~SnapService::kSnapToPlayhead);
 
-    if (!movement.isNull()) {
-      timestamp = Timecode::time_to_timestamp(playhead_time + movement,
-                                              timebase());
-    }
+    playhead_time += movement;
   }
 
-  if (timestamp != GetTime()) {
-    SetTime(timestamp);
+  if (playhead_time != GetTime()) {
+    SetTime(playhead_time);
 
-    emit TimeChanged(timestamp);
+    emit TimeChanged(playhead_time);
   }
 }
 

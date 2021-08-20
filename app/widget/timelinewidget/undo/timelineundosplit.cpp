@@ -39,7 +39,7 @@ void BlockSplitCommand::redo()
     new_block_ = static_cast<Block*>(Node::CopyNodeInGraph(block_, reconnect_tree_command_));
   }
 
-  reconnect_tree_command_->redo();
+  reconnect_tree_command_->redo_now();
 
   // Determine our new lengths
   rational new_length = point_ - block_->in();
@@ -97,7 +97,7 @@ void BlockSplitCommand::undo()
   track->RippleRemoveBlock(new_block());
 
   // If we ran a reconnect command, disconnect now
-  reconnect_tree_command_->undo();
+  reconnect_tree_command_->undo_now();
 
   track->EndOperation();
 }

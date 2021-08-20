@@ -123,7 +123,7 @@ void MergeNode::Hash(const QString &output, QCryptographicHash &hash, const rati
 
     if (!passthrough_base && !passthrough_blend) {
       // This merge will actually do something so we add a fingerprint
-      hash.addData(id().toUtf8());
+      HashAddNodeSignature(hash, output);
     }
 
     if (!passthrough_base) {

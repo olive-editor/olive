@@ -87,7 +87,7 @@ void Menu::InsertAlphabetically(Menu *menu)
   InsertAlphabetically(menu->menuAction());
 }
 
-void Menu::ConformItem(QAction *a, const QString &id, const QString &key)
+void Menu::ConformItem(QAction *a, const QString &id, const QKeySequence &key)
 {
   a->setProperty("id", id);
 

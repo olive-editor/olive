@@ -54,6 +54,7 @@ void PointerTool::MousePress(TimelineViewMouseEvent *event)
 
   // Determine if item clicked on is selectable
   clicked_item_ = parent()->GetItemAtScenePos(event->GetCoordinates());
+  ClipBlock *clip_clicked_item = dynamic_cast<ClipBlock*>(clicked_item_);
 
   can_rubberband_select_ = false;
 
@@ -92,9 +93,9 @@ void PointerTool::MousePress(TimelineViewMouseEvent *event)
         deselected_blocks.append(clicked_item_);
 
         // If not holding alt, deselect all links as well
-        if (!(event->GetModifiers() & Qt::AltModifier)) {
-          parent()->SetBlockLinksSelected(clicked_item_, false);
-          deselected_blocks.append(clicked_item_->block_links());
+        if (clip_clicked_item && !(event->GetModifiers() & Qt::AltModifier)) {
+          parent()->SetBlockLinksSelected(clip_clicked_item, false);
+          deselected_blocks.append(clip_clicked_item->block_links());
         }
       }
 
@@ -119,9 +120,9 @@ void PointerTool::MousePress(TimelineViewMouseEvent *event)
     selected_blocks.append(clicked_item_);
 
     // If not holding alt, select all links as well
-    if (!(event->GetModifiers() & Qt::AltModifier)) {
-      parent()->SetBlockLinksSelected(clicked_item_, true);
-      selected_blocks.append(clicked_item_->block_links());
+    if (clip_clicked_item && !(event->GetModifiers() & Qt::AltModifier)) {
+      parent()->SetBlockLinksSelected(clip_clicked_item, true);
+      selected_blocks.append(clip_clicked_item->block_links());
     }
 
     parent()->SignalSelectedBlocks(selected_blocks);
@@ -329,10 +330,6 @@ void PointerTool::InitiateDragInternal(Block *clicked_item,
 
         // Create ghost for this block
         AddGhostFromBlock(block, trim_mode, true);
-
-        // Create ghosts for this block's transitions if any
-        AddGhostFromBlock(block->in_transition(), trim_mode, true);
-        AddGhostFromBlock(block->out_transition(), trim_mode, true);
       }
     }
 
@@ -361,15 +358,16 @@ void PointerTool::InitiateDragInternal(Block *clicked_item,
       // transition than a trim/roll
       bool treat_trim_as_slide = false;
 
-      if (dynamic_cast<ClipBlock*>(block)) {
+      ClipBlock *cb = dynamic_cast<ClipBlock*>(block);
+      if (cb) {
         // See if this clip has a transition attached, and move it with the trim if so
         TransitionBlock* connected_transition;
 
         // Get appropriate transition for the side of the clip
         if (trim_mode == Timeline::kTrimIn) {
-          connected_transition = block->in_transition();
+          connected_transition = cb->in_transition();
         } else {
-          connected_transition = block->out_transition();
+          connected_transition = cb->out_transition();
         }
 
         if (connected_transition) {
@@ -506,10 +504,10 @@ void PointerTool::ProcessDrag(const TimelineCoordinate &mouse_pos)
   rational tooltip_timebase = parent()->GetTimebaseForTrackType(drag_start_.GetTrack().type());
   QToolTip::hideText();
   QToolTip::showText(QCursor::pos(),
-                     Timecode::timestamp_to_timecode(Timecode::time_to_timestamp(time_movement, tooltip_timebase),
-                                                     tooltip_timebase,
-                                                     Core::instance()->GetTimecodeDisplay(),
-                                                     true),
+                     Timecode::time_to_timecode(time_movement,
+                                                tooltip_timebase,
+                                                Core::instance()->GetTimecodeDisplay(),
+                                                true),
                      parent());
 }
 
@@ -574,7 +572,7 @@ void PointerTool::FinishDrag(TimelineViewMouseEvent *event)
       } else {
         new_sel.TrimOut(reference_ghost->GetOutAdjustment());
       }
-      command->add_child(new TimelineWidget::SetSelectionsCommand(parent(), new_sel, parent()->GetSelections()));
+      command->add_child(new TimelineWidget::SetSelectionsCommand(parent(), new_sel, parent()->GetSelections(), false));
     }
   }
 
@@ -620,7 +618,7 @@ void PointerTool::FinishDrag(TimelineViewMouseEvent *event)
     TimelineWidgetSelections new_sel = parent()->GetSelections();
     new_sel.ShiftTime(blocks_moving.first().ghost->GetInAdjustment());
     new_sel.ShiftTracks(drag_track_type_, blocks_moving.first().ghost->GetTrackAdjustment());
-    command->add_child(new TimelineWidget::SetSelectionsCommand(parent(), new_sel, parent()->GetSelections()));
+    command->add_child(new TimelineWidget::SetSelectionsCommand(parent(), new_sel, parent()->GetSelections(), false));
   }
 
   if (!blocks_sliding.isEmpty()) {
@@ -672,16 +670,16 @@ void PointerTool::FinishDrag(TimelineViewMouseEvent *event)
       QHash<Track::Reference, QList<Block*> >::const_iterator i;
       for (i=slide_info.constBegin(); i!=slide_info.constEnd(); i++) {
         command->add_child(new TrackSlideCommand(parent()->GetTrackFromReference(i.key()),
-                              i.value(),
-                              in_adjacents.value(i.key()),
-                              out_adjacents.value(i.key()),
-                              movement));
+                                                 i.value(),
+                                                 in_adjacents.value(i.key()),
+                                                 out_adjacents.value(i.key()),
+                                                 movement));
       }
 
       // Adjust selections
       TimelineWidgetSelections new_sel = parent()->GetSelections();
       new_sel.ShiftTime(movement);
-      command->add_child(new TimelineWidget::SetSelectionsCommand(parent(), new_sel, parent()->GetSelections()));
+      command->add_child(new TimelineWidget::SetSelectionsCommand(parent(), new_sel, parent()->GetSelections(), false));
     }
   }
 

@@ -48,8 +48,7 @@ public:
 
 };
 
-// FIXME: Hardcoded (but that might be okay here)
-#define PLAYHEAD_COLOR Qt::red
+#define PLAYHEAD_COLOR palette().highlight().color()
 
 }
 

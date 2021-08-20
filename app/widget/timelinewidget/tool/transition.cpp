@@ -38,7 +38,7 @@ void TransitionTool::HoverMove(TimelineViewMouseEvent *event)
 {
   ClipBlock *primary = nullptr;
   ClipBlock *secondary = nullptr;
-  Timeline::MovementMode trim_mode;
+  Timeline::MovementMode trim_mode = Timeline::kNone;
   rational transition_start_point;
 
   GetBlocksAtCoord(event->GetCoordinates(), &primary, &secondary, &trim_mode, &transition_start_point);
@@ -103,11 +103,17 @@ void TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
         transition = static_cast<TransitionBlock*>(NodeFactory::CreateFromID(Core::instance()->GetSelectedTransition()));
       }
 
+      // Set transition length
+      rational len = ghost_->GetAdjustedLength();
+      transition->set_length_and_media_out(len);
+
       MultiUndoCommand* command = new MultiUndoCommand();
 
       // Place transition in place
       command->add_child(new NodeAddCommand(static_cast<NodeGraph*>(parent()->GetConnectedNode()->parent()),
                                             transition));
+
+      command->add_child(new NodeSetPositionCommand(transition, transition, QPointF(0, 0), false));
 
       command->add_child(new TrackPlaceBlockCommand(sequence()->track_list(track.type()),
                                                     track.index(),
@@ -115,9 +121,6 @@ void TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
                                                     ghost_->GetAdjustedIn()));
 
       if (dual_transition_) {
-        transition->set_length_and_media_out(ghost_->GetAdjustedLength());
-        transition->set_media_in(-ghost_->GetAdjustedLength()/2);
-
         // Block mouse is hovering over
         Block* active_block = Node::ValueToPtr<Block>(ghost_->GetData(TimelineViewGhostItem::kAttachedBlock));
 
@@ -134,21 +137,24 @@ void TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
 
         command->add_child(new NodeEdgeAddCommand(in_block,
                                                   NodeInput(transition, TransitionBlock::kInBlockInput)));
+
+        command->add_child(new NodeSetPositionCommand(out_block, transition, QPointF(-1, -0.5), false));
+        command->add_child(new NodeSetPositionCommand(in_block, transition, QPointF(-1, 0.5), false));
       } else {
         Block* block_to_transition = Node::ValueToPtr<Block>(ghost_->GetData(TimelineViewGhostItem::kAttachedBlock));
         QString transition_input_to_connect;
 
         if (ghost_->GetMode() == Timeline::kTrimIn) {
-          transition->set_length_and_media_out(ghost_->GetAdjustedLength());
           transition_input_to_connect = TransitionBlock::kInBlockInput;
         } else {
-          transition->set_length_and_media_out(ghost_->GetAdjustedLength());
           transition_input_to_connect = TransitionBlock::kOutBlockInput;
         }
 
         // Connect block to transition
         command->add_child(new NodeEdgeAddCommand(block_to_transition,
                                                   NodeInput(transition, transition_input_to_connect)));
+
+        command->add_child(new NodeSetPositionCommand(block_to_transition, transition, QPointF(-1, 0), false));
       }
 
       Core::instance()->undo_stack()->push(command);

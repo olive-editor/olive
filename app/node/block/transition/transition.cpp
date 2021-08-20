@@ -21,7 +21,9 @@
 #include "transition.h"
 
 #include "common/clamp.h"
+#include "node/block/clip/clip.h"
 #include "node/output/track/track.h"
+#include "widget/slider/rationalslider.h"
 
 namespace olive {
 
@@ -30,6 +32,7 @@ namespace olive {
 const QString TransitionBlock::kOutBlockInput = QStringLiteral("out_block_in");
 const QString TransitionBlock::kInBlockInput = QStringLiteral("in_block_in");
 const QString TransitionBlock::kCurveInput = QStringLiteral("curve_in");
+const QString TransitionBlock::kCenterInput = QStringLiteral("center_in");
 
 TransitionBlock::TransitionBlock() :
   connected_out_block_(nullptr),
@@ -40,6 +43,11 @@ TransitionBlock::TransitionBlock() :
   AddInput(kInBlockInput, NodeValue::kNone, InputFlags(kInputFlagNotKeyframable));
 
   AddInput(kCurveInput, NodeValue::kCombo, InputFlags(kInputFlagNotKeyframable | kInputFlagNotConnectable));
+
+  AddInput(kCenterInput, NodeValue::kRational, InputFlags(kInputFlagNotKeyframable | kInputFlagNotConnectable));
+  SetInputProperty(kCenterInput, QStringLiteral("view"), RationalSlider::kTime);
+  SetInputProperty(kCenterInput, QStringLiteral("viewlock"), true);
+  IgnoreHashingFrom(kCenterInput);
 }
 
 void TransitionBlock::Retranslate()
@@ -49,6 +57,7 @@ void TransitionBlock::Retranslate()
   SetInputName(kOutBlockInput, tr("From"));
   SetInputName(kInBlockInput, tr("To"));
   SetInputName(kCurveInput, tr("Curve"));
+  SetInputName(kCenterInput, tr("Center Offset"));
 
   // These must correspond to the CurveType enum
   SetComboBoxStrings(kCurveInput, { tr("Linear"), tr("Exponential"), tr("Logarithmic") });
@@ -56,34 +65,43 @@ void TransitionBlock::Retranslate()
 
 rational TransitionBlock::in_offset() const
 {
-  // If no in block is connected, there's no in offset
-  if (!connected_in_block()) {
+  if (is_dual_transition()) {
+    return length()/2 + offset_center();
+  } else if (connected_in_block()) {
+    return length();
+  } else {
     return 0;
   }
-
-  if (!connected_out_block()) {
-    // Assume only an in block is connected, in which case this entire transition length
-    return length();
-  }
-
-  // Assume both are connected
-  return length() + media_in();
 }
 
 rational TransitionBlock::out_offset() const
 {
-  // If no in block is connected, there's no in offset
-  if (!connected_out_block()) {
+  if (is_dual_transition()) {
+    return length()/2 - offset_center();
+  } else if (connected_out_block()) {
+    return length();
+  } else {
     return 0;
   }
+}
 
-  if (!connected_in_block()) {
-    // Assume only an in block is connected, in which case this entire transition length
-    return length();
-  }
+rational TransitionBlock::offset_center() const
+{
+  return GetStandardValue(kCenterInput).value<rational>();
+}
 
-  // Assume both are connected
-  return -media_in();
+void TransitionBlock::set_offset_center(const rational &r)
+{
+  SetStandardValue(kCenterInput, QVariant::fromValue(r));
+}
+
+void TransitionBlock::set_offsets_and_length(const rational &in_offset, const rational &out_offset)
+{
+  rational len = in_offset + out_offset;
+  rational center = len / 2 - in_offset;
+
+  set_length_and_media_out(len);
+  set_offset_center(center);
 }
 
 Block *TransitionBlock::connected_out_block() const
@@ -121,16 +139,18 @@ double TransitionBlock::GetInProgress(const double &time) const
 
 void TransitionBlock::Hash(const QString &output, QCryptographicHash &hash, const rational &time, const VideoParams &video_params) const
 {
-  Node::Hash(output, hash, time, video_params);
+  if (HashPassthrough(kInBlockInput, output, hash, time, video_params) || HashPassthrough(kOutBlockInput, output, hash, time, video_params)) {
+    HashAddNodeSignature(hash, output);
 
-  double time_dbl = time.toDouble();
-  double all_prog = GetTotalProgress(time_dbl);
-  double in_prog = GetInProgress(time_dbl);
-  double out_prog = GetOutProgress(time_dbl);
+    double time_dbl = time.toDouble();
+    double all_prog = GetTotalProgress(time_dbl);
+    double in_prog = GetInProgress(time_dbl);
+    double out_prog = GetOutProgress(time_dbl);
 
-  hash.addData(reinterpret_cast<const char*>(&all_prog), sizeof(double));
-  hash.addData(reinterpret_cast<const char*>(&in_prog), sizeof(double));
-  hash.addData(reinterpret_cast<const char*>(&out_prog), sizeof(double));
+    hash.addData(reinterpret_cast<const char*>(&all_prog), sizeof(all_prog));
+    hash.addData(reinterpret_cast<const char*>(&in_prog), sizeof(in_prog));
+    hash.addData(reinterpret_cast<const char*>(&out_prog), sizeof(out_prog));
+  }
 }
 
 double TransitionBlock::GetInternalTransitionTime(const double &time) const
@@ -217,7 +237,7 @@ NodeValueTable TransitionBlock::Value(const QString &output, NodeValueDatabase &
 
 void TransitionBlock::InvalidateCache(const TimeRange &range, const QString &from, int element, InvalidateCacheOptions options)
 {
-  TimeRange r;
+  TimeRange r = range;
 
   if (from == kOutBlockInput || from == kInBlockInput) {
     Block *n = dynamic_cast<Block*>(GetConnectedNode(from));
@@ -265,12 +285,12 @@ void TransitionBlock::InputConnectedEvent(const QString &input, int element, con
 
   if (input == kOutBlockInput) {
     // If node is not a block, this will just be null
-    if ((connected_out_block_ = dynamic_cast<Block*>(output.node()))) {
+    if ((connected_out_block_ = dynamic_cast<ClipBlock*>(output.node()))) {
       connected_out_block_->set_out_transition(this);
     }
   } else if (input == kInBlockInput) {
     // If node is not a block, this will just be null
-    if ((connected_in_block_ = dynamic_cast<Block*>(output.node()))) {
+    if ((connected_in_block_ = dynamic_cast<ClipBlock*>(output.node()))) {
       connected_in_block_->set_in_transition(this);
     }
   }
@@ -283,7 +303,7 @@ void TransitionBlock::InputDisconnectedEvent(const QString &input, int element, 
 
   if (input == kOutBlockInput) {
     if (connected_out_block_) {
-      connected_out_block_->set_in_transition(nullptr);
+      connected_out_block_->set_out_transition(nullptr);
       connected_out_block_ = nullptr;
     }
   } else if (input == kInBlockInput) {

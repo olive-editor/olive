@@ -143,6 +143,9 @@ void AudioVisualWaveform::OverwriteSums(const AudioVisualWaveform &sums, const r
 
     // Get our source sample
     int their_start_index = time_to_samples(offset, rate_dbl);
+    if (their_start_index >= their_arr.size()) {
+      continue;
+    }
 
     // Determine how much we're copying
     int copy_len = their_arr.size() - their_start_index;
@@ -231,6 +234,29 @@ void AudioVisualWaveform::Shift(const rational &from, const rational &to)
   }
 
   length_ += (to-from);
+}
+
+void AudioVisualWaveform::TrimIn(const rational &length)
+{
+  for (auto it=mipmapped_data_.begin(); it!=mipmapped_data_.end(); it++) {
+    rational rate = it->first;
+    double rate_dbl = rate.toDouble();
+    Sample& data = it->second;
+
+    int chop_length = time_to_samples(length, rate_dbl);
+
+    if (chop_length == 0) {
+      continue;
+    }
+
+    if (chop_length > 0) {
+      data = data.mid(chop_length);
+    } else {
+      data.insert(0, -chop_length, SamplePerChannel());
+    }
+  }
+
+  length_ -= length;
 }
 
 AudioVisualWaveform::Sample AudioVisualWaveform::GetSummaryFromTime(const rational &start, const rational &length) const

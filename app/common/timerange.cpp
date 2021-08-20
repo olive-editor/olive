@@ -202,6 +202,13 @@ void TimeRangeList::remove(const TimeRange &remove)
   util_remove(&array_, remove);
 }
 
+void TimeRangeList::remove(const TimeRangeList &list)
+{
+  for (const TimeRange &r : list) {
+    remove(r);
+  }
+}
+
 bool TimeRangeList::contains(const TimeRange &range, bool in_inclusive, bool out_inclusive) const
 {
   for (int i=0;i<size();i++) {

@@ -68,6 +68,8 @@ protected:
 
   virtual void ContextMenuEvent(Menu &m) override;
 
+  virtual void SceneRectUpdateEvent(QRectF &r) override;
+
 private:
   void ZoomToFitInternal(const QList<NodeKeyframe *> &keys);
 

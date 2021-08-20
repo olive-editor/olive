@@ -208,7 +208,7 @@ void TimeRuler::paintEvent(QPaintEvent *)
         if (text_visible_) {
           QRect text_rect;
           Qt::Alignment text_align;
-          QString timecode_str = Timecode::timestamp_to_timecode(ScreenToUnit(i), timebase(), Core::instance()->GetTimecodeDisplay());
+          QString timecode_str = Timecode::time_to_timecode(ScreenToTime(i), timebase(), Core::instance()->GetTimecodeDisplay());
           int timecode_width = QtUtils::QFontMetricsWidth(fm, timecode_str);
           int timecode_left;
 
@@ -287,7 +287,7 @@ void TimeRuler::paintEvent(QPaintEvent *)
   }
 
   // Draw the playhead if it's on screen at the moment
-  int playhead_pos = UnitToScreen(GetTime());
+  int playhead_pos = TimeToScreen(GetTime());
   p.setPen(Qt::NoPen);
   p.setBrush(PLAYHEAD_COLOR);
   DrawPlayhead(&p, playhead_pos, line_bottom);

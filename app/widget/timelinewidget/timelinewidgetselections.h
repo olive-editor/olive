@@ -41,6 +41,15 @@ public:
 
   void TrimOut(const rational& diff);
 
+  void Subtract(const TimelineWidgetSelections &selections);
+
+  TimelineWidgetSelections Subtracted(const TimelineWidgetSelections &selections) const
+  {
+    TimelineWidgetSelections copy = *this;
+    copy.Subtract(selections);
+    return copy;
+  }
+
 };
 
 }

@@ -28,7 +28,10 @@ namespace olive {
 
 double Bezier::QuadraticXtoT(double x, double a, double b, double c)
 {
-  return (a - b + qSqrt(a*x + c*x - 2*b*x + qPow(b, 2) - a*c))/(a - 2*b + c);
+  // Clamp to prevent infinite loop
+  x = clamp(x, a, c);
+
+  return CalculateTFromX(false, x, a, b, c, 0);
 }
 
 double Bezier::QuadraticTtoY(double a, double b, double c, double t)
@@ -36,36 +39,38 @@ double Bezier::QuadraticTtoY(double a, double b, double c, double t)
   return qPow(1.0 - t, 2)*a + 2*(1.0 - t)*t*b + qPow(t, 2)*c;
 }
 
-double Bezier::CubicXtoT(double x_target, double a, double b, double c, double d)
+double Bezier::CubicXtoT(double x, double a, double b, double c, double d)
 {
-  const double tolerance = 0.0001;
+  // Clamp to prevent infinite loop
+  x = clamp(x, a, d);
 
-  // Clamp to prevent deadlocks
-  x_target = clamp(x_target, a, d);
-
-  double lower = 0.0;
-  double upper = 1.0;
-
-  double percent = 0.5;
-  double x = CubicTtoY(a, b, c, d, percent);
-
-  while (qAbs(x_target - x) > tolerance) {
-    if (x_target > x) {
-      lower = percent;
-    } else {
-      upper = percent;
-    }
-
-    percent = (upper + lower) * 0.5;
-    x = CubicTtoY(a, b, c, d, percent);
-  }
-
-  return percent;
+  return CalculateTFromX(true, x, a, b, c, d);
 }
 
 double Bezier::CubicTtoY(double a, double b, double c, double d, double t)
 {
   return qPow(1.0 - t, 3)*a + 3*qPow(1.0 - t, 2)*t*b + 3*(1.0 - t)*qPow(t, 2)*c + qPow(t, 3)*d;
+}
+
+double Bezier::CalculateTFromX(bool cubic, double x, double a, double b, double c, double d)
+{
+  double bottom = 0.0;
+  double top = 1.0;
+
+  while (true) {
+    double mid = (bottom + top) * 0.5;
+    double test = cubic ? CubicTtoY(a, b, c, d, mid) : QuadraticTtoY(a, b, c, mid);
+
+    if (qAbs(test - x) < 0.000001) {
+      return mid;
+    } else if (x > test) {
+      bottom = mid;
+    } else {
+      top = mid;
+    }
+  }
+
+  return qSNaN();
 }
 
 }

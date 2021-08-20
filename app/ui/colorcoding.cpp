@@ -23,22 +23,22 @@
 namespace olive {
 
 QVector<Color> ColorCoding::colors_ = {
-  Color(1.0, 0.0, 0.0),
-  Color(0.5, 0.0, 0.0),
-  Color(1.0, 0.5, 0.0),
-  Color(0.5, 0.25, 0.0),
-  Color(1.0, 1.0, 0.0),
-  Color(0.5, 0.5, 0.0),
-  Color(0.0, 1.0, 0.0),
-  Color(0.0, 0.5, 0.0),
-  Color(0.0, 1.0, 1.0),
-  Color(0.0, 0.5, 0.5),
-  Color(0.0, 0.0, 1.0),
-  Color(0.0, 0.0, 0.5),
-  Color(1.0, 0.0, 1.0),
-  Color(0.5, 0.0, 1.0),
-  Color(0.8, 0.8, 0.8),
-  Color(0.5, 0.5, 0.5)
+  Color(0.545, 0.255, 0.255),
+  Color(0.459, 0.220, 0.290),
+  Color(0.561, 0.427, 0.239),
+  Color(0.486, 0.306, 0.235),
+  Color(0.561, 0.541, 0.239),
+  Color(0.447, 0.541, 0.259),
+  Color(0.333, 0.541, 0.259),
+  Color(0.224, 0.459, 0.251),
+  Color(0.259, 0.471, 0.541),
+  Color(0.184, 0.376, 0.329),
+  Color(0.259, 0.365, 0.541),
+  Color(0.239, 0.263, 0.502),
+  Color(0.580, 0.282, 0.478),
+  Color(0.475, 0.259, 0.541),
+  Color(0.800, 0.800, 0.800),
+  Color(0.502, 0.502, 0.502)
 };
 
 QString ColorCoding::GetColorName(int c)
@@ -89,7 +89,7 @@ Color ColorCoding::GetColor(int c)
 
 Qt::GlobalColor ColorCoding::GetUISelectorColor(const Color &c)
 {
-  if (c.GetRoughLuminance() > 0.66) {
+  if (c.GetRoughLuminance() > 0.40) {
     return Qt::black;
   } else {
     return Qt::white;

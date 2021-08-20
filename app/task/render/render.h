@@ -36,7 +36,7 @@ class RenderTask : public Task
 {
   Q_OBJECT
 public:
-  RenderTask(ViewerOutput* viewer, const VideoParams &vparams, const AudioParams &aparams);
+  RenderTask();
 
   virtual ~RenderTask() override;
 
@@ -62,14 +62,29 @@ protected:
     return viewer_;
   }
 
+  void set_viewer(ViewerOutput *v)
+  {
+    viewer_ = v;
+  }
+
   const VideoParams& video_params() const
   {
     return video_params_;
   }
 
+  void set_video_params(const VideoParams& video_params)
+  {
+    video_params_ = video_params;
+  }
+
   const AudioParams& audio_params() const
   {
     return audio_params_;
+  }
+
+  void set_audio_params(const AudioParams& audio_params)
+  {
+    audio_params_ = audio_params;
   }
 
   virtual void CancelEvent() override
