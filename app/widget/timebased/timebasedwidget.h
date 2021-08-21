@@ -54,6 +54,28 @@ public:
 
   virtual bool eventFilter(QObject* object, QEvent* event) override;
 
+  // Temp file location
+  class MarkerRemoveCommand : public UndoCommand {
+   public:
+    MarkerRemoveCommand(Project* project, TimelineMarker* marker, TimelineMarkerList* marker_list);
+
+    virtual Project* GetRelevantProject() const override;
+
+   protected:
+    virtual void redo() override;
+    virtual void undo() override;
+
+   private:
+    Project* project_;
+    TimelineMarker* marker_;
+    TimelineMarkerList* marker_list_;
+    TimeRange range_;
+    QString name_;
+    int color_;
+
+    TimelineMarker* removed_marker_;
+  };
+
 public slots:
   void SetTime(const rational &time);
 

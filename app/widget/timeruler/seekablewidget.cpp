@@ -26,6 +26,7 @@
 
 #include "common/qtutils.h"
 #include "core.h"
+#include "widget/timebased/timebasedwidget.h"
 
 namespace olive {
 
@@ -91,12 +92,13 @@ void SeekableWidget::SetSnapService(SnapService *service)
 }
 
 void SeekableWidget::DeleteSelected() {
+  MultiUndoCommand* command = new MultiUndoCommand();
+
   foreach (TimelineMarker *marker, GetActiveTimelineMarkers()) {
-    //marker_map_.value(marker)->deleteLater();
-    //marker_map_.take(marker);
-    timeline_points()->markers()->RemoveMarker(marker);
-    // GetActiveMarkers().value(marker)->deleteLater();
+    command->add_child(new TimeBasedWidget::MarkerRemoveCommand(Core::instance()->GetActiveProject(), marker, timeline_points_->markers()));
   }
+
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
 const int &SeekableWidget::GetScroll() const

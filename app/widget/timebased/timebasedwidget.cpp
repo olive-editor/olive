@@ -688,6 +688,31 @@ void TimeBasedWidget::MarkerAddCommand::undo()
   marker_list_->RemoveMarker(added_marker_);
 }
 
+TimeBasedWidget::MarkerRemoveCommand::MarkerRemoveCommand(Project* project, TimelineMarker* marker, TimelineMarkerList* marker_list) :
+    project_(project),
+    marker_(marker),
+    marker_list_(marker_list),
+    range_(marker->time()),
+    name_(marker->name()),
+    color_(marker->color())
+{
+}
+
+Project *TimeBasedWidget::MarkerRemoveCommand::GetRelevantProject() const
+{
+  return project_;
+}
+
+void TimeBasedWidget::MarkerRemoveCommand::redo()
+{
+  marker_list_->RemoveMarker(marker_);
+}
+
+void TimeBasedWidget::MarkerRemoveCommand::undo()
+{
+  marker_list_->AddMarker(range_, name_, color_);
+}
+
 bool TimeBasedWidget::eventFilter(QObject *object, QEvent *event)
 {
   if (wheel_passthrough_objects_.contains(object) && event->type() == QEvent::Wheel) {
