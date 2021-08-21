@@ -18,5 +18,7 @@ set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
   widget/marker/marker.h
   widget/marker/marker.cpp
+  widget/marker/markercopypaste.h
+  widget/marker/markercopypaste.cpp
   PARENT_SCOPE
 )

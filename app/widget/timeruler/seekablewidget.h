@@ -28,10 +28,11 @@
 #include "widget/snapservice/snapservice.h"
 #include "widget/timebased/timescaledobject.h"
 #include "widget/marker/marker.h"
+#include "widget/marker/markercopypaste.h"
 
 namespace olive {
 
-class SeekableWidget : public TimelineScaledWidget
+class SeekableWidget : public TimelineScaledWidget, public MarkerCopyPasteService
 {
   Q_OBJECT
 public:
@@ -54,6 +55,10 @@ public:
   }
 
   void DeleteSelected();
+
+  void CopySelected(bool cut);
+
+  void PasteMarkers(bool insert, rational insert_time);
 
   QVector<TimelineMarker*> GetActiveTimelineMarkers();
 

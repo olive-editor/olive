@@ -665,11 +665,12 @@ void TimeBasedWidget::DeleteSelected()
   }
 }
 
-TimeBasedWidget::MarkerAddCommand::MarkerAddCommand(Project *project, TimelineMarkerList *marker_list, const TimeRange &range, const QString &name) :
+TimeBasedWidget::MarkerAddCommand::MarkerAddCommand(Project *project, TimelineMarkerList *marker_list, const TimeRange &range, const QString &name, int color) :
   project_(project),
   marker_list_(marker_list),
   range_(range),
-  name_(name)
+  name_(name),
+  color_(color)
 {
 }
 
@@ -680,7 +681,7 @@ Project *TimeBasedWidget::MarkerAddCommand::GetRelevantProject() const
 
 void TimeBasedWidget::MarkerAddCommand::redo()
 {
-  added_marker_ = marker_list_->AddMarker(range_, name_);
+  added_marker_ = marker_list_->AddMarker(range_, name_, color_);
 }
 
 void TimeBasedWidget::MarkerAddCommand::undo()

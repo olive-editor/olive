@@ -378,6 +378,15 @@ void TimelineWidget::DeselectAll()
   SignalDeselectedAllBlocks();
 }
 
+bool TimelineWidget::MarkersActive()
+{
+  if (ruler()->GetActiveTimelineMarkers().size() > 0) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 void TimelineWidget::RippleToIn()
 {
   RippleTo(Timeline::kTrimIn);
@@ -475,7 +484,7 @@ void TimelineWidget::ReplaceBlocksWithGaps(const QVector<Block *> &blocks,
 
 void TimelineWidget::DeleteSelected(bool ripple)
 {
-  if (ruler()->GetActiveTimelineMarkers().size() > 0) {
+  if (MarkersActive()) {
     ruler()->DeleteSelected();
     return;
   }
@@ -598,6 +607,12 @@ void TimelineWidget::CopySelected(bool cut)
     return;
   }
 
+  if (MarkersActive()) {
+    ruler()->CopySelected(cut);
+    return;
+  }
+    
+
   QVector<Block*> selected = GetSelectedBlocks();
 
   if (selected.isEmpty()) {
@@ -628,6 +643,11 @@ void TimelineWidget::CopySelected(bool cut)
 void TimelineWidget::Paste(bool insert)
 {
   if (!GetConnectedNode()) {
+    return;
+  }
+
+  if (ruler()->underMouse()) {
+    ruler()->PasteMarkers(insert, GetTime());
     return;
   }
 

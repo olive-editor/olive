@@ -106,6 +106,21 @@ const int &SeekableWidget::GetScroll() const
   return scroll_;
 }
 
+void SeekableWidget::CopySelected(bool cut)
+{
+  CopyMarkersToClipboard(GetActiveTimelineMarkers());
+
+  if (cut) {
+    DeleteSelected();
+  }
+}
+
+void SeekableWidget::PasteMarkers(bool insert, rational insert_time)
+{
+  MultiUndoCommand *command = new MultiUndoCommand();
+  PasteMarkersFromClipboard(timeline_points()->markers(), command, insert_time);
+}
+
 void SeekableWidget::mousePressEvent(QMouseEvent *event)
 {
   if (event->button() == Qt::LeftButton) {

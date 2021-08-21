@@ -78,19 +78,24 @@ void TimelineMarker::set_active(bool active)
     emit ActiveChanged(active_);
 }
 
+void TimelineMarker::Save(QXmlStreamWriter* writer) const
+{
+  writer->writeStartElement(QStringLiteral("marker"));
+
+  writer->writeAttribute(QStringLiteral("name"), name_);
+
+  writer->writeAttribute(QStringLiteral("color"), QString::number(color_));
+
+  writer->writeAttribute(QStringLiteral("in"), time_.in().toString());
+  writer->writeAttribute(QStringLiteral("out"), time_.out().toString());
+
+  writer->writeEndElement();  // marker
+}
+
 void TimelineMarkerList::Save(QXmlStreamWriter *writer) const
 {
   foreach (TimelineMarker* marker, markers_) {
-    writer->writeStartElement(QStringLiteral("marker"));
-
-    writer->writeAttribute(QStringLiteral("name"), marker->name());
-
-    writer->writeAttribute(QStringLiteral("color"), QString::number(marker->color()));
-
-    writer->writeAttribute(QStringLiteral("in"), marker->time().in().toString());
-    writer->writeAttribute(QStringLiteral("out"), marker->time().out().toString());
-
-    writer->writeEndElement(); // marker
+    marker->Save(writer);
   }
 }
 

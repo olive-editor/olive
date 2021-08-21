@@ -47,6 +47,9 @@ public:
   bool active();
   void set_active(bool active);
 
+  void Load(QXmlStreamReader* reader);
+  void Save(QXmlStreamWriter* writer) const;
+
 signals:
   void TimeChanged(const TimeRange& time);
 
