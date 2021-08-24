@@ -20,10 +20,11 @@
 
 #include "toolbar.h"
 
-#include <QPushButton>
-#include <QVariant>
 #include <QButtonGroup>
 #include <QEvent>
+#include <QPushButton>
+#include <QResizeEvent>
+#include <QVariant>
 
 #include "node/factory.h"
 #include "ui/icons/icons.h"
@@ -31,8 +32,10 @@
 
 namespace olive {
 
+#define super QWidget
+
 Toolbar::Toolbar(QWidget *parent) :
-  QWidget(parent)
+  super(parent)
 {
   layout_ = new FlowLayout(this);
   layout_->setMargin(0);
@@ -88,7 +91,17 @@ void Toolbar::changeEvent(QEvent *e)
   } else if (e->type() == QEvent::StyleChange) {
     UpdateIcons();
   }
-  QWidget::changeEvent(e);
+  super::changeEvent(e);
+}
+
+void Toolbar::resizeEvent(QResizeEvent *e)
+{
+  super::resizeEvent(e);
+
+  int min_height = toolbar_btns_.size() * toolbar_btns_.first()->height() + (toolbar_btns_.size()-1) * layout_->verticalSpacing();
+  int new_height = e->size().height();
+  int columns_required = min_height / new_height + (min_height % new_height != 0);
+  setMinimumWidth(toolbar_btns_.first()->width() * columns_required + layout_->horizontalSpacing() * (columns_required-1) + 1);
 }
 
 void Toolbar::Retranslate()

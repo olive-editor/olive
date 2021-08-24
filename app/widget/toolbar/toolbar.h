@@ -89,6 +89,8 @@ protected:
    */
   virtual void changeEvent(QEvent* e) override;
 
+  virtual void resizeEvent(QResizeEvent *e) override;
+
 signals:
   /**
    * @brief Emitted whenever a tool is selected using this widget
