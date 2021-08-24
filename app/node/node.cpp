@@ -551,11 +551,7 @@ SplitValue Node::GetSplitValueAtTime(const QString &input, const rational &time,
   int nb_tracks = GetNumberOfKeyframeTracks(input);
 
   for (int i=0;i<nb_tracks;i++) {
-    if (IsUsingStandardValue(input, i, element)) {
-      vals.append(GetSplitStandardValueOnTrack(input, i, element));
-    } else {
-      vals.append(GetSplitValueAtTimeOnTrack(input, time, i, element));
-    }
+    vals.append(GetSplitValueAtTimeOnTrack(input, time, i, element));
   }
 
   return vals;
@@ -579,10 +575,27 @@ QVariant Node::GetSplitValueAtTimeOnTrack(const QString &input, const rational &
     NodeValue::Type type = GetInputDataType(input);
 
     // If we're here, the time must be somewhere in between the keyframes
-    for (int i=0;i<key_track.size()-1;i++) {
-      NodeKeyframe* before = key_track.at(i);
-      NodeKeyframe* after = key_track.at(i+1);
+    NodeKeyframe *before = nullptr, *after = nullptr;
 
+    int low = 0;
+    int high = key_track.size()-1;
+    while (low <= high) {
+      int mid = low + (high - low) / 2;
+      NodeKeyframe *mid_key = key_track.at(mid);
+      NodeKeyframe *next_key = key_track.at(mid + 1);
+
+      if (mid_key->time() <= time && next_key->time() > time) {
+        before = mid_key;
+        after = next_key;
+        break;
+      } else if (mid_key->time() < time) {
+        low = mid + 1;
+      } else {
+        high = mid - 1;
+      }
+    }
+
+    if (before) {
       if (before->time() == time
           || ((!NodeValue::type_can_be_interpolated(type) || before->type() == NodeKeyframe::kHold) && after->time() > time)) {
 
@@ -649,6 +662,8 @@ QVariant Node::GetSplitValueAtTimeOnTrack(const QString &input, const rational &
           return interpolated;
         }
       }
+    } else {
+      qWarning() << "Binary search for keyframes failed";
     }
   }
 
