@@ -164,7 +164,7 @@ void AudioVisualWaveform::OverwriteSums(const AudioVisualWaveform &sums, const r
            copy_len * sizeof(SamplePerChannel));
   }
 
-  length_ = qMax(length_, dest + length);
+  length_ = qMax(length_, dest + ((length.isNull()) ? sums.length() - offset : length));
 }
 
 void AudioVisualWaveform::OverwriteSilence(const rational &start, const rational &length)
@@ -233,7 +233,7 @@ void AudioVisualWaveform::Shift(const rational &from, const rational &to)
     }
   }
 
-  length_ += (to-from);
+  length_ = qMax(rational(0), length_ + (to-from));
 }
 
 void AudioVisualWaveform::TrimIn(const rational &length)
@@ -256,7 +256,16 @@ void AudioVisualWaveform::TrimIn(const rational &length)
     }
   }
 
-  length_ -= length;
+  length_ = qMax(rational(0), length_ - length);
+}
+
+AudioVisualWaveform AudioVisualWaveform::Mid(const rational &offset) const
+{
+  AudioVisualWaveform mid  = *this;
+
+  mid.TrimIn(offset);
+
+  return mid;
 }
 
 AudioVisualWaveform::Sample AudioVisualWaveform::GetSummaryFromTime(const rational &start, const rational &length) const

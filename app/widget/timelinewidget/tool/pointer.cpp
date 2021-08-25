@@ -605,6 +605,9 @@ void PointerTool::FinishDrag(TimelineViewMouseEvent *event)
         // Duplicate rather than move
         // Place the copy instead of the original block
         block = static_cast<Block*>(Node::CopyNodeInGraph(block, command));
+        if (ClipBlock *new_clip = dynamic_cast<ClipBlock*>(block)) {
+          new_clip->waveform() = static_cast<ClipBlock*>(p.block)->waveform();
+        }
       }
 
       const Track::Reference& track_ref = p.ghost->GetAdjustedTrack();
