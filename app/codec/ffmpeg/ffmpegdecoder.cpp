@@ -472,6 +472,15 @@ bool FFmpegDecoder::ConformAudioInternal(const QString &filename, const AudioPar
 
   bool success = false;
 
+  int64_t duration = instance_.avstream()->duration;
+  if (duration == 0 || duration == AV_NOPTS_VALUE) {
+    duration = instance_.fmt_ctx()->duration;
+    if (!(duration == 0 || duration == AV_NOPTS_VALUE)) {
+      // Rescale from AVFormatContext timebase to AVStream timebase
+      duration = av_rescale_q_rnd(duration, AV_TIME_BASE_Q, instance_.avstream()->time_base, AV_ROUND_UP);
+    }
+  }
+
   if (wave_out.open(QFile::WriteOnly)) {
     while (true) {
       // Check if we have a `cancelled` ptr and its value
@@ -520,7 +529,7 @@ bool FFmpegDecoder::ConformAudioInternal(const QString &filename, const AudioPar
         delete [] data;
       }
 
-      SignalProcessingProgress(frame->pts, instance_.avstream()->duration);
+      SignalProcessingProgress(frame->pts, duration);
     }
 
     wave_out.close();
