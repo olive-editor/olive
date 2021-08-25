@@ -477,7 +477,7 @@ bool FFmpegDecoder::ConformAudioInternal(const QString &filename, const AudioPar
     duration = instance_.fmt_ctx()->duration;
     if (!(duration == 0 || duration == AV_NOPTS_VALUE)) {
       // Rescale from AVFormatContext timebase to AVStream timebase
-      duration = av_rescale_q_rnd(duration, AV_TIME_BASE_Q, instance_.avstream()->time_base, AV_ROUND_UP);
+      duration = av_rescale_q_rnd(duration, {1, AV_TIME_BASE}, instance_.avstream()->time_base, AV_ROUND_UP);
     }
   }
 
