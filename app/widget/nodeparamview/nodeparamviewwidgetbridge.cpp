@@ -198,9 +198,9 @@ void NodeParamViewWidgetBridge::SetInputValue(const QVariant &value, int track)
 
 void NodeParamViewWidgetBridge::SetInputValueInternal(const QVariant &value, int track, MultiUndoCommand *command, bool insert_on_all_tracks_if_no_key)
 {
-  rational node_time = GetCurrentTimeAsNodeTime();
-
   if (input_.IsKeyframing()) {
+    rational node_time = GetCurrentTimeAsNodeTime();
+
     NodeKeyframe* existing_key = input_.GetKeyframeAtTimeOnTrack(node_time, track);
 
     if (existing_key) {
@@ -236,14 +236,14 @@ void NodeParamViewWidgetBridge::SetInputValueInternal(const QVariant &value, int
 
 void NodeParamViewWidgetBridge::ProcessSlider(NumericSliderBase *slider, const QVariant &value)
 {
-  rational node_time = GetCurrentTimeAsNodeTime();
-
   int slider_track = widgets_.indexOf(slider);
 
   if (slider->IsDragging()) {
 
     // While we're dragging, we block the input's normal signalling and create our own
     if (!dragger_.IsStarted()) {
+      rational node_time = GetCurrentTimeAsNodeTime();
+
       dragger_.Start(NodeKeyframeTrackReference(input_, slider_track), node_time);
     }
 
@@ -416,7 +416,10 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
     return;
   }
 
-  rational node_time = GetCurrentTimeAsNodeTime();
+  rational node_time;
+  if (input_.IsKeyframing()) {
+    node_time = GetCurrentTimeAsNodeTime();
+  }
 
   // We assume the first data type is the "primary" type
   switch (input_.GetDataType()) {

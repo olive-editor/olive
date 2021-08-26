@@ -177,7 +177,7 @@ void NodeParamViewKeyframeControl::ToggleKeyframe(bool e)
 
 void NodeParamViewKeyframeControl::UpdateState()
 {
-  if (!input_.IsValid()) {
+  if (!input_.IsValid() || !input_.IsKeyframing()) {
     return;
   }
 
