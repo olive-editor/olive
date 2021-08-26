@@ -93,8 +93,6 @@ public:
     TimeRange range_;
     QString name_;
     int color_;
-
-    TimelineMarker* removed_marker_;
   };
 
 public slots:
