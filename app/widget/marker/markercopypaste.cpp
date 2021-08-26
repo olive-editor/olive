@@ -87,7 +87,7 @@ void MarkerCopyPasteService::PasteMarkersFromClipboard(TimelineMarkerList* list,
               return;
             }
             QString name;
-            int color;
+            int color = -1;
             rational in, out;
 
             XMLAttributeLoop((&reader), attr) {
