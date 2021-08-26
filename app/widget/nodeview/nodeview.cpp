@@ -1369,12 +1369,16 @@ void NodeView::RecursivelyRemoveFloatingNodeFromContext(MultiUndoCommand *comman
 
 void NodeView::RecursivelyAddNodeToContext(MultiUndoCommand *command, Node *node, Node *context)
 {
-  command->add_child(new NodeSetPositionCommand(node, context, GetEstimatedPositionForContext(scene_.item_map().value(node), context), false));
+  NodeViewItem *item = scene_.item_map().value(node);
 
-  // Add dependency
-  for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
-    Node *dependency = it->second.node();
-    RecursivelyAddNodeToContext(command, dependency, context);
+  if (item) {
+    command->add_child(new NodeSetPositionCommand(node, context, GetEstimatedPositionForContext(item, context), false));
+
+    // Add dependency
+    for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
+      Node *dependency = it->second.node();
+      RecursivelyAddNodeToContext(command, dependency, context);
+    }
   }
 }
 
