@@ -127,12 +127,14 @@ jobs:
 
       - name: Upload Artifact to GitHub
         uses: actions/upload-artifact@v2
+        continue-on-error: true
         with:
           name: ${{ steps.package.outputs.artifact }}
           path: build/Olive*.AppImage
 
       - name: Upload Packages to Nightly Page
         working-directory: build
+        continue-on-error: true
         env:
           GH_AUTH_KEY: ${{ secrets.GH_AUTH_KEY }}
           PKGNAME: ${{ steps.package.outputs.pkgname }}
@@ -273,6 +275,7 @@ jobs:
 
       - name: Upload Portable Artifact to GitHub
         uses: actions/upload-artifact@v2
+        continue-on-error: true
         with:
           name: ${{ env.PKGNAME }}.zip
           path: ${{ runner.workspace }}/build/${{ env.PKGNAME }}.zip
@@ -280,6 +283,7 @@ jobs:
       - name: Upload Packages to Nightly Page
         shell: bash
         working-directory: ${{ runner.workspace }}/build
+        continue-on-error: true
         env:
           GH_AUTH_KEY: ${{ secrets.GH_AUTH_KEY }}
         if: github.event_name == 'push'
@@ -398,6 +402,7 @@ jobs:
 
       - name: Upload Artifact to GitHub
         uses: actions/upload-artifact@v2
+        continue-on-error: true
         with:
           name: ${{ env.PKGNAME }}.zip
           path: ${{ runner.workspace }}/build/${{ env.PKGNAME }}.zip
@@ -405,6 +410,7 @@ jobs:
       - name: Upload Packages to Nightly Page
         shell: bash
         working-directory: ${{ runner.workspace }}/build
+        continue-on-error: true
         env:
           GH_AUTH_KEY: ${{ secrets.GH_AUTH_KEY }}
         if: github.event_name == 'push'
