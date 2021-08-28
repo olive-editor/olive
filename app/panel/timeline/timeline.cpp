@@ -101,24 +101,6 @@ void TimelinePanel::DecreaseTrackHeight()
   timeline_widget()->DecreaseTrackHeight();
 }
 
-void TimelinePanel::Insert()
-{
-  FootageManagementPanel* project_panel = PanelManager::instance()->MostRecentlyFocused<FootageManagementPanel>();
-
-  if (project_panel) {
-    InsertFootageAtPlayhead(project_panel->GetSelectedFootage());
-  }
-}
-
-void TimelinePanel::Overwrite()
-{
-  FootageManagementPanel* project_panel = PanelManager::instance()->MostRecentlyFocused<FootageManagementPanel>();
-
-  if (project_panel) {
-    OverwriteFootageAtPlayhead(project_panel->GetSelectedFootage());
-  }
-}
-
 void TimelinePanel::ToggleLinks()
 {
   timeline_widget()->ToggleLinksOnSelected();

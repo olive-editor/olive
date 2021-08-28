@@ -55,9 +55,6 @@ public:
   virtual void SelectAll() override;
   virtual void DeselectAll() override;
 
-  virtual void Insert() override;
-  virtual void Overwrite() override;
-
   virtual void DeleteSelected() override;
 
 public slots:

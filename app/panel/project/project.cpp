@@ -141,24 +141,6 @@ void ProjectPanel::DeselectAll()
   explorer_->DeselectAll();
 }
 
-void ProjectPanel::Insert()
-{
-  TimelinePanel* timeline = PanelManager::instance()->MostRecentlyFocused<TimelinePanel>();
-
-  if (timeline) {
-    timeline->InsertFootageAtPlayhead(GetSelectedFootage());
-  }
-}
-
-void ProjectPanel::Overwrite()
-{
-  TimelinePanel* timeline = PanelManager::instance()->MostRecentlyFocused<TimelinePanel>();
-
-  if (timeline) {
-    timeline->OverwriteFootageAtPlayhead(GetSelectedFootage());
-  }
-}
-
 void ProjectPanel::DeleteSelected()
 {
   explorer_->DeleteSelected();

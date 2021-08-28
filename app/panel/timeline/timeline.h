@@ -66,10 +66,6 @@ public:
 
   virtual void DecreaseTrackHeight() override;
 
-  virtual void Insert() override;
-
-  virtual void Overwrite() override;
-
   virtual void ToggleLinks() override;
 
   virtual void CutSelected() override;

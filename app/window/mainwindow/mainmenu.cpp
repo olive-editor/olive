@@ -526,12 +526,22 @@ void MainMenu::DeselectAllTriggered()
 
 void MainMenu::InsertTriggered()
 {
-  PanelManager::instance()->CurrentlyFocused()->Insert();
+  FootageManagementPanel* project_panel = PanelManager::instance()->MostRecentlyFocused<FootageManagementPanel>();
+  TimelinePanel *timeline_panel = PanelManager::instance()->MostRecentlyFocused<TimelinePanel>();
+
+  if (project_panel && timeline_panel) {
+    timeline_panel->InsertFootageAtPlayhead(project_panel->GetSelectedFootage());
+  }
 }
 
 void MainMenu::OverwriteTriggered()
 {
-  PanelManager::instance()->CurrentlyFocused()->Overwrite();
+  FootageManagementPanel* project_panel = PanelManager::instance()->MostRecentlyFocused<FootageManagementPanel>();
+  TimelinePanel *timeline_panel = PanelManager::instance()->MostRecentlyFocused<TimelinePanel>();
+
+  if (project_panel && timeline_panel) {
+    timeline_panel->OverwriteFootageAtPlayhead(project_panel->GetSelectedFootage());
+  }
 }
 
 void MainMenu::RippleToInTriggered()
