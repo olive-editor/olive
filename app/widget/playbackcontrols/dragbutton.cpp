@@ -25,6 +25,7 @@ namespace olive {
 DragButton::DragButton(QWidget *parent) :
   QPushButton(parent)
 {
+  setCursor(Qt::OpenHandCursor);
 }
 
 void DragButton::mousePressEvent(QMouseEvent *event) {
