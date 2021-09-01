@@ -59,6 +59,9 @@ find_library(OCIO_LIBRARY
         # OpenColorIO_2_x.lib (Windows)
         OpenColorIO_2_1
         OpenColorIO_2_0
+
+        # Fallback (MingW/MSYS needs this)
+        OpenColorIO
     HINTS
         "${OCIO_LOCATION}"
         "$ENV{OCIO_LOCATION}"
