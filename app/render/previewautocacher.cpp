@@ -500,7 +500,7 @@ void PreviewAutoCacher::TryRender()
 
   // If we're here, we must be able to render
   if (!invalidated_video_.isEmpty()) {
-    hash_iterator_ = TimeRangeListFrameIterator(invalidated_video_, viewer_node_->video_frame_cache()->GetTimebase());
+    hash_iterator_ = TimeRangeListFrameIterator(invalidated_video_, viewer_node_->GetVideoParams().frame_rate_as_time_base());
 
     for (int i=0; i<QThread::idealThreadCount(); i++) {
       QueueNextHashTask();
