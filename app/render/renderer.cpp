@@ -123,62 +123,11 @@ bool Renderer::GetColorContext(ColorProcessorPtr color_processor, Renderer::Colo
     // Generate shader
     color_processor->GetProcessor()->getDefaultGPUProcessor()->extractGpuShaderInfo(shader_desc);
 
-    QString shader_frag;
-    shader_frag.append(QStringLiteral("// Main texture input\n"
-                                      "uniform sampler2D ove_maintex;\n"
-                                      "uniform int ove_maintex_alpha;\n"
-                                      "uniform mat4 ove_cropmatrix;\n"
-                                      "\n"
-                                      "// Macros defining `ove_maintex_alpha` state\n"
-                                      "// Matches `AlphaAssociated` C++ enum\n"
-                                      "#define ALPHA_NONE     0\n"
-                                      "#define ALPHA_UNASSOC  1\n"
-                                      "#define ALPHA_ASSOC    2\n"
-                                      "\n"
-                                      "// Main texture coordinate\n"
-                                      "varying vec2 ove_texcoord;\n"
-                                      "\n"));
-    shader_frag.append(shader_desc->getShaderText());
-    shader_frag.append(QStringLiteral("\n"
-                                      "// Alpha association functions\n"
-                                      "vec4 assoc(vec4 c) {\n"
-                                      "  return vec4(c.rgb * c.a, c.a);\n"
-                                      "}\n"
-                                      "\n"
-                                      "vec4 reassoc(vec4 c) {\n"
-                                      "  return (c.a == 0.0) ? c : assoc(c);\n"
-                                      "}\n"
-                                      "\n"
-                                      "vec4 deassoc(vec4 c) {\n"
-                                      "  return (c.a == 0.0) ? c : vec4(c.rgb / c.a, c.a);\n"
-                                      "}\n"
-                                      "\n"
-                                      "void main() {\n"
-                                      "  vec2 cropped_coord = (vec4(ove_texcoord-vec2(0.5, 0.5), 0.0, 1.0)*ove_cropmatrix).xy + vec2(0.5, 0.5);\n"
-                                      "  if (cropped_coord.x < 0.0 || cropped_coord.x >= 1.0 || cropped_coord.y < 0.0 || cropped_coord.y >= 1.0) {\n"
-                                      "    gl_FragColor = vec4(0.0);\n"
-                                      "    return;\n"
-                                      "  }\n"
-                                      "  \n"
-                                      "  vec4 col = texture2D(ove_maintex, cropped_coord);\n"
-                                      "\n"
-                                      "  // If alpha is associated, de-associate now\n"
-                                      "  if (ove_maintex_alpha == ALPHA_ASSOC) {\n"
-                                      "    col = deassoc(col);\n"
-                                      "  }\n"
-                                      "\n"
-                                      "  // Perform color conversion\n"
-                                      "  col = %1(col);\n"
-                                      "\n"
-                                      "  // Associate or re-associate here\n"
-                                      "  if (ove_maintex_alpha == ALPHA_ASSOC) {\n"
-                                      "    col = reassoc(col);\n"
-                                      "  } else if (ove_maintex_alpha == ALPHA_UNASSOC) {\n"
-                                      "    col = assoc(col);\n"
-                                      "  }\n"
-                                      "\n"
-                                      "  gl_FragColor = col;\n"
-                                      "}\n").arg(ocio_func_name));
+    // Generate shader code using OCIO stub and our auto-generated name
+    QString shader_frag = FileFunctions::ReadFileAsString(QStringLiteral(":shaders/colormanage.frag")).arg(
+          shader_desc->getShaderText(),
+          ocio_func_name
+    );
 
     // Try to compile shader
     color_ctx.compiled_shader = CreateNativeShader(ShaderCode(shader_frag,
