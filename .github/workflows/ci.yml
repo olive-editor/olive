@@ -132,22 +132,6 @@ jobs:
           name: ${{ steps.package.outputs.artifact }}
           path: build/Olive*.AppImage
 
-      - name: Upload Packages to Nightly Page
-        working-directory: build
-        continue-on-error: true
-        env:
-          GH_AUTH_KEY: ${{ secrets.GH_AUTH_KEY }}
-          PKGNAME: ${{ steps.package.outputs.pkgname }}
-        if: github.event_name == 'push' && matrix.cc-compiler == 'gcc'
-        run: |
-          $UPLOAD_TOOL \
-            -F file="@$PKGNAME" \
-            -F key="$GH_AUTH_KEY" \
-            -F hash="$GITHUB_SHA" \
-            -F time="$(git show -s --format=%ct)" \
-            -F comment="$(git show -s --format=%B)" \
-            https://ci.olivevideoeditor.org/push.php
-
   windows:
     strategy:
       matrix:
@@ -280,30 +264,6 @@ jobs:
           name: ${{ env.PKGNAME }}.zip
           path: ${{ runner.workspace }}/build/${{ env.PKGNAME }}.zip
 
-      - name: Upload Packages to Nightly Page
-        shell: bash
-        working-directory: ${{ runner.workspace }}/build
-        continue-on-error: true
-        env:
-          GH_AUTH_KEY: ${{ secrets.GH_AUTH_KEY }}
-        if: github.event_name == 'push'
-        run: |
-          $UPLOAD_TOOL \
-            -F file=@$PKGNAME.exe \
-            -F key="$GH_AUTH_KEY" \
-            -F hash="$GITHUB_SHA" \
-            -F time="$(git -C $GITHUB_WORKSPACE show -s --format=%ct)" \
-            -F comment="$(git -C $GITHUB_WORKSPACE show -s --format=%B)" \
-            https://ci.olivevideoeditor.org/push.php
-
-          $UPLOAD_TOOL \
-            -F file=@$PKGNAME.zip \
-            -F key="$GH_AUTH_KEY" \
-            -F hash="$GITHUB_SHA" \
-            -F time="$(git -C $GITHUB_WORKSPACE show -s --format=%ct)" \
-            -F comment="$(git -C $GITHUB_WORKSPACE show -s --format=%B)" \
-            https://ci.olivevideoeditor.org/push.php
-
   macos:
     strategy:
       matrix:
@@ -406,19 +366,3 @@ jobs:
         with:
           name: ${{ env.PKGNAME }}.zip
           path: ${{ runner.workspace }}/build/${{ env.PKGNAME }}.zip
-
-      - name: Upload Packages to Nightly Page
-        shell: bash
-        working-directory: ${{ runner.workspace }}/build
-        continue-on-error: true
-        env:
-          GH_AUTH_KEY: ${{ secrets.GH_AUTH_KEY }}
-        if: github.event_name == 'push'
-        run: |
-          $UPLOAD_TOOL \
-            -F file=@$PKGNAME.zip \
-            -F key="$GH_AUTH_KEY" \
-            -F hash="$GITHUB_SHA" \
-            -F time="$(git -C $GITHUB_WORKSPACE show -s --format=%ct)" \
-            -F comment="$(git -C $GITHUB_WORKSPACE show -s --format=%B)" \
-            https://ci.olivevideoeditor.org/push.php
