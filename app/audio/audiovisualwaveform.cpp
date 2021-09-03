@@ -32,7 +32,7 @@ AudioVisualWaveform::AudioVisualWaveform() :
 {
   // Must be a power of 2
   static const rational kMinimumSampleRate = rational(1, 8);
-  static const rational kMaximumSampleRate = 8192;
+  static const rational kMaximumSampleRate = 1024;
 
   for (rational i=kMinimumSampleRate; i<=kMaximumSampleRate; i*=2) {
     mipmapped_data_.insert({i, Sample()});

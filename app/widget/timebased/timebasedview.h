@@ -36,8 +36,6 @@ class TimeBasedView : public HandMovableView, public TimeScaledObject
 public:
   TimeBasedView(QWidget* parent = nullptr);
 
-  static const double kMaximumScale;
-
   void EnableSnap(const QVector<rational> &points);
   void DisableSnap();
   bool IsSnapped() const

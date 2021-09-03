@@ -29,8 +29,6 @@
 
 namespace olive {
 
-const double TimeBasedView::kMaximumScale = 8192;
-
 TimeBasedView::TimeBasedView(QWidget *parent) :
   HandMovableView(parent),
   playhead_scene_left_(-1),
@@ -52,9 +50,6 @@ TimeBasedView::TimeBasedView(QWidget *parent) :
 
   // Signal to update bounding rect when the scene changes
   connect(&scene_, &QGraphicsScene::changed, this, &TimeBasedView::UpdateSceneRect);
-
-  // Always enforce maximum scale
-  SetMaximumScale(kMaximumScale);
 
   // Workaround for Qt drawing issues with the default MinimalViewportUpdate. While this might be
   // slower (Qt documentation says it may actually be faster in some situations),

@@ -179,7 +179,6 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   // FIXME: Magic number
   SetScale(90.0);
 
-  SetMaximumScale(TimeBasedView::kMaximumScale);
   SetAutoSetTimebase(false);
 
   connect(Core::instance(), &Core::ToolChanged, this, &TimelineWidget::ToolChanged);
