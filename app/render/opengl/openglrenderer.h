@@ -98,6 +98,8 @@ private:
 
   GLuint GetCachedTexture(int width, int height, int depth, VideoParams::Format format, int channel_count);
 
+  GLuint CompileShader(GLenum type, const QString &code);
+
   QTimer cache_timer_;
 
   QOpenGLContext* context_;

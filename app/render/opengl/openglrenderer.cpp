@@ -280,44 +280,38 @@ QVariant OpenGLRenderer::CreateNativeShader(ShaderCode code)
 
   PRINT_GL_ERRORS;
 
-  QOpenGLShaderProgram* program = new QOpenGLShaderProgram(context_);
+  GLuint vert = CompileShader(GL_VERTEX_SHADER, code.vert_code());
+  GLuint frag = CompileShader(GL_FRAGMENT_SHADER, code.frag_code());
 
-  QString vert_code = code.vert_code();
-  QString frag_code = code.frag_code();
+  GLuint program = 0;
 
-  QString shader_preamble = QStringLiteral("#version 110\n"
-                                         "\n");
+  if (frag && vert) {
+    program = functions_->glCreateProgram();
+    functions_->glAttachShader(program, frag);
+    functions_->glAttachShader(program, vert);
+    functions_->glLinkProgram(program);
 
-  vert_code.prepend(shader_preamble);
-  frag_code.prepend(shader_preamble);
-
-  if (!program->addShaderFromSourceCode(QOpenGLShader::Vertex, vert_code)) {
-    qCritical() << "Failed to add vertex code to shader";
-    goto error;
+    GLint success;
+    functions_->glGetProgramiv(program, GL_LINK_STATUS, &success);
+    if (!success) {
+      qWarning() << "Failed to link OpenGL shader program";
+      functions_->glDeleteProgram(program);
+      program = 0;
+    }
   }
 
-  if (!program->addShaderFromSourceCode(QOpenGLShader::Fragment, frag_code)) {
-    qCritical() << "Failed to add fragment code to shader";
-    goto error;
-  }
+  functions_->glDeleteShader(frag);
+  functions_->glDeleteShader(vert);
 
-  if (!program->link()) {
-    qCritical() << "Failed to link shader";
-    goto error;
-  }
-
-  return Node::PtrToValue(program);
-
-error:
-  delete program;
-  return QVariant();
+  return program;
 }
 
 void OpenGLRenderer::DestroyNativeShader(QVariant shader)
 {
   GL_PREAMBLE;
 
-  delete Node::ValueToPtr<QOpenGLShaderProgram>(shader);
+  GLuint program = shader.value<GLuint>();
+  functions_->glDeleteProgram(program);
 }
 
 void OpenGLRenderer::UploadToTexture(Texture *texture, const void *data, int linesize)
@@ -431,14 +425,14 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
   GLuint iterative_input = 0;
   QVector<TextureToBind> textures_to_bind;
 
-  QOpenGLShaderProgram* shader = Node::ValueToPtr<QOpenGLShaderProgram>(s);
+  GLuint shader = s.value<GLuint>();
 
-  shader->bind();
+  functions_->glUseProgram(shader);
 
   NodeValueMap::const_iterator it;
   for (it=job.GetValues().constBegin(); it!=job.GetValues().constEnd(); it++) {
     // See if the shader has takes this parameter as an input
-    int variable_location = shader->uniformLocation(it.key());
+    GLint variable_location = functions_->glGetUniformLocation(shader, it.key().toUtf8().constData());
 
     if (variable_location == -1) {
       continue;
@@ -455,43 +449,51 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
     case NodeValue::kInt:
       // kInt technically specifies a LongLong, but OpenGL doesn't support those. This may lead to
       // over/underflows if the number is large enough, but the likelihood of that is quite low.
-      shader->setUniformValue(variable_location, value.data().toInt());
+      functions_->glUniform1i(variable_location, value.data().toInt());
       break;
     case NodeValue::kFloat:
       // kFloat technically specifies a double but as above, OpenGL doesn't support those.
-      shader->setUniformValue(variable_location, value.data().toFloat());
+      functions_->glUniform1f(variable_location, value.data().toFloat());
       break;
     case NodeValue::kVec2:
-      shader->setUniformValue(variable_location, value.data().value<QVector2D>());
+    {
+      QVector2D v = value.data().value<QVector2D>();
+      functions_->glUniform2fv(variable_location, 1, reinterpret_cast<const GLfloat*>(&v));
       break;
+    }
     case NodeValue::kVec3:
-      shader->setUniformValue(variable_location, value.data().value<QVector3D>());
+    {
+      QVector3D v = value.data().value<QVector3D>();
+      functions_->glUniform3fv(variable_location, 1, reinterpret_cast<const GLfloat*>(&v));
       break;
+    }
     case NodeValue::kVec4:
-      shader->setUniformValue(variable_location, value.data().value<QVector4D>());
+    {
+      QVector4D v = value.data().value<QVector4D>();
+      functions_->glUniform4fv(variable_location, 1, reinterpret_cast<const GLfloat*>(&v));
       break;
+    }
     case NodeValue::kMatrix:
-      shader->setUniformValue(variable_location, value.data().value<QMatrix4x4>());
+      functions_->glUniformMatrix4fv(variable_location, 1, false, value.data().value<QMatrix4x4>().constData());
       break;
     case NodeValue::kCombo:
-      shader->setUniformValue(variable_location, value.data().value<int>());
+      functions_->glUniform1i(variable_location, value.data().value<int>());
       break;
     case NodeValue::kColor:
     {
       Color color = value.data().value<Color>();
-      shader->setUniformValue(variable_location,
-                              color.red(), color.green(), color.blue(), color.alpha());
+      functions_->glUniform4f(variable_location, color.red(), color.green(), color.blue(), color.alpha());
       break;
     }
     case NodeValue::kBoolean:
-      shader->setUniformValue(variable_location, value.data().toBool());
+      functions_->glUniform1i(variable_location, value.data().toBool());
       break;
     case NodeValue::kTexture:
     {
       TexturePtr texture = value.data().value<TexturePtr>();
 
       // Set value to bound texture
-      shader->setUniformValue(variable_location, textures_to_bind.size());
+      functions_->glUniform1i(variable_location, textures_to_bind.size());
 
       // If this texture binding is the iterative input, set it here
       if (it.key() == job.GetIterativeInput()) {
@@ -503,10 +505,9 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
 
       // Set enable flag if shader wants it
       GLuint tex_id = texture ? texture->id().value<GLuint>() : 0;
-      int enable_param_location = shader->uniformLocation(QStringLiteral("%1_enabled").arg(it.key()));
+      int enable_param_location = functions_->glGetUniformLocation(shader, QStringLiteral("%1_enabled").arg(it.key()).toUtf8().constData());
       if (enable_param_location > -1) {
-        shader->setUniformValue(enable_param_location,
-                                tex_id > 0);
+        functions_->glUniform1i(enable_param_location, tex_id > 0);
       }
       break;
     }
@@ -542,8 +543,10 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
   }
 
   // Ensure matrix is set, at least to identity
-  shader->setUniformValue("ove_mvpmat",
-                          job.GetValue(QStringLiteral("ove_mvpmat")).data().value<QMatrix4x4>());
+  GLint mvpmat_location = functions_->glGetUniformLocation(shader, "ove_mvpmat");
+  if (mvpmat_location > -1) {
+    functions_->glUniformMatrix4fv(mvpmat_location, 1, false, job.GetValue(QStringLiteral("ove_mvpmat")).data().value<QMatrix4x4>().constData());
+  }
 
   // Set the viewport to the "physical" resolution of the destination
   functions_->glViewport(0, 0,
@@ -568,7 +571,7 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
   frag_vbo_.allocate(blit_texcoords.constData(), blit_texcoords.size() * sizeof(GLfloat));
   frag_vbo_.release();
 
-  int vertex_location = shader->attributeLocation("a_position");
+  GLint vertex_location = functions_->glGetAttribLocation(shader, "a_position");
   if (vertex_location != -1) {
     vert_vbo_.bind();
     functions_->glEnableVertexAttribArray(vertex_location);
@@ -576,7 +579,7 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
     vert_vbo_.release();
   }
 
-  int tex_location = shader->attributeLocation("a_texcoord");
+  GLint tex_location = functions_->glGetAttribLocation(shader, "a_texcoord");
   if (tex_location != -1) {
     frag_vbo_.bind();
     functions_->glEnableVertexAttribArray(tex_location);
@@ -608,9 +611,12 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
     }
   }
 
+  GLint iteration_location = functions_->glGetUniformLocation(shader, "ove_iteration");
   for (int iteration=0; iteration<real_iteration_count; iteration++) {
     // Set iteration number
-    shader->setUniformValue("ove_iteration", iteration);
+    if (iteration_location > -1) {
+      functions_->glUniform1i(iteration_location, iteration);
+    }
 
     // Replace iterative input
     if (iteration == real_iteration_count-1) {
@@ -666,7 +672,7 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
   }
 
   // Release shader
-  shader->release();
+  functions_->glUseProgram(0);
 
   // Release vertex array object
   frag_vbo_.destroy();
@@ -859,6 +865,47 @@ GLuint OpenGLRenderer::GetCachedTexture(int width, int height, int depth, VideoP
   }
 
   return 0;
+}
+
+GLuint OpenGLRenderer::CompileShader(GLenum type, const QString &code)
+{
+  static const QString shader_preamble = QStringLiteral("#version 110\n\n"
+                                                        "precision highp float;\n\n");
+
+  QString complete_code = shader_preamble;
+
+  if (code.isEmpty()) {
+    // Use default code
+    if (type == GL_FRAGMENT_SHADER) {
+      complete_code.append(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/default.frag")));
+    } else if (type == GL_VERTEX_SHADER) {
+      complete_code.append(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/default.vert")));
+    }
+  } else {
+    complete_code.append(code);
+  }
+
+  QByteArray code_utf8 = complete_code.toUtf8();
+  const char *code_cstr = code_utf8.constData();
+
+  GLuint shader = functions_->glCreateShader(type);
+  functions_->glShaderSource(shader, 1, &code_cstr, nullptr);
+  functions_->glCompileShader(shader);
+
+  GLint success;
+  functions_->glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+  if (!success) {
+    qWarning() << "Failed to compile OpenGL shader";
+
+    QByteArray error_log(10240, Qt::Uninitialized);
+    functions_->glGetShaderInfoLog(shader, error_log.size(), nullptr, error_log.data());
+    std::cout << error_log.constData() << std::endl << code_cstr << std::endl;
+
+    functions_->glDeleteShader(shader);
+    shader = 0;
+  }
+
+  return shader;
 }
 
 void OpenGLRenderer::GarbageCollectTextureCache()

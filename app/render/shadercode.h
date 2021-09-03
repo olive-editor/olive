@@ -31,13 +31,6 @@ public:
     frag_code_(frag_code),
     vert_code_(vert_code)
   {
-    if (frag_code_.isEmpty()) {
-      frag_code_ = FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/default.frag"));
-    }
-
-    if (vert_code_.isEmpty()) {
-      vert_code_ = FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/default.vert"));
-    }
   }
 
   const QString& frag_code() const
