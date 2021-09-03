@@ -869,7 +869,7 @@ GLuint OpenGLRenderer::GetCachedTexture(int width, int height, int depth, VideoP
 
 GLuint OpenGLRenderer::CompileShader(GLenum type, const QString &code)
 {
-  static const QString shader_preamble = QStringLiteral("#version 110\n\n"
+  static const QString shader_preamble = QStringLiteral("#version 100\n\n"
                                                         "precision highp float;\n\n");
 
   QString complete_code = shader_preamble;
