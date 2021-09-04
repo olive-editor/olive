@@ -216,6 +216,18 @@ public:
    */
   void SignalDeselectedAllBlocks();
 
+  MultiUndoCommand *TakeSubtitleSectionCommand()
+  {
+    // Copy pointer
+    MultiUndoCommand *c = subtitle_show_command_;
+
+    // Set to null
+    subtitle_show_command_ = nullptr;
+
+    // Return command
+    return c;
+  }
+
   class SetSelectionsCommand : public UndoCommand {
   public:
     SetSelectionsCommand(TimelineWidget* timeline, const TimelineWidgetSelections& now, const TimelineWidgetSelections& old, bool process_block_changes) :
@@ -317,6 +329,32 @@ private:
 
   QSplitter* view_splitter_;
 
+  MultiUndoCommand *subtitle_show_command_;
+
+  class SetSplitterSizesCommand : public UndoCommand
+  {
+  public:
+    SetSplitterSizesCommand(QSplitter *splitter, const QList<int> &sizes) :
+      splitter_(splitter),
+      new_sizes_(sizes)
+    {}
+
+    virtual Project* GetRelevantProject() const override
+    {
+      return nullptr;
+    }
+
+  protected:
+    virtual void redo() override;
+    virtual void undo() override;
+
+  private:
+    QSplitter *splitter_;
+    QList<int> new_sizes_;
+    QList<int> old_sizes_;
+
+  };
+
   void CenterOn(qreal scene_pos);
 
   void UpdateViewTimebases();
@@ -360,6 +398,8 @@ private slots:
   void SetViewTime(const rational &time);
 
   void ToolChanged();
+
+  void AddableObjectChanged();
 
   void SetViewWaveformsEnabled(bool e);
 

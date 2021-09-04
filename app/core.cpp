@@ -264,6 +264,7 @@ const QString &Core::GetSelectedTransition() const
 void Core::SetSelectedAddableObject(const Tool::AddableObject &obj)
 {
   addable_object_ = obj;
+  emit AddableObjectChanged(addable_object_);
 }
 
 void Core::SetSelectedTransitionObject(const QString &obj)

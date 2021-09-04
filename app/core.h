@@ -441,6 +441,11 @@ signals:
   void ToolChanged(const Tool::Item& tool);
 
   /**
+   * @brief Signal emitted when addable object changes through SetSelectedAddableObject
+   */
+  void AddableObjectChanged(Tool::AddableObject o);
+
+  /**
    * @brief Signal emitted when the snapping setting is changed
    */
   void SnappingChanged(const bool& b);

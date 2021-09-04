@@ -62,7 +62,8 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   super(true, true, parent),
   rubberband_(QRubberBand::Rectangle, this),
   active_tool_(nullptr),
-  use_audio_time_units_(false)
+  use_audio_time_units_(false),
+  subtitle_show_command_(nullptr)
 {
   QVBoxLayout* vert_layout = new QVBoxLayout(this);
   vert_layout->setSpacing(0);
@@ -182,6 +183,7 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   SetAutoSetTimebase(false);
 
   connect(Core::instance(), &Core::ToolChanged, this, &TimelineWidget::ToolChanged);
+  connect(Core::instance(), &Core::AddableObjectChanged, this, &TimelineWidget::AddableObjectChanged);
 }
 
 TimelineWidget::~TimelineWidget()
@@ -192,6 +194,8 @@ TimelineWidget::~TimelineWidget()
   Clear();
 
   qDeleteAll(tools_);
+
+  delete subtitle_show_command_;
 }
 
 void TimelineWidget::Clear()
@@ -849,17 +853,6 @@ void TimelineWidget::ViewMouseMoved(TimelineViewMouseEvent *event)
 
       if (hover_tool) {
         hover_tool->HoverMove(event);
-
-        // Special cast for subtitle adding - ensure section is visible
-        if (dynamic_cast<AddTool*>(hover_tool)
-            && Core::instance()->GetSelectedAddableObject() == Tool::kAddableSubtitle) {
-          QList<int> sz = view_splitter_->sizes();
-          int &subtitle_section_height = sz[Track::kSubtitle];
-          if (subtitle_section_height == 0) {
-            subtitle_section_height = height() / Track::kCount;
-            view_splitter_->setSizes(sz);
-          }
-        }
       }
     }
   }
@@ -1103,6 +1096,41 @@ void TimelineWidget::ToolChanged()
   HideSnaps();
   SetViewBeamCursor(TimelineCoordinate(0, Track::kNone, -1));
   SetViewTransitionOverlay(nullptr, nullptr);
+
+  AddableObjectChanged();
+}
+
+void TimelineWidget::AddableObjectChanged()
+{
+  // Special cast for subtitle adding - ensure section is visible
+  if (Core::instance()->tool() == Tool::kAdd && Core::instance()->GetSelectedAddableObject() == Tool::kAddableSubtitle) {
+    if (!subtitle_show_command_) {
+      // Determine if we need to do anything
+      QList<int> sz = view_splitter_->sizes();
+      bool should_adjust_splitter = (sz[Track::kSubtitle] == 0);
+      bool should_add_sub_track = (sequence() && sequence()->track_list(Track::kSubtitle)->GetTrackCount() == 0);
+
+      if (should_adjust_splitter || should_add_sub_track) {
+        // Create command
+        subtitle_show_command_ = new MultiUndoCommand();
+
+        if (should_adjust_splitter) {
+          sz[Track::kSubtitle] = height() / Track::kCount;
+          subtitle_show_command_->add_child(new SetSplitterSizesCommand(view_splitter_, sz));
+        }
+
+        if (should_add_sub_track) {
+          subtitle_show_command_->add_child(new TimelineAddTrackCommand(sequence()->track_list(Track::kSubtitle)));
+        }
+
+        subtitle_show_command_->redo_now();
+      }
+    }
+  } else if (subtitle_show_command_) {
+    subtitle_show_command_->undo_now();
+    delete subtitle_show_command_;
+    subtitle_show_command_ = nullptr;
+  }
 }
 
 void TimelineWidget::SetViewWaveformsEnabled(bool e)
@@ -1783,6 +1811,17 @@ bool TimelineWidget::SnapPoint(QVector<rational> start_times, rational* movement
   ShowSnap(snap_times);
 
   return true;
+}
+
+void TimelineWidget::SetSplitterSizesCommand::redo()
+{
+  old_sizes_ = splitter_->sizes();
+  splitter_->setSizes(new_sizes_);
+}
+
+void TimelineWidget::SetSplitterSizesCommand::undo()
+{
+  splitter_->setSizes(old_sizes_);
 }
 
 }

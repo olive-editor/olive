@@ -98,6 +98,10 @@ void AddTool::MouseRelease(TimelineViewMouseEvent *event)
     if (!ghost_->GetAdjustedLength().isNull()) {
       MultiUndoCommand* command = new MultiUndoCommand();
 
+      if (MultiUndoCommand *subtitle_section_command = parent()->TakeSubtitleSectionCommand()) {
+        command->add_child(subtitle_section_command);
+      }
+
       ClipBlock* clip;
       if (Core::instance()->GetSelectedAddableObject() == olive::Tool::kAddableSubtitle) {
         clip = new SubtitleBlock();
