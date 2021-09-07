@@ -89,26 +89,17 @@ void TextGenerator::Retranslate()
   SetComboBoxStrings(kVAlignInput, {tr("Top"), tr("Center"), tr("Bottom")});
 }
 
-NodeValueTable TextGenerator::Value(const QString &output, NodeValueDatabase &value) const
+void TextGenerator::Value(const QString &output, const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
   Q_UNUSED(output)
 
   GenerateJob job;
-  job.InsertValue(this, kTextInput, value);
-  job.InsertValue(this, kHtmlInput, value);
-  job.InsertValue(this, kColorInput, value);
-  job.InsertValue(this, kVAlignInput, value);
-  job.InsertValue(this, kFontInput, value);
-  job.InsertValue(this, kFontSizeInput, value);
+  job.InsertValue(value);
   job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
 
-  NodeValueTable table = value.Merge();
-
   if (!job.GetValue(kTextInput).data().toString().isEmpty()) {
-    table.Push(NodeValue::kGenerateJob, QVariant::fromValue(job), this);
+    table->Push(NodeValue::kGenerateJob, QVariant::fromValue(job), this);
   }
-
-  return table;
 }
 
 void TextGenerator::GenerateFrame(FramePtr frame, const GenerateJob& job) const

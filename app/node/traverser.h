@@ -44,6 +44,17 @@ public:
 
   NodeValueDatabase GenerateDatabase(const Node *node, const QString &output, const TimeRange &range);
 
+  NodeValueRow GenerateRow(NodeValueDatabase *database, const Node *node, const QString &output, const TimeRange &range);
+  NodeValueRow GenerateRow(const Node *node, const QString &output, const TimeRange &range);
+
+  NodeValue GenerateRowValue(const Node *node, const QString &input, NodeValueTable *table);
+
+  static NodeGlobals GenerateGlobals(const VideoParams &params, const TimeRange &time);
+  static NodeGlobals GenerateGlobals(const VideoParams &params, const rational &time)
+  {
+    return GenerateGlobals(params, TimeRange(time, time + params.frame_rate_as_time_base()));
+  }
+
   const VideoParams& GetCacheVideoParams() const
   {
     return video_params_;
@@ -79,8 +90,6 @@ protected:
   {
     return false;
   }
-
-  void AddGlobalsToDatabase(NodeValueDatabase& db, const TimeRange &range) const;
 
   QVector2D GenerateResolution() const;
 

@@ -245,9 +245,6 @@ private:
   bool video_cache_enabled_;
   bool audio_cache_enabled_;
 
-private slots:
-  void InputResized(const QString& input, int old_size, int new_size);
-
 };
 
 }

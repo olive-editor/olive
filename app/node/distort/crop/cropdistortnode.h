@@ -63,7 +63,7 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual NodeValueTable Value(const QString& output, NodeValueDatabase& value) const override;
+  virtual void Value(const QString& output, const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
 
   virtual ShaderCode GetShaderCode(const QString &shader_id) const override;
 
@@ -72,9 +72,9 @@ public:
     return true;
   }
 
-  virtual void DrawGizmos(NodeValueDatabase& db, QPainter *p) override;
+  virtual void DrawGizmos(const NodeValueRow& row, const NodeGlobals &globals, QPainter *p) override;
 
-  virtual bool GizmoPress(NodeValueDatabase& db, const QPointF &p) override;
+  virtual bool GizmoPress(const NodeValueRow& row, const NodeGlobals &globals, const QPointF &p) override;
   virtual void GizmoMove(const QPointF &p, const rational &time) override;
   virtual void GizmoRelease() override;
 

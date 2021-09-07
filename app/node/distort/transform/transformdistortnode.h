@@ -65,7 +65,7 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual NodeValueTable Value(const QString& output, NodeValueDatabase& value) const override;
+  virtual void Value(const QString& output, const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
 
   virtual ShaderCode GetShaderCode(const QString& shader_id) const override;
 
@@ -74,13 +74,13 @@ public:
     return true;
   }
 
-  virtual void DrawGizmos(NodeValueDatabase& db, QPainter *p) override;
+  virtual void DrawGizmos(const NodeValueRow &row, const NodeGlobals &globals, QPainter *p) override;
 
-  virtual bool GizmoPress(NodeValueDatabase& db, const QPointF &p) override;
+  virtual bool GizmoPress(const NodeValueRow &row, const NodeGlobals &globals, const QPointF &p) override;
   virtual void GizmoMove(const QPointF &p, const rational &time) override;
   virtual void GizmoRelease() override;
 
-  virtual void Hash(const QString& output, QCryptographicHash& hash, const rational &time, const VideoParams& video_params) const override;
+  virtual void Hash(const QString& output, QCryptographicHash& hash, const NodeGlobals &globals, const VideoParams& video_params) const override;
 
   enum AutoScaleType {
     kAutoScaleNone,
@@ -101,7 +101,7 @@ public:
 private:
   static QPointF CreateScalePoint(double x, double y, const QPointF& half_res, const QMatrix4x4& mat);
 
-  QMatrix4x4 GenerateAutoScaledMatrix(const QMatrix4x4 &generated_matrix, NodeValueDatabase &db, const VideoParams &texture_params) const;
+  QMatrix4x4 GenerateAutoScaledMatrix(const QMatrix4x4 &generated_matrix, const NodeValueRow &db, const NodeGlobals &globals, const VideoParams &texture_params) const;
 
   // Gizmo variables
   QString gizmo_drag_;

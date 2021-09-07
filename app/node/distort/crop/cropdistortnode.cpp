@@ -55,35 +55,25 @@ void CropDistortNode::Retranslate()
   SetInputName(kFeatherInput, tr("Feather"));
 }
 
-NodeValueTable CropDistortNode::Value(const QString &output, NodeValueDatabase &value) const
+void CropDistortNode::Value(const QString &output, const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
   Q_UNUSED(output)
 
   ShaderJob job;
-  job.InsertValue(this, kTextureInput, value);
-  job.InsertValue(this, kLeftInput, value);
-  job.InsertValue(this, kTopInput, value);
-  job.InsertValue(this, kRightInput, value);
-  job.InsertValue(this, kBottomInput, value);
-  job.InsertValue(this, kFeatherInput, value);
-  job.InsertValue(QStringLiteral("resolution_in"),
-                  NodeValue(NodeValue::kVec2, value[QStringLiteral("global")].Get(NodeValue::kVec2, QStringLiteral("resolution")), this));
+  job.InsertValue(value);
+  job.InsertValue(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, globals.resolution(), this));
   job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
-
-  NodeValueTable table = value.Merge();
 
   if (!job.GetValue(kTextureInput).data().isNull()) {
     if (!qIsNull(job.GetValue(kLeftInput).data().toDouble())
         || !qIsNull(job.GetValue(kRightInput).data().toDouble())
         || !qIsNull(job.GetValue(kTopInput).data().toDouble())
         || !qIsNull(job.GetValue(kBottomInput).data().toDouble())) {
-      table.Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
+      table->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
     } else {
-      table.Push(NodeValue::kTexture, job.GetValue(kTextureInput).data(), this);
+      table->Push(NodeValue::kTexture, job.GetValue(kTextureInput).data(), this);
     }
   }
-
-  return table;
 }
 
 ShaderCode CropDistortNode::GetShaderCode(const QString &shader_id) const
@@ -92,18 +82,18 @@ ShaderCode CropDistortNode::GetShaderCode(const QString &shader_id) const
   return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/crop.frag")));
 }
 
-void CropDistortNode::DrawGizmos(NodeValueDatabase &db, QPainter *p)
+void CropDistortNode::DrawGizmos(const NodeValueRow &row, const NodeGlobals &globals, QPainter *p)
 {
-  QVector2D resolution = db[QStringLiteral("global")].Get(NodeValue::kVec2, QStringLiteral("resolution")).value<QVector2D>();
+  const QVector2D &resolution = globals.resolution();
 
   const double handle_radius = GetGizmoHandleRadius(p->transform());
 
   p->setPen(QPen(Qt::white, 0));
 
-  double left_pt = resolution.x() * db[kLeftInput].Get(NodeValue::kFloat).toDouble();
-  double top_pt = resolution.y() * db[kTopInput].Get(NodeValue::kFloat).toDouble();
-  double right_pt = resolution.x() * (1.0 - db[kRightInput].Get(NodeValue::kFloat).toDouble());
-  double bottom_pt = resolution.y() * (1.0 - db[kBottomInput].Get(NodeValue::kFloat).toDouble());
+  double left_pt = resolution.x() * row[kLeftInput].data().toDouble();
+  double top_pt = resolution.y() * row[kTopInput].data().toDouble();
+  double right_pt = resolution.x() * (1.0 - row[kRightInput].data().toDouble());
+  double bottom_pt = resolution.y() * (1.0 - row[kBottomInput].data().toDouble());
   double center_x_pt = lerp(left_pt, right_pt, 0.5);
   double center_y_pt = lerp(top_pt, bottom_pt, 0.5);
 
@@ -124,7 +114,7 @@ void CropDistortNode::DrawGizmos(NodeValueDatabase &db, QPainter *p)
   DrawAndExpandGizmoHandles(p, handle_radius, gizmo_resize_handle_, kGizmoScaleCount);
 }
 
-bool CropDistortNode::GizmoPress(NodeValueDatabase &db, const QPointF &p)
+bool CropDistortNode::GizmoPress(const NodeValueRow &row, const NodeGlobals &globals, const QPointF &p)
 {
   bool found_handle = false;
 
@@ -150,7 +140,7 @@ bool CropDistortNode::GizmoPress(NodeValueDatabase &db, const QPointF &p)
       || in_rect) {
     gizmo_drag_ |= kGizmoLeft;
 
-    gizmo_start_.append(db[kLeftInput].Get(NodeValue::kFloat));
+    gizmo_start_.append(row[kLeftInput].data());
   }
 
   if (gizmo_active[kGizmoScaleTopLeft]
@@ -159,7 +149,7 @@ bool CropDistortNode::GizmoPress(NodeValueDatabase &db, const QPointF &p)
       || in_rect) {
     gizmo_drag_ |= kGizmoTop;
 
-    gizmo_start_.append(db[kTopInput].Get(NodeValue::kFloat));
+    gizmo_start_.append(row[kTopInput].data());
   }
 
   if (gizmo_active[kGizmoScaleTopRight]
@@ -168,7 +158,7 @@ bool CropDistortNode::GizmoPress(NodeValueDatabase &db, const QPointF &p)
       || in_rect) {
     gizmo_drag_ |= kGizmoRight;
 
-    gizmo_start_.append(db[kRightInput].Get(NodeValue::kFloat));
+    gizmo_start_.append(row[kRightInput].data());
   }
 
   if (gizmo_active[kGizmoScaleBottomLeft]
@@ -177,11 +167,11 @@ bool CropDistortNode::GizmoPress(NodeValueDatabase &db, const QPointF &p)
       || in_rect) {
     gizmo_drag_ |= kGizmoBottom;
 
-    gizmo_start_.append(db[kBottomInput].Get(NodeValue::kFloat));
+    gizmo_start_.append(row[kBottomInput].data());
   }
 
   if (gizmo_drag_ > kGizmoNone) {
-    gizmo_res_ = db[QStringLiteral("global")].Get(NodeValue::kVec2, QStringLiteral("resolution")).value<QVector2D>();
+    gizmo_res_ = globals.resolution();
     gizmo_drag_start_ = p;
 
     return true;

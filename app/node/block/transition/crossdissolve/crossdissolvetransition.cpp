@@ -59,7 +59,7 @@ ShaderCode CrossDissolveTransition::GetShaderCode(const QString &shader_id) cons
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/crossdissolve.frag"), QString());
 }
 
-void CrossDissolveTransition::ShaderJobEvent(NodeValueDatabase &value, ShaderJob &job) const
+void CrossDissolveTransition::ShaderJobEvent(const NodeValueRow &value, ShaderJob &job) const
 {
   Q_UNUSED(value)
 

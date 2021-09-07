@@ -118,7 +118,7 @@ QByteArray RenderManager::Hash(const Node *n, const QString& output, const Video
   hasher.addData(reinterpret_cast<const char*>(&interlacing), sizeof(interlacing));
 
   if (n) {
-    n->Hash(output, hasher, time, params);
+    n->Hash(output, hasher, NodeTraverser::GenerateGlobals(params, time), params);
   }
 
   return hasher.result();

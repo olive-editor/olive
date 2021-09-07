@@ -323,9 +323,9 @@ QString Footage::DescribeAudioStream(const AudioParams &params)
          QString::number(params.sample_rate()));
 }
 
-void Footage::Hash(const QString& output, QCryptographicHash &hash, const rational &time, const VideoParams &video_params) const
+void Footage::Hash(const QString& output, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
 {
-  super::Hash(output, hash, time, video_params);
+  super::Hash(output, hash, globals, video_params);
 
   // Footage last modified date
   hash.addData(QString::number(timestamp()).toUtf8());
@@ -356,7 +356,7 @@ void Footage::Hash(const QString& output, QCryptographicHash &hash, const ration
 
         // Footage timestamp
         if (params.video_type() != VideoParams::kVideoTypeStill) {
-          rational adjusted_time = AdjustTimeByLoopMode(time, loop_mode(), GetLength(), params.video_type(), params.frame_rate_as_time_base());
+          rational adjusted_time = AdjustTimeByLoopMode(globals.time().in(), loop_mode(), GetLength(), params.video_type(), params.frame_rate_as_time_base());
 
           if (!adjusted_time.isNaN()) {
             int64_t video_ts = Timecode::time_to_timestamp(adjusted_time, params.time_base());
@@ -374,17 +374,16 @@ void Footage::Hash(const QString& output, QCryptographicHash &hash, const ration
   }
 }
 
-NodeValueTable Footage::Value(const QString &output, NodeValueDatabase &value) const
+void Footage::Value(const QString &output, const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
+  Q_UNUSED(globals)
+
   Track::Reference ref = Track::Reference::FromString(output);
 
   // Pop filename from table
-  QString file = value[kFilenameInput].Take(NodeValue::kFile).toString();
+  QString file = value[kFilenameInput].data().toString();
 
-  LoopMode loop_mode = static_cast<LoopMode>(value[kLoopModeInput].Take(NodeValue::kCombo).toInt());
-
-  // Merge table
-  NodeValueTable table = value.Merge();
+  LoopMode loop_mode = static_cast<LoopMode>(value[kLoopModeInput].data().toInt());
 
   // If the file exists and the reference is valid, push a footage job to the renderer
   if (QFileInfo(file).exists()) {
@@ -403,11 +402,9 @@ NodeValueTable Footage::Value(const QString &output, NodeValueDatabase &value) c
       job.set_cache_path(project()->cache_path());
     }
 
-    table.Push(NodeValue::kRational, QVariant::fromValue(GetLength()), this, false, QStringLiteral("length"));
-    table.Push(NodeValue::kFootageJob, QVariant::fromValue(job), this);
+    table->Push(NodeValue::kRational, QVariant::fromValue(GetLength()), this, false, QStringLiteral("length"));
+    table->Push(NodeValue::kFootageJob, QVariant::fromValue(job), this);
   }
-
-  return table;
 }
 
 QString Footage::GetStreamTypeName(Track::Type type)

@@ -43,16 +43,28 @@ public:
 
   NodeValueTable Merge() const;
 
-  using const_iterator = QHash<QString, NodeValueTable>::const_iterator;
+  using Tables = QHash<QString, NodeValueTable>;
+  using const_iterator = Tables::const_iterator;
+  using iterator = Tables::iterator;
 
-  inline QHash<QString, NodeValueTable>::const_iterator begin() const
+  inline const_iterator cbegin() const
   {
     return tables_.cbegin();
   }
 
-  inline QHash<QString, NodeValueTable>::const_iterator end() const
+  inline const_iterator cend() const
   {
     return tables_.cend();
+  }
+
+  inline iterator begin()
+  {
+    return tables_.begin();
+  }
+
+  inline iterator end()
+  {
+    return tables_.end();
   }
 
   inline bool contains(const QString& s) const
@@ -61,11 +73,9 @@ public:
   }
 
 private:
-  QHash<QString, NodeValueTable> tables_;
+  Tables tables_;
 
 };
-
-using NodeValueMap = QHash<QString, NodeValue>;
 
 }
 

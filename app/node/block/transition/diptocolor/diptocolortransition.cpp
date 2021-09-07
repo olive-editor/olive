@@ -61,9 +61,9 @@ ShaderCode DipToColorTransition::GetShaderCode(const QString &shader_id) const
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/diptoblack.frag"), QString());
 }
 
-void DipToColorTransition::ShaderJobEvent(NodeValueDatabase &value, ShaderJob &job) const
+void DipToColorTransition::ShaderJobEvent(const NodeValueRow &value, ShaderJob &job) const
 {
-  job.InsertValue(this, kColorInput, value);
+  job.InsertValue(kColorInput, value);
 }
 
 }

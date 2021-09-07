@@ -542,7 +542,7 @@ QVariant RenderProcessor::ProcessSamples(const Node *node, const TimeRange &rang
   }
 
   SampleBufferPtr output_buffer = SampleBuffer::CreateAllocated(job.samples()->audio_params(), job.samples()->sample_count());
-  NodeValueDatabase value_db;
+  NodeValueRow value_db;
 
   const AudioParams& audio_params = ticket_->property("aparam").value<AudioParams>();
 
@@ -556,10 +556,8 @@ QVariant RenderProcessor::ProcessSamples(const Node *node, const TimeRange &rang
     for (auto j=job.GetValues().constBegin(); j!=job.GetValues().constEnd(); j++) {
       NodeValueTable value = ProcessInput(node, j.key(), TimeRange(this_sample_time, this_sample_time));
 
-      value_db.Insert(j.key(), value);
+      value_db.insert(j.key(), GenerateRowValue(node, j.key(), &value));
     }
-
-    AddGlobalsToDatabase(value_db, TimeRange(this_sample_time, this_sample_time));
 
     node->ProcessSamples(value_db,
                          job.samples(),

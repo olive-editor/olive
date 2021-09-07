@@ -65,9 +65,9 @@ public:
   double GetOutProgress(const double &time) const;
   double GetInProgress(const double &time) const;
 
-  virtual void Hash(const QString& output, QCryptographicHash& hash, const rational &time, const VideoParams& video_params) const override;
+  virtual void Hash(const QString& output, QCryptographicHash& hash, const NodeGlobals &globals, const VideoParams& video_params) const override;
 
-  virtual NodeValueTable Value(const QString& output, NodeValueDatabase &value) const override;
+  virtual void Value(const QString& output, const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
 
   virtual void InvalidateCache(const TimeRange& range, const QString& from, int element = -1, InvalidateCacheOptions options = InvalidateCacheOptions()) override;
 
@@ -77,7 +77,7 @@ public:
   static const QString kCenterInput;
 
 protected:
-  virtual void ShaderJobEvent(NodeValueDatabase &value, ShaderJob& job) const;
+  virtual void ShaderJobEvent(const NodeValueRow &value, ShaderJob& job) const;
 
   virtual void SampleJobEvent(SampleBufferPtr from_samples, SampleBufferPtr to_samples, SampleBufferPtr out_samples, double time_in) const;
 

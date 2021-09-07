@@ -88,35 +88,33 @@ ShaderCode MathNode::GetShaderCode(const QString &shader_id) const
   return GetShaderCodeInternal(shader_id, kParamAIn, kParamBIn);
 }
 
-NodeValueTable MathNode::Value(const QString &output, NodeValueDatabase &value) const
+void MathNode::Value(const QString &output, const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
   Q_UNUSED(output)
 
   // Auto-detect what values to operate with
-  // FIXME: Add manual override for this
-  PairingCalculator calc(value[kParamAIn], value[kParamBIn]);
+  // FIXME: Very inefficient
+  NodeValueTable at, bt;
+  at.Push(value[kParamAIn]);
+  bt.Push(value[kParamBIn]);
+  PairingCalculator calc(at, bt);
 
   // Do nothing if no pairing was found
   if (!calc.FoundMostLikelyPairing()) {
-    return value.Merge();
+    return;
   }
 
-  NodeValue val_a = calc.GetMostLikelyValueA();
-  value[kParamAIn].Remove(val_a);
-
-  NodeValue val_b = calc.GetMostLikelyValueB();
-  value[kParamBIn].Remove(val_b);
-
-  return ValueInternal(value,
-                       GetOperation(),
+  return ValueInternal(GetOperation(),
                        calc.GetMostLikelyPairing(),
                        kParamAIn,
-                       val_a,
+                       calc.GetMostLikelyValueA(),
                        kParamBIn,
-                       val_b);
+                       calc.GetMostLikelyValueB(),
+                       globals,
+                       table);
 }
 
-void MathNode::ProcessSamples(NodeValueDatabase &values, const SampleBufferPtr input, SampleBufferPtr output, int index) const
+void MathNode::ProcessSamples(const NodeValueRow &values, const SampleBufferPtr input, SampleBufferPtr output, int index) const
 {
   return ProcessSamplesInternal(values, GetOperation(), kParamAIn, kParamBIn, input, output, index);
 }

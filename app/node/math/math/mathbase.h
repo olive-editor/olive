@@ -115,9 +115,9 @@ protected:
 
   void PushVector(NodeValueTable* output, NodeValue::Type type, const QVector4D& vec) const;
 
-  NodeValueTable ValueInternal(NodeValueDatabase &value, Operation operation, Pairing pairing, const QString& param_a_in, const NodeValue &val_a, const QString& param_b_in, const NodeValue& val_b) const;
+  void ValueInternal(Operation operation, Pairing pairing, const QString& param_a_in, const NodeValue &val_a, const QString& param_b_in, const NodeValue& val_b, const NodeGlobals &globals, NodeValueTable *output) const;
 
-  void ProcessSamplesInternal(NodeValueDatabase &values, Operation operation, const QString& param_a_in, const QString& param_b_in, const SampleBufferPtr input, SampleBufferPtr output, int index) const;
+  void ProcessSamplesInternal(const NodeValueRow &values, Operation operation, const QString& param_a_in, const QString& param_b_in, const SampleBufferPtr input, SampleBufferPtr output, int index) const;
 
 };
 

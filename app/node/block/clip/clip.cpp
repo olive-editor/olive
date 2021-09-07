@@ -49,7 +49,8 @@ ClipBlock::ClipBlock() :
   AddInput(kReverseInput, NodeValue::kBoolean, false, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
   IgnoreHashingFrom(kReverseInput);
 
-  AddInput(kBufferIn, NodeValue::kNone, InputFlags(kInputFlagNotKeyframable));
+  PrependInput(kBufferIn, NodeValue::kNone, InputFlags(kInputFlagNotKeyframable));
+  SetValueHintForInput(kBufferIn, {NodeValue::kBuffer, -1, QString()});
 }
 
 Node *ClipBlock::copy() const
@@ -231,18 +232,18 @@ TimeRange ClipBlock::OutputTimeAdjustment(const QString& input, int element, con
   return super::OutputTimeAdjustment(input, element, input_time);
 }
 
-NodeValueTable ClipBlock::Value(const QString &output, NodeValueDatabase &value) const
+void ClipBlock::Value(const QString &output, const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
   Q_UNUSED(output)
+  Q_UNUSED(globals)
 
   // We discard most values here except for the buffer we received
-  NodeValue data = value[kBufferIn].GetWithMeta(NodeValue::kBuffer);
+  NodeValue data = value[kBufferIn];
 
-  NodeValueTable table;
+  table->Clear();
   if (data.type() != NodeValue::kNone) {
-    table.Push(data);
+    table->Push(data);
   }
-  return table;
 }
 
 void ClipBlock::Retranslate()
@@ -255,9 +256,9 @@ void ClipBlock::Retranslate()
   SetInputName(kReverseInput, tr("Reverse"));
 }
 
-void ClipBlock::Hash(const QString &out, QCryptographicHash &hash, const rational &time, const VideoParams &video_params) const
+void ClipBlock::Hash(const QString &out, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
 {
-  HashPassthrough(kBufferIn, out, hash, time, video_params);
+  HashPassthrough(kBufferIn, out, hash, globals, video_params);
 }
 
 }

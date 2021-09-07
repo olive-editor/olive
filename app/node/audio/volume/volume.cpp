@@ -61,20 +61,21 @@ QString VolumeNode::Description() const
   return tr("Adjusts the volume of an audio source.");
 }
 
-NodeValueTable VolumeNode::Value(const QString &output, NodeValueDatabase &value) const
+void VolumeNode::Value(const QString &output, const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
   Q_UNUSED(output)
 
-  return ValueInternal(value,
-                       kOpMultiply,
+  return ValueInternal(kOpMultiply,
                        kPairSampleNumber,
                        kSamplesInput,
-                       value[kSamplesInput].TakeWithMeta(NodeValue::kSamples),
+                       value[kSamplesInput],
                        kVolumeInput,
-                       value[kVolumeInput].TakeWithMeta(NodeValue::kFloat));
+                       value[kVolumeInput],
+                       globals,
+                       table);
 }
 
-void VolumeNode::ProcessSamples(NodeValueDatabase &values, const SampleBufferPtr input, SampleBufferPtr output, int index) const
+void VolumeNode::ProcessSamples(const NodeValueRow &values, const SampleBufferPtr input, SampleBufferPtr output, int index) const
 {
   return ProcessSamplesInternal(values, kOpMultiply, kSamplesInput, kVolumeInput, input, output, index);
 }

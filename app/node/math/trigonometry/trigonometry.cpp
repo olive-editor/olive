@@ -76,13 +76,11 @@ void TrigonometryNode::Retranslate()
   SetInputName(kMethodIn, tr("Method"));
 }
 
-NodeValueTable TrigonometryNode::Value(const QString &output, NodeValueDatabase &value) const
+void TrigonometryNode::Value(const QString &output, const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
   Q_UNUSED(output)
 
-  float x = value[kXIn].Take(NodeValue::kFloat).toFloat();
-
-  NodeValueTable table = value.Merge();
+  double x = value[kXIn].data().toFloat();
 
   switch (static_cast<Operation>(GetStandardValue(kMethodIn).toInt())) {
   case kOpSine:
@@ -114,9 +112,7 @@ NodeValueTable TrigonometryNode::Value(const QString &output, NodeValueDatabase 
     break;
   }
 
-  table.Push(NodeValue::kFloat, x, this);
-
-  return table;
+  table->Push(NodeValue::kFloat, x, this);
 }
 
 }

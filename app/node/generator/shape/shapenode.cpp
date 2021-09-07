@@ -68,22 +68,17 @@ ShaderCode ShapeNode::GetShaderCode(const QString &shader_id) const
   return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/shape.frag")));
 }
 
-NodeValueTable ShapeNode::Value(const QString &output, NodeValueDatabase &value) const
+void ShapeNode::Value(const QString &output, const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
   Q_UNUSED(output)
 
   ShaderJob job;
 
-  job.InsertValue(this, kTypeInput, value);
-  job.InsertValue(this, kPositionInput, value);
-  job.InsertValue(this, kSizeInput, value);
-  job.InsertValue(this, kColorInput, value);
-  job.InsertValue(QStringLiteral("resolution_in"), value[QStringLiteral("global")].GetWithMeta(NodeValue::kVec2, QStringLiteral("resolution")));
+  job.InsertValue(value);
+  job.InsertValue(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, globals.resolution(), this));
   job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
 
-  NodeValueTable table = value.Merge();
-  table.Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
-  return table;
+  table->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
 }
 
 }

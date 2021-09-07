@@ -87,22 +87,14 @@ ShaderCode BlurFilterNode::GetShaderCode(const QString &shader_id) const
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/blur.frag"));
 }
 
-NodeValueTable BlurFilterNode::Value(const QString &output, NodeValueDatabase &value) const
+void BlurFilterNode::Value(const QString &output, const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
   Q_UNUSED(output)
 
   ShaderJob job;
 
-  job.InsertValue(this, kTextureInput, value);
-  job.InsertValue(this, kMethodInput, value);
-  job.InsertValue(this, kRadiusInput, value);
-  job.InsertValue(this, kHorizInput, value);
-  job.InsertValue(this, kVertInput, value);
-  job.InsertValue(this, kRepeatEdgePixelsInput, value);
-  job.InsertValue(QStringLiteral("resolution_in"),
-                  NodeValue(NodeValue::kVec2, value[QStringLiteral("global")].Get(NodeValue::kVec2, QStringLiteral("resolution")), this));
-
-  NodeValueTable table = value.Merge();
+  job.InsertValue(value);
+  job.InsertValue(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, globals.resolution(), this));
 
   // If there's no texture, no need to run an operation
   if (!job.GetValue(kTextureInput).data().isNull()) {
@@ -121,16 +113,14 @@ NodeValueTable BlurFilterNode::Value(const QString &output, NodeValueDatabase &v
         job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
       }
 
-      table.Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
+      table->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
 
     } else {
       // If we're not performing the blur job, just push the texture
-      table.Push(job.GetValue(kTextureInput));
+      table->Push(job.GetValue(kTextureInput));
     }
 
   }
-
-  return table;
 }
 
 }

@@ -361,7 +361,7 @@ public:
 
   bool IsLocked() const;
 
-  virtual void Hash(const QString& output, QCryptographicHash& hash, const rational &time, const VideoParams& video_params) const override;
+  virtual void Hash(const QString& output, QCryptographicHash& hash, const NodeGlobals &globals, const VideoParams& video_params) const override;
 
   static const double kTrackHeightDefault;
   static const double kTrackHeightMinimum;

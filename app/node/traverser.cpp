@@ -40,9 +40,63 @@ NodeValueDatabase NodeTraverser::GenerateDatabase(const Node* node, const QStrin
     database.Insert(input, ProcessInput(node, input, range));
   }
 
-  AddGlobalsToDatabase(database, range);
-
   return database;
+}
+
+NodeValueRow NodeTraverser::GenerateRow(NodeValueDatabase *database, const Node *node, const QString &output, const TimeRange &range)
+{
+  // Generate row
+  NodeValueRow row;
+  for (auto it=database->begin(); it!=database->end(); it++) {
+    // Get hint for which value should be pulled
+    row.insert(it.key(), GenerateRowValue(node, it.key(), &it.value()));
+  }
+
+  return row;
+}
+
+NodeValueRow NodeTraverser::GenerateRow(const Node *node, const QString &output, const TimeRange &range)
+{
+  // Generate database of input values of node
+  NodeValueDatabase database = GenerateDatabase(node, output, range);
+
+  return GenerateRow(&database, node, output, range);
+}
+
+NodeValue NodeTraverser::GenerateRowValue(const Node *node, const QString &input, NodeValueTable *table)
+{
+  Node::ValueHint hint = node->GetValueHintForInput(input);
+  QVector<NodeValue::Type> types = hint.type;
+
+  if (types.isEmpty()) {
+    types.append(node->GetInputDataType(input));
+  }
+
+  if (hint.index == -1) {
+    // Get most recent value with this type and tag
+    return table->TakeWithMeta(types, hint.tag);
+  } else {
+    // Try to find value at this index
+    int index = table->Count() - hint.index;
+    int diff = 0;
+
+    while (index + diff < table->Count() && index - diff >= 0) {
+      if (index + diff < table->Count() && types.contains(table->at(index + diff).type())) {
+        return table->TakeAt(index + diff);
+      }
+      if (index - diff >= 0 && types.contains(table->at(index - diff).type())) {
+        return table->TakeAt(index - diff);
+      }
+      diff++;
+    }
+
+    return NodeValue();
+  }
+}
+
+NodeGlobals NodeTraverser::GenerateGlobals(const VideoParams &params, const TimeRange &time)
+{
+  return NodeGlobals(QVector2D(params.width(), params.height()), time);
 }
 
 int NodeTraverser::GetChannelCountFromJob(const GenerateJob &job)
@@ -132,12 +186,20 @@ NodeValueTable NodeTraverser::GenerateTable(const Node *n, const QString& output
 
   // FIXME: Cache certain values here if we've already processed them before
 
-  // Generate database of input values of node
+  // Generate row for node
   NodeValueDatabase database = GenerateDatabase(n, output, range);
+  NodeValueRow row = GenerateRow(&database, n, output, range);
+
+  // Pre-process row
+  qDebug() << "FIXME: Implement pre-process of row";
+
+  // Generate output table
+  NodeValueTable table = database.Merge();
 
   // By this point, the node should have all the inputs it needs to render correctly
-  NodeValueTable table = n->Value(output, database);
+  n->Value(output, row, GenerateGlobals(video_params_, range), &table);
 
+  // Post-process table
   PostProcessTable(n, output, range, table);
 
   return table;
@@ -216,17 +278,6 @@ QVariant NodeTraverser::GetCachedTexture(const QByteArray& hash)
   Q_UNUSED(hash)
 
   return QVariant();
-}
-
-void NodeTraverser::AddGlobalsToDatabase(NodeValueDatabase &db, const TimeRange& range) const
-{
-  // Insert global variables
-  NodeValueTable global;
-  global.Push(NodeValue::kFloat, range.in().toDouble(), nullptr, false, QStringLiteral("time_in"));
-  global.Push(NodeValue::kFloat, range.out().toDouble(), nullptr, false, QStringLiteral("time_out"));
-  global.Push(NodeValue::kVec2, GenerateResolution(), nullptr, false, QStringLiteral("resolution"));
-
-  db.Insert(QStringLiteral("global"), global);
 }
 
 QVector2D NodeTraverser::GenerateResolution() const

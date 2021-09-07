@@ -88,18 +88,16 @@ void MatrixGenerator::Retranslate()
   SetInputName(kAnchorInput, tr("Anchor Point"));
 }
 
-NodeValueTable MatrixGenerator::Value(const QString &output, NodeValueDatabase &value) const
+void MatrixGenerator::Value(const QString &output, const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
   Q_UNUSED(output)
 
   // Push matrix output
   QMatrix4x4 mat = GenerateMatrix(value, true, false, false, false);
-  NodeValueTable out = value.Merge();
-  out.Push(NodeValue::kMatrix, mat, this);
-  return out;
+  table->Push(NodeValue::kMatrix, mat, this);
 }
 
-QMatrix4x4 MatrixGenerator::GenerateMatrix(NodeValueDatabase &value, bool take, bool ignore_anchor, bool ignore_position, bool ignore_scale) const
+QMatrix4x4 MatrixGenerator::GenerateMatrix(const NodeValueRow &value, bool take, bool ignore_anchor, bool ignore_position, bool ignore_scale) const
 {
   QVector2D anchor;
   QVector2D position;
@@ -108,47 +106,47 @@ QMatrix4x4 MatrixGenerator::GenerateMatrix(NodeValueDatabase &value, bool take, 
   if (!ignore_anchor) {
     if (take) {
       // Take and store
-      anchor = value[kAnchorInput].Take(NodeValue::kVec2).value<QVector2D>();
+      anchor = value[kAnchorInput].data().value<QVector2D>();
     } else {
       // Get and store
-      anchor = value[kAnchorInput].Get(NodeValue::kVec2).value<QVector2D>();
+      anchor = value[kAnchorInput].data().value<QVector2D>();
     }
   } else if (take) {
     // Just take
-    value[kAnchorInput].Take(NodeValue::kVec2).value<QVector2D>();
+    value[kAnchorInput].data().value<QVector2D>();
   }
 
   if (!ignore_scale) {
     if (take) {
-      scale = value[kScaleInput].Take(NodeValue::kVec2).value<QVector2D>();
+      scale = value[kScaleInput].data().value<QVector2D>();
     } else {
-      scale = value[kScaleInput].Get(NodeValue::kVec2).value<QVector2D>();
+      scale = value[kScaleInput].data().value<QVector2D>();
     }
   } else if (take) {
-    value[kScaleInput].Take(NodeValue::kVec2).value<QVector2D>();
+    value[kScaleInput].data().value<QVector2D>();
   }
 
   if (!ignore_position) {
     if (take) {
-      position = value[kPositionInput].Take(NodeValue::kVec2).value<QVector2D>();
+      position = value[kPositionInput].data().value<QVector2D>();
     } else {
-      position = value[kPositionInput].Get(NodeValue::kVec2).value<QVector2D>();
+      position = value[kPositionInput].data().value<QVector2D>();
     }
   } else if (take) {
-    value[kPositionInput].Take(NodeValue::kVec2).value<QVector2D>();
+    value[kPositionInput].data().value<QVector2D>();
   }
 
   if (take) {
     return GenerateMatrix(position,
-                          value[kRotationInput].Take(NodeValue::kFloat).toFloat(),
+                          value[kRotationInput].data().toFloat(),
                           scale,
-                          value[kUniformScaleInput].Take(NodeValue::kBoolean).toBool(),
+                          value[kUniformScaleInput].data().toBool(),
                           anchor);
   } else {
     return GenerateMatrix(position,
-                          value[kRotationInput].Get(NodeValue::kFloat).toFloat(),
+                          value[kRotationInput].data().toFloat(),
                           scale,
-                          value[kUniformScaleInput].Get(NodeValue::kBoolean).toBool(),
+                          value[kUniformScaleInput].data().toBool(),
                           anchor);
 
   }

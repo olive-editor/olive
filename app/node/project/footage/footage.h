@@ -181,9 +181,9 @@ public:
   static QString DescribeVideoStream(const VideoParams& params);
   static QString DescribeAudioStream(const AudioParams& params);
 
-  virtual void Hash(const QString& output, QCryptographicHash &hash, const rational &time, const VideoParams& video_params) const override;
+  virtual void Hash(const QString& output, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams& video_params) const override;
 
-  virtual NodeValueTable Value(const QString &output, NodeValueDatabase& value) const override;
+  virtual void Value(const QString &output, const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
 
   static QString GetStreamTypeName(Track::Type type);
 

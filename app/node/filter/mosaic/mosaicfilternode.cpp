@@ -44,20 +44,16 @@ void MosaicFilterNode::Retranslate()
   SetInputName(kVertInput, tr("Vertical"));
 }
 
-NodeValueTable MosaicFilterNode::Value(const QString &output, NodeValueDatabase &value) const
+void MosaicFilterNode::Value(const QString &output, const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
   Q_UNUSED(output)
 
   ShaderJob job;
 
-  job.InsertValue(this, kTextureInput, value);
-  job.InsertValue(this, kHorizInput, value);
-  job.InsertValue(this, kVertInput, value);
+  job.InsertValue(value);
 
   // Mipmapping makes this look weird, so we just use bilinear for finding the color of each block
   job.SetInterpolation(kTextureInput, Texture::kLinear);
-
-  NodeValueTable table = value.Merge();
 
   if (!job.GetValue(kTextureInput).data().isNull()) {
     TexturePtr texture = job.GetValue(kTextureInput).data().value<TexturePtr>();
@@ -65,13 +61,11 @@ NodeValueTable MosaicFilterNode::Value(const QString &output, NodeValueDatabase 
     if (texture
         && job.GetValue(kHorizInput).data().toInt() != texture->width()
         && job.GetValue(kVertInput).data().toInt() != texture->height()) {
-      table.Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
+      table->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
     } else {
-      table.Push(job.GetValue(kTextureInput));
+      table->Push(job.GetValue(kTextureInput));
     }
   }
-
-  return table;
 }
 
 ShaderCode MosaicFilterNode::GetShaderCode(const QString &shader_id) const

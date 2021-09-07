@@ -35,20 +35,28 @@ public:
     return value_map_.value(input);
   }
 
-  void InsertValue(const Node* node, const QString& input, NodeValueDatabase& value);
+  void InsertValue(const QString &input, const NodeValueRow &row)
+  {
+    value_map_.insert(input, row.value(input));
+  }
 
   void InsertValue(const QString& input, const NodeValue& value)
   {
     value_map_.insert(input, value);
   }
 
-  const NodeValueMap &GetValues() const
+  void InsertValue(const NodeValueRow &row)
+  {
+    value_map_.insert(row);
+  }
+
+  const NodeValueRow &GetValues() const
   {
     return value_map_;
   }
 
 private:
-  NodeValueMap value_map_;
+  NodeValueRow value_map_;
 
 };
 

@@ -429,8 +429,7 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
 
   functions_->glUseProgram(shader);
 
-  NodeValueMap::const_iterator it;
-  for (it=job.GetValues().constBegin(); it!=job.GetValues().constEnd(); it++) {
+  for (auto it=job.GetValues().constBegin(); it!=job.GetValues().constEnd(); it++) {
     // See if the shader has takes this parameter as an input
     GLint variable_location = functions_->glGetUniformLocation(shader, it.key().toUtf8().constData());
 

@@ -59,14 +59,13 @@ void ValueNode::Retranslate()
   SetComboBoxStrings(kTypeInput, type_names);
 }
 
-NodeValueTable ValueNode::Value(const QString &output, NodeValueDatabase &value) const
+void ValueNode::Value(const QString &output, const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
+  Q_UNUSED(globals)
   Q_UNUSED(output)
 
-  // Pop combobox value off table because no other node will need it
-  value[kTypeInput].Take(NodeValue::kCombo);
-
-  return value.Merge();
+  // Ensure value is pushed onto the table
+  table->Push(value[kValueInput]);
 }
 
 void ValueNode::InputValueChangedEvent(const QString &input, int element)

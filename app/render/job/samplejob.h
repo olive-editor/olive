@@ -38,9 +38,9 @@ public:
     samples_ = value.data().value<SampleBufferPtr>();
   }
 
-  SampleJob(const QString& from, NodeValueDatabase& db)
+  SampleJob(const QString& from, const NodeValueRow& row)
   {
-    samples_ = db[from].Take(NodeValue::kSamples).value<SampleBufferPtr>();
+    samples_ = row[from].data().value<SampleBufferPtr>();
   }
 
   SampleBufferPtr samples() const

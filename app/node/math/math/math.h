@@ -54,9 +54,9 @@ public:
     SetStandardValue(kMethodIn, o);
   }
 
-  virtual NodeValueTable Value(const QString& output, NodeValueDatabase &value) const override;
+  virtual void Value(const QString& output, const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
 
-  virtual void ProcessSamples(NodeValueDatabase &values, const SampleBufferPtr input, SampleBufferPtr output, int index) const override;
+  virtual void ProcessSamples(const NodeValueRow &values, const SampleBufferPtr input, SampleBufferPtr output, int index) const override;
 
   static const QString kMethodIn;
   static const QString kParamAIn;

@@ -20,13 +20,6 @@
 
 #include "acceleratedjob.h"
 
-#include "node/node.h"
-
 namespace olive {
-
-void AcceleratedJob::InsertValue(const Node* node, const QString& input, NodeValueDatabase& value)
-{
-  InsertValue(input, value[input].TakeWithMeta(node->GetInputDataType(input)));
-}
 
 }

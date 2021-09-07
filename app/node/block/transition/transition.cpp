@@ -137,12 +137,12 @@ double TransitionBlock::GetInProgress(const double &time) const
   return clamp((GetInternalTransitionTime(time) - out_offset().toDouble()) / in_offset().toDouble(), 0.0, 1.0);
 }
 
-void TransitionBlock::Hash(const QString &output, QCryptographicHash &hash, const rational &time, const VideoParams &video_params) const
+void TransitionBlock::Hash(const QString &output, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
 {
-  if (HashPassthrough(kInBlockInput, output, hash, time, video_params) || HashPassthrough(kOutBlockInput, output, hash, time, video_params)) {
+  if (HashPassthrough(kInBlockInput, output, hash, globals, video_params) || HashPassthrough(kOutBlockInput, output, hash, globals, video_params)) {
     HashAddNodeSignature(hash, output);
 
-    double time_dbl = time.toDouble();
+    double time_dbl = globals.time().in().toDouble();
     double all_prog = GetTotalProgress(time_dbl);
     double in_prog = GetInProgress(time_dbl);
     double out_prog = GetOutProgress(time_dbl);
@@ -173,12 +173,12 @@ void TransitionBlock::InsertTransitionTimes(AcceleratedJob *job, const double &t
                    NodeValue(NodeValue::kFloat, GetInProgress(time), this));
 }
 
-NodeValueTable TransitionBlock::Value(const QString &output, NodeValueDatabase &value) const
+void TransitionBlock::Value(const QString &output, const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
   Q_UNUSED(output)
 
-  NodeValue out_buffer = value[kOutBlockInput].TakeWithMeta(NodeValue::kBuffer);
-  NodeValue in_buffer = value[kInBlockInput].TakeWithMeta(NodeValue::kBuffer);
+  NodeValue out_buffer = value[kOutBlockInput];
+  NodeValue in_buffer = value[kInBlockInput];
   NodeValue::Type data_type = (out_buffer.type() != NodeValue::kNone) ? out_buffer.type() : in_buffer.type();
 
   NodeValue::Type job_type = NodeValue::kNone;
@@ -196,9 +196,9 @@ NodeValueTable TransitionBlock::Value(const QString &output, NodeValueDatabase &
       job.InsertValue(kInBlockInput, in_buffer);
     }
 
-    job.InsertValue(this, kCurveInput, value);
+    job.InsertValue(kCurveInput, value);
 
-    double time = value[QStringLiteral("global")].Get(NodeValue::kFloat, QStringLiteral("time_in")).toDouble();
+    double time = globals.time().in().toDouble();
     InsertTransitionTimes(&job, time);
 
     ShaderJobEvent(value, job);
@@ -211,8 +211,8 @@ NodeValueTable TransitionBlock::Value(const QString &output, NodeValueDatabase &
     SampleBufferPtr to_samples = in_buffer.data().value<SampleBufferPtr>();
 
     if (from_samples || to_samples) {
-      double time_in = value[QStringLiteral("global")].Get(NodeValue::kFloat, QStringLiteral("time_in")).toDouble();
-      double time_out = value[QStringLiteral("global")].Get(NodeValue::kFloat, QStringLiteral("time_out")).toDouble();
+      double time_in = globals.time().in().toDouble();
+      double time_out = globals.time().out().toDouble();
 
       const AudioParams& params = (from_samples) ? from_samples->audio_params() : to_samples->audio_params();
 
@@ -226,13 +226,9 @@ NodeValueTable TransitionBlock::Value(const QString &output, NodeValueDatabase &
     }
   }
 
-  NodeValueTable table = value.Merge();
-
   if (!push_job.isNull()) {
-    table.Push(job_type, push_job, this);
+    table->Push(job_type, push_job, this);
   }
-
-  return table;
 }
 
 void TransitionBlock::InvalidateCache(const TimeRange &range, const QString &from, int element, InvalidateCacheOptions options)
@@ -249,7 +245,7 @@ void TransitionBlock::InvalidateCache(const TimeRange &range, const QString &fro
   super::InvalidateCache(r, from, element, options);
 }
 
-void TransitionBlock::ShaderJobEvent(NodeValueDatabase &value, ShaderJob &job) const
+void TransitionBlock::ShaderJobEvent(const NodeValueRow &value, ShaderJob &job) const
 {
   Q_UNUSED(value)
   Q_UNUSED(job)

@@ -98,13 +98,16 @@ QVector<QString> TimeRemapNode::inputs_for_output(const QString &output) const
   return {kInputInput};
 }
 
-void TimeRemapNode::Hash(const QString &output, QCryptographicHash &hash, const rational &time, const VideoParams &video_params) const
+void TimeRemapNode::Hash(const QString &output, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
 {
   // Don't hash anything of our own, just pass-through to the connected node at the remapped tmie
   Q_UNUSED(output)
   if (IsInputConnected(kInputInput)) {
     NodeOutput out = GetConnectedOutput(kInputInput);
-    out.node()->Hash(out.output(), hash, GetRemappedTime(time), video_params);
+
+    NodeGlobals new_globals = globals;
+    new_globals.set_time(TimeRange(GetRemappedTime(globals.time().in()), GetRemappedTime(globals.time().out())));
+    out.node()->Hash(out.output(), hash, new_globals, video_params);
   }
 }
 

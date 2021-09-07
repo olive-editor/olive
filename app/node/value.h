@@ -381,6 +381,11 @@ public:
   bool Has(NodeValue::Type type) const;
   void Remove(const NodeValue& v);
 
+  void Clear()
+  {
+    values_.clear();
+  }
+
   bool isEmpty() const
   {
     return values_.isEmpty();
@@ -394,6 +399,8 @@ private:
   QVector<NodeValue> values_;
 
 };
+
+using NodeValueRow = QHash<QString, NodeValue>;
 
 }
 

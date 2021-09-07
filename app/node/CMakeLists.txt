@@ -30,6 +30,8 @@ set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
   node/factory.cpp
   node/factory.h
+  node/globals.cpp
+  node/globals.h
   node/graph.cpp
   node/graph.h
   node/inputdragger.cpp

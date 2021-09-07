@@ -237,6 +237,12 @@ private:
 
   QTransform GenerateGizmoTransform();
 
+  TimeRange GenerateGizmoTime()
+  {
+    rational node_time = GetGizmoTime();
+    return TimeRange(node_time, node_time + gizmo_params_.frame_rate_as_time_base());
+  }
+
   /**
    * @brief Internal reference to the OpenGL texture to draw. Set in SetTexture() and used in paintGL().
    */
@@ -283,7 +289,7 @@ private:
   ViewerSafeMarginInfo safe_margin_;
 
   Node* gizmos_;
-  NodeValueDatabase gizmo_db_;
+  NodeValueRow gizmo_db_;
   rational gizmo_drag_time_;
   VideoParams gizmo_params_;
   QPoint gizmo_start_drag_;

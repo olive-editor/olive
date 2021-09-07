@@ -82,32 +82,23 @@ void StrokeFilterNode::Retranslate()
   SetInputName(kInnerInput, tr("Inner"));
 }
 
-NodeValueTable StrokeFilterNode::Value(const QString &output, NodeValueDatabase &value) const
+void StrokeFilterNode::Value(const QString &output, const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
   Q_UNUSED(output)
 
   ShaderJob job;
 
-  job.InsertValue(this, kTextureInput, value);
-  job.InsertValue(this, kColorInput, value);
-  job.InsertValue(this, kRadiusInput, value);
-  job.InsertValue(this, kOpacityInput, value);
-  job.InsertValue(this, kInnerInput, value);
-  job.InsertValue(QStringLiteral("resolution_in"),
-                  NodeValue(NodeValue::kVec2, value[QStringLiteral("global")].Get(NodeValue::kVec2, QStringLiteral("resolution")), this));
-
-  NodeValueTable table = value.Merge();
+  job.InsertValue(value);
+  job.InsertValue(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, globals.resolution(), this));
 
   if (!job.GetValue(kTextureInput).data().isNull()) {
     if (job.GetValue(kRadiusInput).data().toDouble() > 0.0
         && job.GetValue(kOpacityInput).data().toDouble() > 0.0) {
-      table.Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
+      table->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
     } else {
-      table.Push(job.GetValue(kTextureInput));
+      table->Push(job.GetValue(kTextureInput));
     }
   }
-
-  return table;
 }
 
 ShaderCode StrokeFilterNode::GetShaderCode(const QString &shader_id) const

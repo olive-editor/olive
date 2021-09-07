@@ -100,13 +100,16 @@ void Block::InputValueChangedEvent(const QString &input, int element)
   }
 }
 
-bool Block::HashPassthrough(const QString &input, const QString &output, QCryptographicHash &hash, const rational &time, const VideoParams &video_params) const
+bool Block::HashPassthrough(const QString &input, const QString &output, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
 {
   if (IsInputConnected(input)) {
-    rational t = InputTimeAdjustment(input, -1, TimeRange(time, time)).in();
+    TimeRange t = InputTimeAdjustment(input, -1, globals.time());
+
+    NodeGlobals new_globals = globals;
+    new_globals.set_time(t);
 
     NodeOutput out = GetConnectedOutput(input);
-    out.node()->Hash(out.output(), hash, t, video_params);
+    out.node()->Hash(out.output(), hash, new_globals, video_params);
 
     return true;
   }
@@ -127,7 +130,7 @@ void Block::Retranslate()
   SetInputName(kEnabledInput, tr("Enabled"));
 }
 
-void Block::Hash(const QString &, QCryptographicHash &, const rational &, const VideoParams &) const
+void Block::Hash(const QString &, QCryptographicHash &, const NodeGlobals &, const VideoParams &) const
 {
   // A block does nothing by default, so we hash nothing
 }

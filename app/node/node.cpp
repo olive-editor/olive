@@ -43,16 +43,14 @@ namespace olive {
 
 const QString Node::kDefaultOutput = QStringLiteral("output");
 
-Node::Node(bool create_default_output) :
+Node::Node() :
   can_be_deleted_(true),
   override_color_(-1),
   folder_(nullptr),
   operation_stack_(0),
   cache_result_(false)
 {
-  if (create_default_output) {
-    AddOutput();
-  }
+  AddOutput();
 }
 
 Node::~Node()
@@ -1015,11 +1013,13 @@ Node::InputFlags Node::GetInputFlags(const QString &input) const
   }
 }
 
-NodeValueTable Node::Value(const QString& output, NodeValueDatabase &value) const
+void Node::Value(const QString& output, const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const
 {
+  // Do nothing
   Q_UNUSED(output)
-
-  return value.Merge();
+  Q_UNUSED(value)
+  Q_UNUSED(globals)
+  Q_UNUSED(table)
 }
 
 void Node::InvalidateCache(const TimeRange &range, const QString &from, int element, InvalidateCacheOptions options)
@@ -1422,11 +1422,11 @@ bool Node::HasGizmos() const
   return false;
 }
 
-void Node::DrawGizmos(NodeValueDatabase &, QPainter *)
+void Node::DrawGizmos(const NodeValueRow &, const NodeGlobals &, QPainter *)
 {
 }
 
-bool Node::GizmoPress(NodeValueDatabase &, const QPointF &)
+bool Node::GizmoPress(const NodeValueRow &, const NodeGlobals &, const QPointF &)
 {
   return false;
 }
@@ -1453,7 +1453,7 @@ void Node::SetLabel(const QString &s)
   }
 }
 
-void Node::Hash(const QString &output, QCryptographicHash &hash, const rational& time, const VideoParams &video_params) const
+void Node::Hash(const QString &output, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
 {
   // Add this Node's ID and output being used
   HashAddNodeSignature(hash, output);
@@ -1467,7 +1467,7 @@ void Node::Hash(const QString &output, QCryptographicHash &hash, const rational&
 
     int arr_sz = InputArraySize(input);
     for (int i=-1; i<arr_sz; i++) {
-      HashInputElement(hash, input, i, time, video_params);
+      HashInputElement(hash, input, i, globals, video_params);
     }
   }
 }
@@ -1589,20 +1589,22 @@ QVector<Node *> Node::GetDependenciesInternal(bool traverse, bool exclusive_only
   return list;
 }
 
-void Node::HashInputElement(QCryptographicHash &hash, const QString& input, int element, const rational &time, const VideoParams& video_params) const
+void Node::HashInputElement(QCryptographicHash &hash, const QString& input, int element, const NodeGlobals &globals, const VideoParams& video_params) const
 {
   // Get time adjustment
   // For a single frame, we only care about one of the times
-  rational input_time = InputTimeAdjustment(input, element, TimeRange(time, time)).in();
+  TimeRange input_time = InputTimeAdjustment(input, element, globals.time());
 
   if (IsInputConnected(input, element)) {
     // Traverse down this edge
     NodeOutput output = GetConnectedOutput(input, element);
 
-    output.node()->Hash(output.output(), hash, input_time, video_params);
+    NodeGlobals new_globals = globals;
+    new_globals.set_time(input_time);
+    output.node()->Hash(output.output(), hash, new_globals, video_params);
   } else {
     // Grab the value at this time
-    QVariant value = GetValueAtTime(input, input_time, element);
+    QVariant value = GetValueAtTime(input, input_time.in(), element);
     hash.addData(NodeValue::ValueToBytes(GetInputDataType(input), value));
   }
 }
@@ -1629,7 +1631,7 @@ ShaderCode Node::GetShaderCode(const QString &shader_id) const
   return ShaderCode(QString(), QString());
 }
 
-void Node::ProcessSamples(NodeValueDatabase &, const SampleBufferPtr, SampleBufferPtr, int) const
+void Node::ProcessSamples(const NodeValueRow &, const SampleBufferPtr, SampleBufferPtr, int) const
 {
 }
 

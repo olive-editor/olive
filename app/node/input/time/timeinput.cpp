@@ -51,27 +51,23 @@ QString TimeInput::Description() const
   return tr("Generates the time (in seconds) at this frame.");
 }
 
-NodeValueTable TimeInput::Value(const QString &output, NodeValueDatabase &value) const
+void TimeInput::Value(const QString &output, const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
   Q_UNUSED(output)
 
-  NodeValueTable table = value.Merge();
-
-  table.Push(NodeValue::kFloat,
-             value[QStringLiteral("global")].Get(NodeValue::kFloat, QStringLiteral("time_in")),
-             this,
-             false,
-             QStringLiteral("time"));
-
-  return table;
+  table->Push(NodeValue::kFloat,
+              globals.time().in().toDouble(),
+              this,
+              false,
+              QStringLiteral("time"));
 }
 
-void TimeInput::Hash(const QString &output, QCryptographicHash &hash, const rational &time, const VideoParams &video_params) const
+void TimeInput::Hash(const QString &output, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
 {
-  Node::Hash(output, hash, time, video_params);
+  Node::Hash(output, hash, globals, video_params);
 
   // Make sure time is hashed
-  hash.addData(NodeValue::ValueToBytes(NodeValue::kRational, QVariant::fromValue(time)));
+  hash.addData(NodeValue::ValueToBytes(NodeValue::kFloat, globals.time().in().toDouble()));
 }
 
 }

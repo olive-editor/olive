@@ -62,16 +62,13 @@ QString PanNode::Description() const
   return tr("Adjust the stereo panning of an audio source.");
 }
 
-NodeValueTable PanNode::Value(const QString &output, NodeValueDatabase &value) const
+void PanNode::Value(const QString &output, const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
   Q_UNUSED(output)
+  Q_UNUSED(globals)
 
   // Create a sample job
   SampleJob job(kSamplesInput, value);
-  job.InsertValue(this, kPanningInput, value);
-
-  // Push it to our table
-  NodeValueTable table = value.Merge();
 
   if (job.HasSamples()) {
     bool push_job = false;
@@ -95,18 +92,16 @@ NodeValueTable PanNode::Value(const QString &output, NodeValueDatabase &value) c
     }
 
     if (push_job) {
-      table.Push(NodeValue::kSampleJob, QVariant::fromValue(job), this);
+      table->Push(NodeValue::kSampleJob, QVariant::fromValue(job), this);
     } else {
-      table.Push(NodeValue::kSamples, QVariant::fromValue(job.samples()), this);
+      table->Push(NodeValue::kSamples, QVariant::fromValue(job.samples()), this);
     }
   }
-
-  return table;
 }
 
-void PanNode::ProcessSamples(NodeValueDatabase &values, const SampleBufferPtr input, SampleBufferPtr output, int index) const
+void PanNode::ProcessSamples(const NodeValueRow &values, const SampleBufferPtr input, SampleBufferPtr output, int index) const
 {
-  float pan_val = values[kPanningInput].Get(NodeValue::kFloat).toFloat();
+  float pan_val = values[kPanningInput].data().toFloat();
 
   for (int i=0;i<input->audio_params().channel_count();i++) {
     output->data(i)[index] = input->data(i)[index];

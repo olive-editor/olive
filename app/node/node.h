@@ -34,6 +34,7 @@
 #include "common/rational.h"
 #include "common/timerange.h"
 #include "common/xmlutils.h"
+#include "node/globals.h"
 #include "node/keyframe.h"
 #include "node/inputimmediate.h"
 #include "node/param.h"
@@ -92,7 +93,7 @@ public:
     kCategoryCount
   };
 
-  Node(bool create_default_output = true);
+  Node();
 
   virtual ~Node() override;
 
@@ -487,6 +488,22 @@ public:
 
   int InputArraySize(const QString& id) const;
 
+  struct ValueHint {
+    QVector<NodeValue::Type> type;
+    int index = -1;
+    QString tag;
+  };
+
+  ValueHint GetValueHintForInput(const QString &input) const
+  {
+    return value_hints_.value(input);
+  }
+
+  void SetValueHintForInput(const QString &input, const ValueHint &hint)
+  {
+    value_hints_.insert(input, hint);
+  }
+
   const NodeKeyframeTrack& GetTrackFromKeyframe(NodeKeyframe* key) const;
 
   using InputConnections = std::map<NodeInput, NodeOutput>;
@@ -542,7 +559,7 @@ public:
   /**
    * @brief If Value() pushes a ShaderJob, this is the function that will process them.
    */
-  virtual void ProcessSamples(NodeValueDatabase &values, const SampleBufferPtr input, SampleBufferPtr output, int index) const;
+  virtual void ProcessSamples(const NodeValueRow &values, const SampleBufferPtr input, SampleBufferPtr output, int index) const;
 
   /**
    * @brief If Value() pushes a GenerateJob, override this function for the image to create
@@ -722,20 +739,20 @@ public:
    * corresponding output if it's connected to one. If your node doesn't directly deal with time, the default behavior
    * of the NodeParam objects will handle everything related to it automatically.
    */
-  virtual NodeValueTable Value(const QString &output, NodeValueDatabase& value) const;
+  virtual void Value(const QString &output, const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const;
 
   virtual bool HasGizmos() const;
 
-  virtual void DrawGizmos(NodeValueDatabase& db, QPainter* p);
+  virtual void DrawGizmos(const NodeValueRow& row, const NodeGlobals &globals, QPainter* p);
 
-  virtual bool GizmoPress(NodeValueDatabase& db, const QPointF& p);
+  virtual bool GizmoPress(const NodeValueRow& row, const NodeGlobals &globals, const QPointF& p);
   virtual void GizmoMove(const QPointF& p, const rational &time);
   virtual void GizmoRelease();
 
   const QString& GetLabel() const;
   void SetLabel(const QString& s);
 
-  virtual void Hash(const QString& output, QCryptographicHash& hash, const rational &time, const VideoParams& video_params) const;
+  virtual void Hash(const QString& output, QCryptographicHash& hash, const NodeGlobals &globals, const VideoParams& video_params) const;
 
   void InvalidateAll(const QString& input, int element = -1);
 
@@ -1151,7 +1168,7 @@ private:
 
   QVector<Node*> GetDependenciesInternal(bool traverse, bool exclusive_only) const;
 
-  void HashInputElement(QCryptographicHash& hash, const QString &input, int element, const rational& time, const VideoParams &video_params) const;
+  void HashInputElement(QCryptographicHash& hash, const QString &input, int element, const NodeGlobals &globals, const VideoParams &video_params) const;
 
   void ParameterValueChanged(const QString &input, int element, const olive::TimeRange &range);
   void ParameterValueChanged(const NodeInput& input, const olive::TimeRange &range)
@@ -1219,6 +1236,8 @@ private:
   int operation_stack_;
 
   bool cache_result_;
+
+  QMap<QString, ValueHint> value_hints_;
 
 private slots:
   /**

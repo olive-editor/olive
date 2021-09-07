@@ -62,16 +62,13 @@ void SolidGenerator::Retranslate()
   SetInputName(kColorInput, tr("Color"));
 }
 
-NodeValueTable SolidGenerator::Value(const QString &output, NodeValueDatabase &value) const
+void SolidGenerator::Value(const QString &output, const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
   Q_UNUSED(output)
 
   ShaderJob job;
-  job.InsertValue(this, kColorInput, value);
-
-  NodeValueTable table = value.Merge();
-  table.Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
-  return table;
+  job.InsertValue(value);
+  table->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
 }
 
 ShaderCode SolidGenerator::GetShaderCode(const QString &shader_id) const

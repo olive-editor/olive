@@ -18,37 +18,45 @@
 
 ***/
 
-#ifndef DIPTOCOLORTRANSITION_H
-#define DIPTOCOLORTRANSITION_H
+#ifndef NODEGLOBALS_H
+#define NODEGLOBALS_H
 
-#include "node/block/transition/transition.h"
+#include <QVector2D>
+
+#include "common/timerange.h"
 
 namespace olive {
 
-class DipToColorTransition : public TransitionBlock
+class NodeGlobals
 {
-  Q_OBJECT
 public:
-  DipToColorTransition();
+  NodeGlobals(const QVector2D &resolution, const TimeRange &time) :
+    resolution_(resolution),
+    time_(time)
+  {}
 
-  NODE_DEFAULT_DESTRUCTOR(DipToColorTransition)
+  const QVector2D &resolution() const
+  {
+    return resolution_;
+  }
 
-  virtual Node* copy() const override;
+  const TimeRange &time() const
+  {
+    return time_;
+  }
 
-  virtual QString Name() const override;
-  virtual QString id() const override;
-  virtual QVector<CategoryID> Category() const override;
-  virtual QString Description() const override;
+  void set_time(const TimeRange &time)
+  {
+    time_ = time;
+  }
 
-  virtual ShaderCode GetShaderCode(const QString& shader_id) const override;
+private:
+  QVector2D resolution_;
 
-  static const QString kColorInput;
-
-protected:
-  virtual void ShaderJobEvent(const NodeValueRow &value, ShaderJob& job) const override;
+  TimeRange time_;
 
 };
 
 }
 
-#endif // DIPTOCOLORTRANSITION_H
+#endif // NODEGLOBALS_H

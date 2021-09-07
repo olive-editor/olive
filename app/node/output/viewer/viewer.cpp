@@ -546,23 +546,6 @@ int ViewerOutput::AddStream(Track::Type type, const QVariant& value)
   return index;
 }
 
-void ViewerOutput::InputResized(const QString &input, int old_size, int new_size)
-{
-  if (input == kVideoParamsInput || input == kAudioParamsInput) {
-    Track::Type type = (input == kVideoParamsInput) ? Track::kVideo : Track::kAudio;
-
-    if (new_size > old_size) {
-      for (int i=old_size; i<new_size; i++) {
-        AddOutput(Track::Reference(type, i).ToString());
-      }
-    } else if (new_size < old_size) {
-      for (int i=new_size; i<old_size; i++) {
-        RemoveOutput(Track::Reference(type, i).ToString());
-      }
-    }
-  }
-}
-
 QVector<VideoParams> ViewerOutput::GetEnabledVideoStreams() const
 {
   QVector<VideoParams> streams;
