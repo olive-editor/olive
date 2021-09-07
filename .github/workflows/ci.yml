@@ -287,6 +287,9 @@ jobs:
       - name: Checkout Source Code
         uses: actions/checkout@v2
 
+      - name: Set up Homebrew
+        uses: Homebrew/actions/setup-homebrew@master
+
       - name: Automatically Generate Package Name
         shell: bash
         env:
@@ -303,8 +306,8 @@ jobs:
         shell: bash
         working-directory: ${{ runner.workspace }}
         run: |
-          $DOWNLOAD_TOOL https://github.com/olive-editor/dependencies/releases/download/continuous/olive-dep-mac-x86_64.tar.gz
-          sudo tar xzf olive-dep-mac-x86_64.tar.gz -C /
+          brew tap olive-editor/homebrew
+          brew install qt5 ffmpeg-olive openimageio-olive opencolorio opentimelineio
 
       - name: Generate Patreon List
         env:
