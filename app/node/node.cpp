@@ -134,7 +134,7 @@ void Node::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, uint versi
             }
           }
 
-          xml_node_data.desired_connections.append({NodeInput(this, param_id, ele), output_node_id.toULongLong()});
+          xml_node_data.desired_connections.append({NodeInput(this, param_id, ele), output_node_id.toULongLong(), output_param_id});
         } else {
           reader->skipCurrentElement();
         }
