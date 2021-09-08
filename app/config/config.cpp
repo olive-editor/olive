@@ -96,6 +96,7 @@ void Config::SetDefaults()
   SetEntryInternal(QStringLiteral("AutoMergeTracks"), NodeValue::kBoolean, true);
   SetEntryInternal(QStringLiteral("UseSliderLadders"), NodeValue::kBoolean, true);
   SetEntryInternal(QStringLiteral("ShowWelcomeDialog"), NodeValue::kBoolean, true);
+  SetEntryInternal(QStringLiteral("ShowClipWhileDragging"), NodeValue::kBoolean, true);
 
   SetEntryInternal(QStringLiteral("AutoCacheDelay"), NodeValue::kInt, 1000);
 

@@ -124,9 +124,19 @@ private:
 
   void DrawBlocks(QPainter* painter, bool foreground);
 
+  void DrawBlock(QPainter *painter, bool foreground, Block *block, qreal top, qreal height, const rational &in, const rational &out);
+  void DrawBlock(QPainter *painter, bool foreground, Block *block, qreal top, qreal height)
+  {
+    DrawBlock(painter, foreground, block, top, height, block->in(), block->out());
+  }
+
   int GetHeightOfAllTracks() const;
 
   void UpdatePlayheadRect();
+
+  qreal GetTimelineLeftBound() const;
+
+  qreal GetTimelineRightBound() const;
 
   QHash<Track::Reference, TimeRangeList>* selections_;
 

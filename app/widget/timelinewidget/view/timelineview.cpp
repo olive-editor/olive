@@ -281,13 +281,30 @@ void TimelineView::drawForeground(QPainter *painter, const QRectF &rect)
 
   // Draw ghosts
   if (ghosts_ && !ghosts_->isEmpty()) {
-    painter->setPen(QPen(Qt::yellow, 2));
-    painter->setBrush(Qt::NoBrush);
-
     foreach (TimelineViewGhostItem* ghost, (*ghosts_)) {
       if (ghost->GetTrack().type() == connected_track_list_->type()
           && !ghost->IsInvisible()) {
         int track_index = ghost->GetAdjustedTrack().index();
+
+        Block *attached = Node::ValueToPtr<Block>(ghost->GetData(TimelineViewGhostItem::kAttachedBlock));
+
+        if (attached && Config::Current()[QStringLiteral("ShowClipWhileDragging")].toBool()) {
+          int adj_track = ghost->GetAdjustedTrack().index();
+          qreal track_top = GetTrackY(adj_track);
+          qreal track_height = GetTrackHeight(adj_track);
+
+          qreal old_opacity = painter->opacity();
+          painter->setOpacity(0.5);
+
+          rational in = ghost->GetAdjustedIn(), out = ghost->GetAdjustedOut();
+          DrawBlock(painter, false, attached, track_top, track_height, in, out);
+          DrawBlock(painter, true, attached, track_top, track_height, in, out);
+
+          painter->setOpacity(old_opacity);
+        }
+
+        painter->setPen(QPen(Qt::yellow, 2));
+        painter->setBrush(Qt::NoBrush);
 
         painter->drawRect(TimeToScene(ghost->GetAdjustedIn()),
                           GetTrackY(track_index),
@@ -390,123 +407,20 @@ TimelineViewMouseEvent TimelineView::CreateMouseEvent(const QPoint& pos, Qt::Mou
 
 void TimelineView::DrawBlocks(QPainter *painter, bool foreground)
 {
-  qreal left_bound = horizontalScrollBar()->value();
-  qreal right_bound = viewport()->width() + horizontalScrollBar()->value();
 
-  rational start_time = SceneToTime(left_bound);
-  rational end_time = SceneToTime(right_bound);
+
+  rational start_time = SceneToTime(GetTimelineLeftBound());
+  rational end_time = SceneToTime(GetTimelineRightBound());
 
   foreach (Track* track, connected_track_list_->GetTracks()) {
     // Get first visible block in this track
     Block* block = track->NearestBlockBeforeOrAt(start_time);
 
+    qreal track_top = GetTrackY(track->Index());
+    qreal track_height = GetTrackHeight(track->Index());
+
     while (block) {
-      if (dynamic_cast<ClipBlock*>(block) || dynamic_cast<TransitionBlock*>(block)) {
-
-        qreal block_in = TimeToScene(block->in());
-
-        qreal block_left = qMax(left_bound, block_in);
-        qreal block_right = qMin(right_bound, TimeToScene(block->out())) - 1;
-        qreal block_top = GetTrackY(track->Index());
-        qreal block_height = GetTrackHeight(track->Index());
-
-        QRectF r(block_left,
-                 block_top,
-                 block_right - block_left,
-                 block_height);
-
-        QColor shadow_color = block->color().toQColor().darker();
-
-        QFontMetrics fm = fontMetrics();
-        int text_height = fm.height();
-        int text_padding = text_height/4; // This ties into the track minimum height being 1.5
-        int text_total_height = text_height + text_padding + text_padding;
-
-        if (foreground) {
-          painter->setBrush(Qt::NoBrush);
-
-          QString using_label = block->GetLabel().isEmpty() ? block->Name() : block->GetLabel();
-
-          QRectF text_rect = r.adjusted(text_padding, text_padding, -text_padding, -text_padding);
-          painter->setPen(block->is_enabled() ? ColorCoding::GetUISelectorColor(block->color()) : Qt::lightGray);
-          painter->drawText(text_rect, Qt::AlignLeft | Qt::AlignTop, using_label);
-
-          if (block->HasLinks()) {
-            int text_width = qMin(qRound(text_rect.width()),
-                                  QtUtils::QFontMetricsWidth(fm, using_label));
-
-            int underline_y = text_rect.y() + text_height;
-
-            painter->drawLine(text_rect.x(), underline_y, text_width + text_rect.x(), underline_y);
-          }
-
-          qreal line_bottom = block_top+block_height-1;
-
-          painter->setPen(Qt::white);
-          painter->drawLine(block_left, block_top, block_right, block_top);
-          painter->drawLine(block_left, block_top, block_left, line_bottom);
-
-          painter->setPen(shadow_color);
-          painter->drawLine(block_left, line_bottom, block_right, line_bottom);
-          painter->drawLine(block_right, line_bottom, block_right, block_top);
-        } else {
-          painter->setPen(Qt::NoPen);
-          painter->setBrush(block->is_enabled() ? block->brush(block_top, block_top + block_height) : Qt::gray);
-          painter->drawRect(r);
-
-          // Draw waveform
-          if (show_waveforms_) {
-            if (ClipBlock *clip = dynamic_cast<ClipBlock*>(block)) {
-              QRect waveform_rect = r.adjusted(0, text_total_height, 0, 0).toRect();
-              painter->setPen(shadow_color);
-              AudioVisualWaveform::DrawWaveform(painter, waveform_rect, this->GetScale(), clip->waveform(),
-                                                SceneToTime(block_left - block_in, GetScale(), connected_track_list_->parent()->GetAudioParams().sample_rate_as_time_base()));
-            }
-          }
-
-          // For transitions, show lines representing a transition
-          if (TransitionBlock* transition = dynamic_cast<TransitionBlock*>(block)) {
-            QVector<QLineF> lines;
-
-            if (transition->connected_in_block()) {
-              lines.append(QLineF(r.bottomLeft(), r.topRight()));
-            }
-
-            if (transition->connected_out_block()) {
-              lines.append(QLineF(r.topLeft(), r.bottomRight()));
-            }
-
-            painter->setPen(shadow_color);
-            painter->drawLines(lines);
-          }
-
-          if (transition_overlay_out_ == block || transition_overlay_in_ == block) {
-            QRectF transition_overlay_rect = r;
-
-            qreal transition_overlay_width = TimeToScene(block->length()) * 0.5;
-            if (transition_overlay_out_ && transition_overlay_in_) {
-              // This is a dual transition, use the smallest width
-              Block *other_block = (transition_overlay_out_ == block) ? transition_overlay_in_ : transition_overlay_out_;
-
-              qreal other_width = TimeToScene(other_block->length()) * 0.5;
-
-              transition_overlay_width = qMin(transition_overlay_width, other_width);
-            }
-
-            if (transition_overlay_out_ == block) {
-              transition_overlay_rect.setLeft(transition_overlay_rect.right() - transition_overlay_width);
-            } else {
-              transition_overlay_rect.setRight(transition_overlay_rect.left() + transition_overlay_width);
-            }
-
-            painter->setPen(Qt::NoPen);
-            painter->setBrush(QColor(0, 0, 0, 64));
-
-            painter->drawRect(transition_overlay_rect);
-          }
-        }
-
-      }
+      DrawBlock(painter, foreground, block, track_top, track_height);
 
       if (block->out() >= end_time) {
         // Rest of the clips are offscreen, can break loop now
@@ -515,6 +429,114 @@ void TimelineView::DrawBlocks(QPainter *painter, bool foreground)
 
       block = block->next();
     }
+  }
+}
+
+void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, qreal block_top, qreal block_height, const rational &in, const rational &out)
+{
+  if (dynamic_cast<ClipBlock*>(block) || dynamic_cast<TransitionBlock*>(block)) {
+
+    qreal block_in = TimeToScene(in);
+
+    qreal block_left = qMax(GetTimelineLeftBound(), block_in);
+    qreal block_right = qMin(GetTimelineRightBound(), TimeToScene(out)) - 1;
+
+    QRectF r(block_left,
+             block_top,
+             block_right - block_left,
+             block_height);
+
+    QColor shadow_color = block->color().toQColor().darker();
+
+    QFontMetrics fm = fontMetrics();
+    int text_height = fm.height();
+    int text_padding = text_height/4; // This ties into the track minimum height being 1.5
+    int text_total_height = text_height + text_padding + text_padding;
+
+    if (foreground) {
+      painter->setBrush(Qt::NoBrush);
+
+      QString using_label = block->GetLabel().isEmpty() ? block->Name() : block->GetLabel();
+
+      QRectF text_rect = r.adjusted(text_padding, text_padding, -text_padding, -text_padding);
+      painter->setPen(block->is_enabled() ? ColorCoding::GetUISelectorColor(block->color()) : Qt::lightGray);
+      painter->drawText(text_rect, Qt::AlignLeft | Qt::AlignTop, using_label);
+
+      if (block->HasLinks()) {
+        int text_width = qMin(qRound(text_rect.width()),
+                              QtUtils::QFontMetricsWidth(fm, using_label));
+
+        int underline_y = text_rect.y() + text_height;
+
+        painter->drawLine(text_rect.x(), underline_y, text_width + text_rect.x(), underline_y);
+      }
+
+      qreal line_bottom = block_top+block_height-1;
+
+      painter->setPen(Qt::white);
+      painter->drawLine(block_left, block_top, block_right, block_top);
+      painter->drawLine(block_left, block_top, block_left, line_bottom);
+
+      painter->setPen(shadow_color);
+      painter->drawLine(block_left, line_bottom, block_right, line_bottom);
+      painter->drawLine(block_right, line_bottom, block_right, block_top);
+    } else {
+      painter->setPen(Qt::NoPen);
+      painter->setBrush(block->is_enabled() ? block->brush(block_top, block_top + block_height) : Qt::gray);
+      painter->drawRect(r);
+
+      // Draw waveform
+      if (show_waveforms_) {
+        if (ClipBlock *clip = dynamic_cast<ClipBlock*>(block)) {
+          QRect waveform_rect = r.adjusted(0, text_total_height, 0, 0).toRect();
+          painter->setPen(shadow_color);
+          AudioVisualWaveform::DrawWaveform(painter, waveform_rect, this->GetScale(), clip->waveform(),
+                                            SceneToTime(block_left - block_in, GetScale(), connected_track_list_->parent()->GetAudioParams().sample_rate_as_time_base()));
+        }
+      }
+
+      // For transitions, show lines representing a transition
+      if (TransitionBlock* transition = dynamic_cast<TransitionBlock*>(block)) {
+        QVector<QLineF> lines;
+
+        if (transition->connected_in_block()) {
+          lines.append(QLineF(r.bottomLeft(), r.topRight()));
+        }
+
+        if (transition->connected_out_block()) {
+          lines.append(QLineF(r.topLeft(), r.bottomRight()));
+        }
+
+        painter->setPen(shadow_color);
+        painter->drawLines(lines);
+      }
+
+      if (transition_overlay_out_ == block || transition_overlay_in_ == block) {
+        QRectF transition_overlay_rect = r;
+
+        qreal transition_overlay_width = TimeToScene(block->length()) * 0.5;
+        if (transition_overlay_out_ && transition_overlay_in_) {
+          // This is a dual transition, use the smallest width
+          Block *other_block = (transition_overlay_out_ == block) ? transition_overlay_in_ : transition_overlay_out_;
+
+          qreal other_width = TimeToScene(other_block->length()) * 0.5;
+
+          transition_overlay_width = qMin(transition_overlay_width, other_width);
+        }
+
+        if (transition_overlay_out_ == block) {
+          transition_overlay_rect.setLeft(transition_overlay_rect.right() - transition_overlay_width);
+        } else {
+          transition_overlay_rect.setRight(transition_overlay_rect.left() + transition_overlay_width);
+        }
+
+        painter->setPen(Qt::NoPen);
+        painter->setBrush(QColor(0, 0, 0, 64));
+
+        painter->drawRect(transition_overlay_rect);
+      }
+    }
+
   }
 }
 
@@ -529,6 +551,16 @@ int TimelineView::GetHeightOfAllTracks() const
   } else {
     return 0;
   }
+}
+
+qreal TimelineView::GetTimelineLeftBound() const
+{
+  return horizontalScrollBar()->value();
+}
+
+qreal TimelineView::GetTimelineRightBound() const
+{
+  return GetTimelineLeftBound() + viewport()->width();
 }
 
 int TimelineView::GetTrackY(int track_index) const
