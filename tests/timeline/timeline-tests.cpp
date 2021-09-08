@@ -47,7 +47,7 @@ OLIVE_ADD_TEST(AddTrack)
     // Test creating initial video track
     first_video_track = TimelineAddTrackCommand::RunImmediately(sequence.track_list(Track::kVideo));
 
-    OLIVE_ASSERT(sequence.GetConnectedOutput(Sequence::kTextureInput).node() == first_video_track);
+    OLIVE_ASSERT(sequence.GetConnectedOutput(Sequence::kTextureInput) == first_video_track);
     OLIVE_ASSERT(sequence.track_list(Track::kVideo)->GetTrackCount() == 1);
     OLIVE_ASSERT(sequence.track_list(Track::kVideo)->GetTrackAt(0) == first_video_track);
   }
@@ -56,7 +56,7 @@ OLIVE_ADD_TEST(AddTrack)
     // Test creating initial audio track
     first_audio_track = TimelineAddTrackCommand::RunImmediately(sequence.track_list(Track::kAudio));
 
-    OLIVE_ASSERT(sequence.GetConnectedOutput(Sequence::kSamplesInput).node() == first_audio_track);
+    OLIVE_ASSERT(sequence.GetConnectedOutput(Sequence::kSamplesInput) == first_audio_track);
     OLIVE_ASSERT(sequence.track_list(Track::kAudio)->GetTrackCount() == 1);
     OLIVE_ASSERT(sequence.track_list(Track::kAudio)->GetTrackAt(0) == first_audio_track);
   }
@@ -64,29 +64,29 @@ OLIVE_ADD_TEST(AddTrack)
   {
     // Test creating second video track with merge
     Track* second_video_track = TimelineAddTrackCommand::RunImmediately(sequence.track_list(Track::kVideo), true);
-    OLIVE_ASSERT(sequence.GetConnectedOutput(Sequence::kTextureInput).node() != first_video_track);
-    OLIVE_ASSERT(sequence.GetConnectedOutput(Sequence::kTextureInput).node() != second_video_track);
+    OLIVE_ASSERT(sequence.GetConnectedOutput(Sequence::kTextureInput) != first_video_track);
+    OLIVE_ASSERT(sequence.GetConnectedOutput(Sequence::kTextureInput) != second_video_track);
     OLIVE_ASSERT(sequence.track_list(Track::kVideo)->GetTrackCount() == 2);
     OLIVE_ASSERT(sequence.track_list(Track::kVideo)->GetTrackAt(1) == second_video_track);
 
-    MergeNode* merge = dynamic_cast<MergeNode*>(sequence.GetConnectedOutput(Sequence::kTextureInput).node());
+    MergeNode* merge = dynamic_cast<MergeNode*>(sequence.GetConnectedOutput(Sequence::kTextureInput));
     OLIVE_ASSERT(merge);
-    OLIVE_ASSERT(merge->GetConnectedOutput(MergeNode::kBaseIn).node() == first_video_track);
-    OLIVE_ASSERT(merge->GetConnectedOutput(MergeNode::kBlendIn).node() == second_video_track);
+    OLIVE_ASSERT(merge->GetConnectedOutput(MergeNode::kBaseIn) == first_video_track);
+    OLIVE_ASSERT(merge->GetConnectedOutput(MergeNode::kBlendIn) == second_video_track);
   }
 
   {
     // Test creating second audio track with merge
     Track* second_audio_track = TimelineAddTrackCommand::RunImmediately(sequence.track_list(Track::kAudio), true);
-    OLIVE_ASSERT(sequence.GetConnectedOutput(Sequence::kSamplesInput).node() != first_audio_track);
-    OLIVE_ASSERT(sequence.GetConnectedOutput(Sequence::kSamplesInput).node() != second_audio_track);
+    OLIVE_ASSERT(sequence.GetConnectedOutput(Sequence::kSamplesInput) != first_audio_track);
+    OLIVE_ASSERT(sequence.GetConnectedOutput(Sequence::kSamplesInput) != second_audio_track);
     OLIVE_ASSERT(sequence.track_list(Track::kAudio)->GetTrackCount() == 2);
     OLIVE_ASSERT(sequence.track_list(Track::kAudio)->GetTrackAt(1) == second_audio_track);
 
-    MathNode* merge = dynamic_cast<MathNode*>(sequence.GetConnectedOutput(Sequence::kSamplesInput).node());
+    MathNode* merge = dynamic_cast<MathNode*>(sequence.GetConnectedOutput(Sequence::kSamplesInput));
     OLIVE_ASSERT(merge);
-    OLIVE_ASSERT(merge->GetConnectedOutput(MathNode::kParamAIn).node() == first_audio_track);
-    OLIVE_ASSERT(merge->GetConnectedOutput(MathNode::kParamBIn).node() == second_audio_track);
+    OLIVE_ASSERT(merge->GetConnectedOutput(MathNode::kParamAIn) == first_audio_track);
+    OLIVE_ASSERT(merge->GetConnectedOutput(MathNode::kParamBIn) == second_audio_track);
   }
 
   OLIVE_TEST_END;
@@ -100,9 +100,9 @@ OLIVE_ADD_TEST(SequenceDefaults)
 
   OLIVE_ASSERT(sequence.GetTracks().size() == 2);
 
-  Track* tex_connect = dynamic_cast<Track*>(sequence.GetConnectedTextureOutput().node());
+  Track* tex_connect = dynamic_cast<Track*>(sequence.GetConnectedTextureOutput());
   OLIVE_ASSERT(tex_connect);
-  Track* smp_connect = dynamic_cast<Track*>(sequence.GetConnectedSampleOutput().node());
+  Track* smp_connect = dynamic_cast<Track*>(sequence.GetConnectedSampleOutput());
   OLIVE_ASSERT(smp_connect);
   OLIVE_ASSERT(tex_connect != smp_connect);
   OLIVE_ASSERT(sequence.GetTracks().contains(tex_connect));
