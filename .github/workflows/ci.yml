@@ -307,7 +307,7 @@ jobs:
         working-directory: ${{ runner.workspace }}
         run: |
           brew tap olive-editor/homebrew
-          brew install qt5 ffmpeg-olive openimageio-olive opencolorio opentimelineio
+          brew install -f qt5 ffmpeg-olive openimageio-olive opencolorio opentimelineio
           echo "/usr/local/opt/qt@5/bin" >> $GITHUB_PATH
 
       - name: Generate Patreon List
