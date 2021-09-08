@@ -51,8 +51,6 @@ ViewerOutput::ViewerOutput(bool create_buffer_inputs, bool create_default_stream
 
   AddInput(kAudioParamsInput, NodeValue::kAudioParams, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable | kInputFlagArray));
 
-  connect(this, &Node::InputArraySizeChanged, this, &ViewerOutput::InputResized);
-
   if (create_buffer_inputs) {
     AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
     AddInput(kSamplesInput, NodeValue::kSamples, InputFlags(kInputFlagNotKeyframable));
