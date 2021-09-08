@@ -50,7 +50,7 @@ private:
 
   NodeInput input_;
 
-  NodeOutput connected_node_;
+  Node *connected_node_;
 
 };
 

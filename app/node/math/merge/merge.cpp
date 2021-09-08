@@ -116,7 +116,7 @@ void MergeNode::Hash(const ValueHint &output, QCryptographicHash &hash, const No
 
     if (!passthrough_base && !passthrough_blend) {
       // This merge will actually do something so we add a fingerprint
-      HashAddNodeSignature(hash);
+      HashAddNodeSignature(hash, output);
     }
 
     if (!passthrough_base) {
