@@ -22,6 +22,7 @@
 
 #include "node/block/block.h"
 #include "node/factory.h"
+#include "widget/nodeparamview/nodeparamviewundo.h"
 #include "widget/nodeview/nodeviewundo.h"
 
 namespace olive {
@@ -34,8 +35,14 @@ void XMLConnectNodes(const XMLNodeData &xml_node_data, MultiUndoCommand *command
     if (out) {
       if (command) {
         command->add_child(new NodeEdgeAddCommand(out, con.input));
+
+        /// Deprecated: backwards compatibility only
+        command->add_child(new NodeSetValueHintCommand(con.input, {{}, -1, con.output_param}));
       } else {
         Node::ConnectEdge(out, con.input);
+
+        /// Deprecated: backwards compatibility only
+        con.input.node()->SetValueHintForInput(con.input.input(), con.input.element(), {{}, -1, con.output_param});
       }
     }
   }

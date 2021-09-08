@@ -122,12 +122,13 @@ void Node::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, uint versi
           }
 
           QString output_node_id;
+          QString output_param_id;
 
           while (XMLReadNextStartElement(reader)) {
             if ((version >= 210907 && reader->name() == QStringLiteral("output")) || reader->name() == QStringLiteral("node")) {
               output_node_id = reader->readElementText();
             } else if (version < 210907 && reader->name() == QStringLiteral("output")) {
-              qDebug() << "FIXME: Convert output string to ValueHint";
+              output_param_id = reader->readElementText();
             } else {
               reader->skipCurrentElement();
             }
