@@ -306,11 +306,13 @@ jobs:
         shell: bash
         working-directory: ${{ runner.workspace }}
         run: |
-          #brew tap olive-editor/homebrew
-          #brew install -f qt5 ffmpeg-olive openimageio-olive opencolorio opentimelineio
+          # HACK: Workaround for https://github.com/actions/virtual-environments/issues/4020
+          rm -rf /usr/local/bin/2to3
+
           brew update
           brew upgrade
-          brew install qt5 ffmpeg openimageio opencolorio
+          brew tap olive-editor/homebrew
+          brew install -f qt5 ffmpeg-olive openimageio opencolorio opentimelineio
           echo "/usr/local/opt/qt@5/bin" >> $GITHUB_PATH
 
       - name: Generate Patreon List
