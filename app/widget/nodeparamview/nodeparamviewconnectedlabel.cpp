@@ -59,14 +59,14 @@ NodeParamViewConnectedLabel::NodeParamViewConnectedLabel(const NodeInput &input,
   if (input_.IsConnected()) {
     InputConnected(input_.GetConnectedOutput(), input_);
   } else {
-    InputDisconnected(NodeOutput(), input_);
+    InputDisconnected(nullptr, input_);
   }
 
   connect(input_.node(), &Node::InputConnected, this, &NodeParamViewConnectedLabel::InputConnected);
   connect(input_.node(), &Node::InputDisconnected, this, &NodeParamViewConnectedLabel::InputDisconnected);
 }
 
-void NodeParamViewConnectedLabel::InputConnected(const NodeOutput& output, const NodeInput& input)
+void NodeParamViewConnectedLabel::InputConnected(Node *output, const NodeInput& input)
 {
   if (input_ != input) {
     return;
@@ -77,7 +77,7 @@ void NodeParamViewConnectedLabel::InputConnected(const NodeOutput& output, const
   UpdateLabel();
 }
 
-void NodeParamViewConnectedLabel::InputDisconnected(const NodeOutput &output, const NodeInput &input)
+void NodeParamViewConnectedLabel::InputDisconnected(Node *output, const NodeInput &input)
 {
   if (input_ != input) {
     return;
@@ -85,7 +85,7 @@ void NodeParamViewConnectedLabel::InputDisconnected(const NodeOutput &output, co
 
   Q_UNUSED(output)
 
-  connected_node_ = NodeOutput();
+  connected_node_ = nullptr;
 
   UpdateLabel();
 }
@@ -104,8 +104,8 @@ void NodeParamViewConnectedLabel::ShowLabelContextMenu()
 
 void NodeParamViewConnectedLabel::ConnectionClicked()
 {
-  if (connected_node_.IsValid()) {
-    emit RequestSelectNode({connected_node_.node()});
+  if (connected_node_) {
+    emit RequestSelectNode({connected_node_});
   }
 }
 
@@ -113,8 +113,8 @@ void NodeParamViewConnectedLabel::UpdateLabel()
 {
   QString s;
 
-  if (connected_node_.IsValid()) {
-    s = connected_node_.node()->Name();
+  if (connected_node_) {
+    s = connected_node_->Name();
   } else {
     s = tr("Nothing");
   }

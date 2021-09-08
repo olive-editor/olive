@@ -35,9 +35,9 @@ signals:
   void RequestSelectNode(const QVector<Node*>& node);
 
 private slots:
-  void InputConnected(const NodeOutput &output, const NodeInput &input);
+  void InputConnected(Node *output, const NodeInput &input);
 
-  void InputDisconnected(const NodeOutput &output, const NodeInput &input);
+  void InputDisconnected(Node *output, const NodeInput &input);
 
   void ShowLabelContextMenu();
 
