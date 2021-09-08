@@ -198,30 +198,14 @@ public:
     return input_ids_;
   }
 
-  virtual QVector<QString> inputs_for_output(const QString& output) const
-  {
-    Q_UNUSED(output)
-    return inputs();
-  }
-
-  const QVector<QString>& outputs() const
-  {
-    return outputs_;
-  }
-
   bool HasInputWithID(const QString& id) const
   {
     return input_ids_.contains(id);
   }
 
-  bool HasOutputWithID(const QString& id) const
-  {
-    return outputs_.contains(id);
-  }
-
   bool HasParamWithID(const QString& id) const
   {
-    return HasInputWithID(id) || HasOutputWithID(id);
+    return HasInputWithID(id);
   }
 
   /**
@@ -255,9 +239,9 @@ public:
     }
   }
 
-  static void ConnectEdge(const NodeOutput& output, const NodeInput& input);
+  static void ConnectEdge(Node *output, const NodeInput& input);
 
-  static void DisconnectEdge(const NodeOutput& output, const NodeInput& input);
+  static void DisconnectEdge(Node *output, const NodeInput& input);
 
   QString GetInputName(const QString& id) const;
 
@@ -295,21 +279,11 @@ public:
     return IsInputStatic(input.input(), input.element());
   }
 
-  NodeOutput GetConnectedOutput(const QString& input, int element = -1) const;
+  Node *GetConnectedOutput(const QString& input, int element = -1) const;
 
-  NodeOutput GetConnectedOutput(const NodeInput& input) const
+  Node *GetConnectedOutput(const NodeInput& input) const
   {
     return GetConnectedOutput(input.input(), input.element());
-  }
-
-  Node* GetConnectedNode(const QString& input, int element = -1) const
-  {
-    return GetConnectedOutput(input, element).node();
-  }
-
-  Node* GetConnectedNode(const NodeInput& input) const
-  {
-    return GetConnectedNode(input.input(), input.element());
   }
 
   bool IsUsingStandardValue(const QString& input, int track, int element = -1) const;
@@ -494,19 +468,19 @@ public:
     QString tag;
   };
 
-  ValueHint GetValueHintForInput(const QString &input) const
+  ValueHint GetValueHintForInput(const QString &input, int element) const
   {
-    return value_hints_.value(input);
+    return value_hints_.value({input, element});
   }
 
-  void SetValueHintForInput(const QString &input, const ValueHint &hint)
+  void SetValueHintForInput(const QString &input, int element, const ValueHint &hint)
   {
-    value_hints_.insert(input, hint);
+    value_hints_.insert({input, element}, hint);
   }
 
   const NodeKeyframeTrack& GetTrackFromKeyframe(NodeKeyframe* key) const;
 
-  using InputConnections = std::map<NodeInput, NodeOutput>;
+  using InputConnections = std::map<NodeInput, Node*>;
 
   /**
    * @brief Return map of input connections
@@ -519,7 +493,7 @@ public:
     return input_connections_;
   }
 
-  using OutputConnection = std::pair<NodeOutput, NodeInput>;
+  using OutputConnection = std::pair<Node*, NodeInput>;
   using OutputConnections = std::vector<OutputConnection>;
 
   /**
@@ -739,7 +713,7 @@ public:
    * corresponding output if it's connected to one. If your node doesn't directly deal with time, the default behavior
    * of the NodeParam objects will handle everything related to it automatically.
    */
-  virtual void Value(const QString &output, const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const;
+  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const;
 
   virtual bool HasGizmos() const;
 
@@ -752,7 +726,10 @@ public:
   const QString& GetLabel() const;
   void SetLabel(const QString& s);
 
-  virtual void Hash(const QString& output, QCryptographicHash& hash, const NodeGlobals &globals, const VideoParams& video_params) const;
+  QString GetLabelAndName() const;
+  QString GetLabelOrName() const;
+
+  virtual void Hash(const ValueHint &output, QCryptographicHash& hash, const NodeGlobals &globals, const VideoParams& video_params) const;
 
   void InvalidateAll(const QString& input, int element = -1);
 
@@ -873,7 +850,7 @@ protected:
 
   };
 
-  void HashAddNodeSignature(QCryptographicHash &hash, const QString &output) const;
+  void HashAddNodeSignature(QCryptographicHash &hash) const;
 
   void InsertInput(const QString& id, NodeValue::Type type, const QVariant& default_value, InputFlags flags, int index);
 
@@ -898,10 +875,6 @@ protected:
   }
 
   void RemoveInput(const QString& id);
-
-  void AddOutput(const QString& id = kDefaultOutput);
-
-  void RemoveOutput(const QString& id);
 
   void SetInputName(const QString& id, const QString& name);
 
@@ -954,13 +927,13 @@ protected:
 
   virtual void InputValueChangedEvent(const QString& input, int element);
 
-  virtual void InputConnectedEvent(const QString& input, int element, const NodeOutput& output);
+  virtual void InputConnectedEvent(const QString& input, int element, Node *output);
 
-  virtual void InputDisconnectedEvent(const QString& input, int element, const NodeOutput& output);
+  virtual void InputDisconnectedEvent(const QString& input, int element, Node *output);
 
-  virtual void OutputConnectedEvent(const QString& output, const NodeInput& input);
+  virtual void OutputConnectedEvent(const NodeInput& input);
 
-  virtual void OutputDisconnectedEvent(const QString& output, const NodeInput& input);
+  virtual void OutputDisconnectedEvent(const NodeInput& input);
 
   virtual void childEvent(QChildEvent *event) override;
 
@@ -984,13 +957,13 @@ signals:
 
   void ValueChanged(const NodeInput& input, const TimeRange& range);
 
-  void InputConnected(const NodeOutput& output, const NodeInput& input);
+  void InputConnected(Node *output, const NodeInput& input);
 
-  void InputDisconnected(const NodeOutput& output, const NodeInput& input);
+  void InputDisconnected(Node *output, const NodeInput& input);
 
-  void OutputConnected(const NodeOutput& output, const NodeInput& input);
+  void OutputConnected(Node *output, const NodeInput& input);
 
-  void OutputDisconnected(const NodeOutput& output, const NodeInput& input);
+  void OutputDisconnected(Node *output, const NodeInput& input);
 
   void InputPropertyChanged(const QString& input, const QString& key, const QVariant& value);
 
@@ -1009,10 +982,6 @@ signals:
   void InputAdded(const QString& id);
 
   void InputRemoved(const QString& id);
-
-  void OutputAdded(const QString& id);
-
-  void OutputRemoved(const QString& id);
 
   void InputNameChanged(const QString& id, const QString& name);
 
@@ -1075,7 +1044,7 @@ private:
 
           try {
             NodeInput input(node_, input_, i);
-            NodeOutput output = node_->input_connections().at(input);
+            Node *output = node_->input_connections().at(input);
 
             removed_connections_[input] = output;
 
@@ -1219,8 +1188,6 @@ private:
   QVector<QString> input_ids_;
   QVector<Input> input_data_;
 
-  QVector<QString> outputs_;
-
   QMap<QString, NodeInputImmediate*> standard_immediates_;
 
   QMap<QString, QVector<NodeInputImmediate*> > array_immediates_;
@@ -1237,7 +1204,7 @@ private:
 
   bool cache_result_;
 
-  QMap<QString, ValueHint> value_hints_;
+  QMap<InputElementPair, ValueHint> value_hints_;
 
 private slots:
   /**
@@ -1271,7 +1238,7 @@ template<class T>
 void Node::FindInputNodeInternal(const Node* n, QVector<T *> &list)
 {
   for (auto it=n->input_connections_.cbegin(); it!=n->input_connections_.cend(); it++) {
-    Node* edge = it->second.node();
+    Node* edge = it->second;
     T* cast_test = dynamic_cast<T*>(edge);
 
     if (cast_test) {

@@ -68,8 +68,6 @@ public:
 
   virtual void InvalidateCache(const TimeRange& range, const QString& from, int element, InvalidateCacheOptions options) override;
 
-  virtual QVector<QString> inputs_for_output(const QString& output) const override;
-
   VideoParams GetVideoParams(int index = 0) const
   {
     // This check isn't strictly necessary (GetStandardValue will return a null VideoParams anyway),
@@ -150,9 +148,9 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual NodeOutput GetConnectedTextureOutput();
+  virtual Node *GetConnectedTextureOutput();
 
-  virtual NodeOutput GetConnectedSampleOutput();
+  virtual Node *GetConnectedSampleOutput();
 
   void SetViewerVideoCacheEnabled(bool e) { video_cache_enabled_ = e; }
   void SetViewerAudioCacheEnabled(bool e) { audio_cache_enabled_ = e; }
@@ -207,9 +205,9 @@ public slots:
   void VerifyLength();
 
 protected:
-  virtual void InputConnectedEvent(const QString &input, int element, const NodeOutput &output) override;
+  virtual void InputConnectedEvent(const QString &input, int element, Node *output) override;
 
-  virtual void InputDisconnectedEvent(const QString &input, int element, const NodeOutput &output) override;
+  virtual void InputDisconnectedEvent(const QString &input, int element, Node *output) override;
 
   virtual rational VerifyLengthInternal(Track::Type type) const;
 

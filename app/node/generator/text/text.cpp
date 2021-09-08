@@ -89,10 +89,8 @@ void TextGenerator::Retranslate()
   SetComboBoxStrings(kVAlignInput, {tr("Top"), tr("Center"), tr("Bottom")});
 }
 
-void TextGenerator::Value(const QString &output, const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+void TextGenerator::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  Q_UNUSED(output)
-
   GenerateJob job;
   job.InsertValue(value);
   job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);

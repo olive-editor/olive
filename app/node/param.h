@@ -42,51 +42,6 @@ struct NodeInputPair {
 };
 
 /**
- * @brief Defines a node output
- */
-class NodeOutput
-{
-public:
-  NodeOutput(Node* n, const QString& o)
-  {
-    node_ = n;
-    output_ = o;
-  }
-
-  NodeOutput(Node* n);
-
-  NodeOutput()
-  {
-    node_ = nullptr;
-  }
-
-  bool operator==(const NodeOutput& rhs) const
-  {
-    return node_ == rhs.node_ && output_ == rhs.output_;
-  }
-
-  Node* node() const
-  {
-    return node_;
-  }
-
-  const QString& output() const
-  {
-    return output_;
-  }
-
-  bool IsValid() const
-  {
-    return node_;
-  }
-
-private:
-  Node* node_;
-  QString output_;
-
-};
-
-/**
  * @brief Defines a Node input
  */
 class NodeInput
@@ -166,7 +121,7 @@ public:
 
   bool IsArray() const;
 
-  NodeOutput GetConnectedOutput() const;
+  Node *GetConnectedOutput() const;
 
   NodeValue::Type GetDataType() const;
 
@@ -190,6 +145,30 @@ private:
   QString input_;
   int element_;
 
+};
+
+struct InputElementPair {
+  QString input;
+  int element;
+
+  bool operator<(const InputElementPair &rhs) const
+  {
+    if (input != rhs.input) {
+      return input < rhs.input;
+    }
+
+    return element < rhs.element;
+  }
+
+  bool operator==(const InputElementPair &rhs) const
+  {
+    return input == rhs.input && element == rhs.element;
+  }
+
+  bool operator!=(const InputElementPair &rhs) const
+  {
+    return !(*this == rhs);
+  }
 };
 
 class NodeKeyframeTrackReference {

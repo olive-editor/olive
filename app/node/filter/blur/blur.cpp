@@ -87,10 +87,8 @@ ShaderCode BlurFilterNode::GetShaderCode(const QString &shader_id) const
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/blur.frag"));
 }
 
-void BlurFilterNode::Value(const QString &output, const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+void BlurFilterNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  Q_UNUSED(output)
-
   ShaderJob job;
 
   job.InsertValue(value);

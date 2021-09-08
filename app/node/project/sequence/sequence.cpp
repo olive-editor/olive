@@ -137,12 +137,12 @@ rational Sequence::VerifyLengthInternal(Track::Type type) const
   return 0;
 }
 
-void Sequence::InputConnectedEvent(const QString &input, int element, const NodeOutput &output)
+void Sequence::InputConnectedEvent(const QString &input, int element, Node *output)
 {
   foreach (TrackList* list, track_lists_) {
     if (list->track_input() == input) {
       // Return because we found our input
-      list->TrackConnected(output.node(), element);
+      list->TrackConnected(output, element);
       return;
     }
   }
@@ -150,12 +150,12 @@ void Sequence::InputConnectedEvent(const QString &input, int element, const Node
   super::InputConnectedEvent(input, element, output);
 }
 
-void Sequence::InputDisconnectedEvent(const QString &input, int element, const NodeOutput &output)
+void Sequence::InputDisconnectedEvent(const QString &input, int element, Node *output)
 {
   foreach (TrackList* list, track_lists_) {
     if (list->track_input() == input) {
       // Return because we found our input
-      list->TrackDisconnected(output.node(), element);
+      list->TrackDisconnected(output, element);
       return;
     }
   }

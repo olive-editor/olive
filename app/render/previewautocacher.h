@@ -87,8 +87,8 @@ private:
 
   void AddNode(Node* node);
   void RemoveNode(Node* node);
-  void AddEdge(const NodeOutput& output, const NodeInput& input);
-  void RemoveEdge(const NodeOutput& output, const NodeInput& input);
+  void AddEdge(Node *output, const NodeInput& input);
+  void RemoveEdge(Node *output, const NodeInput& input);
   void CopyValue(const NodeInput& input);
 
   void InsertIntoCopyMap(Node* node, Node* copy);
@@ -130,7 +130,7 @@ private:
     Type type;
     Node* node;
     NodeInput input;
-    NodeOutput output;
+    Node *output;
   };
 
   ViewerOutput* viewer_node_;
@@ -214,9 +214,9 @@ private slots:
 
   void NodeRemoved(Node* node);
 
-  void EdgeAdded(const NodeOutput& output, const NodeInput& input);
+  void EdgeAdded(Node *output, const NodeInput& input);
 
-  void EdgeRemoved(const NodeOutput& output, const NodeInput& input);
+  void EdgeRemoved(Node *output, const NodeInput& input);
 
   void ValueChanged(const NodeInput& input);
 

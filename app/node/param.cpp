@@ -60,12 +60,12 @@ bool NodeInput::IsArray() const
   }
 }
 
-NodeOutput NodeInput::GetConnectedOutput() const
+Node *NodeInput::GetConnectedOutput() const
 {
   if (IsValid()) {
     return node_->GetConnectedOutput(*this);
   } else {
-    return NodeOutput();
+    return nullptr;
   }
 }
 
@@ -126,12 +126,6 @@ QVariant NodeInput::GetSplitDefaultValueForTrack(int track) const
 uint qHash(const NodeInput &i)
 {
   return qHash(i.node()) ^ qHash(i.input()) ^ qHash(i.element());
-}
-
-NodeOutput::NodeOutput(Node *n)
-{
-  node_ = n;
-  output_ = Node::kDefaultOutput;
 }
 
 uint qHash(const NodeKeyframeTrackReference &i)

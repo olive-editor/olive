@@ -73,12 +73,6 @@ void Footage::Retranslate()
   SetComboBoxStrings(kLoopModeInput, {tr("None"), tr("Loop"), tr("Clamp")});
 }
 
-QVector<QString> Footage::inputs_for_output(const QString &output) const
-{
-  Q_UNUSED(output)
-  return {kFilenameInput, kLoopModeInput};
-}
-
 bool Footage::LoadCustom(QXmlStreamReader *reader, XMLNodeData &xml_node_data, uint version, const QAtomicInt* cancelled)
 {
   if (reader->name() == QStringLiteral("timestamp")) {
@@ -280,6 +274,24 @@ int Footage::GetStreamIndex(Track::Type type, int index) const
   }
 }
 
+Track::Reference Footage::GetReferenceFromRealIndex(int real_index) const
+{
+  // Check video streams
+  for (int i=0; i<GetVideoStreamCount(); i++) {
+    if (GetVideoParams(i).stream_index() == real_index) {
+      return Track::Reference(Track::kVideo, i);
+    }
+  }
+
+  for (int i=0; i<GetAudioStreamCount(); i++) {
+    if (GetAudioParams(i).stream_index() == real_index) {
+      return Track::Reference(Track::kAudio, i);
+    }
+  }
+
+  return Track::Reference();
+}
+
 const QString &Footage::decoder() const
 {
   return decoder_;
@@ -323,62 +335,47 @@ QString Footage::DescribeAudioStream(const AudioParams &params)
          QString::number(params.sample_rate()));
 }
 
-void Footage::Hash(const QString& output, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
+void Footage::Hash(const Node::ValueHint& output, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
 {
   super::Hash(output, hash, globals, video_params);
 
   // Footage last modified date
   hash.addData(QString::number(timestamp()).toUtf8());
 
-  // Translate output ID to stream
-  Track::Reference ref = Track::Reference::FromString(output);
+  for (int i=0; i<GetVideoStreamCount(); i++) {
+    VideoParams params = GetVideoParams(i);
 
-  if (ref.type() == Track::kVideo) {
-    VideoParams params = GetVideoParams(ref.index());
+    // Current color config and space
+    hash.addData(project()->color_manager()->GetConfigFilename().toUtf8());
+    hash.addData(GetColorspaceToUse(params).toUtf8());
 
-    if (params.is_valid()) {
-      // Add footage details to hash
-      QString fn = filename();
+    // Alpha associated setting
+    hash.addData(QString::number(params.premultiplied_alpha()).toUtf8());
 
-      // Footage stream
-      hash.addData(QString::number(ref.index()).toUtf8());
+    // Pixel aspect ratio
+    hash.addData(reinterpret_cast<const char*>(&params.pixel_aspect_ratio()), sizeof(params.pixel_aspect_ratio()));
 
-      if (!fn.isEmpty()) {
-        // Current color config and space
-        hash.addData(project()->color_manager()->GetConfigFilename().toUtf8());
-        hash.addData(GetColorspaceToUse(params).toUtf8());
+    // Footage timestamp
+    if (params.video_type() != VideoParams::kVideoTypeStill) {
+      rational adjusted_time = AdjustTimeByLoopMode(globals.time().in(), loop_mode(), GetLength(), params.video_type(), params.frame_rate_as_time_base());
 
-        // Alpha associated setting
-        hash.addData(QString::number(params.premultiplied_alpha()).toUtf8());
+      if (!adjusted_time.isNaN()) {
+        int64_t video_ts = Timecode::time_to_timestamp(adjusted_time, params.time_base());
 
-        // Pixel aspect ratio
-        hash.addData(reinterpret_cast<const char*>(&params.pixel_aspect_ratio()), sizeof(params.pixel_aspect_ratio()));
-
-        // Footage timestamp
-        if (params.video_type() != VideoParams::kVideoTypeStill) {
-          rational adjusted_time = AdjustTimeByLoopMode(globals.time().in(), loop_mode(), GetLength(), params.video_type(), params.frame_rate_as_time_base());
-
-          if (!adjusted_time.isNaN()) {
-            int64_t video_ts = Timecode::time_to_timestamp(adjusted_time, params.time_base());
-
-            // Add timestamp in units of the video stream's timebase
-            hash.addData(reinterpret_cast<const char*>(&video_ts), sizeof(video_ts));
-          }
-
-          // Add start time - used for both image sequences and video streams
-          auto start_time = params.start_time();
-          hash.addData(reinterpret_cast<const char*>(&start_time), sizeof(start_time));
-        }
+        // Add timestamp in units of the video stream's timebase
+        hash.addData(reinterpret_cast<const char*>(&video_ts), sizeof(video_ts));
       }
+
+      // Add start time - used for both image sequences and video streams
+      auto start_time = params.start_time();
+      hash.addData(reinterpret_cast<const char*>(&start_time), sizeof(start_time));
     }
   }
 }
 
-void Footage::Value(const QString &output, const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+void Footage::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
   Q_UNUSED(globals)
-
-  Track::Reference ref = Track::Reference::FromString(output);
 
   // Pop filename from table
   QString file = value[kFilenameInput].data().toString();
@@ -387,23 +384,29 @@ void Footage::Value(const QString &output, const NodeValueRow &value, const Node
 
   // If the file exists and the reference is valid, push a footage job to the renderer
   if (QFileInfo(file).exists()) {
-    FootageJob job(decoder_, filename(), ref.type(), GetLength(), loop_mode);
-
-    if (ref.type() == Track::kVideo) {
-      VideoParams vp = GetVideoParams(ref.index());
-
-      // Ensure the colorspace is valid and not empty
-      vp.set_colorspace(GetColorspaceToUse(vp));
-
-      job.set_video_params(vp);
-    } else {
-      AudioParams ap = GetAudioParams(ref.index());
-      job.set_audio_params(ap);
-      job.set_cache_path(project()->cache_path());
-    }
-
+    // Push length
     table->Push(NodeValue::kRational, QVariant::fromValue(GetLength()), this, false, QStringLiteral("length"));
-    table->Push(NodeValue::kFootageJob, QVariant::fromValue(job), this);
+
+    // Push each stream as a footage job
+    for (int i=0; i<GetTotalStreamCount(); i++) {
+      Track::Reference ref = GetReferenceFromRealIndex(i);
+      FootageJob job(decoder_, filename(), ref.type(), GetLength(), loop_mode);
+
+      if (ref.type() == Track::kVideo) {
+        VideoParams vp = GetVideoParams(ref.index());
+
+        // Ensure the colorspace is valid and not empty
+        vp.set_colorspace(GetColorspaceToUse(vp));
+
+        job.set_video_params(vp);
+      } else {
+        AudioParams ap = GetAudioParams(ref.index());
+        job.set_audio_params(ap);
+        job.set_cache_path(project()->cache_path());
+      }
+
+      table->Push(NodeValue::kFootageJob, QVariant::fromValue(job), this, false, ref.ToString());
+    }
   }
 }
 
@@ -424,23 +427,21 @@ QString Footage::GetStreamTypeName(Track::Type type)
   return tr("Unknown");
 }
 
-NodeOutput Footage::GetConnectedTextureOutput()
+Node *Footage::GetConnectedTextureOutput()
 {
-  QString output = Track::Reference(Track::kVideo, 0).ToString();
-  if (HasOutputWithID(output)) {
-    return NodeOutput(this, output);
+  if (GetVideoStreamCount() > 0) {
+    return this;
   } else {
-    return NodeOutput();
+    return nullptr;
   }
 }
 
-NodeOutput Footage::GetConnectedSampleOutput()
+Node *Footage::GetConnectedSampleOutput()
 {
-  QString output = Track::Reference(Track::kAudio, 0).ToString();
-  if (HasOutputWithID(output)) {
-    return NodeOutput(this, output);
+  if (GetAudioStreamCount() > 0) {
+    return this;
   } else {
-    return NodeOutput();
+    return nullptr;
   }
 }
 

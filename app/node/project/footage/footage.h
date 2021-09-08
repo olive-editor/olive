@@ -84,8 +84,6 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual QVector<QString> inputs_for_output(const QString &output) const override;
-
   /**
    * @brief Reset Footage state ready for running through Probe() again
    *
@@ -181,15 +179,15 @@ public:
   static QString DescribeVideoStream(const VideoParams& params);
   static QString DescribeAudioStream(const AudioParams& params);
 
-  virtual void Hash(const QString& output, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams& video_params) const override;
+  virtual void Hash(const ValueHint &output, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams& video_params) const override;
 
-  virtual void Value(const QString &output, const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
+  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
 
   static QString GetStreamTypeName(Track::Type type);
 
-  virtual NodeOutput GetConnectedTextureOutput() override;
+  virtual Node *GetConnectedTextureOutput() override;
 
-  virtual NodeOutput GetConnectedSampleOutput() override;
+  virtual Node *GetConnectedSampleOutput() override;
 
   static rational AdjustTimeByLoopMode(rational time, LoopMode loop_mode, const rational& length, VideoParams::Type type, const rational &timebase);
 

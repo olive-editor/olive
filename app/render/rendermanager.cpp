@@ -102,7 +102,7 @@ void RenderManager::ClearOldDecoders()
   }
 }
 
-QByteArray RenderManager::Hash(const Node *n, const QString& output, const VideoParams &params, const rational &time)
+QByteArray RenderManager::Hash(const Node *n, const Node::ValueHint &output, const VideoParams &params, const rational &time)
 {
   QCryptographicHash hasher(QCryptographicHash::Sha1);
 

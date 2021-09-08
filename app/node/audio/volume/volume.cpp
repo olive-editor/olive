@@ -61,10 +61,8 @@ QString VolumeNode::Description() const
   return tr("Adjusts the volume of an audio source.");
 }
 
-void VolumeNode::Value(const QString &output, const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+void VolumeNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  Q_UNUSED(output)
-
   return ValueInternal(kOpMultiply,
                        kPairSampleNumber,
                        kSamplesInput,

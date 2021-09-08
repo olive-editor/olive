@@ -72,6 +72,14 @@ Node *Track::copy() const
 
 QString Track::Name() const
 {
+  if (track_type_ == Track::kVideo) {
+    return tr("Video Track %1").arg(index_);
+  } else if (track_type_ == Track::kAudio) {
+    return tr("Audio Track %1").arg(index_);
+  } else if (track_type_ == Track::kSubtitle) {
+    return tr("Subtitle Track %1").arg(index_);
+  }
+
   return tr("Track");
 }
 
@@ -145,7 +153,7 @@ void Track::SaveCustom(QXmlStreamWriter *writer) const
   writer->writeTextElement(QStringLiteral("height"), QString::number(GetTrackHeight()));
 }
 
-void Track::InputConnectedEvent(const QString &input, int element, const NodeOutput &output)
+void Track::InputConnectedEvent(const QString &input, int element, Node *output)
 {
   if (input == kBlockInput) {
     if (element == -1) {
@@ -155,7 +163,7 @@ void Track::InputConnectedEvent(const QString &input, int element, const NodeOut
     }
 
     // Check if a block was connected, if not, ignore
-    Block* block = dynamic_cast<Block*>(output.node());
+    Block* block = dynamic_cast<Block*>(output);
 
     if (!block) {
       return;
@@ -220,7 +228,7 @@ void Track::InputConnectedEvent(const QString &input, int element, const NodeOut
   }
 }
 
-void Track::InputDisconnectedEvent(const QString &input, int element, const NodeOutput &output)
+void Track::InputDisconnectedEvent(const QString &input, int element, Node *output)
 {
   if (input == kBlockInput) {
     if (element == -1) {
@@ -229,7 +237,7 @@ void Track::InputDisconnectedEvent(const QString &input, int element, const Node
       return;
     }
 
-    Block* b = dynamic_cast<Block*>(output.node());
+    Block* b = dynamic_cast<Block*>(output);
 
     if (!b) {
       return;
@@ -425,7 +433,7 @@ void Track::InvalidateCache(const TimeRange& range, const QString& from, int ele
 
   if (from == kBlockInput
       && element >= 0
-      && (b = dynamic_cast<const Block*>(GetConnectedOutput(from, element).node()))
+      && (b = dynamic_cast<const Block*>(GetConnectedOutput(from, element)))
       && !options.value(QStringLiteral("lengthevent")).toBool()) {
     // Limit the range signal to the corresponding block
     TimeRange transformed = TransformRangeFromBlock(b, range);
@@ -553,23 +561,6 @@ rational Track::track_length() const
   }
 }
 
-QString Track::GetDefaultTrackName(Track::Type type, int index)
-{
-  // Starts tracks at 1 rather than 0
-  int user_friendly_index = index+1;
-
-  switch (type) {
-  case Track::kVideo: return tr("Video %1").arg(user_friendly_index);
-  case Track::kAudio: return tr("Audio %1").arg(user_friendly_index);
-  case Track::kSubtitle: return tr("Subtitle %1").arg(user_friendly_index);
-  case Track::kNone:
-  case Track::kCount:
-    break;
-  }
-
-  return tr("Track %1").arg(user_friendly_index);
-}
-
 bool Track::IsMuted() const
 {
   return GetStandardValue(kMutedInput).toBool();
@@ -580,7 +571,7 @@ bool Track::IsLocked() const
   return locked_;
 }
 
-void Track::Hash(const QString &output, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
+void Track::Hash(const Node::ValueHint &output, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
 {
   Q_UNUSED(output)
 
@@ -590,7 +581,7 @@ void Track::Hash(const QString &output, QCryptographicHash &hash, const NodeGlob
   if (b) {
     NodeGlobals new_globals = globals;
     new_globals.set_time(TransformRangeForBlock(b, globals.time()));
-    b->Hash(kDefaultOutput, hash, new_globals, video_params);
+    b->Hash(GetValueHintForInput(kBlockInput, GetArrayIndexFromBlock(b)), hash, new_globals, video_params);
   }
 }
 

@@ -401,7 +401,7 @@ void ViewerDisplayWidget::OnPaint()
     gt.SetCacheVideoParams(gizmo_params_);
 
     TimeRange range = GenerateGizmoTime();
-    gizmo_db_ = gt.GenerateRow(gizmos_, Node::kDefaultOutput, range);
+    gizmo_db_ = gt.GenerateRow(gizmos_, range);
 
     QPainter p(inner_widget());
     p.setWorldTransform(GenerateGizmoTransform());

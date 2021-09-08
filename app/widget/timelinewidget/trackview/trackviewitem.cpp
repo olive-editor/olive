@@ -111,11 +111,7 @@ void TrackViewItem::LineEditCancelled()
 
 void TrackViewItem::UpdateLabel()
 {
-  if (track_->GetLabel().isEmpty()) {
-    label_->setText(track_->GetDefaultTrackName(track_->type(), track_->Index()));
-  } else {
-    label_->setText(track_->GetLabel());
-  }
+  label_->setText(track_->GetLabelOrName());
 }
 
 }

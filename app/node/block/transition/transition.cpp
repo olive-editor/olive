@@ -137,10 +137,10 @@ double TransitionBlock::GetInProgress(const double &time) const
   return clamp((GetInternalTransitionTime(time) - out_offset().toDouble()) / in_offset().toDouble(), 0.0, 1.0);
 }
 
-void TransitionBlock::Hash(const QString &output, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
+void TransitionBlock::Hash(const ValueHint &output, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
 {
   if (HashPassthrough(kInBlockInput, output, hash, globals, video_params) || HashPassthrough(kOutBlockInput, output, hash, globals, video_params)) {
-    HashAddNodeSignature(hash, output);
+    HashAddNodeSignature(hash);
 
     double time_dbl = globals.time().in().toDouble();
     double all_prog = GetTotalProgress(time_dbl);
@@ -173,10 +173,8 @@ void TransitionBlock::InsertTransitionTimes(AcceleratedJob *job, const double &t
                    NodeValue(NodeValue::kFloat, GetInProgress(time), this));
 }
 
-void TransitionBlock::Value(const QString &output, const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+void TransitionBlock::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  Q_UNUSED(output)
-
   NodeValue out_buffer = value[kOutBlockInput];
   NodeValue in_buffer = value[kInBlockInput];
   NodeValue::Type data_type = (out_buffer.type() != NodeValue::kNone) ? out_buffer.type() : in_buffer.type();
@@ -236,7 +234,7 @@ void TransitionBlock::InvalidateCache(const TimeRange &range, const QString &fro
   TimeRange r = range;
 
   if (from == kOutBlockInput || from == kInBlockInput) {
-    Block *n = dynamic_cast<Block*>(GetConnectedNode(from));
+    Block *n = dynamic_cast<Block*>(GetConnectedOutput(from));
     if (n) {
       r = Track::TransformRangeFromBlock(n, r);
     }
@@ -275,24 +273,24 @@ double TransitionBlock::TransformCurve(double linear) const
   return linear;
 }
 
-void TransitionBlock::InputConnectedEvent(const QString &input, int element, const NodeOutput &output)
+void TransitionBlock::InputConnectedEvent(const QString &input, int element, Node *output)
 {
   Q_UNUSED(element)
 
   if (input == kOutBlockInput) {
     // If node is not a block, this will just be null
-    if ((connected_out_block_ = dynamic_cast<ClipBlock*>(output.node()))) {
+    if ((connected_out_block_ = dynamic_cast<ClipBlock*>(output))) {
       connected_out_block_->set_out_transition(this);
     }
   } else if (input == kInBlockInput) {
     // If node is not a block, this will just be null
-    if ((connected_in_block_ = dynamic_cast<ClipBlock*>(output.node()))) {
+    if ((connected_in_block_ = dynamic_cast<ClipBlock*>(output))) {
       connected_in_block_->set_in_transition(this);
     }
   }
 }
 
-void TransitionBlock::InputDisconnectedEvent(const QString &input, int element, const NodeOutput &output)
+void TransitionBlock::InputDisconnectedEvent(const QString &input, int element, Node *output)
 {
   Q_UNUSED(element)
   Q_UNUSED(output)
@@ -313,7 +311,7 @@ void TransitionBlock::InputDisconnectedEvent(const QString &input, int element, 
 TimeRange TransitionBlock::InputTimeAdjustment(const QString &input, int element, const TimeRange &input_time) const
 {
   if (input == kInBlockInput || input == kOutBlockInput) {
-    Block* block = dynamic_cast<Block*>(GetConnectedNode(input));
+    Block* block = dynamic_cast<Block*>(GetConnectedOutput(input));
     if (block) {
       return input_time + in() - block->in();
     }
@@ -325,7 +323,7 @@ TimeRange TransitionBlock::InputTimeAdjustment(const QString &input, int element
 TimeRange TransitionBlock::OutputTimeAdjustment(const QString &input, int element, const TimeRange &input_time) const
 {
   if (input == kInBlockInput || input == kOutBlockInput) {
-    Block* block = dynamic_cast<Block*>(GetConnectedNode(input));
+    Block* block = dynamic_cast<Block*>(GetConnectedOutput(input));
     if (block) {
       return input_time + block->in() - in();
     }

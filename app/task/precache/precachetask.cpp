@@ -47,7 +47,9 @@ PreCacheTask::PreCacheTask(Footage *footage, int index, Sequence* sequence)
   footage_ = static_cast<Footage*>(footage->copy());
   footage_->setParent(project_);
   Node::CopyInputs(footage, footage_, false);
-  Node::ConnectEdge(NodeOutput(footage_, Track::Reference(Track::kVideo, index).ToString()), NodeInput(viewer(), ViewerOutput::kTextureInput));
+
+  Node::ConnectEdge(footage_, NodeInput(viewer(), ViewerOutput::kTextureInput));
+  viewer()->SetValueHintForInput(ViewerOutput::kTextureInput, -1, {{NodeValue::kTexture}, -1, Track::Reference(Track::kVideo, index).ToString()});
 
   SetTitle(tr("Pre-caching %1:%2").arg(footage_->filename(), QString::number(index)));
 }

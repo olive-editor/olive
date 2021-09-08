@@ -20,6 +20,7 @@
 
 #include "clip.h"
 
+#include "node/output/track/track.h"
 #include "widget/slider/floatslider.h"
 #include "widget/slider/rationalslider.h"
 
@@ -50,7 +51,7 @@ ClipBlock::ClipBlock() :
   IgnoreHashingFrom(kReverseInput);
 
   PrependInput(kBufferIn, NodeValue::kNone, InputFlags(kInputFlagNotKeyframable));
-  SetValueHintForInput(kBufferIn, {NodeValue::kBuffer, -1, QString()});
+  SetValueHintForInput(kBufferIn, -1, {NodeValue::kBuffer, -1, QString()});
 }
 
 Node *ClipBlock::copy() const
@@ -60,6 +61,14 @@ Node *ClipBlock::copy() const
 
 QString ClipBlock::Name() const
 {
+  if (track()) {
+    if (track()->type() == Track::kVideo) {
+      return tr("Video Clip");
+    } else if (track()->type() == Track::kAudio) {
+      return tr("Audio Clip");
+    }
+  }
+
   return tr("Clip");
 }
 
@@ -232,9 +241,8 @@ TimeRange ClipBlock::OutputTimeAdjustment(const QString& input, int element, con
   return super::OutputTimeAdjustment(input, element, input_time);
 }
 
-void ClipBlock::Value(const QString &output, const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+void ClipBlock::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  Q_UNUSED(output)
   Q_UNUSED(globals)
 
   // We discard most values here except for the buffer we received
@@ -256,9 +264,9 @@ void ClipBlock::Retranslate()
   SetInputName(kReverseInput, tr("Reverse"));
 }
 
-void ClipBlock::Hash(const QString &out, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
+void ClipBlock::Hash(const ValueHint &out, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
 {
-  HashPassthrough(kBufferIn, out, hash, globals, video_params);
+  HashPassthrough(kBufferIn, GetValueHintForInput(kBufferIn, -1), hash, globals, video_params);
 }
 
 }

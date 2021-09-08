@@ -82,10 +82,8 @@ void StrokeFilterNode::Retranslate()
   SetInputName(kInnerInput, tr("Inner"));
 }
 
-void StrokeFilterNode::Value(const QString &output, const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+void StrokeFilterNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  Q_UNUSED(output)
-
   ShaderJob job;
 
   job.InsertValue(value);

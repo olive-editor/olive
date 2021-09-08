@@ -402,8 +402,8 @@ void ViewerWidget::DecodeCachedImage(RenderTicketPtr ticket, const QString &cach
 bool ViewerWidget::ShouldForceWaveform() const
 {
   return GetConnectedNode()
-      && !GetConnectedNode()->GetConnectedTextureOutput().IsValid()
-      && GetConnectedNode()->GetConnectedSampleOutput().IsValid();
+      && !GetConnectedNode()->GetConnectedTextureOutput()
+      && GetConnectedNode()->GetConnectedSampleOutput();
 }
 
 void ViewerWidget::SetEmptyImage()
@@ -686,7 +686,7 @@ bool ViewerWidget::FrameExistsAtTime(const rational &time)
 
 bool ViewerWidget::ViewerMightBeAStill()
 {
-  return GetConnectedNode() && GetConnectedNode()->GetConnectedTextureOutput().IsValid() && GetConnectedNode()->GetVideoLength().isNull();
+  return GetConnectedNode() && GetConnectedNode()->GetConnectedTextureOutput() && GetConnectedNode()->GetVideoLength().isNull();
 }
 
 void ViewerWidget::SetDisplayImage(QVariant frame, bool main_only)

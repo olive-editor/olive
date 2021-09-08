@@ -51,10 +51,8 @@ QString TimeInput::Description() const
   return tr("Generates the time (in seconds) at this frame.");
 }
 
-void TimeInput::Value(const QString &output, const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+void TimeInput::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  Q_UNUSED(output)
-
   table->Push(NodeValue::kFloat,
               globals.time().in().toDouble(),
               this,
@@ -62,7 +60,7 @@ void TimeInput::Value(const QString &output, const NodeValueRow &value, const No
               QStringLiteral("time"));
 }
 
-void TimeInput::Hash(const QString &output, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
+void TimeInput::Hash(const ValueHint &output, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
 {
   Node::Hash(output, hash, globals, video_params);
 

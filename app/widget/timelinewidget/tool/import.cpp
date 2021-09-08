@@ -34,6 +34,7 @@
 #include "node/generator/matrix/matrix.h"
 #include "node/math/math/math.h"
 #include "node/project/sequence/sequence.h"
+#include "widget/nodeparamview/nodeparamviewundo.h"
 #include "widget/nodeview/nodeviewundo.h"
 #include "widget/timelinewidget/undo/timelineundopointer.h"
 #include "window/mainwindow/mainwindow.h"
@@ -385,8 +386,6 @@ void ImportTool::DropGhosts(bool insert)
 
       TimelineViewGhostItem::AttachedFootage footage_stream = ghost->GetData(TimelineViewGhostItem::kAttachedFootage).value<TimelineViewGhostItem::AttachedFootage>();
 
-      NodeOutput corresponding_output(footage_stream.footage, footage_stream.output);
-
       ClipBlock* clip = new ClipBlock();
       clip->set_media_in(ghost->GetMediaIn());
       clip->set_length_and_media_out(ghost->GetLength());
@@ -405,7 +404,9 @@ void ImportTool::DropGhosts(bool insert)
         TransformDistortNode* transform = new TransformDistortNode();
         command->add_child(new NodeAddCommand(dst_graph, transform));
 
-        command->add_child(new NodeEdgeAddCommand(corresponding_output, NodeInput(transform, TransformDistortNode::kTextureInput)));
+        command->add_child(new NodeSetValueHintCommand(transform, TransformDistortNode::kTextureInput, -1, {{NodeValue::kTexture}, -1, footage_stream.output}));
+
+        command->add_child(new NodeEdgeAddCommand(footage_stream.footage, NodeInput(transform, TransformDistortNode::kTextureInput)));
         command->add_child(new NodeEdgeAddCommand(transform, NodeInput(clip, ClipBlock::kBufferIn)));
         command->add_child(new NodeSetPositionCommand(transform, clip, QPointF(-1, 0), false));
         break;
@@ -415,7 +416,9 @@ void ImportTool::DropGhosts(bool insert)
         VolumeNode* volume_node = new VolumeNode();
         command->add_child(new NodeAddCommand(dst_graph, volume_node));
 
-        command->add_child(new NodeEdgeAddCommand(corresponding_output, NodeInput(volume_node, VolumeNode::kSamplesInput)));
+        command->add_child(new NodeSetValueHintCommand(volume_node, VolumeNode::kSamplesInput, -1, {{NodeValue::kSamples}, -1, footage_stream.output}));
+
+        command->add_child(new NodeEdgeAddCommand(footage_stream.footage, NodeInput(volume_node, VolumeNode::kSamplesInput)));
         command->add_child(new NodeEdgeAddCommand(volume_node, NodeInput(clip, ClipBlock::kBufferIn)));
         command->add_child(new NodeSetPositionCommand(volume_node, clip, QPointF(-1, 0), false));
         break;

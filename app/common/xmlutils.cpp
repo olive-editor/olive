@@ -29,9 +29,9 @@ namespace olive {
 void XMLConnectNodes(const XMLNodeData &xml_node_data, MultiUndoCommand *command)
 {
   foreach (const XMLNodeData::SerializedConnection& con, xml_node_data.desired_connections) {
-    NodeOutput out(xml_node_data.node_ptrs.value(con.output_node), con.output);
+    Node *out = xml_node_data.node_ptrs.value(con.output_node);
 
-    if (out.IsValid()) {
+    if (out) {
       if (command) {
         command->add_child(new NodeEdgeAddCommand(out, con.input));
       } else {

@@ -164,6 +164,38 @@ private:
 
 };
 
+class NodeSetValueHintCommand : public UndoCommand
+{
+public:
+  NodeSetValueHintCommand(const NodeInput &input, const Node::ValueHint &hint) :
+    input_(input),
+    new_hint_(hint)
+  {
+  }
+
+  NodeSetValueHintCommand(Node *node, const QString &input, int element, const Node::ValueHint &hint) :
+    NodeSetValueHintCommand(NodeInput(node, input, element), hint)
+  {
+  }
+
+  virtual Project* GetRelevantProject() const override
+  {
+    return input_.node()->project();
+  }
+
+protected:
+  virtual void redo() override;
+
+  virtual void undo() override;
+
+private:
+  NodeInput input_;
+
+  Node::ValueHint new_hint_;
+  Node::ValueHint old_hint_;
+
+};
+
 }
 
 #endif // NODEPARAMVIEWUNDO_H

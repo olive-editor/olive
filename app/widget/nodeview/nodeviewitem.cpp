@@ -301,14 +301,6 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     QString node_label = node_->GetLabel();
     QString node_shortname = node_->ShortName();
 
-    if (node_label.isEmpty()) {
-      // If this is a track and has no user-supplied label, generate an automatic one
-      Track* track_cast_test = dynamic_cast<Track*>(node_);
-      if (track_cast_test) {
-        node_label = Track::GetDefaultTrackName(track_cast_test->type(), track_cast_test->Index());
-      }
-    }
-
     int icon_size = painter->fontMetrics().height()/2;
 
     if (node_label.isEmpty()) {
@@ -511,7 +503,7 @@ QPointF NodeViewItem::GetInputPoint(const QString &input, int element, const QPo
   return pos() + GetInputPointInternal(node_inputs_.indexOf(input), source_pos);
 }
 
-QPointF NodeViewItem::GetOutputPoint(const QString& output) const
+QPointF NodeViewItem::GetOutputPoint() const
 {
   switch (flow_dir_) {
   case NodeViewCommon::kLeftToRight:

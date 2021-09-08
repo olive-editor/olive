@@ -43,7 +43,7 @@ void NodeTableView::SelectNodes(const QVector<Node *> &nodes)
 {
   foreach (Node* n, nodes) {
     QTreeWidgetItem* top_item = new QTreeWidgetItem();
-    top_item->setText(0, n->Name());
+    top_item->setText(0, n->GetLabelAndName());
     top_item->setFirstColumnSpanned(true);
     this->addTopLevelItem(top_item);
     top_level_item_map_.insert(n, top_item);
@@ -70,7 +70,7 @@ void NodeTableView::SetTime(const rational &time)
     QTreeWidgetItem* item = i.value();
 
     // Generate a value database for this node at this time
-    NodeValueDatabase db = traverser.GenerateDatabase(node, QString(), TimeRange(time, time));
+    NodeValueDatabase db = traverser.GenerateDatabase(node, TimeRange(time, time));
 
     // Delete any children of this item that aren't in this database
     for (int j=0; j<item->childCount(); j++) {
@@ -81,9 +81,7 @@ void NodeTableView::SetTime(const rational &time)
     }
 
     // Update all inputs
-    NodeValueDatabase::const_iterator l;
-
-    for (l=db.begin(); l!=db.end(); l++) {
+    for (auto l=db.begin(); l!=db.end(); l++) {
       const NodeValueTable& table = l.value();
 
       if (!node->HasInputWithID(l.key())) {
@@ -132,7 +130,7 @@ void NodeTableView::SetTime(const rational &time)
         // Determine source
         QString source_name;
         if (value.source()) {
-          source_name = value.source()->Name();
+          source_name = value.source()->GetLabelAndName();
         } else {
           source_name = tr("(unknown)");
         }

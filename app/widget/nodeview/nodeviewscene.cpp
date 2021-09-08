@@ -98,7 +98,7 @@ NodeViewItem *NodeViewScene::NodeToUIObject(Node *n)
   return item_map_.value(n);
 }
 
-NodeViewEdge *NodeViewScene::EdgeToUIObject(const NodeOutput& output, const NodeInput& input)
+NodeViewEdge *NodeViewScene::EdgeToUIObject(Node *output, const NodeInput& input)
 {
   foreach (NodeViewEdge* edge, edges_) {
     if (edge->output() == output && edge->input() == input) {
@@ -172,18 +172,18 @@ void NodeViewScene::RemoveNode(Node *node)
   delete item_map_.take(node);
 }
 
-NodeViewEdge* NodeViewScene::AddEdge(const NodeOutput &output, const NodeInput &input)
+NodeViewEdge* NodeViewScene::AddEdge(Node *output, const NodeInput &input)
 {
   NodeViewEdge *edge = EdgeToUIObject(output, input);
 
   if (!edge) {
-    edge = AddEdgeInternal(output, input, NodeToUIObject(output.node()), NodeToUIObject(input.node()));
+    edge = AddEdgeInternal(output, input, NodeToUIObject(output), NodeToUIObject(input.node()));
   }
 
   return edge;
 }
 
-void NodeViewScene::RemoveEdge(const NodeOutput &output, const NodeInput &input)
+void NodeViewScene::RemoveEdge(Node *output, const NodeInput &input)
 {
   NodeViewEdge* edge = EdgeToUIObject(output, input);
   if (edge) {
@@ -209,7 +209,7 @@ int NodeViewScene::DetermineWeight(Node *n)
   return qMax(1, weight);
 }
 
-NodeViewEdge* NodeViewScene::AddEdgeInternal(const NodeOutput& output, const NodeInput& input, NodeViewItem *from, NodeViewItem *to)
+NodeViewEdge* NodeViewScene::AddEdgeInternal(Node *output, const NodeInput& input, NodeViewItem *from, NodeViewItem *to)
 {
   NodeViewEdge* edge_ui = new NodeViewEdge(output, input, from, to);
 

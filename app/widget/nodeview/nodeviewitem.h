@@ -80,7 +80,7 @@ public:
    */
   QPointF GetInputPoint(const QString& input, int element, const QPointF &source_pos) const;
 
-  QPointF GetOutputPoint(const QString &output) const;
+  QPointF GetOutputPoint() const;
 
   /**
    * @brief Sets the direction nodes are flowing

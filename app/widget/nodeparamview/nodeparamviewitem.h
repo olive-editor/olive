@@ -148,7 +148,7 @@ private:
   static const int kWidgetStartColumn;
 
 private slots:
-  void EdgeChanged(const NodeOutput &output, const NodeInput &input);
+  void EdgeChanged(Node *output, const NodeInput &input);
 
   void ArrayCollapseBtnPressed(bool checked);
 

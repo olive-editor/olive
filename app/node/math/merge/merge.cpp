@@ -73,10 +73,8 @@ ShaderCode MergeNode::GetShaderCode(const QString &shader_id) const
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/alphaover.frag"));
 }
 
-void MergeNode::Value(const QString &output, const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+void MergeNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  Q_UNUSED(output)
-
   ShaderJob job;
   job.InsertValue(value);
 
@@ -102,12 +100,12 @@ void MergeNode::Value(const QString &output, const NodeValueRow &value, const No
   }
 }
 
-void MergeNode::Hash(const QString &output, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
+void MergeNode::Hash(const ValueHint &output, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
 {
   NodeTraverser traverser;
   traverser.SetCacheVideoParams(video_params);
 
-  NodeValueDatabase db = traverser.GenerateDatabase(this, output, globals.time());
+  NodeValueDatabase db = traverser.GenerateDatabase(this, globals.time());
 
   TexturePtr base_tex = db[kBaseIn].Get(NodeValue::kTexture).value<TexturePtr>();
   TexturePtr blend_tex = db[kBlendIn].Get(NodeValue::kTexture).value<TexturePtr>();
@@ -118,17 +116,17 @@ void MergeNode::Hash(const QString &output, QCryptographicHash &hash, const Node
 
     if (!passthrough_base && !passthrough_blend) {
       // This merge will actually do something so we add a fingerprint
-      HashAddNodeSignature(hash, output);
+      HashAddNodeSignature(hash);
     }
 
     if (!passthrough_base) {
-      NodeOutput blend_output = GetConnectedOutput(kBlendIn);
-      blend_output.node()->Hash(blend_output.output(), hash, globals, video_params);
+      Node *blend_output = GetConnectedOutput(kBlendIn);
+      blend_output->Hash(GetValueHintForInput(kBlendIn, -1), hash, globals, video_params);
     }
 
     if (!passthrough_blend) {
-      NodeOutput base_output = GetConnectedOutput(kBaseIn);
-      base_output.node()->Hash(base_output.output(), hash, globals, video_params);
+      Node *base_output = GetConnectedOutput(kBaseIn);
+      base_output->Hash(GetValueHintForInput(kBaseIn, -1), hash, globals, video_params);
     }
 
     Q_ASSERT(!passthrough_base || !passthrough_blend);

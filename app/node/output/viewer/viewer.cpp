@@ -252,20 +252,6 @@ void ViewerOutput::InvalidateCache(const TimeRange& range, const QString& from, 
   super::InvalidateCache(range, from, element, options);
 }
 
-QVector<QString> ViewerOutput::inputs_for_output(const QString &output) const
-{
-  QVector<QString> inputs;
-  Track::Type type = Track::Reference::TypeFromString(output);
-
-  if (type == Track::kVideo) {
-    inputs.append(kTextureInput);
-  } else if (type == Track::kAudio) {
-    inputs.append(kSamplesInput);
-  }
-
-  return inputs;
-}
-
 QVector<Track::Reference> ViewerOutput::GetEnabledStreamsAsReferences() const
 {
   QVector<Track::Reference> refs;
@@ -329,7 +315,7 @@ void ViewerOutput::VerifyLength()
   }
 }
 
-void ViewerOutput::InputConnectedEvent(const QString &input, int element, const NodeOutput &output)
+void ViewerOutput::InputConnectedEvent(const QString &input, int element, Node *output)
 {
   if (input == kTextureInput) {
     emit TextureInputChanged();
@@ -338,7 +324,7 @@ void ViewerOutput::InputConnectedEvent(const QString &input, int element, const 
   super::InputConnectedEvent(input, element, output);
 }
 
-void ViewerOutput::InputDisconnectedEvent(const QString &input, int element, const NodeOutput &output)
+void ViewerOutput::InputDisconnectedEvent(const QString &input, int element, Node *output)
 {
   if (input == kTextureInput) {
     emit TextureInputChanged();
@@ -354,7 +340,7 @@ rational ViewerOutput::VerifyLengthInternal(Track::Type type) const
   switch (type) {
   case Track::kVideo:
     if (IsInputConnected(kTextureInput)) {
-      NodeValueTable t = traverser.GenerateTable(GetConnectedOutput(kTextureInput), TimeRange(0, 0));
+      NodeValueTable t = traverser.GenerateTable(GetConnectedOutput(kTextureInput), GetValueHintForInput(kTextureInput, -1), TimeRange(0, 0));
       rational r = t.Get(NodeValue::kRational, QStringLiteral("length")).value<rational>();
       if (!r.isNaN()) {
         return r;
@@ -363,7 +349,7 @@ rational ViewerOutput::VerifyLengthInternal(Track::Type type) const
     break;
   case Track::kAudio:
     if (IsInputConnected(kSamplesInput)) {
-      NodeValueTable t = traverser.GenerateTable(GetConnectedOutput(kSamplesInput), TimeRange(0, 0));
+      NodeValueTable t = traverser.GenerateTable(GetConnectedOutput(kSamplesInput), GetValueHintForInput(kSamplesInput, -1), TimeRange(0, 0));
       rational r = t.Get(NodeValue::kRational, QStringLiteral("length")).value<rational>();;
       if (!r.isNaN()) {
         return r;
@@ -379,12 +365,12 @@ rational ViewerOutput::VerifyLengthInternal(Track::Type type) const
   return 0;
 }
 
-NodeOutput ViewerOutput::GetConnectedTextureOutput()
+Node *ViewerOutput::GetConnectedTextureOutput()
 {
   return GetConnectedOutput(kTextureInput);
 }
 
-NodeOutput ViewerOutput::GetConnectedSampleOutput()
+Node *ViewerOutput::GetConnectedSampleOutput()
 {
   return GetConnectedOutput(kSamplesInput);
 }

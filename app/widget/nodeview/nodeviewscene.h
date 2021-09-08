@@ -53,7 +53,7 @@ public:
    * in this view/scene), this function returns nullptr.
    */
   NodeViewItem* NodeToUIObject(Node* n);
-  NodeViewEdge *EdgeToUIObject(const NodeOutput &output, const NodeInput &input);
+  NodeViewEdge *EdgeToUIObject(Node *output, const NodeInput &input);
 
   QVector<Node *> GetSelectedNodes() const;
   QVector<NodeViewItem*> GetSelectedItems() const;
@@ -96,8 +96,8 @@ public slots:
    */
   void RemoveNode(Node* node);
 
-  NodeViewEdge *AddEdge(const NodeOutput& output, const NodeInput& input);
-  void RemoveEdge(const NodeOutput& output, const NodeInput& input);
+  NodeViewEdge *AddEdge(Node *output, const NodeInput& input);
+  void RemoveEdge(Node *output, const NodeInput& input);
 
   /**
    * @brief Set whether edges in this scene should be curved or not
@@ -107,7 +107,7 @@ public slots:
 private:
   static int DetermineWeight(Node* n);
 
-  NodeViewEdge* AddEdgeInternal(const NodeOutput &output, const NodeInput &input, NodeViewItem* from, NodeViewItem* to);
+  NodeViewEdge* AddEdgeInternal(Node *output, const NodeInput &input, NodeViewItem* from, NodeViewItem* to);
 
   void ConnectNode(Node *n);
 

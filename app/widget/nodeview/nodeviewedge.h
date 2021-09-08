@@ -39,13 +39,13 @@ class NodeViewItem;
 class NodeViewEdge : public QGraphicsPathItem
 {
 public:
-  NodeViewEdge(const NodeOutput& output, const NodeInput& input,
+  NodeViewEdge(Node *output, const NodeInput& input,
                NodeViewItem* from_item, NodeViewItem* to_item,
                QGraphicsItem* parent = nullptr);
 
   NodeViewEdge(QGraphicsItem* parent = nullptr);
 
-  const NodeOutput& output() const
+  Node *output() const
   {
     return output_;
   }
@@ -124,7 +124,7 @@ private:
 
   void UpdateCurve();
 
-  NodeOutput output_;
+  Node *output_;
 
   NodeInput input_;
 

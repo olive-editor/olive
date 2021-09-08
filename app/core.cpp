@@ -75,7 +75,7 @@
 namespace olive {
 
 Core* Core::instance_ = nullptr;
-const uint Core::kProjectVersion = 210528;
+const uint Core::kProjectVersion = 210907;
 
 Core::Core(const CoreParams& params) :
   main_window_(nullptr),

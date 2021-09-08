@@ -34,6 +34,7 @@ TimeRemapNode::TimeRemapNode()
   AddInput(kTimeInput, NodeValue::kRational, QVariant::fromValue(rational(0)), InputFlags(kInputFlagNotConnectable));
   SetInputProperty(kTimeInput, QStringLiteral("view"), RationalSlider::kTime);
   SetInputProperty(kTimeInput, QStringLiteral("viewlock"), true);
+  IgnoreHashingFrom(kTimeInput);
 
   AddInput(kInputInput, NodeValue::kNone, InputFlags(kInputFlagNotKeyframable));
 }
@@ -92,22 +93,16 @@ void TimeRemapNode::Retranslate()
   SetInputName(kInputInput, QStringLiteral("Input"));
 }
 
-QVector<QString> TimeRemapNode::inputs_for_output(const QString &output) const
-{
-  Q_UNUSED(output)
-  return {kInputInput};
-}
-
-void TimeRemapNode::Hash(const QString &output, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
+void TimeRemapNode::Hash(const ValueHint &output, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
 {
   // Don't hash anything of our own, just pass-through to the connected node at the remapped tmie
   Q_UNUSED(output)
   if (IsInputConnected(kInputInput)) {
-    NodeOutput out = GetConnectedOutput(kInputInput);
+    Node *out = GetConnectedOutput(kInputInput);
 
     NodeGlobals new_globals = globals;
     new_globals.set_time(TimeRange(GetRemappedTime(globals.time().in()), GetRemappedTime(globals.time().out())));
-    out.node()->Hash(out.output(), hash, new_globals, video_params);
+    out->Hash(GetValueHintForInput(kInputInput, -1), hash, new_globals, video_params);
   }
 }
 

@@ -84,10 +84,10 @@ int Folder::index_of_child_in_array(Node *item) const
   return item_element_index_.at(index_of_item);
 }
 
-void Folder::InputConnectedEvent(const QString &input, int element, const NodeOutput &output)
+void Folder::InputConnectedEvent(const QString &input, int element, Node *output)
 {
   if (input == kChildInput && element != -1) {
-    Node* item = output.node();
+    Node* item = output;
 
     // The insert index is always our "count" because we only support appending in our internal
     // model. For sorting/organizing, a QSortFilterProxyModel is used instead.
@@ -99,10 +99,10 @@ void Folder::InputConnectedEvent(const QString &input, int element, const NodeOu
   }
 }
 
-void Folder::InputDisconnectedEvent(const QString &input, int element, const NodeOutput &output)
+void Folder::InputDisconnectedEvent(const QString &input, int element, Node *output)
 {
   if (input == kChildInput && element != -1) {
-    Node* item = output.node();
+    Node* item = output;
 
     int child_index = item_children_.indexOf(item);
     emit BeginRemoveItem(item, child_index);

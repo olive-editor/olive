@@ -63,10 +63,6 @@ void NodeFactory::Initialize()
     Node* created_node = CreateFromFactoryIndex(static_cast<InternalID>(i));
 
     library_.append(created_node);
-
-    if (created_node->outputs().isEmpty()) {
-      qWarning() << "Node" << created_node->id() << "has no outputs";
-    }
   }
 }
 

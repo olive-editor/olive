@@ -88,10 +88,8 @@ void MatrixGenerator::Retranslate()
   SetInputName(kAnchorInput, tr("Anchor Point"));
 }
 
-void MatrixGenerator::Value(const QString &output, const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+void MatrixGenerator::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  Q_UNUSED(output)
-
   // Push matrix output
   QMatrix4x4 mat = GenerateMatrix(value, true, false, false, false);
   table->Push(NodeValue::kMatrix, mat, this);

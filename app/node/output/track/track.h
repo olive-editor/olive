@@ -355,13 +355,13 @@ public:
 
   rational track_length() const;
 
-  static QString GetDefaultTrackName(Track::Type type, int index);
-
   bool IsMuted() const;
 
   bool IsLocked() const;
 
-  virtual void Hash(const QString& output, QCryptographicHash& hash, const NodeGlobals &globals, const VideoParams& video_params) const override;
+  virtual void Hash(const Node::ValueHint& output, QCryptographicHash& hash, const NodeGlobals &globals, const VideoParams& video_params) const override;
+
+  int GetArrayIndexFromBlock(Block* block) const;
 
   static const double kTrackHeightDefault;
   static const double kTrackHeightMinimum;
@@ -416,16 +416,14 @@ protected:
 
   virtual void SaveCustom(QXmlStreamWriter* writer) const override;
 
-  virtual void InputConnectedEvent(const QString& input, int element, const NodeOutput& output) override;
+  virtual void InputConnectedEvent(const QString& input, int element, Node *output) override;
 
-  virtual void InputDisconnectedEvent(const QString& input, int element, const NodeOutput& output) override;
+  virtual void InputDisconnectedEvent(const QString& input, int element, Node *output) override;
 
   virtual void InputValueChangedEvent(const QString& input, int element) override;
 
 private:
   void UpdateInOutFrom(int index);
-
-  int GetArrayIndexFromBlock(Block* block) const;
 
   int GetArrayIndexFromCacheIndex(int index) const;
 

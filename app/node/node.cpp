@@ -35,6 +35,7 @@
 #include "project/project.h"
 #include "ui/colorcoding.h"
 #include "ui/icons/icons.h"
+#include "widget/nodeparamview/nodeparamviewundo.h"
 #include "widget/nodeview/nodeviewundo.h"
 
 namespace olive {
@@ -50,7 +51,6 @@ Node::Node() :
   operation_stack_(0),
   cache_result_(false)
 {
-  AddOutput();
 }
 
 Node::~Node()
@@ -122,19 +122,18 @@ void Node::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, uint versi
           }
 
           QString output_node_id;
-          QString output_param_id;
 
           while (XMLReadNextStartElement(reader)) {
-            if (reader->name() == QStringLiteral("node")) {
+            if ((version >= 210907 && reader->name() == QStringLiteral("output")) || reader->name() == QStringLiteral("node")) {
               output_node_id = reader->readElementText();
-            } else if (reader->name() == QStringLiteral("output")) {
-              output_param_id = reader->readElementText();
+            } else if (version < 210907 && reader->name() == QStringLiteral("output")) {
+              qDebug() << "FIXME: Convert output string to ValueHint";
             } else {
               reader->skipCurrentElement();
             }
           }
 
-          xml_node_data.desired_connections.append({NodeInput(this, param_id, ele), output_node_id.toULongLong(), output_param_id});
+          xml_node_data.desired_connections.append({NodeInput(this, param_id, ele), output_node_id.toULongLong()});
         } else {
           reader->skipCurrentElement();
         }
@@ -173,8 +172,7 @@ void Node::Save(QXmlStreamWriter *writer) const
     writer->writeAttribute(QStringLiteral("input"), it->first.input());
     writer->writeAttribute(QStringLiteral("element"), QString::number(it->first.element()));
 
-    writer->writeTextElement(QStringLiteral("node"), QString::number(reinterpret_cast<quintptr>(it->second.node())));
-    writer->writeTextElement(QStringLiteral("output"), it->second.output());
+    writer->writeTextElement(QStringLiteral("output"), QString::number(reinterpret_cast<quintptr>(it->second)));
 
     writer->writeEndElement(); // connection
   }
@@ -248,25 +246,25 @@ QBrush Node::brush(qreal top, qreal bottom) const
   }
 }
 
-void Node::ConnectEdge(const NodeOutput &output, const NodeInput &input)
+void Node::ConnectEdge(Node *output, const NodeInput &input)
 {
   // Ensure graph is the same
-  Q_ASSERT(input.node()->parent() == output.node()->parent());
+  Q_ASSERT(input.node()->parent() == output->parent());
 
   // Ensure a connection isn't getting overwritten
   Q_ASSERT(input.node()->input_connections().find(input) == input.node()->input_connections().end());
 
   // Insert connection on both sides
   input.node()->input_connections_[input] = output;
-  output.node()->output_connections_.push_back(std::pair<NodeOutput, NodeInput>({output, input}));
+  output->output_connections_.push_back(std::pair<Node*, NodeInput>({output, input}));
 
   // Call internal events
   input.node()->InputConnectedEvent(input.input(), input.element(), output);
-  output.node()->OutputConnectedEvent(output.output(), input);
+  output->OutputConnectedEvent(input);
 
   // Emit signals
   emit input.node()->InputConnected(output, input);
-  emit output.node()->OutputConnected(output, input);
+  emit output->OutputConnected(output, input);
 
   // Invalidate all if this node isn't ignoring this input
   if (!input.node()->ignore_connections_.contains(input.input())) {
@@ -274,10 +272,10 @@ void Node::ConnectEdge(const NodeOutput &output, const NodeInput &input)
   }
 }
 
-void Node::DisconnectEdge(const NodeOutput &output, const NodeInput &input)
+void Node::DisconnectEdge(Node *output, const NodeInput &input)
 {
   // Ensure graph is the same
-  Q_ASSERT(input.node()->parent() == output.node()->parent());
+  Q_ASSERT(input.node()->parent() == output->parent());
 
   // Ensure connection exists
   Q_ASSERT(input.node()->input_connections().at(input) == output);
@@ -286,15 +284,15 @@ void Node::DisconnectEdge(const NodeOutput &output, const NodeInput &input)
   InputConnections& inputs = input.node()->input_connections_;
   inputs.erase(inputs.find(input));
 
-  OutputConnections& outputs = output.node()->output_connections_;
-  outputs.erase(std::find(outputs.begin(), outputs.end(), std::pair<NodeOutput, NodeInput>({output, input})));
+  OutputConnections& outputs = output->output_connections_;
+  outputs.erase(std::find(outputs.begin(), outputs.end(), std::pair<Node*, NodeInput>({output, input})));
 
   // Call internal events
   input.node()->InputDisconnectedEvent(input.input(), input.element(), output);
-  output.node()->OutputDisconnectedEvent(output.output(), input);
+  output->OutputDisconnectedEvent(input);
 
   emit input.node()->InputDisconnected(output, input);
-  emit output.node()->OutputDisconnected(output, input);
+  emit output->OutputDisconnected(output, input);
 
   if (!input.node()->ignore_connections_.contains(input.input())) {
     input.node()->InvalidateAll(input.input(), input.element());
@@ -437,10 +435,10 @@ void Node::SetInputIsKeyframing(const QString &input, bool e, int element)
 
 bool Node::IsInputConnected(const QString &input, int element) const
 {
-  return GetConnectedOutput(input, element).IsValid();
+  return GetConnectedOutput(input, element);
 }
 
-NodeOutput Node::GetConnectedOutput(const QString &input, int element) const
+Node *Node::GetConnectedOutput(const QString &input, int element) const
 {
   for (auto it=input_connections_.cbegin(); it!=input_connections_.cend(); it++) {
     if (it->first.input() == input && it->first.element() == element) {
@@ -448,7 +446,7 @@ NodeOutput Node::GetConnectedOutput(const QString &input, int element) const
     }
   }
 
-  return NodeOutput();
+  return nullptr;
 }
 
 bool Node::IsUsingStandardValue(const QString &input, int track, int element) const
@@ -1013,10 +1011,9 @@ Node::InputFlags Node::GetInputFlags(const QString &input) const
   }
 }
 
-void Node::Value(const QString& output, const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const
+void Node::Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const
 {
   // Do nothing
-  Q_UNUSED(output)
   Q_UNUSED(value)
   Q_UNUSED(globals)
   Q_UNUSED(table)
@@ -1092,19 +1089,19 @@ void Node::CopyDependencyGraph(const QVector<Node *> &src, const QVector<Node *>
 
     for (auto it=src_node->input_connections_.cbegin(); it!=src_node->input_connections_.cend(); it++) {
       // Determine if the connected node is in our src list
-      int connection_index = src.indexOf(it->second.node());
+      int connection_index = src.indexOf(it->second);
 
       if (connection_index > -1) {
         // Find the equivalent node in the dst list
-        Node* dst_connection = dst.at(connection_index);
-
-        NodeOutput copied_output = NodeOutput(dst_connection, it->second.output());
+        Node *copied_output = dst.at(connection_index);
         NodeInput copied_input = NodeInput(dst_node, it->first.input(), it->first.element());
 
         if (command) {
           command->add_child(new NodeEdgeAddCommand(copied_output, copied_input));
+          command->add_child(new NodeSetValueHintCommand(copied_input, src_node->GetValueHintForInput(copied_input.input(), copied_input.element())));
         } else {
           ConnectEdge(copied_output, copied_input);
+          copied_input.node()->SetValueHintForInput(copied_input.input(), copied_input.element(), src_node->GetValueHintForInput(copied_input.input(), copied_input.element()));
         }
       }
     }
@@ -1128,8 +1125,7 @@ Node *Node::CopyNodeAndDependencyGraphMinusItemsInternal(QMap<Node*, Node*>& cre
   // Go through input connections and copy if non-item and connect if item
   for (auto it=node->input_connections_.cbegin(); it!=node->input_connections_.cend(); it++) {
     NodeInput input = it->first;
-    NodeOutput output = it->second;
-    Node* connected = output.node();
+    Node* connected = it->second;
     Node* connected_copy;
 
     if (connected->IsItem()) {
@@ -1144,8 +1140,9 @@ Node *Node::CopyNodeAndDependencyGraphMinusItemsInternal(QMap<Node*, Node*>& cre
       }
     }
 
-    command->add_child(new NodeEdgeAddCommand(NodeOutput(connected_copy, output.output()),
-                                              NodeInput(copy, input.input(), input.element())));
+    NodeInput copied_input(copy, input.input(), input.element());
+    command->add_child(new NodeEdgeAddCommand(connected_copy, copied_input));
+    command->add_child(new NodeSetValueHintCommand(copied_input, node->GetValueHintForInput(input.input(), input.element())));
   }
 
   if (node->parent()->GetPositionMap().contains(node)) {
@@ -1256,10 +1253,9 @@ bool Node::AreLinked(Node *a, Node *b)
   return a->links_.contains(b);
 }
 
-void Node::HashAddNodeSignature(QCryptographicHash &hash, const QString &output) const
+void Node::HashAddNodeSignature(QCryptographicHash &hash) const
 {
   hash.addData(id().toUtf8());
-  hash.addData(output.toUtf8());
 }
 
 void Node::InsertInput(const QString &id, NodeValue::Type type, const QVariant &default_value, Node::InputFlags flags, int index)
@@ -1304,32 +1300,6 @@ void Node::RemoveInput(const QString &id)
   input_data_.removeAt(index);
 
   emit InputRemoved(id);
-}
-
-void Node::AddOutput(const QString &id)
-{
-  if (id.isEmpty()) {
-    qWarning() << "Rejected adding output with an empty ID on node" << this->id();
-    return;
-  }
-
-  if (HasParamWithID(id)) {
-    qWarning() << "Failed to add output to node" << this->id() << "- param with ID" << id << "already exists";
-    return;
-  }
-
-  outputs_.append(id);
-
-  emit OutputAdded(id);
-}
-
-void Node::RemoveOutput(const QString &id)
-{
-  if (outputs_.removeOne(id)) {
-    emit OutputRemoved(id);
-  } else {
-    ReportInvalidInput("remove", id);
-  }
 }
 
 void Node::ReportInvalidInput(const char *attempted_action, const QString& id) const
@@ -1453,13 +1423,29 @@ void Node::SetLabel(const QString &s)
   }
 }
 
-void Node::Hash(const QString &output, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
+QString Node::GetLabelAndName() const
+{
+  if (GetLabel().isEmpty()) {
+    return Name();
+  } else {
+    return tr("%1 (%2)").arg(GetLabel(), Name());
+  }
+}
+
+QString Node::GetLabelOrName() const
+{
+  if (GetLabel().isEmpty()) {
+    return Name();
+  }
+  return GetLabel();
+}
+
+void Node::Hash(const ValueHint &output, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
 {
   // Add this Node's ID and output being used
-  HashAddNodeSignature(hash, output);
+  HashAddNodeSignature(hash);
 
-  auto inputs = inputs_for_output(output);
-  foreach (const QString& input, inputs) {
+  foreach (const QString& input, inputs()) {
     // For each input, try to hash its value
     if (ignore_when_hashing_.contains(input)) {
       continue;
@@ -1557,10 +1543,9 @@ void Node::SetCanBeDeleted(bool s)
 void GetDependenciesRecursively(QVector<Node*>& list, const Node* node, bool traverse, bool exclusive_only)
 {
   for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
-    Node* connected_node = it->second.node();
+    Node* connected_node = it->second;
 
-    if (!exclusive_only
-        || (connected_node->outputs().size() == 1 && !connected_node->IsItem())) {
+    if (!exclusive_only || !connected_node->IsItem()) {
       if (!list.contains(connected_node)) {
         list.append(connected_node);
 
@@ -1597,11 +1582,11 @@ void Node::HashInputElement(QCryptographicHash &hash, const QString& input, int 
 
   if (IsInputConnected(input, element)) {
     // Traverse down this edge
-    NodeOutput output = GetConnectedOutput(input, element);
+    Node *output = GetConnectedOutput(input, element);
 
     NodeGlobals new_globals = globals;
     new_globals.set_time(input_time);
-    output.node()->Hash(output.output(), hash, new_globals, video_params);
+    output->Hash(GetValueHintForInput(input, element), hash, new_globals, video_params);
   } else {
     // Grab the value at this time
     QVariant value = GetValueAtTime(input, input_time.in(), element);
@@ -1655,7 +1640,7 @@ bool Node::OutputsTo(Node *n, bool recursively, const OutputConnections &ignore_
       return true;
     } else if (recursively && connected->OutputsTo(n, recursively, ignore_edges, added_edge)) {
       return true;
-    } else if (added_edge.first.node() == this) {
+    } else if (added_edge.first == this) {
       Node *proposed_connected = added_edge.second.node();
 
       if (proposed_connected == n) {
@@ -1702,11 +1687,11 @@ bool Node::OutputsTo(const NodeInput &input, bool recursively) const
 bool Node::InputsFrom(Node *n, bool recursively) const
 {
   for (auto it=input_connections_.cbegin(); it!=input_connections_.cend(); it++) {
-    const NodeOutput& connected = it->second;
+    Node *connected = it->second;
 
-    if (connected.node() == n) {
+    if (connected == n) {
       return true;
-    } else if (recursively && connected.node()->InputsFrom(n, recursively)) {
+    } else if (recursively && connected->InputsFrom(n, recursively)) {
       return true;
     }
   }
@@ -1717,11 +1702,11 @@ bool Node::InputsFrom(Node *n, bool recursively) const
 bool Node::InputsFrom(const QString &id, bool recursively) const
 {
   for (auto it=input_connections_.cbegin(); it!=input_connections_.cend(); it++) {
-    const NodeOutput& connected = it->second;
+    Node *connected = it->second;
 
-    if (connected.node()->id() == id) {
+    if (connected->id() == id) {
       return true;
-    } else if (recursively && connected.node()->InputsFrom(id, recursively)) {
+    } else if (recursively && connected->InputsFrom(id, recursively)) {
       return true;
     }
   }
@@ -1808,7 +1793,7 @@ QVector<TimeRange> Node::TransformTimeTo(const TimeRange &time, Node *target, bo
     // If this input is connected, traverse it to see if we stumble across the specified `node`
     for (auto it=input_connections_.cbegin(); it!=input_connections_.cend(); it++) {
       TimeRange input_adjustment = InputTimeAdjustment(it->first.input(), it->first.element(), time);
-      Node* connected = it->second.node();
+      Node* connected = it->second;
 
       if (connected == target) {
         // We found the target, no need to keep traversing
@@ -2121,29 +2106,27 @@ void Node::InputValueChangedEvent(const QString &input, int element)
   Q_UNUSED(element)
 }
 
-void Node::InputConnectedEvent(const QString &input, int element, const NodeOutput &output)
+void Node::InputConnectedEvent(const QString &input, int element, Node *output)
 {
   Q_UNUSED(input)
   Q_UNUSED(element)
   Q_UNUSED(output)
 }
 
-void Node::InputDisconnectedEvent(const QString &input, int element, const NodeOutput &output)
+void Node::InputDisconnectedEvent(const QString &input, int element, Node *output)
 {
   Q_UNUSED(input)
   Q_UNUSED(element)
   Q_UNUSED(output)
 }
 
-void Node::OutputConnectedEvent(const QString &output, const NodeInput &input)
+void Node::OutputConnectedEvent(const NodeInput &input)
 {
-  Q_UNUSED(output)
   Q_UNUSED(input)
 }
 
-void Node::OutputDisconnectedEvent(const QString &output, const NodeInput &input)
+void Node::OutputDisconnectedEvent(const NodeInput &input)
 {
-  Q_UNUSED(output)
   Q_UNUSED(input)
 }
 

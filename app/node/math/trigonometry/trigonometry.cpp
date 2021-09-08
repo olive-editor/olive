@@ -76,10 +76,8 @@ void TrigonometryNode::Retranslate()
   SetInputName(kMethodIn, tr("Method"));
 }
 
-void TrigonometryNode::Value(const QString &output, const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+void TrigonometryNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  Q_UNUSED(output)
-
   double x = value[kXIn].data().toFloat();
 
   switch (static_cast<Operation>(GetStandardValue(kMethodIn).toInt())) {

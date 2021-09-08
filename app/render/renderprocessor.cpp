@@ -47,10 +47,9 @@ TexturePtr RenderProcessor::GenerateTexture(const rational &time, const rational
   ViewerOutput* viewer = Node::ValueToPtr<ViewerOutput>(ticket_->property("viewer"));
 
   NodeValueTable table;
-  NodeOutput texture_output = viewer->GetConnectedTextureOutput();
-  if (texture_output.IsValid()) {
-    table = GenerateTable(texture_output.node(), texture_output.output(),
-                          TimeRange(time, time + frame_length));
+  Node *texture_output = viewer->GetConnectedTextureOutput();
+  if (texture_output) {
+    table = GenerateTable(texture_output, viewer->GetValueHintForInput(ViewerOutput::kTextureInput, -1), TimeRange(time, time + frame_length));
   }
 
   return table.Get(NodeValue::kTexture).value<TexturePtr>();
@@ -170,9 +169,9 @@ void RenderProcessor::Run()
     TimeRange time = ticket_->property("time").value<TimeRange>();
 
     NodeValueTable table;
-    NodeOutput texture_output = viewer->GetConnectedSampleOutput();
-    if (texture_output.IsValid()) {
-      table = GenerateTable(texture_output.node(), texture_output.output(), time);
+    Node *texture_output = viewer->GetConnectedSampleOutput();
+    if (texture_output) {
+      table = GenerateTable(texture_output, viewer->GetValueHintForInput(ViewerOutput::kSamplesInput, -1),time);
     }
 
     QVariant sample_variant = table.Get(NodeValue::kSamples);
@@ -263,7 +262,7 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const Track *track, const Tim
         int max_dest_sz = audio_params.time_to_samples(range_for_block.length());
 
         // Destination buffer
-        NodeValueTable table = GenerateTable(b, Track::TransformRangeForBlock(b, range_for_block));
+        NodeValueTable table = GenerateTable(b, track->GetValueHintForInput(Track::kBlockInput, track->GetArrayIndexFromBlock(b)),Track::TransformRangeForBlock(b, range_for_block));
         SampleBufferPtr samples_from_this_block = table.Take(NodeValue::kSamples).value<SampleBufferPtr>();
 
         if (!samples_from_this_block) {

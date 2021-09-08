@@ -86,10 +86,8 @@ ShaderCode PolygonGenerator::GetShaderCode(const QString &shader_id) const
   return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/polygon.frag")));
 }
 
-void PolygonGenerator::Value(const QString &output, const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+void PolygonGenerator::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  Q_UNUSED(output)
-
   ShaderJob job;
 
   job.InsertValue(value);

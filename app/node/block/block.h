@@ -115,7 +115,7 @@ public:
     index_ = i;
   }
 
-  virtual void Hash(const QString& output, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams& video_params) const override;
+  virtual void Hash(const Node::ValueHint &hint, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams& video_params) const override;
 
   virtual void InvalidateCache(const TimeRange& range, const QString& from, int element = -1, InvalidateCacheOptions options = InvalidateCacheOptions()) override;
 
@@ -134,7 +134,7 @@ signals:
 protected:
   virtual void InputValueChangedEvent(const QString& input, int element) override;
 
-  bool HashPassthrough(const QString &input, const QString& output, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams& video_params) const;
+  bool HashPassthrough(const QString &input, const ValueHint &output, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams& video_params) const;
 
   Block* previous_;
   Block* next_;

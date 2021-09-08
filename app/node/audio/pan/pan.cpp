@@ -62,9 +62,8 @@ QString PanNode::Description() const
   return tr("Adjust the stereo panning of an audio source.");
 }
 
-void PanNode::Value(const QString &output, const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+void PanNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  Q_UNUSED(output)
   Q_UNUSED(globals)
 
   // Create a sample job

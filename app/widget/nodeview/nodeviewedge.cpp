@@ -35,7 +35,7 @@ namespace olive {
 
 #define super QGraphicsPathItem
 
-NodeViewEdge::NodeViewEdge(const NodeOutput &output, const NodeInput &input,
+NodeViewEdge::NodeViewEdge(Node *output, const NodeInput &input,
                            NodeViewItem* from_item, NodeViewItem* to_item,
                            QGraphicsItem* parent) :
   super(parent),
@@ -59,7 +59,7 @@ NodeViewEdge::NodeViewEdge(QGraphicsItem *parent) :
 void NodeViewEdge::Adjust()
 {
   // Draw a line between the two
-  SetPoints(from_item()->GetOutputPoint(output_.output()),
+  SetPoints(from_item()->GetOutputPoint(),
             to_item()->GetInputPoint(input_.input(), input_.element(), from_item()->pos()),
             to_item()->IsExpanded());
 }

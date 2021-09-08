@@ -26,13 +26,12 @@
 
 namespace olive {
 
-NodeValueDatabase NodeTraverser::GenerateDatabase(const Node* node, const QString& output, const TimeRange &range)
+NodeValueDatabase NodeTraverser::GenerateDatabase(const Node* node, const TimeRange &range)
 {
   NodeValueDatabase database;
 
   // We need to insert tables into the database for each input
-  auto inputs = node->inputs_for_output(output);
-  foreach (const QString& input, inputs) {
+  foreach (const QString& input, node->inputs()) {
     if (IsCancelled()) {
       return NodeValueDatabase();
     }
@@ -43,7 +42,7 @@ NodeValueDatabase NodeTraverser::GenerateDatabase(const Node* node, const QStrin
   return database;
 }
 
-NodeValueRow NodeTraverser::GenerateRow(NodeValueDatabase *database, const Node *node, const QString &output, const TimeRange &range)
+NodeValueRow NodeTraverser::GenerateRow(NodeValueDatabase *database, const Node *node, const TimeRange &range)
 {
   // Generate row
   NodeValueRow row;
@@ -55,17 +54,36 @@ NodeValueRow NodeTraverser::GenerateRow(NodeValueDatabase *database, const Node 
   return row;
 }
 
-NodeValueRow NodeTraverser::GenerateRow(const Node *node, const QString &output, const TimeRange &range)
+NodeValueRow NodeTraverser::GenerateRow(const Node *node, const TimeRange &range)
 {
   // Generate database of input values of node
-  NodeValueDatabase database = GenerateDatabase(node, output, range);
+  NodeValueDatabase database = GenerateDatabase(node, range);
 
-  return GenerateRow(&database, node, output, range);
+  return GenerateRow(&database, node, range);
 }
 
 NodeValue NodeTraverser::GenerateRowValue(const Node *node, const QString &input, NodeValueTable *table)
 {
-  Node::ValueHint hint = node->GetValueHintForInput(input);
+  NodeValue value = GenerateRowValueElement(node, input, -1, table);
+
+  if (value.array()) {
+    // Resolve each element of array
+    QVector<NodeValueTable> tables = value.data().value<QVector<NodeValueTable> >();
+    QVector<NodeValue> output(tables.size());
+
+    for (int i=0; i<tables.size(); i++) {
+      output[i] = GenerateRowValueElement(node, input, i, &tables[i]);
+    }
+
+    value = NodeValue(value.type(), QVariant::fromValue(output), value.source(), value.array(), value.tag());
+  }
+
+  return value;
+}
+
+NodeValue NodeTraverser::GenerateRowValueElement(const Node *node, const QString &input, int element, NodeValueTable *table)
+{
+  Node::ValueHint hint = node->GetValueHintForInput(input, element);
   QVector<NodeValue::Type> types = hint.type;
 
   if (types.isEmpty()) {
@@ -133,7 +151,7 @@ NodeValueTable NodeTraverser::ProcessInput(const Node* node, const QString& inpu
     TimeRange adjusted_range = node->InputTimeAdjustment(input, -1, range);
 
     // Value will equal something from the connected node, follow it
-    return GenerateTable(node->GetConnectedOutput(input), adjusted_range);
+    return GenerateTable(node->GetConnectedOutput(input), node->GetValueHintForInput(input, -1), adjusted_range);
 
   } else {
 
@@ -151,7 +169,7 @@ NodeValueTable NodeTraverser::ProcessInput(const Node* node, const QString& inpu
         TimeRange adjusted_range = node->InputTimeAdjustment(input, i, range);
 
         if (node->IsInputConnected(input, i)) {
-          sub_tbl = GenerateTable(node->GetConnectedOutput(input, i), adjusted_range);
+          sub_tbl = GenerateTable(node->GetConnectedOutput(input, i), node->GetValueHintForInput(input, i), adjusted_range);
         } else {
           QVariant input_value = node->GetValueAtTime(input, adjusted_range.in(), i);
           sub_tbl.Push(node->GetInputDataType(input), input_value, node);
@@ -176,7 +194,7 @@ NodeValueTable NodeTraverser::ProcessInput(const Node* node, const QString& inpu
   }
 }
 
-NodeValueTable NodeTraverser::GenerateTable(const Node *n, const QString& output, const TimeRange& range)
+NodeValueTable NodeTraverser::GenerateTable(const Node *n, const Node::ValueHint &hint, const TimeRange& range)
 {
   const Track* track = dynamic_cast<const Track*>(n);
   if (track) {
@@ -187,8 +205,8 @@ NodeValueTable NodeTraverser::GenerateTable(const Node *n, const QString& output
   // FIXME: Cache certain values here if we've already processed them before
 
   // Generate row for node
-  NodeValueDatabase database = GenerateDatabase(n, output, range);
-  NodeValueRow row = GenerateRow(&database, n, output, range);
+  NodeValueDatabase database = GenerateDatabase(n, range);
+  NodeValueRow row = GenerateRow(&database, n, range);
 
   //qDebug() << "FIXME: Implement pre-process of row";
 
@@ -196,10 +214,10 @@ NodeValueTable NodeTraverser::GenerateTable(const Node *n, const QString& output
   NodeValueTable table = database.Merge();
 
   // By this point, the node should have all the inputs it needs to render correctly
-  n->Value(output, row, GenerateGlobals(video_params_, range), &table);
+  n->Value(row, GenerateGlobals(video_params_, range), &table);
 
   // Post-process table
-  PostProcessTable(n, output, range, table);
+  PostProcessTable(n, hint, range, table);
 
   return table;
 }
@@ -212,7 +230,7 @@ NodeValueTable NodeTraverser::GenerateBlockTable(const Track *track, const TimeR
   NodeValueTable table;
 
   if (active_block) {
-    table = GenerateTable(active_block, Track::TransformRangeForBlock(active_block, range));
+    table = GenerateTable(active_block, track->GetValueHintForInput(Track::kBlockInput, track->GetArrayIndexFromBlock(active_block)), Track::TransformRangeForBlock(active_block, range));
   }
 
   return table;
@@ -231,7 +249,7 @@ QVariant NodeTraverser::ProcessAudioFootage(const FootageJob& stream, const Time
   Q_UNUSED(stream)
   Q_UNUSED(input_time)
 
-  return QVariant();
+  return QVariant::fromValue(SampleBuffer::Create());
 }
 
 QVariant NodeTraverser::ProcessShader(const Node *node, const TimeRange &range, const ShaderJob &job)
@@ -284,7 +302,7 @@ QVector2D NodeTraverser::GenerateResolution() const
   return QVector2D(video_params_.square_pixel_width(), video_params_.height());
 }
 
-void NodeTraverser::PostProcessTable(const Node *node, const QString& output, const TimeRange &range, NodeValueTable &output_params)
+void NodeTraverser::PostProcessTable(const Node *node, const Node::ValueHint &hint, const TimeRange &range, NodeValueTable &output_params)
 {
   bool got_cached_frame = false;
   QByteArray cached_node_hash;
@@ -292,7 +310,7 @@ void NodeTraverser::PostProcessTable(const Node *node, const QString& output, co
   // Convert footage to image/sample buffers
   if (CanCacheFrames() && node->GetCacheTextures()) {
     // This node is set to cache the result, see if we can retrieved a previously cached version
-    cached_node_hash = RenderManager::Hash(node, output, GetCacheVideoParams(), range.in());
+    cached_node_hash = RenderManager::Hash(node, hint, GetCacheVideoParams(), range.in());
 
     QVariant cached_frame = GetCachedTexture(cached_node_hash);
     if (!cached_frame.isNull()) {

@@ -55,10 +55,8 @@ void CropDistortNode::Retranslate()
   SetInputName(kFeatherInput, tr("Feather"));
 }
 
-void CropDistortNode::Value(const QString &output, const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+void CropDistortNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  Q_UNUSED(output)
-
   ShaderJob job;
   job.InsertValue(value);
   job.InsertValue(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, globals.resolution(), this));

@@ -39,7 +39,7 @@ TransformDistortNode::TransformDistortNode()
 
   AddInput(kInterpolationInput, NodeValue::kCombo, 2);
 
-  AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+  PrependInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
 }
 
 void TransformDistortNode::Retranslate()
@@ -54,10 +54,8 @@ void TransformDistortNode::Retranslate()
   SetComboBoxStrings(kInterpolationInput, {tr("Nearest Neighbor"), tr("Bilinear"), tr("Mipmapped Bilinear")});
 }
 
-void TransformDistortNode::Value(const QString &output, const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+void TransformDistortNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  Q_UNUSED(output)
-
   // Generate matrix
   QMatrix4x4 generated_matrix = GenerateMatrix(value, true, false, false, false);
 
@@ -309,11 +307,11 @@ void TransformDistortNode::GizmoRelease()
   gizmo_drag_ = nullptr;
 }
 
-void TransformDistortNode::Hash(const QString &output, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
+void TransformDistortNode::Hash(const ValueHint &output, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
 {
   // If not connected to output, this will produce nothing
-  NodeOutput out = GetConnectedOutput(kTextureInput);
-  if (!out.IsValid()) {
+  Node *out = GetConnectedOutput(kTextureInput);
+  if (!out) {
     return;
   }
 
@@ -321,7 +319,7 @@ void TransformDistortNode::Hash(const QString &output, QCryptographicHash &hash,
   NodeTraverser traverser;
   traverser.SetCacheVideoParams(video_params);
 
-  NodeValueRow db = traverser.GenerateRow(this, output, globals.time());
+  NodeValueRow db = traverser.GenerateRow(this, globals.time());
   TexturePtr tex = db[kTextureInput].data().value<TexturePtr>();
   if (tex) {
     VideoParams tex_params = tex->params();
@@ -330,12 +328,12 @@ void TransformDistortNode::Hash(const QString &output, QCryptographicHash &hash,
 
     if (!matrix.isIdentity()) {
       // Add fingerprint
-      HashAddNodeSignature(hash, output);
+      HashAddNodeSignature(hash);
       hash.addData(reinterpret_cast<const char*>(&matrix), sizeof(matrix));
     }
   }
 
-  out.node()->Hash(out.output(), hash, globals, video_params);
+  out->Hash(GetValueHintForInput(kTextureInput, -1), hash, globals, video_params);
 }
 
 QMatrix4x4 TransformDistortNode::AdjustMatrixByResolutions(const QMatrix4x4 &mat, const QVector2D &sequence_res, const QVector2D &texture_res, AutoScaleType autoscale_type)

@@ -36,18 +36,15 @@ class NodeTraverser : public CancelableObject
 public:
   NodeTraverser() = default;
 
-  NodeValueTable GenerateTable(const Node *n, const QString &output, const TimeRange &range);
-  NodeValueTable GenerateTable(const NodeOutput& output, const TimeRange &range)
-  {
-    return GenerateTable(output.node(), output.output(), range);
-  }
+  NodeValueTable GenerateTable(const Node *n, const Node::ValueHint &hint, const TimeRange &range);
 
-  NodeValueDatabase GenerateDatabase(const Node *node, const QString &output, const TimeRange &range);
+  NodeValueDatabase GenerateDatabase(const Node *node, const TimeRange &range);
 
-  NodeValueRow GenerateRow(NodeValueDatabase *database, const Node *node, const QString &output, const TimeRange &range);
-  NodeValueRow GenerateRow(const Node *node, const QString &output, const TimeRange &range);
+  NodeValueRow GenerateRow(NodeValueDatabase *database, const Node *node, const TimeRange &range);
+  NodeValueRow GenerateRow(const Node *node, const TimeRange &range);
 
   NodeValue GenerateRowValue(const Node *node, const QString &input, NodeValueTable *table);
+  NodeValue GenerateRowValueElement(const Node *node, const QString &input, int element, NodeValueTable *table);
 
   static NodeGlobals GenerateGlobals(const VideoParams &params, const TimeRange &time);
   static NodeGlobals GenerateGlobals(const VideoParams &params, const rational &time)
@@ -94,7 +91,7 @@ protected:
   QVector2D GenerateResolution() const;
 
 private:
-  void PostProcessTable(const Node *node, const QString &output, const TimeRange &range, NodeValueTable &output_params);
+  void PostProcessTable(const Node *node, const Node::ValueHint &hint, const TimeRange &range, NodeValueTable &output_params);
 
   VideoParams video_params_;
 
