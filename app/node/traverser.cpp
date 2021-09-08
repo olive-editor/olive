@@ -190,8 +190,7 @@ NodeValueTable NodeTraverser::GenerateTable(const Node *n, const QString& output
   NodeValueDatabase database = GenerateDatabase(n, output, range);
   NodeValueRow row = GenerateRow(&database, n, output, range);
 
-  // Pre-process row
-  qDebug() << "FIXME: Implement pre-process of row";
+  //qDebug() << "FIXME: Implement pre-process of row";
 
   // Generate output table
   NodeValueTable table = database.Merge();
