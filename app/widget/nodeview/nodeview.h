@@ -79,6 +79,11 @@ public:
 
   void ZoomOut();
 
+  const QVector<Node*> &GetCurrentContexts() const
+  {
+    return filter_nodes_;
+  }
+
 public slots:
   void SetMiniMapEnabled(bool e)
   {

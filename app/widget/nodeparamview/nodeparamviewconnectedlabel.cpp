@@ -25,6 +25,7 @@
 #include "common/qtutils.h"
 #include "core.h"
 #include "node/node.h"
+#include "widget/collapsebutton/collapsebutton.h"
 #include "widget/menu/menu.h"
 #include "widget/nodeview/nodeviewundo.h"
 
@@ -35,20 +36,29 @@ NodeParamViewConnectedLabel::NodeParamViewConnectedLabel(const NodeInput &input,
   input_(input),
   connected_node_(nullptr)
 {
-  QHBoxLayout* layout = new QHBoxLayout(this);
-  layout->setSpacing(QtUtils::QFontMetricsWidth(fontMetrics(), QStringLiteral(" ")));
+  QVBoxLayout *layout = new QVBoxLayout(this);
   layout->setMargin(0);
 
-  layout->addWidget(new QLabel(tr("Connected to")));
+  // Set up label area
+  QHBoxLayout *label_layout = new QHBoxLayout();
+  label_layout->setSpacing(QtUtils::QFontMetricsWidth(fontMetrics(), QStringLiteral(" ")));
+  label_layout->setMargin(0);
+  layout->addLayout(label_layout);
+
+  CollapseButton *collapse_btn = new CollapseButton();
+  collapse_btn->setChecked(false);
+  label_layout->addWidget(collapse_btn);
+
+  label_layout->addWidget(new QLabel(tr("Connected to")));
 
   connected_to_lbl_ = new ClickableLabel();
   connected_to_lbl_->setCursor(Qt::PointingHandCursor);
   connected_to_lbl_->setContextMenuPolicy(Qt::CustomContextMenu);
   connect(connected_to_lbl_, &ClickableLabel::MouseClicked, this, &NodeParamViewConnectedLabel::ConnectionClicked);
   connect(connected_to_lbl_, &ClickableLabel::customContextMenuRequested, this, &NodeParamViewConnectedLabel::ShowLabelContextMenu);
-  layout->addWidget(connected_to_lbl_);
+  label_layout->addWidget(connected_to_lbl_);
 
-  layout->addStretch();
+  label_layout->addStretch();
 
   // Set up "link" font
   QFont link_font = connected_to_lbl_->font();
@@ -64,6 +74,21 @@ NodeParamViewConnectedLabel::NodeParamViewConnectedLabel(const NodeInput &input,
 
   connect(input_.node(), &Node::InputConnected, this, &NodeParamViewConnectedLabel::InputConnected);
   connect(input_.node(), &Node::InputDisconnected, this, &NodeParamViewConnectedLabel::InputDisconnected);
+
+  // Set up table area
+  value_tree_ = new NodeValueTree();
+  value_tree_->setVisible(false);
+  layout->addWidget(value_tree_);
+  connect(collapse_btn, &CollapseButton::toggled, this, &NodeParamViewConnectedLabel::SetValueTreeVisible);
+}
+
+void NodeParamViewConnectedLabel::SetTime(const rational &time)
+{
+  time_ = time;
+
+  if (value_tree_->isVisible()) {
+    UpdateValueTree();
+  }
 }
 
 void NodeParamViewConnectedLabel::InputConnected(Node *output, const NodeInput& input)
@@ -120,6 +145,20 @@ void NodeParamViewConnectedLabel::UpdateLabel()
   }
 
   connected_to_lbl_->setText(s);
+}
+
+void NodeParamViewConnectedLabel::UpdateValueTree()
+{
+  value_tree_->SetNode(input_, time_);
+}
+
+void NodeParamViewConnectedLabel::SetValueTreeVisible(bool e)
+{
+  value_tree_->setVisible(e);
+
+  if (e) {
+    UpdateValueTree();
+  }
 }
 
 }

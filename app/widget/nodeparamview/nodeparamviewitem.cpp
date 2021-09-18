@@ -383,6 +383,10 @@ void NodeParamViewItemBody::SetTime(const rational &time)
       ui_obj.key_control->SetTime(time);
     }
 
+    if (ui_obj.connected_label) {
+      ui_obj.connected_label->SetTime(time);
+    }
+
     ui_obj.widget_bridge->SetTime(time);
   }
 }

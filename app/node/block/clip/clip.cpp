@@ -266,7 +266,7 @@ void ClipBlock::Retranslate()
 
 void ClipBlock::Hash(const ValueHint &out, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
 {
-  HashPassthrough(kBufferIn, GetValueHintForInput(kBufferIn, -1), hash, globals, video_params);
+  HashPassthrough(kBufferIn, hash, globals, video_params);
 }
 
 }

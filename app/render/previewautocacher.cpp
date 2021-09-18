@@ -14,7 +14,6 @@ namespace olive {
 PreviewAutoCacher::PreviewAutoCacher() :
   viewer_node_(nullptr),
   paused_(false),
-  has_changed_(false),
   use_custom_range_(false),
   single_frame_render_(nullptr)
 {
@@ -141,7 +140,9 @@ void PreviewAutoCacher::HashesProcessed()
   // The cacher might be waiting for this job to finish
   if (!graph_update_queue_.isEmpty()) {
     TryRender();
-  } else if (hash_iterator_.HasNext()) {
+  }
+
+  if (hash_iterator_.HasNext()) {
     // Launch next hashes
     QueueNextHashTask();
   }
@@ -203,7 +204,12 @@ void PreviewAutoCacher::AudioRendered()
             foreach (TimeRange r, intersections) {
               // For each range, adjust it relative to the block and write it
               r -= block->in();
-              block->waveform().OverwriteSums(waveform_info.waveform, r.in(), r.in() - waveform_info.range.in(), r.length());
+
+              if (waveform_info.silence) {
+                block->waveform().OverwriteSilence(r.in(), r.length());
+              } else {
+                block->waveform().OverwriteSums(waveform_info.waveform, r.in(), r.in() - waveform_info.range.in(), r.length());
+              }
             }
 
             emit block->PreviewChanged();
@@ -316,6 +322,9 @@ void PreviewAutoCacher::ProcessUpdateQueue()
     case QueuedJob::kValueChanged:
       CopyValue(job.input);
       break;
+    case QueuedJob::kValueHintChanged:
+      CopyValueHint(job.input);
+      break;
     }
   }
   graph_update_queue_.clear();
@@ -379,6 +388,13 @@ void PreviewAutoCacher::CopyValue(const NodeInput &input)
   Node::CopyValuesOfElement(input.node(), our_input, input.input(), input.element());
 }
 
+void PreviewAutoCacher::CopyValueHint(const NodeInput &input)
+{
+  Node* our_input = copy_map_.value(input.node());
+  Node::ValueHint hint = input.node()->GetValueHintForInput(input.input(), input.element());
+  our_input->SetValueHintForInput(input.input(), input.element(), hint);
+}
+
 void PreviewAutoCacher::InsertIntoCopyMap(Node *node, Node *copy)
 {
   // Insert into map
@@ -412,7 +428,6 @@ void PreviewAutoCacher::SetPlayhead(const rational &playhead)
   cache_range_ = TimeRange(playhead - Config::Current()[QStringLiteral("DiskCacheBehind")].value<rational>(),
       playhead + Config::Current()[QStringLiteral("DiskCacheAhead")].value<rational>());
 
-  has_changed_ = true;
   use_custom_range_ = false;
 
   RequeueFrames();
@@ -439,7 +454,6 @@ void PreviewAutoCacher::ClearVideoQueue(bool hard)
 {
   ClearQueueInternal(video_tasks_, hard, &PreviewAutoCacher::VideoRendered);
 
-  has_changed_ = true;
   use_custom_range_ = false;
   queued_frame_iterator_.reset();
 }
@@ -483,6 +497,12 @@ void PreviewAutoCacher::EdgeRemoved(Node *output, const NodeInput &input)
 void PreviewAutoCacher::ValueChanged(const NodeInput &input)
 {
   graph_update_queue_.append({QueuedJob::kValueChanged, nullptr, input, nullptr});
+  UpdateGraphChangeValue();
+}
+
+void PreviewAutoCacher::ValueHintChanged(const NodeInput &input)
+{
+  graph_update_queue_.append({QueuedJob::kValueHintChanged, nullptr, input, nullptr});
   UpdateGraphChangeValue();
 }
 
@@ -564,7 +584,6 @@ void PreviewAutoCacher::RequeueFrames()
   if (viewer_node_
       && viewer_node_->video_frame_cache()->HasInvalidatedRanges(viewer_node_->GetVideoLength())
       && hash_tasks_.isEmpty()
-      && has_changed_
       && VideoParams::FormatIsFloat(viewer_node_->GetVideoParams().format())
       && (!paused_ || use_custom_range_)) {
     TimeRange using_range;
@@ -580,8 +599,6 @@ void PreviewAutoCacher::RequeueFrames()
     queued_frame_iterator_ = TimeRangeListFrameIterator(invalidated, viewer_node_->video_frame_cache()->GetTimebase());
 
     QueueNextFrameInRange(RenderManager::GetNumberOfIdealConcurrentJobs());
-
-    has_changed_ = false;
   }
 }
 
@@ -599,7 +616,6 @@ void PreviewAutoCacher::ConformFinished()
 
 void PreviewAutoCacher::ForceCacheRange(const TimeRange &range)
 {
-  has_changed_ = true;
   use_custom_range_ = true;
   custom_autocache_range_ = range;
 
@@ -655,6 +671,7 @@ void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
     disconnect(graph, &NodeGraph::InputConnected, this, &PreviewAutoCacher::EdgeAdded);
     disconnect(graph, &NodeGraph::InputDisconnected, this, &PreviewAutoCacher::EdgeRemoved);
     disconnect(graph, &NodeGraph::ValueChanged, this, &PreviewAutoCacher::ValueChanged);
+    disconnect(graph, &NodeGraph::InputValueHintChanged, this, &PreviewAutoCacher::ValueHintChanged);
 
     // Disconnect signal (will be a no-op if the signal was never connected)
     disconnect(viewer_node_->video_frame_cache(),
@@ -705,6 +722,7 @@ void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
     connect(graph, &NodeGraph::InputConnected, this, &PreviewAutoCacher::EdgeAdded);
     connect(graph, &NodeGraph::InputDisconnected, this, &PreviewAutoCacher::EdgeRemoved);
     connect(graph, &NodeGraph::ValueChanged, this, &PreviewAutoCacher::ValueChanged);
+    connect(graph, &NodeGraph::InputValueHintChanged, this, &PreviewAutoCacher::ValueHintChanged);
 
     // Copy invalidated ranges - used to determine which frames need hashing
     invalidated_video_ = viewer_node_->video_frame_cache()->GetInvalidatedRanges(viewer_node_->GetVideoLength());

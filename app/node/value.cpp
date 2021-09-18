@@ -326,7 +326,7 @@ QString NodeValue::GetPrettyDataTypeName(Type type)
 
 NodeValue NodeValueTable::GetWithMeta(const QVector<NodeValue::Type> &type, const QString &tag) const
 {
-  int value_index = GetInternal(type, tag);
+  int value_index = GetValueIndex(type, tag);
 
   if (value_index >= 0) {
     return values_.at(value_index);
@@ -337,7 +337,7 @@ NodeValue NodeValueTable::GetWithMeta(const QVector<NodeValue::Type> &type, cons
 
 NodeValue NodeValueTable::TakeWithMeta(const QVector<NodeValue::Type> &type, const QString &tag)
 {
-  int value_index = GetInternal(type, tag);
+  int value_index = GetValueIndex(type, tag);
 
   if (value_index >= 0) {
     return values_.takeAt(value_index);
@@ -407,7 +407,7 @@ NodeValueTable NodeValueTable::Merge(QList<NodeValueTable> tables)
   return merged_table;
 }
 
-int NodeValueTable::GetInternal(const QVector<NodeValue::Type>& types, const QString &tag) const
+int NodeValueTable::GetValueIndex(const QVector<NodeValue::Type>& types, const QString &tag) const
 {
   int index = -1;
 

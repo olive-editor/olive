@@ -52,6 +52,11 @@ public:
     node_view_->ClearGraph();
   }
 
+  const QVector<Node*> &GetCurrentContexts() const
+  {
+    return node_view_->GetCurrentContexts();
+  }
+
   virtual void SelectAll() override
   {
     node_view_->SelectAll();

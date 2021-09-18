@@ -139,9 +139,9 @@ double TransitionBlock::GetInProgress(const double &time) const
 
 void TransitionBlock::Hash(const ValueHint &output, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
 {
-  if (HashPassthrough(kInBlockInput, GetValueHintForInput(kInBlockInput, -1), hash, globals, video_params)
-      || HashPassthrough(kOutBlockInput, GetValueHintForInput(kOutBlockInput, -1), hash, globals, video_params)) {
-    HashAddNodeSignature(hash, output);
+  if (HashPassthrough(kInBlockInput, hash, globals, video_params)
+      || HashPassthrough(kOutBlockInput, hash, globals, video_params)) {
+    HashAddNodeSignature(hash);
 
     double time_dbl = globals.time().in().toDouble();
     double all_prog = GetTotalProgress(time_dbl);

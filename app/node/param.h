@@ -221,6 +221,7 @@ uint qHash(const NodeKeyframeTrackReference& i);
 
 }
 
+Q_DECLARE_METATYPE(olive::NodeInput)
 Q_DECLARE_METATYPE(olive::NodeKeyframeTrackReference)
 
 #endif // NODEPARAM_H

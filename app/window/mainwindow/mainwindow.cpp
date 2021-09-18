@@ -741,8 +741,9 @@ void MainWindow::UpdateNodePanelContextFromTimelinePanel(TimelinePanel *panel)
     context.append(viewer);
   }
 
+  QVector<Node*> old_contexts = node_panel_->GetCurrentContexts();
   node_panel_->SetGraph(viewer ? viewer->parent() : nullptr, context);
-  if (viewer) {
+  if (viewer && context != old_contexts) {
     node_panel_->SelectWithDependencies(context, false);
   }
 }

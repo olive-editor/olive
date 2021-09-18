@@ -466,6 +466,11 @@ public:
     QVector<NodeValue::Type> type;
     int index = -1;
     QString tag;
+
+    void Hash(QCryptographicHash &hash) const;
+
+    void Load(QXmlStreamReader *reader);
+    void Save(QXmlStreamWriter *writer) const;
   };
 
   ValueHint GetValueHintForInput(const QString &input, int element) const
@@ -473,10 +478,7 @@ public:
     return value_hints_.value({input, element});
   }
 
-  void SetValueHintForInput(const QString &input, int element, const ValueHint &hint)
-  {
-    value_hints_.insert({input, element}, hint);
-  }
+  void SetValueHintForInput(const QString &input, int element, const ValueHint &hint);
 
   const NodeKeyframeTrack& GetTrackFromKeyframe(NodeKeyframe* key) const;
 
@@ -964,6 +966,8 @@ signals:
   void OutputConnected(Node *output, const NodeInput& input);
 
   void OutputDisconnected(Node *output, const NodeInput& input);
+
+  void InputValueHintChanged(const NodeInput& input);
 
   void InputPropertyChanged(const QString& input, const QString& key, const QVariant& value);
 
@@ -1518,5 +1522,7 @@ private:
 };
 
 }
+
+Q_DECLARE_METATYPE(olive::Node::ValueHint);
 
 #endif // NODE_H

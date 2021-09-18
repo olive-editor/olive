@@ -98,6 +98,7 @@ void NodeGraph::childEvent(QChildEvent *event)
       connect(node, &Node::InputConnected, this, &NodeGraph::InputConnected);
       connect(node, &Node::InputDisconnected, this, &NodeGraph::InputDisconnected);
       connect(node, &Node::ValueChanged, this, &NodeGraph::ValueChanged);
+      connect(node, &Node::InputValueHintChanged, this, &NodeGraph::InputValueHintChanged);
 
       emit NodeAdded(node);
       emit node->AddedToGraph(this);
@@ -110,6 +111,7 @@ void NodeGraph::childEvent(QChildEvent *event)
       disconnect(node, &Node::InputConnected, this, &NodeGraph::InputConnected);
       disconnect(node, &Node::InputDisconnected, this, &NodeGraph::InputDisconnected);
       disconnect(node, &Node::ValueChanged, this, &NodeGraph::ValueChanged);
+      disconnect(node, &Node::InputValueHintChanged, this, &NodeGraph::InputValueHintChanged);
 
       emit NodeRemoved(node);
       emit node->RemovedFromGraph(this);

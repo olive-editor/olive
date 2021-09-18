@@ -61,17 +61,15 @@ void TransformDistortNode::Value(const NodeValueRow &value, const NodeGlobals &g
 
   // Pop texture
   NodeValue texture_meta = value[kTextureInput];
-  TexturePtr texture = texture_meta.data().value<TexturePtr>();
+
+  bool pushed_job = false;
 
   // If we have a texture, generate a matrix and make it happen
-  if (texture) {
+  if (TexturePtr texture = texture_meta.data().value<TexturePtr>()) {
     // Adjust our matrix by the resolutions involved
     QMatrix4x4 real_matrix = GenerateAutoScaledMatrix(generated_matrix, value, globals, texture->params());
 
-    if (real_matrix.isIdentity()) {
-      // We don't expect any changes, just push as normal
-      table->Push(texture_meta);
-    } else {
+    if (!real_matrix.isIdentity()) {
       // The matrix will transform things
       ShaderJob job;
       job.InsertValue(QStringLiteral("ove_maintex"), NodeValue(NodeValue::kTexture, QVariant::fromValue(texture), this));
@@ -83,7 +81,14 @@ void TransformDistortNode::Value(const NodeValueRow &value, const NodeGlobals &g
       job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
 
       table->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
+
+      pushed_job = true;
     }
+  }
+
+  if (!pushed_job) {
+    // Re-push whatever value we received
+    table->Push(texture_meta);
   }
 }
 
@@ -328,7 +333,7 @@ void TransformDistortNode::Hash(const ValueHint &output, QCryptographicHash &has
 
     if (!matrix.isIdentity()) {
       // Add fingerprint
-      HashAddNodeSignature(hash, output);
+      HashAddNodeSignature(hash);
       hash.addData(reinterpret_cast<const char*>(&matrix), sizeof(matrix));
     }
   }

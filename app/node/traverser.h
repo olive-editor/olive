@@ -45,6 +45,7 @@ public:
 
   NodeValue GenerateRowValue(const Node *node, const QString &input, NodeValueTable *table);
   NodeValue GenerateRowValueElement(const Node *node, const QString &input, int element, NodeValueTable *table);
+  int GenerateRowValueElementIndex(const Node *node, const QString &input, int element, const NodeValueTable *table);
 
   static NodeGlobals GenerateGlobals(const VideoParams &params, const TimeRange &time);
   static NodeGlobals GenerateGlobals(const VideoParams &params, const rational &time)

@@ -100,7 +100,7 @@ void Block::InputValueChangedEvent(const QString &input, int element)
   }
 }
 
-bool Block::HashPassthrough(const QString &input, const Node::ValueHint &output, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
+bool Block::HashPassthrough(const QString &input, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
 {
   if (IsInputConnected(input)) {
     TimeRange t = InputTimeAdjustment(input, -1, globals.time());

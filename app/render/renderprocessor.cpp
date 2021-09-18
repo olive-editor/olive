@@ -176,7 +176,7 @@ void RenderProcessor::Run()
 
     QVariant sample_variant = table.Get(NodeValue::kSamples);
     SampleBufferPtr samples = sample_variant.value<SampleBufferPtr>();
-    if (samples && ticket_->property("enablewaveforms").toBool()) {
+    if (ticket_->property("enablewaveforms").toBool()) {
       AudioVisualWaveform vis;
       vis.set_channel_count(samples->audio_params().channel_count());
       vis.OverwriteSamples(samples, samples->audio_params().sample_rate());
@@ -264,52 +264,56 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const Track *track, const Tim
         // Destination buffer
         NodeValueTable table = GenerateTable(b, track->GetValueHintForInput(Track::kBlockInput, track->GetArrayIndexFromBlock(b)),Track::TransformRangeForBlock(b, range_for_block));
         SampleBufferPtr samples_from_this_block = table.Take(NodeValue::kSamples).value<SampleBufferPtr>();
+        ClipBlock *clip_cast = dynamic_cast<ClipBlock*>(b);
 
-        if (!samples_from_this_block) {
-          // If we retrieved no samples from this block, do nothing
-          continue;
+        if (samples_from_this_block) {
+          // If this is a clip, we might have extra speed/reverse information
+          if (clip_cast) {
+            double speed_value = clip_cast->speed();
+            bool reversed = clip_cast->reverse();
+
+            if (qIsNull(speed_value)) {
+              // Just silence, don't think there's any other practical application of 0 speed audio
+              samples_from_this_block->fill(0);
+            } else if (!qFuzzyCompare(speed_value, 1.0)) {
+              // Multiply time
+              samples_from_this_block->speed(speed_value);
+            }
+
+            if (reversed) {
+              samples_from_this_block->reverse();
+            }
+          }
+
+          int copy_length = qMin(max_dest_sz, samples_from_this_block->sample_count());
+
+          // Copy samples into destination buffer
+          for (int i=0; i<samples_from_this_block->audio_params().channel_count(); i++) {
+            block_range_buffer->set(i, samples_from_this_block->data(i), destination_offset, copy_length);
+          }
+
+          NodeValueTable::Merge({merged_table, table});
         }
 
-        // If this is a clip, we might have extra speed/reverse information
-        if (ClipBlock *clip_cast = dynamic_cast<ClipBlock*>(b)) {
-          double speed_value = clip_cast->speed();
-          bool reversed = clip_cast->reverse();
+        // Create block waveforms if requested
+        if (ticket_->property("enablewaveforms").toBool() && clip_cast) {
+          // Format information for use in the main thread
+          RenderedWaveform waveform_info;
+          waveform_info.block = clip_cast;
+          waveform_info.range = range_for_block - b->in();
 
-          if (qIsNull(speed_value)) {
-            // Just silence, don't think there's any other practical application of 0 speed audio
-            samples_from_this_block->fill(0);
-          } else if (!qFuzzyCompare(speed_value, 1.0)) {
-            // Multiply time
-            samples_from_this_block->speed(speed_value);
-          }
-
-          if (reversed) {
-            samples_from_this_block->reverse();
-          }
-
-          // Create block waveforms if requested
-          if (ticket_->property("enablewaveforms").toBool()) {
+          if (!(waveform_info.silence = !samples_from_this_block.get())) {
             // Generate a visual waveform from the samples acquired from this block
             AudioVisualWaveform visual_waveform;
             visual_waveform.set_channel_count(audio_params.channel_count());
             visual_waveform.OverwriteSamples(samples_from_this_block, audio_params.sample_rate());
-
-            // Format it for use back int eh maint hread
-            RenderedWaveform waveform_info = {clip_cast, visual_waveform, range_for_block - b->in()};
-            QVector<RenderedWaveform> waveform_list = ticket_->property("waveforms").value< QVector<RenderedWaveform> >();
-            waveform_list.append(waveform_info);
-            ticket_->setProperty("waveforms", QVariant::fromValue(waveform_list));
+            waveform_info.waveform = visual_waveform;
           }
+
+          QVector<RenderedWaveform> waveform_list = ticket_->property("waveforms").value< QVector<RenderedWaveform> >();
+          waveform_list.append(waveform_info);
+          ticket_->setProperty("waveforms", QVariant::fromValue(waveform_list));
         }
-
-        int copy_length = qMin(max_dest_sz, samples_from_this_block->sample_count());
-
-        // Copy samples into destination buffer
-        for (int i=0; i<samples_from_this_block->audio_params().channel_count(); i++) {
-          block_range_buffer->set(i, samples_from_this_block->data(i), destination_offset, copy_length);
-        }
-
-        NodeValueTable::Merge({merged_table, table});
       }
     }
 

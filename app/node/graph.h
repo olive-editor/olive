@@ -129,6 +129,8 @@ signals:
 
   void ValueChanged(const NodeInput& input);
 
+  void InputValueHintChanged(const NodeInput& input);
+
   void NodePositionAdded(Node *node, Node *relative, const QPointF &position);
 
   void NodePositionRemoved(Node *node, Node *relative);

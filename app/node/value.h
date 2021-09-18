@@ -391,11 +391,11 @@ public:
     return values_.isEmpty();
   }
 
+  int GetValueIndex(const QVector<NodeValue::Type> &type, const QString& tag) const;
+
   static NodeValueTable Merge(QList<NodeValueTable> tables);
 
 private:
-  int GetInternal(const QVector<NodeValue::Type> &type, const QString& tag) const;
-
   QVector<NodeValue> values_;
 
 };

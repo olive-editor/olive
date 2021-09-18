@@ -39,6 +39,7 @@ public:
     const ClipBlock* block;
     AudioVisualWaveform waveform;
     TimeRange range;
+    bool silence;
   };
 
 protected:

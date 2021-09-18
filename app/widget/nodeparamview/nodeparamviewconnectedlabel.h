@@ -23,6 +23,7 @@
 
 #include "node/param.h"
 #include "widget/clickablelabel/clickablelabel.h"
+#include "widget/nodevaluetree/nodevaluetree.h"
 
 namespace olive {
 
@@ -30,6 +31,8 @@ class NodeParamViewConnectedLabel : public QWidget {
   Q_OBJECT
 public:
   NodeParamViewConnectedLabel(const NodeInput& input, QWidget* parent = nullptr);
+
+  void SetTime(const rational &time);
 
 signals:
   void RequestSelectNode(const QVector<Node*>& node);
@@ -46,11 +49,20 @@ private slots:
 private:
   void UpdateLabel();
 
+  void UpdateValueTree();
+
   ClickableLabel* connected_to_lbl_;
 
   NodeInput input_;
 
   Node *connected_node_;
+
+  NodeValueTree *value_tree_;
+
+  rational time_;
+
+private slots:
+  void SetValueTreeVisible(bool e);
 
 };
 

@@ -48,7 +48,8 @@ NodeValueRow NodeTraverser::GenerateRow(NodeValueDatabase *database, const Node 
   NodeValueRow row;
   for (auto it=database->begin(); it!=database->end(); it++) {
     // Get hint for which value should be pulled
-    row.insert(it.key(), GenerateRowValue(node, it.key(), &it.value()));
+    NodeValue value = GenerateRowValue(node, it.key(), &it.value());
+    row.insert(it.key(), value);
   }
 
   return row;
@@ -83,6 +84,17 @@ NodeValue NodeTraverser::GenerateRowValue(const Node *node, const QString &input
 
 NodeValue NodeTraverser::GenerateRowValueElement(const Node *node, const QString &input, int element, NodeValueTable *table)
 {
+  int value_index = GenerateRowValueElementIndex(node, input, element, table);
+
+  if (value_index == -1) {
+    return NodeValue();
+  } else {
+    return table->TakeAt(value_index);
+  }
+}
+
+int NodeTraverser::GenerateRowValueElementIndex(const Node *node, const QString &input, int element, const NodeValueTable *table)
+{
   Node::ValueHint hint = node->GetValueHintForInput(input, element);
   QVector<NodeValue::Type> types = hint.type;
 
@@ -92,23 +104,23 @@ NodeValue NodeTraverser::GenerateRowValueElement(const Node *node, const QString
 
   if (hint.index == -1) {
     // Get most recent value with this type and tag
-    return table->TakeWithMeta(types, hint.tag);
+    return table->GetValueIndex(types, hint.tag);
   } else {
     // Try to find value at this index
-    int index = table->Count() - hint.index;
+    int index = table->Count() - 1 - hint.index;
     int diff = 0;
 
     while (index + diff < table->Count() && index - diff >= 0) {
       if (index + diff < table->Count() && types.contains(table->at(index + diff).type())) {
-        return table->TakeAt(index + diff);
+        return index + diff;
       }
       if (index - diff >= 0 && types.contains(table->at(index - diff).type())) {
-        return table->TakeAt(index - diff);
+        return index - diff;
       }
       diff++;
     }
 
-    return NodeValue();
+    return -1;
   }
 }
 
@@ -270,7 +282,7 @@ QVariant NodeTraverser::ProcessSamples(const Node *node, const TimeRange &range,
   Q_UNUSED(range)
   Q_UNUSED(job)
 
-  return QVariant();
+  return QVariant::fromValue(SampleBuffer::Create());
 }
 
 QVariant NodeTraverser::ProcessFrameGeneration(const Node *node, const GenerateJob &job)

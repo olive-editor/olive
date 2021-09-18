@@ -90,6 +90,7 @@ private:
   void AddEdge(Node *output, const NodeInput& input);
   void RemoveEdge(Node *output, const NodeInput& input);
   void CopyValue(const NodeInput& input);
+  void CopyValueHint(const NodeInput& input);
 
   void InsertIntoCopyMap(Node* node, Node* copy);
 
@@ -124,7 +125,8 @@ private:
       kNodeRemoved,
       kEdgeAdded,
       kEdgeRemoved,
-      kValueChanged
+      kValueChanged,
+      kValueHintChanged
     };
 
     Type type;
@@ -146,8 +148,6 @@ private:
   bool paused_;
 
   TimeRange cache_range_;
-
-  bool has_changed_;
 
   bool use_custom_range_;
   TimeRange custom_autocache_range_;
@@ -219,6 +219,8 @@ private slots:
   void EdgeRemoved(Node *output, const NodeInput& input);
 
   void ValueChanged(const NodeInput& input);
+
+  void ValueHintChanged(const NodeInput &input);
 
   /**
    * @brief Generic function called whenever the frames to render need to be (re)queued

@@ -134,7 +134,7 @@ signals:
 protected:
   virtual void InputValueChangedEvent(const QString& input, int element) override;
 
-  bool HashPassthrough(const QString &input, const ValueHint &output, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams& video_params) const;
+  bool HashPassthrough(const QString &input, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams& video_params) const;
 
   Block* previous_;
   Block* next_;
