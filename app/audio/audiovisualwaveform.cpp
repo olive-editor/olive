@@ -185,7 +185,7 @@ void AudioVisualWaveform::OverwriteSilence(const rational &start, const rational
       our_arr.resize(our_end_index);
     }
 
-    memset(reinterpret_cast<char*>(our_arr.data()) + our_start_index, 0, our_length_index);
+    memset(reinterpret_cast<char*>(our_arr.data()) + our_start_index * sizeof(SamplePerChannel), 0, our_length_index * sizeof(SamplePerChannel));
   }
 }
 
