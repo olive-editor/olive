@@ -80,8 +80,6 @@ public:
   virtual void GizmoMove(const QPointF &p, const rational &time) override;
   virtual void GizmoRelease() override;
 
-  virtual void Hash(const ValueHint& output, QCryptographicHash& hash, const NodeGlobals &globals, const VideoParams& video_params) const override;
-
   enum AutoScaleType {
     kAutoScaleNone,
     kAutoScaleFit,
@@ -97,6 +95,9 @@ public:
   static const QString kTextureInput;
   static const QString kAutoscaleInput;
   static const QString kInterpolationInput;
+
+protected:
+  virtual void Hash(QCryptographicHash& hash, const NodeGlobals &globals, const VideoParams& video_params) const override;
 
 private:
   static QPointF CreateScalePoint(double x, double y, const QPointF& half_res, const QMatrix4x4& mat);

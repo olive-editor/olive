@@ -335,9 +335,9 @@ QString Footage::DescribeAudioStream(const AudioParams &params)
          QString::number(params.sample_rate()));
 }
 
-void Footage::Hash(const Node::ValueHint& output, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
+void Footage::Hash(QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
 {
-  super::Hash(output, hash, globals, video_params);
+  super::Hash(hash, globals, video_params);
 
   // Footage last modified date
   hash.addData(QString::number(timestamp()).toUtf8());

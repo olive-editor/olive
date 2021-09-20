@@ -473,12 +473,14 @@ public:
     void Save(QXmlStreamWriter *writer) const;
   };
 
-  ValueHint GetValueHintForInput(const QString &input, int element) const
+  static void Hash(const Node *node, const ValueHint &hint, QCryptographicHash& hash, const NodeGlobals &globals, const VideoParams& video_params);
+
+  ValueHint GetValueHintForInput(const QString &input, int element = -1) const
   {
     return value_hints_.value({input, element});
   }
 
-  void SetValueHintForInput(const QString &input, int element, const ValueHint &hint);
+  void SetValueHintForInput(const QString &input, const ValueHint &hint, int element = -1);
 
   const NodeKeyframeTrack& GetTrackFromKeyframe(NodeKeyframe* key) const;
 
@@ -731,8 +733,6 @@ public:
   QString GetLabelAndName() const;
   QString GetLabelOrName() const;
 
-  virtual void Hash(const ValueHint &output, QCryptographicHash& hash, const NodeGlobals &globals, const VideoParams& video_params) const;
-
   void InvalidateAll(const QString& input, int element = -1);
 
   bool HasLinks() const
@@ -851,6 +851,8 @@ protected:
     uint64_t f_;
 
   };
+
+  virtual void Hash(QCryptographicHash& hash, const NodeGlobals &globals, const VideoParams& video_params) const;
 
   void HashAddNodeSignature(QCryptographicHash &hash) const;
 

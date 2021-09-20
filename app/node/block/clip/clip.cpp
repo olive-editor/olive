@@ -51,7 +51,7 @@ ClipBlock::ClipBlock() :
   IgnoreHashingFrom(kReverseInput);
 
   PrependInput(kBufferIn, NodeValue::kNone, InputFlags(kInputFlagNotKeyframable));
-  SetValueHintForInput(kBufferIn, -1, {NodeValue::kBuffer, -1, QString()});
+  SetValueHintForInput(kBufferIn, {NodeValue::kBuffer, -1, QString()});
 }
 
 Node *ClipBlock::copy() const
@@ -264,7 +264,7 @@ void ClipBlock::Retranslate()
   SetInputName(kReverseInput, tr("Reverse"));
 }
 
-void ClipBlock::Hash(const ValueHint &out, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
+void ClipBlock::Hash(QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
 {
   HashPassthrough(kBufferIn, hash, globals, video_params);
 }

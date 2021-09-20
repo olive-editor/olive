@@ -69,7 +69,7 @@ QVector<PreviewAutoCacher::HashData> PreviewAutoCacher::GenerateHashes(ViewerOut
     const rational &time = times.at(i);
 
     // See if hash already exists in disk cache
-    QByteArray hash = RenderManager::Hash(viewer->GetConnectedTextureOutput(), viewer->GetValueHintForInput(ViewerOutput::kTextureInput, -1), viewer->GetVideoParams(), time);
+    QByteArray hash = RenderManager::Hash(viewer->GetConnectedTextureOutput(), viewer->GetValueHintForInput(ViewerOutput::kTextureInput), viewer->GetVideoParams(), time);
 
     // Check memory list since disk checking is slow
     bool hash_exists = existing_hashes.contains(hash);
@@ -392,7 +392,7 @@ void PreviewAutoCacher::CopyValueHint(const NodeInput &input)
 {
   Node* our_input = copy_map_.value(input.node());
   Node::ValueHint hint = input.node()->GetValueHintForInput(input.input(), input.element());
-  our_input->SetValueHintForInput(input.input(), input.element(), hint);
+  our_input->SetValueHintForInput(input.input(), hint, input.element());
 }
 
 void PreviewAutoCacher::InsertIntoCopyMap(Node *node, Node *copy)

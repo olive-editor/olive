@@ -118,7 +118,7 @@ QByteArray RenderManager::Hash(const Node *n, const Node::ValueHint &output, con
   hasher.addData(reinterpret_cast<const char*>(&interlacing), sizeof(interlacing));
 
   if (n) {
-    n->Hash(output, hasher, NodeTraverser::GenerateGlobals(params, time), params);
+    Node::Hash(n, output, hasher, NodeTraverser::GenerateGlobals(params, time), params);
   }
 
   return hasher.result();

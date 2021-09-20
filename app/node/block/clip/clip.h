@@ -59,8 +59,6 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual void Hash(const Node::ValueHint& output, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams& video_params) const override;
-
   double speed() const
   {
     return GetStandardValue(kSpeedInput).toDouble();
@@ -110,6 +108,8 @@ protected:
   virtual void LinkChangeEvent() override;
 
   virtual void InputValueChangedEvent(const QString &input, int element) override;
+
+  virtual void Hash(QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams& video_params) const override;
 
 private:
   rational SequenceToMediaTime(const rational& sequence_time, bool ignore_reverse = false) const;

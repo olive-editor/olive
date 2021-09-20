@@ -49,7 +49,7 @@ TexturePtr RenderProcessor::GenerateTexture(const rational &time, const rational
   NodeValueTable table;
   Node *texture_output = viewer->GetConnectedTextureOutput();
   if (texture_output) {
-    table = GenerateTable(texture_output, viewer->GetValueHintForInput(ViewerOutput::kTextureInput, -1), TimeRange(time, time + frame_length));
+    table = GenerateTable(texture_output, viewer->GetValueHintForInput(ViewerOutput::kTextureInput), TimeRange(time, time + frame_length));
   }
 
   return table.Get(NodeValue::kTexture).value<TexturePtr>();
@@ -171,7 +171,7 @@ void RenderProcessor::Run()
     NodeValueTable table;
     Node *texture_output = viewer->GetConnectedSampleOutput();
     if (texture_output) {
-      table = GenerateTable(texture_output, viewer->GetValueHintForInput(ViewerOutput::kSamplesInput, -1),time);
+      table = GenerateTable(texture_output, viewer->GetValueHintForInput(ViewerOutput::kSamplesInput),time);
     }
 
     QVariant sample_variant = table.Get(NodeValue::kSamples);

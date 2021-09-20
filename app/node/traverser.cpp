@@ -163,7 +163,7 @@ NodeValueTable NodeTraverser::ProcessInput(const Node* node, const QString& inpu
     TimeRange adjusted_range = node->InputTimeAdjustment(input, -1, range);
 
     // Value will equal something from the connected node, follow it
-    return GenerateTable(node->GetConnectedOutput(input), node->GetValueHintForInput(input, -1), adjusted_range);
+    return GenerateTable(node->GetConnectedOutput(input), node->GetValueHintForInput(input), adjusted_range);
 
   } else {
 

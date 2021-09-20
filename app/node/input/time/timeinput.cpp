@@ -22,6 +22,8 @@
 
 namespace olive {
 
+#define super Node
+
 TimeInput::TimeInput()
 {
 }
@@ -60,9 +62,9 @@ void TimeInput::Value(const NodeValueRow &value, const NodeGlobals &globals, Nod
               QStringLiteral("time"));
 }
 
-void TimeInput::Hash(const ValueHint &output, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
+void TimeInput::Hash(QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
 {
-  Node::Hash(output, hash, globals, video_params);
+  super::Hash(hash, globals, video_params);
 
   // Make sure time is hashed
   hash.addData(NodeValue::ValueToBytes(NodeValue::kFloat, globals.time().in().toDouble()));

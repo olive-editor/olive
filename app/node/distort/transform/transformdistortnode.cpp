@@ -312,7 +312,7 @@ void TransformDistortNode::GizmoRelease()
   gizmo_drag_ = nullptr;
 }
 
-void TransformDistortNode::Hash(const ValueHint &output, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
+void TransformDistortNode::Hash(QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
 {
   // If not connected to output, this will produce nothing
   Node *out = GetConnectedOutput(kTextureInput);
@@ -338,7 +338,7 @@ void TransformDistortNode::Hash(const ValueHint &output, QCryptographicHash &has
     }
   }
 
-  out->Hash(GetValueHintForInput(kTextureInput, -1), hash, globals, video_params);
+  Node::Hash(out, GetValueHintForInput(kTextureInput), hash, globals, video_params);
 }
 
 QMatrix4x4 TransformDistortNode::AdjustMatrixByResolutions(const QMatrix4x4 &mat, const QVector2D &sequence_res, const QVector2D &texture_res, AutoScaleType autoscale_type)

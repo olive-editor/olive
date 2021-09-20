@@ -65,8 +65,6 @@ public:
   double GetOutProgress(const double &time) const;
   double GetInProgress(const double &time) const;
 
-  virtual void Hash(const ValueHint& output, QCryptographicHash& hash, const NodeGlobals &globals, const VideoParams& video_params) const override;
-
   virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
 
   virtual void InvalidateCache(const TimeRange& range, const QString& from, int element = -1, InvalidateCacheOptions options = InvalidateCacheOptions()) override;
@@ -90,6 +88,8 @@ protected:
   virtual TimeRange InputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const override;
 
   virtual TimeRange OutputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const override;
+
+  virtual void Hash(QCryptographicHash& hash, const NodeGlobals &globals, const VideoParams& video_params) const override;
 
 private:
   enum CurveType {

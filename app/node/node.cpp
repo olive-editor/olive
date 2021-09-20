@@ -1015,7 +1015,18 @@ int Node::InputArraySize(const QString &id) const
   }
 }
 
-void Node::SetValueHintForInput(const QString &input, int element, const ValueHint &hint)
+void Node::Hash(const Node *node, const ValueHint &hint, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params)
+{
+  if (!hint.type.isEmpty()) {
+    hash.addData(reinterpret_cast<const char*>(hint.type.constData()), sizeof(NodeValue::Type) * hint.type.size());
+  }
+  hash.addData(reinterpret_cast<const char*>(&hint.index), sizeof(hint.index));
+  hash.addData(hint.tag.toUtf8());
+
+  node->Hash(hash, globals, video_params);
+}
+
+void Node::SetValueHintForInput(const QString &input, const ValueHint &hint, int element)
 {
   value_hints_.insert({input, element}, hint);
 
@@ -1146,7 +1157,7 @@ void Node::CopyDependencyGraph(const QVector<Node *> &src, const QVector<Node *>
           command->add_child(new NodeSetValueHintCommand(copied_input, src_node->GetValueHintForInput(copied_input.input(), copied_input.element())));
         } else {
           ConnectEdge(copied_output, copied_input);
-          copied_input.node()->SetValueHintForInput(copied_input.input(), copied_input.element(), src_node->GetValueHintForInput(copied_input.input(), copied_input.element()));
+          copied_input.node()->SetValueHintForInput(copied_input.input(), src_node->GetValueHintForInput(copied_input.input(), copied_input.element()), copied_input.element());
         }
       }
     }
@@ -1486,7 +1497,7 @@ QString Node::GetLabelOrName() const
   return GetLabel();
 }
 
-void Node::Hash(const ValueHint &output, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
+void Node::Hash(QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
 {
   // Add this Node's ID and output being used
   HashAddNodeSignature(hash);
@@ -1576,7 +1587,7 @@ void Node::CopyValuesOfElement(const Node *src, Node *dst, const QString &input,
   }
 
   // Copy value hint
-  dst->SetValueHintForInput(input, dst_element, src->GetValueHintForInput(input, src_element));
+  dst->SetValueHintForInput(input, src->GetValueHintForInput(input, src_element), dst_element);
 }
 
 bool Node::CanBeDeleted() const
@@ -1635,7 +1646,7 @@ void Node::HashInputElement(QCryptographicHash &hash, const QString& input, int 
 
     NodeGlobals new_globals = globals;
     new_globals.set_time(input_time);
-    output->Hash(GetValueHintForInput(input, element), hash, new_globals, video_params);
+    Node::Hash(output, GetValueHintForInput(input, element), hash, new_globals, video_params);
   } else {
     // Grab the value at this time
     QVariant value = GetValueAtTime(input, input_time.in(), element);

@@ -42,7 +42,8 @@ public:
 
   virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
 
-  virtual void Hash(const ValueHint& output, QCryptographicHash& hash, const NodeGlobals &globals, const VideoParams& video_params) const override;
+protected:
+  virtual void Hash(QCryptographicHash& hash, const NodeGlobals &globals, const VideoParams& video_params) const override;
 
 };
 

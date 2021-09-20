@@ -179,8 +179,6 @@ public:
   static QString DescribeVideoStream(const VideoParams& params);
   static QString DescribeAudioStream(const AudioParams& params);
 
-  virtual void Hash(const ValueHint &output, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams& video_params) const override;
-
   virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
 
   static QString GetStreamTypeName(Track::Type type);
@@ -211,6 +209,8 @@ protected:
   virtual void InputValueChangedEvent(const QString &input, int element) override;
 
   virtual rational VerifyLengthInternal(Track::Type type) const override;
+
+  virtual void Hash(QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams& video_params) const override;
 
 private:
   QString GetColorspaceToUse(const VideoParams& params) const;

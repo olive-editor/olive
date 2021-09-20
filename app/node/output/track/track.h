@@ -359,7 +359,6 @@ public:
 
   bool IsLocked() const;
 
-  virtual void Hash(const Node::ValueHint& output, QCryptographicHash& hash, const NodeGlobals &globals, const VideoParams& video_params) const override;
 
   int GetArrayIndexFromBlock(Block* block) const;
 
@@ -412,6 +411,8 @@ signals:
   void BlocksRefreshed();
 
 protected:
+  virtual void Hash(QCryptographicHash& hash, const NodeGlobals &globals, const VideoParams& video_params) const override;
+
   virtual bool LoadCustom(QXmlStreamReader* reader, XMLNodeData& xml_node_data, uint version, const QAtomicInt* cancelled) override;
 
   virtual void SaveCustom(QXmlStreamWriter* writer) const override;

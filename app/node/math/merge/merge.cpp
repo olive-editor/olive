@@ -100,7 +100,7 @@ void MergeNode::Value(const NodeValueRow &value, const NodeGlobals &globals, Nod
   }
 }
 
-void MergeNode::Hash(const ValueHint &output, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
+void MergeNode::Hash(QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
 {
   NodeTraverser traverser;
   traverser.SetCacheVideoParams(video_params);
@@ -121,12 +121,12 @@ void MergeNode::Hash(const ValueHint &output, QCryptographicHash &hash, const No
 
     if (!passthrough_base) {
       Node *blend_output = GetConnectedOutput(kBlendIn);
-      blend_output->Hash(GetValueHintForInput(kBlendIn, -1), hash, globals, video_params);
+      Node::Hash(blend_output, GetValueHintForInput(kBlendIn), hash, globals, video_params);
     }
 
     if (!passthrough_blend) {
       Node *base_output = GetConnectedOutput(kBaseIn);
-      base_output->Hash(GetValueHintForInput(kBaseIn, -1), hash, globals, video_params);
+      Node::Hash(base_output, GetValueHintForInput(kBaseIn), hash, globals, video_params);
     }
 
     Q_ASSERT(!passthrough_base || !passthrough_blend);

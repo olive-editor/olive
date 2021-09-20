@@ -42,7 +42,7 @@ void XMLConnectNodes(const XMLNodeData &xml_node_data, MultiUndoCommand *command
         Node::ConnectEdge(out, con.input);
 
         /// Deprecated: backwards compatibility only
-        con.input.node()->SetValueHintForInput(con.input.input(), con.input.element(), {{}, -1, con.output_param});
+        con.input.node()->SetValueHintForInput(con.input.input(), {{}, -1, con.output_param}, con.input.element());
       }
     }
   }

@@ -45,10 +45,11 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual void Hash(const ValueHint &output, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams& video_params) const override;
-
   static const QString kTimeInput;
   static const QString kInputInput;
+
+protected:
+  virtual void Hash(QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams& video_params) const override;
 
 private:
   rational GetRemappedTime(const rational& input) const;

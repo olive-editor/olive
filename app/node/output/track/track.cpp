@@ -571,17 +571,15 @@ bool Track::IsLocked() const
   return locked_;
 }
 
-void Track::Hash(const Node::ValueHint &output, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
+void Track::Hash(QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
 {
-  Q_UNUSED(output)
-
   Block* b = BlockAtTime(globals.time().in());
 
   // Defer to block at this time, don't add any of our own information to the hash
   if (b) {
     NodeGlobals new_globals = globals;
     new_globals.set_time(TransformRangeForBlock(b, globals.time()));
-    b->Hash(GetValueHintForInput(kBlockInput, GetArrayIndexFromBlock(b)), hash, new_globals, video_params);
+    Node::Hash(b, GetValueHintForInput(kBlockInput, GetArrayIndexFromBlock(b)), hash, new_globals, video_params);
   }
 }
 

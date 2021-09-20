@@ -76,7 +76,7 @@ void NodeValueTree::RadioButtonChecked(bool e)
     Node::ValueHint hint = btn->property("hint").value<Node::ValueHint>();
     NodeInput input = btn->property("input").value<NodeInput>();
 
-    input.node()->SetValueHintForInput(input.input(), input.element(), hint);
+    input.node()->SetValueHintForInput(input.input(), hint, input.element());
   }
 }
 
