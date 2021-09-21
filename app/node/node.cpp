@@ -141,7 +141,7 @@ void Node::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, uint versi
       while (XMLReadNextStartElement(reader)) {
         if (reader->name() == QStringLiteral("hint")) {
           QString input;
-          int element;
+          int element = -1;
 
           XMLAttributeLoop(reader, attr) {
             if (attr.name() == QStringLiteral("input")) {
