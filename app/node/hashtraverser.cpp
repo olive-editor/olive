@@ -77,7 +77,10 @@ TexturePtr HashTraverser::ProcessVideoFootage(const FootageJob &stream, const ra
 
 SampleBufferPtr HashTraverser::ProcessAudioFootage(const FootageJob &stream, const TimeRange &input_time)
 {
+  Hash(FileFunctions::GetUniqueFileIdentifier(stream.filename()));
+  Hash(stream.loop_mode());
   Hash(stream.audio_params().stream_index());
+  Hash(input_time);
 
   SampleBufferPtr buf = super::ProcessAudioFootage(stream, input_time);
   texture_ids_.insert(buf.get(), hash_.result());
