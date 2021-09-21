@@ -33,16 +33,18 @@ void XMLConnectNodes(const XMLNodeData &xml_node_data, MultiUndoCommand *command
     Node *out = xml_node_data.node_ptrs.value(con.output_node);
 
     if (out) {
+      Node::ValueHint hint = { QVector<NodeValue::Type>(), -1, con.output_param };
+
       if (command) {
         command->add_child(new NodeEdgeAddCommand(out, con.input));
 
         /// Deprecated: backwards compatibility only
-        command->add_child(new NodeSetValueHintCommand(con.input, {{}, -1, con.output_param}));
+        command->add_child(new NodeSetValueHintCommand(con.input, hint));
       } else {
         Node::ConnectEdge(out, con.input);
 
         /// Deprecated: backwards compatibility only
-        con.input.node()->SetValueHintForInput(con.input.input(), {{}, -1, con.output_param}, con.input.element());
+        con.input.node()->SetValueHintForInput(con.input.input(), hint, con.input.element());
       }
     }
   }
