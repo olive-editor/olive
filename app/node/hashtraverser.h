@@ -35,11 +35,11 @@ public:
 protected:
   virtual TexturePtr ProcessVideoFootage(const FootageJob &stream, const rational &input_time) override;
 
-  virtual SampleBufferPtr ProcessAudioFootage(const FootageJob &stream, const TimeRange &input_time);
+  virtual SampleBufferPtr ProcessAudioFootage(const FootageJob &stream, const TimeRange &input_time) override;
 
   virtual TexturePtr ProcessShader(const Node *node, const TimeRange &range, const ShaderJob& job) override;
 
-  virtual SampleBufferPtr ProcessSamples(const Node *node, const TimeRange &range, const SampleJob &job);
+  virtual SampleBufferPtr ProcessSamples(const Node *node, const TimeRange &range, const SampleJob &job) override;
 
   virtual TexturePtr ProcessFrameGeneration(const Node *node, const GenerateJob& job) override;
 
