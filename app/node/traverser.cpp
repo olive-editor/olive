@@ -92,7 +92,13 @@ NodeValue NodeTraverser::GenerateRowValueElement(const Node::ValueHint &hint, No
   int value_index = GenerateRowValueElementIndex(hint, preferred_type, table);
 
   if (value_index == -1) {
+    // If value was -1, try getting the last value
     value_index = table->Count() - 1;
+  }
+
+  if (value_index == -1) {
+    // If value is still -1, assume the table is empty and return nothing
+    return NodeValue();
   }
 
   return table->TakeAt(value_index);
