@@ -260,26 +260,18 @@ bool LoadOTIOTask::Run()
             sequence->parent()->SetNodePosition(probed_item, block, QPointF(-2, 0));
 
 
-            Track::Reference reference;
             if (track->type() == Track::kVideo) {
-              reference = Track::Reference(Track::kVideo, 0);
-              QString output_id = reference.ToString();
-
               TransformDistortNode* transform = new TransformDistortNode();
               transform->setParent(sequence->parent());
 
-              Node::ConnectEdge(NodeOutput(probed_item, output_id),
-                                                        NodeInput(transform, TransformDistortNode::kTextureInput));
+              Node::ConnectEdge(probed_item, NodeInput(transform, TransformDistortNode::kTextureInput));
               Node::ConnectEdge(transform, NodeInput(block, ClipBlock::kBufferIn));
               sequence->parent()->SetNodePosition(transform, block, QPointF(-1, 0));
             } else {
-              reference = Track::Reference(Track::kAudio, 0);
-              QString output_id = reference.ToString();
-
               VolumeNode* volume_node = new VolumeNode();
               volume_node->setParent(sequence->parent());
 
-              Node::ConnectEdge(NodeOutput(probed_item, output_id), NodeInput(volume_node, VolumeNode::kSamplesInput));
+              Node::ConnectEdge(probed_item, NodeInput(volume_node, VolumeNode::kSamplesInput));
               Node::ConnectEdge(volume_node, NodeInput(block, ClipBlock::kBufferIn));
               sequence->parent()->SetNodePosition(volume_node, block, QPointF(-1, 0));
             }
