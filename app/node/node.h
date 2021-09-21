@@ -1523,6 +1523,6 @@ private:
 
 }
 
-Q_DECLARE_METATYPE(olive::Node::ValueHint);
+Q_DECLARE_METATYPE(olive::Node::ValueHint)
 
 #endif // NODE_H
