@@ -52,7 +52,6 @@ QByteArray HashTraverser::GetHash(const Node *node, const Node::ValueHint &hint,
   // Our overrides will generate a hash from this
   NodeValueTable table = GenerateTable(node, hint, range);
   NodeValue final_value = GenerateRowValueElement(hint, NodeValue::kTexture, &table);
-  qDebug() << "finished with result" << final_value.data();
   HashNodeValue(final_value);
 
   // Return the hash
