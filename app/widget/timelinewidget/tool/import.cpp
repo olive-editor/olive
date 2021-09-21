@@ -201,7 +201,7 @@ void ImportTool::FootageToGhosts(rational ghost_start, const DraggedFootageData 
   for (auto it=sorted.cbegin(); it!=sorted.cend(); it++) {
     ViewerOutput* footage = it->first;
 
-    if (footage == sequence()) {
+    if (footage == sequence() || sequence()->OutputsTo(footage, true)) {
       // Prevent cyclical dependency
       continue;
     }
