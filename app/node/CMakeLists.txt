@@ -34,6 +34,8 @@ set(OLIVE_SOURCES
   node/globals.h
   node/graph.cpp
   node/graph.h
+  node/hashtraverser.cpp
+  node/hashtraverser.h
   node/inputdragger.cpp
   node/inputdragger.h
   node/inputimmediate.cpp

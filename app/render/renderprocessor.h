@@ -25,7 +25,6 @@
 #include "node/traverser.h"
 #include "render/renderer.h"
 #include "rendercache.h"
-#include "stillimagecache.h"
 #include "threading/threadticket.h"
 
 namespace olive {
@@ -33,7 +32,7 @@ namespace olive {
 class RenderProcessor : public NodeTraverser
 {
 public:
-  static void Process(RenderTicketPtr ticket, Renderer* render_ctx, StillImageCache* still_image_cache, DecoderCache* decoder_cache, ShaderCache* shader_cache, QVariant default_shader);
+  static void Process(RenderTicketPtr ticket, Renderer* render_ctx, DecoderCache* decoder_cache, ShaderCache* shader_cache, QVariant default_shader);
 
   struct RenderedWaveform {
     const ClipBlock* block;
@@ -45,24 +44,24 @@ public:
 protected:
   virtual NodeValueTable GenerateBlockTable(const Track *track, const TimeRange &range) override;
 
-  virtual QVariant ProcessVideoFootage(const FootageJob &stream, const rational &input_time) override;
+  virtual TexturePtr ProcessVideoFootage(const FootageJob &stream, const rational &input_time) override;
 
-  virtual QVariant ProcessAudioFootage(const FootageJob &stream, const TimeRange &input_time) override;
+  virtual SampleBufferPtr ProcessAudioFootage(const FootageJob &stream, const TimeRange &input_time) override;
 
-  virtual QVariant ProcessShader(const Node *node, const TimeRange &range, const ShaderJob& job) override;
+  virtual TexturePtr ProcessShader(const Node *node, const TimeRange &range, const ShaderJob& job) override;
 
-  virtual QVariant ProcessSamples(const Node *node, const TimeRange &range, const SampleJob &job) override;
+  virtual SampleBufferPtr ProcessSamples(const Node *node, const TimeRange &range, const SampleJob &job) override;
 
-  virtual QVariant ProcessFrameGeneration(const Node *node, const GenerateJob& job) override;
+  virtual TexturePtr ProcessFrameGeneration(const Node *node, const GenerateJob& job) override;
 
   virtual bool CanCacheFrames() override;
 
-  virtual QVariant GetCachedTexture(const QByteArray &hash) override;
+  virtual TexturePtr GetCachedTexture(const QByteArray &hash) override;
 
-  virtual void SaveCachedTexture(const QByteArray& hash, const QVariant& texture) override;
+  virtual void SaveCachedTexture(const QByteArray& hash, TexturePtr texture) override;
 
 private:
-  RenderProcessor(RenderTicketPtr ticket, Renderer* render_ctx, StillImageCache* still_image_cache, DecoderCache* decoder_cache, ShaderCache* shader_cache, QVariant default_shader);
+  RenderProcessor(RenderTicketPtr ticket, Renderer* render_ctx, DecoderCache* decoder_cache, ShaderCache* shader_cache, QVariant default_shader);
 
   TexturePtr GenerateTexture(const rational& time, const rational& frame_length);
 
@@ -75,8 +74,6 @@ private:
   RenderTicketPtr ticket_;
 
   Renderer* render_ctx_;
-
-  StillImageCache* still_image_cache_;
 
   DecoderCache* decoder_cache_;
 

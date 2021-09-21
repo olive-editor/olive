@@ -32,10 +32,11 @@
 
 namespace olive {
 
-RenderProcessor::RenderProcessor(RenderTicketPtr ticket, Renderer *render_ctx, StillImageCache* still_image_cache, DecoderCache* decoder_cache, ShaderCache *shader_cache, QVariant default_shader) :
+#define super NodeTraverser
+
+RenderProcessor::RenderProcessor(RenderTicketPtr ticket, Renderer *render_ctx, DecoderCache* decoder_cache, ShaderCache *shader_cache, QVariant default_shader) :
   ticket_(ticket),
   render_ctx_(render_ctx),
-  still_image_cache_(still_image_cache),
   decoder_cache_(decoder_cache),
   shader_cache_(shader_cache),
   default_shader_(default_shader)
@@ -47,8 +48,7 @@ TexturePtr RenderProcessor::GenerateTexture(const rational &time, const rational
   ViewerOutput* viewer = Node::ValueToPtr<ViewerOutput>(ticket_->property("viewer"));
 
   NodeValueTable table;
-  Node *texture_output = viewer->GetConnectedTextureOutput();
-  if (texture_output) {
+  if (Node *texture_output = viewer->GetConnectedTextureOutput()) {
     table = GenerateTable(texture_output, viewer->GetValueHintForInput(ViewerOutput::kTextureInput), TimeRange(time, time + frame_length));
   }
 
@@ -169,8 +169,7 @@ void RenderProcessor::Run()
     TimeRange time = ticket_->property("time").value<TimeRange>();
 
     NodeValueTable table;
-    Node *texture_output = viewer->GetConnectedSampleOutput();
-    if (texture_output) {
+    if (Node *texture_output = viewer->GetConnectedSampleOutput()) {
       table = GenerateTable(texture_output, viewer->GetValueHintForInput(ViewerOutput::kSamplesInput),time);
     }
 
@@ -231,9 +230,9 @@ DecoderPtr RenderProcessor::ResolveDecoderFromInput(const QString& decoder_id, c
   return decoder.decoder;
 }
 
-void RenderProcessor::Process(RenderTicketPtr ticket, Renderer *render_ctx, StillImageCache *still_image_cache, DecoderCache *decoder_cache, ShaderCache *shader_cache, QVariant default_shader)
+void RenderProcessor::Process(RenderTicketPtr ticket, Renderer *render_ctx, DecoderCache *decoder_cache, ShaderCache *shader_cache, QVariant default_shader)
 {
-  RenderProcessor p(ticket, render_ctx, still_image_cache, decoder_cache, shader_cache, default_shader);
+  RenderProcessor p(ticket, render_ctx, decoder_cache, shader_cache, default_shader);
   p.Run();
 }
 
@@ -322,18 +321,16 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const Track *track, const Tim
     return merged_table;
 
   } else {
-    return NodeTraverser::GenerateBlockTable(track, range);
+    return super::GenerateBlockTable(track, range);
   }
 }
 
-QVariant RenderProcessor::ProcessVideoFootage(const FootageJob &stream, const rational &input_time)
+TexturePtr RenderProcessor::ProcessVideoFootage(const FootageJob &stream, const rational &input_time)
 {
   if (ticket_->property("type").value<RenderManager::TicketType>() != RenderManager::kTypeVideo) {
     // Video cannot contribute to audio, so we do nothing here
-    return QVariant();
+    return super::ProcessVideoFootage(stream, input_time);
   }
-
-  TexturePtr value = nullptr;
 
   // Check the still frame cache. On large frames such as high resolution still images, uploading
   // and color managing them for every frame is a waste of time, so we implement a small cache here
@@ -360,132 +357,78 @@ QVariant RenderProcessor::ProcessVideoFootage(const FootageJob &stream, const ra
 
   Decoder::CodecStream default_codec_stream(stream.filename(), stream_data.stream_index());
 
-  StillImageCache::EntryPtr want_entry = std::make_shared<StillImageCache::Entry>(
-        nullptr,
-        default_codec_stream,
-        ColorProcessor::GenerateID(color_manager, using_colorspace, color_manager->GetReferenceColorSpace()),
-        stream_data.premultiplied_alpha(),
-        footage_divider,
-        (stream_data.video_type() == VideoParams::kVideoTypeStill) ? 0 : input_time,
-        true);
+  QString decoder_id = stream.decoder();
 
-  bool found_existing = false;
+  DecoderPtr decoder = nullptr;
 
-  still_image_cache_->mutex()->lock();
-
-  foreach (StillImageCache::EntryPtr e, still_image_cache_->entries()) {
-    if (StillImageCache::CompareEntryMetadata(want_entry, e)) {
-      // Found an exact match of the texture we want in the cache. See if it's working or if it's
-      // ready.
-      want_entry = e;
-      found_existing = true;
-
-      while (want_entry->working) {
-        still_image_cache_->wait_cond()->wait(still_image_cache_->mutex());
-      }
-
-      value = want_entry->texture;
-      break;
-    }
-  }
-
-  if (value) {
-    // Found the texture, we can release the cache now
-    still_image_cache_->mutex()->unlock();
+  if (stream_data.video_type() == VideoParams::kVideoTypeVideo) {
+    decoder = ResolveDecoderFromInput(decoder_id, default_codec_stream);
   } else {
-    // Wasn't in still image cache, so we'll have to retrieve it from the decoder
+    // Since image sequences involve multiple files, we don't engage the decoder cache
+    decoder = Decoder::CreateFromID(decoder_id);
 
-    // Let other processors know we're getting this texture (want_entry's `working` field is
-    // already set to true in the initializer above)
-    if (!found_existing) {
-      still_image_cache_->PushEntry(want_entry);
-    }
+    QString frame_filename;
 
-    still_image_cache_->mutex()->unlock();
-
-    QString decoder_id = stream.decoder();
-
-    DecoderPtr decoder = nullptr;
-
-    if (stream_data.video_type() == VideoParams::kVideoTypeVideo) {
-      decoder = ResolveDecoderFromInput(decoder_id, default_codec_stream);
+    if (stream_data.video_type() == VideoParams::kVideoTypeImageSequence) {
+      int64_t frame_number = stream_data.get_time_in_timebase_units(input_time);
+      frame_filename = Decoder::TransformImageSequenceFileName(stream.filename(), frame_number);
     } else {
-      // Since image sequences involve multiple files, we don't engage the decoder cache
-      decoder = Decoder::CreateFromID(decoder_id);
-
-      QString frame_filename;
-
-      if (stream_data.video_type() == VideoParams::kVideoTypeImageSequence) {
-        int64_t frame_number = stream_data.get_time_in_timebase_units(input_time);
-        frame_filename = Decoder::TransformImageSequenceFileName(stream.filename(), frame_number);
-      } else {
-        frame_filename = stream.filename();
-      }
-
-      // Decoder will close automatically since it's a stream_ptr
-      decoder->Open(Decoder::CodecStream(frame_filename, stream_data.stream_index()));
+      frame_filename = stream.filename();
     }
 
-    if (decoder) {
-      Decoder::RetrieveVideoParams p;
-      p.divider = footage_divider;
-      p.src_interlacing = stream_data.interlacing();
-      p.dst_interlacing = GetCacheVideoParams().interlacing();
+    // Decoder will close automatically since it's a stream_ptr
+    decoder->Open(Decoder::CodecStream(frame_filename, stream_data.stream_index()));
+  }
 
-      FramePtr frame = decoder->RetrieveVideo((stream_data.video_type() == VideoParams::kVideoTypeVideo) ? input_time : Decoder::kAnyTimecode, p);
+  if (decoder) {
+    Decoder::RetrieveVideoParams p;
+    p.divider = footage_divider;
+    p.src_interlacing = stream_data.interlacing();
+    p.dst_interlacing = GetCacheVideoParams().interlacing();
 
-      if (frame) {
-        // Return a texture from the derived class
-        TexturePtr unmanaged_texture = render_ctx_->CreateTexture(frame->video_params(),
-                                                                  frame->data(),
-                                                                  frame->linesize_pixels());
+    FramePtr frame = decoder->RetrieveVideo((stream_data.video_type() == VideoParams::kVideoTypeVideo) ? input_time : Decoder::kAnyTimecode, p);
 
-        // We convert to our rendering pixel format, since that will always be float-based which
-        // is necessary for correct color conversion
-        VideoParams managed_params = frame->video_params();
-        managed_params.set_format(render_params.format());
-        managed_params.set_pixel_aspect_ratio(stream_data.pixel_aspect_ratio());
-        managed_params.set_interlacing(stream_data.interlacing());
-        value = render_ctx_->CreateTexture(managed_params);
+    if (frame) {
+      // Return a texture from the derived class
+      TexturePtr unmanaged_texture = render_ctx_->CreateTexture(frame->video_params(),
+                                                                frame->data(),
+                                                                frame->linesize_pixels());
 
-        ColorProcessorPtr processor = ColorProcessor::Create(color_manager,
-                                                             using_colorspace,
-                                                             color_manager->GetReferenceColorSpace());
+      // We convert to our rendering pixel format, since that will always be float-based which
+      // is necessary for correct color conversion
+      VideoParams managed_params = frame->video_params();
+      managed_params.set_format(render_params.format());
+      managed_params.set_pixel_aspect_ratio(stream_data.pixel_aspect_ratio());
+      managed_params.set_interlacing(stream_data.interlacing());
+      TexturePtr value = render_ctx_->CreateTexture(managed_params);
 
-        Renderer::AlphaAssociated alpha_assoc;
-        if (stream_data.channel_count() != VideoParams::kRGBAChannelCount
-            || stream_data.colorspace() == color_manager->GetReferenceColorSpace()) {
-          alpha_assoc = Renderer::kAlphaNone;
-        } else if (stream_data.premultiplied_alpha()) {
-          alpha_assoc = Renderer::kAlphaAssociated;
-        } else {
-          alpha_assoc = Renderer::kAlphaUnassociated;
-        }
+      ColorProcessorPtr processor = ColorProcessor::Create(color_manager,
+                                                           using_colorspace,
+                                                           color_manager->GetReferenceColorSpace());
 
-        render_ctx_->BlitColorManaged(processor, unmanaged_texture,
-                                      alpha_assoc,
-                                      value.get());
-
-        still_image_cache_->mutex()->lock();
-
-        // Put this into the image cache instead
-        want_entry->texture = value;
-        want_entry->working = false;
-
-        still_image_cache_->wait_cond()->wakeAll();
-
-        still_image_cache_->mutex()->unlock();
+      Renderer::AlphaAssociated alpha_assoc;
+      if (stream_data.channel_count() != VideoParams::kRGBAChannelCount
+          || stream_data.colorspace() == color_manager->GetReferenceColorSpace()) {
+        alpha_assoc = Renderer::kAlphaNone;
+      } else if (stream_data.premultiplied_alpha()) {
+        alpha_assoc = Renderer::kAlphaAssociated;
+      } else {
+        alpha_assoc = Renderer::kAlphaUnassociated;
       }
+
+      render_ctx_->BlitColorManaged(processor, unmanaged_texture,
+                                    alpha_assoc,
+                                    value.get());
+
+      return value;
     }
   }
 
-  return QVariant::fromValue(value);
+  return super::ProcessVideoFootage(stream, input_time);
 }
 
-QVariant RenderProcessor::ProcessAudioFootage(const FootageJob &stream, const TimeRange &input_time)
+SampleBufferPtr RenderProcessor::ProcessAudioFootage(const FootageJob &stream, const TimeRange &input_time)
 {
-  QVariant value;
-
   DecoderPtr decoder = ResolveDecoderFromInput(stream.decoder(), Decoder::CodecStream(stream.filename(), stream.audio_params().stream_index()));
 
   if (decoder) {
@@ -497,16 +440,16 @@ QVariant RenderProcessor::ProcessAudioFootage(const FootageJob &stream, const Ti
                                                                static_cast<RenderMode::Mode>(ticket_->property("mode").toInt()));
 
     if (status.status == Decoder::kOK && status.samples) {
-      value = QVariant::fromValue(status.samples);
+      return status.samples;
     } else if (status.status == Decoder::kWaitingForConform) {
       ticket_->setProperty("incomplete", true);
     }
   }
 
-  return value;
+  return super::ProcessAudioFootage(stream, input_time);
 }
 
-QVariant RenderProcessor::ProcessShader(const Node *node, const TimeRange &range, const ShaderJob &job)
+TexturePtr RenderProcessor::ProcessShader(const Node *node, const TimeRange &range, const ShaderJob &job)
 {
   Q_UNUSED(range)
 
@@ -522,7 +465,7 @@ QVariant RenderProcessor::ProcessShader(const Node *node, const TimeRange &range
 
     if (shader.isNull()) {
       // Couldn't find or build the shader required
-      return QVariant();
+      return super::ProcessShader(node, range, job);
     }
   }
 
@@ -535,13 +478,13 @@ QVariant RenderProcessor::ProcessShader(const Node *node, const TimeRange &range
   // Run shader
   render_ctx_->BlitToTexture(shader, job, destination.get());
 
-  return QVariant::fromValue(destination);
+  return destination;
 }
 
-QVariant RenderProcessor::ProcessSamples(const Node *node, const TimeRange &range, const SampleJob &job)
+SampleBufferPtr RenderProcessor::ProcessSamples(const Node *node, const TimeRange &range, const SampleJob &job)
 {
   if (!job.samples() || !job.samples()->is_allocated()) {
-    return QVariant();
+    super::ProcessSamples(node, range, job);
   }
 
   SampleBufferPtr output_buffer = SampleBuffer::CreateAllocated(job.samples()->audio_params(), job.samples()->sample_count());
@@ -568,10 +511,10 @@ QVariant RenderProcessor::ProcessSamples(const Node *node, const TimeRange &rang
                          i);
   }
 
-  return QVariant::fromValue(output_buffer);
+  return output_buffer;
 }
 
-QVariant RenderProcessor::ProcessFrameGeneration(const Node *node, const GenerateJob &job)
+TexturePtr RenderProcessor::ProcessFrameGeneration(const Node *node, const GenerateJob &job)
 {
   FramePtr frame = Frame::Create();
 
@@ -586,7 +529,7 @@ QVariant RenderProcessor::ProcessFrameGeneration(const Node *node, const Generat
                                                   frame->data(),
                                                   frame->linesize_pixels());
 
-  return QVariant::fromValue(texture);
+  return texture;
 }
 
 bool RenderProcessor::CanCacheFrames()
@@ -594,24 +537,24 @@ bool RenderProcessor::CanCacheFrames()
   return ticket_->property("type").value<RenderManager::TicketType>() == RenderManager::kTypeVideo;
 }
 
-QVariant RenderProcessor::GetCachedTexture(const QByteArray& hash)
+TexturePtr RenderProcessor::GetCachedTexture(const QByteArray& hash)
 {
   QString cache_dir = ticket_->property("cache").toString();
   if (cache_dir.isEmpty()) {
-    return QVariant();
+    return nullptr;
   }
 
   FramePtr f = FrameHashCache::LoadCacheFrame(cache_dir, hash);
 
   if (f) {
     TexturePtr texture = render_ctx_->CreateTexture(f->video_params(), f->data(), f->linesize_pixels());
-    return QVariant::fromValue(texture);
+    return texture;
   }
 
-  return QVariant();
+  return nullptr;
 }
 
-void RenderProcessor::SaveCachedTexture(const QByteArray &hash, const QVariant &tex_var)
+void RenderProcessor::SaveCachedTexture(const QByteArray &hash, TexturePtr tex_var)
 {
   // FIXME: Temporarily disabled because I don't know how to ensure that the frame saved here is
   //        not the main frame. If it is, it'll be saved twice which will waste a lot of cycles.

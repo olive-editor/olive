@@ -69,7 +69,9 @@ QVector<PreviewAutoCacher::HashData> PreviewAutoCacher::GenerateHashes(ViewerOut
     const rational &time = times.at(i);
 
     // See if hash already exists in disk cache
-    QByteArray hash = RenderManager::Hash(viewer->GetConnectedTextureOutput(), viewer->GetValueHintForInput(ViewerOutput::kTextureInput), viewer->GetVideoParams(), time);
+    QByteArray hash = RenderManager::Hash(viewer,
+                                          viewer->GetVideoParams(),
+                                          time);
 
     // Check memory list since disk checking is slow
     bool hash_exists = existing_hashes.contains(hash);

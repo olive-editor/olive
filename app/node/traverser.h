@@ -45,6 +45,8 @@ public:
 
   NodeValue GenerateRowValue(const Node *node, const QString &input, NodeValueTable *table);
   NodeValue GenerateRowValueElement(const Node *node, const QString &input, int element, NodeValueTable *table);
+  NodeValue GenerateRowValueElement(const Node::ValueHint &hint, NodeValue::Type preferred_type, NodeValueTable *table);
+  int GenerateRowValueElementIndex(const Node::ValueHint &hint, NodeValue::Type preferred_type, const NodeValueTable *table);
   int GenerateRowValueElementIndex(const Node *node, const QString &input, int element, const NodeValueTable *table);
 
   static NodeGlobals GenerateGlobals(const VideoParams &params, const TimeRange &time);
@@ -70,19 +72,19 @@ protected:
 
   virtual NodeValueTable GenerateBlockTable(const Track *track, const TimeRange& range);
 
-  virtual QVariant ProcessVideoFootage(const FootageJob &stream, const rational &input_time);
+  virtual TexturePtr ProcessVideoFootage(const FootageJob &stream, const rational &input_time);
 
-  virtual QVariant ProcessAudioFootage(const FootageJob &stream, const TimeRange &input_time);
+  virtual SampleBufferPtr ProcessAudioFootage(const FootageJob &stream, const TimeRange &input_time);
 
-  virtual QVariant ProcessShader(const Node *node, const TimeRange &range, const ShaderJob& job);
+  virtual TexturePtr ProcessShader(const Node *node, const TimeRange &range, const ShaderJob& job);
 
-  virtual QVariant ProcessSamples(const Node *node, const TimeRange &range, const SampleJob &job);
+  virtual SampleBufferPtr ProcessSamples(const Node *node, const TimeRange &range, const SampleJob &job);
 
-  virtual QVariant ProcessFrameGeneration(const Node *node, const GenerateJob& job);
+  virtual TexturePtr ProcessFrameGeneration(const Node *node, const GenerateJob& job);
 
-  virtual QVariant GetCachedTexture(const QByteArray& hash);
+  virtual TexturePtr GetCachedTexture(const QByteArray& hash);
 
-  virtual void SaveCachedTexture(const QByteArray& hash, const QVariant& texture);
+  virtual void SaveCachedTexture(const QByteArray& hash, TexturePtr texture);
 
   virtual bool CanCacheFrames()
   {

@@ -31,7 +31,6 @@
 #include "node/traverser.h"
 #include "render/renderer.h"
 #include "rendercache.h"
-#include "stillimagecache.h"
 #include "threading/threadpool.h"
 
 namespace olive {
@@ -65,9 +64,10 @@ public:
   }
 
   /**
-   * @brief Generate a unique identifier for a certain node at a certain time
+   * @brief Generate a unique identifier for a certain node at a cconst Node *n, const Node::ValueHint &outputertain time
    */
   static QByteArray Hash(const Node *n, const Node::ValueHint &output, const VideoParams &params, const rational &time);
+  static QByteArray Hash(ViewerOutput *viewer, const VideoParams &params, const rational &time);
 
   /**
    * @brief Asynchronously generate a frame at a given time
@@ -136,8 +136,6 @@ private:
   Renderer* context_;
 
   Backend backend_;
-
-  StillImageCache* still_cache_;
 
   DecoderCache* decoder_cache_;
 

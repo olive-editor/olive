@@ -72,6 +72,11 @@ public:
     return interpolation_.value(id, Texture::kDefaultInterpolation);
   }
 
+  const QHash<QString, Texture::Interpolation> &GetInterpolationMap() const
+  {
+    return interpolation_;
+  }
+
   void SetInterpolation(const NodeInput& input, Texture::Interpolation interp)
   {
     interpolation_.insert(input.input(), interp);
