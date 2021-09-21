@@ -82,7 +82,7 @@ void ImportTool::DragEnter(TimelineViewMouseEvent *event)
 
       if (f && f->GetTotalStreamCount()) {
         // If the Item is Footage, we can create a Ghost from it
-        dragged_footage_.insert(f, enabled_streams);
+        dragged_footage_.append({f, enabled_streams});
       }
     }
 
@@ -175,16 +175,16 @@ void ImportTool::DragDrop(TimelineViewMouseEvent *event)
 
 void ImportTool::PlaceAt(const QVector<ViewerOutput *> &footage, const rational &start, bool insert)
 {
-  QMap<ViewerOutput*, QVector<Track::Reference> > refs;
+  DraggedFootageData refs;
 
   foreach (ViewerOutput* f, footage) {
-    refs.insert(f, f->GetEnabledStreamsAsReferences());
+    refs.append({f, f->GetEnabledStreamsAsReferences()});
   }
 
   PlaceAt(refs, start, insert);
 }
 
-void ImportTool::PlaceAt(const QMap<ViewerOutput*, QVector<Track::Reference> > &footage, const rational &start, bool insert)
+void ImportTool::PlaceAt(const DraggedFootageData &footage, const rational &start, bool insert)
 {
   dragged_footage_ = footage;
 
@@ -196,10 +196,10 @@ void ImportTool::PlaceAt(const QMap<ViewerOutput*, QVector<Track::Reference> > &
   DropGhosts(insert);
 }
 
-void ImportTool::FootageToGhosts(rational ghost_start, const QMap<ViewerOutput *, QVector<Track::Reference> > &sorted, const rational& dest_tb, const int& track_start)
+void ImportTool::FootageToGhosts(rational ghost_start, const DraggedFootageData &sorted, const rational& dest_tb, const int& track_start)
 {
   for (auto it=sorted.cbegin(); it!=sorted.cend(); it++) {
-    ViewerOutput* footage = it.key();
+    ViewerOutput* footage = it->first;
 
     if (footage == sequence()) {
       // Prevent cyclical dependency
@@ -233,7 +233,7 @@ void ImportTool::FootageToGhosts(rational ghost_start, const QMap<ViewerOutput *
     }
 
     // Create ghosts
-    foreach (const Track::Reference& ref, it.value()) {
+    foreach (const Track::Reference& ref, it->second) {
       Track::Type track_type = ref.type();
 
       TimelineViewGhostItem* ghost = new TimelineViewGhostItem();
@@ -249,7 +249,7 @@ void ImportTool::FootageToGhosts(rational ghost_start, const QMap<ViewerOutput *
       // Increment track count for this track type
       track_offsets[track_type]++;
 
-      TimelineViewGhostItem::AttachedFootage af = {it.key(), ref.ToString()};
+      TimelineViewGhostItem::AttachedFootage af = {it->first, ref.ToString()};
       ghost->SetData(TimelineViewGhostItem::kAttachedFootage, QVariant::fromValue(af));
       ghost->SetMode(Timeline::kMove);
 
@@ -331,8 +331,8 @@ void ImportTool::DropGhosts(bool insert)
           QVector<ViewerOutput*> footage_only;
 
           for (auto it=dragged_footage_.cbegin(); it!=dragged_footage_.cend(); it++) {
-            if (!footage_only.contains(it.key())) {
-              footage_only.append(it.key());
+            if (!footage_only.contains(it->first)) {
+              footage_only.append(it->first);
             }
           }
 
