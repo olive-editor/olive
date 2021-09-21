@@ -33,7 +33,8 @@ void XMLConnectNodes(const XMLNodeData &xml_node_data, MultiUndoCommand *command
     Node *out = xml_node_data.node_ptrs.value(con.output_node);
 
     if (out) {
-      Node::ValueHint hint = { QVector<NodeValue::Type>(), -1, con.output_param };
+      Node::ValueHint hint;
+      hint.tag = con.output_param;
 
       if (command) {
         command->add_child(new NodeEdgeAddCommand(out, con.input));
