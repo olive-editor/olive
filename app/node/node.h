@@ -764,8 +764,6 @@ public:
     cache_result_ = e;
   }
 
-  static const QString kDefaultOutput;
-
   class ArrayRemoveCommand : public UndoCommand
   {
   public:

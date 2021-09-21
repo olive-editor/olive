@@ -42,8 +42,6 @@ namespace olive {
 
 #define super QObject
 
-const QString Node::kDefaultOutput = QStringLiteral("output");
-
 Node::Node() :
   can_be_deleted_(true),
   override_color_(-1),
