@@ -25,3 +25,4 @@
 #define OLIVE_TEST_END return true
 
 #define OLIVE_ADD_TEST(x) bool Test##x()
+#define OLIVE_ADD_DISABLED_TEST(x) bool Test##x()
