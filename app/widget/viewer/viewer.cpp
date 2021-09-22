@@ -515,6 +515,7 @@ void ViewerWidget::UpdateTextureFromNode()
     } else {
       // Not playing, run a task to get the frame either from the cache or the renderer
       RenderTicketWatcher* watcher = new RenderTicketWatcher();
+      watcher->setProperty("start", QDateTime::currentMSecsSinceEpoch());
       watcher->setProperty("time", QVariant::fromValue(time));
       connect(watcher, &RenderTicketWatcher::Finished, this, &ViewerWidget::RendererGeneratedFrame);
       nonqueue_watchers_.append(watcher);
@@ -857,8 +858,15 @@ void ViewerWidget::RendererGeneratedFrame()
         }
       }
 
-      if (nonqueue_watchers_.isEmpty()) {
-        // Only set frame if we're not waiting on any others
+      // If the frame we received is not the most recent frame we're waiting for (i.e. if nonqueue_watchers_
+      // is not empty), we discard the frame - because otherwise if frames are taking a while (i.e.
+      // uncached frames) it can be a little disconcerting to the user for a bunch of frames to
+      // slowly go by - UNLESS the time it took to make this frame was fairly short (under 100ms here),
+      // in which case, we DO show it because it can be disconcerting in the other direction to see
+      // a scrub just jump to the final frame without seeing the frames in between. It's just a
+      // little nicer to get to see that in that situation, so we handle both.
+      qint64 frame_start_time = ticket->property("start").value<qint64>();
+      if (nonqueue_watchers_.isEmpty() || (QDateTime::currentMSecsSinceEpoch() - frame_start_time < 100)) {
         SetDisplayImage(ticket->Get());
       }
     }
