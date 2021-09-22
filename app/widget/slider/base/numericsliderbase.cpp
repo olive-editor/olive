@@ -37,8 +37,7 @@ NumericSliderBase::NumericSliderBase(QWidget *parent) :
   has_max_(false),
   dragged_diff_(0),
   drag_multiplier_(1.0),
-  setting_drag_value_(false),
-  is_effects_slider_(false)
+  setting_drag_value_(false)
 {
   // Numeric sliders are draggable, so we have a cursor that indicates that
   setCursor(Qt::SizeHorCursor);
@@ -64,10 +63,6 @@ void NumericSliderBase::LabelPressed()
 
   connect(drag_ladder_, &SliderLadder::DraggedByValue, this, &NumericSliderBase::LadderDragged);
   connect(drag_ladder_, &SliderLadder::Released, this, &NumericSliderBase::LadderReleased);
-
-  if (is_effects_slider_) {
-    SetEffectsSliderIsBeingDragged(true);
-  }
 }
 
 void NumericSliderBase::LadderDragged(int value, double multiplier)
@@ -98,10 +93,6 @@ void NumericSliderBase::LadderDragged(int value, double multiplier)
 
 void NumericSliderBase::LadderReleased()
 {
-  if (is_effects_slider_) {
-    SetEffectsSliderIsBeingDragged(false);
-  }
-
   drag_ladder_->deleteLater();
   drag_ladder_ = nullptr;
   dragged_diff_ = 0;

@@ -4,6 +4,7 @@
 #include <QtConcurrent/QtConcurrent>
 
 #include "codec/conformmanager.h"
+#include "node/inputdragger.h"
 #include "node/project/project.h"
 #include "render/rendermanager.h"
 #include "render/renderprocessor.h"
@@ -107,7 +108,7 @@ void PreviewAutoCacher::VideoInvalidated(const TimeRange &range)
   CancelVideoTasks();
 
   // If a slider is not being dragged, queue up to hash these frames
-  if (!NumericSliderBase::IsEffectsSliderBeingDragged()) {
+  if (!NodeInputDragger::IsInputBeingDragged()) {
     invalidated_video_.insert(range);
     video_job_tracker_.insert(range, graph_changed_time_);
 

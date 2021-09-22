@@ -22,6 +22,7 @@
 
 #include <QDebug>
 
+#include "node/inputdragger.h"
 #include "node/output/track/track.h"
 #include "transition/transition.h"
 #include "widget/slider/rationalslider.h"
@@ -143,7 +144,7 @@ void Block::InvalidateCache(const TimeRange& range, const QString& from, int ele
     // We must intercept the signal here
     r = TimeRange(qMin(length(), last_length_), RATIONAL_MAX);
 
-    if (!NumericSliderBase::IsEffectsSliderBeingDragged()) {
+    if (!NodeInputDragger::IsInputBeingDragged()) {
       last_length_ = length();
     }
 

@@ -24,6 +24,7 @@
 #include "common/rational.h"
 #include "node/keyframe.h"
 #include "node/param.h"
+#include "undo/undocommand.h"
 
 namespace olive {
 
@@ -38,7 +39,12 @@ public:
 
   void Drag(QVariant value);
 
-  void End();
+  void End(MultiUndoCommand *command);
+
+  static bool IsInputBeingDragged()
+  {
+    return input_being_dragged;
+  }
 
 private:
   NodeKeyframeTrackReference input_;
@@ -51,6 +57,8 @@ private:
 
   NodeKeyframe* dragging_key_;
   QVector<NodeKeyframe*> created_keys_;
+
+  static int input_being_dragged;
 
 };
 

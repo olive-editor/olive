@@ -1451,7 +1451,7 @@ bool Node::GizmoPress(const NodeValueRow &, const NodeGlobals &, const QPointF &
   return false;
 }
 
-void Node::GizmoMove(const QPointF &, const rational&)
+void Node::GizmoMove(const QPointF &, const rational&, const Qt::KeyboardModifiers &)
 {
 }
 

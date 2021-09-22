@@ -21,6 +21,7 @@
 #include "cropdistortnode.h"
 
 #include "common/lerp.h"
+#include "core.h"
 #include "widget/slider/floatslider.h"
 
 namespace olive {
@@ -178,7 +179,7 @@ bool CropDistortNode::GizmoPress(const NodeValueRow &row, const NodeGlobals &glo
   return false;
 }
 
-void CropDistortNode::GizmoMove(const QPointF &p, const rational &time)
+void CropDistortNode::GizmoMove(const QPointF &p, const rational &time, const Qt::KeyboardModifiers &modifiers)
 {
   if (gizmo_dragger_.isEmpty()) {
     gizmo_dragger_.resize(gizmo_start_.size());
@@ -234,9 +235,11 @@ void CropDistortNode::GizmoMove(const QPointF &p, const rational &time)
 
 void CropDistortNode::GizmoRelease()
 {
+  MultiUndoCommand *command = new MultiUndoCommand();
   for (NodeInputDragger& i : gizmo_dragger_) {
-    i.End();
+    i.End(command);
   }
+  Core::instance()->undo_stack()->push(command);
   gizmo_dragger_.clear();
 
   gizmo_start_.clear();

@@ -87,6 +87,9 @@ public:
     /// A video clip showing a generic video placeholder
     kAddableBars,
 
+    /// A video clip showing a primitive shape
+    kAddableShape,
+
     /// A video clip with a solid connected
     kAddableSolid,
 
@@ -109,6 +112,8 @@ public:
       return QCoreApplication::translate("Tool", "Empty");
     case kAddableBars:
       return QCoreApplication::translate("Tool", "Bars");
+    case kAddableShape:
+      return QCoreApplication::translate("Tool", "Shape");
     case kAddableSolid:
       return QCoreApplication::translate("Tool", "Solid");
     case kAddableTitle:

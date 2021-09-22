@@ -23,6 +23,7 @@
 #include <QGuiApplication>
 
 #include "common/range.h"
+#include "core.h"
 #include "node/traverser.h"
 
 namespace olive {
@@ -199,7 +200,7 @@ bool TransformDistortNode::GizmoPress(const NodeValueRow &row, const NodeGlobals
   return false;
 }
 
-void TransformDistortNode::GizmoMove(const QPointF &p, const rational &time)
+void TransformDistortNode::GizmoMove(const QPointF &p, const rational &time, const Qt::KeyboardModifiers &modifiers)
 {
   QPointF movement = (p - gizmo_drag_pos_);
   QVector2D vec_movement(movement);
@@ -302,9 +303,11 @@ void TransformDistortNode::GizmoMove(const QPointF &p, const rational &time)
 
 void TransformDistortNode::GizmoRelease()
 {
+  MultiUndoCommand *command = new MultiUndoCommand();
   for (NodeInputDragger& i : gizmo_dragger_) {
-    i.End();
+    i.End(command);
   }
+  Core::instance()->undo_stack()->push(command);
   gizmo_dragger_.clear();
 
   gizmo_start_.clear();

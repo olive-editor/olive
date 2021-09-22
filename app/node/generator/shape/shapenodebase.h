@@ -21,6 +21,7 @@
 #ifndef SHAPENODEBASE_H
 #define SHAPENODEBASE_H
 
+#include "node/inputdragger.h"
 #include "node/node.h"
 
 namespace olive {
@@ -38,6 +39,33 @@ public:
   static QString kPositionInput;
   static QString kSizeInput;
   static QString kColorInput;
+
+  virtual bool HasGizmos() const override
+  {
+    return true;
+  }
+
+  virtual void DrawGizmos(const NodeValueRow &row, const NodeGlobals &globals, QPainter *p) override;
+
+  virtual bool GizmoPress(const NodeValueRow& row, const NodeGlobals &globals, const QPointF &p) override;
+  virtual void GizmoMove(const QPointF &p, const rational &time, const Qt::KeyboardModifiers &modifiers) override;
+  virtual void GizmoRelease() override;
+
+private:
+  static QVector2D GenerateGizmoAnchor(const QVector2D &pos, const QVector2D &size, int drag, QVector2D *pt);
+
+  // Gizmo variables
+  static const int kGizmoWholeRect = kGizmoScaleCount;
+  QRectF gizmo_resize_handle_[kGizmoScaleCount];
+  QRectF gizmo_whole_rect_;
+
+  int gizmo_drag_;
+  QVector<NodeInputDragger> gizmo_dragger_;
+  QVector2D gizmo_pos_start_;
+  QVector2D gizmo_sz_start_;
+  QPointF gizmo_drag_start_;
+  float gizmo_aspect_ratio_;
+  QVector2D gizmo_half_res_;
 
 };
 

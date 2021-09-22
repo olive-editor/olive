@@ -79,11 +79,4 @@ void ShapeNode::Value(const NodeValueRow &value, const NodeGlobals &globals, Nod
   table->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
 }
 
-void ShapeNode::DrawGizmos(const NodeValueRow &row, const NodeGlobals &globals, QPainter *p)
-{
-  // Use offsets to make the appearance of values that start in the top left, even though we
-  // really anchor around the center
-  SetInputProperty(kPositionInput, QStringLiteral("offset"), globals.resolution() * 0.5);
-}
-
 }

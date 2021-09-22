@@ -760,7 +760,7 @@ public:
   virtual void DrawGizmos(const NodeValueRow& row, const NodeGlobals &globals, QPainter* p);
 
   virtual bool GizmoPress(const NodeValueRow& row, const NodeGlobals &globals, const QPointF& p);
-  virtual void GizmoMove(const QPointF& p, const rational &time);
+  virtual void GizmoMove(const QPointF& p, const rational &time, const Qt::KeyboardModifiers &modifiers);
   virtual void GizmoRelease();
 
   const QString& GetLabel() const;

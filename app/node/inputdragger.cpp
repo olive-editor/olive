@@ -26,6 +26,8 @@
 
 namespace olive {
 
+int NodeInputDragger::input_being_dragged = 0;
+
 NodeInputDragger::NodeInputDragger()
 {
 
@@ -48,6 +50,7 @@ void NodeInputDragger::Start(const NodeKeyframeTrackReference &input, const rati
 
   // Cache current value
   start_value_ = node->GetSplitValueAtTimeOnTrack(input_, time);
+  end_value_ = start_value_;
 
   // Determine whether we are creating a keyframe or not
   if (input_.input().IsKeyframing()) {
@@ -76,6 +79,8 @@ void NodeInputDragger::Start(const NodeKeyframeTrackReference &input, const rati
       }
     }
   }
+
+  input_being_dragged++;
 }
 
 void NodeInputDragger::Drag(QVariant value)
@@ -115,13 +120,13 @@ void NodeInputDragger::Drag(QVariant value)
   //input_->blockSignals(false);
 }
 
-void NodeInputDragger::End()
+void NodeInputDragger::End(MultiUndoCommand* command)
 {
   if (!IsStarted()) {
     return;
   }
 
-  MultiUndoCommand* command = new MultiUndoCommand();
+  input_being_dragged--;
 
   if (input_.input().node()->IsInputKeyframing(input_.input())) {
     for (int i=0; i<created_keys_.size(); i++) {
@@ -137,8 +142,6 @@ void NodeInputDragger::End()
     // We just set the standard value
     command->add_child(new NodeParamSetStandardValueCommand(input_, end_value_, start_value_));
   }
-
-  Core::instance()->undo_stack()->push(command);
 
   input_.Reset();
   created_keys_.clear();

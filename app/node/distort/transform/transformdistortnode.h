@@ -77,7 +77,7 @@ public:
   virtual void DrawGizmos(const NodeValueRow &row, const NodeGlobals &globals, QPainter *p) override;
 
   virtual bool GizmoPress(const NodeValueRow &row, const NodeGlobals &globals, const QPointF &p) override;
-  virtual void GizmoMove(const QPointF &p, const rational &time) override;
+  virtual void GizmoMove(const QPointF &p, const rational &time, const Qt::KeyboardModifiers &modifiers) override;
   virtual void GizmoRelease() override;
 
   enum AutoScaleType {

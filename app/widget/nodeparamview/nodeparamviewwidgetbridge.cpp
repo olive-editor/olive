@@ -253,7 +253,10 @@ void NodeParamViewWidgetBridge::ProcessSlider(NumericSliderBase *slider, const Q
 
     // We were dragging and just stopped
     dragger_.Drag(value);
-    dragger_.End();
+
+    MultiUndoCommand *command = new MultiUndoCommand();
+    dragger_.End(command);
+    Core::instance()->undo_stack()->push(command);
 
   } else {
 
@@ -404,7 +407,6 @@ void NodeParamViewWidgetBridge::CreateSliders(int count)
     T* fs = new T();
     fs->SliderBase::SetDefaultValue(input_.GetSplitDefaultValueForTrack(i));
     fs->SetLadderElementCount(2);
-    fs->SetIsEffectsSlider(true);
     widgets_.append(fs);
     connect(fs, &T::ValueChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
   }

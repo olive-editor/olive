@@ -246,7 +246,8 @@ void ViewerDisplayWidget::mouseMoveEvent(QMouseEvent *event)
 
     // Signal movement
     gizmos_->GizmoMove(TransformViewerSpaceToBufferSpace(event->pos()),
-                       gizmo_drag_time_);
+                       gizmo_drag_time_,
+                       event->modifiers());
     gizmo_start_drag_ = event->pos();
     update();
 
