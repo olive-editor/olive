@@ -326,19 +326,20 @@ void ImportTool::DropGhosts(bool insert)
 
         bool sequence_is_valid = true;
 
-        if (behavior == kDWSAuto) {
+        // Even if the user selected manual, set from footage anyway so the user has a useful
+        // starting point
+        QVector<ViewerOutput*> footage_only;
 
-          QVector<ViewerOutput*> footage_only;
-
-          for (auto it=dragged_footage_.cbegin(); it!=dragged_footage_.cend(); it++) {
-            if (!footage_only.contains(it->first)) {
-              footage_only.append(it->first);
-            }
+        for (auto it=dragged_footage_.cbegin(); it!=dragged_footage_.cend(); it++) {
+          if (!footage_only.contains(it->first)) {
+            footage_only.append(it->first);
           }
+        }
 
-          new_sequence->set_parameters_from_footage(footage_only);
+        new_sequence->set_parameters_from_footage(footage_only);
 
-        } else {
+        // If the user selected manual, show them a dialog with parameters
+        if (behavior == kDWSManual) {
 
           SequenceDialog sd(new_sequence, SequenceDialog::kNew, parent());
           sd.SetUndoable(false);
