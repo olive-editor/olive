@@ -274,8 +274,6 @@ jobs:
             os-arch: x86_64
             os: macos-latest
             cmake-gen: Ninja
-    env:
-      DEP_LOCATION: /opt/olive-editor
     name: |
       ${{ matrix.os-name }}
       <${{ matrix.compiler-name }},
@@ -315,6 +313,13 @@ jobs:
           brew install -f qt5 ffmpeg-olive openimageio-olive opencolorio opentimelineio
           echo "/usr/local/opt/qt@5/bin" >> $GITHUB_PATH
 
+      - name: Acquire Google Crashpad
+        shell: bash
+        working-directory: ${{ runner.workspace }}
+        run: |
+          $DOWNLOAD_TOOL https://github.com/olive-editor/crashpad/releases/download/continuous/crashpad-mac-x86_64.tar.gz
+          sudo tar xzf crashpad-mac-x86_64.tar.gz -C /
+
       - name: Generate Patreon List
         env:
           PATREON_KEY: ${{ secrets.PATREON_KEY }}
@@ -329,7 +334,7 @@ jobs:
         working-directory: ${{ runner.workspace }}/build
         run: |
           brew install ninja
-          PATH=$DEP_LOCATION:$DEP_LOCATION/crashpad:$PATH \
+          PATH=/opt/olive-editor/crashpad:$PATH \
             cmake $GITHUB_WORKSPACE -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}" -DCMAKE_INSTALL_PREFIX=$DEP_LOCATION
 
       - name: Build
@@ -352,12 +357,12 @@ jobs:
         run: |
           # Use macdeployqt and macdeployqt to bundle dependencies
           mv app/$BUNDLE_NAME .
-          $DEP_LOCATION/bin/macdeployqt $BUNDLE_NAME -executable=$BUNDLE_NAME/Contents/MacOS/olive-crashhandler
+          macdeployqt $BUNDLE_NAME -executable=$BUNDLE_NAME/Contents/MacOS/olive-crashhandler
           $DOWNLOAD_TOOL https://github.com/arl/macdeployqtfix/raw/master/macdeployqtfix.py
-          python2 macdeployqtfix.py $BUNDLE_NAME/Contents/MacOS/Olive $DEP_LOCATION
+          python2 macdeployqtfix.py $BUNDLE_NAME/Contents/MacOS/Olive
 
           # Crashpad symbols
-          $DEP_LOCATION/bin/dump_syms $BUNDLE_NAME/Contents/MacOS/Olive > Olive.sym
+          /opt/olive-editor/bin/dump_syms $BUNDLE_NAME/Contents/MacOS/Olive > Olive.sym
           SYM_HEADER=($(head -n 1 Olive.sym)) # Read first line of symbol file
           SYM_DIR=$BUNDLE_NAME/Contents/Resources/symbols/Olive/${SYM_HEADER[3]}
           mkdir -p "$SYM_DIR"
