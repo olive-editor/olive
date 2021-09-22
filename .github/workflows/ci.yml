@@ -334,7 +334,7 @@ jobs:
         working-directory: ${{ runner.workspace }}/build
         run: |
           brew install ninja
-          PATH=/opt/olive-editor/crashpad:$PATH \
+          PATH=/opt/olive-editor/bin:/opt/olive-editor/crashpad:$PATH \
             cmake $GITHUB_WORKSPACE -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}" -DCMAKE_INSTALL_PREFIX=$DEP_LOCATION
 
       - name: Build
