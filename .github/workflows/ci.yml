@@ -175,6 +175,13 @@ jobs:
           $DOWNLOAD_TOOL https://github.com/olive-editor/dependencies/releases/download/continuous/olive-dep-win32.tar.gz
           tar xzf olive-dep-win32.tar.gz
 
+      - name: Acquire Google Crashpad
+        shell: bash
+        working-directory: ${{ runner.workspace }}
+        run: |
+          $DOWNLOAD_TOOL https://github.com/olive-editor/crashpad/releases/download/continuous/crashpad-win32-RelWithDebInfo.tar.gz
+          tar xzf crashpad-win32-RelWithDebInfo.tar.gz
+
       - name: Generate Patreon List
         shell: bash
         env:
