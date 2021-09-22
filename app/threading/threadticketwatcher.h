@@ -46,6 +46,8 @@ public:
 
   bool HasResult();
 
+  void Cancel();
+
 signals:
   void Finished(RenderTicketWatcher* watcher);
 

@@ -65,10 +65,28 @@ public:
    */
   void SetPlayhead(const rational& playhead);
 
-  void ClearHashQueue(bool wait = false);
-  void ClearVideoQueue(bool wait = false);
-  void ClearAudioQueue(bool wait = false);
-  void ClearVideoDownloadQueue(bool wait = false);
+  /**
+   * @brief If any hashes are currently running, wait for them to finish
+   *
+   * Once this function returns, it can be guaranteed that all hash tasks have been finished.
+   * They will NOT have been removed from the hash task list yet until they run HashesProcessed.
+   * If you don't want the continued processing in HashesProcessed to run, remove the task manually
+   * from the list after calling this function. It will still call HashesProcessed, but will be
+   * largely ignored (that function will simply free it).
+   */
+  void WaitForHashesToFinish();
+  void WaitForVideoDownloadsToFinish();
+
+  /**
+   * @brief Call cancel on all currently running video tasks
+   *
+   * Signalling cancel to a video task indicates that we're no longer interested in its end result.
+   * This does not end all video tasks immediately, the RenderManager will do what it can to speed
+   * up finishing the task. The RenderManager will  also return "no result", which can be checked
+   * with watcher->HasResult.
+   */
+  void CancelVideoTasks(bool and_wait_for_them_to_finish = false);
+  void CancelAudioTasks(bool and_wait_for_them_to_finish = false);
 
 private:
   void TryRender();
@@ -82,8 +100,6 @@ private:
    * RenderManager is not reading from it. This function is called when such an opportunity arises.
    */
   void ProcessUpdateQueue();
-
-  bool HasActiveJobs() const;
 
   void AddNode(Node* node);
   void RemoveNode(Node* node);
@@ -99,16 +115,8 @@ private:
 
   void CancelQueuedSingleFrameRender();
 
-  template <typename T, typename Func>
-  void ClearQueueInternal(T& list, bool hard, Func member);
-
-  void ClearQueueRemoveEventInternal(QMap<RenderTicketWatcher*, QByteArray>::iterator it);
-  void ClearQueueRemoveEventInternal(QMap<RenderTicketWatcher*, TimeRange>::iterator it);
-  void ClearQueueRemoveEventInternal(QVector<RenderTicketWatcher*>::iterator it);
-
-  void QueueNextFrameInRange(int max);
-  void QueueNextHashTask();
-  void QueueNextAudioTask();
+  void VideoInvalidatedList(const TimeRangeList &list);
+  void AudioInvalidatedList(const TimeRangeList &list);
 
   struct HashData {
     rational time;

@@ -121,6 +121,8 @@ void RenderProcessor::Run()
   // Depending on the render ticket type, start a job
   RenderManager::TicketType type = ticket_->property("type").value<RenderManager::TicketType>();
 
+  SetCancelPointer(&ticket_->IsCancelled());
+
   switch (type) {
   case RenderManager::kTypeVideo:
   {
@@ -146,7 +148,11 @@ void RenderProcessor::Run()
       texture = render_ctx_->InterlaceTexture(top, bottom, GetCacheVideoParams());
     }
 
-    if (ticket_->property("textureonly").toBool()) {
+    if (ticket_->IsCancelled()) {
+      // Finish cancelled ticket with nothing since we can't guarantee the frame we generated
+      // is actually "complete
+      ticket_->Finish();
+    } else if (ticket_->property("textureonly").toBool()) {
       // Return GPU texture
       if (!texture) {
         texture = render_ctx_->CreateTexture(GetCacheVideoParams());
@@ -182,7 +188,11 @@ void RenderProcessor::Run()
       ticket_->setProperty("waveform", QVariant::fromValue(vis));
     }
 
-    ticket_->Finish(sample_variant);
+    if (ticket_->IsCancelled()) {
+      ticket_->Finish();
+    } else {
+      ticket_->Finish(sample_variant);
+    }
     break;
   }
   case RenderManager::kTypeVideoDownload:
@@ -386,41 +396,43 @@ TexturePtr RenderProcessor::ProcessVideoFootage(const FootageJob &stream, const 
     p.src_interlacing = stream_data.interlacing();
     p.dst_interlacing = GetCacheVideoParams().interlacing();
 
-    FramePtr frame = decoder->RetrieveVideo((stream_data.video_type() == VideoParams::kVideoTypeVideo) ? input_time : Decoder::kAnyTimecode, p);
+    if (!IsCancelled()) {
+      FramePtr frame = decoder->RetrieveVideo((stream_data.video_type() == VideoParams::kVideoTypeVideo) ? input_time : Decoder::kAnyTimecode, p, GetCancelPointer());
 
-    if (frame) {
-      // Return a texture from the derived class
-      TexturePtr unmanaged_texture = render_ctx_->CreateTexture(frame->video_params(),
-                                                                frame->data(),
-                                                                frame->linesize_pixels());
+      if (frame) {
+        // Return a texture from the derived class
+        TexturePtr unmanaged_texture = render_ctx_->CreateTexture(frame->video_params(),
+                                                                  frame->data(),
+                                                                  frame->linesize_pixels());
 
-      // We convert to our rendering pixel format, since that will always be float-based which
-      // is necessary for correct color conversion
-      VideoParams managed_params = frame->video_params();
-      managed_params.set_format(render_params.format());
-      managed_params.set_pixel_aspect_ratio(stream_data.pixel_aspect_ratio());
-      managed_params.set_interlacing(stream_data.interlacing());
-      TexturePtr value = render_ctx_->CreateTexture(managed_params);
+        // We convert to our rendering pixel format, since that will always be float-based which
+        // is necessary for correct color conversion
+        VideoParams managed_params = frame->video_params();
+        managed_params.set_format(render_params.format());
+        managed_params.set_pixel_aspect_ratio(stream_data.pixel_aspect_ratio());
+        managed_params.set_interlacing(stream_data.interlacing());
+        TexturePtr value = render_ctx_->CreateTexture(managed_params);
 
-      ColorProcessorPtr processor = ColorProcessor::Create(color_manager,
-                                                           using_colorspace,
-                                                           color_manager->GetReferenceColorSpace());
+        ColorProcessorPtr processor = ColorProcessor::Create(color_manager,
+                                                             using_colorspace,
+                                                             color_manager->GetReferenceColorSpace());
 
-      Renderer::AlphaAssociated alpha_assoc;
-      if (stream_data.channel_count() != VideoParams::kRGBAChannelCount
-          || stream_data.colorspace() == color_manager->GetReferenceColorSpace()) {
-        alpha_assoc = Renderer::kAlphaNone;
-      } else if (stream_data.premultiplied_alpha()) {
-        alpha_assoc = Renderer::kAlphaAssociated;
-      } else {
-        alpha_assoc = Renderer::kAlphaUnassociated;
+        Renderer::AlphaAssociated alpha_assoc;
+        if (stream_data.channel_count() != VideoParams::kRGBAChannelCount
+            || stream_data.colorspace() == color_manager->GetReferenceColorSpace()) {
+          alpha_assoc = Renderer::kAlphaNone;
+        } else if (stream_data.premultiplied_alpha()) {
+          alpha_assoc = Renderer::kAlphaAssociated;
+        } else {
+          alpha_assoc = Renderer::kAlphaUnassociated;
+        }
+
+        render_ctx_->BlitColorManaged(processor, unmanaged_texture,
+                                      alpha_assoc,
+                                      value.get());
+
+        return value;
       }
-
-      render_ctx_->BlitColorManaged(processor, unmanaged_texture,
-                                    alpha_assoc,
-                                    value.get());
-
-      return value;
     }
   }
 

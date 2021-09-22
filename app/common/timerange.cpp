@@ -176,6 +176,13 @@ void TimeRange::normalize()
   length_ = out_ - in_;
 }
 
+void TimeRangeList::insert(const TimeRangeList &list_to_add)
+{
+  for (auto it=list_to_add.cbegin(); it!=list_to_add.cend(); it++) {
+    insert(*it);
+  }
+}
+
 void TimeRangeList::insert(TimeRange range_to_add)
 {
   // See if list contains this range

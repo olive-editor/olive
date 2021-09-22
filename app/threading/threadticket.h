@@ -27,12 +27,13 @@
 
 #include "codec/frame.h"
 #include "codec/samplebuffer.h"
+#include "common/cancelableobject.h"
 #include "common/timerange.h"
 #include "node/output/viewer/viewer.h"
 
 namespace olive {
 
-class RenderTicket : public QObject
+class RenderTicket : public QObject, public CancelableObject
 {
   Q_OBJECT
 public:

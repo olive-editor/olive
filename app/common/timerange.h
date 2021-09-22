@@ -77,6 +77,7 @@ public:
   {
   }
 
+  void insert(const TimeRangeList &list_to_add);
   void insert(TimeRange range_to_add);
 
   void remove(const TimeRange& remove);
@@ -215,6 +216,16 @@ public:
   void reset()
   {
     *this = TimeRangeListFrameIterator();
+  }
+
+  void insert(const TimeRange &range)
+  {
+    list_.insert(range);
+  }
+
+  void insert(const TimeRangeList &list)
+  {
+    list_.insert(list);
   }
 
 private:

@@ -63,7 +63,7 @@ public:
 
 protected:
   virtual bool OpenInternal() override;
-  virtual FramePtr RetrieveVideoInternal(const rational &timecode, const RetrieveVideoParams& params) override;
+  virtual FramePtr RetrieveVideoInternal(const rational &timecode, const RetrieveVideoParams& params, const QAtomicInt *cancelled) override;
   virtual bool ConformAudioInternal(const QString& filename, const AudioParams &params, const QAtomicInt* cancelled) override;
   virtual void CloseInternal() override;
 
@@ -137,7 +137,7 @@ private:
 
   void ClearFrameCache();
 
-  FFmpegFramePool::ElementPtr RetrieveFrame(const rational &time);
+  FFmpegFramePool::ElementPtr RetrieveFrame(const rational &time, const QAtomicInt *cancelled);
 
   void RemoveFirstFrame();
 

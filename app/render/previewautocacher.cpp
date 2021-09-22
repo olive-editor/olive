@@ -17,12 +17,15 @@ PreviewAutoCacher::PreviewAutoCacher() :
   use_custom_range_(false),
   single_frame_render_(nullptr)
 {
+  // Set defaults
   SetPlayhead(0);
 
+  // Wait a certain amount of time before requeuing when we receive an invalidate signal
   delayed_requeue_timer_.setInterval(Config::Current()[QStringLiteral("AutoCacheDelay")].toInt());
   delayed_requeue_timer_.setSingleShot(true);
   connect(&delayed_requeue_timer_, &QTimer::timeout, this, &PreviewAutoCacher::RequeueFrames);
 
+  // Catch when a conform is ready
   connect(ConformManager::instance(), &ConformManager::ConformReady, this, &PreviewAutoCacher::ConformFinished);
 }
 
@@ -34,20 +37,24 @@ PreviewAutoCacher::~PreviewAutoCacher()
 
 RenderTicketPtr PreviewAutoCacher::GetSingleFrame(const rational &t, bool prioritize)
 {
+  // If we have a single frame render queued (but not yet sent to the RenderManager), cancel it now
   CancelQueuedSingleFrameRender();
 
+  // See if we have a hash, we may or may not retrieve one depending on the state of the video
+  // frame cache
   QByteArray hash;
   if (!paused_) {
     hash = viewer_node_->video_frame_cache()->GetHash(t);
   }
 
+  // Create a new single frame render ticket
   auto sfr = std::make_shared<RenderTicket>();
   sfr->Start();
   sfr->setProperty("time", QVariant::fromValue(t));
   sfr->setProperty("prioritize", prioritize);
   sfr->setProperty("hash", hash);
 
-  // Attempt to queue
+  // Queue it and try to render
   single_frame_render_ = sfr;
   TryRender();
 
@@ -93,9 +100,11 @@ QVector<PreviewAutoCacher::HashData> PreviewAutoCacher::GenerateHashes(ViewerOut
 
 void PreviewAutoCacher::VideoInvalidated(const TimeRange &range)
 {
-  ClearVideoQueue();
+  // Stop any current render tasks because a) they might be out of date now anyway, and b) we
+  // want to dedicate all our rendering power to realtime feedback for the user
+  CancelVideoTasks();
 
-  // Hash these frames since that should be relatively quick.
+  // If a slider is not being dragged, queue up to hash these frames
   if (!NumericSliderBase::IsEffectsSliderBeingDragged()) {
     invalidated_video_.insert(range);
     video_job_tracker_.insert(range, graph_changed_time_);
@@ -106,6 +115,8 @@ void PreviewAutoCacher::VideoInvalidated(const TimeRange &range)
 
 void PreviewAutoCacher::AudioInvalidated(const TimeRange &range)
 {
+  // We don't stop rendering audio because currently there's no system of requeuing audio if it's
+  // cancelled, so some areas may end up unrendered forever
   //  ClearAudioQueue();
 
   audio_job_tracker_.insert(range, graph_changed_time_);
@@ -118,12 +129,16 @@ void PreviewAutoCacher::AudioInvalidated(const TimeRange &range)
 
 void PreviewAutoCacher::HashesProcessed()
 {
+  // Receive watcher
   QFutureWatcher< QVector<HashData> >* watcher = static_cast<QFutureWatcher<QVector<HashData> >*>(sender());
 
+  // If the task list doesn't contain this watcher, presumably it was cleared as a result of a
+  // viewer switch, so we'll completely ignore this watcher
   if (hash_tasks_.contains(watcher)) {
+    // Remove task from hash task list
     hash_tasks_.removeOne(watcher);
 
-    // Set all hashes we received
+    // Set all hashes we received that are still current
     JobTime job_time = watcher->property("job").value<JobTime>();
     auto hashes = watcher->result();
     foreach (auto hash, hashes) {
@@ -132,21 +147,15 @@ void PreviewAutoCacher::HashesProcessed()
       }
     }
 
+    // HACK: When viewer is first set, there's nothing to requeue the range unless the user
+    //       manually moves the playhead, so we ensure a requeue is done here.
     if (!hash_iterator_.HasNext()) {
-      // Restart delayed requeue timer
       delayed_requeue_timer_.stop();
       delayed_requeue_timer_.start();
     }
-  }
 
-  // The cacher might be waiting for this job to finish
-  if (!graph_update_queue_.isEmpty()) {
+    // Continue rendering
     TryRender();
-  }
-
-  if (hash_iterator_.HasNext()) {
-    // Launch next hashes
-    QueueNextHashTask();
   }
 
   delete watcher;
@@ -154,79 +163,76 @@ void PreviewAutoCacher::HashesProcessed()
 
 void PreviewAutoCacher::AudioRendered()
 {
+  // Receive watcher
   RenderTicketWatcher* watcher = static_cast<RenderTicketWatcher*>(sender());
 
+  // If the task list doesn't contain this watcher, presumably it was cleared as a result of a
+  // viewer switch, so we'll completely ignore this watcher
   if (audio_tasks_.contains(watcher)) {
+    // Assume that a "result" is a fully completed image and a non-result is a cancelled ticket
+    TimeRange range = audio_tasks_.take(watcher);
+
     if (watcher->HasResult()) {
-      const TimeRange &range = audio_tasks_.value(watcher);
+      // Remove this task from the list
       JobTime watcher_job_time = watcher->property("job").value<JobTime>();
 
       TimeRangeList valid_ranges = audio_job_tracker_.getCurrentSubRanges(range, watcher_job_time);
 
       AudioVisualWaveform waveform = watcher->GetTicket()->property("waveform").value<AudioVisualWaveform>();
 
+      // WritePCM is tolerant to its buffer being null, it will just write silence instead
       viewer_node_->audio_playback_cache()->WritePCM(range,
                                                      valid_ranges,
                                                      watcher->Get().value<SampleBufferPtr>(),
                                                      &waveform);
 
-      bool pcm_is_usable = true;
-
+      // Detect if this audio was incomplete because it was waiting on a conform to finish
       if (watcher->GetTicket()->property("incomplete").toBool()) {
         if (last_conform_task_ > watcher_job_time) {
           // Requeue now
           viewer_node_->audio_playback_cache()->Invalidate(range);
-          pcm_is_usable = false;
         } else {
           // Wait for conform
           audio_needing_conform_.insert(range);
         }
       }
 
-      if (pcm_is_usable) {
-        // Retrieve visual waveforms
-        QVector<RenderProcessor::RenderedWaveform> waveform_list = watcher->GetTicket()->property("waveforms").value< QVector<RenderProcessor::RenderedWaveform> >();
-        foreach (const RenderProcessor::RenderedWaveform& waveform_info, waveform_list) {
-          // Find original track
-          ClipBlock* block = nullptr;
+      // Retrieve visual waveforms
+      QVector<RenderProcessor::RenderedWaveform> waveform_list = watcher->GetTicket()->property("waveforms").value< QVector<RenderProcessor::RenderedWaveform> >();
+      foreach (const RenderProcessor::RenderedWaveform& waveform_info, waveform_list) {
+        // Find original track
+        ClipBlock* block = nullptr;
 
-          for (auto it=copy_map_.cbegin(); it!=copy_map_.cend(); it++) {
-            if (it.value() == waveform_info.block) {
-              block = static_cast<ClipBlock*>(it.key());
-              break;
+        for (auto it=copy_map_.cbegin(); it!=copy_map_.cend(); it++) {
+          if (it.value() == waveform_info.block) {
+            block = static_cast<ClipBlock*>(it.key());
+            break;
+          }
+        }
+
+        if (block && !valid_ranges.isEmpty()) {
+          // Generate visual waveform in this background thread
+          block->waveform().set_channel_count(viewer_node_->GetAudioParams().channel_count());
+
+          // Determine which of the waveform ranges we got intersects with the valid ranges
+          TimeRangeList intersections = valid_ranges.Intersects(waveform_info.range + block->in());
+          foreach (TimeRange r, intersections) {
+            // For each range, adjust it relative to the block and write it
+            r -= block->in();
+
+            if (waveform_info.silence) {
+              block->waveform().OverwriteSilence(r.in(), r.length());
+            } else {
+              block->waveform().OverwriteSums(waveform_info.waveform, r.in(), r.in() - waveform_info.range.in(), r.length());
             }
           }
 
-          if (block && !valid_ranges.isEmpty()) {
-            // Generate visual waveform in this background thread
-            block->waveform().set_channel_count(viewer_node_->GetAudioParams().channel_count());
-
-            // Determine which of the waveform ranges we got intersects with the valid ranges
-            TimeRangeList intersections = valid_ranges.Intersects(waveform_info.range + block->in());
-            foreach (TimeRange r, intersections) {
-              // For each range, adjust it relative to the block and write it
-              r -= block->in();
-
-              if (waveform_info.silence) {
-                block->waveform().OverwriteSilence(r.in(), r.length());
-              } else {
-                block->waveform().OverwriteSums(waveform_info.waveform, r.in(), r.in() - waveform_info.range.in(), r.length());
-              }
-            }
-
-            emit block->PreviewChanged();
-          }
+          emit block->PreviewChanged();
         }
       }
     }
 
-    audio_tasks_.remove(watcher);
-  }
-
-  // The cacher might be waiting for this job to finish
-  if (graph_update_queue_.isEmpty()) {
-    QueueNextAudioTask();
-  } else {
+    // Continue rendering
     TryRender();
   }
 
@@ -237,10 +243,13 @@ void PreviewAutoCacher::VideoRendered()
 {
   RenderTicketWatcher* watcher = static_cast<RenderTicketWatcher*>(sender());
 
+  // If the task list doesn't contain this watcher, presumably it was cleared as a result of a
+  // viewer switch, so we'll completely ignore this watcher
   if (video_tasks_.contains(watcher)) {
-    if (watcher->HasResult()) {
-      const QByteArray& hash = video_tasks_.value(watcher);
+    // Assume that a "result" is a fully completed image and a non-result is a cancelled ticket
+    QByteArray hash = video_tasks_.take(watcher);
 
+    if (watcher->HasResult()) {
       // Download frame in another thread
       if (!hash.isEmpty() && VideoParams::FormatIsFloat(viewer_node_->GetVideoParams().format())) {
         FramePtr frame = watcher->Get().value<FramePtr>();
@@ -256,10 +265,12 @@ void PreviewAutoCacher::VideoRendered()
       }
     }
 
-    video_tasks_.remove(watcher);
+    // Continue rendering
+    TryRender();
   }
 
-  // Process passthroughs
+  // Process passthroughs no matter what, if the viewer was switched, the passthrough map would be
+  // cleared anyway
   QVector<RenderTicketPtr> tickets = video_immediate_passthroughs_.take(watcher);
   foreach (RenderTicketPtr t, tickets) {
     if (watcher->HasResult()) {
@@ -269,13 +280,6 @@ void PreviewAutoCacher::VideoRendered()
     }
   }
 
-  // The cacher might be waiting for this job to finish
-  if (!graph_update_queue_.isEmpty()) {
-    TryRender();
-  }
-
-  QueueNextFrameInRange(1);
-
   delete watcher;
 }
 
@@ -283,23 +287,21 @@ void PreviewAutoCacher::VideoDownloaded()
 {
   RenderTicketWatcher* watcher = static_cast<RenderTicketWatcher*>(sender());
 
+  // If the task list doesn't contain this watcher, presumably it was cleared as a result of a
+  // viewer switch, so we'll completely ignore this watcher
   if (video_download_tasks_.contains(watcher)) {
-    if (watcher->HasResult()) {
-      if (watcher->Get().toBool()) {
-        const QByteArray& hash = video_download_tasks_.value(watcher);
+    // Remove from task list
+    QByteArray hash = video_download_tasks_.take(watcher);
 
-        viewer_node_->video_frame_cache()->ValidateFramesWithHash(hash);
-      } else {
-        qCritical() << "Failed to download video frame";
-      }
+    // Assume that `true` is a completely successful frame save
+    if (watcher->Get().toBool()) {
+      viewer_node_->video_frame_cache()->ValidateFramesWithHash(hash);
+    } else {
+      qCritical() << "Failed to download video frame";
     }
 
-    video_download_tasks_.remove(watcher);
-  }
-
-  // The cacher might be waiting for this job to finish
-  if (!graph_update_queue_.isEmpty()) {
-    TryRender();
+    // No need to call TryRender here because it would not have been held up by a download task
+    // nor does the completion of this ticket automatically trigger another ticket
   }
 
   delete watcher;
@@ -307,6 +309,7 @@ void PreviewAutoCacher::VideoDownloaded()
 
 void PreviewAutoCacher::ProcessUpdateQueue()
 {
+  // Iterate everything that happened to the graph and do the same thing on our end
   foreach (const QueuedJob& job, graph_update_queue_) {
     switch (job.type) {
     case QueuedJob::kNodeAdded:
@@ -331,14 +334,9 @@ void PreviewAutoCacher::ProcessUpdateQueue()
   }
   graph_update_queue_.clear();
 
+  // Indicate that we have synchronized to this point, which is compared with the graph change
+  // time to see if our copied graph is up to date
   UpdateLastSyncedValue();
-}
-
-bool PreviewAutoCacher::HasActiveJobs() const
-{
-  return !hash_tasks_.isEmpty()
-      || !audio_tasks_.isEmpty()
-      || !video_tasks_.isEmpty();
 }
 
 void PreviewAutoCacher::AddNode(Node *node)
@@ -370,6 +368,7 @@ void PreviewAutoCacher::RemoveNode(Node *node)
 
 void PreviewAutoCacher::AddEdge(Node *output, const NodeInput &input)
 {
+  // Create same connection with our copied graph
   Node* our_output = copy_map_.value(output);
   Node* our_input = copy_map_.value(input.node());
 
@@ -378,6 +377,7 @@ void PreviewAutoCacher::AddEdge(Node *output, const NodeInput &input)
 
 void PreviewAutoCacher::RemoveEdge(Node *output, const NodeInput &input)
 {
+  // Remove same connection with our copied graph
   Node* our_output = copy_map_.value(output);
   Node* our_input = copy_map_.value(input.node());
 
@@ -386,12 +386,14 @@ void PreviewAutoCacher::RemoveEdge(Node *output, const NodeInput &input)
 
 void PreviewAutoCacher::CopyValue(const NodeInput &input)
 {
+  // Copy all values to our graph
   Node* our_input = copy_map_.value(input.node());
   Node::CopyValuesOfElement(input.node(), our_input, input.input(), input.element());
 }
 
 void PreviewAutoCacher::CopyValueHint(const NodeInput &input)
 {
+  // Copy value hint to our graph
   Node* our_input = copy_map_.value(input.node());
   Node::ValueHint hint = input.node()->GetValueHintForInput(input.input(), input.element());
   our_input->SetValueHintForInput(input.input(), hint, input.element());
@@ -425,6 +427,20 @@ void PreviewAutoCacher::CancelQueuedSingleFrameRender()
   }
 }
 
+void PreviewAutoCacher::VideoInvalidatedList(const TimeRangeList &list)
+{
+  foreach (const TimeRange &range, list) {
+    VideoInvalidated(range);
+  }
+}
+
+void PreviewAutoCacher::AudioInvalidatedList(const TimeRangeList &list)
+{
+  foreach (const TimeRange &range, list) {
+    AudioInvalidated(range);
+  }
+}
+
 void PreviewAutoCacher::SetPlayhead(const rational &playhead)
 {
   cache_range_ = TimeRange(playhead - Config::Current()[QStringLiteral("DiskCacheBehind")].value<rational>(),
@@ -435,41 +451,44 @@ void PreviewAutoCacher::SetPlayhead(const rational &playhead)
   RequeueFrames();
 }
 
-void PreviewAutoCacher::ClearHashQueue(bool wait)
+void PreviewAutoCacher::WaitForHashesToFinish()
 {
-  auto copy = hash_tasks_;
-
-  for (auto it=copy.cbegin(); it!=copy.cend(); it++) {
-    (*it)->cancel();
+  for (auto it=hash_tasks_.cbegin(); it!=hash_tasks_.cend(); it++) {
+    (*it)->waitForFinished();
   }
-  if (wait) {
-    copy = hash_tasks_;
-    for (auto it=copy.cbegin(); it!=copy.cend(); it++) {
-      (*it)->waitForFinished();
+}
+
+void PreviewAutoCacher::WaitForVideoDownloadsToFinish()
+{
+  for (auto it=video_download_tasks_.cbegin(); it!=video_download_tasks_.cend(); it++) {
+    it.key()->WaitForFinished();
+  }
+}
+
+template<typename T>
+void CancelTasks(const T &task_list, bool and_wait)
+{
+  for (auto it=task_list.cbegin(); it!=task_list.cend(); it++) {
+    // Signal that the ticket should not be finished
+    it.key()->Cancel();
+  }
+
+  if (and_wait) {
+    // Wait for each ticket to finish
+    for (auto it=task_list.cbegin(); it!=task_list.cend(); it++) {
+      it.key()->WaitForFinished();
     }
-
-    hash_tasks_.clear();
   }
 }
 
-void PreviewAutoCacher::ClearVideoQueue(bool hard)
+void PreviewAutoCacher::CancelVideoTasks(bool and_wait_for_them_to_finish)
 {
-  ClearQueueInternal(video_tasks_, hard, &PreviewAutoCacher::VideoRendered);
-
-  use_custom_range_ = false;
-  queued_frame_iterator_.reset();
+  CancelTasks(video_tasks_, and_wait_for_them_to_finish);
 }
 
-void PreviewAutoCacher::ClearAudioQueue(bool hard)
+void PreviewAutoCacher::CancelAudioTasks(bool and_wait_for_them_to_finish)
 {
-  ClearQueueInternal(audio_tasks_, hard, &PreviewAutoCacher::AudioRendered);
-
-  audio_iterator_.clear();
-}
-
-void PreviewAutoCacher::ClearVideoDownloadQueue(bool hard)
-{
-  ClearQueueInternal(video_download_tasks_, hard, &PreviewAutoCacher::VideoDownloaded);
+  CancelTasks(audio_tasks_, and_wait_for_them_to_finish);
 }
 
 void PreviewAutoCacher::NodeAdded(Node *node)
@@ -511,8 +530,12 @@ void PreviewAutoCacher::ValueHintChanged(const NodeInput &input)
 void PreviewAutoCacher::TryRender()
 {
   if (!graph_update_queue_.isEmpty()) {
-    if (HasActiveJobs()) {
-      // Still waiting for jobs to finish
+    // Check if we have jobs running in other threads that shouldn't be interrupted right now
+    // NOTE: We don't check for downloads because, while they run in another thread, they don't
+    //       require any access to the graph and therefore don't risk race conditions.
+    if (!hash_tasks_.isEmpty()
+        || !audio_tasks_.isEmpty()
+        || !video_tasks_.isEmpty()) {
       return;
     }
 
@@ -520,24 +543,19 @@ void PreviewAutoCacher::TryRender()
     ProcessUpdateQueue();
   }
 
-  // If we're here, we must be able to render
+  // Check for newly invalidated video and hash it
   if (!invalidated_video_.isEmpty()) {
-    hash_iterator_ = TimeRangeListFrameIterator(invalidated_video_, viewer_node_->GetVideoParams().frame_rate_as_time_base());
-
-    for (int i=0; i<QThread::idealThreadCount(); i++) {
-      QueueNextHashTask();
+    if (hash_iterator_.HasNext()) {
+      hash_iterator_.insert(invalidated_video_);
+    } else {
+      hash_iterator_ = TimeRangeListFrameIterator(invalidated_video_, viewer_node_->GetVideoParams().frame_rate_as_time_base());
     }
-
     invalidated_video_.clear();
   }
 
   if (!invalidated_audio_.isEmpty()) {
-    audio_iterator_ = invalidated_audio_;
-
-    for (int i=0; i<QThread::idealThreadCount(); i++) {
-      QueueNextAudioTask();
-    }
-
+    // Add newly invalidated audio to iterator
+    audio_iterator_.insert(invalidated_audio_);
     invalidated_audio_.clear();
   }
 
@@ -559,6 +577,67 @@ void PreviewAutoCacher::TryRender()
     }
 
     single_frame_render_ = nullptr;
+  }
+
+  // Ensure we are running tasks if we have any
+  const int max_tasks = RenderManager::GetNumberOfIdealConcurrentJobs();
+
+  // Handle hash tasks
+  while (hash_tasks_.size() < max_tasks && hash_iterator_.HasNext()) {
+    // Magic number: dunno what the best number for this is yet
+    static const int kMaxFrames = 1000;
+
+    QVector<rational> times(kMaxFrames);
+    for (int i=0; i<kMaxFrames; i++) {
+      rational r;
+      if (hash_iterator_.GetNext(&r)) {
+        times[i] = r;
+      } else {
+        times.resize(i);
+        break;
+      }
+    }
+
+    QFutureWatcher< QVector<HashData> >* watcher = new QFutureWatcher< QVector<HashData> >();
+    watcher->setProperty("job", QVariant::fromValue(last_update_time_));
+    hash_tasks_.append(watcher);
+    connect(watcher, &QFutureWatcher< QVector<HashData> >::finished, this, &PreviewAutoCacher::HashesProcessed);
+    watcher->setFuture(QtConcurrent::run(PreviewAutoCacher::GenerateHashes,
+                                         copied_viewer_node_,
+                                         viewer_node_->video_frame_cache(),
+                                         times));
+  }
+
+  // Handle video tasks
+  rational t;
+  while (video_tasks_.size() < max_tasks && queued_frame_iterator_.GetNext(&t)) {
+    const QByteArray& hash = viewer_node_->video_frame_cache()->GetHash(t);
+
+    RenderTicketWatcher* render_task = video_tasks_.key(hash);
+
+    // We want this hash, if we're not already rendering, start render now
+    if (!render_task && !video_download_tasks_.key(hash)) {
+      // Don't render any hash more than once
+      RenderFrame(hash, t, false, false);
+    }
+  }
+
+  // Handle audio tasks
+  while (!audio_iterator_.isEmpty() && audio_tasks_.size() < max_tasks) {
+    // Copy first range in list
+    TimeRange r = audio_iterator_.first();
+
+    // Limit to 30 seconds (FIXME: Hardcoded)
+    r.set_out(qMin(r.out(), r.in() + 30));
+
+    // Start job
+    RenderTicketWatcher* watcher = new RenderTicketWatcher();
+    watcher->setProperty("job", QVariant::fromValue(last_update_time_));
+    connect(watcher, &RenderTicketWatcher::Finished, this, &PreviewAutoCacher::AudioRendered);
+    audio_tasks_.insert(watcher, r);
+    watcher->SetTicket(RenderManager::instance()->RenderAudio(copied_viewer_node_, r, RenderMode::kOffline, true));
+
+    audio_iterator_.remove(r);
   }
 }
 
@@ -600,15 +679,17 @@ void PreviewAutoCacher::RequeueFrames()
     TimeRangeList invalidated = viewer_node_->video_frame_cache()->GetInvalidatedRanges(using_range);
     queued_frame_iterator_ = TimeRangeListFrameIterator(invalidated, viewer_node_->video_frame_cache()->GetTimebase());
 
-    QueueNextFrameInRange(RenderManager::GetNumberOfIdealConcurrentJobs());
+    TryRender();
   }
 }
 
 void PreviewAutoCacher::ConformFinished()
 {
+  // Got an audio conform, requeue all the audio currently needing a conform
   last_conform_task_.Acquire();
 
-  if (viewer_node_) {
+  if (!audio_needing_conform_.isEmpty()) {
+    // This list should be empty if there was a viewer switch
     foreach (const TimeRange &range, audio_needing_conform_) {
       viewer_node_->audio_playback_cache()->Invalidate(range);
     }
@@ -631,29 +712,54 @@ void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
   }
 
   if (viewer_node_) {
-    // Cancel any remaining tickets and wait for them to finish
+    // We must wait for any jobs to finish because they'll be using our copied graph and we're
+    // about to destroy it
 
-    // We need to wait for these since they send signals directly to the FrameHashCache
-    // which might get deleted after this function.
-    ClearHashQueue(true);
+    // Stop requeue timer if it's running
+    delayed_requeue_timer_.stop();
 
-    // This can be cleared normally (frames will be discarded and need to be rendered again)
-    ClearVideoQueue(true);
+    // Handle hashes
+    if (!hash_tasks_.isEmpty()) {
+      // Wait for hashes to finish
+      WaitForHashesToFinish();
 
-    // This can be cleared normally (PCM data will be discarded and need to be rendered again)
-    ClearAudioQueue(true);
+      // Clear the hash list to indicate we're not interested in the results of any of these
+      hash_tasks_.clear();
+    }
 
-    // We'll need to wait for these since they work directly on the FrameHashCache. Frames will
-    // be in the cache for later use.
-    ClearVideoDownloadQueue(true);
+    // Handle video rendering tasks
+    if (!video_tasks_.isEmpty()) {
+      // Cancel any video tasks and wait for them to finish
+      CancelVideoTasks(true);
+    }
+
+    // Handle audio rendering tasks
+    if (!audio_tasks_.isEmpty()) {
+      // Cancel any audio tasks and wait for them to finish
+      CancelAudioTasks(true);
+    }
+
+    // Handle video download tasks
+    if (!video_download_tasks_.isEmpty()) {
+      WaitForVideoDownloadsToFinish();
+    }
+
+    // Clear iterators
+    queued_frame_iterator_.reset();
+    audio_iterator_.clear();
+    hash_iterator_.reset();
+
+    // Clear any invalidated ranges
+    invalidated_video_.clear();
+    invalidated_audio_.clear();
 
     // Clear any single frame render that might be queued
     CancelQueuedSingleFrameRender();
 
-    // No more immediate passthroughts
+    // Not interested in video passthroughs anymore
     video_immediate_passthroughs_.clear();
 
-    // No more audio conforms
+    // Not interested in audio conforming anymore
     audio_needing_conform_.clear();
 
     // Delete all of our copied nodes
@@ -726,12 +832,6 @@ void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
     connect(graph, &NodeGraph::ValueChanged, this, &PreviewAutoCacher::ValueChanged);
     connect(graph, &NodeGraph::InputValueHintChanged, this, &PreviewAutoCacher::ValueHintChanged);
 
-    // Copy invalidated ranges - used to determine which frames need hashing
-    invalidated_video_ = viewer_node_->video_frame_cache()->GetInvalidatedRanges(viewer_node_->GetVideoLength());
-    video_job_tracker_.insert(invalidated_video_, graph_changed_time_);
-    invalidated_audio_ = viewer_node_->audio_playback_cache()->GetInvalidatedRanges(viewer_node_->GetAudioLength());
-    audio_job_tracker_.insert(invalidated_audio_, graph_changed_time_);
-
     connect(viewer_node_->video_frame_cache(),
             &PlaybackCache::Invalidated,
             this,
@@ -742,138 +842,10 @@ void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
             this,
             &PreviewAutoCacher::AudioInvalidated);
 
+    // Copy invalidated ranges and start rendering if necessary
+    VideoInvalidatedList(viewer_node_->video_frame_cache()->GetInvalidatedRanges(viewer_node_->GetVideoLength()));
+    AudioInvalidatedList(viewer_node_->audio_playback_cache()->GetInvalidatedRanges(viewer_node_->GetAudioLength()));
     TryRender();
-  }
-}
-
-RenderTicketWatcher* RetrieveFromQueueIterator(QMap<RenderTicketWatcher*, QByteArray>::iterator it)
-{
-  return it.key();
-}
-
-RenderTicketWatcher* RetrieveFromQueueIterator(QMap<RenderTicketWatcher*, TimeRange>::iterator it)
-{
-  return it.key();
-}
-
-RenderTicketWatcher* RetrieveFromQueueIterator(QVector<RenderTicketWatcher*>::iterator it)
-{
-  return *it;
-}
-
-void PreviewAutoCacher::ClearQueueRemoveEventInternal(QMap<RenderTicketWatcher*, QByteArray>::iterator it)
-{
-  Q_UNUSED(it)
-}
-
-void PreviewAutoCacher::ClearQueueRemoveEventInternal(QMap<RenderTicketWatcher*, TimeRange>::iterator it)
-{
-  Q_UNUSED(it)
-}
-
-void PreviewAutoCacher::ClearQueueRemoveEventInternal(QVector<RenderTicketWatcher*>::iterator it)
-{
-  Q_UNUSED(it)
-}
-
-void PreviewAutoCacher::QueueNextFrameInRange(int max)
-{
-  rational t;
-  while (max && queued_frame_iterator_.GetNext(&t)) {
-    const QByteArray& hash = viewer_node_->video_frame_cache()->GetHash(t);
-
-    RenderTicketWatcher* render_task = video_tasks_.key(hash);
-
-    // We want this hash, if we're not already rendering, start render now
-    if (!render_task && !video_download_tasks_.key(hash)) {
-      // Don't render any hash more than once
-      RenderFrame(hash, t, false, false);
-
-      max--;
-    }
-  }
-}
-
-void PreviewAutoCacher::QueueNextHashTask()
-{
-  // Magic number: dunno what the best number for this is yet
-  static const int kMaxFrames = 1000;
-
-  QVector<rational> times(kMaxFrames);
-  for (int i=0; i<kMaxFrames; i++) {
-    rational r;
-    if (hash_iterator_.GetNext(&r)) {
-      times[i] = r;
-    } else {
-      times.resize(i);
-      break;
-    }
-  }
-
-  QFutureWatcher< QVector<HashData> >* watcher = new QFutureWatcher< QVector<HashData> >();
-  watcher->setProperty("job", QVariant::fromValue(last_update_time_));
-  hash_tasks_.append(watcher);
-  connect(watcher, &QFutureWatcher< QVector<HashData> >::finished, this, &PreviewAutoCacher::HashesProcessed);
-  watcher->setFuture(QtConcurrent::run(PreviewAutoCacher::GenerateHashes,
-                                       copied_viewer_node_,
-                                       viewer_node_->video_frame_cache(),
-                                       times));
-}
-
-void PreviewAutoCacher::QueueNextAudioTask()
-{
-  if (!audio_iterator_.isEmpty()) {
-    // Copy first range in list
-    TimeRange r = audio_iterator_.first();
-
-    // Limit to 30 seconds (FIXME: Hardcoded)
-    r.set_out(qMin(r.out(), r.in() + 30));
-
-    // Start job
-    RenderTicketWatcher* watcher = new RenderTicketWatcher();
-    watcher->setProperty("job", QVariant::fromValue(last_update_time_));
-    connect(watcher, &RenderTicketWatcher::Finished, this, &PreviewAutoCacher::AudioRendered);
-    audio_tasks_.insert(watcher, r);
-    watcher->SetTicket(RenderManager::instance()->RenderAudio(copied_viewer_node_, r, RenderMode::kOffline, true));
-
-    audio_iterator_.remove(r);
-  }
-}
-
-template<typename T, typename Func>
-void PreviewAutoCacher::ClearQueueInternal(T& list, bool hard, Func member)
-{
-  for (auto it=list.begin(); it!=list.end(); ) {
-    RenderTicketWatcher* ticket = RetrieveFromQueueIterator(it);
-
-    QMutexLocker locker(ticket->GetTicket()->lock());
-
-    bool ticket_is_running = ticket->GetTicket()->IsRunning(false);
-
-    if (hard || !ticket_is_running) {
-      // Override default signalling
-      disconnect(ticket, &RenderTicketWatcher::Finished, this, member);
-
-      if (ticket_is_running) {
-        // If ticket is running, assume we're hard clearing and wait for the ticket to finish
-        ticket->GetTicket()->WaitForFinished(ticket->GetTicket()->lock());
-      } else {
-        // Just remove the ticket from the queue
-        RenderManager::instance()->RemoveTicket(ticket->GetTicket());
-      }
-
-      // Special functionality for certain queues
-      ClearQueueRemoveEventInternal(it);
-
-      // Destroy ticket
-      locker.unlock();
-      delete ticket;
-
-      it = list.erase(it);
-    } else {
-      // We can't clear this, probably because we're soft clearing and the ticket is currently running
-      it++;
-    }
   }
 }
 

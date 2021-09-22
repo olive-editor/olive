@@ -420,11 +420,7 @@ void ViewerWidget::UpdateAutoCacher()
   rational time = GetTime();
 
   if (GetConnectedNode()              // Ensure valid node
-      && cache_time_ != time          // Ensure cache hasn't already been to this time
-      && !auto_cacher_.IsPaused()) {  // Follow cache setting
-    if (!IsPlaying()) {
-      ClearAutoCacherQueue();
-    }
+      && cache_time_ != time) {       // Ensure cache hasn't already been to this time
     auto_cacher_.SetPlayhead(time);
     cache_time_ = time;
   }
@@ -432,7 +428,7 @@ void ViewerWidget::UpdateAutoCacher()
 
 void ViewerWidget::ClearAutoCacherQueue()
 {
-  auto_cacher_.ClearVideoQueue();
+  auto_cacher_.CancelVideoTasks();
   cache_time_ = rational::NaN;
 }
 
@@ -522,6 +518,10 @@ void ViewerWidget::UpdateTextureFromNode()
       watcher->setProperty("time", QVariant::fromValue(time));
       connect(watcher, &RenderTicketWatcher::Finished, this, &ViewerWidget::RendererGeneratedFrame);
       nonqueue_watchers_.append(watcher);
+
+      // Clear queue because we want this frame more than any others
+      ClearAutoCacherQueue();
+
       watcher->SetTicket(GetFrame(time, true));
     }
   } else {
@@ -851,12 +851,16 @@ void ViewerWidget::RendererGeneratedFrame()
   if (ticket->HasResult()) {
     if (nonqueue_watchers_.contains(ticket)) {
       while (!nonqueue_watchers_.isEmpty()) {
+        // Pop frames that are "old"
         if (nonqueue_watchers_.takeFirst() == ticket) {
           break;
         }
       }
 
-      SetDisplayImage(ticket->Get());
+      if (nonqueue_watchers_.isEmpty()) {
+        // Only set frame if we're not waiting on any others
+        SetDisplayImage(ticket->Get());
+      }
     }
   }
 

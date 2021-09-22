@@ -88,6 +88,13 @@ bool RenderTicketWatcher::HasResult()
   }
 }
 
+void RenderTicketWatcher::Cancel()
+{
+  if (ticket_) {
+    ticket_->Cancel();
+  }
+}
+
 void RenderTicketWatcher::TicketFinished()
 {
   emit Finished(this);

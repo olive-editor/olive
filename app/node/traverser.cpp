@@ -221,6 +221,11 @@ NodeValueTable NodeTraverser::ProcessInput(const Node* node, const QString& inpu
   }
 }
 
+NodeTraverser::NodeTraverser() :
+  cancel_(nullptr)
+{
+}
+
 NodeValueTable NodeTraverser::GenerateTable(const Node *n, const Node::ValueHint &hint, const TimeRange& range)
 {
   const Track* track = dynamic_cast<const Track*>(n);

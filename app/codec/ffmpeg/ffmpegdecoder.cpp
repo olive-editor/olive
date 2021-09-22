@@ -145,7 +145,7 @@ bool FFmpegDecoder::OpenInternal()
   return output_frame;
 }*/
 
-FramePtr FFmpegDecoder::RetrieveVideoInternal(const rational &timecode, const RetrieveVideoParams &params)
+FramePtr FFmpegDecoder::RetrieveVideoInternal(const rational &timecode, const RetrieveVideoParams &params, const QAtomicInt *cancelled)
 {
   if (!InitScaler(params)) {
     return nullptr;
@@ -154,7 +154,7 @@ FramePtr FFmpegDecoder::RetrieveVideoInternal(const rational &timecode, const Re
   AVStream* s = instance_.avstream();
 
   // Retrieve frame
-  FFmpegFramePool::ElementPtr return_frame = RetrieveFrame(timecode);
+  FFmpegFramePool::ElementPtr return_frame = RetrieveFrame(timecode, cancelled);
 
   // We found the frame, we'll return a copy
   if (return_frame) {
@@ -661,7 +661,7 @@ void FFmpegDecoder::ClearFrameCache()
   }
 }
 
-FFmpegFramePool::ElementPtr FFmpegDecoder::RetrieveFrame(const rational& time)
+FFmpegFramePool::ElementPtr FFmpegDecoder::RetrieveFrame(const rational& time, const QAtomicInt *cancelled)
 {
   int64_t target_ts = GetTimeInTimebaseUnits(time, instance_.avstream()->time_base, instance_.avstream()->start_time);
 
@@ -704,6 +704,10 @@ FFmpegFramePool::ElementPtr FFmpegDecoder::RetrieveFrame(const rational& time)
   AVFrame* working_frame = av_frame_alloc();
 
   while (true) {
+    // Break out of loop if we've cancelled
+    if (cancelled && *cancelled) {
+      break;
+    }
 
     // Pull from the decoder
     av_frame_unref(working_frame);

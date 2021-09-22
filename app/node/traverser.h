@@ -31,10 +31,10 @@
 
 namespace olive {
 
-class NodeTraverser : public CancelableObject
+class NodeTraverser
 {
 public:
-  NodeTraverser() = default;
+  NodeTraverser();
 
   NodeValueTable GenerateTable(const Node *n, const Node::ValueHint &hint, const TimeRange &range);
 
@@ -93,10 +93,27 @@ protected:
 
   QVector2D GenerateResolution() const;
 
+  bool IsCancelled() const
+  {
+    return cancel_ && *cancel_;
+  }
+
+  const QAtomicInt *GetCancelPointer() const
+  {
+    return cancel_;
+  }
+
+  void SetCancelPointer(const QAtomicInt *cancel)
+  {
+    cancel_ = cancel;
+  }
+
 private:
   void PostProcessTable(const Node *node, const Node::ValueHint &hint, const TimeRange &range, NodeValueTable &output_params);
 
   VideoParams video_params_;
+
+  const QAtomicInt *cancel_;
 
 };
 

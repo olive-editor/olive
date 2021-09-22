@@ -85,7 +85,7 @@ bool Decoder::Open(const CodecStream &stream)
   }
 }
 
-FramePtr Decoder::RetrieveVideo(const rational &timecode, const RetrieveVideoParams &divider)
+FramePtr Decoder::RetrieveVideo(const rational &timecode, const RetrieveVideoParams &divider, const QAtomicInt *cancelled)
 {
   QMutexLocker locker(&mutex_);
 
@@ -101,7 +101,11 @@ FramePtr Decoder::RetrieveVideo(const rational &timecode, const RetrieveVideoPar
     return nullptr;
   }
 
-  return RetrieveVideoInternal(timecode, divider);
+  if (cancelled && *cancelled) {
+    return nullptr;
+  }
+
+  return RetrieveVideoInternal(timecode, divider, cancelled);
 }
 
 Decoder::RetrieveAudioData Decoder::RetrieveAudio(const TimeRange &range, const AudioParams &params, const QString& cache_path, Footage::LoopMode loop_mode, RenderMode::Mode mode)
@@ -248,10 +252,11 @@ int64_t Decoder::GetImageSequenceIndex(const QString &filename)
   return number_only.toLongLong();
 }
 
-FramePtr Decoder::RetrieveVideoInternal(const rational &timecode, const RetrieveVideoParams &divider)
+FramePtr Decoder::RetrieveVideoInternal(const rational &timecode, const RetrieveVideoParams &divider, const QAtomicInt *cancelled)
 {
   Q_UNUSED(timecode)
   Q_UNUSED(divider)
+  Q_UNUSED(cancelled)
   return nullptr;
 }
 

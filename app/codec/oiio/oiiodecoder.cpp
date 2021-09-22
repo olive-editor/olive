@@ -101,9 +101,10 @@ bool OIIODecoder::OpenInternal()
   return OpenImageHandler(stream().filename());
 }
 
-FramePtr OIIODecoder::RetrieveVideoInternal(const rational &timecode, const RetrieveVideoParams &divider)
+FramePtr OIIODecoder::RetrieveVideoInternal(const rational &timecode, const RetrieveVideoParams &divider, const QAtomicInt *cancelled)
 {
   Q_UNUSED(timecode)
+  Q_UNUSED(cancelled)
 
   FramePtr frame = Frame::Create();
 
