@@ -150,7 +150,11 @@ public:
 
   virtual Node *GetConnectedTextureOutput();
 
+  virtual ValueHint GetConnectedTextureValueHint();
+
   virtual Node *GetConnectedSampleOutput();
+
+  virtual ValueHint GetConnectedSampleValueHint();
 
   void SetViewerVideoCacheEnabled(bool e) { video_cache_enabled_ = e; }
   void SetViewerAudioCacheEnabled(bool e) { audio_cache_enabled_ = e; }

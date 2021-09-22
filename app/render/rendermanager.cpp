@@ -102,13 +102,15 @@ void RenderManager::ClearOldDecoders()
 
 QByteArray RenderManager::Hash(const Node *n, const Node::ValueHint &output, const VideoParams &params, const rational &time)
 {
-  HashTraverser hasher;
-  return hasher.GetHash(n, output, params, TimeRange(time, time + params.frame_rate_as_time_base()));
-}
+  Q_ASSERT(n);
 
-QByteArray RenderManager::Hash(ViewerOutput *viewer, const VideoParams &params, const rational &time)
-{
-  return Hash(viewer->GetConnectedTextureOutput(), viewer->GetValueHintForInput(ViewerOutput::kTextureInput), params, time);
+  if (n) {
+    HashTraverser hasher;
+    return hasher.GetHash(n, output, params, TimeRange(time, time + params.frame_rate_as_time_base()));
+  } else {
+    qCritical() << "Hash called with null node";
+    return QByteArray();
+  }
 }
 
 RenderTicketPtr RenderManager::RenderFrame(ViewerOutput *viewer, ColorManager* color_manager,

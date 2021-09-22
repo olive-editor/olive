@@ -370,9 +370,19 @@ Node *ViewerOutput::GetConnectedTextureOutput()
   return GetConnectedOutput(kTextureInput);
 }
 
+Node::ValueHint ViewerOutput::GetConnectedTextureValueHint()
+{
+  return GetValueHintForInput(kTextureInput);
+}
+
 Node *ViewerOutput::GetConnectedSampleOutput()
 {
   return GetConnectedOutput(kSamplesInput);
+}
+
+Node::ValueHint ViewerOutput::GetConnectedSampleValueHint()
+{
+  return GetValueHintForInput(kSamplesInput);
 }
 
 void ViewerOutput::InputValueChangedEvent(const QString &input, int element)

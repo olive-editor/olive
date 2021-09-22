@@ -76,7 +76,8 @@ QVector<PreviewAutoCacher::HashData> PreviewAutoCacher::GenerateHashes(ViewerOut
     const rational &time = times.at(i);
 
     // See if hash already exists in disk cache
-    QByteArray hash = RenderManager::Hash(viewer,
+    QByteArray hash = RenderManager::Hash(viewer->GetConnectedTextureOutput(),
+                                          viewer->GetConnectedTextureValueHint(),
                                           viewer->GetVideoParams(),
                                           time);
 
@@ -84,6 +85,7 @@ QVector<PreviewAutoCacher::HashData> PreviewAutoCacher::GenerateHashes(ViewerOut
     bool hash_exists = existing_hashes.contains(hash);
 
     if (!hash_exists) {
+      // FIXME: Using CachePathName here is NOT thread safe and should be replaced
       hash_exists = QFileInfo::exists(cache->CachePathName(hash));
 
       if (hash_exists) {
@@ -545,7 +547,9 @@ void PreviewAutoCacher::TryRender()
 
   // Check for newly invalidated video and hash it
   if (!invalidated_video_.isEmpty()) {
-    if (hash_iterator_.HasNext()) {
+    if (!copied_viewer_node_->GetConnectedTextureOutput()) {
+      hash_iterator_.reset();
+    } else if (hash_iterator_.HasNext()) {
       hash_iterator_.insert(invalidated_video_);
     } else {
       hash_iterator_ = TimeRangeListFrameIterator(invalidated_video_, viewer_node_->GetVideoParams().frame_rate_as_time_base());

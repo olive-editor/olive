@@ -67,7 +67,6 @@ public:
    * @brief Generate a unique identifier for a certain node at a cconst Node *n, const Node::ValueHint &outputertain time
    */
   static QByteArray Hash(const Node *n, const Node::ValueHint &output, const VideoParams &params, const rational &time);
-  static QByteArray Hash(ViewerOutput *viewer, const VideoParams &params, const rational &time);
 
   /**
    * @brief Asynchronously generate a frame at a given time
