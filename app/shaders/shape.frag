@@ -12,7 +12,9 @@ uniform vec2 resolution_in;
 uniform vec4 color_in;
 
 void main() {
-  vec2 real_position = pos_in/resolution_in;
+  vec2 p = pos_in + resolution_in*0.5 - size_in*0.5;
+
+  vec2 real_position = p/resolution_in;
   vec2 real_size = size_in/resolution_in;
 
   vec4 col = vec4(0.0);
@@ -23,7 +25,7 @@ void main() {
       col = color_in;
     }
   } else if (type_in == SHAPE_ELLIPSE) {
-    vec2 center = pos_in+size_in*0.5;
+    vec2 center = p+size_in*0.5;
     float radius = size_in.y*0.5;
     float aspect_ratio = size_in.x/size_in.y;
 

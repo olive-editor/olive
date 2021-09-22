@@ -49,6 +49,13 @@ public:
   virtual ShaderCode GetShaderCode(const QString& shader_id) const override;
   virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
 
+  virtual bool HasGizmos() const override
+  {
+    return true;
+  }
+
+  virtual void DrawGizmos(const NodeValueRow &row, const NodeGlobals &globals, QPainter *p) override;
+
   static QString kTypeInput;
 
 private:

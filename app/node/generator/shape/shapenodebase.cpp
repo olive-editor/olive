@@ -32,7 +32,7 @@ QString ShapeNodeBase::kColorInput = QStringLiteral("color_in");
 
 ShapeNodeBase::ShapeNodeBase()
 {
-  AddInput(kPositionInput, NodeValue::kVec2, QVector2D(10, 10));
+  AddInput(kPositionInput, NodeValue::kVec2, QVector2D(0, 0));
   AddInput(kSizeInput, NodeValue::kVec2, QVector2D(100, 100));
   AddInput(kColorInput, NodeValue::kColor, QVariant::fromValue(Color(1.0, 0.0, 0.0, 1.0)));
 }

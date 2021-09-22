@@ -415,7 +415,7 @@ void TransformDistortNode::DrawGizmos(const NodeValueRow &row, const NodeGlobals
 
   // Get the sequence resolution
   const QVector2D &sequence_res = globals.resolution();
-  QVector2D sequence_half_res = sequence_res/2;
+  QVector2D sequence_half_res = sequence_res * 0.5;
   QPointF sequence_half_res_pt = sequence_half_res.toPointF();
 
   // GizmoTraverser just returns the sizes of the textures and no other data
@@ -488,7 +488,7 @@ void TransformDistortNode::DrawGizmos(const NodeValueRow &row, const NodeGlobals
 
   // Use offsets to make the appearance of values that start in the top left, even though we
   // really anchor around the center
-  SetInputProperty(kPositionInput, QStringLiteral("offset"), sequence_res * 0.5);
+  SetInputProperty(kPositionInput, QStringLiteral("offset"), sequence_half_res);
   SetInputProperty(kAnchorInput, QStringLiteral("offset"), tex_sz * 0.5);
 }
 
