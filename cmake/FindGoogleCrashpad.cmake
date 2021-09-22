@@ -73,13 +73,15 @@ endif()
 
 # Find the libraries we need
 set (_crashpad_components
-  client
-  util
-  third_party/mini_chromium/mini_chromium/base
+  client/client
+  client/common
+  util/util
+  third_party/mini_chromium/mini_chromium/base/base
 )
 
 set (_crashpad_required
   CRASHPAD_CLIENT_LIB
+  CRASHPAD_COMMON_LIB
   CRASHPAD_UTIL_LIB
   CRASHPAD_BASE_LIB
   BREAKPAD_BIN_DIR
@@ -102,12 +104,13 @@ endif()
 
 foreach (COMPONENT ${_crashpad_components})
   get_filename_component(SHORT_COMPONENT ${COMPONENT} NAME)
+  get_filename_component(LOCATION ${COMPONENT} DIRECTORY)
   string(TOUPPER ${SHORT_COMPONENT} UPPER_COMPONENT)
 
   find_library(CRASHPAD_${UPPER_COMPONENT}_LIB
       ${SHORT_COMPONENT}
     HINTS
-      "${CRASHPAD_LIBRARY_DIRS}/obj/${COMPONENT}"
+      "${CRASHPAD_LIBRARY_DIRS}/obj/${LOCATION}"
     NO_DEFAULT_PATH
   )
 
