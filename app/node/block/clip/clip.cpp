@@ -51,7 +51,7 @@ ClipBlock::ClipBlock() :
   IgnoreHashingFrom(kReverseInput);
 
   PrependInput(kBufferIn, NodeValue::kNone, InputFlags(kInputFlagNotKeyframable));
-  SetValueHintForInput(kBufferIn, {NodeValue::kBuffer, -1, QString()});
+  SetValueHintForInput(kBufferIn, ValueHint(NodeValue::kBuffer));
 }
 
 Node *ClipBlock::copy() const

@@ -38,7 +38,7 @@ void NodeValueTree::SetNode(const NodeInput &input, const rational &time)
     const NodeValue &value = table.at(i);
     QTreeWidgetItem *item = new QTreeWidgetItem(this);
 
-    Node::ValueHint hint = {{value.type()}, table.Count()-1-i, value.tag()};
+    Node::ValueHint hint({value.type()}, table.Count()-1-i, value.tag());
 
     QRadioButton *radio = new QRadioButton(this);
     radio->setProperty("input", QVariant::fromValue(input));

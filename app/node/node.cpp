@@ -1015,12 +1015,7 @@ int Node::InputArraySize(const QString &id) const
 
 void Node::Hash(const Node *node, const ValueHint &hint, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params)
 {
-  if (!hint.type.isEmpty()) {
-    hash.addData(reinterpret_cast<const char*>(hint.type.constData()), sizeof(NodeValue::Type) * hint.type.size());
-  }
-  hash.addData(reinterpret_cast<const char*>(&hint.index), sizeof(hint.index));
-  hash.addData(hint.tag.toUtf8());
-
+  hint.Hash(hash);
   node->Hash(hash, globals, video_params);
 }
 
@@ -2468,11 +2463,11 @@ void NodeRemovePositionFromAllContextsCommand::undo()
 void Node::ValueHint::Hash(QCryptographicHash &hash) const
 {
   // Add value hint
-  foreach (NodeValue::Type t, type) {
-    hash.addData(reinterpret_cast<const char*>(&t), sizeof(t));
+  if (!types().isEmpty()) {
+    hash.addData(reinterpret_cast<const char*>(types().constData()), sizeof(NodeValue::Type) * types().size());
   }
-  hash.addData(reinterpret_cast<const char *>(&index), sizeof(index));
-  hash.addData(tag.toUtf8());
+  hash.addData(reinterpret_cast<const char*>(&index()), sizeof(index()));
+  hash.addData(tag().toUtf8());
 }
 
 void Node::ValueHint::Load(QXmlStreamReader *reader)
@@ -2481,15 +2476,15 @@ void Node::ValueHint::Load(QXmlStreamReader *reader)
     if (reader->name() == QStringLiteral("types")) {
       while (XMLReadNextStartElement(reader)) {
         if (reader->name() == QStringLiteral("type")) {
-          type.append(static_cast<NodeValue::Type>(reader->readElementText().toInt()));
+          type_.append(static_cast<NodeValue::Type>(reader->readElementText().toInt()));
         } else {
           reader->skipCurrentElement();
         }
       }
     } else if (reader->name() == QStringLiteral("index")) {
-      index = reader->readElementText().toInt();
+      index_ = reader->readElementText().toInt();
     } else if (reader->name() == QStringLiteral("tag")) {
-      tag = reader->readElementText();
+      tag_ = reader->readElementText();
     } else {
       reader->skipCurrentElement();
     }
@@ -2500,15 +2495,15 @@ void Node::ValueHint::Save(QXmlStreamWriter *writer) const
 {
   writer->writeStartElement(QStringLiteral("types"));
 
-  for (auto it=type.cbegin(); it!=type.cend(); it++) {
+  for (auto it=type_.cbegin(); it!=type_.cend(); it++) {
     writer->writeTextElement(QStringLiteral("type"), QString::number(*it));
   }
 
   writer->writeEndElement(); // types
 
-  writer->writeTextElement(QStringLiteral("index"), QString::number(index));
+  writer->writeTextElement(QStringLiteral("index"), QString::number(index_));
 
-  writer->writeTextElement(QStringLiteral("tag"), tag);
+  writer->writeTextElement(QStringLiteral("tag"), tag_);
 }
 
 }

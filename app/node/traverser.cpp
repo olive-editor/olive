@@ -106,18 +106,18 @@ NodeValue NodeTraverser::GenerateRowValueElement(const Node::ValueHint &hint, No
 
 int NodeTraverser::GenerateRowValueElementIndex(const Node::ValueHint &hint, NodeValue::Type preferred_type, const NodeValueTable *table)
 {
-  QVector<NodeValue::Type> types = hint.type;
+  QVector<NodeValue::Type> types = hint.types();
 
   if (types.isEmpty()) {
     types.append(preferred_type);
   }
 
-  if (hint.index == -1) {
+  if (hint.index() == -1) {
     // Get most recent value with this type and tag
-    return table->GetValueIndex(types, hint.tag);
+    return table->GetValueIndex(types, hint.tag());
   } else {
     // Try to find value at this index
-    int index = table->Count() - 1 - hint.index;
+    int index = table->Count() - 1 - hint.index();
     int diff = 0;
 
     while (index + diff < table->Count() && index - diff >= 0) {

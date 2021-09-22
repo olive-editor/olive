@@ -405,7 +405,7 @@ void ImportTool::DropGhosts(bool insert)
         TransformDistortNode* transform = new TransformDistortNode();
         command->add_child(new NodeAddCommand(dst_graph, transform));
 
-        command->add_child(new NodeSetValueHintCommand(transform, TransformDistortNode::kTextureInput, -1, {{NodeValue::kTexture}, -1, footage_stream.output}));
+        command->add_child(new NodeSetValueHintCommand(transform, TransformDistortNode::kTextureInput, -1, Node::ValueHint({NodeValue::kTexture}, footage_stream.output)));
 
         command->add_child(new NodeEdgeAddCommand(footage_stream.footage, NodeInput(transform, TransformDistortNode::kTextureInput)));
         command->add_child(new NodeEdgeAddCommand(transform, NodeInput(clip, ClipBlock::kBufferIn)));
@@ -417,7 +417,7 @@ void ImportTool::DropGhosts(bool insert)
         VolumeNode* volume_node = new VolumeNode();
         command->add_child(new NodeAddCommand(dst_graph, volume_node));
 
-        command->add_child(new NodeSetValueHintCommand(volume_node, VolumeNode::kSamplesInput, -1, {{NodeValue::kSamples}, -1, footage_stream.output}));
+        command->add_child(new NodeSetValueHintCommand(volume_node, VolumeNode::kSamplesInput, -1, Node::ValueHint({NodeValue::kSamples}, footage_stream.output)));
 
         command->add_child(new NodeEdgeAddCommand(footage_stream.footage, NodeInput(volume_node, VolumeNode::kSamplesInput)));
         command->add_child(new NodeEdgeAddCommand(volume_node, NodeInput(clip, ClipBlock::kBufferIn)));

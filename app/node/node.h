@@ -462,15 +462,51 @@ public:
 
   int InputArraySize(const QString& id) const;
 
-  struct ValueHint {
-    QVector<NodeValue::Type> type;
-    int index = -1;
-    QString tag;
+  class ValueHint {
+  public:
+    explicit ValueHint(const QVector<NodeValue::Type> &types = QVector<NodeValue::Type>(), int index = -1, const QString &tag = QString()) :
+      type_(types),
+      index_(index),
+      tag_(tag)
+    {
+    }
+
+    explicit ValueHint(const QVector<NodeValue::Type> &types, const QString &tag) :
+      type_(types),
+      index_(-1),
+      tag_(tag)
+    {
+    }
+
+    explicit ValueHint(int index) :
+      index_(index)
+    {
+    }
+
+    explicit ValueHint(const QString &tag) :
+      index_(-1),
+      tag_(tag)
+    {
+    }
 
     void Hash(QCryptographicHash &hash) const;
 
     void Load(QXmlStreamReader *reader);
     void Save(QXmlStreamWriter *writer) const;
+
+    const QVector<NodeValue::Type> &types() const { return type_; }
+    const int &index() const { return index_; }
+    const QString& tag() const { return tag_; }
+
+    void set_type(const QVector<NodeValue::Type> &type) { type_ = type; }
+    void set_index(const int &index) { index_ = index; }
+    void set_tag(const QString &tag) { tag_ = tag; }
+
+  private:
+    QVector<NodeValue::Type> type_;
+    int index_;
+    QString tag_;
+
   };
 
   static void Hash(const Node *node, const ValueHint &hint, QCryptographicHash& hash, const NodeGlobals &globals, const VideoParams& video_params);
