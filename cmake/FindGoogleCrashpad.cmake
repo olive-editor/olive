@@ -93,7 +93,7 @@ set (_crashpad_required
 if (WIN32 OR (UNIX AND NOT APPLE))
   set (_crashpad_components
     ${_crashpad_components}
-    compat
+    compat/compat
   )
 
   set (_crashpad_required
