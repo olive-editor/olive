@@ -116,12 +116,14 @@ void PreviewAutoCacher::AudioInvalidated(const TimeRange &range)
   // cancelled, so some areas may end up unrendered forever
   //  ClearAudioQueue();
 
-  audio_job_tracker_.insert(range, graph_changed_time_);
+  if (viewer_node_->GetAudioAutoCacheEnabled()) {
+    audio_job_tracker_.insert(range, graph_changed_time_);
 
-  // Start jobs to re-render the audio at this range, split into 2 second chunks
-  invalidated_audio_.insert(range);
+    // Start jobs to re-render the audio at this range, split into 2 second chunks
+    invalidated_audio_.insert(range);
 
-  TryRender();
+    TryRender();
+  }
 }
 
 void PreviewAutoCacher::HashesProcessed()
@@ -698,6 +700,19 @@ void PreviewAutoCacher::VideoAutoCacheEnableChanged(bool e)
 {
   if (e) {
     RequeueFrames();
+  } else {
+    CancelVideoTasks();
+    queued_frame_iterator_.reset();
+  }
+}
+
+void PreviewAutoCacher::AudioAutoCacheEnableChanged(bool e)
+{
+  if (e) {
+    AudioInvalidatedList(viewer_node_->audio_playback_cache()->GetInvalidatedRanges(viewer_node_->GetAudioLength()));
+  } else {
+    CancelAudioTasks();
+    audio_iterator_.clear();
   }
 }
 
@@ -791,6 +806,11 @@ void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
                this,
                &PreviewAutoCacher::VideoAutoCacheEnableChanged);
 
+    disconnect(viewer_node_,
+               &ViewerOutput::AudioAutoCacheChanged,
+               this,
+               &PreviewAutoCacher::AudioAutoCacheEnableChanged);
+
     disconnect(viewer_node_->video_frame_cache(),
                &PlaybackCache::Invalidated,
                this,
@@ -845,6 +865,11 @@ void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
             &ViewerOutput::VideoAutoCacheChanged,
             this,
             &PreviewAutoCacher::VideoAutoCacheEnableChanged);
+
+    connect(viewer_node_,
+            &ViewerOutput::AudioAutoCacheChanged,
+            this,
+            &PreviewAutoCacher::AudioAutoCacheEnableChanged);
 
     connect(viewer_node_->video_frame_cache(),
             &PlaybackCache::Invalidated,

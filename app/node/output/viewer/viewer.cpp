@@ -31,7 +31,8 @@ const QString ViewerOutput::kVideoParamsInput = QStringLiteral("video_param_in")
 const QString ViewerOutput::kAudioParamsInput = QStringLiteral("audio_param_in");
 const QString ViewerOutput::kTextureInput = QStringLiteral("tex_in");
 const QString ViewerOutput::kSamplesInput = QStringLiteral("samples_in");
-const QString ViewerOutput::kVideoAutoCacheInput = QStringLiteral("autocache_in");
+const QString ViewerOutput::kVideoAutoCacheInput = QStringLiteral("video_autocache_in");
+const QString ViewerOutput::kAudioAutoCacheInput = QStringLiteral("audio_autocache_in");
 
 const uint64_t ViewerOutput::kVideoParamEditMask = VideoParamEdit::kWidthHeight | VideoParamEdit::kInterlacing | VideoParamEdit::kFrameRate | VideoParamEdit::kPixelAspect;
 
@@ -58,6 +59,10 @@ ViewerOutput::ViewerOutput(bool create_buffer_inputs, bool create_default_stream
     AddInput(kVideoAutoCacheInput, NodeValue::kBoolean, true, InputFlags(kInputFlagNotKeyframable | kInputFlagNotConnectable));
     IgnoreHashingFrom(kVideoAutoCacheInput);
     IgnoreInvalidationsFrom(kVideoAutoCacheInput);
+
+    AddInput(kAudioAutoCacheInput, NodeValue::kBoolean, true, InputFlags(kInputFlagNotKeyframable | kInputFlagNotConnectable));
+    IgnoreHashingFrom(kAudioAutoCacheInput);
+    IgnoreInvalidationsFrom(kAudioAutoCacheInput);
   }
 
   if (create_default_streams) {
@@ -297,6 +302,10 @@ void ViewerOutput::Retranslate()
   if (HasInputWithID(kVideoAutoCacheInput)) {
     SetInputName(kVideoAutoCacheInput, tr("Auto-Cache Video"));
   }
+
+  if (HasInputWithID(kAudioAutoCacheInput)) {
+    SetInputName(kAudioAutoCacheInput, tr("Auto-Cache Audio"));
+  }
 }
 
 void ViewerOutput::VerifyLength()
@@ -389,6 +398,8 @@ void ViewerOutput::InputValueChangedEvent(const QString &input, int element)
 {
   if (input == kVideoAutoCacheInput) {
     emit VideoAutoCacheChanged(GetVideoAutoCacheEnabled());
+  } else if (input == kAudioAutoCacheInput) {
+    emit AudioAutoCacheChanged(GetAudioAutoCacheEnabled());
   } else if (element == 0) {
     if (input == kVideoParamsInput) {
 

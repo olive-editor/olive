@@ -220,6 +220,8 @@ private slots:
 
   void VideoAutoCacheEnableChanged(bool e);
 
+  void AudioAutoCacheEnableChanged(bool e);
+
 };
 
 }

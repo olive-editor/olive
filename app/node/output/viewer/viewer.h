@@ -175,6 +175,22 @@ public:
     }
   }
 
+  bool GetAudioAutoCacheEnabled() const
+  {
+    if (HasInputWithID(kAudioAutoCacheInput)) {
+      return GetStandardValue(kAudioAutoCacheInput).toBool();
+    } else {
+      return false;
+    }
+  }
+
+  void SetAudioAutoCacheEnabled(bool e)
+  {
+    if (HasInputWithID(kAudioAutoCacheInput)) {
+      return SetStandardValue(kAudioAutoCacheInput, e);
+    }
+  }
+
   static const QString kVideoParamsInput;
   static const QString kAudioParamsInput;
 
@@ -182,6 +198,7 @@ public:
   static const QString kSamplesInput;
 
   static const QString kVideoAutoCacheInput;
+  static const QString kAudioAutoCacheInput;
 
   static const uint64_t kVideoParamEditMask;
 
@@ -197,6 +214,7 @@ signals:
   void InterlacingChanged(VideoParams::Interlacing mode);
 
   void VideoAutoCacheChanged(bool e);
+  void AudioAutoCacheChanged(bool e);
 
   void VideoParamsChanged();
   void AudioParamsChanged();
