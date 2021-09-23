@@ -496,7 +496,7 @@ TexturePtr RenderProcessor::ProcessShader(const Node *node, const TimeRange &ran
 SampleBufferPtr RenderProcessor::ProcessSamples(const Node *node, const TimeRange &range, const SampleJob &job)
 {
   if (!job.samples() || !job.samples()->is_allocated()) {
-    super::ProcessSamples(node, range, job);
+    return super::ProcessSamples(node, range, job);
   }
 
   SampleBufferPtr output_buffer = SampleBuffer::CreateAllocated(job.samples()->audio_params(), job.samples()->sample_count());
