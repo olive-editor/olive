@@ -83,15 +83,21 @@ void ThreadPool::RunNext()
     RenderTicketPtr ticket = ticket_queue_.front();
     ticket_queue_.pop_front();
 
-    ThreadPoolThread* thread = available_threads_.front();
-    available_threads_.pop_front();
-
-    // Move ticket to other thread so event processing can occur there
     ticket->Start();
-    ticket->moveToThread(thread);
 
-    // Run the ticket in the thread, which actually just calls our virtual function RunTicket
-    thread->RunTicket(ticket);
+    if (ticket->IsCancelled()) {
+      // Finish without doing any more
+      ticket->Finish();
+    } else {
+      ThreadPoolThread* thread = available_threads_.front();
+      available_threads_.pop_front();
+
+      // Move ticket to other thread so event processing can occur there
+      ticket->moveToThread(thread);
+
+      // Run the ticket in the thread, which actually just calls our virtual function RunTicket
+      thread->RunTicket(ticket);
+    }
   }
 }
 
