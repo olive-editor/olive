@@ -366,7 +366,7 @@ jobs:
           mv app/$BUNDLE_NAME .
           macdeployqt $BUNDLE_NAME -executable=$BUNDLE_NAME/Contents/MacOS/olive-crashhandler
           $DOWNLOAD_TOOL https://github.com/arl/macdeployqtfix/raw/master/macdeployqtfix.py
-          python2 macdeployqtfix.py $BUNDLE_NAME/Contents/MacOS/Olive
+          python2 macdeployqtfix.py $BUNDLE_NAME/Contents/MacOS/Olive $(dirname $(which qmake))
 
           # Crashpad symbols
           /opt/olive-editor/bin/dump_syms $BUNDLE_NAME/Contents/MacOS/Olive > Olive.sym
