@@ -556,11 +556,12 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
   }
 
   // If the playhead is beyond the end, restart at 0
-  if (!in_to_out_only && GetTime() >= GetConnectedNode()->GetLength()) {
+  rational last_frame = GetConnectedNode()->GetLength() - timebase();
+  if (!in_to_out_only && GetTime() >= last_frame) {
     if (speed > 0) {
       SetTimeAndSignal(0);
     } else {
-      SetTimeAndSignal(GetConnectedNode()->GetLength());
+      SetTimeAndSignal(last_frame);
     }
   }
 
@@ -1037,6 +1038,17 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
   }
 
   {
+    QAction *stop_playback_on_last_frame = menu.addAction(tr("Stop Playback On Last Frame"));
+    stop_playback_on_last_frame->setCheckable(true);
+    stop_playback_on_last_frame->setChecked(Config::Current()[QStringLiteral("StopPlaybackOnLastFrame")].toBool());
+    connect(stop_playback_on_last_frame, &QAction::triggered, this, [](bool e){
+      Config::Current()[QStringLiteral("StopPlaybackOnLastFrame")] = e;
+    });
+
+    menu.addSeparator();
+  }
+
+  {
     QAction* show_waveform_action = menu.addAction(tr("Show Audio Waveform"));
     show_waveform_action->setCheckable(true);
     show_waveform_action->setChecked(stack_->currentWidget() == waveform_view_);
@@ -1162,6 +1174,12 @@ void ViewerWidget::PlaybackTimerUpdate()
     min_time = 0;
     max_time = GetConnectedNode()->GetLength();
 
+  }
+
+  // If we're stopping playback on the last frame rather than after it, subtract our max time
+  // by one timebase unit
+  if (Config::Current()[QStringLiteral("StopPlaybackOnLastFrame")].toBool()) {
+    max_time = qMax(min_time, max_time - timebase());
   }
 
   if ((playback_speed_ < 0 && current_time <= min_time)
