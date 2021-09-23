@@ -627,8 +627,8 @@ void PreviewAutoCacher::TryRender()
     // Copy first range in list
     TimeRange r = audio_iterator_.first();
 
-    // Limit to 30 seconds (FIXME: Hardcoded)
-    r.set_out(qMin(r.out(), r.in() + 30));
+    // Limit to 1 second (FIXME: Hardcoded)
+    r.set_out(qMin(r.out(), r.in() + 1));
 
     // Start job
     RenderTicketWatcher* watcher = new RenderTicketWatcher();
