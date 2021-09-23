@@ -39,6 +39,11 @@ NodeParamViewConnectedLabel::NodeParamViewConnectedLabel(const NodeInput &input,
   QVBoxLayout *layout = new QVBoxLayout(this);
   layout->setMargin(0);
 
+  QSizePolicy p = sizePolicy();
+  p.setHorizontalStretch(1);
+  p.setHorizontalPolicy(QSizePolicy::Expanding);
+  setSizePolicy(p);
+
   // Set up label area
   QHBoxLayout *label_layout = new QHBoxLayout();
   label_layout->setSpacing(QtUtils::QFontMetricsWidth(fontMetrics(), QStringLiteral(" ")));

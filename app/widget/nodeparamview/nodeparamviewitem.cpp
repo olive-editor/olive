@@ -345,7 +345,7 @@ void NodeParamViewItemBody::CreateWidgets(QGridLayout* layout, Node *node, const
     // Create clickable label used when an input is connected
     ui_objects.connected_label = new NodeParamViewConnectedLabel(input_ref);
     connect(ui_objects.connected_label, &NodeParamViewConnectedLabel::RequestSelectNode, this, &NodeParamViewItemBody::RequestSelectNode);
-    layout->addWidget(ui_objects.connected_label, row, kWidgetStartColumn);
+    layout->addWidget(ui_objects.connected_label, row, kWidgetStartColumn, 1, kKeyControlColumn - kWidgetStartColumn);
   }
 
   // Add keyframe control to this layout if parameter is keyframable
@@ -445,6 +445,10 @@ void NodeParamViewItemBody::UpdateUIForEdgeConnection(const NodeInput& input)
 
     // Show/hide connection label
     ui_objects.connected_label->setVisible(input.IsConnected());
+
+    if (ui_objects.key_control) {
+      ui_objects.key_control->setVisible(!input.IsConnected());
+    }
   }
 }
 

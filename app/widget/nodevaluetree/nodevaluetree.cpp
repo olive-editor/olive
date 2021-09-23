@@ -13,7 +13,10 @@ NodeValueTree::NodeValueTree(QWidget *parent) :
 {
   setColumnWidth(0, 0);
   setColumnCount(4);
-  setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+  QSizePolicy p = sizePolicy();
+  p.setHorizontalStretch(1);
+  setSizePolicy(p);
 
   static const int kMinimumRows = 10;
   setMinimumHeight(fontMetrics().height() * kMinimumRows);
