@@ -181,7 +181,7 @@ void RenderProcessor::Run()
 
     QVariant sample_variant = table.Get(NodeValue::kSamples);
     SampleBufferPtr samples = sample_variant.value<SampleBufferPtr>();
-    if (ticket_->property("enablewaveforms").toBool()) {
+    if (samples && ticket_->property("enablewaveforms").toBool()) {
       AudioVisualWaveform vis;
       vis.set_channel_count(samples->audio_params().channel_count());
       vis.OverwriteSamples(samples, samples->audio_params().sample_rate());
