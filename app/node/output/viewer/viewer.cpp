@@ -31,7 +31,7 @@ const QString ViewerOutput::kVideoParamsInput = QStringLiteral("video_param_in")
 const QString ViewerOutput::kAudioParamsInput = QStringLiteral("audio_param_in");
 const QString ViewerOutput::kTextureInput = QStringLiteral("tex_in");
 const QString ViewerOutput::kSamplesInput = QStringLiteral("samples_in");
-const QString ViewerOutput::kAutoCacheInput = QStringLiteral("autocache_in");
+const QString ViewerOutput::kVideoAutoCacheInput = QStringLiteral("autocache_in");
 
 const uint64_t ViewerOutput::kVideoParamEditMask = VideoParamEdit::kWidthHeight | VideoParamEdit::kInterlacing | VideoParamEdit::kFrameRate | VideoParamEdit::kPixelAspect;
 
@@ -55,9 +55,9 @@ ViewerOutput::ViewerOutput(bool create_buffer_inputs, bool create_default_stream
     AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
     AddInput(kSamplesInput, NodeValue::kSamples, InputFlags(kInputFlagNotKeyframable));
 
-    AddInput(kAutoCacheInput, NodeValue::kBoolean, true, InputFlags(kInputFlagNotKeyframable | kInputFlagNotConnectable));
-    IgnoreHashingFrom(kAutoCacheInput);
-    IgnoreInvalidationsFrom(kAutoCacheInput);
+    AddInput(kVideoAutoCacheInput, NodeValue::kBoolean, true, InputFlags(kInputFlagNotKeyframable | kInputFlagNotConnectable));
+    IgnoreHashingFrom(kVideoAutoCacheInput);
+    IgnoreInvalidationsFrom(kVideoAutoCacheInput);
   }
 
   if (create_default_streams) {
@@ -202,7 +202,7 @@ void ViewerOutput::set_default_parameters()
       AudioParams::kInternalFormat
       ));
 
-  SetAutoCacheEnabled(Config::Current()["DefaultSequenceAutoCache"].toBool());
+  SetVideoAutoCacheEnabled(Config::Current()["DefaultSequenceAutoCache"].toBool());
 }
 
 void ViewerOutput::ShiftVideoCache(const rational &from, const rational &to)
@@ -294,8 +294,8 @@ void ViewerOutput::Retranslate()
     SetInputName(kSamplesInput, tr("Samples"));
   }
 
-  if (HasInputWithID(kAutoCacheInput)) {
-    SetInputName(kAutoCacheInput, tr("Auto-Cache"));
+  if (HasInputWithID(kVideoAutoCacheInput)) {
+    SetInputName(kVideoAutoCacheInput, tr("Auto-Cache Video"));
   }
 }
 
@@ -387,8 +387,8 @@ Node::ValueHint ViewerOutput::GetConnectedSampleValueHint()
 
 void ViewerOutput::InputValueChangedEvent(const QString &input, int element)
 {
-  if (input == kAutoCacheInput) {
-    emit AutoCacheChanged(GetAutoCacheEnabled());
+  if (input == kVideoAutoCacheInput) {
+    emit VideoAutoCacheChanged(GetVideoAutoCacheEnabled());
   } else if (element == 0) {
     if (input == kVideoParamsInput) {
 

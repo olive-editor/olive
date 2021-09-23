@@ -14,7 +14,6 @@ namespace olive {
 
 PreviewAutoCacher::PreviewAutoCacher() :
   viewer_node_(nullptr),
-  paused_(false),
   use_custom_range_(false),
   single_frame_render_(nullptr)
 {
@@ -44,7 +43,7 @@ RenderTicketPtr PreviewAutoCacher::GetSingleFrame(const rational &t, bool priori
   // See if we have a hash, we may or may not retrieve one depending on the state of the video
   // frame cache
   QByteArray hash;
-  if (!paused_) {
+  if (viewer_node_->GetVideoAutoCacheEnabled()) {
     hash = viewer_node_->video_frame_cache()->GetHash(t);
   }
 
@@ -60,11 +59,6 @@ RenderTicketPtr PreviewAutoCacher::GetSingleFrame(const rational &t, bool priori
   TryRender();
 
   return sfr;
-}
-
-void PreviewAutoCacher::SetPaused(bool paused)
-{
-  paused_ = paused;
 }
 
 QVector<PreviewAutoCacher::HashData> PreviewAutoCacher::GenerateHashes(ViewerOutput *viewer, FrameHashCache* cache, const QVector<rational> &times)
@@ -150,9 +144,8 @@ void PreviewAutoCacher::HashesProcessed()
       }
     }
 
-    // HACK: When viewer is first set, there's nothing to requeue the range unless the user
-    //       manually moves the playhead, so we ensure a requeue is done here.
-    if (!hash_iterator_.HasNext()) {
+    // RequeueFrames won't run if hash tasks isn't empty, so if it is, trigger it now
+    if (hash_tasks_.isEmpty()) {
       delayed_requeue_timer_.stop();
       delayed_requeue_timer_.start();
     }
@@ -254,7 +247,7 @@ void PreviewAutoCacher::VideoRendered()
 
     if (watcher->HasResult()) {
       // Download frame in another thread
-      if (!hash.isEmpty() && VideoParams::FormatIsFloat(viewer_node_->GetVideoParams().format())) {
+      if (!hash.isEmpty()) {
         FramePtr frame = watcher->Get().value<FramePtr>();
         RenderTicketWatcher* w = new RenderTicketWatcher();
         w->setProperty("job", QVariant::fromValue(last_update_time_));
@@ -576,7 +569,7 @@ void PreviewAutoCacher::TryRender()
       watcher = RenderFrame(hash,
                             single_frame_render_->property("time").value<rational>(),
                             single_frame_render_->property("prioritize").toBool(),
-                            paused_);
+                            !viewer_node_->GetVideoAutoCacheEnabled());
 
       video_immediate_passthroughs_[watcher].append(single_frame_render_);
     }
@@ -670,8 +663,7 @@ void PreviewAutoCacher::RequeueFrames()
   if (viewer_node_
       && viewer_node_->video_frame_cache()->HasInvalidatedRanges(viewer_node_->GetVideoLength())
       && hash_tasks_.isEmpty()
-      && VideoParams::FormatIsFloat(viewer_node_->GetVideoParams().format())
-      && (!paused_ || use_custom_range_)) {
+      && (viewer_node_->GetVideoAutoCacheEnabled() || use_custom_range_)) {
     TimeRange using_range;
 
     if (use_custom_range_) {
@@ -699,6 +691,13 @@ void PreviewAutoCacher::ConformFinished()
       viewer_node_->audio_playback_cache()->Invalidate(range);
     }
     audio_needing_conform_.clear();
+  }
+}
+
+void PreviewAutoCacher::VideoAutoCacheEnableChanged(bool e)
+{
+  if (e) {
+    RequeueFrames();
   }
 }
 
@@ -787,6 +786,11 @@ void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
     disconnect(graph, &NodeGraph::InputValueHintChanged, this, &PreviewAutoCacher::ValueHintChanged);
 
     // Disconnect signal (will be a no-op if the signal was never connected)
+    disconnect(viewer_node_,
+               &ViewerOutput::VideoAutoCacheChanged,
+               this,
+               &PreviewAutoCacher::VideoAutoCacheEnableChanged);
+
     disconnect(viewer_node_->video_frame_cache(),
                &PlaybackCache::Invalidated,
                this,
@@ -836,6 +840,11 @@ void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
     connect(graph, &NodeGraph::InputDisconnected, this, &PreviewAutoCacher::EdgeRemoved);
     connect(graph, &NodeGraph::ValueChanged, this, &PreviewAutoCacher::ValueChanged);
     connect(graph, &NodeGraph::InputValueHintChanged, this, &PreviewAutoCacher::ValueHintChanged);
+
+    connect(viewer_node_,
+            &ViewerOutput::VideoAutoCacheChanged,
+            this,
+            &PreviewAutoCacher::VideoAutoCacheEnableChanged);
 
     connect(viewer_node_->video_frame_cache(),
             &PlaybackCache::Invalidated,

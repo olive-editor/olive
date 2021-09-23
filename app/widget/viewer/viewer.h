@@ -107,8 +107,6 @@ public slots:
    */
   void SetSignalCursorColorEnabled(bool e);
 
-  void SetAutoCacheEnabled(bool e);
-
   void CacheEntireSequence();
 
   void CacheSequenceInOut();
@@ -212,7 +210,7 @@ private:
 
   void UpdateAutoCacher();
 
-  void ClearAutoCacherQueue();
+  void ClearVideoAutoCacherQueue();
 
   QStackedWidget* stack_;
 
@@ -255,8 +253,6 @@ private:
   QTimer audio_restart_timer_;
 
   int active_queue_jobs_;
-
-  rational cache_time_;
 
   static QVector<ViewerWidget*> instances_;
 

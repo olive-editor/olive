@@ -55,8 +55,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   color_menu_enabled_(true),
   time_changed_from_timer_(false),
   prequeuing_(false),
-  active_queue_jobs_(0),
-  cache_time_(rational::NaN)
+  active_queue_jobs_(0)
 {
   // Set up main layout
   QVBoxLayout* layout = new QVBoxLayout(this);
@@ -168,7 +167,7 @@ void ViewerWidget::TimeChangedEvent(const rational &time)
   }
 
   // Send time to auto-cacher
-  UpdateAutoCacher();
+  auto_cacher_.SetPlayhead(time);
 
   last_time_ = time;
 }
@@ -179,7 +178,6 @@ void ViewerWidget::ConnectNodeEvent(ViewerOutput *n)
   connect(n, &ViewerOutput::PixelAspectChanged, this, &ViewerWidget::SetViewerPixelAspect);
   connect(n, &ViewerOutput::LengthChanged, this, &ViewerWidget::LengthChangedSlot);
   connect(n, &ViewerOutput::InterlacingChanged, this, &ViewerWidget::InterlacingChangedSlot);
-  connect(n, &ViewerOutput::AutoCacheChanged, this, &ViewerWidget::SetAutoCacheEnabled);
   connect(n, &ViewerOutput::VideoParamsChanged, this, &ViewerWidget::UpdateRendererVideoParameters);
   connect(n, &ViewerOutput::AudioParamsChanged, this, &ViewerWidget::UpdateRendererAudioParameters);
   connect(n->video_frame_cache(), &FrameHashCache::Invalidated, this, &ViewerWidget::ViewerInvalidatedVideoRange);
@@ -189,8 +187,6 @@ void ViewerWidget::ConnectNodeEvent(ViewerOutput *n)
   connect(n, &ViewerOutput::TextureInputChanged, this, &ViewerWidget::UpdateStack);
 
   VideoParams vp = n->GetVideoParams();
-
-  SetAutoCacheEnabled(n->GetAutoCacheEnabled());
 
   InterlacingChangedSlot(vp.interlacing());
 
@@ -228,7 +224,6 @@ void ViewerWidget::DisconnectNodeEvent(ViewerOutput *n)
   disconnect(n, &ViewerOutput::PixelAspectChanged, this, &ViewerWidget::SetViewerPixelAspect);
   disconnect(n, &ViewerOutput::LengthChanged, this, &ViewerWidget::LengthChangedSlot);
   disconnect(n, &ViewerOutput::InterlacingChanged, this, &ViewerWidget::InterlacingChangedSlot);
-  disconnect(n, &ViewerOutput::AutoCacheChanged, this, &ViewerWidget::SetAutoCacheEnabled);
   disconnect(n, &ViewerOutput::VideoParamsChanged, this, &ViewerWidget::UpdateRendererVideoParameters);
   disconnect(n, &ViewerOutput::AudioParamsChanged, this, &ViewerWidget::UpdateRendererAudioParameters);
   disconnect(n->video_frame_cache(), &FrameHashCache::Invalidated, this, &ViewerWidget::ViewerInvalidatedVideoRange);
@@ -259,7 +254,6 @@ void ViewerWidget::DisconnectNodeEvent(ViewerOutput *n)
 void ViewerWidget::ConnectedNodeChangeEvent(ViewerOutput *n)
 {
   auto_cacher_.SetViewerNode(n);
-  cache_time_ = rational::NaN;
 }
 
 void ViewerWidget::ScaleChangedEvent(const double &s)
@@ -344,19 +338,6 @@ void ViewerWidget::SetFullScreen(QScreen *screen)
   windows_.insert(screen, vw);
 }
 
-void ViewerWidget::SetAutoCacheEnabled(bool e)
-{
-  auto_cacher_.SetPaused(!e);
-
-  if (e) {
-    // Enable auto-cache
-    UpdateAutoCacher();
-  } else {
-    // Disable auto-cache
-    ClearAutoCacherQueue();
-  }
-}
-
 void ViewerWidget::CacheEntireSequence()
 {
   auto_cacher_.ForceCacheRange(TimeRange(0, GetConnectedNode()->GetVideoLength()));
@@ -417,19 +398,12 @@ void ViewerWidget::SetEmptyImage()
 
 void ViewerWidget::UpdateAutoCacher()
 {
-  rational time = GetTime();
-
-  if (GetConnectedNode()              // Ensure valid node
-      && cache_time_ != time) {       // Ensure cache hasn't already been to this time
-    auto_cacher_.SetPlayhead(time);
-    cache_time_ = time;
-  }
+  auto_cacher_.SetPlayhead(GetTime());
 }
 
-void ViewerWidget::ClearAutoCacherQueue()
+void ViewerWidget::ClearVideoAutoCacherQueue()
 {
   auto_cacher_.CancelVideoTasks();
-  cache_time_ = rational::NaN;
 }
 
 void ViewerWidget::StartAudioOutput()
@@ -521,7 +495,7 @@ void ViewerWidget::UpdateTextureFromNode()
       nonqueue_watchers_.append(watcher);
 
       // Clear queue because we want this frame more than any others
-      ClearAutoCacherQueue();
+      ClearVideoAutoCacherQueue();
 
       watcher->SetTicket(GetFrame(time, true));
     }
@@ -551,7 +525,7 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
   foreach (ViewerWidget* viewer, instances_) {
     if (viewer != this) {
       viewer->PauseInternal();
-      viewer->ClearAutoCacherQueue();
+      viewer->ClearVideoAutoCacherQueue();
     }
   }
 
@@ -1089,8 +1063,6 @@ void ViewerWidget::Play()
 void ViewerWidget::Pause()
 {
   PauseInternal();
-
-  UpdateAutoCacher();
 }
 
 void ViewerWidget::ShuttleLeft()

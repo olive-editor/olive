@@ -35,23 +35,6 @@ public:
   void SetViewerNode(ViewerOutput *viewer_node);
 
   /**
-   * @brief Returns whether the auto-cache is currently paused or not
-   */
-  bool IsPaused() const
-  {
-    return paused_;
-  }
-
-  /**
-   * @brief Sets whether the auto-cache is currently paused or not
-   * @param paused
-   *
-   * If TRUE, the cache queue is cleared (any frames currently being rendered will be processed as
-   * normal however). If FALSE, any uncached frames in the range will automatically be queued.
-   */
-  void SetPaused(bool paused);
-
-  /**
    * @brief Force a certain range to be cached
    *
    * Usually, PreviewAutoCacher caches a user-defined range around the playhead, however there are
@@ -153,8 +136,6 @@ private:
   ColorManager* copied_color_manager_;
   QVector<Node*> created_nodes_;
 
-  bool paused_;
-
   TimeRange cache_range_;
 
   bool use_custom_range_;
@@ -236,6 +217,8 @@ private slots:
   void RequeueFrames();
 
   void ConformFinished();
+
+  void VideoAutoCacheEnableChanged(bool e);
 
 };
 

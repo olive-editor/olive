@@ -159,19 +159,19 @@ public:
   void SetViewerVideoCacheEnabled(bool e) { video_cache_enabled_ = e; }
   void SetViewerAudioCacheEnabled(bool e) { audio_cache_enabled_ = e; }
 
-  bool GetAutoCacheEnabled() const
+  bool GetVideoAutoCacheEnabled() const
   {
-    if (HasInputWithID(kAutoCacheInput)) {
-      return GetStandardValue(kAutoCacheInput).toBool();
+    if (HasInputWithID(kVideoAutoCacheInput)) {
+      return GetStandardValue(kVideoAutoCacheInput).toBool();
     } else {
       return false;
     }
   }
 
-  void SetAutoCacheEnabled(bool e)
+  void SetVideoAutoCacheEnabled(bool e)
   {
-    if (HasInputWithID(kAutoCacheInput)) {
-      return SetStandardValue(kAutoCacheInput, e);
+    if (HasInputWithID(kVideoAutoCacheInput)) {
+      return SetStandardValue(kVideoAutoCacheInput, e);
     }
   }
 
@@ -181,7 +181,7 @@ public:
   static const QString kTextureInput;
   static const QString kSamplesInput;
 
-  static const QString kAutoCacheInput;
+  static const QString kVideoAutoCacheInput;
 
   static const uint64_t kVideoParamEditMask;
 
@@ -196,7 +196,7 @@ signals:
 
   void InterlacingChanged(VideoParams::Interlacing mode);
 
-  void AutoCacheChanged(bool e);
+  void VideoAutoCacheChanged(bool e);
 
   void VideoParamsChanged();
   void AudioParamsChanged();
