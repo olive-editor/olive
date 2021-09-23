@@ -884,7 +884,6 @@ void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
     // Copy invalidated ranges and start rendering if necessary
     VideoInvalidatedList(viewer_node_->video_frame_cache()->GetInvalidatedRanges(viewer_node_->GetVideoLength()));
     AudioInvalidatedList(viewer_node_->audio_playback_cache()->GetInvalidatedRanges(viewer_node_->GetAudioLength()));
-    TryRender();
   }
 }
 
