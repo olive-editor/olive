@@ -215,10 +215,17 @@ void TransitionBlock::Value(const NodeValueRow &value, const NodeGlobals &global
 
       const AudioParams& params = (from_samples) ? from_samples->audio_params() : to_samples->audio_params();
 
-      int nb_samples = params.time_to_samples(time_out - time_in);
+      SampleBufferPtr out_samples;
 
-      SampleBufferPtr out_samples = SampleBuffer::CreateAllocated(params, nb_samples);
-      SampleJobEvent(from_samples, to_samples, out_samples, time_in);
+      if (params.is_valid()) {
+        int nb_samples = params.time_to_samples(time_out - time_in);
+
+        out_samples = SampleBuffer::CreateAllocated(params, nb_samples);
+        SampleJobEvent(from_samples, to_samples, out_samples, time_in);
+      } else {
+        // Create dummy sample buffer
+        out_samples = SampleBuffer::Create();
+      }
 
       job_type = NodeValue::kSamples;
       push_job = QVariant::fromValue(out_samples);
