@@ -9,6 +9,7 @@
 #include "node/node.h"
 #include "node/output/viewer/viewer.h"
 #include "node/project/project.h"
+#include "render/audioparams.h"
 #include "render/renderjobtracker.h"
 #include "threading/threadticketwatcher.h"
 
@@ -70,6 +71,37 @@ public:
    */
   void CancelVideoTasks(bool and_wait_for_them_to_finish = false);
   void CancelAudioTasks(bool and_wait_for_them_to_finish = false);
+
+  class PlaybackDevice : public QIODevice
+  {
+  public:
+    PlaybackDevice(PreviewAutoCacher *cacher, QObject *parent = nullptr);
+
+    virtual ~PlaybackDevice() override;
+
+    virtual bool isSequential() const override;
+
+    virtual bool seek(qint64 pos) override;
+
+    virtual qint64 size() const override;
+
+    virtual qint64 readData(char *data, qint64 maxSize) override;
+
+    virtual qint64 writeData(const char *, qint64) override;
+
+    ViewerOutput *viewer() const
+    {
+      return cacher_->copied_viewer_node_;
+    }
+
+  private:
+    PreviewAutoCacher *cacher_;
+
+    rational current_time_;
+
+    AudioParams audio_params_;
+
+  };
 
 private:
   void TryRender();

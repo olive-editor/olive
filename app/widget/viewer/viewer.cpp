@@ -603,7 +603,7 @@ void ViewerWidget::PushScrubbedAudio()
     const AudioParams& params = GetConnectedNode()->audio_playback_cache()->GetParameters();
 
     if (params.is_valid()) {
-      AudioPlaybackCache::PlaybackDevice* audio_src = GetConnectedNode()->audio_playback_cache()->CreatePlaybackDevice();
+      PreviewAutoCacher::PlaybackDevice *audio_src = new PreviewAutoCacher::PlaybackDevice(&auto_cacher_, this);
 
       if (audio_src->open(QIODevice::ReadOnly)) {
         // FIXME: Hardcoded scrubbing interval (20ms)

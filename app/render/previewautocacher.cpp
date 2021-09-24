@@ -887,4 +887,31 @@ void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
   }
 }
 
+PreviewAutoCacher::PlaybackDevice::PlaybackDevice(PreviewAutoCacher *cacher, QObject *parent) :
+  cacher_(cacher),
+  current_time_(0)
+{
+  audio_params_ = viewer()->GetAudioParams();
+}
+
+bool PreviewAutoCacher::PlaybackDevice::seek(qint64 pos)
+{
+  // Call super function
+  if (QIODevice::seek(pos)) {
+    // Convert bytes to time
+    current_time_ = audio_params_.bytes_to_time(pos);
+
+    return true;
+  }
+
+  return false;
+}
+
+qint64 PreviewAutoCacher::PlaybackDevice::size() const
+{
+  rational audio_length = cacher_->copied_viewer_node_->GetAudioLength();
+
+  return audio_params_.time_to_bytes(audio_length);
+}
+
 }
