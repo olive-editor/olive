@@ -237,23 +237,4 @@ void SampleBuffer::set(int channel, const float *data, int sample_offset, int sa
   memcpy(&data_[channel].data()[sample_offset], data, sizeof(float) * sample_length);
 }
 
-QByteArray SampleBuffer::toPackedData() const
-{
-  QByteArray packed_data;
-
-  if (is_allocated()) {
-    packed_data.resize(audio_params_.samples_to_bytes(sample_count_per_channel_));
-
-    float* output_data = reinterpret_cast<float*>(packed_data.data());
-
-    for (int j=0;j<sample_count_per_channel_;j++) {
-      for (int i=0;i<audio_params_.channel_count();i++) {
-        output_data[i*j + i] = data_[i][j];
-      }
-    }
-  }
-
-  return packed_data;
-}
-
 }

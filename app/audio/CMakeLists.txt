@@ -16,15 +16,17 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  audio/audiomanager.h
   audio/audiomanager.cpp
-  audio/audiovisualwaveform.h
+  audio/audiomanager.h
   audio/audiovisualwaveform.cpp
-  audio/outputdeviceproxy.h
+  audio/audiovisualwaveform.h
   audio/outputdeviceproxy.cpp
-  audio/outputmanager.h
+  audio/outputdeviceproxy.h
   audio/outputmanager.cpp
-  audio/tempoprocessor.h
+  audio/outputmanager.h
+  audio/packedprocessor.cpp
+  audio/packedprocessor.h
   audio/tempoprocessor.cpp
+  audio/tempoprocessor.h
   PARENT_SCOPE
 )

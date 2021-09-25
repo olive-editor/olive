@@ -39,7 +39,11 @@ TempoProcessor::TempoProcessor() :
   processed_frame_(nullptr),
   open_(false)
 {
+}
 
+TempoProcessor::~TempoProcessor()
+{
+  Close();
 }
 
 bool TempoProcessor::IsOpen() const

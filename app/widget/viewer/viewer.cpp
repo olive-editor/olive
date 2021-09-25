@@ -434,9 +434,13 @@ void ViewerWidget::ReceivedAudioBufferForPlayback()
     if (watcher->HasResult()) {
       SampleBufferPtr samples = watcher->Get().value<SampleBufferPtr>();
       if (samples && audio_playback_device_) {
-        qint64 t = QDateTime::currentMSecsSinceEpoch();
-        QByteArray pack = samples->toPackedData();
-        qDebug() << "Packing took:" << (QDateTime::currentMSecsSinceEpoch() - t);
+        if (!packed_processor_.IsOpen()) {
+          packed_processor_.Open(samples->audio_params());
+        }
+
+        // Convert to packed data for audio output
+        QByteArray pack = packed_processor_.Convert(samples);
+
         audio_playback_device_->Push(pack);
 
         if (prequeuing_audio_) {
@@ -627,6 +631,7 @@ void ViewerWidget::PauseInternal()
     audio_playback_device_.reset(nullptr);
     qDeleteAll(audio_playback_queue_);
     audio_playback_queue_.clear();
+    packed_processor_.Close();
 
     UpdateTextureFromNode();
   }
