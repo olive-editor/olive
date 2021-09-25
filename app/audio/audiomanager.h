@@ -68,7 +68,7 @@ public:
   /**
    * @brief Start playing audio from AudioPlaybackCache
    */
-  void StartOutput(AudioPlaybackCache* cache, qint64 offset, int playback_speed);
+  void StartOutput(QIODevice *device, int playback_speed);
 
   /**
    * @brief Stop audio output immediately
@@ -92,8 +92,6 @@ signals:
   void InputListReady();
 
   void OutputNotified();
-
-  void OutputDeviceStarted(AudioPlaybackCache* cache, qint64 offset, int playback_speed);
 
   void OutputWaveformStarted(const AudioVisualWaveform* waveform, const rational &start, int playback_speed);
 

@@ -39,7 +39,7 @@ public:
 
   void SetParameters(const AudioParams& params);
 
-  void SetDevice(QIODevice *device, qint64 offset, int playback_speed);
+  void SetDevice(QIODevice *device, int playback_speed);
 
   virtual void close() override;
 

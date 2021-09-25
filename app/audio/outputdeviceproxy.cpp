@@ -35,23 +35,16 @@ void AudioOutputDeviceProxy::SetParameters(const AudioParams &params)
   params_ = params;
 }
 
-void AudioOutputDeviceProxy::SetDevice(QIODevice* device, qint64 offset, int playback_speed)
+void AudioOutputDeviceProxy::SetDevice(QIODevice* device, int playback_speed)
 {
-  if (device_) {
-    delete device_;
-  }
-
   device_ = device;
   device_->setParent(this);
 
   if (!device_->open(QFile::ReadOnly)) {
     qCritical() << "Failed to open IO device for audio playback";
-    delete device_;
     device_ = nullptr;
     return;
   }
-
-  device_->seek(offset);
 
   playback_speed_ = playback_speed;
 
@@ -64,7 +57,6 @@ void AudioOutputDeviceProxy::close()
 {
   QIODevice::close();
 
-  delete device_;
   device_ = nullptr;
 
   if (tempo_processor_.IsOpen()) {

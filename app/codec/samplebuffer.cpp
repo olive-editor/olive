@@ -246,13 +246,9 @@ QByteArray SampleBuffer::toPackedData() const
 
     float* output_data = reinterpret_cast<float*>(packed_data.data());
 
-    int output_index = 0;
-
     for (int j=0;j<sample_count_per_channel_;j++) {
       for (int i=0;i<audio_params_.channel_count();i++) {
-        output_data[output_index] = data_[i][j];
-
-        output_index++;
+        output_data[i*j + i] = data_[i][j];
       }
     }
   }

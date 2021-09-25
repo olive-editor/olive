@@ -1,3 +1,23 @@
+/***
+
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2021 Olive Team
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #ifndef AUTOCACHER_H
 #define AUTOCACHER_H
 
@@ -29,6 +49,8 @@ public:
   virtual ~PreviewAutoCacher() override;
 
   RenderTicketPtr GetSingleFrame(const rational& t, bool prioritize);
+
+  RenderTicketPtr GetRangeOfAudio(TimeRange range, bool prioritize);
 
   /**
    * @brief Set the viewer node to auto-cache
@@ -72,41 +94,11 @@ public:
   void CancelVideoTasks(bool and_wait_for_them_to_finish = false);
   void CancelAudioTasks(bool and_wait_for_them_to_finish = false);
 
-  class PlaybackDevice : public QIODevice
-  {
-  public:
-    PlaybackDevice(PreviewAutoCacher *cacher, QObject *parent = nullptr);
-
-    virtual ~PlaybackDevice() override;
-
-    virtual bool isSequential() const override;
-
-    virtual bool seek(qint64 pos) override;
-
-    virtual qint64 size() const override;
-
-    virtual qint64 readData(char *data, qint64 maxSize) override;
-
-    virtual qint64 writeData(const char *, qint64) override;
-
-    ViewerOutput *viewer() const
-    {
-      return cacher_->copied_viewer_node_;
-    }
-
-  private:
-    PreviewAutoCacher *cacher_;
-
-    rational current_time_;
-
-    AudioParams audio_params_;
-
-  };
-
 private:
   void TryRender();
 
   RenderTicketWatcher *RenderFrame(const QByteArray& hash, const rational &time, bool prioritize, bool texture_only);
+  RenderTicketPtr RenderAudio(const TimeRange &range, bool generate_waveforms, bool prioritize);
 
   /**
    * @brief Process all changes to internal NodeGraph copy

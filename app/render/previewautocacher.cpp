@@ -1,3 +1,23 @@
+/***
+
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2021 Olive Team
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #include "previewautocacher.h"
 
 #include <QApplication>
@@ -59,6 +79,11 @@ RenderTicketPtr PreviewAutoCacher::GetSingleFrame(const rational &t, bool priori
   TryRender();
 
   return sfr;
+}
+
+RenderTicketPtr PreviewAutoCacher::GetRangeOfAudio(TimeRange range, bool prioritize)
+{
+  return RenderAudio(range, false, prioritize);
 }
 
 QVector<PreviewAutoCacher::HashData> PreviewAutoCacher::GenerateHashes(ViewerOutput *viewer, FrameHashCache* cache, const QVector<rational> &times)
@@ -631,11 +656,7 @@ void PreviewAutoCacher::TryRender()
     r.set_out(qMin(r.out(), r.in() + 1));
 
     // Start job
-    RenderTicketWatcher* watcher = new RenderTicketWatcher();
-    watcher->setProperty("job", QVariant::fromValue(last_update_time_));
-    connect(watcher, &RenderTicketWatcher::Finished, this, &PreviewAutoCacher::AudioRendered);
-    audio_tasks_.insert(watcher, r);
-    watcher->SetTicket(RenderManager::instance()->RenderAudio(copied_viewer_node_, r, RenderMode::kOffline, true));
+    RenderAudio(r, true, false);
 
     audio_iterator_.remove(r);
   }
@@ -656,6 +677,18 @@ RenderTicketWatcher* PreviewAutoCacher::RenderFrame(const QByteArray &hash, cons
                                                             prioritize,
                                                             texture_only));
   return watcher;
+}
+
+RenderTicketPtr PreviewAutoCacher::RenderAudio(const TimeRange &r, bool generate_waveforms, bool prioritize)
+{
+  RenderTicketWatcher* watcher = new RenderTicketWatcher();
+  watcher->setProperty("job", QVariant::fromValue(last_update_time_));
+  connect(watcher, &RenderTicketWatcher::Finished, this, &PreviewAutoCacher::AudioRendered);
+  audio_tasks_.insert(watcher, r);
+
+  RenderTicketPtr ticket = RenderManager::instance()->RenderAudio(copied_viewer_node_, r, RenderMode::kOffline, generate_waveforms, prioritize);
+  watcher->SetTicket(ticket);
+  return ticket;
 }
 
 void PreviewAutoCacher::RequeueFrames()
@@ -885,33 +918,6 @@ void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
     VideoInvalidatedList(viewer_node_->video_frame_cache()->GetInvalidatedRanges(viewer_node_->GetVideoLength()));
     AudioInvalidatedList(viewer_node_->audio_playback_cache()->GetInvalidatedRanges(viewer_node_->GetAudioLength()));
   }
-}
-
-PreviewAutoCacher::PlaybackDevice::PlaybackDevice(PreviewAutoCacher *cacher, QObject *parent) :
-  cacher_(cacher),
-  current_time_(0)
-{
-  audio_params_ = viewer()->GetAudioParams();
-}
-
-bool PreviewAutoCacher::PlaybackDevice::seek(qint64 pos)
-{
-  // Call super function
-  if (QIODevice::seek(pos)) {
-    // Convert bytes to time
-    current_time_ = audio_params_.bytes_to_time(pos);
-
-    return true;
-  }
-
-  return false;
-}
-
-qint64 PreviewAutoCacher::PlaybackDevice::size() const
-{
-  rational audio_length = cacher_->copied_viewer_node_->GetAudioLength();
-
-  return audio_params_.time_to_bytes(audio_length);
 }
 
 }

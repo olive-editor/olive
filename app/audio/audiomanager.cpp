@@ -94,11 +94,8 @@ void AudioManager::PushToOutput(const QByteArray &samples)
   emit OutputPushed(samples);
 }
 
-void AudioManager::StartOutput(AudioPlaybackCache *cache, qint64 offset, int playback_speed)
+void AudioManager::StartOutput(QIODevice *device, int playback_speed)
 {
-  // Create device
-  QIODevice* device = cache->CreatePlaybackDevice();
-
   // Move to output manager's thread
   device->moveToThread(&output_thread_);
 
@@ -107,10 +104,7 @@ void AudioManager::StartOutput(AudioPlaybackCache *cache, qint64 offset, int pla
                             "PullFromDevice",
                             Qt::QueuedConnection,
                             Q_ARG(QIODevice*, device),
-                            Q_ARG(qint64, offset),
                             Q_ARG(int, playback_speed));
-
-  emit OutputDeviceStarted(cache, offset, playback_speed);
 }
 
 void AudioManager::StopOutput()
