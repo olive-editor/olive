@@ -90,7 +90,7 @@ void AudioOutputManager::Close()
   }
 }
 
-void AudioOutputManager::PullFromDevice(QIODevice *device, int playback_speed)
+void AudioOutputManager::PullFromDevice(std::shared_ptr<QIODevice> device, int playback_speed)
 {
   if (!output_) {
     return;

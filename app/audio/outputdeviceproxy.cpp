@@ -35,10 +35,9 @@ void AudioOutputDeviceProxy::SetParameters(const AudioParams &params)
   params_ = params;
 }
 
-void AudioOutputDeviceProxy::SetDevice(QIODevice* device, int playback_speed)
+void AudioOutputDeviceProxy::SetDevice(std::shared_ptr<QIODevice> device, int playback_speed)
 {
   device_ = device;
-  device_->setParent(this);
 
   if (!device_->open(QFile::ReadOnly)) {
     qCritical() << "Failed to open IO device for audio playback";

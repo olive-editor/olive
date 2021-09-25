@@ -39,7 +39,7 @@ public:
 
   void SetParameters(const AudioParams& params);
 
-  void SetDevice(QIODevice *device, int playback_speed);
+  void SetDevice(std::shared_ptr<QIODevice> device, int playback_speed);
 
   virtual void close() override;
 
@@ -51,7 +51,7 @@ protected:
 private:
   qint64 ReverseAwareRead(char* data, qint64 maxlen);
 
-  QIODevice* device_;
+  std::shared_ptr<QIODevice> device_;
 
   TempoProcessor tempo_processor_;
 

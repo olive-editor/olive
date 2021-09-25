@@ -68,7 +68,7 @@ public:
   /**
    * @brief Start playing audio from AudioPlaybackCache
    */
-  void StartOutput(QIODevice *device, int playback_speed);
+  void StartOutput(std::shared_ptr<QIODevice> device, int playback_speed);
 
   /**
    * @brief Stop audio output immediately

@@ -405,7 +405,7 @@ void ViewerWidget::StartAudioOutput()
 
   if (params.is_valid()) {
     AudioManager::instance()->SetOutputParams(params);
-    AudioManager::instance()->StartOutput(audio_playback_device_.get(), playback_speed_);
+    AudioManager::instance()->StartOutput(audio_playback_device_, playback_speed_);
 
     qDebug() << "STUB: Nothing to send to audio monitor";
     /*emit AudioManager::instance()->OutputWaveformStarted(&audio_cache->visual(),
@@ -606,7 +606,7 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
     }
   }
 
-  audio_playback_device_.reset(new PreviewAudioDevice());
+  audio_playback_device_ = std::make_shared<PreviewAudioDevice>();
   prequeuing_audio_ = true;
   audio_playback_queue_time_ = GetTime();
   QueueNextAudioBuffer();
@@ -628,7 +628,7 @@ void ViewerWidget::PauseInternal()
     playback_queue_.clear();
     playback_backup_timer_.stop();
 
-    audio_playback_device_.reset(nullptr);
+    audio_playback_device_ = nullptr;
     qDeleteAll(audio_playback_queue_);
     audio_playback_queue_.clear();
     packed_processor_.Close();

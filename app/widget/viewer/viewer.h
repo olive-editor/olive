@@ -255,7 +255,7 @@ private:
 
   int active_queue_jobs_;
 
-  std::unique_ptr<PreviewAudioDevice> audio_playback_device_;
+  std::shared_ptr<PreviewAudioDevice> audio_playback_device_;
   std::list<RenderTicketWatcher*> audio_playback_queue_;
   rational audio_playback_queue_time_;
   PackedProcessor packed_processor_;
