@@ -491,6 +491,9 @@ void ViewerWidget::ReceivedAudioBufferForPlayback()
 
 void ViewerWidget::ReceivedAudioBufferForScrubbing()
 {
+  // NOTE: Might be good to organize a queue for this in the event that audio takes a long time to
+  //       keep the scrubbed chunks ordered, similar to the playback_queue_ or audio_playback_queue_
+
   RenderTicketWatcher *watcher = static_cast<RenderTicketWatcher *>(sender());
 
   if (watcher->HasResult()) {
