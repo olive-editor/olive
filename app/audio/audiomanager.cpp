@@ -94,7 +94,7 @@ void AudioManager::PushToOutput(const QByteArray &samples)
   emit OutputPushed(samples);
 }
 
-void AudioManager::StartOutput(std::shared_ptr<QIODevice> device, int playback_speed)
+void AudioManager::StartOutput(std::shared_ptr<QIODevice> device)
 {
   // Move to output manager's thread
   device->moveToThread(&output_thread_);
@@ -103,8 +103,7 @@ void AudioManager::StartOutput(std::shared_ptr<QIODevice> device, int playback_s
   QMetaObject::invokeMethod(output_manager_,
                             "PullFromDevice",
                             Qt::QueuedConnection,
-                            Q_ARG(std::shared_ptr<QIODevice>, device),
-                            Q_ARG(int, playback_speed));
+                            Q_ARG(std::shared_ptr<QIODevice>, device));
 }
 
 void AudioManager::StopOutput()

@@ -192,6 +192,9 @@ void ViewerWidget::ConnectNodeEvent(ViewerOutput *n)
   last_length_ = 0;
   LengthChangedSlot(n->GetLength());
 
+  AudioParams ap = n->GetAudioParams();
+  packed_processor_.Open(ap);
+
   ColorManager* color_manager = n->project()->color_manager();
 
   display_widget_->ConnectColorManager(color_manager);
@@ -224,6 +227,8 @@ void ViewerWidget::DisconnectNodeEvent(ViewerOutput *n)
   disconnect(n->video_frame_cache(), &FrameHashCache::Invalidated, this, &ViewerWidget::ViewerInvalidatedVideoRange);
   disconnect(n->video_frame_cache(), &FrameHashCache::Shifted, this, &ViewerWidget::ViewerShiftedRange);
   disconnect(n, &ViewerOutput::TextureInputChanged, this, &ViewerWidget::UpdateStack);
+
+  packed_processor_.Close();
 
   SetDisplayImage(QVariant());
 
@@ -405,7 +410,7 @@ void ViewerWidget::StartAudioOutput()
 
   if (params.is_valid()) {
     AudioManager::instance()->SetOutputParams(params);
-    AudioManager::instance()->StartOutput(audio_playback_device_, playback_speed_);
+    AudioManager::instance()->StartOutput(audio_playback_device_);
 
     qDebug() << "STUB: Nothing to send to audio monitor";
     /*emit AudioManager::instance()->OutputWaveformStarted(&audio_cache->visual(),
@@ -416,13 +421,27 @@ void ViewerWidget::StartAudioOutput()
 void ViewerWidget::QueueNextAudioBuffer()
 {
   // NOTE: Hardcoded 2 second interval
-  TimeRange range(audio_playback_queue_time_, audio_playback_queue_time_ + 2);
-  audio_playback_queue_time_ = range.out();
+  rational queue_end = audio_playback_queue_time_ + (2 * playback_speed_);
+
+  if (playback_speed_ < 0) {
+    // Limit to 0 if playing in reverse
+    queue_end = qMax(rational(0), queue_end);
+  } else {
+    // Limit to audio length if playing forwards
+    queue_end = qMin(GetConnectedNode()->GetAudioLength(), queue_end);
+  }
+
+  if (queue_end == audio_playback_queue_time_) {
+    // This will queue nothing, so stop the loop here
+    return;
+  }
 
   RenderTicketWatcher *watcher = new RenderTicketWatcher(this);
   connect(watcher, &RenderTicketWatcher::Finished, this, &ViewerWidget::ReceivedAudioBufferForPlayback);
   audio_playback_queue_.push_back(watcher);
-  watcher->SetTicket(auto_cacher_.GetRangeOfAudio(range, true));
+  watcher->SetTicket(auto_cacher_.GetRangeOfAudio(TimeRange(audio_playback_queue_time_, queue_end), true));
+
+  audio_playback_queue_time_ = queue_end;
 }
 
 void ViewerWidget::ReceivedAudioBufferForPlayback()
@@ -434,18 +453,31 @@ void ViewerWidget::ReceivedAudioBufferForPlayback()
     if (watcher->HasResult()) {
       SampleBufferPtr samples = watcher->Get().value<SampleBufferPtr>();
       if (samples && audio_playback_device_) {
-        if (!packed_processor_.IsOpen()) {
-          packed_processor_.Open(samples->audio_params());
+        // If the samples must be reversed, reverse them now
+        if (playback_speed_ < 0) {
+          samples->reverse();
         }
 
         // Convert to packed data for audio output
         QByteArray pack = packed_processor_.Convert(samples);
 
-        audio_playback_device_->Push(pack);
+        // If the tempo must be adjusted, adjust now
+        if (tempo_processor_.IsOpen()) {
+          tempo_processor_.Push(pack.data(), pack.size());
+          int actual = tempo_processor_.Pull(pack.data(), pack.size());
+          if (actual != pack.size()) {
+            pack.resize(actual);
+          }
+        }
 
-        if (prequeuing_audio_) {
-          prequeuing_audio_ = false;
-          FinishPlayPreprocess();
+        // TempoProcessor may have emptied the array
+        if (!pack.isEmpty()) {
+          audio_playback_device_->Push(pack);
+
+          if (prequeuing_audio_) {
+            prequeuing_audio_ = false;
+            FinishPlayPreprocess();
+          }
         }
       }
     }
@@ -455,6 +487,28 @@ void ViewerWidget::ReceivedAudioBufferForPlayback()
 
     delete watcher;
   }
+}
+
+void ViewerWidget::ReceivedAudioBufferForScrubbing()
+{
+  RenderTicketWatcher *watcher = static_cast<RenderTicketWatcher *>(sender());
+
+  if (watcher->HasResult()) {
+    if (SampleBufferPtr samples = watcher->Get().value<SampleBufferPtr>()) {
+      /* Fade code
+      const int kFadeSz = qMin(200, samples->sample_count()/4);
+      for (int i=0; i<kFadeSz; i++) {
+        float amt = float(i)/float(kFadeSz);
+        samples->transform_volume_for_sample(i, amt);
+        samples->transform_volume_for_sample(samples->sample_count() - i - 1, amt);
+      }*/
+
+      AudioManager::instance()->SetOutputParams(samples->audio_params());
+      AudioManager::instance()->PushToOutput(packed_processor_.Convert(samples));
+    }
+  }
+
+  delete watcher;
 }
 
 void ViewerWidget::UpdateTextureFromNode()
@@ -606,6 +660,9 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
     }
   }
 
+  if (std::abs(playback_speed_) > 1) {
+    tempo_processor_.Open(GetConnectedNode()->GetAudioParams(), std::abs(playback_speed_));
+  }
   audio_playback_device_ = std::make_shared<PreviewAudioDevice>();
   prequeuing_audio_ = true;
   audio_playback_queue_time_ = GetTime();
@@ -631,7 +688,9 @@ void ViewerWidget::PauseInternal()
     audio_playback_device_ = nullptr;
     qDeleteAll(audio_playback_queue_);
     audio_playback_queue_.clear();
-    packed_processor_.Close();
+    if (tempo_processor_.IsOpen()) {
+      tempo_processor_.Close();
+    }
 
     UpdateTextureFromNode();
   }
@@ -642,27 +701,17 @@ void ViewerWidget::PauseInternal()
 
 void ViewerWidget::PushScrubbedAudio()
 {
-  if (!IsPlaying() && GetConnectedNode() && Config::Current()["AudioScrubbing"].toBool()) {
+  if (!IsPlaying() && GetConnectedNode() && Config::Current()[QStringLiteral("AudioScrubbing")].toBool()) {
     // Get audio src device from renderer
     const AudioParams& params = GetConnectedNode()->audio_playback_cache()->GetParameters();
 
     if (params.is_valid()) {
-      qDebug() << "STUB: Use PAC audio function directly";
-      /*PreviewAudioDevice *audio_src = new PreviewAudioDevice(&auto_cacher_, GetTime());
+      // NOTE: Hardcoded scrubbing interval (20ms)
+      rational interval = rational(50, 1000);
 
-      if (audio_src->open(QIODevice::ReadOnly)) {
-        // FIXME: Hardcoded scrubbing interval (20ms)
-        int size_of_sample = params.time_to_bytes(rational(20, 1000));
-
-        // Push audio
-        QByteArray frame_audio = audio_src->read(size_of_sample);
-        AudioManager::instance()->SetOutputParams(params);
-        AudioManager::instance()->PushToOutput(frame_audio);
-
-        audio_src->close();
-      }
-
-      delete audio_src;*/
+      RenderTicketWatcher *watcher = new RenderTicketWatcher();
+      connect(watcher, &RenderTicketWatcher::Finished, this, &ViewerWidget::ReceivedAudioBufferForScrubbing);
+      watcher->SetTicket(auto_cacher_.GetRangeOfAudio(TimeRange(GetTime(), GetTime() + interval), true));
     }
   }
 }
@@ -1308,6 +1357,11 @@ void ViewerWidget::UpdateRendererVideoParameters()
 
 void ViewerWidget::UpdateRendererAudioParameters()
 {
+  packed_processor_.Close();
+
+  AudioParams ap = GetConnectedNode()->GetAudioParams();
+
+  packed_processor_.Open(ap);
 }
 
 void ViewerWidget::SetZoomFromMenu(QAction *action)

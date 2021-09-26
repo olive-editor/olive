@@ -29,6 +29,7 @@
 #include <QWidget>
 
 #include "audio/packedprocessor.h"
+#include "audio/tempoprocessor.h"
 #include "audiowaveformview.h"
 #include "common/rational.h"
 #include "node/output/viewer/viewer.h"
@@ -259,6 +260,7 @@ private:
   std::list<RenderTicketWatcher*> audio_playback_queue_;
   rational audio_playback_queue_time_;
   PackedProcessor packed_processor_;
+  TempoProcessor tempo_processor_;
 
   static QVector<ViewerWidget*> instances_;
 
@@ -310,6 +312,8 @@ private slots:
   void QueueNextAudioBuffer();
 
   void ReceivedAudioBufferForPlayback();
+
+  void ReceivedAudioBufferForScrubbing();
 
 };
 

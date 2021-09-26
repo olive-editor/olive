@@ -90,7 +90,7 @@ void AudioOutputManager::Close()
   }
 }
 
-void AudioOutputManager::PullFromDevice(std::shared_ptr<QIODevice> device, int playback_speed)
+void AudioOutputManager::PullFromDevice(std::shared_ptr<QIODevice> device)
 {
   if (!output_) {
     return;
@@ -102,7 +102,7 @@ void AudioOutputManager::PullFromDevice(std::shared_ptr<QIODevice> device, int p
   push_samples_.clear();
 
   // Pull from the device
-  device_proxy_.SetDevice(device, playback_speed);
+  device_proxy_.SetDevice(device);
   device_proxy_.open(QIODevice::ReadOnly);
   output_->start(&device_proxy_);
 }
