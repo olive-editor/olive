@@ -1255,6 +1255,10 @@ void ViewerWidget::PlaybackTimerUpdate()
     max_time = qMax(min_time, max_time - timebase());
   }
 
+  rational time_to_set;
+  bool end_of_line = false;
+  bool play_after_pause = false;
+
   if ((playback_speed_ < 0 && current_time <= min_time)
       || (playback_speed_ > 0 && current_time >= max_time)) {
 
@@ -1267,32 +1271,46 @@ void ViewerWidget::PlaybackTimerUpdate()
       tripped_time = max_time;
     }
 
+    // Signal that we've reached the end of whatever range we're playing and should either pause
+    // or restart playback
+    end_of_line = true;
+
     if (Config::Current()[QStringLiteral("Loop")].toBool()) {
 
       // If we're looping, jump to the other side of the workarea and continue
-      rational opposing_time = (tripped_time == min_time) ? max_time : min_time;
+      time_to_set = (tripped_time == min_time) ? max_time : min_time;
 
-      // Cache the current speed
-      int current_speed = playback_speed_;
-
-      // Jump to the other side and keep playing at the same speed
-      SetTimeAndSignal(opposing_time);
-      PlayInternal(current_speed, play_in_to_out_only_);
+      // Signal to restart playback after the pause signalled by `end_of_line`
+      play_after_pause = true;
 
     } else {
 
-      // Pause at the boundary
-      SetTimeAndSignal(tripped_time);
+      // Pause at the boundary we tripped
+      time_to_set = tripped_time;
 
     }
 
   } else {
 
-    // Sets time, wrapping in this bool ensures we don't pause from setting the time
-    time_changed_from_timer_ = true;
-    SetTimeAndSignal(current_time);
-    time_changed_from_timer_ = false;
+    // Sets time normally to whatever we calculated as the "current time"
+    time_to_set = current_time;
 
+  }
+
+  // Set the time. By wrapping in this bool, we prevent TimeChangedEvent's default behavior of
+  // pausing. Even if we pause it later with `end_of_line`, we prefer pausing after setting the time
+  // so that an audio scrub event, etc. isn't sent.
+  time_changed_from_timer_ = true;
+  SetTimeAndSignal(time_to_set);
+  time_changed_from_timer_ = false;
+  if (end_of_line) {
+    // Cache the current speed
+    int current_speed = playback_speed_;
+
+    PauseInternal();
+    if (play_after_pause) {
+      PlayInternal(current_speed, play_in_to_out_only_);
+    }
   }
 
   if (display_widget_->isVisible()) {
