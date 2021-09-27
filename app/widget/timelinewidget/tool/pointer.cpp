@@ -721,10 +721,13 @@ void PointerTool::InitiateDrag(Block *clicked_item,
 
 TimelineViewGhostItem* PointerTool::AddGhostFromBlock(Block* block, Timeline::MovementMode mode, bool check_if_exists)
 {
-  if (!block) {
+  // Ignore null blocks or blocks that aren't attached to a track because there's nothing we can
+  // do with either of those
+  if (!block || !block->track()) {
     return nullptr;
   }
 
+  // Check if we've already made a ghost for this block
   if (check_if_exists) {
     foreach (TimelineViewGhostItem* ghost, parent()->GetGhostItems()) {
       if (Node::ValueToPtr<Block>(ghost->GetData(TimelineViewGhostItem::kAttachedBlock)) == block) {
@@ -733,6 +736,7 @@ TimelineViewGhostItem* PointerTool::AddGhostFromBlock(Block* block, Timeline::Mo
     }
   }
 
+  // Otherwise, it's time to make a ghost for this block
   TimelineViewGhostItem* ghost = TimelineViewGhostItem::FromBlock(block);
 
 #ifdef HIDE_GAP_GHOSTS
