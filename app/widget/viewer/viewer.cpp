@@ -246,7 +246,7 @@ void ViewerWidget::DisconnectNodeEvent(ViewerOutput *n)
   waveform_view_->ConnectTimelinePoints(nullptr);
 
   // Queue an UpdateStack so that when it runs, the viewer node will be fully disconnected
-  QMetaObject::invokeMethod(this, "UpdateStack", Qt::QueuedConnection);
+  QMetaObject::invokeMethod(this, &ViewerWidget::UpdateStack, Qt::QueuedConnection);
 }
 
 void ViewerWidget::ConnectedNodeChangeEvent(ViewerOutput *n)
@@ -1394,7 +1394,7 @@ void ViewerWidget::ViewerInvalidatedVideoRange(const TimeRange &range)
 {
   // If our current frame is within this range, we need to update
   if (GetTime() >= range.in() && (GetTime() < range.out() || range.in() == range.out())) {
-    QMetaObject::invokeMethod(this, "UpdateTextureFromNode", Qt::QueuedConnection);
+    QMetaObject::invokeMethod(this, &ViewerWidget::UpdateTextureFromNode, Qt::QueuedConnection);
   }
 }
 
@@ -1410,7 +1410,7 @@ void ViewerWidget::ManualSwitchToWaveform(bool e)
 void ViewerWidget::ViewerShiftedRange(const rational &from, const rational &to)
 {
   if (GetTime() >= qMin(from, to)) {
-    QMetaObject::invokeMethod(this, "UpdateTextureFromNode", Qt::QueuedConnection);
+    QMetaObject::invokeMethod(this, &ViewerWidget::UpdateTextureFromNode, Qt::QueuedConnection);
   }
 }
 
