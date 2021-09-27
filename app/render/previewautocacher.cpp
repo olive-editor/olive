@@ -854,12 +854,12 @@ void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
     UpdateLastSyncedValue();
 
     // Connect signals for future node additions/deletions
-    connect(graph, &NodeGraph::NodeAdded, this, &PreviewAutoCacher::NodeAdded);
-    connect(graph, &NodeGraph::NodeRemoved, this, &PreviewAutoCacher::NodeRemoved);
-    connect(graph, &NodeGraph::InputConnected, this, &PreviewAutoCacher::EdgeAdded);
-    connect(graph, &NodeGraph::InputDisconnected, this, &PreviewAutoCacher::EdgeRemoved);
-    connect(graph, &NodeGraph::ValueChanged, this, &PreviewAutoCacher::ValueChanged);
-    connect(graph, &NodeGraph::InputValueHintChanged, this, &PreviewAutoCacher::ValueHintChanged);
+    connect(graph, &NodeGraph::NodeAdded, this, &PreviewAutoCacher::NodeAdded, Qt::DirectConnection);
+    connect(graph, &NodeGraph::NodeRemoved, this, &PreviewAutoCacher::NodeRemoved, Qt::DirectConnection);
+    connect(graph, &NodeGraph::InputConnected, this, &PreviewAutoCacher::EdgeAdded, Qt::DirectConnection);
+    connect(graph, &NodeGraph::InputDisconnected, this, &PreviewAutoCacher::EdgeRemoved, Qt::DirectConnection);
+    connect(graph, &NodeGraph::ValueChanged, this, &PreviewAutoCacher::ValueChanged, Qt::DirectConnection);
+    connect(graph, &NodeGraph::InputValueHintChanged, this, &PreviewAutoCacher::ValueHintChanged, Qt::DirectConnection);
 
     connect(viewer_node_,
             &ViewerOutput::VideoAutoCacheChanged,
