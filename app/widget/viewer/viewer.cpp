@@ -31,6 +31,7 @@
 #include <QVBoxLayout>
 
 #include "audio/audiomanager.h"
+#include "common/clamp.h"
 #include "common/power.h"
 #include "common/ratiodialog.h"
 #include "common/timecodefunctions.h"
@@ -423,14 +424,8 @@ void ViewerWidget::QueueNextAudioBuffer()
   // NOTE: Hardcoded 2 second interval
   rational queue_end = audio_playback_queue_time_ + (2 * playback_speed_);
 
-  if (playback_speed_ < 0) {
-    // Limit to 0 if playing in reverse
-    queue_end = qMax(rational(0), queue_end);
-  } else {
-    // Limit to audio length if playing forwards
-    queue_end = qMin(GetConnectedNode()->GetAudioLength(), queue_end);
-  }
-
+  // Clamp queue end by zero and the audio length
+  queue_end  = clamp(queue_end, rational(0), GetConnectedNode()->GetAudioLength());
   if (queue_end == audio_playback_queue_time_) {
     // This will queue nothing, so stop the loop here
     return;
