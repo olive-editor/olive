@@ -980,6 +980,13 @@ void NodeView::OpenSelectedNodeInViewer()
 
 void NodeView::RemoveNode(Node *node)
 {
+  for (auto it=attached_items_.begin(); it!=attached_items_.end(); ) {
+    if (it->item->GetNode() == node) {
+      it = attached_items_.erase(it);
+    } else {
+      it++;
+    }
+  }
   for (const Node::OutputConnection &oc : node->output_connections()) {
     scene_.RemoveEdge(oc.first, oc.second);
   }

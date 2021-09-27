@@ -95,10 +95,10 @@ void NodeGraph::childEvent(QChildEvent *event)
       node_children_.append(node);
 
       // Connect signals
-      connect(node, &Node::InputConnected, this, &NodeGraph::InputConnected);
-      connect(node, &Node::InputDisconnected, this, &NodeGraph::InputDisconnected);
-      connect(node, &Node::ValueChanged, this, &NodeGraph::ValueChanged);
-      connect(node, &Node::InputValueHintChanged, this, &NodeGraph::InputValueHintChanged);
+      connect(node, &Node::InputConnected, this, &NodeGraph::InputConnected, Qt::DirectConnection);
+      connect(node, &Node::InputDisconnected, this, &NodeGraph::InputDisconnected, Qt::DirectConnection);
+      connect(node, &Node::ValueChanged, this, &NodeGraph::ValueChanged, Qt::DirectConnection);
+      connect(node, &Node::InputValueHintChanged, this, &NodeGraph::InputValueHintChanged, Qt::DirectConnection);
 
       emit NodeAdded(node);
       emit node->AddedToGraph(this);
