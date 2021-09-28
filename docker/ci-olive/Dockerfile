@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # Build image (default):
-#  docker build -t olivevideoeditor/ci-olive:2021.3 -f ci-olive/Dockerfile .
+#  docker build -t olivevideoeditor/ci-olive:2021.4 -f ci-olive/Dockerfile .
 #
 # .n is the build image revision number. It should be incremented each time a
 # new image is published (also update the GitHub Actions workflow!).
