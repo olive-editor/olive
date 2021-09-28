@@ -18,6 +18,7 @@ yum install --setopt=tsflags=nodocs -y \
     gstreamer1-devel \
     gstreamer1-plugins-bad-free \
     gstreamer1-plugins-bad-free-devel \
+    libcurl-devel \
     libicu-devel \
     libmng-devel \
     LibRaw-devel \
