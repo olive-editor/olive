@@ -9,7 +9,7 @@ ARG ASWF_PKG_ORG=aswftesting
 ARG CI_COMMON_VERSION=2
 ARG VFXPLATFORM_VERSION=2021
 # OCIO repo branch or tag name
-ARG OCIO_VERSION=v2.0.0
+ARG OCIO_VERSION=v2.1.0
 # Latest configs ~3 GB because of ACES 1.0.x.
 # Upstream only copies nuke-default, therefore we also use the older configs.
 ARG OCIO_CONFIGS_VERSION=1.0_r2
