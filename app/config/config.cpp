@@ -117,8 +117,8 @@ void Config::SetDefaults()
   SetEntryInternal(QStringLiteral("AudioOutput"), NodeValue::kText, QString());
   SetEntryInternal(QStringLiteral("AudioInput"), NodeValue::kText, QString());
 
-  SetEntryInternal(QStringLiteral("DiskCacheBehind"), NodeValue::kRational, QVariant::fromValue(rational(1)));
-  SetEntryInternal(QStringLiteral("DiskCacheAhead"), NodeValue::kRational, QVariant::fromValue(rational(5)));
+  SetEntryInternal(QStringLiteral("DiskCacheBehind"), NodeValue::kRational, QVariant::fromValue(rational(0)));
+  SetEntryInternal(QStringLiteral("DiskCacheAhead"), NodeValue::kRational, QVariant::fromValue(rational(60)));
 
   SetEntryInternal(QStringLiteral("DefaultSequenceWidth"), NodeValue::kInt, 1920);
   SetEntryInternal(QStringLiteral("DefaultSequenceHeight"), NodeValue::kInt, 1080);
