@@ -279,7 +279,7 @@ jobs:
             compiler-name: Clang LLVM
             os-name: macOS
             os-arch: x86_64
-            os: macos-latest
+            os: macos-10.15
             cmake-gen: Ninja
     name: |
       ${{ matrix.os-name }}
