@@ -156,6 +156,7 @@ void RenderProcessor::Run()
       // Return GPU texture
       if (!texture) {
         texture = render_ctx_->CreateTexture(GetCacheVideoParams());
+        render_ctx_->ClearDestination(texture.get());
       }
 
       render_ctx_->Flush();
