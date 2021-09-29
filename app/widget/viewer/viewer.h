@@ -244,7 +244,7 @@ private:
   int64_t playback_queue_next_frame_;
 
   bool prequeuing_video_;
-  bool prequeuing_audio_;
+  int prequeuing_audio_;
 
   QList<RenderTicketWatcher*> nonqueue_watchers_;
 

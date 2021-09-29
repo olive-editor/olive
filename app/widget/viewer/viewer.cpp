@@ -57,7 +57,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   color_menu_enabled_(true),
   time_changed_from_timer_(false),
   prequeuing_video_(false),
-  prequeuing_audio_(false),
+  prequeuing_audio_(0),
   audio_playback_device_(nullptr)
 {
   // Set up main layout
@@ -425,7 +425,6 @@ void ViewerWidget::StartAudioOutput()
 
 void ViewerWidget::QueueNextAudioBuffer()
 {
-  // NOTE: Hardcoded 2 second interval
   rational queue_end = audio_playback_queue_time_ + (kAudioPlaybackInterval * playback_speed_);
 
   // Clamp queue end by zero and the audio length
@@ -474,8 +473,11 @@ void ViewerWidget::ReceivedAudioBufferForPlayback()
           audio_playback_device_->Push(pack);
 
           if (prequeuing_audio_) {
-            prequeuing_audio_ = false;
-            FinishPlayPreprocess();
+            prequeuing_audio_--;
+
+            if (!prequeuing_audio_) {
+              FinishPlayPreprocess();
+            }
           }
         }
       }
@@ -676,9 +678,9 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
     tempo_processor_.Open(GetConnectedNode()->GetAudioParams(), std::abs(playback_speed_));
   }
   audio_playback_device_ = std::make_shared<PreviewAudioDevice>();
-  prequeuing_audio_ = true;
+  prequeuing_audio_ = 2; // Queue two buffers ahead of time
   audio_playback_queue_time_ = GetTime();
-  for (int i=0; i<2; i++) {
+  for (int i=0; i<prequeuing_audio_; i++) {
     QueueNextAudioBuffer();
   }
 }
@@ -714,7 +716,7 @@ void ViewerWidget::PauseInternal()
   }
 
   prequeuing_video_ = false;
-  prequeuing_audio_ = false;
+  prequeuing_audio_ = 0;
 }
 
 void ViewerWidget::PushScrubbedAudio()
