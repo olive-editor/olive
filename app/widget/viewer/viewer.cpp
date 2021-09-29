@@ -571,7 +571,7 @@ void ViewerWidget::UpdateTextureFromNode()
 
     // Only show warning if frame actually exists
     if (frame_exists_at_time && !frame_might_be_still) {
-      qWarning() << "Playback queue failed to keep up";
+      //qWarning() << "Playback queue failed to keep up";
     }
 
   }
