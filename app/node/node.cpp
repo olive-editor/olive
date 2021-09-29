@@ -359,11 +359,13 @@ void Node::LoadInput(QXmlStreamReader *reader, XMLNodeData &xml_node_data, const
 
   if (param_id.isEmpty()) {
     qWarning() << "Failed to load parameter with missing ID";
+    reader->skipCurrentElement();
     return;
   }
 
   if (!HasInputWithID(param_id)) {
-    qWarning() << "Failed to load parameter that didn't exist";
+    qWarning() << "Failed to load parameter that didn't exist:" << param_id;
+    reader->skipCurrentElement();
     return;
   }
 

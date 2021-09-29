@@ -111,6 +111,7 @@ void Project::Load(QXmlStreamReader *reader, MainWindowLayoutInfo* layout, uint 
 
           if (id.isEmpty()) {
             qWarning() << "Failed to load node with empty ID";
+            reader->skipCurrentElement();
           } else {
             Node* node;
 
@@ -126,6 +127,7 @@ void Project::Load(QXmlStreamReader *reader, MainWindowLayoutInfo* layout, uint 
 
             if (!node) {
               qWarning() << "Failed to find node with ID" << id;
+              reader->skipCurrentElement();
             } else {
               node->Load(reader, xml_node_data, version, cancelled);
               node->setParent(this);
@@ -168,6 +170,7 @@ void Project::Load(QXmlStreamReader *reader, MainWindowLayoutInfo* layout, uint 
                     SetNodePosition(node, context, node_pos);
                   } else {
                     qWarning() << "Failed to find pointer for node position";
+                    reader->skipCurrentElement();
                   }
                 }
               } else {
