@@ -106,7 +106,7 @@ QTreeWidgetItem* SequenceDialogPresetTab::CreateFolder(const QString &name)
 QTreeWidgetItem *SequenceDialogPresetTab::CreateHDPresetFolder(const QString &name, int width, int height, int divider)
 {
   const VideoParams::Format default_format = static_cast<VideoParams::Format>(Config::Current()["OfflinePixelFormat"].toInt());
-  const bool default_autocache = true;
+  const bool default_autocache = Config::Current()[QStringLiteral("DefaultSequenceAutoCache")].toBool();
   QTreeWidgetItem* parent = CreateFolder(name);
   AddStandardItem(parent, new SequencePreset(tr("%1 23.976 FPS").arg(name),
                                              width,
@@ -169,7 +169,7 @@ QTreeWidgetItem *SequenceDialogPresetTab::CreateHDPresetFolder(const QString &na
 QTreeWidgetItem *SequenceDialogPresetTab::CreateSDPresetFolder(const QString &name, int width, int height, const rational& frame_rate, const rational &standard_par, const rational &wide_par, int divider)
 {
   const VideoParams::Format default_format = static_cast<VideoParams::Format>(Config::Current()["OfflinePixelFormat"].toInt());
-  const bool default_autocache = true;
+  const bool default_autocache = Config::Current()[QStringLiteral("DefaultSequenceAutoCache")].toBool();
   QTreeWidgetItem* parent = CreateFolder(name);
   preset_tree_->addTopLevelItem(parent);
   AddStandardItem(parent, new SequencePreset(tr("%1 Standard").arg(name),
