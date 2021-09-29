@@ -27,13 +27,12 @@
 
 namespace olive {
 
+const rational AudioVisualWaveform::kMinimumSampleRate = rational(1, 8);
+const rational AudioVisualWaveform::kMaximumSampleRate = 1024;
+
 AudioVisualWaveform::AudioVisualWaveform() :
   channels_(0)
 {
-  // Must be a power of 2
-  static const rational kMinimumSampleRate = rational(1, 8);
-  static const rational kMaximumSampleRate = 1024;
-
   for (rational i=kMinimumSampleRate; i<=kMaximumSampleRate; i*=2) {
     mipmapped_data_.insert({i, Sample()});
   }
@@ -431,15 +430,14 @@ int AudioVisualWaveform::time_to_samples(const double &time, double sample_rate)
 std::map<rational, AudioVisualWaveform::Sample>::const_iterator AudioVisualWaveform::GetMipmapForScale(double scale) const
 {
   // Find largest mipmap for this scale (or the largest if we don't find one sufficient)
-  auto using_mipmap = mipmapped_data_.cend();
-  using_mipmap--;
   for (auto it=mipmapped_data_.cbegin(); it!=mipmapped_data_.cend(); it++) {
     if (it->first.toDouble() >= scale) {
-      using_mipmap = it;
-      break;
+      return it;
     }
   }
-  return using_mipmap;
+
+  // We don't have a mipmap large enough for this scale, so just return the largest we have
+  return std::prev(mipmapped_data_.cend());
 }
 
 void AudioVisualWaveform::ExpandMinMax(AudioVisualWaveform::SamplePerChannel &sum, float value)

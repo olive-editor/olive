@@ -107,6 +107,10 @@ public:
 
   static void DrawWaveform(QPainter* painter, const QRect &rect, const double &scale, const AudioVisualWaveform& samples, const rational &start_time);
 
+  // Must be a power of 2
+  static const rational kMinimumSampleRate;
+  static const rational kMaximumSampleRate;
+
 private:
   static void ExpandMinMax(SamplePerChannel &sum, float value);
 

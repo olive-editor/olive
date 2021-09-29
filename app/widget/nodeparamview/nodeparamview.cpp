@@ -128,8 +128,6 @@ NodeParamView::NodeParamView(QWidget *parent) :
   // Set a default scale - FIXME: Hardcoded
   SetScale(120);
 
-  SetMaximumScale(TimeBasedView::kMaximumScale);
-
   // Pickup on widget focus changes
   connect(qApp,
           &QApplication::focusChanged,
