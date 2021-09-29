@@ -130,8 +130,8 @@ void PreviewAutoCacher::VideoInvalidated(const TimeRange &range)
   // want to dedicate all our rendering power to realtime feedback for the user
   CancelVideoTasks();
 
-  // If a slider is not being dragged, queue up to hash these frames
-  if (!NodeInputDragger::IsInputBeingDragged()) {
+  // If auto-cache is enabled and a slider is not being dragged, queue up to hash these frames
+  if (viewer_node_->GetVideoAutoCacheEnabled() && !NodeInputDragger::IsInputBeingDragged()) {
     invalidated_video_.insert(range);
     video_job_tracker_.insert(range, graph_changed_time_);
 
