@@ -32,6 +32,10 @@
 
 namespace olive {
 
+// We may want to make this configurable at some point, so for now this constant is used as a
+// placeholder for where that configarable variable would be used.
+const bool PreviewAutoCacher::kRealTimeWaveformsEnabled = true;
+
 PreviewAutoCacher::PreviewAutoCacher() :
   viewer_node_(nullptr),
   use_custom_range_(false),
@@ -141,7 +145,9 @@ void PreviewAutoCacher::AudioInvalidated(const TimeRange &range)
   // cancelled, so some areas may end up unrendered forever
   //  ClearAudioQueue();
 
-  if (viewer_node_->GetAudioAutoCacheEnabled()) {
+  // If we're auto-caching audio or require realtime waveforms, we'll have to render this
+  if (viewer_node_->GetAudioAutoCacheEnabled() || kRealTimeWaveformsEnabled) {
+    // We still render for the sake of waveforms
     audio_job_tracker_.insert(range, graph_changed_time_);
 
     // Start jobs to re-render the audio at this range, split into 2 second chunks
@@ -203,11 +209,14 @@ void PreviewAutoCacher::AudioRendered()
 
       AudioVisualWaveform waveform = watcher->GetTicket()->property("waveform").value<AudioVisualWaveform>();
 
-      // WritePCM is tolerant to its buffer being null, it will just write silence instead
-      viewer_node_->audio_playback_cache()->WritePCM(range,
-                                                     valid_ranges,
-                                                     watcher->Get().value<SampleBufferPtr>(),
-                                                     &waveform);
+      if (viewer_node_->GetAudioAutoCacheEnabled()) {
+        // WritePCM is tolerant to its buffer being null, it will just write silence instead
+        viewer_node_->audio_playback_cache()->WritePCM(range,
+                                                       valid_ranges,
+                                                       watcher->Get().value<SampleBufferPtr>());
+      }
+
+      viewer_node_->audio_playback_cache()->WriteWaveform(range, valid_ranges, &waveform);
 
       // Detect if this audio was incomplete because it was waiting on a conform to finish
       if (watcher->GetTicket()->property("incomplete").toBool()) {

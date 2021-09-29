@@ -192,6 +192,8 @@ private:
   TimeRangeListFrameIterator hash_iterator_;
   TimeRangeList audio_iterator_;
 
+  static const bool kRealTimeWaveformsEnabled;
+
 private slots:
   /**
    * @brief Handler for when the NodeGraph reports a video change over a certain time range

@@ -58,7 +58,7 @@ void AudioPlaybackCache::SetParameters(const AudioParams &params)
   emit ParametersChanged();
 }
 
-void AudioPlaybackCache::WritePCM(const TimeRange &range, const TimeRangeList &valid_ranges, SampleBufferPtr samples, const AudioVisualWaveform *waveform)
+void AudioPlaybackCache::WritePCM(const TimeRange &range, const TimeRangeList &valid_ranges, SampleBufferPtr samples)
 {
   // Ensure if we have enough segments to write this data, creating more if not
   qint64 length_diff = params_.time_to_bytes_per_channel(range.out()) - playlist_.GetLength();
@@ -143,13 +143,6 @@ void AudioPlaybackCache::WritePCM(const TimeRange &range, const TimeRangeList &v
       // Each segment is contiguous, so this out will be the next segment's in
       this_segment_in = this_segment_out;
     }
-
-    // Write visual
-    if (waveform) {
-      visual_.OverwriteSums(*waveform, r.in(), r.in() - range.in(), r.length());
-    } else {
-      visual_.OverwriteSilence(r.in(), r.length());
-    }
   }
 
   foreach (const TimeRange& v, ranges_we_validated) {
@@ -157,11 +150,24 @@ void AudioPlaybackCache::WritePCM(const TimeRange &range, const TimeRangeList &v
   }
 }
 
+void AudioPlaybackCache::WriteWaveform(const TimeRange &range, const TimeRangeList &valid_ranges, const AudioVisualWaveform *waveform)
+{
+  // Write each valid range to the segments
+  foreach (const TimeRange& r, valid_ranges) {
+    // Write visual
+    if (waveform) {
+      visual_.OverwriteSums(*waveform, r.in(), r.in() - range.in(), r.length());
+    } else {
+      visual_.OverwriteSilence(r.in(), r.length());
+    }
+  }
+}
+
 void AudioPlaybackCache::WriteSilence(const TimeRange &range)
 {
   // WritePCM will automatically fill non-existent bytes with silence, so we just have to send
   // it an empty sample buffer
-  WritePCM(range, {range}, nullptr, nullptr);
+  WritePCM(range, {range}, nullptr);
 }
 
 void AudioPlaybackCache::ShiftEvent(const rational &from_in_time, const rational &to_in_time)
