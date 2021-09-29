@@ -214,23 +214,20 @@ void NodeView::SelectAll()
 
   ConnectSelectionChangedSignal();
 
-  if (selected_nodes_.isEmpty()) {
-    // No nodes were selected before so we can just emit them all
-    emit NodesSelected(graph_->nodes());
-  } else {
-    // We have to determine the difference
-    QVector<Node*> new_selection;
-    for (Node* n : graph_->nodes()) {
-      if (!selected_nodes_.contains(n)) {
-        new_selection.append(n);
-      }
+  // Determine which nodes aren't selected and add them to a separate vector
+  QVector<Node*> new_selection;
+  for (auto it=scene_.item_map().cbegin(); it!=scene_.item_map().cend(); it++) {
+    Node *n = it.key();
+    if (!selected_nodes_.contains(n)) {
+      new_selection.append(n);
     }
-
-    emit NodesSelected(new_selection);
   }
 
-  // Just add everything to the selected nodes list
-  selected_nodes_ = graph_->nodes();
+  // Add this vector to our total selection vector
+  selected_nodes_.append(new_selection);
+
+  // Signal new nodes
+  emit NodesSelected(new_selection);
 }
 
 void NodeView::DeselectAll()
@@ -325,7 +322,13 @@ void NodeView::SelectWithDependencies(QVector<Node *> nodes, bool center_view_on
 
   int original_length = nodes.size();
   for (int i=0;i<original_length;i++) {
-    nodes.append(nodes.at(i)->GetDependencies());
+    QVector<Node*> dependencies = nodes.at(i)->GetDependencies();
+
+    foreach (Node *d, dependencies) {
+      if (scene_.item_map().contains(d) && !nodes.contains(d)) {
+        nodes.append(d);
+      }
+    }
   }
 
   Select(nodes, center_view_on_item);

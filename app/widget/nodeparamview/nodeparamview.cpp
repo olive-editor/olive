@@ -137,6 +137,8 @@ NodeParamView::NodeParamView(QWidget *parent) :
 
 void NodeParamView::SelectNodes(const QVector<Node *> &nodes)
 {
+  qint64 t = QDateTime::currentMSecsSinceEpoch();
+
   int original_node_count = items_.size();
 
   foreach (Node* n, nodes) {
@@ -160,10 +162,14 @@ void NodeParamView::SelectNodes(const QVector<Node *> &nodes)
 
     SignalNodeOrder();
   }
+
+  qDebug() << "SelectNodes took" << (QDateTime::currentMSecsSinceEpoch() - t) << "with" << nodes.size() << "nodes";
 }
 
 void NodeParamView::DeselectNodes(const QVector<Node *> &nodes)
 {
+  qint64 t = QDateTime::currentMSecsSinceEpoch();
+
   // Remove item from map and delete the widget
   int original_node_count = items_.size();
 
@@ -190,6 +196,8 @@ void NodeParamView::DeselectNodes(const QVector<Node *> &nodes)
 
     SignalNodeOrder();
   }
+
+  qDebug() << "DeselectNodes took" << (QDateTime::currentMSecsSinceEpoch() - t) << "with" << nodes.size() << "nodes";
 }
 
 void NodeParamView::resizeEvent(QResizeEvent *event)
