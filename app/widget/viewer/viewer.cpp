@@ -419,9 +419,8 @@ void ViewerWidget::StartAudioOutput()
     AudioManager::instance()->SetOutputParams(params);
     AudioManager::instance()->StartOutput(audio_playback_device_);
 
-    qDebug() << "STUB: Nothing to send to audio monitor";
-    /*emit AudioManager::instance()->OutputWaveformStarted(&audio_cache->visual(),
-                                                         GetTime(), playback_speed_);*/
+    emit AudioManager::instance()->OutputWaveformStarted(&GetConnectedNode()->audio_playback_cache()->visual(),
+                                                         GetTime(), playback_speed_);
   }
 }
 
