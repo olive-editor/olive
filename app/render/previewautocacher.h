@@ -1,3 +1,23 @@
+/***
+
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2021 Olive Team
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #ifndef AUTOCACHER_H
 #define AUTOCACHER_H
 
@@ -9,6 +29,7 @@
 #include "node/node.h"
 #include "node/output/viewer/viewer.h"
 #include "node/project/project.h"
+#include "render/audioparams.h"
 #include "render/renderjobtracker.h"
 #include "threading/threadticketwatcher.h"
 
@@ -28,6 +49,8 @@ public:
   virtual ~PreviewAutoCacher() override;
 
   RenderTicketPtr GetSingleFrame(const rational& t, bool prioritize);
+
+  RenderTicketPtr GetRangeOfAudio(TimeRange range, bool prioritize);
 
   /**
    * @brief Set the viewer node to auto-cache
@@ -75,6 +98,7 @@ private:
   void TryRender();
 
   RenderTicketWatcher *RenderFrame(const QByteArray& hash, const rational &time, bool prioritize, bool texture_only);
+  RenderTicketPtr RenderAudio(const TimeRange &range, bool generate_waveforms, bool prioritize);
 
   /**
    * @brief Process all changes to internal NodeGraph copy
@@ -167,6 +191,8 @@ private:
   TimeRangeListFrameIterator queued_frame_iterator_;
   TimeRangeListFrameIterator hash_iterator_;
   TimeRangeList audio_iterator_;
+
+  static const bool kRealTimeWaveformsEnabled;
 
 private slots:
   /**

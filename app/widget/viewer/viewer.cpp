@@ -31,6 +31,7 @@
 #include <QVBoxLayout>
 
 #include "audio/audiomanager.h"
+#include "common/clamp.h"
 #include "common/power.h"
 #include "common/ratiodialog.h"
 #include "common/timecodefunctions.h"
@@ -46,6 +47,7 @@ namespace olive {
 #define super TimeBasedWidget
 
 QVector<ViewerWidget*> ViewerWidget::instances_;
+const int ViewerWidget::kAudioPlaybackInterval = 2;
 
 const int kMaxPreQueueSize = 8;
 
@@ -54,8 +56,10 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   playback_speed_(0),
   color_menu_enabled_(true),
   time_changed_from_timer_(false),
-  prequeuing_(false),
-  active_queue_jobs_(0)
+  prequeuing_video_(false),
+  prequeuing_audio_(false),
+  active_queue_jobs_(0),
+  audio_playback_device_(nullptr)
 {
   // Set up main layout
   QVBoxLayout* layout = new QVBoxLayout(this);
@@ -111,11 +115,6 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   connect(controls_, &PlaybackControls::TimeChanged, this, &ViewerWidget::SetTimeAndSignal);
   layout->addWidget(controls_);
 
-  // If audio is invalidated during playback, we wait some time before starting it again
-  audio_restart_timer_.setInterval(250);
-  audio_restart_timer_.setSingleShot(true);
-  connect(&audio_restart_timer_, &QTimer::timeout, this, &ViewerWidget::StartAudioOutput);
-
   // FIXME: Magic number
   SetScale(48.0);
 
@@ -130,6 +129,11 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   instances_.append(this);
 
   setAcceptDrops(true);
+
+  audio_queue_next_timer_ = new QTimer(this);
+  audio_queue_next_timer_->setInterval(kAudioPlaybackInterval * 1000);
+  audio_queue_next_timer_->setSingleShot(true);
+  connect(audio_queue_next_timer_, &QTimer::timeout, this, &ViewerWidget::QueueNextAudioBuffer);
 }
 
 ViewerWidget::~ViewerWidget()
@@ -182,8 +186,6 @@ void ViewerWidget::ConnectNodeEvent(ViewerOutput *n)
   connect(n, &ViewerOutput::AudioParamsChanged, this, &ViewerWidget::UpdateRendererAudioParameters);
   connect(n->video_frame_cache(), &FrameHashCache::Invalidated, this, &ViewerWidget::ViewerInvalidatedVideoRange);
   connect(n->video_frame_cache(), &FrameHashCache::Shifted, this, &ViewerWidget::ViewerShiftedRange);
-  connect(n->audio_playback_cache(), &AudioPlaybackCache::Invalidated, this, &ViewerWidget::AudioCacheInvalidated);
-  connect(n->audio_playback_cache(), &AudioPlaybackCache::Validated, this, &ViewerWidget::AudioCacheValidated);
   connect(n, &ViewerOutput::TextureInputChanged, this, &ViewerWidget::UpdateStack);
 
   VideoParams vp = n->GetVideoParams();
@@ -196,6 +198,9 @@ void ViewerWidget::ConnectNodeEvent(ViewerOutput *n)
   SetViewerPixelAspect(vp.pixel_aspect_ratio());
   last_length_ = 0;
   LengthChangedSlot(n->GetLength());
+
+  AudioParams ap = n->GetAudioParams();
+  packed_processor_.Open(ap);
 
   ColorManager* color_manager = n->project()->color_manager();
 
@@ -228,9 +233,9 @@ void ViewerWidget::DisconnectNodeEvent(ViewerOutput *n)
   disconnect(n, &ViewerOutput::AudioParamsChanged, this, &ViewerWidget::UpdateRendererAudioParameters);
   disconnect(n->video_frame_cache(), &FrameHashCache::Invalidated, this, &ViewerWidget::ViewerInvalidatedVideoRange);
   disconnect(n->video_frame_cache(), &FrameHashCache::Shifted, this, &ViewerWidget::ViewerShiftedRange);
-  disconnect(n->audio_playback_cache(), &AudioPlaybackCache::Invalidated, this, &ViewerWidget::AudioCacheInvalidated);
-  disconnect(n->audio_playback_cache(), &AudioPlaybackCache::Validated, this, &ViewerWidget::AudioCacheValidated);
   disconnect(n, &ViewerOutput::TextureInputChanged, this, &ViewerWidget::UpdateStack);
+
+  packed_processor_.Close();
 
   SetDisplayImage(QVariant());
 
@@ -248,7 +253,7 @@ void ViewerWidget::DisconnectNodeEvent(ViewerOutput *n)
   waveform_view_->ConnectTimelinePoints(nullptr);
 
   // Queue an UpdateStack so that when it runs, the viewer node will be fully disconnected
-  QMetaObject::invokeMethod(this, "UpdateStack", Qt::QueuedConnection);
+  QMetaObject::invokeMethod(this, &ViewerWidget::UpdateStack, Qt::QueuedConnection);
 }
 
 void ViewerWidget::ConnectedNodeChangeEvent(ViewerOutput *n)
@@ -408,15 +413,106 @@ void ViewerWidget::ClearVideoAutoCacherQueue()
 
 void ViewerWidget::StartAudioOutput()
 {
-  AudioPlaybackCache* audio_cache = GetConnectedNode()->audio_playback_cache();
-  if (audio_cache->GetParameters().is_valid()) {
-    AudioManager::instance()->SetOutputParams(audio_cache->GetParameters());
-    AudioManager::instance()->StartOutput(audio_cache,
-                                          audio_cache->GetParameters().time_to_bytes_per_channel(GetTime()),
-                                          playback_speed_);
-    emit AudioManager::instance()->OutputWaveformStarted(&audio_cache->visual(),
+  AudioParams params = GetConnectedNode()->GetAudioParams();
+
+  if (params.is_valid()) {
+    AudioManager::instance()->SetOutputParams(params);
+    AudioManager::instance()->StartOutput(audio_playback_device_);
+
+    emit AudioManager::instance()->OutputWaveformStarted(&GetConnectedNode()->audio_playback_cache()->visual(),
                                                          GetTime(), playback_speed_);
   }
+}
+
+void ViewerWidget::QueueNextAudioBuffer()
+{
+  // NOTE: Hardcoded 2 second interval
+  rational queue_end = audio_playback_queue_time_ + (kAudioPlaybackInterval * playback_speed_);
+
+  // Clamp queue end by zero and the audio length
+  queue_end  = clamp(queue_end, rational(0), GetConnectedNode()->GetAudioLength());
+  if (queue_end == audio_playback_queue_time_) {
+    // This will queue nothing, so stop the loop here
+    return;
+  }
+
+  RenderTicketWatcher *watcher = new RenderTicketWatcher(this);
+  connect(watcher, &RenderTicketWatcher::Finished, this, &ViewerWidget::ReceivedAudioBufferForPlayback);
+  audio_playback_queue_.push_back(watcher);
+  watcher->SetTicket(auto_cacher_.GetRangeOfAudio(TimeRange(audio_playback_queue_time_, queue_end), true));
+
+  audio_playback_queue_time_ = queue_end;
+}
+
+void ViewerWidget::ReceivedAudioBufferForPlayback()
+{
+  while (!audio_playback_queue_.empty() && audio_playback_queue_.front()->HasResult()) {
+    RenderTicketWatcher *watcher = audio_playback_queue_.front();
+    audio_playback_queue_.pop_front();
+
+    if (watcher->HasResult()) {
+      SampleBufferPtr samples = watcher->Get().value<SampleBufferPtr>();
+      if (samples && audio_playback_device_) {
+        // If the samples must be reversed, reverse them now
+        if (playback_speed_ < 0) {
+          samples->reverse();
+        }
+
+        // Convert to packed data for audio output
+        QByteArray pack = packed_processor_.Convert(samples);
+
+        // If the tempo must be adjusted, adjust now
+        if (tempo_processor_.IsOpen()) {
+          tempo_processor_.Push(pack.data(), pack.size());
+          int actual = tempo_processor_.Pull(pack.data(), pack.size());
+          if (actual != pack.size()) {
+            pack.resize(actual);
+          }
+        }
+
+        // TempoProcessor may have emptied the array
+        if (!pack.isEmpty()) {
+          audio_playback_device_->Push(pack);
+
+          if (prequeuing_audio_) {
+            prequeuing_audio_ = false;
+            FinishPlayPreprocess();
+          }
+        }
+      }
+    }
+
+    // Do this in the loop so that clearing the array effectively prevents a queue
+    audio_queue_next_timer_->stop();
+    audio_queue_next_timer_->start();
+
+    delete watcher;
+  }
+}
+
+void ViewerWidget::ReceivedAudioBufferForScrubbing()
+{
+  // NOTE: Might be good to organize a queue for this in the event that audio takes a long time to
+  //       keep the scrubbed chunks ordered, similar to the playback_queue_ or audio_playback_queue_
+
+  RenderTicketWatcher *watcher = static_cast<RenderTicketWatcher *>(sender());
+
+  if (watcher->HasResult()) {
+    if (SampleBufferPtr samples = watcher->Get().value<SampleBufferPtr>()) {
+      /* Fade code
+      const int kFadeSz = qMin(200, samples->sample_count()/4);
+      for (int i=0; i<kFadeSz; i++) {
+        float amt = float(i)/float(kFadeSz);
+        samples->transform_volume_for_sample(i, amt);
+        samples->transform_volume_for_sample(samples->sample_count() - i - 1, amt);
+      }*/
+
+      AudioManager::instance()->SetOutputParams(samples->audio_params());
+      AudioManager::instance()->PushToOutput(packed_processor_.Convert(samples));
+    }
+  }
+
+  delete watcher;
 }
 
 void ViewerWidget::UpdateTextureFromNode()
@@ -475,7 +571,7 @@ void ViewerWidget::UpdateTextureFromNode()
 
     // Only show warning if frame actually exists
     if (frame_exists_at_time && !frame_might_be_still) {
-      qWarning() << "Playback queue failed to keep up";
+      //qWarning() << "Playback queue failed to keep up";
     }
 
   }
@@ -551,7 +647,7 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
     prequeue_length_ = DeterminePlaybackQueueSize();
 
     if (prequeue_length_ > 0) {
-      prequeuing_ = true;
+      prequeuing_video_ = true;
 
       // We "prioritize" the frames, which means they're pushed to the top of the render queue,
       // we queue in reverse so that they're still queued in order
@@ -568,8 +664,14 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
     }
   }
 
-  if (!prequeuing_) {
-    FinishPlayPreprocess();
+  if (std::abs(playback_speed_) > 1) {
+    tempo_processor_.Open(GetConnectedNode()->GetAudioParams(), std::abs(playback_speed_));
+  }
+  audio_playback_device_ = std::make_shared<PreviewAudioDevice>();
+  prequeuing_audio_ = true;
+  audio_playback_queue_time_ = GetTime();
+  for (int i=0; i<2; i++) {
+    QueueNextAudioBuffer();
   }
 }
 
@@ -588,37 +690,35 @@ void ViewerWidget::PauseInternal()
 
     playback_queue_.clear();
     playback_backup_timer_.stop();
-    audio_restart_timer_.stop();
+
+    audio_playback_device_ = nullptr;
+    qDeleteAll(audio_playback_queue_);
+    audio_playback_queue_.clear();
+    if (tempo_processor_.IsOpen()) {
+      tempo_processor_.Close();
+    }
+    audio_queue_next_timer_->stop();
 
     UpdateTextureFromNode();
   }
 
-  prequeuing_ = false;
+  prequeuing_video_ = false;
+  prequeuing_audio_ = false;
 }
 
 void ViewerWidget::PushScrubbedAudio()
 {
-  if (!IsPlaying() && GetConnectedNode() && Config::Current()["AudioScrubbing"].toBool()) {
+  if (!IsPlaying() && GetConnectedNode() && Config::Current()[QStringLiteral("AudioScrubbing")].toBool()) {
     // Get audio src device from renderer
     const AudioParams& params = GetConnectedNode()->audio_playback_cache()->GetParameters();
 
     if (params.is_valid()) {
-      AudioPlaybackCache::PlaybackDevice* audio_src = GetConnectedNode()->audio_playback_cache()->CreatePlaybackDevice();
+      // NOTE: Hardcoded scrubbing interval (20ms)
+      rational interval = rational(50, 1000);
 
-      if (audio_src->open(QIODevice::ReadOnly)) {
-        // FIXME: Hardcoded scrubbing interval (20ms)
-        int size_of_sample = params.time_to_bytes(rational(20, 1000));
-
-        // Push audio
-        audio_src->seek(params.time_to_bytes_per_channel(GetTime()));
-        QByteArray frame_audio = audio_src->read(size_of_sample);
-        AudioManager::instance()->SetOutputParams(params);
-        AudioManager::instance()->PushToOutput(frame_audio);
-
-        audio_src->close();
-      }
-
-      delete audio_src;
+      RenderTicketWatcher *watcher = new RenderTicketWatcher();
+      connect(watcher, &RenderTicketWatcher::Finished, this, &ViewerWidget::ReceivedAudioBufferForScrubbing);
+      watcher->SetTicket(auto_cacher_.GetRangeOfAudio(TimeRange(GetTime(), GetTime() + interval), true));
     }
   }
 }
@@ -714,6 +814,11 @@ RenderTicketPtr ViewerWidget::GetFrame(const rational &t, bool prioritize)
 
 void ViewerWidget::FinishPlayPreprocess()
 {
+  // Check if we're still waiting for video or audio respectively
+  if (prequeuing_video_ || prequeuing_audio_) {
+    return;
+  }
+
   int64_t playback_start_time = GetTimestamp();
 
   StartAudioOutput();
@@ -858,7 +963,7 @@ void ViewerWidget::RendererGeneratedFrameForQueue()
     QVariant frame = watcher->Get();
 
     // Ignore this signal if we've paused now
-    if (IsPlaying() || prequeuing_) {
+    if (IsPlaying() || prequeuing_video_) {
       rational ts = watcher->property("time").value<rational>();
 
       playback_queue_.AppendTimewise({ts, frame}, playback_speed_);
@@ -867,8 +972,8 @@ void ViewerWidget::RendererGeneratedFrameForQueue()
         window->queue()->AppendTimewise({ts, frame}, playback_speed_);
       }
 
-      if (prequeuing_ && int(playback_queue_.size()) == prequeue_length_) {
-        prequeuing_ = false;
+      if (prequeuing_video_ && int(playback_queue_.size()) == prequeue_length_) {
+        prequeuing_video_ = false;
         FinishPlayPreprocess();
       }
     }
@@ -1154,6 +1259,10 @@ void ViewerWidget::PlaybackTimerUpdate()
     max_time = qMax(min_time, max_time - timebase());
   }
 
+  rational time_to_set;
+  bool end_of_line = false;
+  bool play_after_pause = false;
+
   if ((playback_speed_ < 0 && current_time <= min_time)
       || (playback_speed_ > 0 && current_time >= max_time)) {
 
@@ -1166,32 +1275,46 @@ void ViewerWidget::PlaybackTimerUpdate()
       tripped_time = max_time;
     }
 
+    // Signal that we've reached the end of whatever range we're playing and should either pause
+    // or restart playback
+    end_of_line = true;
+
     if (Config::Current()[QStringLiteral("Loop")].toBool()) {
 
       // If we're looping, jump to the other side of the workarea and continue
-      rational opposing_time = (tripped_time == min_time) ? max_time : min_time;
+      time_to_set = (tripped_time == min_time) ? max_time : min_time;
 
-      // Cache the current speed
-      int current_speed = playback_speed_;
-
-      // Jump to the other side and keep playing at the same speed
-      SetTimeAndSignal(opposing_time);
-      PlayInternal(current_speed, play_in_to_out_only_);
+      // Signal to restart playback after the pause signalled by `end_of_line`
+      play_after_pause = true;
 
     } else {
 
-      // Pause at the boundary
-      SetTimeAndSignal(tripped_time);
+      // Pause at the boundary we tripped
+      time_to_set = tripped_time;
 
     }
 
   } else {
 
-    // Sets time, wrapping in this bool ensures we don't pause from setting the time
-    time_changed_from_timer_ = true;
-    SetTimeAndSignal(current_time);
-    time_changed_from_timer_ = false;
+    // Sets time normally to whatever we calculated as the "current time"
+    time_to_set = current_time;
 
+  }
+
+  // Set the time. By wrapping in this bool, we prevent TimeChangedEvent's default behavior of
+  // pausing. Even if we pause it later with `end_of_line`, we prefer pausing after setting the time
+  // so that an audio scrub event, etc. isn't sent.
+  time_changed_from_timer_ = true;
+  SetTimeAndSignal(time_to_set);
+  time_changed_from_timer_ = false;
+  if (end_of_line) {
+    // Cache the current speed
+    int current_speed = playback_speed_;
+
+    PauseInternal();
+    if (play_after_pause) {
+      PlayInternal(current_speed, play_in_to_out_only_);
+    }
   }
 
   if (display_widget_->isVisible()) {
@@ -1259,6 +1382,11 @@ void ViewerWidget::UpdateRendererVideoParameters()
 
 void ViewerWidget::UpdateRendererAudioParameters()
 {
+  packed_processor_.Close();
+
+  AudioParams ap = GetConnectedNode()->GetAudioParams();
+
+  packed_processor_.Open(ap);
 }
 
 void ViewerWidget::SetZoomFromMenu(QAction *action)
@@ -1270,7 +1398,7 @@ void ViewerWidget::ViewerInvalidatedVideoRange(const TimeRange &range)
 {
   // If our current frame is within this range, we need to update
   if (GetTime() >= range.in() && (GetTime() < range.out() || range.in() == range.out())) {
-    QMetaObject::invokeMethod(this, "UpdateTextureFromNode", Qt::QueuedConnection);
+    QMetaObject::invokeMethod(this, &ViewerWidget::UpdateTextureFromNode, Qt::QueuedConnection);
   }
 }
 
@@ -1286,7 +1414,7 @@ void ViewerWidget::ManualSwitchToWaveform(bool e)
 void ViewerWidget::ViewerShiftedRange(const rational &from, const rational &to)
 {
   if (GetTime() >= qMin(from, to)) {
-    QMetaObject::invokeMethod(this, "UpdateTextureFromNode", Qt::QueuedConnection);
+    QMetaObject::invokeMethod(this, &ViewerWidget::UpdateTextureFromNode, Qt::QueuedConnection);
   }
 }
 
@@ -1320,23 +1448,6 @@ void ViewerWidget::Dropped(QDropEvent *event)
     if (viewer) {
       ConnectViewerNode(viewer);
     }
-  }
-}
-
-void ViewerWidget::AudioCacheInvalidated()
-{
-  if (IsPlaying()) {
-    AudioManager::instance()->StopOutput();
-  }
-}
-
-void ViewerWidget::AudioCacheValidated()
-{
-  if (IsPlaying()) {
-    // This timer will restart audio
-    AudioManager::instance()->StopOutput();
-    audio_restart_timer_.stop();
-    audio_restart_timer_.start();
   }
 }
 

@@ -66,7 +66,9 @@ public:
 
   void SetParameters(const AudioParams& params);
 
-  void WritePCM(const TimeRange &range, const TimeRangeList &valid_ranges, SampleBufferPtr samples, const AudioVisualWaveform *waveform);
+  void WritePCM(const TimeRange &range, const TimeRangeList &valid_ranges, SampleBufferPtr samples);
+
+  void WriteWaveform(const TimeRange &range, const TimeRangeList &valid_ranges, const AudioVisualWaveform *waveform);
 
   void WriteSilence(const TimeRange &range);
 

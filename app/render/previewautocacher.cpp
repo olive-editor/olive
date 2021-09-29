@@ -1,3 +1,23 @@
+/***
+
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2021 Olive Team
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #include "previewautocacher.h"
 
 #include <QApplication>
@@ -11,6 +31,10 @@
 #include "widget/slider/base/numericsliderbase.h"
 
 namespace olive {
+
+// We may want to make this configurable at some point, so for now this constant is used as a
+// placeholder for where that configarable variable would be used.
+const bool PreviewAutoCacher::kRealTimeWaveformsEnabled = true;
 
 PreviewAutoCacher::PreviewAutoCacher() :
   viewer_node_(nullptr),
@@ -61,6 +85,11 @@ RenderTicketPtr PreviewAutoCacher::GetSingleFrame(const rational &t, bool priori
   return sfr;
 }
 
+RenderTicketPtr PreviewAutoCacher::GetRangeOfAudio(TimeRange range, bool prioritize)
+{
+  return RenderAudio(range, false, prioritize);
+}
+
 QVector<PreviewAutoCacher::HashData> PreviewAutoCacher::GenerateHashes(ViewerOutput *viewer, FrameHashCache* cache, const QVector<rational> &times)
 {
   QVector<HashData> hash_data(times.size());
@@ -101,8 +130,8 @@ void PreviewAutoCacher::VideoInvalidated(const TimeRange &range)
   // want to dedicate all our rendering power to realtime feedback for the user
   CancelVideoTasks();
 
-  // If a slider is not being dragged, queue up to hash these frames
-  if (!NodeInputDragger::IsInputBeingDragged()) {
+  // If auto-cache is enabled and a slider is not being dragged, queue up to hash these frames
+  if (viewer_node_->GetVideoAutoCacheEnabled() && !NodeInputDragger::IsInputBeingDragged()) {
     invalidated_video_.insert(range);
     video_job_tracker_.insert(range, graph_changed_time_);
 
@@ -116,7 +145,8 @@ void PreviewAutoCacher::AudioInvalidated(const TimeRange &range)
   // cancelled, so some areas may end up unrendered forever
   //  ClearAudioQueue();
 
-  if (viewer_node_->GetAudioAutoCacheEnabled()) {
+  // If we're auto-caching audio or require realtime waveforms, we'll have to render this
+  if (viewer_node_->GetAudioAutoCacheEnabled() || kRealTimeWaveformsEnabled) {
     audio_job_tracker_.insert(range, graph_changed_time_);
 
     // Start jobs to re-render the audio at this range, split into 2 second chunks
@@ -178,11 +208,14 @@ void PreviewAutoCacher::AudioRendered()
 
       AudioVisualWaveform waveform = watcher->GetTicket()->property("waveform").value<AudioVisualWaveform>();
 
-      // WritePCM is tolerant to its buffer being null, it will just write silence instead
-      viewer_node_->audio_playback_cache()->WritePCM(range,
-                                                     valid_ranges,
-                                                     watcher->Get().value<SampleBufferPtr>(),
-                                                     &waveform);
+      if (viewer_node_->GetAudioAutoCacheEnabled()) {
+        // WritePCM is tolerant to its buffer being null, it will just write silence instead
+        viewer_node_->audio_playback_cache()->WritePCM(range,
+                                                       valid_ranges,
+                                                       watcher->Get().value<SampleBufferPtr>());
+      }
+
+      viewer_node_->audio_playback_cache()->WriteWaveform(range, valid_ranges, &waveform);
 
       // Detect if this audio was incomplete because it was waiting on a conform to finish
       if (watcher->GetTicket()->property("incomplete").toBool()) {
@@ -627,15 +660,12 @@ void PreviewAutoCacher::TryRender()
     // Copy first range in list
     TimeRange r = audio_iterator_.first();
 
-    // Limit to 1 second (FIXME: Hardcoded)
-    r.set_out(qMin(r.out(), r.in() + 1));
+    // Limit to the minimum sample rate supported by AudioVisualWaveform - we use this value so that
+    // whatever chunk we render can be summed down to the smallest mipmap whole
+    r.set_out(qMin(r.out(), r.in() + AudioVisualWaveform::kMinimumSampleRate.flipped()));
 
     // Start job
-    RenderTicketWatcher* watcher = new RenderTicketWatcher();
-    watcher->setProperty("job", QVariant::fromValue(last_update_time_));
-    connect(watcher, &RenderTicketWatcher::Finished, this, &PreviewAutoCacher::AudioRendered);
-    audio_tasks_.insert(watcher, r);
-    watcher->SetTicket(RenderManager::instance()->RenderAudio(copied_viewer_node_, r, RenderMode::kOffline, true));
+    RenderAudio(r, true, false);
 
     audio_iterator_.remove(r);
   }
@@ -656,6 +686,18 @@ RenderTicketWatcher* PreviewAutoCacher::RenderFrame(const QByteArray &hash, cons
                                                             prioritize,
                                                             texture_only));
   return watcher;
+}
+
+RenderTicketPtr PreviewAutoCacher::RenderAudio(const TimeRange &r, bool generate_waveforms, bool prioritize)
+{
+  RenderTicketWatcher* watcher = new RenderTicketWatcher();
+  watcher->setProperty("job", QVariant::fromValue(last_update_time_));
+  connect(watcher, &RenderTicketWatcher::Finished, this, &PreviewAutoCacher::AudioRendered);
+  audio_tasks_.insert(watcher, r);
+
+  RenderTicketPtr ticket = RenderManager::instance()->RenderAudio(copied_viewer_node_, r, RenderMode::kOffline, generate_waveforms, prioritize);
+  watcher->SetTicket(ticket);
+  return ticket;
 }
 
 void PreviewAutoCacher::RequeueFrames()

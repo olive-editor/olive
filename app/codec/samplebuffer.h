@@ -86,8 +86,6 @@ public:
     set(channel, data, 0, sample_length);
   }
 
-  QByteArray toPackedData() const;
-
 private:
   AudioParams audio_params_;
 

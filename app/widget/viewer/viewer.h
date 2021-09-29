@@ -28,10 +28,13 @@
 #include <QTimer>
 #include <QWidget>
 
+#include "audio/packedprocessor.h"
+#include "audio/tempoprocessor.h"
 #include "audiowaveformview.h"
 #include "common/rational.h"
 #include "node/output/viewer/viewer.h"
 #include "panel/scope/scope.h"
+#include "render/previewaudiodevice.h"
 #include "render/previewautocacher.h"
 #include "threading/threadticketwatcher.h"
 #include "viewerdisplay.h"
@@ -240,7 +243,8 @@ private:
   ViewerQueue playback_queue_;
   int64_t playback_queue_next_frame_;
 
-  bool prequeuing_;
+  bool prequeuing_video_;
+  bool prequeuing_audio_;
 
   QList<RenderTicketWatcher*> nonqueue_watchers_;
 
@@ -250,9 +254,15 @@ private:
 
   PreviewAutoCacher auto_cacher_;
 
-  QTimer audio_restart_timer_;
-
   int active_queue_jobs_;
+
+  std::shared_ptr<PreviewAudioDevice> audio_playback_device_;
+  std::list<RenderTicketWatcher*> audio_playback_queue_;
+  rational audio_playback_queue_time_;
+  PackedProcessor packed_processor_;
+  TempoProcessor tempo_processor_;
+  static const int kAudioPlaybackInterval;
+  QTimer *audio_queue_next_timer_;
 
   static QVector<ViewerWidget*> instances_;
 
@@ -299,10 +309,13 @@ private slots:
 
   void Dropped(QDropEvent* event);
 
-  void AudioCacheInvalidated();
-  void AudioCacheValidated();
-
   void StartAudioOutput();
+
+  void QueueNextAudioBuffer();
+
+  void ReceivedAudioBufferForPlayback();
+
+  void ReceivedAudioBufferForScrubbing();
 
 };
 

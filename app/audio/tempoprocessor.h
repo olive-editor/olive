@@ -42,6 +42,10 @@ class TempoProcessor
 public:
   TempoProcessor();
 
+  ~TempoProcessor();
+
+  DISABLE_COPY_MOVE(TempoProcessor)
+
   bool IsOpen() const;
 
   const double& GetSpeed() const;

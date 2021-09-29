@@ -18,43 +18,43 @@
 
 ***/
 
-#ifndef AUDIOOUTPUTDEVICEPROXY_H
-#define AUDIOOUTPUTDEVICEPROXY_H
+#ifndef PACKEDPROCESSOR_H
+#define PACKEDPROCESSOR_H
 
-#include <QFile>
+extern "C" {
+#include <libswresample/swresample.h>
+}
 
-#include "common/define.h"
-#include "tempoprocessor.h"
+#include "codec/samplebuffer.h"
+#include "render/audioparams.h"
 
 namespace olive {
 
-/**
- * @brief QIODevice wrapper that can adjust speed/reverse an audio file
- */
-class AudioOutputDeviceProxy : public QIODevice
+class PackedProcessor
 {
-  Q_OBJECT
 public:
-  AudioOutputDeviceProxy(QObject* parent = nullptr);
+  PackedProcessor();
 
-  void SetParameters(const AudioParams& params);
+  ~PackedProcessor();
 
-  void SetDevice(std::shared_ptr<QIODevice> device);
+  DISABLE_COPY_MOVE(PackedProcessor)
 
-  virtual void close() override;
+  bool Open(const AudioParams &params);
 
-protected:
-  virtual qint64 readData(char *data, qint64 maxlen) override;
+  QByteArray Convert(SampleBufferPtr planar);
 
-  virtual qint64 writeData(const char *data, qint64 maxSize) override;
+  void Close();
+
+  bool IsOpen() const
+  {
+    return swr_ctx_;
+  }
 
 private:
-  std::shared_ptr<QIODevice> device_;
-
-  AudioParams params_;
+  SwrContext *swr_ctx_;
 
 };
 
 }
 
-#endif // AUDIOOUTPUTDEVICEPROXY_H
+#endif // PACKEDPROCESSOR_H

@@ -44,6 +44,7 @@ public:
   static rational SceneToTime(const double &x, const double& x_scale, const rational& timebase, bool round = false);
 
   const double& GetScale() const;
+  const double &GetMaximumScale() const { return max_scale_; }
 
   void SetScale(const double& scale);
 
@@ -53,8 +54,6 @@ public:
 
   double TimeToScene(const rational& time) const;
   rational SceneToTime(const double &x, bool round = false) const;
-
-  static const double kMaximumScale;
 
 protected:
   virtual void TimebaseChangedEvent(const rational&){}

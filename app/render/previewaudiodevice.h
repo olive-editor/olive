@@ -18,43 +18,51 @@
 
 ***/
 
-#ifndef AUDIOOUTPUTDEVICEPROXY_H
-#define AUDIOOUTPUTDEVICEPROXY_H
+#ifndef PREVIEWAUDIODEVICE_H
+#define PREVIEWAUDIODEVICE_H
 
-#include <QFile>
-
-#include "common/define.h"
-#include "tempoprocessor.h"
+#include "previewautocacher.h"
 
 namespace olive {
 
-/**
- * @brief QIODevice wrapper that can adjust speed/reverse an audio file
- */
-class AudioOutputDeviceProxy : public QIODevice
+class PreviewAudioDevice : public QIODevice
 {
   Q_OBJECT
 public:
-  AudioOutputDeviceProxy(QObject* parent = nullptr);
+  PreviewAudioDevice(QObject *parent = nullptr);
 
-  void SetParameters(const AudioParams& params);
+  virtual ~PreviewAudioDevice() override;
 
-  void SetDevice(std::shared_ptr<QIODevice> device);
+  void StartQueuing();
 
-  virtual void close() override;
+  virtual bool isSequential() const override;
 
-protected:
-  virtual qint64 readData(char *data, qint64 maxlen) override;
+  virtual qint64 readData(char *data, qint64 maxSize) override;
 
-  virtual qint64 writeData(const char *data, qint64 maxSize) override;
+  virtual qint64 writeData(const char *, qint64) override;
+
+  void Push(const QByteArray &b);
 
 private:
-  std::shared_ptr<QIODevice> device_;
+  enum LockMethod {
+    kDontLock,
+    kTryLock,
+    kFullLock
+  };
 
-  AudioParams params_;
+  bool SwapBuffers(LockMethod m);
+
+  QMutex lock_;
+
+  QByteArray internal_buffer_[2];
+
+  QByteArray *using_;
+  QByteArray *pushing_;
+
+  QAtomicInt swap_requested_;
 
 };
 
 }
 
-#endif // AUDIOOUTPUTDEVICEPROXY_H
+#endif // PREVIEWAUDIODEVICE_H

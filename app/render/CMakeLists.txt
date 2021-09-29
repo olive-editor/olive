@@ -39,6 +39,8 @@ set(OLIVE_SOURCES
   render/managedcolor.h
   render/playbackcache.cpp
   render/playbackcache.h
+  render/previewaudiodevice.cpp
+  render/previewaudiodevice.h
   render/previewautocacher.cpp
   render/previewautocacher.h
   render/renderer.cpp

@@ -53,7 +53,7 @@ public slots:
    * This will clear any pushed samples or QIODevices currently being read and will start reading from this next time
    * the audio output requests data.
    */
-  void PullFromDevice(QIODevice* device, qint64 offset, int playback_speed);
+  void PullFromDevice(std::shared_ptr<QIODevice> device);
 
   // Queued
   void ResetToPushMode();
@@ -85,5 +85,7 @@ private slots:
 };
 
 }
+
+Q_DECLARE_METATYPE(std::shared_ptr<QIODevice>)
 
 #endif // AUDIOHYBRIDDEVICE_H
